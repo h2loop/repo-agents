@@ -1,0 +1,212 @@
+'{"env":{"deployment":{"image":"oai5g-sera:bf69e25","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_bf69e25_00208","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix PUCCH format 3 generation for shortened formats and extended CP\n\n###
+  Summary\nThe `generate_pucch3x()` function in the LTE UE transport layer had multiple
+  issues that caused incorrect PUCCH format 3 signal generation. These issues manifested
+  as garbled uplink signals and failed PUCCH transmission when using shortened formats
+  or extended cyclic prefix configurations.\n\nThe main problems were:\n1. Incorrect
+  payload bit indexing during channel coding\n2. Hardcoded symbol counts that didn''t
+  account for CP type or shortened formats\n3. Faulty W sequence selection logic for
+  DMRS and data symbols\n4. Improper symbol offset calculations for extended CP\n\n###
+  Reproduction\nTo reproduce the issue:\n1. Configure a UE with PUCCH format 3 transmission\n2.
+  Set up a scenario with extended cyclic prefix or shortened PUCCH format\n3. Attempt
+  PUCCH format 3 transmission\n4. Observe incorrect signal generation and potential
+  buffer overruns\n\nThe symptoms include:\n- Incorrect PUCCH signal constellation
+  in uplink traces\n- UE failing to receive ACK/NACK responses from eNB\n- Potential
+  memory access violations in extreme cases\n\n### Changes\n- `openair1/PHY/LTE_UE_TRANSPORT/pucch_ue.c`:
+  \n  - Fixed payload bit indexing in channel coding (line 654)\n  - Corrected symbol
+  offset calculations for extended CP (line 769)\n  - Rewrote W sequence selection
+  logic for robust DMRS/data symbol handling\n  - Updated DFT processing loop to use
+  dynamic symbol counts\n  - Added proper array initialization to prevent undefined
+  behavior\n","extra_fields":{"bug_description":"incorrect flags or bitmask passed
+  to a system or library function","bug_id":"c_wrong_flags","stage_one_patch":"diff
+  --git a/openair1/PHY/LTE_UE_TRANSPORT/pucch_ue.c b/openair1/PHY/LTE_UE_TRANSPORT/pucch_ue.c\nindex
+  8db7549b36..698a5e94b6 100644\n--- a/openair1/PHY/LTE_UE_TRANSPORT/pucch_ue.c\n+++
+  b/openair1/PHY/LTE_UE_TRANSPORT/pucch_ue.c\n@@ -44,15 +44,15 @@\n \n \n void generate_pucch1x(int32_t
+  **txdataF,\n-\t\t      LTE_DL_FRAME_PARMS *frame_parms,\n-\t\t      uint8_t ncs_cell[20][7],\n-\t\t      PUCCH_FMT_t
+  fmt,\n-\t\t      PUCCH_CONFIG_DEDICATED *pucch_config_dedicated,\n-\t\t      uint16_t
+  n1_pucch,\n-\t\t      uint8_t shortened_format,\n-\t\t      uint8_t *payload,\n-\t\t      int16_t
+  amp,\n-\t\t      uint8_t subframe)\n+                      LTE_DL_FRAME_PARMS *frame_parms,\n+                      uint8_t
+  ncs_cell[20][7],\n+                      PUCCH_FMT_t fmt,\n+                      PUCCH_CONFIG_DEDICATED
+  *pucch_config_dedicated,\n+                      uint16_t n1_pucch,\n+                      uint8_t
+  shortened_format,\n+                      uint8_t *payload,\n+                      int16_t
+  amp,\n+                      uint8_t subframe)\n {\n \n   uint32_t u,v,n;\n@@ -102,7
+  +102,7 @@ void generate_pucch1x(int32_t **txdataF,\n #endif\n \n   LOG_D(PHY,\"[PHY]
+  PUCCH: n1_pucch %d, thres %d Ncs1_div_deltaPUCCH_Shift %d (12/deltaPUCCH_Shift)
+  %d Nprime_div_deltaPUCCH_Shift %d \\n\",\n-\t\t              n1_pucch, thres, Ncs1_div_deltaPUCCH_Shift,
+  (int)(12/deltaPUCCH_Shift), Nprime_div_deltaPUCCH_Shift);\n+                              n1_pucch,
+  thres, Ncs1_div_deltaPUCCH_Shift, (int)(12/deltaPUCCH_Shift), Nprime_div_deltaPUCCH_Shift);\n   LOG_D(PHY,\"[PHY]
+  PUCCH: deltaPUCCH_Shift %d, Nprime %d\\n\",deltaPUCCH_Shift,Nprime);\n \n \n@@ -258,11
+  +258,11 @@ void generate_pucch1x(int32_t **txdataF,\n             }\n \n             break;\n-\t  case
+  pucch_format1b_csA2:\n-\t  case pucch_format1b_csA3:\n-\t  case pucch_format1b_csA4:\n-\t    AssertFatal(1==0,\"PUCCH
+  format 1b_csX not supported yet\\n\");\n-\t    break;\n+          case pucch_format1b_csA2:\n+          case
+  pucch_format1b_csA3:\n+          case pucch_format1b_csA4:\n+            AssertFatal(1==0,\"PUCCH
+  format 1b_csX not supported yet\\n\");\n+            break;\n           case pucch_format2:\n           case
+  pucch_format2a:\n           case pucch_format2b:\n@@ -365,22 +365,22 @@ inline void
+  pucch2x_modulation(uint8_t *btilde,int16_t *d,int16_t amp) {\n \n \n uint32_t pucch_code[13]
+  = {0xFFFFF,0x5A933,0x10E5A,0x6339C,0x73CE0,\n-\t\t\t   0xFFC00,0xD8E64,0x4F6B0,0x218EC,0x1B746,\n-\t\t\t   0x0FFFF,0x33FFF,0x3FFFC};\n+                           0xFFC00,0xD8E64,0x4F6B0,0x218EC,0x1B746,\n+                           0x0FFFF,0x33FFF,0x3FFFC};\n
+  \n \n void generate_pucch2x(int32_t **txdataF,\n-\t\t      LTE_DL_FRAME_PARMS *fp,\n-\t\t      uint8_t
+  ncs_cell[20][7],\n-\t\t      PUCCH_FMT_t fmt,\n-\t\t      PUCCH_CONFIG_DEDICATED
+  *pucch_config_dedicated,\n-\t\t      uint16_t n2_pucch,\n-\t\t      uint8_t *payload,\n-\t\t      int
+  A,\n-\t\t      int B2,\n-\t\t      int16_t amp,\n-\t\t      uint8_t subframe,\n-\t\t      uint16_t
+  rnti) {\n+                      LTE_DL_FRAME_PARMS *fp,\n+                      uint8_t
+  ncs_cell[20][7],\n+                      PUCCH_FMT_t fmt,\n+                      PUCCH_CONFIG_DEDICATED
+  *pucch_config_dedicated,\n+                      uint16_t n2_pucch,\n+                      uint8_t
+  *payload,\n+                      int A,\n+                      int B2,\n+                      int16_t
+  amp,\n+                      uint8_t subframe,\n+                      uint16_t
+  rnti) {\n \n   int i,j;\n   uint32_t B=0;\n@@ -510,7 +510,7 @@ void generate_pucch2x(int32_t
+  **txdataF,\n       zptr+=12;\n \n       if ((l!=1)&&(l!=5))  //these are PUCCH data
+  symbols so increment data index\n-\t     data_ind+=2;\n+             data_ind+=2;\n     }
+  // l\n   } //ns\n \n@@ -637,8 +637,8 @@ void generate_pucch3x(int32_t **txdataF,\n
+  \n   uint8_t dt_offset;\n   uint8_t sym_offset;\n-  int16_t y_re[14][12]; //={0};\n-  int16_t
+  y_im[14][12]; //={0};\n+  int16_t y_re[14][12] = {{0}};\n+  int16_t y_im[14][12]
+  = {{0}};\n \n   // DMRS\n   uint8_t alpha_idx=0;\n@@ -651,7 +651,7 @@ void generate_pucch3x(int32_t
+  **txdataF,\n \n     // Channel Coding\n     for (uint8_t i=0; i<7; i++) {\n-      chcod_tbl_idx
+  += (payload[i]<<i); \n+      chcod_tbl_idx += (payload[i]<<(6-i)); \n     }\n \n     //
+  Scrambling\n@@ -709,50 +709,84 @@ void generate_pucch3x(int32_t **txdataF,\n         rot_im
+  = RotTBL_im[(uint8_t) ncs_cell[ns][l]/64] ;\n \n         // Comput W_noc(m) (36.211
+  p. 19)\n-        if ( first_slot == 0 && shortened_format==1) {  // second slot
+  and shortened format\n+        if (first_slot == 0 && shortened_format==1) {  //
+  second slot and shortened format\n           n_oc = n_oc1;\n-\n-          if (l<1)
+  {                                         // data\n-            W_re=W4_fmt3[n_oc][l];\n-            W_im=0;\n-          }
+  else if (l==1) {                                  // DMRS\n-            W_re=W2[0];\n-            W_im=0;\n-          }
+  else if (l>=2 && l<5) {                          // data\n-            W_re=W4_fmt3[n_oc][l-1];\n+          \n+          //
+  For shortened format, we have N_UL_symb-1 symbols in second slot\n+          if
+  (l==1 || l==5) {  // DMRS symbols\n+            W_re=W2[l==1 ? 0 : 1];\n             W_im=0;\n-          }
+  else if (l==5) {                                 // DMRS\n-            W_re=W2[1];\n-            W_im=0;\n-          }
+  else if ((l>=N_UL_symb-2)) {                      // data\n-            ;\n-          }
+  else {\n-            //***log W Select Error!\n+          } else if (N_PUCCH_SF1
+  == 5) {  // Normal case with 5 orthogonal sequences\n+            if (l < 1) {  //
+  data symbol 0\n+              W_re=W5_fmt3_re[n_oc][l];\n+              W_im=W5_fmt3_im[n_oc][l];\n+            }
+  else if (l < 5) {  // data symbols 2,3,4 (symbol 1 is DMRS)\n+              W_re=W5_fmt3_re[n_oc][l-1];\n+              W_im=W5_fmt3_im[n_oc][l-1];\n+            }
+  else if (l < N_UL_symb-1) {  // data symbols 6+ (symbol 5 is DMRS)\n+              W_re=W5_fmt3_re[n_oc][l-2];\n+              W_im=W5_fmt3_im[n_oc][l-2];\n+            }
+  else {\n+              // This shouldn''t happen in shortened format\n+              W_re
+  = 0;\n+              W_im = 0;\n+            }\n+          } else {  // Shortened
+  case with 4 orthogonal sequences\n+            if (l < 1) {  // data symbol 0\n+              W_re=W4_fmt3[n_oc][l];\n+              W_im=0;\n+            }
+  else if (l < 5) {  // data symbols 2,3,4 (symbol 1 is DMRS)\n+              W_re=W4_fmt3[n_oc][l-1];\n+              W_im=0;\n+            }
+  else if (l < N_UL_symb-1) {  // data symbols 6+ (symbol 5 is DMRS)\n+              W_re=W4_fmt3[n_oc][l-2];\n+              W_im=0;\n+            }
+  else {\n+              // This shouldn''t happen in shortened format\n+              W_re
+  = 0;\n+              W_im = 0;\n+            }\n           }\n-        } else {\n-          if
+  (first_slot == 1) {                       // 1st slot or 2nd slot and not shortened\n+        }
+  else {  // First slot or second slot with normal format\n+          if (first_slot
+  == 1) {\n             n_oc=n_oc0;\n           } else {\n             n_oc=n_oc1;\n           }\n-\n-          if
+  (l<1) {                                         // data\n-            W_re=W5_fmt3_re[n_oc][l];\n-            W_im=W5_fmt3_im[n_oc][l];\n-          }
+  else if (l==1) {                                  // DMRS\n-            W_re=W2[0];\n-            W_im=0;\n-          }
+  else if (l>=2 && l<5) {                          // data\n-            W_re=W5_fmt3_re[n_oc][l-1];\n-            W_im=W5_fmt3_im[n_oc][l-1];\n-          }
+  else if (l==5) {                                 // DMRS\n-            W_re=W2[1];\n+          \n+          if
+  (l==1 || l==5) {  // DMRS symbols\n+            W_re=W2[l==1 ? 0 : 1];\n             W_im=0;\n-          }
+  else if ((l>=N_UL_symb-1)) {                     // data\n-            W_re=W5_fmt3_re[n_oc][l-N_UL_symb+5];\n-            W_im=W5_fmt3_im[n_oc][l-N_UL_symb+5];\n-          }
+  else {\n-            //***log W Select Error!\n+          } else if (N_PUCCH_SF1
+  == 5) {  // Normal case with 5 orthogonal sequences\n+            if (l < 1) {  //
+  data symbol 0\n+              W_re=W5_fmt3_re[n_oc][l];\n+              W_im=W5_fmt3_im[n_oc][l];\n+            }
+  else if (l < 5) {  // data symbols 2,3,4 (symbol 1 is DMRS)\n+              W_re=W5_fmt3_re[n_oc][l-1];\n+              W_im=W5_fmt3_im[n_oc][l-1];\n+            }
+  else if (l < N_UL_symb) {  // data symbols 6+ (symbol 5 is DMRS)\n+              W_re=W5_fmt3_re[n_oc][l-2];\n+              W_im=W5_fmt3_im[n_oc][l-2];\n+            }
+  else {\n+              // This shouldn''t happen\n+              W_re = 0;\n+              W_im
+  = 0;\n+            }\n+          } else {  // Case with 4 orthogonal sequences\n+            if
+  (l < 1) {  // data symbol 0\n+              W_re=W4_fmt3[n_oc][l];\n+              W_im=0;\n+            }
+  else if (l < 5) {  // data symbols 2,3,4 (symbol 1 is DMRS)\n+              W_re=W4_fmt3[n_oc][l-1];\n+              W_im=0;\n+            }
+  else if (l < N_UL_symb) {  // data symbols 6+ (symbol 5 is DMRS)\n+              W_re=W4_fmt3[n_oc][l-2];\n+              W_im=0;\n+            }
+  else {\n+              // This shouldn''t happen\n+              W_re = 0;\n+              W_im
+  = 0;\n+            }\n           }\n         }  // W Selection end\n \n@@ -766,7
+  +800,7 @@ void generate_pucch3x(int32_t **txdataF,\n \n         // generate pucch
+  data\n         dt_offset = (first_slot == 1) ? 0:12;\n-        sym_offset = (first_slot
+  == 1) ? 0:7;\n+        sym_offset = (first_slot == 1) ? 0:N_UL_symb;\n \n         for
+  (i=0; i<12; i++) {\n           // Calculate yn(i) \n@@ -791,8 +825,12 @@ void generate_pucch3x(int32_t
+  **txdataF,\n     } // ns\n \n     // DFT for pucch-data\n-    for (l=0; l<14; l++)
+  {\n-      if (l==1 || l==5 || l==8 || l==12) {\n+    for (l=0; l<nsymb; l++) {\n+      //
+  DMRS symbols are at positions 1 and 5 in each slot\n+      // For normal CP: slots
+  0-6 and 7-13, DMRS at 1,5 and 8,12\n+      // For extended CP: slots 0-5 and 6-11,
+  DMRS at 1,5 and 7,11\n+      // For shortened format: second slot has one less symbol\n+      if
+  (l==1 || l==5 || (l==(N_UL_symb+1)) || (l==(N_UL_symb+5))) {\n         ;\n       }
+  else {\n          pucchfmt3_Dft((int16_t*)&y_tilda_ptr[l*12],(int16_t*)&zptr[l*12]);\n@@
+  -823,7 +861,7 @@ void generate_pucch3x(int32_t **txdataF,\n       if (re_offset
+  > frame_parms->ofdm_symbol_size)\n         re_offset -= (frame_parms->ofdm_symbol_size);\n
+  \n-      symbol_offset = (unsigned int)frame_parms->ofdm_symbol_size*(l+(subframe*14));\n+      symbol_offset
+  = (unsigned int)frame_parms->ofdm_symbol_size*(l+(subframe*nsymb));\n       txptr
+  = &txdataF[0][symbol_offset];\n \n       for (i=0; i<12; i++,j++) {\n","start_fn":"generate_pucch3x","start_fn_file":"openair1/PHY/LTE_UE_TRANSPORT/pucch_ue.c","subsystem":"openair1/PHY/LTE_UE_TRANSPORT"},"type":"text","id":"oai5g_bf69e25_00208"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

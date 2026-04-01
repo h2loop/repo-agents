@@ -1,0 +1,26 @@
+{
+  "run_id": "mbed-os_00802_d11639",
+  "function": {
+    "name": "x509_get_ext_key_usage",
+    "file": "connectivity/mbedtls/source/x509_crt.c",
+    "start_line": 581,
+    "end_line": 596,
+    "body_lines": 16,
+    "signature": "static int x509_get_ext_key_usage( unsigned char **p, const unsigned char *end, mbedtls_x509_sequence *ext_key_usage)",
+    "subsystem": "connectivity/mbedtls/source",
+    "token_estimate": 58
+  },
+  "bug": {
+    "bug_id": "c_unchecked_return_value",
+    "description": "unchecked return value from a function that can indicate failure",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a unchecked return value from a function that can indicate failure downstream of function x509_get_ext_key_usage in the connectivity/mbedtls/source subsystem.\nThe function is located at connectivity/mbedtls/source/x509_crt.c:581.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 3,
+  "trajectory_steps": 36,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:00:46Z"
+}

@@ -1,0 +1,35 @@
+{
+  "run_id": "s00387_bd2334",
+  "function": {
+    "name": "get_prb_blacklist",
+    "file": "openair2/GNB_APP/gnb_config.c",
+    "start_line": 819,
+    "end_line": 848,
+    "body_lines": 30,
+    "signature": "static int get_prb_blacklist(uint8_t instance, uint16_t *prbbl)",
+    "subsystem": "openair2/GNB_APP",
+    "token_estimate": 116
+  },
+  "bug": {
+    "bug_id": "c_missing_cleanup",
+    "description": "missing cleanup of allocated resources on early return or error path",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a missing cleanup of allocated resources on early return or error path downstream of function get_prb_blacklist in the openair2/GNB_APP subsystem.\nThe function is located at openair2/GNB_APP/gnb_config.c:819.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00387_bd2334_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00387_bd2334_p1.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 49,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:01:40Z"
+}

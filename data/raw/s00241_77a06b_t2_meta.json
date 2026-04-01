@@ -1,0 +1,9 @@
+{
+  "run_id": "s00241_77a06b",
+  "pr_text": "## Title: Add RA procedure mutex to prevent race conditions in eNB scheduler\n\n### Summary\nThe eNB scheduler's RA (Random Access) procedure management functions access shared state without proper synchronization, creating a potential race condition. The `initiate_ra_proc()`, `cancel_ra_proc()`, and `clear_ra_proc()` functions in `eNB_scheduler_RA.c` read and modify the `ra[]` array concurrently without locks, which can lead to corrupted state and undefined behavior under multi-threaded operation.",
+  "trajectory_path": "data/raw/s00241_77a06b_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00241_77a06b_p2.diff",
+  "patch_lines": 8,
+  "trajectory_steps": 47,
+  "timestamp": "2026-02-10T12:10:19Z"
+}

@@ -1,0 +1,27 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# System deps for code navigation and basic C/C++ tooling
+# NOT a full OAI5G build — just enough for SWE-agent to navigate and make lightweight checks
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc g++ cmake make \
+    clang-format cscope universal-ctags \
+    git python3 python3-pip \
+    grep findutils coreutils diffutils patch \
+    less file tree \
+    && rm -rf /var/lib/apt/lists/*
+
+# Argument for which commit to check out
+ARG OAI_COMMIT=HEAD
+
+# Copy OAI5G source into container
+COPY openairinterface5g/ /repo/
+
+# If a specific commit is requested, check it out
+RUN cd /repo && if [ "$OAI_COMMIT" != "HEAD" ]; then git checkout "$OAI_COMMIT"; fi
+
+# Initialize git for tracking agent changes
+RUN cd /repo && git config user.email "sera-agent@local" && git config user.name "SERA Agent"
+
+WORKDIR /repo

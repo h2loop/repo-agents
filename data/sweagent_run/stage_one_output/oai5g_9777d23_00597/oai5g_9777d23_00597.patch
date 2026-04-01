@@ -1,0 +1,22 @@
+diff --git a/openair2/LAYER2/nr_rlc/nr_rlc_entity_um.c b/openair2/LAYER2/nr_rlc/nr_rlc_entity_um.c
+index 4edee0ddab..f5980efa30 100644
+--- a/openair2/LAYER2/nr_rlc/nr_rlc_entity_um.c
++++ b/openair2/LAYER2/nr_rlc/nr_rlc_entity_um.c
+@@ -446,7 +446,7 @@ static nr_rlc_sdu_segment_t *resegment(nr_rlc_sdu_segment_t *sdu,
+   }
+   *next = *sdu;
+ 
+-  over_size = pdu_header_size + sdu->size - pdu_size;
++  over_size = sdu->size - (pdu_size - pdu_header_size);
+ 
+   /* update SDU */
+   sdu->size -= over_size;
+@@ -457,8 +457,6 @@ static nr_rlc_sdu_segment_t *resegment(nr_rlc_sdu_segment_t *sdu,
+   next->so = sdu->so + sdu->size;
+   next->is_first = 0;
+ 
+-  entity->common.stats.txpdu_segmented++;
+-
+   return next;
+ }
+ 

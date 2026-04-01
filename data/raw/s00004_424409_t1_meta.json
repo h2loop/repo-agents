@@ -1,0 +1,30 @@
+{
+  "run_id": "s00004_424409",
+  "function": {
+    "name": "subframe_num",
+    "file": "openair1/SCHED/phy_procedures_lte_common.c",
+    "start_line": 733,
+    "end_line": 751,
+    "body_lines": 19,
+    "signature": "int subframe_num(LTE_DL_FRAME_PARMS *frame_parms)",
+    "subsystem": "openair1/SCHED",
+    "token_estimate": 47
+  },
+  "bug": {
+    "bug_id": "telecom_power_control_error",
+    "description": "power control error causing incorrect transmit power level",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "radio"
+    ]
+  },
+  "prompt": "There is a power control error causing incorrect transmit power level downstream of function subframe_num in the openair1/SCHED subsystem.\nThe function is located at openair1/SCHED/phy_procedures_lte_common.c:733.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00004_424409_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00004_424409_p1.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 27,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:26:10Z"
+}

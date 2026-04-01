@@ -1,0 +1,32 @@
+diff --git a/openair2/ENB_APP/enb_app.c b/openair2/ENB_APP/enb_app.c
+index 4fcebc957e..65f6cf3a19 100644
+--- a/openair2/ENB_APP/enb_app.c
++++ b/openair2/ENB_APP/enb_app.c
+@@ -111,17 +111,19 @@ static uint32_t eNB_app_register_m2(uint32_t enb_id_start, uint32_t enb_id_end)
+ 
+ /***************************  M2AP ENB handle **********************************/
+ static uint32_t eNB_app_handle_m2ap_mbms_scheduling_information(instance_t instance){
+-        //uint32_t         mce_id=0;
+-        MessageDef      *msg_p;
+-        msg_p = itti_alloc_new_message (TASK_ENB_APP, 0, M2AP_MBMS_SCHEDULING_INFORMATION_RESP);
+-        itti_send_msg_to_task (TASK_M2AP_ENB, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);
++        // This message is handled by RRC layer which sends the response
++        // ENB_APP should not send duplicate response to avoid deadlock
++        // The RRC layer holds cell_info_mutex and sends M2AP_MBMS_SCHEDULING_INFORMATION_RESP
++        // after processing the scheduling information
++        LOG_I(ENB_APP, "M2AP_MBMS_SCHEDULING_INFORMATION forwarded to RRC for processing\n");
+         return 0;
+ }
+ static uint32_t eNB_app_handle_m2ap_mbms_session_start_req(instance_t instance){
+-        //uint32_t         mce_id=0;
+-        MessageDef      *msg_p;
+-        msg_p = itti_alloc_new_message (TASK_ENB_APP, 0, M2AP_MBMS_SESSION_START_RESP);
+-        itti_send_msg_to_task (TASK_M2AP_ENB, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);
++        // This message is handled by RRC layer which sends the response
++        // ENB_APP should not send duplicate response to avoid deadlock
++        // The RRC layer holds cell_info_mutex and sends M2AP_MBMS_SESSION_START_RESP
++        // after processing the session start request
++        LOG_I(ENB_APP, "M2AP_MBMS_SESSION_START_REQ forwarded to RRC for processing\n");
+         return 0;
+ }
+ static uint32_t eNB_app_handle_m2ap_mbms_session_stop_req(instance_t instance){

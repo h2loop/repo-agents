@@ -1,0 +1,124 @@
+diff --git a/common/utils/T/tracer/ue.c b/common/utils/T/tracer/ue.c
+index 6d7d9ce4c5..89882a5fd9 100644
+--- a/common/utils/T/tracer/ue.c
++++ b/common/utils/T/tracer/ue.c
+@@ -53,8 +53,17 @@ typedef struct {
+   logger *pdcch_energy_logger;
+   logger *pdsch_energy_logger;
+   logger *phy_meas_logger;
++  /* UE selection buttons */
++  widget *current_ue_button;
++  widget *current_ue_label;
++  widget *prev_ue_button;
++  widget *next_ue_button;
+ } ue_gui;
+ 
++/* UE ID tracking variables */
++int ue_id[65536];
++int next_ue_id;
++
+ typedef struct {
+   int socket;
+   int *is_on;
+@@ -128,11 +137,25 @@ static filter *ticktime_filter(void *database, char *event, int i)
+ 
+ }
+ 
++void reset_ue_ids(void)
++{
++  int i;
++  printf("resetting known UEs\n");
++  for (i = 0; i < 65536; i++) ue_id[i] = -1;
++  ue_id[65535] = 0;
++  ue_id[65534] = 1;     /* HACK: to be removed */
++  ue_id[2]     = 2;     /* this supposes RA RNTI = 2, very openair specific */
++  next_ue_id = 3;
++}
++
+ static void set_current_ue(gui *g, ue_data *e, int ue)
+ {
+   int i;
+   char s[256];
+ 
++  /* Store the selected UE ID in the data structure */
++  e->ue = ue;
++
+   sprintf(s, "PDSCH IQ [UE %d]", ue);
+   xy_plot_set_title(g, e->e->pdsch_iq_ue_xy_plot, s);
+   sprintf(s, "DL estimated channel [UE %d]", ue);
+@@ -175,6 +198,30 @@ static void set_current_ue(gui *g, ue_data *e, int ue)
+   }
+ }
+ 
++static void click(void *private, gui *g,
++    char *notification, widget *w, void *notification_data)
++{
++  int *d = notification_data;
++  int button = d[0];
++  ue_data *ed = private;
++  ue_gui *e = ed->e;
++  int ue = ed->ue;
++  int do_reset = 0;
++
++  if (button != 1) return;
++  if (w == e->prev_ue_button) { ue--; if (ue < 0) ue = 0; }
++  if (w == e->next_ue_button) ue++;
++  if (w == e->current_ue_button) do_reset = 1;
++
++  if (pthread_mutex_lock(&ed->lock)) abort();
++  if (do_reset) reset_ue_ids();
++  if (ue != ed->ue) {
++    set_current_ue(g, ed, ue);
++    ed->ue = ue;
++  }
++  if (pthread_mutex_unlock(&ed->lock)) abort();
++}
++
+ static void ue_main_gui(ue_gui *e, gui *g, event_handler *h, void *database,
+     ue_data *ed)
+ {
+@@ -207,6 +254,23 @@ static void ue_main_gui(ue_gui *e, gui *g, event_handler *h, void *database,
+   /* logo */
+   widget_add_child(g, line, logo, -1);
+ 
++  /* UE selection buttons */
++  col = new_container(g, VERTICAL);
++  widget_add_child(g, line, col, -1);
++  w = new_label(g, "  [current UE]  ");
++  widget_add_child(g, col, w, -1);
++  label_set_clickable(g, w, 1);
++  e->current_ue_button = w;
++  e->current_ue_label = w;
++  w = new_label(g, "  [prev UE]  ");
++  widget_add_child(g, col, w, -1);
++  label_set_clickable(g, w, 1);
++  e->prev_ue_button = w;
++  w = new_label(g, "  [next UE]  ");
++  widget_add_child(g, col, w, -1);
++  label_set_clickable(g, w, 1);
++  e->next_ue_button = w;
++
+   input_signal_plot = new_xy_plot(g, 512, 110, "input signal", 20);
+   widget_add_child(g, line, input_signal_plot, -1);
+   xy_plot_set_range(g, input_signal_plot, 0, 7680*10, 20, 70);
+@@ -617,6 +681,11 @@ static void ue_main_gui(ue_gui *e, gui *g, event_handler *h, void *database,
+   e->legacy = new_view_textlist(10000, 10, g, text);
+ #endif
+ 
++  /* Register click handlers for UE selection buttons */
++  register_notifier(g, "click", e->current_ue_button, click, ed);
++  register_notifier(g, "click", e->prev_ue_button, click, ed);
++  register_notifier(g, "click", e->next_ue_button, click, ed);
++
+   set_current_ue(g, ed, 0);
+ }
+ 
+@@ -657,6 +726,8 @@ int main(int n, char **v)
+   /* write on a socket fails if the other end is closed and we get SIGPIPE */
+   if (signal(SIGPIPE, SIG_IGN) == SIG_ERR) abort();
+ 
++  reset_ue_ids();
++
+   on_off_name = malloc(n * sizeof(char *)); if (on_off_name == NULL) abort();
+   on_off_action = malloc(n * sizeof(int)); if (on_off_action == NULL) abort();
+ 

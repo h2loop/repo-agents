@@ -1,0 +1,26 @@
+{
+  "run_id": "mbed-os_00547_a7fd8c",
+  "function": {
+    "name": "HAL_IRDA_RxCpltCallback",
+    "file": "targets/TARGET_STM/TARGET_STM32F3/STM32Cube_FW/STM32F3xx_HAL_Driver/stm32f3xx_hal_irda.c",
+    "start_line": 2068,
+    "end_line": 2076,
+    "body_lines": 9,
+    "signature": "__weak void HAL_IRDA_RxCpltCallback(IRDA_HandleTypeDef *hirda)",
+    "subsystem": "targets/TARGET_STM/TARGET_STM32F3",
+    "token_estimate": 38
+  },
+  "bug": {
+    "bug_id": "c_buffer_overflow",
+    "description": "buffer overflow vulnerability",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a buffer overflow vulnerability downstream of function HAL_IRDA_RxCpltCallback in the targets/TARGET_STM/TARGET_STM32F3 subsystem.\nThe function is located at targets/TARGET_STM/TARGET_STM32F3/STM32Cube_FW/STM32F3xx_HAL_Driver/stm32f3xx_hal_irda.c:2068.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 53,
+  "trajectory_steps": 19,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T15:57:45Z"
+}

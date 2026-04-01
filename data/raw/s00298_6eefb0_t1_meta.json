@@ -1,0 +1,35 @@
+{
+  "run_id": "s00298_6eefb0",
+  "function": {
+    "name": "pack_rf_config_info",
+    "file": "nfapi/open-nFAPI/common/src/nfapi.c",
+    "start_line": 1465,
+    "end_line": 1469,
+    "body_lines": 5,
+    "signature": "uint8_t pack_rf_config_info(void *elem, uint8_t **ppWritePackedMsg, uint8_t *end)",
+    "subsystem": "nfapi/open-nFAPI/common",
+    "token_estimate": 18
+  },
+  "bug": {
+    "bug_id": "c_race_condition",
+    "description": "race condition on shared data accessed from multiple threads without synchronization",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a race condition on shared data accessed from multiple threads without synchronization downstream of function pack_rf_config_info in the nfapi/open-nFAPI/common subsystem.\nThe function is located at nfapi/open-nFAPI/common/src/nfapi.c:1465.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00298_6eefb0_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00298_6eefb0_p1.diff",
+  "patch_lines": 50,
+  "trajectory_steps": 54,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:28:28Z"
+}

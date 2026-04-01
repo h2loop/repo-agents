@@ -1,0 +1,29 @@
+diff --git a/openair2/E1AP/e1ap_api.c b/openair2/E1AP/e1ap_api.c
+index cf167f64e8..171d637fed 100644
+--- a/openair2/E1AP/e1ap_api.c
++++ b/openair2/E1AP/e1ap_api.c
+@@ -24,6 +24,7 @@
+ #include <arpa/inet.h>
+ #include "e1ap_api.h"
+ 
++#include "common/utils/LOG/log.h"
+ #include "nr_pdcp/nr_pdcp_entity.h"
+ #include "openair2/LAYER2/nr_pdcp/nr_pdcp_e1_api.h"
+ #include "openair2/RRC/NR/cucp_cuup_if.h"
+@@ -100,7 +101,15 @@ static int drb_config_N3gtpu_create(e1ap_bearer_setup_req_t * const req,
+   for (int i=0; i < req->numPDUSessions; i++) {
+     pdu_session_to_setup_t *const pdu = &req->pduSession[i];
+     create_tunnel_req.pdusession_id[i] = pdu->sessionId;
+-    create_tunnel_req.incoming_rb_id[i] = pdu->DRBnGRanList[0].id; // taking only the first DRB. TODO:change this
++    
++    // Check if there are DRBs configured for this PDU session
++    if (pdu->numDRB2Setup > 0) {
++      create_tunnel_req.incoming_rb_id[i] = pdu->DRBnGRanList[0].id; // taking only the first DRB. TODO:change this
++    } else {
++      LOG_W(E1AP, "No DRBs configured for PDU session %ld, using default RB ID 1\n", pdu->sessionId);
++      create_tunnel_req.incoming_rb_id[i] = 1; // Default RB ID when no DRBs are configured
++    }
++    
+     memcpy(&create_tunnel_req.dst_addr[i].buffer,
+            &pdu->tlAddress,
+            sizeof(uint8_t)*4);

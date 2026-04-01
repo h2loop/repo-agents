@@ -1,0 +1,13 @@
+diff --git a/openair3/NAS/UE/ESM/SAP/esm_recv.c b/openair3/NAS/UE/ESM/SAP/esm_recv.c
+index ca859f75f2..e0df01c068 100644
+--- a/openair3/NAS/UE/ESM/SAP/esm_recv.c
++++ b/openair3/NAS/UE/ESM/SAP/esm_recv.c
+@@ -637,7 +637,7 @@ int esm_recv_deactivate_eps_bearer_context_request(nas_user_t *user, int pti, in
+      */
+     LOG_TRACE(WARNING, "ESM-SAP   - Invalid PTI value (pti=%d)", pti);
+     LOG_FUNC_RETURN (ESM_CAUSE_INVALID_PTI_VALUE);
+-  } else if ( esm_pt_is_not_in_use(esm_pt_data, pti) ) {
++  } else if ( (pti != ESM_PT_UNASSIGNED) && esm_pt_is_not_in_use(esm_pt_data, pti) ) {
+     /* 3GPP TS 24.301, section 7.3.1, case m
+      * Assigned value does not match any PTI in use
+      */

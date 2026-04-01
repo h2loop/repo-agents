@@ -1,0 +1,9 @@
+{
+  "run_id": "s00336_4da270",
+  "pr_text": "## Title: Fix missing return statement in narrowband_to_first_rb\n\n### Summary\nFix a missing return statement in the `narrowband_to_first_rb` function that could lead to undefined behavior when encountering an invalid downlink bandwidth configuration. The function's `default` case contained an `AssertFatal` call followed by a `break` statement, but no explicit return value on that code path. While `AssertFatal` terminates execution in debug builds, release builds could continue past the `break` a",
+  "trajectory_path": "data/raw/s00336_4da270_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00336_4da270_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 13,
+  "timestamp": "2026-02-10T12:39:49Z"
+}

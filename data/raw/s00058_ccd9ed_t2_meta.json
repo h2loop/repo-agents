@@ -1,0 +1,9 @@
+{
+  "run_id": "s00058_ccd9ed",
+  "pr_text": "## Title: Fix integer underflow in LOG subsystem buffer management\n\n### Summary\nThe LOG subsystem's memory logging mechanism uses a double-buffering scheme controlled by the `log_mem_side` variable. When this signed integer was used in buffer switching arithmetic (e.g., `1-log_mem_side`), it could underflow if corrupted or improperly initialized, producing an unexpectedly large unsigned value downstream. This underflow risked out-of-bounds access to the `log_mem_d[2]` array and potential segment",
+  "trajectory_path": "data/raw/s00058_ccd9ed_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00058_ccd9ed_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 24,
+  "timestamp": "2026-02-10T10:55:29Z"
+}

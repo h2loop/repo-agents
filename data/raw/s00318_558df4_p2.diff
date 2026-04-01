@@ -1,0 +1,50 @@
+diff --git a/nfapi/oai_integration/aerial/fapi_nvIPC.c b/nfapi/oai_integration/aerial/fapi_nvIPC.c
+index b1bfae5415..7d9c689168 100644
+--- a/nfapi/oai_integration/aerial/fapi_nvIPC.c
++++ b/nfapi/oai_integration/aerial/fapi_nvIPC.c
+@@ -618,10 +618,45 @@ int oai_fapi_tx_data_req(nfapi_nr_tx_data_request_t *tx_data_req)
+   tx_data_req->header.message_id = NFAPI_NR_PHY_MSG_TYPE_TX_DATA_REQUEST;
+   // LOG_D(PHY, "[VNF] %s() TX_REQ sfn_sf:%d number_of_pdus:%d\n", __FUNCTION__, NFAPI_SFNSF2DEC(tx_data_req->SFN),
+   // tx_data_req->Number_of_PDUs); int retval = nfapi_vnf_p7_tx_data_req(p7_config, tx_data_req);
++  
++  // Start timer for TX data request latency measurement
++  vnf_p7_t *vnf_p7 = (vnf_p7_t *)p7_config;
++  nfapi_vnf_p7_connection_info_t *p7_connection = vnf_p7_connection_info_list_find(vnf_p7, tx_data_req->header.phy_id);
++  if (p7_connection) {
++    p7_connection->previous_t1 = vnf_get_current_time_hr();
++  }
++  
+   int retval = p7_config->send_p7_msg((vnf_p7_t *)p7_config, &tx_data_req->header);
+   if (retval != 0) {
+     LOG_E(PHY, "%s() Problem sending retval:%d\n", __FUNCTION__, retval);
+   } else {
++    // Stop timer and calculate latency on successful transmission
++    if (p7_connection) {
++      p7_connection->previous_t2 = vnf_get_current_time_hr();
++      
++      // Calculate latency in microseconds
++      uint32_t latency_us = TIMEHR_USEC(p7_connection->previous_t2) - TIMEHR_USEC(p7_connection->previous_t1);
++      if (TIMEHR_USEC(p7_connection->previous_t2) < TIMEHR_USEC(p7_connection->previous_t1)) {
++        // Handle wraparound
++        latency_us += 1000000;
++      }
++      
++      // Store latency in circular buffer indexed by sequence_number
++      uint8_t index = p7_connection->sequence_number % 8;
++      p7_connection->latency[index] = latency_us;
++      
++      // Update running average using weighted formula: (average * 7 + new_sample) / 8
++      if (p7_connection->average_latency == 0) {
++        // First sample
++        p7_connection->average_latency = latency_us;
++      } else {
++        p7_connection->average_latency = (p7_connection->average_latency * 7 + latency_us) / 8;
++      }
++      
++      // Increment sequence number for next request
++      p7_connection->sequence_number++;
++    }
++    
+     tx_data_req->Number_of_PDUs = 0;
+   }
+ 

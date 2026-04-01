@@ -1,0 +1,37 @@
+diff --git a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+index 60b5528096..10b6d828f8 100644
+--- a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
++++ b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+@@ -2069,6 +2069,23 @@ get_aggregation(uint8_t bw_index,
+ {
+   unsigned char aggregation = 3;
+ 
++  // Add bounds checking
++  if (bw_index >= MAX_SUPPORTED_BW) {
++    LOG_E(MAC, "Invalid bw_index %d, using 0 instead\n", bw_index);
++    bw_index = 0;
++  }
++  
++  if (cqi >= CQI_VALUE_RANGE) {
++    LOG_E(MAC, "Invalid cqi %d, using 0 instead\n", cqi);
++    cqi = 0;
++  }
++
++  // Check if dci_fmt is a valid enum value
++  if (dci_fmt > format6_2) {
++    LOG_E(MAC, "Invalid dci_fmt %d, using format1 instead\n", dci_fmt);
++    dci_fmt = format1;
++  }
++
+   switch (dci_fmt) {
+     case format0:
+       aggregation = cqi2fmt0_agg[bw_index][cqi];
+@@ -2097,6 +2114,8 @@ get_aggregation(uint8_t bw_index,
+     default:
+       LOG_W(MAC, "unsupported DCI format %d\n",
+             dci_fmt);
++      // Use default aggregation level for unsupported formats
++      aggregation = 3; // This corresponds to aggregation level 8
+       break;
+   }
+ 

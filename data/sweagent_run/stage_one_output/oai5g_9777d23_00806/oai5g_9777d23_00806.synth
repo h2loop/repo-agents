@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix uninitialized memory read in RSSI indication packing function\n\n### Summary\nThe `pack_rssi_indication_body_value` function in the nFAPI interface was reading uninitialized memory when the `number_of_rssi` field contained garbage values exceeding the `rssi` array bounds. This led to undefined behavior during message serialization.\n\nThe issue occurred when the structure was not properly initialized before being passed to the packing function, causing the loop in `pusharrays16` to access uninitialized array elements.\n\n### Changes\n- `nfapi/open-nFAPI/nfapi/src/nfapi_p4.c`: Added bounds validation for `number_of_rssi` field before accessing the `rssi` array to prevent reading beyond allocated memory.\n\n"
+}

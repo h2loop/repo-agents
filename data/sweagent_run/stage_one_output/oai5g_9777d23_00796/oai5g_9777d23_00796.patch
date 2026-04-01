@@ -1,0 +1,384 @@
+diff --git a/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c b/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c
+index 0a858e0be9..8c6f49c114 100644
+--- a/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c
++++ b/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c
+@@ -28,6 +28,15 @@ static bool eq_dl_tti_beamforming(const nfapi_nr_tx_precoding_and_beamforming_t
+   EQ(a->num_prgs, b->num_prgs);
+   EQ(a->prg_size, b->prg_size);
+   EQ(a->dig_bf_interfaces, b->dig_bf_interfaces);
++  
++  // Check bounds to prevent buffer overruns
++  if (a->num_prgs > NFAPI_MAX_NUM_PRGS || b->num_prgs > NFAPI_MAX_NUM_PRGS) {
++    return false;
++  }
++  if (a->dig_bf_interfaces > NFAPI_MAX_NUM_BG_IF || b->dig_bf_interfaces > NFAPI_MAX_NUM_BG_IF) {
++    return false;
++  }
++  
+   for (int prg = 0; prg < a->num_prgs; ++prg) {
+     EQ(a->prgs_list[prg].pm_idx, b->prgs_list[prg].pm_idx);
+     for (int dbf_if = 0; dbf_if < a->dig_bf_interfaces; ++dbf_if) {
+@@ -56,6 +65,12 @@ static bool eq_dl_tti_request_pdcch_pdu(const nfapi_nr_dl_tti_pdcch_pdu_rel15_t
+   EQ(a->ShiftIndex, b->ShiftIndex);
+   EQ(a->precoderGranularity, b->precoderGranularity);
+   EQ(a->numDlDci, b->numDlDci);
++  
++  // Check bounds to prevent buffer overruns
++  if (a->numDlDci > MAX_DCI_CORESET || b->numDlDci > MAX_DCI_CORESET) {
++    return false;
++  }
++  
+   for (int dl_dci = 0; dl_dci < a->numDlDci; ++dl_dci) {
+     const nfapi_nr_dl_dci_pdu_t *a_dci_pdu = &a->dci_pdu[dl_dci];
+     const nfapi_nr_dl_dci_pdu_t *b_dci_pdu = &b->dci_pdu[dl_dci];
+@@ -174,7 +189,12 @@ bool eq_dl_tti_request(const nfapi_nr_dl_tti_request_t *a, const nfapi_nr_dl_tti
+   EQ(a->Slot, b->Slot);
+   EQ(a->dl_tti_request_body.nPDUs, b->dl_tti_request_body.nPDUs);
+   EQ(a->dl_tti_request_body.nGroup, b->dl_tti_request_body.nGroup);
+-
++  
++  // Check bounds to prevent buffer overruns
++  if (a->dl_tti_request_body.nPDUs > NFAPI_NR_MAX_DL_TTI_PDUS || b->dl_tti_request_body.nPDUs > NFAPI_NR_MAX_DL_TTI_PDUS) {
++    return false;
++  }
++  
+   for (int PDU = 0; PDU < a->dl_tti_request_body.nPDUs; ++PDU) {
+     // take the PDU at the start of loops
+     const nfapi_nr_dl_tti_request_pdu_t *a_dl_pdu = &a->dl_tti_request_body.dl_tti_pdu_list[PDU];
+@@ -218,6 +238,15 @@ static bool eq_ul_tti_beamforming(const nfapi_nr_ul_beamforming_t *a, const nfap
+   EQ(a->num_prgs, b->num_prgs);
+   EQ(a->prg_size, b->prg_size);
+   EQ(a->dig_bf_interface, b->dig_bf_interface);
++  
++  // Check bounds to prevent buffer overruns
++  if (a->num_prgs > NFAPI_MAX_NUM_PRGS || b->num_prgs > NFAPI_MAX_NUM_PRGS) {
++    return false;
++  }
++  if (a->dig_bf_interface > NFAPI_MAX_NUM_BG_IF || b->dig_bf_interface > NFAPI_MAX_NUM_BG_IF) {
++    return false;
++  }
++  
+   for (int prg = 0; prg < a->num_prgs; ++prg) {
+     for (int dbf_if = 0; dbf_if < a->dig_bf_interface; ++dbf_if) {
+       EQ(a->prgs_list[prg].dig_bf_interface_list[dbf_if].beam_idx, b->prgs_list[prg].dig_bf_interface_list[dbf_if].beam_idx);
+@@ -283,6 +312,12 @@ static bool eq_ul_tti_request_pusch_pdu(const nfapi_nr_pusch_pdu_t *a, const nfa
+     EQ(a_pusch_data->new_data_indicator, b_pusch_data->new_data_indicator);
+     EQ(a_pusch_data->tb_size, b_pusch_data->tb_size);
+     EQ(a_pusch_data->num_cb, b_pusch_data->num_cb);
++    
++    // Check bounds to prevent buffer overruns
++    if (a_pusch_data->num_cb > NFAPI_MAX_NUM_CB || b_pusch_data->num_cb > NFAPI_MAX_NUM_CB) {
++      return false;
++    }
++    
+     for (int i = 0; i < (a_pusch_data->num_cb + 7) / 8; ++i) {
+       EQ(a_pusch_data->cb_present_and_position[i], b_pusch_data->cb_present_and_position[i]);
+     }
+@@ -527,6 +562,12 @@ bool eq_tx_data_request_PDU(const nfapi_nr_pdu_t *a, const nfapi_nr_pdu_t *b)
+   EQ(a->PDU_length, b->PDU_length);
+   EQ(a->PDU_index, b->PDU_index);
+   EQ(a->num_TLV, b->num_TLV);
++  
++  // Check bounds to prevent buffer overruns
++  if (a->num_TLV > NFAPI_NR_MAX_TX_REQUEST_TLV || b->num_TLV > NFAPI_NR_MAX_TX_REQUEST_TLV) {
++    return false;
++  }
++  
+   for (int tlv_idx = 0; tlv_idx < a->num_TLV; ++tlv_idx) {
+     const nfapi_nr_tx_data_request_tlv_t *a_tlv = &a->TLVs[tlv_idx];
+     const nfapi_nr_tx_data_request_tlv_t *b_tlv = &b->TLVs[tlv_idx];
+@@ -645,6 +686,12 @@ bool eq_uci_indication_harq_pdu_0_1(const nfapi_nr_harq_pdu_0_1_t *a, const nfap
+ {
+   EQ(a->num_harq, b->num_harq);
+   EQ(a->harq_confidence_level, b->harq_confidence_level);
++  
++  // Check bounds to prevent buffer overruns
++  if (a->num_harq > 2 || b->num_harq > 2) {
++    return false;
++  }
++  
+   for (int i = 0; i < a->num_harq; ++i) {
+     EQ(a->harq_list[i].harq_value, b->harq_list[i].harq_value);
+   }
+@@ -834,6 +881,12 @@ static bool eq_rach_indication_PDU(const nfapi_nr_prach_indication_pdu_t *a, con
+   EQ(a->avg_rssi, b->avg_rssi);
+   EQ(a->avg_snr, b->avg_snr);
+   EQ(a->num_preamble, b->num_preamble);
++  
++  // Check bounds to prevent buffer overruns
++  if (a->num_preamble > 64 || b->num_preamble > 64) {
++    return false;
++  }
++  
+   for (int preamble_idx = 0; preamble_idx < a->num_preamble; ++preamble_idx) {
+     const nfapi_nr_prach_indication_preamble_t *a_pr = &a->preamble_list[preamble_idx];
+     const nfapi_nr_prach_indication_preamble_t *b_pr = &b->preamble_list[preamble_idx];
+@@ -1016,20 +1069,27 @@ static void copy_dl_tti_request_pdcch_pdu(const nfapi_nr_dl_tti_pdcch_pdu_rel15_
+   dst->ShiftIndex = src->ShiftIndex;
+   dst->precoderGranularity = src->precoderGranularity;
+   dst->numDlDci = src->numDlDci;
+-  for (int dl_dci = 0; dl_dci < dst->numDlDci; ++dl_dci) {
+-    nfapi_nr_dl_dci_pdu_t *dst_dci_pdu = &dst->dci_pdu[dl_dci];
+-    const nfapi_nr_dl_dci_pdu_t *src_dci_pdu = &src->dci_pdu[dl_dci];
+-    dst_dci_pdu->RNTI = src_dci_pdu->RNTI;
+-    dst_dci_pdu->ScramblingId = src_dci_pdu->ScramblingId;
+-    dst_dci_pdu->ScramblingRNTI = src_dci_pdu->ScramblingRNTI;
+-    dst_dci_pdu->CceIndex = src_dci_pdu->CceIndex;
+-    dst_dci_pdu->AggregationLevel = src_dci_pdu->AggregationLevel;
+-    copy_dl_tti_beamforming(&src_dci_pdu->precodingAndBeamforming, &dst_dci_pdu->precodingAndBeamforming);
+-    dst_dci_pdu->beta_PDCCH_1_0 = src_dci_pdu->beta_PDCCH_1_0;
+-    dst_dci_pdu->powerControlOffsetSS = src_dci_pdu->powerControlOffsetSS;
+-    dst_dci_pdu->PayloadSizeBits = src_dci_pdu->PayloadSizeBits;
+-    for (int i = 0; i < 8; ++i) {
+-      dst_dci_pdu->Payload[i] = src_dci_pdu->Payload[i];
++  
++  // Check bounds to prevent buffer overruns
++  if (src->numDlDci > MAX_DCI_CORESET) {
++    // Handle error - set numDlDci to 0 to avoid buffer overruns
++    dst->numDlDci = 0;
++  } else {
++    for (int dl_dci = 0; dl_dci < dst->numDlDci; ++dl_dci) {
++      nfapi_nr_dl_dci_pdu_t *dst_dci_pdu = &dst->dci_pdu[dl_dci];
++      const nfapi_nr_dl_dci_pdu_t *src_dci_pdu = &src->dci_pdu[dl_dci];
++      dst_dci_pdu->RNTI = src_dci_pdu->RNTI;
++      dst_dci_pdu->ScramblingId = src_dci_pdu->ScramblingId;
++      dst_dci_pdu->ScramblingRNTI = src_dci_pdu->ScramblingRNTI;
++      dst_dci_pdu->CceIndex = src_dci_pdu->CceIndex;
++      dst_dci_pdu->AggregationLevel = src_dci_pdu->AggregationLevel;
++      copy_dl_tti_beamforming(&src_dci_pdu->precodingAndBeamforming, &dst_dci_pdu->precodingAndBeamforming);
++      dst_dci_pdu->beta_PDCCH_1_0 = src_dci_pdu->beta_PDCCH_1_0;
++      dst_dci_pdu->powerControlOffsetSS = src_dci_pdu->powerControlOffsetSS;
++      dst_dci_pdu->PayloadSizeBits = src_dci_pdu->PayloadSizeBits;
++      for (int i = 0; i < 8; ++i) {
++        dst_dci_pdu->Payload[i] = src_dci_pdu->Payload[i];
++      }
+     }
+   }
+ }
+@@ -1243,8 +1303,15 @@ static void copy_ul_tti_request_pusch_pdu(const nfapi_nr_pusch_pdu_t *src, nfapi
+     dst_pusch_data->new_data_indicator = src_pusch_data->new_data_indicator;
+     dst_pusch_data->tb_size = src_pusch_data->tb_size;
+     dst_pusch_data->num_cb = src_pusch_data->num_cb;
+-    for (int i = 0; i < (src_pusch_data->num_cb + 7) / 8; ++i) {
+-      dst_pusch_data->cb_present_and_position[i] = src_pusch_data->cb_present_and_position[i];
++    
++    // Check bounds to prevent buffer overruns
++    if (src_pusch_data->num_cb > NFAPI_MAX_NUM_CB) {
++      // Handle error - set num_cb to 0 to avoid buffer overruns
++      dst_pusch_data->num_cb = 0;
++    } else {
++      for (int i = 0; i < (src_pusch_data->num_cb + 7) / 8; ++i) {
++        dst_pusch_data->cb_present_and_position[i] = src_pusch_data->cb_present_and_position[i];
++      }
+     }
+   }
+   if (src->pdu_bit_map & PUSCH_PDU_BITMAP_PUSCH_UCI) {
+@@ -1481,24 +1548,31 @@ void copy_tx_data_request_PDU(const nfapi_nr_pdu_t *src, nfapi_nr_pdu_t *dst)
+   dst->PDU_length = src->PDU_length;
+   dst->PDU_index = src->PDU_index;
+   dst->num_TLV = src->num_TLV;
+-  for (int tlv_idx = 0; tlv_idx < src->num_TLV; ++tlv_idx) {
+-    const nfapi_nr_tx_data_request_tlv_t *src_tlv = &src->TLVs[tlv_idx];
+-    nfapi_nr_tx_data_request_tlv_t *dst_tlv = &dst->TLVs[tlv_idx];
+-    dst_tlv->tag = src_tlv->tag;
+-    dst_tlv->length = src_tlv->length;
+-    switch (src_tlv->tag) {
+-      case 0:
+-        // value.direct
+-        memcpy(dst_tlv->value.direct, src_tlv->value.direct, sizeof(src_tlv->value.direct));
+-        break;
+-      case 1:
+-        // value.ptr
+-        dst_tlv->value.ptr = calloc((src_tlv->length + 3) / 4, sizeof(uint32_t));
+-        memcpy(dst_tlv->value.ptr, src_tlv->value.ptr, src_tlv->length);
+-        break;
+-      default:
+-        AssertFatal(1 == 0, "TX_DATA request TLV tag value unsupported");
+-        break;
++  
++  // Check bounds to prevent buffer overruns
++  if (src->num_TLV > NFAPI_NR_MAX_TX_REQUEST_TLV) {
++    // Handle error - set num_TLV to 0 to avoid buffer overruns
++    dst->num_TLV = 0;
++  } else {
++    for (int tlv_idx = 0; tlv_idx < src->num_TLV; ++tlv_idx) {
++      const nfapi_nr_tx_data_request_tlv_t *src_tlv = &src->TLVs[tlv_idx];
++      nfapi_nr_tx_data_request_tlv_t *dst_tlv = &dst->TLVs[tlv_idx];
++      dst_tlv->tag = src_tlv->tag;
++      dst_tlv->length = src_tlv->length;
++      switch (src_tlv->tag) {
++        case 0:
++          // value.direct
++          memcpy(dst_tlv->value.direct, src_tlv->value.direct, sizeof(src_tlv->value.direct));
++          break;
++        case 1:
++          // value.ptr
++          dst_tlv->value.ptr = calloc((src_tlv->length + 3) / 4, sizeof(uint32_t));
++          memcpy(dst_tlv->value.ptr, src_tlv->value.ptr, src_tlv->length);
++          break;
++        default:
++          AssertFatal(1 == 0, "TX_DATA request TLV tag value unsupported");
++          break;
++      }
+     }
+   }
+ }
+@@ -1528,6 +1602,13 @@ size_t get_tx_data_request_size(const nfapi_nr_tx_data_request_t *msg)
+     total_size += sizeof(pdu->PDU_length);
+     total_size += sizeof(pdu->PDU_index);
+     total_size += sizeof(pdu->num_TLV);
++    
++    // Check bounds to prevent buffer overruns
++    if (pdu->num_TLV > NFAPI_NR_MAX_TX_REQUEST_TLV) {
++      // Handle error - treat as 0 TLVs
++      continue;
++    }
++    
+     for (int tlv_idx = 0; tlv_idx < pdu->num_TLV; ++tlv_idx) {
+       const nfapi_nr_tx_data_request_tlv_t *tlv = &pdu->TLVs[tlv_idx];
+       total_size += sizeof(tlv->tag);
+@@ -1667,8 +1748,15 @@ void copy_uci_indication_harq_pdu_0_1(const nfapi_nr_harq_pdu_0_1_t *src, nfapi_
+ {
+   dst->num_harq = src->num_harq;
+   dst->harq_confidence_level = src->harq_confidence_level;
+-  for (int i = 0; i < dst->num_harq; ++i) {
+-    dst->harq_list[i].harq_value = src->harq_list[i].harq_value;
++  
++  // Check bounds to prevent buffer overruns
++  if (src->num_harq > 2) {
++    // Handle error - set num_harq to 0 to avoid buffer overruns
++    dst->num_harq = 0;
++  } else {
++    for (int i = 0; i < dst->num_harq; ++i) {
++      dst->harq_list[i].harq_value = src->harq_list[i].harq_value;
++    }
+   }
+ }
+ 
+@@ -1937,12 +2025,19 @@ static void copy_rach_indication_PDU(const nfapi_nr_prach_indication_pdu_t *src,
+   dst->avg_rssi = src->avg_rssi;
+   dst->avg_snr = src->avg_snr;
+   dst->num_preamble = src->num_preamble;
+-  for (int preamble_idx = 0; preamble_idx < dst->num_preamble; ++preamble_idx) {
+-    nfapi_nr_prach_indication_preamble_t *dst_pr = &dst->preamble_list[preamble_idx];
+-    const nfapi_nr_prach_indication_preamble_t *src_pr = &src->preamble_list[preamble_idx];
+-    dst_pr->preamble_index = src_pr->preamble_index;
+-    dst_pr->timing_advance = src_pr->timing_advance;
+-    dst_pr->preamble_pwr = src_pr->preamble_pwr;
++  
++  // Check bounds to prevent buffer overruns
++  if (src->num_preamble > 64) {
++    // Handle error - set num_preamble to 0 to avoid buffer overruns
++    dst->num_preamble = 0;
++  } else {
++    for (int preamble_idx = 0; preamble_idx < dst->num_preamble; ++preamble_idx) {
++      nfapi_nr_prach_indication_preamble_t *dst_pr = &dst->preamble_list[preamble_idx];
++      const nfapi_nr_prach_indication_preamble_t *src_pr = &src->preamble_list[preamble_idx];
++      dst_pr->preamble_index = src_pr->preamble_index;
++      dst_pr->timing_advance = src_pr->timing_advance;
++      dst_pr->preamble_pwr = src_pr->preamble_pwr;
++    }
+   }
+ }
+ 
+@@ -2034,8 +2129,14 @@ static void dump_dl_tti_request_PDCCH_PDU(const nfapi_nr_dl_tti_pdcch_pdu_rel15_
+   INDENTED_PRINTF("ShiftIndex = %d\n", pdu->ShiftIndex);
+   INDENTED_PRINTF("precoderGranularity = %d\n", pdu->precoderGranularity);
+   INDENTED_PRINTF("numDLDCI = %d\n", pdu->numDlDci);
+-  for (int i = 0; i < pdu->numDlDci; ++i) {
+-    dump_dl_dci_pdu(&pdu->dci_pdu[i], depth + 1);
++  
++  // Check bounds to prevent buffer overruns
++  if (pdu->numDlDci > MAX_DCI_CORESET) {
++    INDENTED_PRINTF("ERROR: numDlDci exceeds maximum allowed value\n");
++  } else {
++    for (int i = 0; i < pdu->numDlDci; ++i) {
++      dump_dl_dci_pdu(&pdu->dci_pdu[i], depth + 1);
++    }
+   }
+ }
+ 
+@@ -2311,8 +2412,14 @@ static void dump_ul_tti_request_PUSCH_PDU(const nfapi_nr_pusch_pdu_t *pdu, int d
+     INDENTED_PRINTF("TBSize = %d\n", pdu->pusch_data.tb_size);
+     INDENTED_PRINTF("numCB = %d\n", pdu->pusch_data.num_cb);
+     INDENTED_PRINTF("cbPresentAndPosition = ");
+-    for (int i = 0; i < (pdu->pusch_data.num_cb + 7) / 8; i++) {
+-      printf("%d ", pdu->pusch_data.cb_present_and_position[i]);
++    
++    // Check bounds to prevent buffer overruns
++    if (pdu->pusch_data.num_cb > NFAPI_MAX_NUM_CB) {
++      printf("ERROR: num_cb exceeds maximum allowed value\n");
++    } else {
++      for (int i = 0; i < (pdu->pusch_data.num_cb + 7) / 8; i++) {
++        printf("%d ", pdu->pusch_data.cb_present_and_position[i]);
++      }
+     }
+     printf("\n");
+     depth--;
+@@ -2594,10 +2701,16 @@ void dump_tx_data_request(const nfapi_nr_tx_data_request_t *msg)
+     INDENTED_PRINTF("PDU Length = 0x%02x\n", pdu->PDU_length);
+     INDENTED_PRINTF("PDU Index = 0x%02x\n", pdu->PDU_index);
+     INDENTED_PRINTF("numTLV = 0x%02x\n", pdu->num_TLV);
+-    for (int tlv_idx = 0; tlv_idx < pdu->num_TLV; tlv_idx++) {
+-      const nfapi_nr_tx_data_request_tlv_t *tlv = &pdu->TLVs[tlv_idx];
+-    /* call to dump_tx_data_request_tlv */
+-      dump_tx_data_request_tlv(tlv, depth + 1);
++    
++    // Check bounds to prevent buffer overruns
++    if (pdu->num_TLV > NFAPI_NR_MAX_TX_REQUEST_TLV) {
++      INDENTED_PRINTF("ERROR: num_TLV exceeds maximum allowed value\n");
++    } else {
++      for (int tlv_idx = 0; tlv_idx < pdu->num_TLV; tlv_idx++) {
++        const nfapi_nr_tx_data_request_tlv_t *tlv = &pdu->TLVs[tlv_idx];
++      /* call to dump_tx_data_request_tlv */
++        dump_tx_data_request_tlv(tlv, depth + 1);
++      }
+     }
+   }
+ }
+@@ -2727,8 +2840,14 @@ static void dump_harq_0_1(const nfapi_nr_harq_pdu_0_1_t *harq, int depth)
+   INDENTED_PRINTF("Num HARQ = 0x%02x\n", harq->num_harq);
+   INDENTED_PRINTF("HARQ Confidence Level = 0x%02x\n", harq->harq_confidence_level);
+   depth++;
+-  for (int i = 0; i < harq->num_harq; i++) {
+-    INDENTED_PRINTF("HARQ Value[%d] : 0x%02x \n", i, harq->harq_list[i].harq_value);
++  
++  // Check bounds to prevent buffer overruns
++  if (harq->num_harq > 2) {
++    INDENTED_PRINTF("ERROR: num_harq exceeds maximum allowed value\n");
++  } else {
++    for (int i = 0; i < harq->num_harq; i++) {
++      INDENTED_PRINTF("HARQ Value[%d] : 0x%02x \n", i, harq->harq_list[i].harq_value);
++    }
+   }
+ }
+ 
+@@ -2879,14 +2998,20 @@ void dump_rach_indication(const nfapi_nr_rach_indication_t *msg)
+     INDENTED_PRINTF("avgRssi = 0x%02x\n", pdu->avg_rssi);
+     INDENTED_PRINTF("avgSnr = 0x%02x\n", pdu->avg_snr);
+     INDENTED_PRINTF("numPreamble = 0x%02x\n", pdu->num_preamble);
+-    for (int j = 0; j < pdu->num_preamble; j++) {
+-      depth++;
+-      INDENTED_PRINTF("Preamble #%d\n", j);
+-      const nfapi_nr_prach_indication_preamble_t *preamble = &pdu->preamble_list[j];
+-      INDENTED_PRINTF("preambleIndex = 0x%02x\n", preamble->preamble_index);
+-      INDENTED_PRINTF("Timing advance = 0x%02x\n", preamble->timing_advance);
+-      INDENTED_PRINTF("PreamblePwr = 0x%02x\n", preamble->preamble_pwr);
+-      depth--;
++    
++    // Check bounds to prevent buffer overruns
++    if (pdu->num_preamble > 64) {
++      INDENTED_PRINTF("ERROR: num_preamble exceeds maximum allowed value\n");
++    } else {
++      for (int j = 0; j < pdu->num_preamble; j++) {
++        depth++;
++        INDENTED_PRINTF("Preamble #%d\n", j);
++        const nfapi_nr_prach_indication_preamble_t *preamble = &pdu->preamble_list[j];
++        INDENTED_PRINTF("preambleIndex = 0x%02x\n", preamble->preamble_index);
++        INDENTED_PRINTF("Timing advance = 0x%02x\n", preamble->timing_advance);
++        INDENTED_PRINTF("PreamblePwr = 0x%02x\n", preamble->preamble_pwr);
++        depth--;
++      }
+     }
+     depth--;
+   }

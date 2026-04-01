@@ -1,0 +1,31 @@
+{
+  "run_id": "s00060_45c590",
+  "function": {
+    "name": "nr_dlsch_channel_compensation",
+    "file": "openair1/PHY/NR_UE_TRANSPORT/nr_dlsch_demodulation.c",
+    "start_line": 785,
+    "end_line": 919,
+    "body_lines": 135,
+    "signature": "static void nr_dlsch_channel_compensation(uint32_t rx_size_symbol, int nbRx, c16_t rxdataF_ext[][rx_size_symbol], int32_t dl_ch_estimates_ext[][rx_size_symbol], c16_t dl_ch_mag[][nbRx][rx_size_symbol], c16_t dl_ch_magb[][nbRx][rx_size_symbol], c16_t dl_ch_magr[][nbRx][rx_size_symbol], int32_t rxdataF_comp[][nbRx][rx_size_symbol * NR_SYMBOLS_PER_SLOT], int ***rho, NR_DL_FRAME_PARMS *frame_parms, uint8_t n_layers, unsigned char symbol, int length, bool first_symbol_flag, unsigned char mod_order, unsigned s...",
+    "subsystem": "openair1/PHY/NR_UE_TRANSPORT",
+    "token_estimate": 534
+  },
+  "bug": {
+    "bug_id": "c_missing_null_terminator",
+    "description": "missing null terminator on a string buffer leading to out-of-bounds read",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/RRC",
+      "openair3/NAS",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a missing null terminator on a string buffer leading to out-of-bounds read downstream of function nr_dlsch_channel_compensation in the openair1/PHY/NR_UE_TRANSPORT subsystem.\nThe function is located at openair1/PHY/NR_UE_TRANSPORT/nr_dlsch_demodulation.c:785.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00060_45c590_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00060_45c590_p1.diff",
+  "patch_lines": 13,
+  "trajectory_steps": 35,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:55:50Z"
+}

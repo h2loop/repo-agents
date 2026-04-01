@@ -1,0 +1,13 @@
+diff --git a/openair1/PHY/CODING/nrLDPC_encoder/ldpc_BG2_Zc288_byte.c b/openair1/PHY/CODING/nrLDPC_encoder/ldpc_BG2_Zc288_byte.c
+index df03405c2d..ea9877ac19 100644
+--- a/openair1/PHY/CODING/nrLDPC_encoder/ldpc_BG2_Zc288_byte.c
++++ b/openair1/PHY/CODING/nrLDPC_encoder/ldpc_BG2_Zc288_byte.c
+@@ -8,7 +8,7 @@ static inline __attribute__ ((no_sanitize("address", "undefined"))) void ldpc_BG
+   int i2;
+   for (i2=0; i2<9; i2++) {
+      c2=&csimd[i2];
+-     d2=&dsimd[i2];
++     d2=dsimd;
+ 
+ //row: 0
+      d2[0]=simde_mm256_xor_si256(c2[360],simde_mm256_xor_si256(c2[3240],simde_mm256_xor_si256(c2[5402],simde_mm256_xor_si256(c2[4518],simde_mm256_xor_si256(c2[1641],simde_mm256_xor_si256(c2[4161],simde_mm256_xor_si256(c2[3637],simde_mm256_xor_si256(c2[4359],simde_mm256_xor_si256(c2[415],simde_mm256_xor_si256(c2[5276],simde_mm256_xor_si256(c2[4916],simde_mm256_xor_si256(c2[1335],simde_mm256_xor_si256(c2[2415],simde_mm256_xor_si256(c2[3852],simde_mm256_xor_si256(c2[272],simde_mm256_xor_si256(c2[630],simde_mm256_xor_si256(c2[3351],simde_mm256_xor_si256(c2[3530],simde_mm256_xor_si256(c2[1550],simde_mm256_xor_si256(c2[309],simde_mm256_xor_si256(c2[3007],simde_mm256_xor_si256(c2[866],simde_mm256_xor_si256(c2[2667],simde_mm256_xor_si256(c2[5727],simde_mm256_xor_si256(c2[5565],simde_mm256_xor_si256(c2[3223],c2[2684]))))))))))))))))))))))))));

@@ -1,0 +1,17 @@
+diff --git a/executables/lte-ue.c b/executables/lte-ue.c
+index 8e05aae489..f13b194681 100644
+--- a/executables/lte-ue.c
++++ b/executables/lte-ue.c
+@@ -235,10 +235,10 @@ void init_UE(int nb_inst,
+              0,// cba_group_active
+              0); // HO flag
+ 
+-  if (PHY_vars_UE_g==NULL) PHY_vars_UE_g = (PHY_VARS_UE ***)calloc(1+nb_inst,sizeof(PHY_VARS_UE **));
++  if (PHY_vars_UE_g==NULL) PHY_vars_UE_g = (PHY_VARS_UE ***)calloc(nb_inst,sizeof(PHY_VARS_UE **));
+ 
+   for (inst=0; inst<nb_inst; inst++) {
+-    if (PHY_vars_UE_g[inst]==NULL) PHY_vars_UE_g[inst] = (PHY_VARS_UE **)calloc(1+MAX_NUM_CCs,sizeof(PHY_VARS_UE *));
++    if (PHY_vars_UE_g[inst]==NULL) PHY_vars_UE_g[inst] = (PHY_VARS_UE **)calloc(MAX_NUM_CCs,sizeof(PHY_VARS_UE *));
+ 
+     LOG_I(PHY,"Allocating UE context %d\n",inst);
+     PHY_vars_UE_g[inst][0] = init_ue_vars(fp0,inst,0);

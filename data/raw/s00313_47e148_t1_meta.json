@@ -1,0 +1,32 @@
+{
+  "run_id": "s00313_47e148",
+  "function": {
+    "name": "e1apCUUP_send_BEARER_CONTEXT_INACTIVITY_NOTIFICATION",
+    "file": "openair2/E1AP/e1ap.c",
+    "start_line": 600,
+    "end_line": 604,
+    "body_lines": 5,
+    "signature": "int e1apCUUP_send_BEARER_CONTEXT_INACTIVITY_NOTIFICATION(instance_t instance)",
+    "subsystem": "openair2/E1AP",
+    "token_estimate": 11
+  },
+  "bug": {
+    "bug_id": "c_unreachable_code",
+    "description": "unreachable code path due to incorrect conditional logic",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/NAS",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a unreachable code path due to incorrect conditional logic downstream of function e1apCUUP_send_BEARER_CONTEXT_INACTIVITY_NOTIFICATION in the openair2/E1AP subsystem.\nThe function is located at openair2/E1AP/e1ap.c:600.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00313_47e148_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00313_47e148_p1.diff",
+  "patch_lines": 0,
+  "trajectory_steps": 16,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T14:21:43Z"
+}

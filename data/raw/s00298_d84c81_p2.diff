@@ -1,0 +1,12 @@
+diff --git a/openair1/PHY/LTE_TRANSPORT/pucch.c b/openair1/PHY/LTE_TRANSPORT/pucch.c
+index c8adb38f7c..7657792f37 100644
+--- a/openair1/PHY/LTE_TRANSPORT/pucch.c
++++ b/openair1/PHY/LTE_TRANSPORT/pucch.c
+@@ -87,6 +87,7 @@ void dump_uci_stats(FILE *fd,PHY_VARS_eNB *eNB,int frame) {
+             uci_stats->pucch1ab_DTX);
+     }
+   }
++  output[strpos] = '\0';
+   if (fd) fprintf(fd,"%s",output);
+   else    printf("%s",output);  
+ }

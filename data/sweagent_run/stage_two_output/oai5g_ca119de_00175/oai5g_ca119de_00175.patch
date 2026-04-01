@@ -1,0 +1,21 @@
+diff --git a/openair2/E1AP/e1ap_common.c b/openair2/E1AP/e1ap_common.c
+index 330d29567a..2c60873377 100644
+--- a/openair2/E1AP/e1ap_common.c
++++ b/openair2/E1AP/e1ap_common.c
+@@ -26,6 +26,7 @@
+ #include "e1ap_common.h"
+ #include "e1ap_default_values.h"
+ #include "e1ap_asnc.h"
++#include "lib/e1ap_interface_management.h"
+ #include "common/openairinterface5g_limits.h"
+ #include "common/utils/ocp_itti/intertask_interface.h"
+ 
+@@ -49,7 +50,7 @@ void createE1inst(E1_t type, instance_t instance, uint64_t gnb_id, e1ap_net_conf
+     memcpy(&e1ap_inst[instance]->net_config, nc, sizeof(*nc));
+   if (req) {
+     AssertFatal(type == UPtype, "E1 setup request only to be stored for CU-UP\n");
+-    memcpy(&e1ap_inst[instance]->cuup.setupReq, req, sizeof(*req));
++    e1ap_inst[instance]->cuup.setupReq = cp_e1ap_cuup_setup_request(req);
+   }
+   e1ap_inst[instance]->gtpInstN3 = -1;
+   e1ap_inst[instance]->gtpInstF1U = -1;

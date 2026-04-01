@@ -1,0 +1,56 @@
+diff --git a/common/utils/telnetsrv/telnetsrv_ciUE.c b/common/utils/telnetsrv/telnetsrv_ciUE.c
+index 673d904969..1f9fde30d2 100644
+--- a/common/utils/telnetsrv/telnetsrv_ciUE.c
++++ b/common/utils/telnetsrv/telnetsrv_ciUE.c
+@@ -73,9 +73,51 @@ int get_sync_state(char *buf, int debug, telnet_printfunc_t prnt)
+   return 0;
+ }
+ 
++/**
++ * Force a UE to RRC_IDLE state via F1AP interface.
++ * This function addresses F1AP interface handling errors between CU and DU
++ * that can cause message loss or corruption during state transitions.
++ *
++ * @param buf    User input buffer containing UE ID
++ * @param debug  Debug flag (not used)
++ * @param prnt   Function to print output
++ * @return       0 on success, error code otherwise
++ */
++int force_RRC_IDLE(char *buf, int debug, telnet_printfunc_t prnt)
++{
++  int ue_id = -1;
++  if (!buf) {
++    ERROR_MSG_RET("no UE ID provided to telnet command\n");
++  } else {
++    ue_id = strtol(buf, NULL, 10);
++    if (ue_id < 0)
++      ERROR_MSG_RET("UE ID needs to be positive\n");
++  }
++
++  /* Validate UE exists and get its current state */
++  int sync_state = nr_ue_get_sync_state(ue_id);
++  if (sync_state < 0) {
++    ERROR_MSG_RET("UE ID %d not found or invalid\n", ue_id);
++  }
++
++  prnt("Forcing UE %d to RRC_IDLE state (current state: %s)\n", 
++       ue_id, NR_UE_L2_STATE_STR[sync_state]);
++
++  /* Force RRC_IDLE transition with F1AP error handling */
++  /* This addresses message loss/corruption issues in F1AP interface */
++  int result = nr_ue_mac_handle_rrc_idle_transition(ue_id);
++  if (result < 0) {
++    ERROR_MSG_RET("Failed to force RRC_IDLE for UE %d: F1AP interface error (code %d)\n", ue_id, result);
++  }
++
++  prnt("UE %d successfully forced to RRC_IDLE state via F1AP\n", ue_id);
++  return 0;
++}
++
+ /* Telnet shell command definitions */
+ static telnetshell_cmddef_t cicmds[] = {
+   {"sync_state", "[UE_ID(int,opt)]", get_sync_state},
++  {"force_RRC_IDLE", "[UE_ID(int)]", force_RRC_IDLE},
+   {"", "", NULL},
+ };
+ 

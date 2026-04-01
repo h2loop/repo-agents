@@ -1,0 +1,32 @@
+{
+  "run_id": "s00370_0c0888",
+  "function": {
+    "name": "e1_task_handle_sctp_data_ind",
+    "file": "openair2/E1AP/e1ap.c",
+    "start_line": 116,
+    "end_line": 123,
+    "body_lines": 8,
+    "signature": "static void e1_task_handle_sctp_data_ind(instance_t instance, sctp_data_ind_t *sctp_data_ind)",
+    "subsystem": "openair2/E1AP",
+    "token_estimate": 30
+  },
+  "bug": {
+    "bug_id": "c_magic_number",
+    "description": "magic number used without symbolic constant making intent unclear and maintenance error-prone",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a magic number used without symbolic constant making intent unclear and maintenance error-prone downstream of function e1_task_handle_sctp_data_ind in the openair2/E1AP subsystem.\nThe function is located at openair2/E1AP/e1ap.c:116.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00370_0c0888_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00370_0c0888_p1.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 49,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T18:54:49Z"
+}

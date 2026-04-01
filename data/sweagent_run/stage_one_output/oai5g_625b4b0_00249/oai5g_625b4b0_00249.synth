@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix IDFT function table lookup for unaligned input buffers\n\n### Summary\nThe ARM NEON optimized IDFT implementation in `oai_dfts_neon.c` incorrectly invoked the forward DFT function when processing unaligned input buffers. This led to incorrect signal processing results during uplink IFFT operations when the input buffer address was not 16-byte aligned.\n\nThe issue occurred in the `idft_implementation()` function where a copy of the input data is made for alignment purposes, but the function table lookup mistakenly used the DFT table instead of the IDFT table. This caused the system to perform a forward transform instead of the required inverse transform.\n\n### Changes\n- `openair1/PHY/TOOLS/oai_dfts_neon.c`: Corrected function table lookup from `dft_ftab` to `idft_ftab` for unaligned input handling path in `idft_implementation()`.\n\n"
+}

@@ -1,0 +1,200 @@
+diff --git a/openair1/PHY/CODING/3gpplte_turbo_decoder_avx2_16bit.c b/openair1/PHY/CODING/3gpplte_turbo_decoder_avx2_16bit.c
+index 3941b94d5e..62a806ac21 100644
+--- a/openair1/PHY/CODING/3gpplte_turbo_decoder_avx2_16bit.c
++++ b/openair1/PHY/CODING/3gpplte_turbo_decoder_avx2_16bit.c
+@@ -83,20 +83,20 @@ void compute_ext16avx2(llr_t* alpha,llr_t* beta,llr_t* m11,llr_t* m10,llr_t* ext
+ 
+ 
+ void log_map16avx2(llr_t* systematic,
+-		   channel_t* y_parity,
+-		   llr_t* m11,
+-		   llr_t* m10,
+-		   llr_t *alpha,
+-		   llr_t *beta,
+-		   llr_t* ext,
+-		   uint16_t frame_length,
+-		   unsigned char term_flag,
+-		   unsigned char F,
+-		   int offset8_flag,
+-		   time_stats_t *alpha_stats,
+-		   time_stats_t *beta_stats,
+-		   time_stats_t *gamma_stats,
+-		   time_stats_t *ext_stats)
++                   channel_t* y_parity,
++                   llr_t* m11,
++                   llr_t* m10,
++                   llr_t *alpha,
++                   llr_t *beta,
++                   llr_t* ext,
++                   uint16_t frame_length,
++                   unsigned char term_flag,
++                   unsigned char F,
++                   int offset8_flag,
++                   time_stats_t *alpha_stats,
++                   time_stats_t *beta_stats,
++                   time_stats_t *gamma_stats,
++                   time_stats_t *ext_stats)
+ {
+ 
+ #ifdef DEBUG_LOGMAP
+@@ -534,15 +534,15 @@ void compute_beta16avx2(llr_t* alpha,llr_t* beta,llr_t *m_11,llr_t* m_10,uint16_
+ #endif
+     } else {
+ 
+-      beta128 = (__m256i*)&beta[0];
+-      beta_ptr[0] = simde_mm256_srli_si256(beta128[0],2);
+-      beta_ptr[1] = simde_mm256_srli_si256(beta128[1],2);
+-      beta_ptr[2] = simde_mm256_srli_si256(beta128[2],2);
+-      beta_ptr[3] = simde_mm256_srli_si256(beta128[3],2);
+-      beta_ptr[4] = simde_mm256_srli_si256(beta128[4],2);
+-      beta_ptr[5] = simde_mm256_srli_si256(beta128[5],2);
+-      beta_ptr[6] = simde_mm256_srli_si256(beta128[6],2);
+-      beta_ptr[7] = simde_mm256_srli_si256(beta128[7],2);
++      // Use alpha data instead of potentially uninitialized beta data
++      beta_ptr[0] = simde_mm256_srli_si256(alpha128[0],2);
++      beta_ptr[1] = simde_mm256_srli_si256(alpha128[1],2);
++      beta_ptr[2] = simde_mm256_srli_si256(alpha128[2],2);
++      beta_ptr[3] = simde_mm256_srli_si256(alpha128[3],2);
++      beta_ptr[4] = simde_mm256_srli_si256(alpha128[4],2);
++      beta_ptr[5] = simde_mm256_srli_si256(alpha128[5],2);
++      beta_ptr[6] = simde_mm256_srli_si256(alpha128[6],2);
++      beta_ptr[7] = simde_mm256_srli_si256(alpha128[7],2);
+ #ifdef DEBUG_LOGMAP
+       fprintf(fdavx2,"beta init (second run)\n");
+       fprintf(fdavx2b,"beta init (second run)\n");
+@@ -866,7 +866,7 @@ void init_td16avx2(void)
+         //      j-=(n-1);
+ 
+         pi2tab16avx2[ind][i]  = ((j>>3)<<4) + (j&7); // 16*floor(j/8) + j mod8, which allows the second codeword to be in pi[i] + 8 
+-	//	fprintf(fdavx2,"pi2[%d] = %d(%d)\n",i, pi2tab16avx2[ind][i],j);
++        //      fprintf(fdavx2,"pi2[%d] = %d(%d)\n",i, pi2tab16avx2[ind][i],j);
+       }
+     }
+ 
+@@ -883,20 +883,20 @@ void init_td16avx2(void)
+ }
+ 
+ unsigned char phy_threegpplte_turbo_decoder16avx2(int16_t *y,
+-						  int16_t *y2,
+-						  uint8_t *decoded_bytes,
+-						  uint8_t *decoded_bytes2,
+-						  uint16_t n,
+-						  uint8_t max_iterations,
+-						  uint8_t crc_type,
+-						  uint8_t F,
+-						  time_stats_t *init_stats,
+-						  time_stats_t *alpha_stats,
+-						  time_stats_t *beta_stats,
+-						  time_stats_t *gamma_stats,
+-						  time_stats_t *ext_stats,
+-						  time_stats_t *intl1_stats,
+-						  time_stats_t *intl2_stats)
++                                                  int16_t *y2,
++                                                  uint8_t *decoded_bytes,
++                                                  uint8_t *decoded_bytes2,
++                                                  uint16_t n,
++                                                  uint8_t max_iterations,
++                                                  uint8_t crc_type,
++                                                  uint8_t F,
++                                                  time_stats_t *init_stats,
++                                                  time_stats_t *alpha_stats,
++                                                  time_stats_t *beta_stats,
++                                                  time_stats_t *gamma_stats,
++                                                  time_stats_t *ext_stats,
++                                                  time_stats_t *intl1_stats,
++                                                  time_stats_t *intl2_stats)
+ {
+ 
+   /*  y is a pointer to the input
+@@ -1136,16 +1136,16 @@ unsigned char phy_threegpplte_turbo_decoder16avx2(int16_t *y,
+         tmp=simde_mm256_insert_epi16(tmp, ((llr_t*)ext2)[*pi6_p],0);
+         tmp=simde_mm256_insert_epi16(tmp, ((llr_t*)ext2)[8+*pi6_p++],8);
+ #ifdef DEBUG_LOGMAP
+-	print_shorts("tmp",(int16_t*)&tmp);
++        print_shorts("tmp",(int16_t*)&tmp);
+ #endif
+         tmp=simde_mm256_cmpgt_epi8(simde_mm256_packs_epi16(tmp,zeros),zeros);
+         db=(uint32_t)simde_mm256_movemask_epi8(tmp);
+-	decoded_bytes[i]=db&0xff;
+-	decoded_bytes2[i]=(uint8_t)(db>>16)&0xff;
++        decoded_bytes[i]=db&0xff;
++        decoded_bytes2[i]=(uint8_t)(db>>16)&0xff;
+ #ifdef DEBUG_LOGMAP
+-	print_shorts("tmp",(int16_t*)&tmp);
+-	fprintf(fdavx2,"decoded_bytes[%u] %x (%x)\n",i,decoded_bytes[i],db);
+-	fprintf(fdavx2b,"decoded_bytes[%u] %x (%x)\n",i,decoded_bytes2[i],db);
++        print_shorts("tmp",(int16_t*)&tmp);
++        fprintf(fdavx2,"decoded_bytes[%u] %x (%x)\n",i,decoded_bytes[i],db);
++        fprintf(fdavx2b,"decoded_bytes[%u] %x (%x)\n",i,decoded_bytes2[i],db);
+ #endif
+       }
+     }
+@@ -1200,7 +1200,7 @@ unsigned char phy_threegpplte_turbo_decoder16avx2(int16_t *y,
+       case CRC24_A:
+         oldcrc_cw2&=0x00ffffff;
+         crc_cw2 = crc24a(&decoded_bytes2[F>>3],
+-			 n-24-F)>>8;
++                         n-24-F)>>8;
+         temp=((uint8_t *)&crc_cw2)[2];
+         ((uint8_t *)&crc_cw2)[2] = ((uint8_t *)&crc_cw2)[0];
+         ((uint8_t *)&crc_cw2)[0] = temp;
+@@ -1209,7 +1209,7 @@ unsigned char phy_threegpplte_turbo_decoder16avx2(int16_t *y,
+       case CRC24_B:
+         oldcrc_cw2&=0x00ffffff;
+         crc_cw2 = crc24b(decoded_bytes2,
+-			 n-24)>>8;
++                         n-24)>>8;
+         temp=((uint8_t *)&crc_cw2)[2];
+         ((uint8_t *)&crc_cw2)[2] = ((uint8_t *)&crc_cw2)[0];
+         ((uint8_t *)&crc_cw2)[0] = temp;
+@@ -1218,13 +1218,13 @@ unsigned char phy_threegpplte_turbo_decoder16avx2(int16_t *y,
+       case CRC16:
+         oldcrc_cw2&=0x0000ffff;
+         crc_cw2 = crc16(decoded_bytes2,
+-			n-16)>>16;
++                        n-16)>>16;
+         break;
+ 
+       case CRC8:
+         oldcrc_cw2&=0x000000ff;
+         crc_cw2 = crc8(decoded_bytes2,
+-		       n-8)>>24;
++                       n-8)>>24;
+         break;
+ 
+       default:
+@@ -1275,20 +1275,20 @@ unsigned char phy_threegpplte_turbo_decoder16avx2(int16_t *y,
+ }
+ #else
+ unsigned char phy_threegpplte_turbo_decoder16avx2(int16_t *y,
+-						  int16_t *y2,
+-						  uint8_t *decoded_bytes,
+-						  uint8_t *decoded_bytes2,
+-						  uint16_t n,
+-						  uint8_t max_iterations,
+-						  uint8_t crc_type,
+-						  uint8_t F,
+-						  time_stats_t *init_stats,
+-						  time_stats_t *alpha_stats,
+-						  time_stats_t *beta_stats,
+-						  time_stats_t *gamma_stats,
+-						  time_stats_t *ext_stats,
+-						  time_stats_t *intl1_stats,
+-						  time_stats_t *intl2_stats)
++                                                  int16_t *y2,
++                                                  uint8_t *decoded_bytes,
++                                                  uint8_t *decoded_bytes2,
++                                                  uint16_t n,
++                                                  uint8_t max_iterations,
++                                                  uint8_t crc_type,
++                                                  uint8_t F,
++                                                  time_stats_t *init_stats,
++                                                  time_stats_t *alpha_stats,
++                                                  time_stats_t *beta_stats,
++                                                  time_stats_t *gamma_stats,
++                                                  time_stats_t *ext_stats,
++                                                  time_stats_t *intl1_stats,
++                                                  time_stats_t *intl2_stats)
+ {
+    return 0;
+ }

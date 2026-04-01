@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix heap buffer overflow in PRACH K parameter calculation\n\n### Summary\nThe PRACH processing code in the NR UE stack used hardcoded values for the K parameter, which determines frequency domain separation between PRACH resources. These incorrect values could lead to buffer overflows when calculating the frequency domain position for PRACH transmission.\n\nThis fix implements a proper `get_prach_K` function that calculates K according to 3GPP TS 38.211 Section 6.3.3.2, ensuring correct size calculations downstream in the PRACH processing pipeline.\n\n### Changes\n- `openair1/PHY/NR_TRANSPORT/nr_prach_common.c`: Added `get_prach_K` function implementation\n- `openair1/PHY/NR_TRANSPORT/nr_transport_common_proto.h`: Added function declaration\n- `openair1/PHY/NR_UE_TRANSPORT/nr_prach.c`: Replaced hardcoded K assignments with function call\n\n"
+}

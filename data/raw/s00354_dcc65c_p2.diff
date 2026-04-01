@@ -1,0 +1,13 @@
+diff --git a/openair2/LAYER2/MAC/ue_procedures.c b/openair2/LAYER2/MAC/ue_procedures.c
+index 69beaa7281..bd108e1d16 100644
+--- a/openair2/LAYER2/MAC/ue_procedures.c
++++ b/openair2/LAYER2/MAC/ue_procedures.c
+@@ -850,7 +850,7 @@ void ue_send_sl_sdu(module_id_t module_idP,
+ 
+     mac_rlc_data_ind(
+       module_idP,
+-      0x1234,
++      UE_mac_inst[module_idP].crnti,
+       eNB_index,
+       frameP,
+       ENB_FLAG_NO,

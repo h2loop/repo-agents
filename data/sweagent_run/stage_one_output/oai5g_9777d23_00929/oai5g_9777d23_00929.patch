@@ -1,0 +1,455 @@
+diff --git a/nfapi/open-nFAPI/integration_tests/main.cpp b/nfapi/open-nFAPI/integration_tests/main.cpp
+index 83c48afec3..4d2ff74747 100644
+--- a/nfapi/open-nFAPI/integration_tests/main.cpp
++++ b/nfapi/open-nFAPI/integration_tests/main.cpp
+@@ -22,162 +22,236 @@
+ #include <stdlib.h>
+ #include <sys/types.h>
+ #include <sys/wait.h>
++#include <errno.h>
++#include <signal.h>
+ 
+ int start_vnf_proc(int port)
+ {
+-	char port_str[10];
+-	sprintf(port_str, "%d", port);
+-
+-	const char *argv[]  = {"vnfsim", port_str, "../xml/vnf_A.xml", NULL};
+-	int pid = fork();
+-
+-	if(pid == 0)
+-	{
+-		int result = execv("../vnf_sim/vnfsim", (char* const*)argv); //, env_args);
+-		if(result == -1)
+-		{
+-			printf("Failed to exec vnf process %d\n", errno);
+-		}
+-		exit(0);
+-	}
+-	else
+-	{
+-		return pid;
+-	}
++        char port_str[10];
++        sprintf(port_str, "%d", port);
++
++        const char *argv[]  = {"vnfsim", port_str, "../xml/vnf_A.xml", NULL};
++        int pid = fork();
++
++        if(pid == 0)
++        {
++                int result = execv("../vnf_sim/vnfsim", (char* const*)argv); //, env_args);
++                if(result == -1)
++                {
++                        printf("Failed to exec vnf process %d\n", errno);
++                        exit(errno);
++                }
++                exit(0);
++        }
++        else if(pid == -1)
++        {
++                printf("Failed to fork vnf process %d\n", errno);
++                return -1;
++        }
++        else
++        {
++                return pid;
++        }
+ }
+ 
+ int start_pnf_proc(const char* addr, int port, const char* file)
+ {
+-	char port_str[10];
+-	sprintf(port_str, "%d", port);
+-
+-	char filename[256];
+-	sprintf(filename, "../xml/%s", file);
+-
+-	const char * argv[] = {"pnfsim", addr, port_str, filename, NULL};
+-	int pid = fork();
+-
+-	if(pid == 0)
+-	{
+-		int result = execv("../pnf_sim/pnfsim", (char* const*)argv); //, env_args);
+-		if(result == -1)
+-		{
+-			printf("Failed to exec pnf process %d\n", errno);
+-		}
+-		exit(0);
+-	}
+-	else
+-	{
+-		return pid;
+-	}
++        char port_str[10];
++        sprintf(port_str, "%d", port);
++
++        char filename[256];
++        sprintf(filename, "../xml/%s", file);
++
++        const char * argv[] = {"pnfsim", addr, port_str, filename, NULL};
++        int pid = fork();
++
++        if(pid == 0)
++        {
++                int result = execv("../pnf_sim/pnfsim", (char* const*)argv); //, env_args);
++                if(result == -1)
++                {
++                        printf("Failed to exec pnf process %d\n", errno);
++                        exit(errno);
++                }
++                exit(0);
++        }
++        else if(pid == -1)
++        {
++                printf("Failed to fork pnf process %d\n", errno);
++                return -1;
++        }
++        else
++        {
++                return pid;
++        }
+ }
+ 
+ int kill_proc(int pid)
+ {
+-	kill(pid, SIGKILL);
+-
+-	int status;
+-	int waitpid_result = waitpid(pid, &status, 0);
+-
+-	return waitpid_result;
++        if (pid <= 0) {
++                return -1;
++        }
++        
++        int kill_result = kill(pid, SIGKILL);
++        if (kill_result == -1) {
++                printf("Failed to kill process %d %d\n", pid, errno);
++                return -1;
++        }
++
++        int status;
++        int waitpid_result = waitpid(pid, &status, 0);
++        if (waitpid_result == -1) {
++                printf("Failed to wait for process %d\n", errno);
++                return -1;
++        }
++
++        return waitpid_result;
+ }
+ 
+ 
+ void test_1()
+ {
+ 
+-	int pnf_port = 5655;
+-	const char* pnf_addr = "localhost";
++        int pnf_port = 5655;
++        const char* pnf_addr = "localhost";
+ 
+-	printf("**** starting vnf *****\n");
+-	int vnf_pid = start_vnf_proc(pnf_port);
++        printf("**** starting vnf *****\n");
++        int vnf_pid = start_vnf_proc(pnf_port);
++        if (vnf_pid == -1) {
++                printf("Failed to start VNF process\n");
++                return;
++        }
+ 
+-	printf("**** starting pnf *****\n");
+-	int pnf1_pid = start_pnf_proc(pnf_addr, pnf_port, "pnf_phy_1_A.xml");
++        printf("**** starting pnf *****\n");
++        int pnf1_pid = start_pnf_proc(pnf_addr, pnf_port, "pnf_phy_1_A.xml");
++        if (pnf1_pid == -1) {
++                printf("Failed to start PNF process\n");
++                kill_proc(vnf_pid);
++                return;
++        }
+ 
+ 
+-	sleep(10);
++        sleep(10);
+ 
+-	printf ("*** Terminating ****\n");
+-	kill_proc(vnf_pid);
+-	kill_proc(pnf1_pid);
++        printf ("*** Terminating ****\n");
++        kill_proc(vnf_pid);
++        kill_proc(pnf1_pid);
+ }
+ void test_1a()
+ {
+ 
+-	int pnf_port = 5655;
+-	const char* pnf_addr = "localhost";
++        int pnf_port = 5655;
++        const char* pnf_addr = "localhost";
+ 
+-	printf("**** starting vnf *****\n");
+-	int vnf_pid = start_vnf_proc(pnf_port);
++        printf("**** starting vnf *****\n");
++        int vnf_pid = start_vnf_proc(pnf_port);
++        if (vnf_pid == -1) {
++                printf("Failed to start VNF process\n");
++                return;
++        }
+ 
+-	printf("**** starting pnf *****\n");
+-	int pnf1_pid = start_pnf_proc(pnf_addr, pnf_port, "pnf_phy_2_A.xml");
++        printf("**** starting pnf *****\n");
++        int pnf1_pid = start_pnf_proc(pnf_addr, pnf_port, "pnf_phy_2_A.xml");
++        if (pnf1_pid == -1) {
++                printf("Failed to start PNF process\n");
++                kill_proc(vnf_pid);
++                return;
++        }
+ 
+ 
+-	sleep(10);
++        sleep(10);
+ 
+-	printf ("*** Terminating ****\n");
+-	kill_proc(vnf_pid);
+-	kill_proc(pnf1_pid);
++        printf ("*** Terminating ****\n");
++        kill_proc(vnf_pid);
++        kill_proc(pnf1_pid);
+ }
+ 
+ 
+ void test_2()
+ {
+-	int pnf_port = 5655;
+-	const char* pnf_addr = "127.0.0.1";
+-
+-	int vnf_pid = start_vnf_proc(pnf_port);
+-	sleep(2);
+-
+-	int pnf1_pid = start_pnf_proc(pnf_addr, pnf_port, "pnf_phy_1_A.xml");	
+-	int pnf2_pid = start_pnf_proc(pnf_addr, pnf_port, "pnf_phy_1_A.xml");	
+-
+-	sleep(2);
+-
+-	kill_proc(pnf2_pid);
+-	kill_proc(pnf1_pid);
+-	kill_proc(vnf_pid);
++        int pnf_port = 5655;
++        const char* pnf_addr = "127.0.0.1";
++
++        int vnf_pid = start_vnf_proc(pnf_port);
++        if (vnf_pid == -1) {
++                printf("Failed to start VNF process\n");
++                return;
++        }
++        sleep(2);
++
++        int pnf1_pid = start_pnf_proc(pnf_addr, pnf_port, "pnf_phy_1_A.xml");
++        if (pnf1_pid == -1) {
++                printf("Failed to start PNF1 process\n");
++                kill_proc(vnf_pid);
++                return;
++        }
++        
++        int pnf2_pid = start_pnf_proc(pnf_addr, pnf_port, "pnf_phy_1_A.xml");
++        if (pnf2_pid == -1) {
++                printf("Failed to start PNF2 process\n");
++                kill_proc(pnf1_pid);
++                kill_proc(vnf_pid);
++                return;
++        }
++
++        sleep(2);
++
++        kill_proc(pnf2_pid);
++        kill_proc(pnf1_pid);
++        kill_proc(vnf_pid);
+ }
+ 
+ void test_32()
+ {
+-	int pnf_count = 32;
+-	int pnf_pid[pnf_count];
+-
+-	int pnf_port = 5655;
+-	const char* pnf_addr = "127.0.0.1";
+-
+-	int vnf_pid = start_vnf_proc(pnf_port);
+-	sleep(2);
+-
+-	for(int i = 0; i < pnf_count; ++i)
+-	{
+-		pnf_pid[i] = start_pnf_proc(pnf_addr, pnf_port, "pnf_phy_1_A.xml");
+-	}
+-
+-	sleep(5);
+-
+-	printf ("*** Terminating pnfs\n");
+-
+-	for(int i = 0; i < pnf_count; ++i)
+-	{
+-		kill_proc(pnf_pid[i]);
+-	}
+-	printf ("*** Terminating vnf\n");
+-	kill_proc(vnf_pid);
++        int pnf_count = 32;
++        int pnf_pid[pnf_count];
++
++        int pnf_port = 5655;
++        const char* pnf_addr = "127.0.0.1";
++
++        int vnf_pid = start_vnf_proc(pnf_port);
++        if (vnf_pid == -1) {
++                printf("Failed to start VNF process\n");
++                return;
++        }
++        sleep(2);
++
++        int i;
++        for(i = 0; i < pnf_count; ++i)
++        {
++                pnf_pid[i] = start_pnf_proc(pnf_addr, pnf_port, "pnf_phy_1_A.xml");
++                if (pnf_pid[i] == -1) {
++                        printf("Failed to start PNF process %d\n", i);
++                        // Kill previously started PNF processes
++                        for(int j = 0; j < i; ++j) {
++                                kill_proc(pnf_pid[j]);
++                        }
++                        kill_proc(vnf_pid);
++                        return;
++                }
++        }
++
++        sleep(5);
++
++        printf ("*** Terminating pnfs\n");
++
++        for(int i = 0; i < pnf_count; ++i)
++        {
++                kill_proc(pnf_pid[i]);
++        }
++        printf ("*** Terminating vnf\n");
++        kill_proc(vnf_pid);
+ }
+ 
+ 
+ int init_suite()
+ {
+-	return 0;
++        return 0;
+ }
+ 
+ int clean_suite()
+ {
+-	return 0;
++        return 0;
+ }
+ 
+ int main ( void )
+@@ -212,56 +286,56 @@ int main ( void )
+    CU_set_output_filename("vnf_unit_test_results.xml");
+    CU_basic_run_tests();
+ 
+-	CU_pSuite s = CU_get_registry()->pSuite;
+-	int count = 0;
+-	while(s)
+-	{
+-		CU_pTest t = s->pTest;
+-		while(t)
+-		{
+-			count++;
+-			t = t->pNext;
+-		}
+-		s = s->pNext;
+-	}
+-
+-	printf("%d..%d\n", 1, count);
+-
+-
+-
+-	s = CU_get_registry()->pSuite;
+-	count = 1;
+-	while(s)
+-	{
+-		CU_pTest t = s->pTest;
+-		while(t)
+-		{
+-			int pass = 1;
+-			CU_FailureRecord* failures = CU_get_failure_list();
+-			while(failures)
+-			{
+-				if(strcmp(failures->pSuite->pName, s->pName) == 0 &&
+-				   strcmp(failures->pTest->pName, t->pName) == 0)
+-				{
+-					pass = 0;
+-					failures = 0;
+-				}
+-				else
+-				{
+-					failures = failures->pNext;
+-				}
+-			}
+-
+-			if(pass)
+-				printf("ok %d - %s:%s\n", count, s->pName, t->pName);
+-			else 
+-				printf("not ok %d - %s:%s\n", count, s->pName, t->pName);
+-
+-			count++;
+-			t = t->pNext;
+-		}
+-		s = s->pNext;
+-	}
++        CU_pSuite s = CU_get_registry()->pSuite;
++        int count = 0;
++        while(s)
++        {
++                CU_pTest t = s->pTest;
++                while(t)
++                {
++                        count++;
++                        t = t->pNext;
++                }
++                s = s->pNext;
++        }
++
++        printf("%d..%d\n", 1, count);
++
++
++
++        s = CU_get_registry()->pSuite;
++        count = 1;
++        while(s)
++        {
++                CU_pTest t = s->pTest;
++                while(t)
++                {
++                        int pass = 1;
++                        CU_FailureRecord* failures = CU_get_failure_list();
++                        while(failures)
++                        {
++                                if(strcmp(failures->pSuite->pName, s->pName) == 0 &&
++                                   strcmp(failures->pTest->pName, t->pName) == 0)
++                                {
++                                        pass = 0;
++                                        failures = 0;
++                                }
++                                else
++                                {
++                                        failures = failures->pNext;
++                                }
++                        }
++
++                        if(pass)
++                                printf("ok %d - %s:%s\n", count, s->pName, t->pName);
++                        else 
++                                printf("not ok %d - %s:%s\n", count, s->pName, t->pName);
++
++                        count++;
++                        t = t->pNext;
++                }
++                s = s->pNext;
++        }
+ 
+    CU_cleanup_registry();
+    return CU_get_error();

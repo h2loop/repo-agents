@@ -1,0 +1,13 @@
+diff --git a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+index 50c46b16e1..e70682e725 100644
+--- a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
++++ b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+@@ -1666,7 +1666,7 @@ fill_nfapi_dlsch_config(nfapi_dl_config_request_pdu_t *dl_config_pdu,
+   dl_config_pdu->pdu_size                                                        = (uint8_t) (2 + sizeof(nfapi_dl_config_dlsch_pdu));
+   dl_config_pdu->dlsch_pdu.dlsch_pdu_rel8.tl.tag                                 = NFAPI_DL_CONFIG_REQUEST_DLSCH_PDU_REL8_TAG;
+   dl_config_pdu->dlsch_pdu.dlsch_pdu_rel8.length                                 = length;
+-  dl_config_pdu->dlsch_pdu.dlsch_pdu_rel8.pdu_index                              = pdu_index;
++  dl_config_pdu->dlsch_pdu.dlsch_pdu_rel8.pdu_index                              = (pdu_index == -1) ? 0 : pdu_index;
+   dl_config_pdu->dlsch_pdu.dlsch_pdu_rel8.rnti                                   = rnti;
+   dl_config_pdu->dlsch_pdu.dlsch_pdu_rel8.resource_allocation_type               = resource_allocation_type;
+   dl_config_pdu->dlsch_pdu.dlsch_pdu_rel8.virtual_resource_block_assignment_flag = virtual_resource_block_assignment_flag;

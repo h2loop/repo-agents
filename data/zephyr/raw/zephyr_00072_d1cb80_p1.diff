@@ -1,0 +1,53 @@
+diff --git a/drivers/wifi/nxp/nxp_wifi_drv.c b/drivers/wifi/nxp/nxp_wifi_drv.c
+index ae0900c5..da3d323e 100644
+--- a/drivers/wifi/nxp/nxp_wifi_drv.c
++++ b/drivers/wifi/nxp/nxp_wifi_drv.c
+@@ -15,6 +15,8 @@
+ #include <soc.h>
+ #include <ethernet/eth_stats.h>
+ #include <zephyr/logging/log.h>
++#include <errno.h>
++#include <zephyr/sys/util.h>
+ 
+ #include <zephyr/net/net_if.h>
+ #include <zephyr/net/wifi_mgmt.h>
+@@ -1859,6 +1861,11 @@ static int nxp_wifi_set_twt(const struct device *dev, struct wifi_twt_params *pa
+ 	wlan_twt_teardown_config_t teardown_conf;
+ 	int ret = -1;
+ 
++	/* Validate flow_id - only 3 bits valid (0-7) */
++	if (params->flow_id >= WIFI_MAX_TWT_FLOWS) {
++		return -EINVAL;
++	}
++
+ 	if (params->negotiation_type == WIFI_TWT_INDIVIDUAL) {
+ 		params->negotiation_type = 0;
+ 	} else if (params->negotiation_type == WIFI_TWT_BROADCAST) {
+@@ -1892,15 +1899,25 @@ static int nxp_wifi_set_twt(const struct device *dev, struct wifi_twt_params *pa
+ static int nxp_wifi_set_btwt(const struct device *dev, struct wifi_twt_params *params)
+ {
+ 	wlan_btwt_config_t btwt_config;
++	uint8_t count;
+ 
+ 	memset(&btwt_config, 0, sizeof(wlan_btwt_config_t));
+ 
+ 	btwt_config.bcast_bet_sta_wait = params->btwt.btwt_sta_wait;
+ 	btwt_config.bcast_offset = params->btwt.btwt_offset;
+ 	btwt_config.bcast_twtli = params->btwt.btwt_li;
+-	btwt_config.count = params->btwt.btwt_count;
++	
++	/* Ensure btwt_count doesn't exceed maximum allowed */
++	count = MIN(params->btwt.btwt_count, WIFI_BTWT_AGREEMENT_MAX);
++	btwt_config.count = count;
+ 
+-	for (int i = 0; i < btwt_config.count; i++) {
++	/* Additional safety check to prevent buffer overflow */
++	if (count > ARRAY_SIZE(btwt_config.btwt_sets)) {
++		count = ARRAY_SIZE(btwt_config.btwt_sets);
++		btwt_config.count = count;
++	}
++
++	for (int i = 0; i < count; i++) {
+ 		btwt_config.btwt_sets[i].btwt_id
+ 			= params->btwt.btwt_set_cfg[i].btwt_id;
+ 		btwt_config.btwt_sets[i].bcast_mantissa

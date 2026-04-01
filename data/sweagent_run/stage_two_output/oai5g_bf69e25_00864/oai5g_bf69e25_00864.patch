@@ -1,0 +1,263 @@
+diff --git a/common/ran_context.h b/common/ran_context.h
+index 91baa78d84..b93ca4ffbf 100644
+--- a/common/ran_context.h
++++ b/common/ran_context.h
+@@ -107,8 +107,12 @@ typedef struct {
+   pthread_mutex_t ru_mutex;
+   /// condition variable for signaling setup completion of an RU
+   pthread_cond_t ru_cond;
++  /// Mutex for protecting measurement data access
++  pthread_mutex_t measur_data_mutex;
+ } RAN_CONTEXT_t;
+ 
++
++
+ extern RAN_CONTEXT_t RC;
+ #define NB_eNB_INST RC.nb_inst
+ #ifdef __cplusplus
+diff --git a/common/utils/telnetsrv/telnetsrv_enb_measurements.c b/common/utils/telnetsrv/telnetsrv_enb_measurements.c
+index 7bd18c802b..3342f09ec8 100644
+--- a/common/utils/telnetsrv/telnetsrv_enb_measurements.c
++++ b/common/utils/telnetsrv/telnetsrv_enb_measurements.c
+@@ -37,6 +37,7 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include <stdarg.h>
++#include <pthread.h>
+ 
+ 
+ 
+@@ -86,32 +87,39 @@ int get_measurgroups(telnet_measurgroupdef_t **measurgroups) {
+ 
+ 
+ void measurcmd_display_phycpu(telnet_printfunc_t prnt) {
++  pthread_mutex_lock(&RC.measur_data_mutex);
+   PHY_VARS_eNB *phyvars = RC.eNB[eNB_id][0];
+   telnet_cpumeasurdef_t  cpumeasur[]=CPU_PHYENB_MEASURE;
+   prnt("%s cpu (%1.1g GHz) measurements: PHY (cpustats %s) %s\n",HDR,cpufreq,
+        PRINT_CPUMEAS_STATE,HDR);
+   measurcmd_display_cpumeasures(prnt, cpumeasur, sizeof(cpumeasur)/sizeof(telnet_cpumeasurdef_t));
++  pthread_mutex_unlock(&RC.measur_data_mutex);
+ }
+ 
+ void measurcmd_display_maccpu(telnet_printfunc_t prnt) {
++  pthread_mutex_lock(&RC.measur_data_mutex);
+   eNB_MAC_INST *macvars = RC.mac[eNB_id];
+   telnet_cpumeasurdef_t  cpumeasur[]=CPU_MACENB_MEASURE;
+   prnt("%s cpu (%1.1g GHz) measurements: MAC (cpustats %s) %s\n",HDR,cpufreq,
+        PRINT_CPUMEAS_STATE,HDR);
+   measurcmd_display_cpumeasures(prnt, cpumeasur, sizeof(cpumeasur)/sizeof(telnet_cpumeasurdef_t));
++  pthread_mutex_unlock(&RC.measur_data_mutex);
+ }
+ 
+ void measurcmd_display_pdcpcpu(telnet_printfunc_t prnt) {
++  pthread_mutex_lock(&RC.measur_data_mutex);
+   pdcp_stats_t *pdcpvars = &(eNB_pdcp_stats[eNB_id]);
+   telnet_cpumeasurdef_t  cpumeasur[]=CPU_PDCPENB_MEASURE;
+   prnt("%s cpu (%1.1g GHz) measurements: PDCP (cpustats %s) %s \n",HDR,cpufreq,
+        PRINT_CPUMEAS_STATE,HDR);
+   measurcmd_display_cpumeasures(prnt, cpumeasur, sizeof(cpumeasur)/sizeof(telnet_cpumeasurdef_t));
++  pthread_mutex_unlock(&RC.measur_data_mutex);
+ }
+ /*----------------------------------------------------------------------------------------------------*/
+ 
+ 
+ void measurcmd_display_macstats_ue(telnet_printfunc_t prnt) {
++  pthread_mutex_lock(&RC.measur_data_mutex);
+   UE_info_t *UE_info = &(RC.mac[eNB_id]->UE_info);
+ 
+   for (int UE_id=UE_info->list.head; UE_id>=0; UE_id=UE_info->list.next[UE_id]) {
+@@ -123,9 +131,11 @@ void measurcmd_display_macstats_ue(telnet_printfunc_t prnt) {
+       measurcmd_display_measures(prnt, statsptr, sizeof(statsptr)/sizeof(telnet_ltemeasurdef_t));
+     }
+   }
++  pthread_mutex_unlock(&RC.measur_data_mutex);
+ } /* measurcmd_display_macstats_ue */
+ 
+ void measurcmd_display_macstats(telnet_printfunc_t prnt) {
++  pthread_mutex_lock(&RC.measur_data_mutex);
+   for (int CC_id=0 ; CC_id < MAX_NUM_CCs; CC_id++) {
+     eNB_STATS *macstatptr=&(RC.mac[eNB_id]->eNB_stats[CC_id]);
+     telnet_ltemeasurdef_t  statsptr[]=LTEMAC_MEASURE;
+@@ -133,6 +143,7 @@ void measurcmd_display_macstats(telnet_printfunc_t prnt) {
+          HDR, eNB_id, CC_id, RC.mac[eNB_id]->frame,HDR);
+     measurcmd_display_measures(prnt,statsptr,sizeof(statsptr)/sizeof(telnet_ltemeasurdef_t));
+   }
++  pthread_mutex_unlock(&RC.measur_data_mutex);
+ } /* measurcmd_display_macstats */
+ 
+ 
+@@ -156,6 +167,7 @@ void measurcmd_display_one_rlcstat(telnet_printfunc_t prnt, int UE_id, telnet_lt
+ 
+ 
+ void measurcmd_display_rlcstats(telnet_printfunc_t prnt) {
++  pthread_mutex_lock(&RC.measur_data_mutex);
+   protocol_ctxt_t      ctxt;
+   UE_info_t *UE_info = &(RC.mac[eNB_id]->UE_info);
+   telnet_ltemeasurdef_t  statsptr[]=LTE_RLCMEASURE;
+@@ -173,6 +185,8 @@ void measurcmd_display_rlcstats(telnet_printfunc_t prnt) {
+     measurcmd_display_one_rlcstat(prnt, UE_id, statsptr, num_rlcmeasure, rlcstats, "DCCH", &ctxt, SRB_FLAG_YES, DCCH);
+     measurcmd_display_one_rlcstat(prnt, UE_id, statsptr, num_rlcmeasure, rlcstats, "DTCH", &ctxt, SRB_FLAG_NO,  DTCH-2);
+   }
++  free(rlcstats);
++  pthread_mutex_unlock(&RC.measur_data_mutex);
+ } /* measurcmd_display_macstats_ue */
+ 
+ 
+diff --git a/executables/lte-ru.c b/executables/lte-ru.c
+index cd6dc9672d..d3432cb73d 100644
+--- a/executables/lte-ru.c
++++ b/executables/lte-ru.c
+@@ -123,12 +123,12 @@ static inline void fh_if5_south_out(RU_t *ru,int frame, int subframe, uint64_t t
+   for (int aid=0;aid<ru->nb_tx;aid++) buffs[aid] = (void*)&ru->common.txdata[aid][offset]; 
+ 
+   ru->ifdevice.trx_write_func2(&ru->ifdevice,
+-  		               timestamp,
++                               timestamp,
+                                buffs,
+-			       0,
+-			       ru->frame_parms->samples_per_tti,
+-			       0,
+-			       ru->nb_tx); 
++                               0,
++                               ru->frame_parms->samples_per_tti,
++                               0,
++                               ru->nb_tx); 
+ 
+ }
+ 
+@@ -1564,7 +1564,7 @@ static void *ru_thread( void *param ) {
+       
+     if (setup_RU_buffers(ru)!=0) {
+         LOG_I(PHY,"Exiting, cannot initialize RU Buffers\n");
+-	      exit(-1);
++              exit(-1);
+     }
+ 
+     AssertFatal((ret=pthread_mutex_lock(ru->ru_mutex))==0,"mutex_lock returns %d\n",ret);
+@@ -1756,19 +1756,19 @@ static void *ru_thread( void *param ) {
+ 
+         AssertFatal((ret=pthread_mutex_unlock(&ru->proc.mutex_pre_scd))==0,"[eNB] error unlocking mutex_pre_scd mutex for eNB pre scd\n");
+ #endif
+-	// wakeup all eNB processes waiting for this RU
+-	if (ru->num_eNB>0) wakeup_L1s(ru);
++        // wakeup all eNB processes waiting for this RU
++        if (ru->num_eNB>0) wakeup_L1s(ru);
+ 
+ #ifdef MBMS_EXPERIMENTAL
+-	//Workaround ... this must be properly handled
+-	if(ru->if_south==LOCAL_RF && ru->function==eNodeB_3GPP && ru->eNB_list[0]!=NULL){
+-		if(ru->frame_parms->num_MBSFN_config!=ru->eNB_list[0]->frame_parms.num_MBSFN_config){
+-			ru->frame_parms = &ru->eNB_list[0]->frame_parms;//->frame_parms;
+-			LOG_W(PHY,"RU MBSFN SF PARAMS Updated\n");
+-		}
+-	}
++        //Workaround ... this must be properly handled
++        if(ru->if_south==LOCAL_RF && ru->function==eNodeB_3GPP && ru->eNB_list[0]!=NULL){
++                if(ru->frame_parms->num_MBSFN_config!=ru->eNB_list[0]->frame_parms.num_MBSFN_config){
++                        ru->frame_parms = &ru->eNB_list[0]->frame_parms;//->frame_parms;
++                        LOG_W(PHY,"RU MBSFN SF PARAMS Updated\n");
++                }
++        }
+ #endif
+-	
++        
+ #ifndef PHY_TX_THREAD
+ 
+         if(get_thread_parallel_conf() == PARALLEL_SINGLE_THREAD || ru->num_eNB==0) {
+@@ -2586,8 +2586,8 @@ void init_RU(RU_t **rup,int nb_RU,PHY_VARS_eNB ***eNBp,int nb_L1,int *nb_CC,char
+       LOG_D(PHY, "%s() ru[%d].num_eNB:%d ru->eNB_list[0]:%p eNB[0][0]:%p rf_config_file:%s\n", __FUNCTION__, ru_id, ru->num_eNB, ru->eNB_list[0], eNBp[0][0], ru->rf_config_file);
+       
+       if (ru->eNB_list[0] == 0) {
+-	LOG_E(PHY,"%s() DJP - ru->eNB_list ru->num_eNB are not initialized - so do it manually\n", __FUNCTION__);
+-	ru->eNB_list[0] = eNBp[0][0];
++        LOG_E(PHY,"%s() DJP - ru->eNB_list ru->num_eNB are not initialized - so do it manually\n", __FUNCTION__);
++        ru->eNB_list[0] = eNBp[0][0];
+         ru->num_eNB=1;
+         //
+         // DJP - feptx_prec() / feptx_ofdm() parses the eNB_list (based on num_eNB) and copies the txdata_F to txdata in RU
+@@ -2691,6 +2691,7 @@ void init_ru_vnf(void) {
+   // create status mask
+   RC.ru_mask = 0;
+   pthread_mutex_init(&RC.ru_mutex,NULL);
++  pthread_mutex_init(&RC.measur_data_mutex,NULL);
+   pthread_cond_init(&RC.ru_cond,NULL);
+   // read in configuration file)
+   LOG_I(PHY,"configuring RU from file\n");
+@@ -2816,7 +2817,7 @@ RU_t **RCconfig_RU(int nb_RU,int nb_L1_inst,PHY_VARS_eNB ***eNB,uint64_t *ru_mas
+         }
+       }
+       else {
+-	ru[j]->openair0_cfg.clock_source = unset;
++        ru[j]->openair0_cfg.clock_source = unset;
+       }
+ 
+       if (config_isparamset(RUParamList.paramarray[j], RU_SDR_TME_SRC)) {
+@@ -2834,7 +2835,7 @@ RU_t **RCconfig_RU(int nb_RU,int nb_L1_inst,PHY_VARS_eNB ***eNB,uint64_t *ru_mas
+         }
+       }
+       else {
+-	ru[j]->openair0_cfg.time_source = unset;
++        ru[j]->openair0_cfg.time_source = unset;
+       }      
+ 
+       ru[j]->openair0_cfg.tune_offset = get_softmodem_params()->tune_offset;
+@@ -2916,28 +2917,28 @@ RU_t **RCconfig_RU(int nb_RU,int nb_L1_inst,PHY_VARS_eNB ***eNB,uint64_t *ru_mas
+         ru[j]->eth_params.remote_portd       = *(RUParamList.paramarray[j][RU_REMOTE_PORTD_IDX].uptr);
+       
+         if (strcmp(*(RUParamList.paramarray[j][RU_TRANSPORT_PREFERENCE_IDX].strptr), "udp") == 0) {
+-	  ru[j]->if_south                     = REMOTE_IF5;
+-	  ru[j]->function                     = NGFI_RAU_IF5;
+-	  ru[j]->eth_params.transp_preference = ETH_UDP_MODE;
++          ru[j]->if_south                     = REMOTE_IF5;
++          ru[j]->function                     = NGFI_RAU_IF5;
++          ru[j]->eth_params.transp_preference = ETH_UDP_MODE;
+         } else if (strcmp(*(RUParamList.paramarray[j][RU_TRANSPORT_PREFERENCE_IDX].strptr), "udp_ecpri_if5") == 0) {
+-	  ru[j]->if_south                     = REMOTE_IF5;
+-	  ru[j]->function                     = NGFI_RAU_IF5;
+-	  ru[j]->eth_params.transp_preference = ETH_UDP_IF5_ECPRI_MODE;
++          ru[j]->if_south                     = REMOTE_IF5;
++          ru[j]->function                     = NGFI_RAU_IF5;
++          ru[j]->eth_params.transp_preference = ETH_UDP_IF5_ECPRI_MODE;
+         } else if (strcmp(*(RUParamList.paramarray[j][RU_TRANSPORT_PREFERENCE_IDX].strptr), "raw") == 0) {
+-	  ru[j]->if_south                     = REMOTE_IF5;
+-	  ru[j]->function                     = NGFI_RAU_IF5;
+-	  ru[j]->eth_params.transp_preference = ETH_RAW_MODE;
++          ru[j]->if_south                     = REMOTE_IF5;
++          ru[j]->function                     = NGFI_RAU_IF5;
++          ru[j]->eth_params.transp_preference = ETH_RAW_MODE;
+         } else if (strcmp(*(RUParamList.paramarray[j][RU_TRANSPORT_PREFERENCE_IDX].strptr), "udp_if4p5") == 0) {
+-	  ru[j]->if_south                     = REMOTE_IF4p5;
+-	  ru[j]->function                     = NGFI_RAU_IF4p5;
+-  	  ru[j]->eth_params.transp_preference = ETH_UDP_IF4p5_MODE;
+-	  ru[j]->has_ctrl_prt                 = 1;
++          ru[j]->if_south                     = REMOTE_IF4p5;
++          ru[j]->function                     = NGFI_RAU_IF4p5;
++          ru[j]->eth_params.transp_preference = ETH_UDP_IF4p5_MODE;
++          ru[j]->has_ctrl_prt                 = 1;
+         } else if (strcmp(*(RUParamList.paramarray[j][RU_TRANSPORT_PREFERENCE_IDX].strptr), "raw_if4p5") == 0) {
+-	  ru[j]->if_south                     = REMOTE_IF4p5;
+-	  ru[j]->function                     = NGFI_RAU_IF4p5;
+-	  ru[j]->eth_params.transp_preference = ETH_RAW_IF4p5_MODE;
+-	  ru[j]->has_ctrl_prt                 = 1;
+-	
++          ru[j]->if_south                     = REMOTE_IF4p5;
++          ru[j]->function                     = NGFI_RAU_IF4p5;
++          ru[j]->eth_params.transp_preference = ETH_RAW_IF4p5_MODE;
++          ru[j]->has_ctrl_prt                 = 1;
++        
+           if (strcmp(*(RUParamList.paramarray[j][RU_IS_SLAVE_IDX].strptr), "yes") == 0) ru[j]->is_slave=1;
+           else ru[j]->is_slave=0;
+         }
+diff --git a/executables/nr-ru.c b/executables/nr-ru.c
+index f8d44ff4c0..498d9792f8 100644
+--- a/executables/nr-ru.c
++++ b/executables/nr-ru.c
+@@ -1528,6 +1528,7 @@ void init_NR_RU(configmodule_interface_t *cfg, char *rf_config_file)
+   // create status mask
+   RC.ru_mask = 0;
+   pthread_mutex_init(&RC.ru_mutex,NULL);
++  pthread_mutex_init(&RC.measur_data_mutex,NULL);
+   pthread_cond_init(&RC.ru_cond,NULL);
+   // read in configuration file)
+   NRRCconfig_RU(cfg);

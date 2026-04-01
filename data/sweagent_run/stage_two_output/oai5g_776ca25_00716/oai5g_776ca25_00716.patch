@@ -1,0 +1,127 @@
+diff --git a/openair3/NAS/NR_UE/nr_nas_msg.c b/openair3/NAS/NR_UE/nr_nas_msg.c
+index 1199aad94b..4467d2f50e 100644
+--- a/openair3/NAS/NR_UE/nr_nas_msg.c
++++ b/openair3/NAS/NR_UE/nr_nas_msg.c
+@@ -50,6 +50,7 @@
+ #include "openair2/SDAP/nr_sdap/nr_sdap.h"
+ #include "openair3/SECU/nas_stream_eia2.h"
+ #include "openair3/UTILS/conversions.h"
++#include "GprsTimer.h"
+ 
+ #define MAX_NAS_UE 4
+ 
+@@ -1145,6 +1146,91 @@ static void parse_allowed_nssai(nr_nas_msg_snssai_t nssaiList[8], const uint8_t
+   }
+ }
+ 
++/* Process timer IEs (T3512 and T3502) from Registration Accept messages */
++static void process_registration_accept_timers(const uint8_t *pdu_buffer, const uint32_t pdu_length)
++{
++  if ((pdu_buffer == NULL) || (pdu_length <= 0))
++    return;
++
++  const uint8_t *end = pdu_buffer + pdu_length;
++  if (((nas_msg_header_t *)(pdu_buffer))->choice.security_protected_nas_msg_header_t.security_header_type > 0) {
++    pdu_buffer += SECURITY_PROTECTED_5GS_NAS_MESSAGE_HEADER_LENGTH;
++  }
++
++  pdu_buffer += 1 + 1 + 1 + 2; // Mandatory fields offset
++  /* optional fields */
++  while (pdu_buffer < end) {
++    const int type = *pdu_buffer++;
++    int length = 0;
++    switch (type) {
++      case 0x5E: // T3512 (Periodic Registration Update Timer)
++        LOG_D(NAS, "Processing T3512 (Periodic Registration Update Timer) IE\n");
++        if (pdu_buffer < end) {
++          GprsTimer t3512_timer = {0};
++          // Create a temporary buffer with the IEI and value for decoding
++          uint8_t temp_buffer[3]; // IEI + timer value
++          temp_buffer[0] = 0x5E;  // IEI
++          temp_buffer[1] = *pdu_buffer;  // Timer value
++          
++          int decoded = decode_gprs_timer(&t3512_timer, 0x5E, temp_buffer, sizeof(temp_buffer));
++          if (decoded > 0) {
++            long timer_value = gprs_timer_value(&t3512_timer);
++            LOG_I(NAS, "T3512 timer value: %ld seconds\n", timer_value);
++            // Timer processing would normally store this value somewhere for use
++            pdu_buffer++; // Move past the timer value
++          } else {
++            LOG_W(NAS, "Failed to decode T3512 timer\n");
++            pdu_buffer++; // Move past the timer value anyway
++          }
++        }
++        break;
++
++      case 0x16: // T3502 (Registration Attempt Timer)
++        LOG_D(NAS, "Processing T3502 (Registration Attempt Timer) IE\n");
++        if (pdu_buffer < end) {
++          GprsTimer t3502_timer = {0};
++          // Create a temporary buffer with the IEI and value for decoding
++          uint8_t temp_buffer[3]; // IEI + timer value
++          temp_buffer[0] = 0x16;  // IEI
++          temp_buffer[1] = *pdu_buffer;  // Timer value
++          
++          int decoded = decode_gprs_timer(&t3502_timer, 0x16, temp_buffer, sizeof(temp_buffer));
++          if (decoded > 0) {
++            long timer_value = gprs_timer_value(&t3502_timer);
++            LOG_I(NAS, "T3502 timer value: %ld seconds\n", timer_value);
++            // Timer processing would normally store this value somewhere for use
++            pdu_buffer++; // Move past the timer value
++          } else {
++            LOG_W(NAS, "Failed to decode T3502 timer\n");
++            pdu_buffer++; // Move past the timer value anyway
++          }
++        }
++        break;
++
++      case 0x77: // 5GS mobile identity
++        pdu_buffer += ntoh_int16_buf(pdu_buffer) + sizeof(uint16_t);
++        break;
++
++      case 0x4A: // PLMN list
++      case 0x54: // 5GS tracking area identity
++        pdu_buffer += *pdu_buffer + 1; // offset length + 1 byte which contains the length
++        break;
++
++      case 0x15: // allowed NSSAI
++        length = *pdu_buffer++;
++        // Skip NSSAI processing in timer function - handled separately by get_allowed_nssai()
++        pdu_buffer += length;
++        break;
++
++      default:
++        LOG_W(NAS, "This NAS IEI (0x%2.2x) is not handled when processing Registration Accept timers\n", type);
++        length = *pdu_buffer++;
++        pdu_buffer += length;
++        break;
++    }
++  }
++}
++
+ /* Extract Allowed NSSAI from Regestration Accept according to
+    3GPP TS 24.501 Table 8.2.7.1.1
+ */
+@@ -1164,6 +1250,14 @@ static void get_allowed_nssai(nr_nas_msg_snssai_t nssai[8], const uint8_t *pdu_b
+     const int type = *pdu_buffer++;
+     int length = 0;
+     switch (type) {
++      case 0x5E: // T3512 (Periodic Registration Update Timer)
++      case 0x16: // T3502 (Registration Attempt Timer)
++        // Skip timer IEs as they are processed separately
++        LOG_D(NAS, "Skipping timer IE (0x%2.2x) in get_allowed_nssai\n", type);
++        length = *pdu_buffer++;
++        pdu_buffer += length;
++        break;
++
+       case 0x77: // 5GS mobile identity
+         pdu_buffer += ntoh_int16_buf(pdu_buffer) + sizeof(uint16_t);
+         break;
+@@ -1219,6 +1313,7 @@ static void handle_registration_accept(nr_ue_nas_t *nas, const uint8_t *pdu_buff
+ {
+   LOG_I(NAS, "[UE] Received REGISTRATION ACCEPT message\n");
+   decodeRegistrationAccept(pdu_buffer, msg_length, nas);
++  process_registration_accept_timers(pdu_buffer, msg_length);
+   get_allowed_nssai(nas_allowed_nssai, pdu_buffer, msg_length);
+ 
+   as_nas_info_t initialNasMsg = {0};

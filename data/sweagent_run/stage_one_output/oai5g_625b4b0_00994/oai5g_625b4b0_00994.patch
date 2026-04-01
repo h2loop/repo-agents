@@ -1,0 +1,42 @@
+diff --git a/openair2/LAYER2/MAC/eNB_scheduler_fairRR.c b/openair2/LAYER2/MAC/eNB_scheduler_fairRR.c
+index 45a9fdb484..04d3060f09 100644
+--- a/openair2/LAYER2/MAC/eNB_scheduler_fairRR.c
++++ b/openair2/LAYER2/MAC/eNB_scheduler_fairRR.c
+@@ -918,28 +918,15 @@ void dlsch_scheduler_pre_processor_fairRR (module_id_t   Mod_id,
+   memset(min_rb_unit,0,sizeof(min_rb_unit));
+   memset(MIMO_mode_indicator[0], 0, MAX_NUM_CCs*N_RBG_MAX*sizeof(unsigned char));
+ 
+-  for (CC_id=0; CC_id<MAX_NUM_CCs; CC_id++) {
+-    if (mbsfn_flag[CC_id] > 0)  // If this CC is allocated for MBSFN skip it here
+-      continue;
+-
+-    min_rb_unit[CC_id] = get_min_rb_unit(Mod_id, CC_id);
+-
+-    for (i = 0; i < NUMBER_OF_UE_MAX; i++) {
+-      if (UE_info->active[i] != true)
+-        continue;
+-
+-      UE_id = i;
+-      // Initialize scheduling information for all active UEs
+-      dlsch_scheduler_pre_processor_reset_fairRR(
+-          Mod_id,
+-          frameP,
+-          subframeP,
+-          min_rb_unit,
+-          (uint16_t(*)[MAX_MOBILES_PER_ENB])nb_rbs_required,
+-          rballoc_sub,
+-          MIMO_mode_indicator);
+-    }
+-  }
++  // Initialize scheduling information for all active UEs
++  dlsch_scheduler_pre_processor_reset_fairRR(
++      Mod_id,
++      frameP,
++      subframeP,
++      min_rb_unit,
++      (uint16_t(*)[MAX_MOBILES_PER_ENB])nb_rbs_required,
++      rballoc_sub,
++      MIMO_mode_indicator);
+ 
+ #if (!defined(PRE_SCD_THREAD))
+   // Store the DLSCH buffer for each logical channel and for PCCID (assume 0)

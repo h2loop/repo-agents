@@ -1,0 +1,26 @@
+{
+  "run_id": "zephyr_00623_1e37b7",
+  "function": {
+    "name": "goep_server_setpath",
+    "file": "subsys/bluetooth/host/classic/shell/goep.c",
+    "start_line": 173,
+    "end_line": 178,
+    "body_lines": 6,
+    "signature": "static void goep_server_setpath(struct bt_obex_server *server, uint8_t flags, struct net_buf *buf)",
+    "subsystem": "subsys/bluetooth/host",
+    "token_estimate": 26
+  },
+  "bug": {
+    "bug_id": "c_use_after_free",
+    "description": "use-after-free vulnerability where freed memory is subsequently accessed",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a use-after-free vulnerability where freed memory is subsequently accessed downstream of function goep_server_setpath in the subsys/bluetooth/host subsystem.\nThe function is located at subsys/bluetooth/host/classic/shell/goep.c:173.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 0,
+  "trajectory_steps": 17,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-17T14:36:36Z"
+}

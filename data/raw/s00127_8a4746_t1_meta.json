@@ -1,0 +1,29 @@
+{
+  "run_id": "s00127_8a4746",
+  "function": {
+    "name": "m2ap_eNB_task",
+    "file": "openair2/M2AP/m2ap_eNB.c",
+    "start_line": 535,
+    "end_line": 673,
+    "body_lines": 139,
+    "signature": "void *m2ap_eNB_task(void *arg)",
+    "subsystem": "openair2/M2AP",
+    "token_estimate": 237
+  },
+  "bug": {
+    "bug_id": "telecom_harq_error",
+    "description": "HARQ process error such as incorrect retransmission or wrong redundancy version",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a HARQ process error such as incorrect retransmission or wrong redundancy version downstream of function m2ap_eNB_task in the openair2/M2AP subsystem.\nThe function is located at openair2/M2AP/m2ap_eNB.c:535.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00127_8a4746_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00127_8a4746_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 69,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T12:10:25Z"
+}

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix precoding information computation in UL MIMO configurations\n\n### Summary\nThe `compute_precoding_information()` function in the NR MAC layer was not properly setting the precoding value in several code paths. This caused UEs to use incorrect precoding matrices during uplink transmission, leading to degraded throughput and potential connection drops.\n\nThe issue occurred when the function validated TPMI values with `AssertFatal` but failed to assign the corresponding precoding value to the output parameter `*val` in the same conditional block. This left the precoding information at its default value of 0, regardless of the actual SRS feedback.\n\n### Changes\n- `openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c`: Fixed all code paths in `compute_precoding_information()` to properly set `*val` after TPMI validation.\n\n"
+}

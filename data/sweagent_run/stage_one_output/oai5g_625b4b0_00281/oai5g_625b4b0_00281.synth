@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Add missing handle_meas_timers function for measurement timer processing\n\n### Summary\nThe NR UE RRC stack was missing the `handle_meas_timers` function that should process measurement-related timers (T320, T321, T325, T380, T390). When the RRC timer handling code attempted to call this function, it would result in a compilation error or runtime issue.\n\nThis fix implements the missing `handle_meas_timers` function and integrates it into the existing RRC timer processing framework. The function now properly checks for expiration of all measurement timers and logs appropriate messages when they expire.\n\n### Changes\n- `openair2/RRC/NR_UE/rrc_timers_and_constants.c`: Added `handle_meas_timers` function implementation and integrated it into `nr_rrc_handle_timers`.\n- `openair2/RRC/NR_UE/rrc_proto.h`: Added function declaration for `handle_meas_timers`.\n\n"
+}

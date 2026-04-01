@@ -1,0 +1,30 @@
+{
+  "run_id": "s00140_a27bd7",
+  "function": {
+    "name": "fill_dmrs_mask",
+    "file": "openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c",
+    "start_line": 3159,
+    "end_line": 3257,
+    "body_lines": 99,
+    "signature": "int16_t fill_dmrs_mask(const NR_PDSCH_Config_t *pdsch_Config, int dci_format, int dmrs_TypeA_Position, int NrOfSymbols, int startSymbol, mappingType_t mappingtype, int length)",
+    "subsystem": "openair2/LAYER2/NR_MAC_COMMON",
+    "token_estimate": 474
+  },
+  "bug": {
+    "bug_id": "telecom_state_machine_stale_state",
+    "description": "stale protocol state not cleared after procedure completion or failure",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a stale protocol state not cleared after procedure completion or failure downstream of function fill_dmrs_mask in the openair2/LAYER2/NR_MAC_COMMON subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c:3159.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00140_a27bd7_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00140_a27bd7_p1.diff",
+  "patch_lines": 14,
+  "trajectory_steps": 58,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:26:10Z"
+}

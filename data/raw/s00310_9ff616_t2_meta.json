@@ -1,0 +1,9 @@
+{
+  "run_id": "s00310_9ff616",
+  "pr_text": "## Title: Fix HARQ indication message size calculation in nFAPI P7 interface\n\n### Summary\nThe nFAPI P7 interface incorrectly calculates message size when packing HARQ indication messages, causing CRC computation errors and potential buffer corruption. The `nfapi_pnf_p7_harq_ind` function uses `sizeof(nfapi_harq_indication_t)` which only accounts for the fixed header portion, omitting the variable-length payload containing actual HARQ PDUs. This results in incomplete message transmission and inco",
+  "trajectory_path": "data/raw/s00310_9ff616_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00310_9ff616_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 19,
+  "timestamp": "2026-02-10T12:38:15Z"
+}

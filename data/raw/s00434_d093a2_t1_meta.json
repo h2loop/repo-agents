@@ -1,0 +1,34 @@
+{
+  "run_id": "s00434_d093a2",
+  "function": {
+    "name": "MULx64",
+    "file": "openair3/SECU/snow3g.c",
+    "start_line": 658,
+    "end_line": 663,
+    "body_lines": 6,
+    "signature": "static uint64_t MULx64(uint64_t v, uint64_t c)",
+    "subsystem": "openair3/SECU",
+    "token_estimate": 24
+  },
+  "bug": {
+    "bug_id": "c_off_by_one",
+    "description": "off-by-one error in array indexing or loop boundary",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a off-by-one error in array indexing or loop boundary downstream of function MULx64 in the openair3/SECU subsystem.\nThe function is located at openair3/SECU/snow3g.c:658.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00434_d093a2_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00434_d093a2_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 31,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:21:10Z"
+}

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00061_ec1817",
+  "pr_text": "## Title: Fix heap buffer overflow in nFAPI HARQ indication packing\n\n### Summary\nFix a heap buffer overflow vulnerability in the nFAPI P7 interface when packing HARQ indication messages. The `pack_harq_indication_body_value()` function was incorrectly using `push16()` to write the instance length field, which increments the buffer pointer and causes writes beyond the allocated memory region. This could lead to memory corruption, process crashes, or security exploits when processing HARQ feedback",
+  "trajectory_path": "data/raw/s00061_ec1817_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00061_ec1817_p2.diff",
+  "patch_lines": 85,
+  "trajectory_steps": 53,
+  "timestamp": "2026-02-10T10:58:22Z"
+}

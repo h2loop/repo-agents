@@ -1,0 +1,245 @@
+'{"env":{"deployment":{"image":"oai5g-sera:776ca25","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_776ca25_00794","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix inconsistent polar decoder tree construction causing power control errors\n\n###
+  Summary\nThe `add_nodes` function in the polar decoder was creating an inconsistent
+  tree structure where the right subtree was not always properly initialized when
+  `all_frozen_below==0`. This led to downstream decoding functions accessing uninitialized
+  pointers, causing incorrect transmit power levels.\n\n### Changes\n- `openair1/PHY/CODING/nrPolar_tools/nr_polar_decoding_tools.c`:
+  Consolidated left and right subtree creation logic in `add_nodes` function to ensure
+  both are created together when needed.\n\n### Reproduction\nUnder certain RNTI values
+  and aggregation levels, the gNB would calculate incorrect transmit power levels
+  for UEs, causing UEs to transmit at wrong power levels. This was observable as UEs
+  either not being able to establish connections or having poor throughput due to
+  power mismatch.\n\nThe issue was particularly noticeable with DCI formats where
+  the polar decoder tree construction would result in an inconsistent structure, leading
+  to incorrect LLR calculations and ultimately wrong power control commands being
+  sent to UEs.\n","extra_fields":{"bug_description":"power control error causing incorrect
+  transmit power level","bug_id":"telecom_power_control_error","stage_one_patch":"diff
+  --git a/openair1/PHY/CODING/nrPolar_tools/nr_polar_decoding_tools.c b/openair1/PHY/CODING/nrPolar_tools/nr_polar_decoding_tools.c\nindex
+  7fd8d351ff..6f17007dc9 100644\n--- a/openair1/PHY/CODING/nrPolar_tools/nr_polar_decoding_tools.c\n+++
+  b/openair1/PHY/CODING/nrPolar_tools/nr_polar_decoding_tools.c\n@@ -37,38 +37,38
+  @@\n //#define DEBUG_NEW_IMPL 1\n \n static inline void updateBit(uint8_t listSize,\n-\t\t\t     uint16_t
+  row,\n-\t\t\t     uint16_t col,\n-\t\t\t     uint16_t xlen,\n-\t\t\t     uint8_t
+  ylen,\n-\t\t\t     int zlen,\n-\t\t\t     uint8_t bit[xlen][ylen][zlen],\n-\t\t\t     uint8_t
+  bitU[xlen][ylen])\n+                             uint16_t row,\n+                             uint16_t
+  col,\n+                             uint16_t xlen,\n+                             uint8_t
+  ylen,\n+                             int zlen,\n+                             uint8_t
+  bit[xlen][ylen][zlen],\n+                             uint8_t bitU[xlen][ylen])\n
+  {\n-\tuint16_t offset = ( xlen/(pow(2,(ylen-col))) );\n-\n-\tfor (uint8_t i=0; i<listSize;
+  i++) {\n-\t\tif (( (row) % (2*offset) ) >= offset ) {\n-\t\t  if (bitU[row][col-1]==0)
+  updateBit(listSize, row, (col-1), xlen, ylen, zlen, bit, bitU);\n-\t\t\tbit[row][col][i]
+  = bit[row][col-1][i];\n-\t\t} else {\n-\t\t  if (bitU[row][col-1]==0) updateBit(listSize,
+  row, (col-1), xlen, ylen, zlen, bit, bitU);\n-\t\t  if (bitU[row+offset][col-1]==0)
+  updateBit(listSize, (row+offset), (col-1), xlen, ylen, zlen, bit, bitU);\n-\t\t\tbit[row][col][i]
+  = ( (bit[row][col-1][i]+bit[row+offset][col-1][i]) % 2);\n-\t\t}\n-\t}\n-\n-\tbitU[row][col]=1;\n+        uint16_t
+  offset = ( xlen/(pow(2,(ylen-col))) );\n+\n+        for (uint8_t i=0; i<listSize;
+  i++) {\n+                if (( (row) % (2*offset) ) >= offset ) {\n+                  if
+  (bitU[row][col-1]==0) updateBit(listSize, row, (col-1), xlen, ylen, zlen, bit, bitU);\n+                        bit[row][col][i]
+  = bit[row][col-1][i];\n+                } else {\n+                  if (bitU[row][col-1]==0)
+  updateBit(listSize, row, (col-1), xlen, ylen, zlen, bit, bitU);\n+                  if
+  (bitU[row+offset][col-1]==0) updateBit(listSize, (row+offset), (col-1), xlen, ylen,
+  zlen, bit, bitU);\n+                        bit[row][col][i] = ( (bit[row][col-1][i]+bit[row+offset][col-1][i])
+  % 2);\n+                }\n+        }\n+\n+        bitU[row][col]=1;\n }\n \n static
+  inline void computeLLR(uint16_t row,\n-\t\t\t      uint16_t col,\n-\t\t\t      uint8_t
+  i,\n-\t\t\t      uint16_t offset,\n-\t\t\t      int xlen,\n-\t\t\t      int ylen,\n-\t\t\t      int
+  zlen,\n-\t\t\t      double llr[xlen][ylen][zlen])\n+                              uint16_t
+  col,\n+                              uint8_t i,\n+                              uint16_t
+  offset,\n+                              int xlen,\n+                              int
+  ylen,\n+                              int zlen,\n+                              double
+  llr[xlen][ylen][zlen])\n {\n   double a = llr[row][col + 1][i];\n   double b = llr[row
+  + offset][col + 1][i];\n@@ -77,71 +77,71 @@ static inline void computeLLR(uint16_t
+  row,\n \n \n void updateLLR(uint8_t listSize,\n-\t       uint16_t row,\n-\t       uint16_t
+  col,\n-\t        uint16_t xlen,\n-\t       uint8_t ylen,\n-\t       int zlen,\n-\t       double  llr[xlen][ylen][zlen],\n-\t       uint8_t
+  llrU[xlen][ylen],\n-\t       uint8_t bit[xlen][ylen][zlen],\n-\t       uint8_t bitU[xlen][ylen]\n-\t       )\n+               uint16_t
+  row,\n+               uint16_t col,\n+                uint16_t xlen,\n+               uint8_t
+  ylen,\n+               int zlen,\n+               double  llr[xlen][ylen][zlen],\n+               uint8_t
+  llrU[xlen][ylen],\n+               uint8_t bit[xlen][ylen][zlen],\n+               uint8_t
+  bitU[xlen][ylen]\n+               )\n {\n-\tuint16_t offset = (xlen/(pow(2,(ylen-col-1))));\n-\tfor
+  (uint8_t i=0; i<listSize; i++) {\n-\t\tif (( (row) % (2*offset) ) >= offset ) {\n-\t\t  if(bitU[row-offset][col]==0)
+  updateBit(listSize, (row-offset), col, xlen, ylen, zlen, bit, bitU);\n-\t\t  if(llrU[row-offset][col+1]==0)
+  updateLLR(listSize, (row-offset), (col+1), xlen, ylen, zlen, llr, llrU, bit, bitU
+  );\n-\t\t  if(llrU[row][col+1]==0) updateLLR(listSize, row, (col+1), xlen, ylen,
+  zlen, llr, llrU, bit, bitU);\n-\t\t\tllr[row][col][i] = (pow((-1),bit[row-offset][col][i])*llr[row-offset][col+1][i])
+  + llr[row][col+1][i];\n-\t\t} else {\n-\t\t  if(llrU[row][col+1]==0) updateLLR(listSize,
+  row, (col+1), xlen, ylen, zlen, llr, llrU, bit, bitU );\n-\t\t  if(llrU[row+offset][col+1]==0)
+  updateLLR(listSize, (row+offset), (col+1), xlen, ylen, zlen, llr, llrU, bit, bitU
+  );\n-\t\t  computeLLR(row, col, i, offset, xlen, ylen, zlen, llr);\n-\t\t}\n-\t}\n-\tllrU[row][col]=1;\n-\n-\t//\tprintf(\"LLR
+  (a %f, b %f): llr[%d][%d] %f\\n\",32*a,32*b,col,row,32*llr[col][row]);\n+        uint16_t
+  offset = (xlen/(pow(2,(ylen-col-1))));\n+        for (uint8_t i=0; i<listSize; i++)
+  {\n+                if (( (row) % (2*offset) ) >= offset ) {\n+                  if(bitU[row-offset][col]==0)
+  updateBit(listSize, (row-offset), col, xlen, ylen, zlen, bit, bitU);\n+                  if(llrU[row-offset][col+1]==0)
+  updateLLR(listSize, (row-offset), (col+1), xlen, ylen, zlen, llr, llrU, bit, bitU
+  );\n+                  if(llrU[row][col+1]==0) updateLLR(listSize, row, (col+1),
+  xlen, ylen, zlen, llr, llrU, bit, bitU);\n+                        llr[row][col][i]
+  = (pow((-1),bit[row-offset][col][i])*llr[row-offset][col+1][i]) + llr[row][col+1][i];\n+                }
+  else {\n+                  if(llrU[row][col+1]==0) updateLLR(listSize, row, (col+1),
+  xlen, ylen, zlen, llr, llrU, bit, bitU );\n+                  if(llrU[row+offset][col+1]==0)
+  updateLLR(listSize, (row+offset), (col+1), xlen, ylen, zlen, llr, llrU, bit, bitU
+  );\n+                  computeLLR(row, col, i, offset, xlen, ylen, zlen, llr);\n+                }\n+        }\n+        llrU[row][col]=1;\n+\n+        //      printf(\"LLR
+  (a %f, b %f): llr[%d][%d] %f\\n\",32*a,32*b,col,row,32*llr[col][row]);\n }\n \n
+  void updatePathMetric(double *pathMetric,\n-\t\t      uint8_t listSize,\n-\t\t      uint8_t
+  bitValue,\n-\t\t      uint16_t row,\n-\t\t      int xlen,\n-\t\t      int ylen,\n-\t\t      int
+  zlen,\n-\t\t      double llr[xlen][ylen][zlen]\n-\t\t      )\n+                      uint8_t
+  listSize,\n+                      uint8_t bitValue,\n+                      uint16_t
+  row,\n+                      int xlen,\n+                      int ylen,\n+                      int
+  zlen,\n+                      double llr[xlen][ylen][zlen]\n+                      )\n
+  {\n-\tint8_t multiplier = (2*bitValue) - 1;\n-\tfor (uint8_t i=0; i<listSize; i++)\n-\t\tpathMetric[i]
+  += log ( 1 + exp(multiplier*llr[row][0][i]) ) ; //eq. (11b)\n+        int8_t multiplier
+  = (2*bitValue) - 1;\n+        for (uint8_t i=0; i<listSize; i++)\n+                pathMetric[i]
+  += log ( 1 + exp(multiplier*llr[row][0][i]) ) ; //eq. (11b)\n \n }\n \n void updatePathMetric2(double
+  *pathMetric,\n-\t\t       uint8_t listSize,\n-\t\t       uint16_t row,\n-\t\t       int
+  xlen,\n-\t\t       int ylen,\n-\t\t       int zlen,\n-\t\t       double llr[xlen][ylen][zlen])\n+                       uint8_t
+  listSize,\n+                       uint16_t row,\n+                       int xlen,\n+                       int
+  ylen,\n+                       int zlen,\n+                       double llr[xlen][ylen][zlen])\n
+  {\n-\tdouble tempPM[listSize];\n-\tmemcpy(tempPM, pathMetric, (sizeof(double) *
+  listSize));\n+        double tempPM[listSize];\n+        memcpy(tempPM, pathMetric,
+  (sizeof(double) * listSize));\n \n-\tuint8_t bitValue = 0;\n-\tint8_t multiplier
+  = (2 * bitValue) - 1;\n-\tfor (uint8_t i = 0; i < listSize; i++)\n-\t\tpathMetric[i]
+  += log(1 + exp(multiplier * llr[row][0][i])); //eq. (11b)\n+        uint8_t bitValue
+  = 0;\n+        int8_t multiplier = (2 * bitValue) - 1;\n+        for (uint8_t i
+  = 0; i < listSize; i++)\n+                pathMetric[i] += log(1 + exp(multiplier
+  * llr[row][0][i])); //eq. (11b)\n \n-\tbitValue = 1;\n-\tmultiplier = (2 * bitValue)
+  - 1;\n-\tfor (uint8_t i = listSize; i < 2*listSize; i++)\n-\t\tpathMetric[i] = tempPM[(i-listSize)]
+  + log(1 + exp(multiplier * llr[row][0][(i-listSize)])); //eq. (11b)\n+        bitValue
+  = 1;\n+        multiplier = (2 * bitValue) - 1;\n+        for (uint8_t i = listSize;
+  i < 2*listSize; i++)\n+                pathMetric[i] = tempPM[(i-listSize)] + log(1
+  + exp(multiplier * llr[row][0][(i-listSize)])); //eq. (11b)\n \n }\n \n@@ -183,22
+  +183,21 @@ decoder_node_t *add_nodes(int level, int first_leaf_index, t_nrPolar_params
+  *pol\n \n   for (int i=0;i<Nv;i++) {\n     if (polarParams->information_bit_pattern[i+first_leaf_index]>0)
+  {\n-    \t  all_frozen_below=0;\n+          all_frozen_below=0;\n         break;\n     }\n   }\n
+  \n-  if (all_frozen_below==0)\n-\t  new_node->left=add_nodes(level-1, first_leaf_index,
+  polarParams);\n-  else {\n+  if (all_frozen_below==0) {\n+          new_node->left=add_nodes(level-1,
+  first_leaf_index, polarParams);\n+          new_node->right=add_nodes(level-1,first_leaf_index+(Nv/2),polarParams);\n+  }
+  else {\n #ifdef DEBUG_NEW_IMPL\n     printf(\"aggregating frozen bits %d ... %d
+  at level %d (%s)\\n\",first_leaf_index,first_leaf_index+Nv-1,level,((first_leaf_index/Nv)&1)==0?\"left\":\"right\");\n
+  #endif\n     new_node->leaf=1;\n     new_node->all_frozen=1;\n   }\n-  if (all_frozen_below==0)\n-\t  new_node->right=add_nodes(level-1,first_leaf_index+(Nv/2),polarParams);\n
+  \n #ifdef DEBUG_NEW_IMPL\n   printf(\"new_node (%d): first_leaf_index %d, left %p,
+  right %p\\n\",Nv,first_leaf_index,new_node->left,new_node->right);\n@@ -268,12 +267,12
+  @@ void applyFtoleft(const t_nrPolar_params *pp, decoder_node_t *node) {\n \n       //      printf(\"avx2len
+  %d\\n\",avx2len);\n       for (int i=0;i<avx2len;i++) {\n-\ta256       =((__m256i*)alpha_v)[i];\n-\tb256       =((__m256i*)alpha_v)[i+avx2len];\n-\tabsa256    =simde_mm256_abs_epi16(a256);\n-\tabsb256    =simde_mm256_abs_epi16(b256);\n-\tminabs256  =simde_mm256_min_epi16(absa256,absb256);\n-\t((__m256i*)alpha_l)[i]
+  =simde_mm256_sign_epi16(minabs256,simde_mm256_sign_epi16(a256,b256));\n+        a256       =((__m256i*)alpha_v)[i];\n+        b256       =((__m256i*)alpha_v)[i+avx2len];\n+        absa256    =simde_mm256_abs_epi16(a256);\n+        absb256    =simde_mm256_abs_epi16(b256);\n+        minabs256  =simde_mm256_min_epi16(absa256,absb256);\n+        ((__m256i*)alpha_l)[i]
+  =simde_mm256_sign_epi16(minabs256,simde_mm256_sign_epi16(a256,b256));\n       }\n     }\n     else
+  if (avx2mod == 8) {\n@@ -297,16 +296,16 @@ void applyFtoleft(const t_nrPolar_params
+  *pp, decoder_node_t *node) {\n     else\n     { // equivalent scalar code to above,
+  activated only on non x86/ARM architectures\n       for (int i=0;i<node->Nv/2;i++)
+  {\n-    \t  a=alpha_v[i];\n-    \t  b=alpha_v[i+(node->Nv/2)];\n-    \t  maska=a>>15;\n-    \t  maskb=b>>15;\n-    \t  absa=(a+maska)^maska;\n-    \t  absb=(b+maskb)^maskb;\n-    \t  minabs
+  = absa<absb ? absa : absb;\n-    \t  alpha_l[i] = (maska^maskb)==0 ? minabs : -minabs;\n-    \t  //\tprintf(\"alphal[%d]
+  %d (%d,%d)\\n\",i,alpha_l[i],a,b);\n-    \t  }\n+          a=alpha_v[i];\n+          b=alpha_v[i+(node->Nv/2)];\n+          maska=a>>15;\n+          maskb=b>>15;\n+          absa=(a+maska)^maska;\n+          absb=(b+maskb)^maskb;\n+          minabs
+  = absa<absb ? absa : absb;\n+          alpha_l[i] = (maska^maskb)==0 ? minabs :
+  -minabs;\n+          //    printf(\"alphal[%d] %d (%d,%d)\\n\",i,alpha_l[i],a,b);\n+          }\n     }\n     if
+  (node->Nv == 2) { // apply hard decision on left node\n       betal[0] = (alpha_l[0]>0)
+  ? -1 : 1;\n@@ -338,23 +337,23 @@ void applyGtoright(const t_nrPolar_params *pp,decoder_node_t
+  *node) {\n       int avx2len = node->Nv/2/16;\n       \n       for (int i=0;i<avx2len;i++)
+  {\n-\t((__m256i *)alpha_r)[i] = \n-\t  simde_mm256_subs_epi16(((__m256i *)alpha_v)[i+avx2len],\n-\t\t\t    simde_mm256_sign_epi16(((__m256i
+  *)alpha_v)[i],\n-\t\t\t\t\t      ((__m256i *)betal)[i]));\t\n+        ((__m256i
+  *)alpha_r)[i] = \n+          simde_mm256_subs_epi16(((__m256i *)alpha_v)[i+avx2len],\n+                            simde_mm256_sign_epi16(((__m256i
+  *)alpha_v)[i],\n+                                              ((__m256i *)betal)[i]));  \n       }\n     }\n     else
+  if (avx2mod == 8) {\n-      ((__m128i *)alpha_r)[0] = _mm_subs_epi16(((__m128i *)alpha_v)[1],_mm_sign_epi16(((__m128i
+  *)alpha_v)[0],((__m128i *)betal)[0]));\t\n+      ((__m128i *)alpha_r)[0] = _mm_subs_epi16(((__m128i
+  *)alpha_v)[1],_mm_sign_epi16(((__m128i *)alpha_v)[0],((__m128i *)betal)[0]));  \n     }\n     else
+  if (avx2mod == 4) {\n-      ((__m64 *)alpha_r)[0] = _mm_subs_pi16(((__m64 *)alpha_v)[1],_mm_sign_pi16(((__m64
+  *)alpha_v)[0],((__m64 *)betal)[0]));\t\n+      ((__m64 *)alpha_r)[0] = _mm_subs_pi16(((__m64
+  *)alpha_v)[1],_mm_sign_pi16(((__m64 *)alpha_v)[0],((__m64 *)betal)[0]));    \n     }\n     else\n       {\n         int
+  temp_alpha_r;\n-\tfor (int i = 0; i < node->Nv / 2; i++) {\n-\t  temp_alpha_r =
+  alpha_v[i + (node->Nv / 2)] - (betal[i] * alpha_v[i]);\n+        for (int i = 0;
+  i < node->Nv / 2; i++) {\n+          temp_alpha_r = alpha_v[i + (node->Nv / 2)]
+  - (betal[i] * alpha_v[i]);\n           if (temp_alpha_r > SHRT_MAX) {\n             alpha_r[i]
+  = SHRT_MAX;\n           } else if (temp_alpha_r < -SHRT_MAX) {\n@@ -362,7 +361,7
+  @@ void applyGtoright(const t_nrPolar_params *pp,decoder_node_t *node) {\n           }
+  else {\n             alpha_r[i] = temp_alpha_r;\n           }\n-\t}\n+        }\n       }\n     if
+  (node->Nv == 2) { // apply hard decision on right node\n       betar[0] = (alpha_r[0]>0)
+  ? -1 : 1;\n@@ -390,23 +389,23 @@ void computeBeta(const t_nrPolar_params *pp,decoder_node_t
+  *node) {\n     if (avx2mod == 0) {\n       int avx2len = node->Nv/2/16;\n       for
+  (int i=0;i<avx2len;i++) {\n-\t((__m256i*)betav)[i] = simde_mm256_or_si256(simde_mm256_cmpeq_epi16(((__m256i*)betar)[i],\n-\t\t\t\t\t\t\t\t  ((__m256i*)betal)[i]),allones);\n+        ((__m256i*)betav)[i]
+  = simde_mm256_or_si256(simde_mm256_cmpeq_epi16(((__m256i*)betar)[i],\n+                                                                  ((__m256i*)betal)[i]),allones);\n       }\n     }\n     else
+  if (avx2mod == 8) {\n       ((__m128i*)betav)[0] = _mm_or_si128(_mm_cmpeq_epi16(((__m128i*)betar)[0],\n-\t\t\t\t\t\t\t  ((__m128i*)betal)[0]),*((__m128i*)all1));\n+                                                          ((__m128i*)betal)[0]),*((__m128i*)all1));\n     }\n     else
+  if (avx2mod == 4) {\n       ((__m64*)betav)[0] = _mm_or_si64(_mm_cmpeq_pi16(((__m64*)betar)[0],\n-\t\t\t\t\t\t      ((__m64*)betal)[0]),*((__m64*)all1));\n+                                                      ((__m64*)betal)[0]),*((__m64*)all1));\n     }\n     else\n       {\n-\tfor
+  (int i=0;i<node->Nv/2;i++) {\n-\t\tbetav[i] = (betal[i] != betar[i]) ? 1 : -1;\n-\t}\n+        for
+  (int i=0;i<node->Nv/2;i++) {\n+                betav[i] = (betal[i] != betar[i])
+  ? 1 : -1;\n+        }\n       }\n   }\n   else memcpy((void*)&betav[0],betar,(node->Nv/2)*sizeof(int16_t));\n","start_fn":"add_nodes","start_fn_file":"openair1/PHY/CODING/nrPolar_tools/nr_polar_decoding_tools.c","subsystem":"openair1/PHY/CODING"},"type":"text","id":"oai5g_776ca25_00794"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

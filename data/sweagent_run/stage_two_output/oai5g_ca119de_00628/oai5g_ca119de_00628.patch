@@ -1,0 +1,24 @@
+diff --git a/openair3/NAS/COMMON/nr_common.c b/openair3/NAS/COMMON/nr_common.c
+index 0a7aae2a17..43973a30a4 100644
+--- a/openair3/NAS/COMMON/nr_common.c
++++ b/openair3/NAS/COMMON/nr_common.c
+@@ -29,7 +29,8 @@ void servingNetworkName(uint8_t *msg, char * imsiStr, int nmc_size) {
+   //SNN-network-identifier in TS 24.501
+   // TS 24.501: If the MNC of the serving PLMN has two digits, then a zero is added at the beginning.
+   const char *format="5G:mnc000.mcc000.3gppnetwork.org";
+-  memcpy(msg,format, strlen(format));
++  size_t format_len = strlen(format);
++  memcpy(msg,format, format_len);
+ 
+   if (nmc_size == 2)
+     memcpy(msg+7, imsiStr+3, 2);
+@@ -37,6 +38,9 @@ void servingNetworkName(uint8_t *msg, char * imsiStr, int nmc_size) {
+     memcpy(msg+6, imsiStr+3, 3);
+ 
+   memcpy(msg+13, imsiStr, 3);
++  
++  // Add null terminator
++  msg[format_len] = '\0';
+ }
+ 
+ int resToresStar(uint8_t *msg, const uicc_t* uicc) {

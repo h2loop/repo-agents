@@ -1,0 +1,40 @@
+{
+  "run_id": "s00259_eb3091",
+  "function": {
+    "name": "widget_dirty",
+    "file": "common/utils/T/tracer/gui/widget.c",
+    "start_line": 257,
+    "end_line": 264,
+    "body_lines": 8,
+    "signature": "void widget_dirty(gui *_gui, widget *_this)",
+    "subsystem": "common/utils/T",
+    "token_estimate": 22
+  },
+  "bug": {
+    "bug_id": "c_buffer_overflow",
+    "description": "buffer overflow vulnerability",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables",
+      "radio",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a buffer overflow vulnerability downstream of function widget_dirty in the common/utils/T subsystem.\nThe function is located at common/utils/T/tracer/gui/widget.c:257.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00259_eb3091_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00259_eb3091_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 11,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:51:26Z"
+}

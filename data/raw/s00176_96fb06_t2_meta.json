@@ -1,0 +1,9 @@
+{
+  "run_id": "s00176_96fb06",
+  "pr_text": "## Title: Eliminate redundant PH calculation in UL MAC PDU header decoding\n\n### Summary\nRefactor the single-entry PHR (Power Headroom Report) calculation in `decode_ul_mac_sub_pdu_header` to eliminate redundant computation. The original code calculated `phr->PH - 32` in both branches of a conditional statement, which was inefficient and unnecessary. The new implementation computes the base value once and conditionally adds the secondary term only when needed, improving code clarity and reducing ",
+  "trajectory_path": "data/raw/s00176_96fb06_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00176_96fb06_p2.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 11,
+  "timestamp": "2026-02-10T11:38:38Z"
+}

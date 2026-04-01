@@ -1,0 +1,12 @@
+diff --git a/openair2/LAYER2/MAC/config.c b/openair2/LAYER2/MAC/config.c
+index 528c979595..153e670fd8 100644
+--- a/openair2/LAYER2/MAC/config.c
++++ b/openair2/LAYER2/MAC/config.c
+@@ -239,6 +239,7 @@ void config_mib(int                 Mod_idP,
+                 uint32_t            ul_CarrierFreqP,
+                 uint32_t            pbch_repetitionP
+                ) {
++  AssertFatal(dl_BandwidthP >= 0 && dl_BandwidthP < 6, "dl_BandwidthP %d is out of bounds (must be 0-5)\n", dl_BandwidthP);
+   nfapi_config_request_t *cfg = &RC.mac[Mod_idP]->config[CC_idP];
+   cfg->num_tlv=0;
+   cfg->subframe_config.pcfich_power_offset.value   = 6000;  // 0dB

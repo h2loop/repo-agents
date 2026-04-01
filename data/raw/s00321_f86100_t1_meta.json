@@ -1,0 +1,28 @@
+{
+  "run_id": "s00321_f86100",
+  "function": {
+    "name": "unpack_rssi_indication",
+    "file": "nfapi/open-nFAPI/nfapi/src/nfapi_p4.c",
+    "start_line": 786,
+    "end_line": 793,
+    "body_lines": 8,
+    "signature": "static uint8_t unpack_rssi_indication(uint8_t **ppReadPackedMsg, uint8_t *end, void *msg, nfapi_p4_p5_codec_config_t *config)",
+    "subsystem": "nfapi/open-nFAPI/nfapi",
+    "token_estimate": 37
+  },
+  "bug": {
+    "bug_id": "telecom_sched_missed_opportunity",
+    "description": "missed scheduling opportunity where a UE with pending data is not scheduled",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a missed scheduling opportunity where a UE with pending data is not scheduled downstream of function unpack_rssi_indication in the nfapi/open-nFAPI/nfapi subsystem.\nThe function is located at nfapi/open-nFAPI/nfapi/src/nfapi_p4.c:786.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00321_f86100_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00321_f86100_p1.diff",
+  "patch_lines": 72,
+  "trajectory_steps": 84,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:40:13Z"
+}

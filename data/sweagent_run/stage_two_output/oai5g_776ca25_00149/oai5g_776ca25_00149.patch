@@ -1,0 +1,41 @@
+diff --git a/openair2/SDAP/nr_sdap/nr_sdap.c b/openair2/SDAP/nr_sdap/nr_sdap.c
+index f6602c7597..7f77656895 100644
+--- a/openair2/SDAP/nr_sdap/nr_sdap.c
++++ b/openair2/SDAP/nr_sdap/nr_sdap.c
+@@ -116,7 +116,14 @@ static void *sdap_tun_read_thread(void *arg)
+   int len;
+   reblock_tun_socket(entity->pdusession_sock);
+ 
+-  int rb_id = 1;
++  // Use the entity's default DRB instead of hardcoded value
++  rb_id_t rb_id = entity->default_drb;
++  
++  // Safety check for valid default DRB configuration
++  if (rb_id == 0) {
++    LOG_E(SDAP, "Invalid default DRB configuration for UE %ld, PDU session %d\n", entity->ue_id, entity->pdusession_id);
++    return NULL;
++  }
+ 
+   while (!entity->stop_thread) {
+     len = read(entity->pdusession_sock, &rx_buf, NL_MAX_PAYLOAD);
+@@ -142,7 +149,10 @@ static void *sdap_tun_read_thread(void *arg)
+ 
+     protocol_ctxt_t ctxt = {.enb_flag = entity->is_gnb, .rntiMaybeUEid = entity->ue_id};
+ 
+-    bool dc = entity->is_gnb ? false : SDAP_HDR_UL_DATA_PDU;
++    // For data PDUs, set appropriate constant values:
++    // - UL data PDU: DC = 1 (SDAP_HDR_UL_DATA_PDU)
++    // - DL data PDU: RQI = 1 (standard for data packets)
++    bool rqi = SDAP_HDR_UL_DATA_PDU;
+ 
+     DevAssert(entity != NULL);
+     entity->tx_entity(entity,
+@@ -157,7 +167,7 @@ static void *sdap_tun_read_thread(void *arg)
+                       NULL,
+                       NULL,
+                       entity->qfi,
+-                      dc);
++                      rqi);
+   }
+ 
+   return NULL;

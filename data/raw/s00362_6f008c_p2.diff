@@ -1,0 +1,19 @@
+diff --git a/openair2/RRC/LTE/rrc_eNB.c b/openair2/RRC/LTE/rrc_eNB.c
+index 90b2d3b86f..4de0df893c 100644
+--- a/openair2/RRC/LTE/rrc_eNB.c
++++ b/openair2/RRC/LTE/rrc_eNB.c
+@@ -909,12 +909,12 @@ void release_UE_in_freeList(module_id_t mod_id) {
+       int id;
+       // clean ULSCH entries for rnti
+       id = find_ulsch(rnti, eNB_PHY, eNB_MAC->UE_free_ctrl[ue_num].raFlag ? SEARCH_EXIST_RA : SEARCH_EXIST);
+-      if (id >= 0)
++      if (id >= 0 && id < NUMBER_OF_ULSCH_MAX)
+         clean_eNb_ulsch(eNB_PHY->ulsch[id]);
+ 
+         // clean DLSCH entries for rnti
+       id = find_dlsch(rnti, eNB_PHY, eNB_MAC->UE_free_ctrl[ue_num].raFlag ? SEARCH_EXIST_RA : SEARCH_EXIST);
+-      if (id >= 0)
++      if (id >= 0 && id < NUMBER_OF_DLSCH_MAX)
+         clean_eNb_dlsch(eNB_PHY->dlsch[id][0]);
+ 
+         // clean UCI entries for rnti

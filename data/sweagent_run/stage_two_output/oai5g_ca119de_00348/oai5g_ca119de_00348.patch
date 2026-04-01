@@ -1,0 +1,43 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
+index 64ec807d51..3eb8372861 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
+@@ -390,6 +390,12 @@ static uint8_t pack_broadcast_detect_response(void *msg, uint8_t **ppWritePacked
+ 
+ static uint8_t pack_lte_broadcast_detect_indication_value(void *msg, uint8_t **ppWritePackedMsg, uint8_t *end) {
+   nfapi_lte_broadcast_detect_indication_t *value = (nfapi_lte_broadcast_detect_indication_t *)msg;
++  
++  if(value->mib_length > NFAPI_MAX_MIB_LENGTH) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "MIB too long %d \n", value->mib_length);
++    return 0;
++  }
++  
+   return (push8(value->number_of_tx_antenna, ppWritePackedMsg, end) &&
+           push16(value->mib_length, ppWritePackedMsg, end) &&
+           pusharray8(value->mib, NFAPI_MAX_MIB_LENGTH, value->mib_length, ppWritePackedMsg, end) &&
+@@ -398,6 +404,12 @@ static uint8_t pack_lte_broadcast_detect_indication_value(void *msg, uint8_t **p
+ 
+ static uint8_t pack_utran_broadcast_detect_indication_value(void *msg, uint8_t **ppWritePackedMsg, uint8_t *end) {
+   nfapi_utran_broadcast_detect_indication_t *value = (nfapi_utran_broadcast_detect_indication_t *)msg;
++  
++  if(value->mib_length > NFAPI_MAX_MIB_LENGTH) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "MIB too long %d \n", value->mib_length);
++    return 0;
++  }
++  
+   return (push16(value->mib_length, ppWritePackedMsg, end) &&
+           pusharray8(value->mib, NFAPI_MAX_MIB_LENGTH, value->mib_length, ppWritePackedMsg, end) &&
+           push32(value->sfn_offset, ppWritePackedMsg, end));
+@@ -405,6 +417,12 @@ static uint8_t pack_utran_broadcast_detect_indication_value(void *msg, uint8_t *
+ 
+ static uint8_t pack_nb_iot_broadcast_detect_indication_value(void *msg, uint8_t **ppWritePackedMsg, uint8_t *end) {
+   nfapi_nb_iot_broadcast_detect_indication_t *value = (nfapi_nb_iot_broadcast_detect_indication_t *)msg;
++  
++  if(value->mib_length > NFAPI_MAX_MIB_LENGTH) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "MIB too long %d \n", value->mib_length);
++    return 0;
++  }
++  
+   return (push8(value->number_of_tx_antenna, ppWritePackedMsg, end) &&
+           push16(value->mib_length, ppWritePackedMsg, end) &&
+           pusharray8(value->mib, NFAPI_MAX_MIB_LENGTH, value->mib_length, ppWritePackedMsg, end) &&

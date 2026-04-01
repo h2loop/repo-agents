@@ -1,0 +1,52 @@
+diff --git a/openair1/PHY/LTE_TRANSPORT/pbch.c b/openair1/PHY/LTE_TRANSPORT/pbch.c
+index e589dca525..a7993050a0 100644
+--- a/openair1/PHY/LTE_TRANSPORT/pbch.c
++++ b/openair1/PHY/LTE_TRANSPORT/pbch.c
+@@ -113,25 +113,31 @@ int allocate_pbch_REs_in_RB(LTE_DL_FRAME_PARMS *frame_parms,
+         ((int16_t*)&txdataF[1][tti_offset])[0] += (int16_t)((((int16_t*)&tmp_sample2)[0]*ONE_OVER_SQRT2_Q15)>>15);
+         ((int16_t*)&txdataF[1][tti_offset])[1] += (int16_t)((((int16_t*)&tmp_sample2)[1]*ONE_OVER_SQRT2_Q15)>>15);
+ 
+-        // fill in the rest of the ALAMOUTI precoding
+-        if (is_not_pilot(pilots,re + 1,frame_parms->nushift,0)==1) {
+-          ((int16_t *)&txdataF[0][tti_offset+1])[0] += -((int16_t *)&txdataF[1][tti_offset])[0]; //x1
+-          ((int16_t *)&txdataF[0][tti_offset+1])[1] += ((int16_t *)&txdataF[1][tti_offset])[1];
+-          ((int16_t *)&txdataF[1][tti_offset+1])[0] += ((int16_t *)&txdataF[0][tti_offset])[0];  //x0*
+-          ((int16_t *)&txdataF[1][tti_offset+1])[1] += -((int16_t *)&txdataF[0][tti_offset])[1];
+-        } else {
+-          ((int16_t *)&txdataF[0][tti_offset+2])[0] += -((int16_t *)&txdataF[1][tti_offset])[0]; //x1
+-          ((int16_t *)&txdataF[0][tti_offset+2])[1] += ((int16_t *)&txdataF[1][tti_offset])[1];
+-          ((int16_t *)&txdataF[1][tti_offset+2])[0] += ((int16_t *)&txdataF[0][tti_offset])[0];  //x0*
+-          ((int16_t *)&txdataF[1][tti_offset+2])[1] += -((int16_t *)&txdataF[0][tti_offset])[1];
++        // fill in the rest of the ALAMOUTI precoding with boundary checks
++        if (re + 1 < last_re) {
++          if (is_not_pilot(pilots,re + 1,frame_parms->nushift,0)==1) {
++            ((int16_t *)&txdataF[0][tti_offset+1])[0] += -((int16_t *)&txdataF[1][tti_offset])[0]; //x1
++            ((int16_t *)&txdataF[0][tti_offset+1])[1] += ((int16_t *)&txdataF[1][tti_offset])[1];
++            ((int16_t *)&txdataF[1][tti_offset+1])[0] += ((int16_t *)&txdataF[0][tti_offset])[0];  //x0*
++            ((int16_t *)&txdataF[1][tti_offset+1])[1] += -((int16_t *)&txdataF[0][tti_offset])[1];
++          } else if (re + 2 < last_re) {
++            ((int16_t *)&txdataF[0][tti_offset+2])[0] += -((int16_t *)&txdataF[1][tti_offset])[0]; //x1
++            ((int16_t *)&txdataF[0][tti_offset+2])[1] += ((int16_t *)&txdataF[1][tti_offset])[1];
++            ((int16_t *)&txdataF[1][tti_offset+2])[0] += ((int16_t *)&txdataF[0][tti_offset])[0];  //x0*
++            ((int16_t *)&txdataF[1][tti_offset+2])[1] += -((int16_t *)&txdataF[0][tti_offset])[1];
++          }
+         }
+ 
+-        re++;  // adjacent carriers are taken care of by precoding
+-        *re_allocated = *re_allocated + 1;
+-
+-        if (is_not_pilot(pilots,re,frame_parms->nushift,0)==0) { // skip pilots
+-          re++;
++        if (re + 1 < last_re) {
++          re++;  // adjacent carriers are taken care of by precoding
+           *re_allocated = *re_allocated + 1;
++
++          if (is_not_pilot(pilots,re,frame_parms->nushift,0)==0) { // skip pilots
++            if (re + 1 < last_re) {
++              re++;
++              *re_allocated = *re_allocated + 1;
++            }
++          }
+         }
+       }
+     }

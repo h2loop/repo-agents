@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix PLMN list encoding minimum length check\n\n### Summary\nThe `encode_plmn_list` function in the NAS IES module was rejecting valid calls with a \"BUFFER_TOO_SHORT\" error when invoked without an IEI and with a minimal buffer size. This occurred because the minimum length was set to 5 bytes, but when no IEI is present, only 4 bytes are needed (1 length byte + 3 PLMN data bytes).\n\nThe issue manifested as failed NG Setup procedures when the gNB attempted to encode PLMN lists in certain NAS messages. AMF connections would fail intermittently with \"Failed to encode PLMN list\" warnings in the logs.\n\nThe fix reduces the `PLMN_LIST_MINIMUM_LENGTH` from 5 to 4 in `PlmnList.h`, allowing the function to accept buffers of adequate size regardless of IEI presence.\n\n### Changes\n- `openair3/NAS/COMMON/IES/PlmnList.h`: Changed `PLMN_LIST_MINIMUM_LENGTH` from 5 to 4\n"
+}

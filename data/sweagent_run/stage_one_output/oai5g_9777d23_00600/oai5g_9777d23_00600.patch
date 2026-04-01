@@ -1,0 +1,46 @@
+diff --git a/executables/lte-enb.c b/executables/lte-enb.c
+index 5e686d6527..1829b5db67 100644
+--- a/executables/lte-enb.c
++++ b/executables/lte-enb.c
+@@ -835,8 +835,14 @@ void *L1_stats_thread(void *param) {
+     fd=fopen("L1_stats.log","w");
+     AssertFatal(fd!=NULL,"Cannot open L1_stats.log\n");
+     dump_I0_stats(fd,eNB);
+-    dump_ulsch_stats(fd,eNB,eNB->proc.L1_proc_tx.frame_tx);
+-    dump_uci_stats(fd,eNB,eNB->proc.L1_proc_tx.frame_tx);
++    // Add safety check for valid frame number
++    if (eNB->proc.L1_proc_tx.frame_tx >= 0 && eNB->proc.L1_proc_tx.frame_tx < 1024) {
++      dump_ulsch_stats(fd,eNB,eNB->proc.L1_proc_tx.frame_tx);
++      dump_uci_stats(fd,eNB,eNB->proc.L1_proc_tx.frame_tx);
++    } else {
++      dump_ulsch_stats(fd,eNB,0);
++      dump_uci_stats(fd,eNB,0);
++    }
+     fclose(fd);
+   }
+   return(NULL);
+@@ -872,6 +878,24 @@ void init_eNB_proc(int inst) {
+     proc->RU_mask_tx               = (1<<eNB->num_RU)-1;
+     memset((void *)proc->RU_mask,0,10*sizeof(proc->RU_mask[0]));
+     proc->RU_mask_prach            =0;
++    
++    // Initialize frame and subframe counters for both L1_proc and L1_proc_tx
++    L1_proc->frame_tx              = 0;
++    L1_proc->subframe_tx           = 0;
++    L1_proc->frame_rx              = 0;
++    L1_proc->subframe_rx           = 0;
++    L1_proc_tx->frame_tx           = 0;
++    L1_proc_tx->subframe_tx        = 0;
++    L1_proc_tx->frame_rx           = 0;
++    L1_proc_tx->subframe_rx        = 0;
++    L1_proc->frame_prach           = 0;
++    L1_proc->subframe_prach        = 0;
++    L1_proc->frame_prach_br        = 0;
++    L1_proc->subframe_prach_br     = 0;
++    L1_proc_tx->frame_prach        = 0;
++    L1_proc_tx->subframe_prach     = 0;
++    L1_proc_tx->frame_prach_br     = 0;
++    L1_proc_tx->subframe_prach_br  = 0;
+     pthread_mutex_init( &eNB->UL_INFO_mutex, NULL);
+     pthread_mutex_init( &L1_proc->mutex, NULL);
+     pthread_mutex_init( &L1_proc_tx->mutex, NULL);

@@ -1,0 +1,17 @@
+diff --git a/openair2/E1AP/e1ap.c b/openair2/E1AP/e1ap.c
+index 1eff4ea529..941c5a035d 100644
+--- a/openair2/E1AP/e1ap.c
++++ b/openair2/E1AP/e1ap.c
+@@ -176,6 +176,12 @@ static void e1apCUCP_send_SETUP_FAILURE(sctp_assoc_t assoc_id, const e1ap_setup_
+   LOG_D(E1AP, "CU-CP: Encoding E1AP Setup Failure for transac_id %ld...\n", msg->transac_id);
+   E1AP_E1AP_PDU_t *pdu = encode_e1ap_cuup_setup_failure(msg);
+   e1ap_encode_send(CPtype, assoc_id, pdu, 0, __func__);
++
++  /* Trigger UE rescheduling after setup failure to avoid missing scheduling opportunities
++   * for UEs with pending data
++   */
++  MessageDef *sched_msg = itti_alloc_new_message(TASK_CUCP_E1, 0, E1AP_TRIGGER_UE_RESCHEDULE);
++  itti_send_msg_to_task(TASK_RRC_GNB, 0, sched_msg);
+ }
+ 
+ int e1apCUCP_handle_SETUP_REQUEST(sctp_assoc_t assoc_id, e1ap_upcp_inst_t *inst, const E1AP_E1AP_PDU_t *pdu)

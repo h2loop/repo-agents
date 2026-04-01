@@ -1,0 +1,9 @@
+{
+  "run_id": "s00179_9d35f3",
+  "pr_text": "## Title: Fix race condition in encode_imeisv_request\n\n### Summary\nFix a race condition in the NAS `encode_imeisv_request` function where multiple threads could concurrently access shared IMEISV request data through a pointer parameter without synchronization. The function is called during Security Mode Command encoding in multi-threaded gNB/UE contexts.\n\nThe fix eliminates the shared pointer dereference by changing the parameter from pass-by-pointer to pass-by-value. This ensures each thread op",
+  "trajectory_path": "data/raw/s00179_9d35f3_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00179_9d35f3_p2.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 25,
+  "timestamp": "2026-02-10T11:42:04Z"
+}

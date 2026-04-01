@@ -1,0 +1,109 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+index 51cd290632..2dde572add 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+@@ -2279,7 +2279,11 @@ static uint8_t pack_crc_indication_body_value(void *tlv, uint8_t **ppWritePacked
+   uint16_t i = 0;
+   uint16_t total_number_of_pdus = value->number_of_crcs;
+ 
+-  assert(total_number_of_pdus <= NFAPI_CRC_IND_MAX_PDU);
++  if (total_number_of_pdus > NFAPI_CRC_IND_MAX_PDU) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s number of crc ind pdu's exceed maximum (count:%d max:%d)\n", __FUNCTION__, total_number_of_pdus, NFAPI_CRC_IND_MAX_PDU);
++    return 0;
++  }
++
+   for(; i < total_number_of_pdus; ++i) {
+     nfapi_crc_indication_pdu_t *pdu = &(value->crc_pdu_list[i]);
+     uint8_t *instance_length_p = *ppWritePackedMsg;
+@@ -2292,9 +2296,18 @@ static uint8_t pack_crc_indication_body_value(void *tlv, uint8_t **ppWritePacked
+       return 0;
+ 
+     // calculate the instance length subtracting the size of the instance
+-    // length feild
++    // length field
++    if (*ppWritePackedMsg < instance_length_p + 2) {
++      NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s instance length calculation underflow\n", __FUNCTION__);
++      return 0;
++    }
+     uint16_t instance_length = *ppWritePackedMsg - instance_length_p - 2;
+-    push16(instance_length, &instance_length_p, end);
++    if (instance_length > 0xFFFF - 2) {
++      NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s instance length too large: %u\n", __FUNCTION__, instance_length);
++      return 0;
++    }
++    if(!push16(instance_length, &instance_length_p, end))
++      return 0;
+   }
+ 
+   return 1;
+@@ -3062,13 +3075,14 @@ static uint8_t pack_nr_rx_data_indication(void *msg, uint8_t **ppWritePackedMsg,
+ 
+ static uint8_t pack_nr_crc_indication_body(nfapi_nr_crc_t* value, uint8_t **ppWritePackedMsg, uint8_t *end)
+ {
++	uint16_t cb_crc_array_size = (value->num_cb + 7) / 8; // ceil(num_cb/8)
+ 
+ 	if(!(push32(value->handle, ppWritePackedMsg, end) &&
+ 	 	 push16(value->rnti, ppWritePackedMsg, end) &&
+ 		 push8(value->harq_id, ppWritePackedMsg, end) &&
+ 		 push8(value->tb_crc_status, ppWritePackedMsg, end) &&
+ 		 push16(value->num_cb, ppWritePackedMsg, end) &&
+-		 //pusharray8(value->cb_crc_status, (int)(value->num_cb / 8) + 1, (int)(value->num_cb / 8) + 1, ppWritePackedMsg, end) && //length is ceil(NumCb/8)
++		 pusharray8(value->cb_crc_status, cb_crc_array_size, cb_crc_array_size, ppWritePackedMsg, end) &&
+ 		 push8(value->ul_cqi, ppWritePackedMsg, end) &&
+ 		 push16(value->timing_advance, ppWritePackedMsg, end) &&
+ 		 push16(value->rssi, ppWritePackedMsg, end)
+@@ -6601,13 +6615,12 @@ static uint8_t unpack_crc_indication_body_value(void *tlv, uint8_t **ppReadPacke
+     return 0;
+ 
+   if(value->number_of_crcs > NFAPI_CRC_IND_MAX_PDU) {
+-    NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s number of crc ind pdu's exceed maxium (count:%d max:%d)\n", __FUNCTION__, value->number_of_crcs, NFAPI_CRC_IND_MAX_PDU);
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s number of crc ind pdu's exceed maximum (count:%d max:%d)\n", __FUNCTION__, value->number_of_crcs, NFAPI_CRC_IND_MAX_PDU);
+     return 0;
+   }
+ 
+   if(value->number_of_crcs > 0) {
+-    assert(value->number_of_crcs <= NFAPI_CRC_IND_MAX_PDU);
+-    value->crc_pdu_list = (nfapi_crc_indication_pdu_t *)nfapi_p7_allocate(sizeof(nfapi_crc_indication_pdu_t) * NFAPI_CRC_IND_MAX_PDU, config);
++    value->crc_pdu_list = (nfapi_crc_indication_pdu_t *)nfapi_p7_allocate(sizeof(nfapi_crc_indication_pdu_t) * value->number_of_crcs, config);
+ 
+     if(value->crc_pdu_list == NULL) {
+       NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s failed to allocate crc ind pdu list (count:%d)\n", __FUNCTION__, value->number_of_crcs);
+@@ -6625,14 +6638,37 @@ static uint8_t unpack_crc_indication_body_value(void *tlv, uint8_t **ppReadPacke
+     if(pull16(ppReadPackedMsg, &pdu->instance_length, end) == 0)
+       return 0;
+ 
++    if(pdu->instance_length > crcBodyEnd - *ppReadPackedMsg) {
++      NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s instance length exceeds remaining buffer size\n", __FUNCTION__);
++      if(value->crc_pdu_list != NULL) {
++        nfapi_p7_deallocate(value->crc_pdu_list, config);
++        value->crc_pdu_list = NULL;
++      }
++      return 0;
++    }
++
+     uint8_t *crcPduInstanceEnd = *ppReadPackedMsg + pdu->instance_length;
++    if(crcPduInstanceEnd > crcBodyEnd || crcPduInstanceEnd > end) {
++      NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s crc pdu instance end exceeds bounds\n", __FUNCTION__);
++      if(value->crc_pdu_list != NULL) {
++        nfapi_p7_deallocate(value->crc_pdu_list, config);
++        value->crc_pdu_list = NULL;
++      }
++      return 0;
++    }
++
+     unpack_tlv_t unpack_fns[] = {
+       { NFAPI_RX_UE_INFORMATION_TAG, &pdu->rx_ue_information, unpack_rx_ue_information_value },
+       { NFAPI_CRC_INDICATION_REL8_TAG, &pdu->crc_indication_rel8, unpack_crc_indication_rel8_value },
+     };
+ 
+-    if(unpack_tlv_list(unpack_fns, sizeof(unpack_fns)/sizeof(unpack_tlv_t), ppReadPackedMsg, crcPduInstanceEnd, 0, 0) == 0)
++    if(unpack_tlv_list(unpack_fns, sizeof(unpack_fns)/sizeof(unpack_tlv_t), ppReadPackedMsg, crcPduInstanceEnd, 0, 0) == 0) {
++      if(value->crc_pdu_list != NULL) {
++        nfapi_p7_deallocate(value->crc_pdu_list, config);
++        value->crc_pdu_list = NULL;
++      }
+       return 0;
++    }
+   }
+ 
+   return 1;

@@ -1,0 +1,21 @@
+diff --git a/openair3/NAS/COMMON/IES/FGSMobileIdentity.c b/openair3/NAS/COMMON/IES/FGSMobileIdentity.c
+index ea877481e6..1ff42a08ae 100644
+--- a/openair3/NAS/COMMON/IES/FGSMobileIdentity.c
++++ b/openair3/NAS/COMMON/IES/FGSMobileIdentity.c
+@@ -90,14 +90,10 @@ int encode_5gs_mobile_identity(FGSMobileIdentity *fgsmobileidentity, uint8_t iei
+   if (fgsmobileidentity->guti.typeofidentity == FGS_MOBILE_IDENTITY_5G_GUTI) {
+     encoded_rc = encode_guti_5gs_mobile_identity(&fgsmobileidentity->guti,
+                  buffer + encoded);
+-  }
+-
+-  if (fgsmobileidentity->suci.typeofidentity == FGS_MOBILE_IDENTITY_SUCI) {
++  } else if (fgsmobileidentity->suci.typeofidentity == FGS_MOBILE_IDENTITY_SUCI) {
+     encoded_rc = encode_suci_5gs_mobile_identity(&fgsmobileidentity->suci,
+                  buffer + encoded);
+-  }
+-
+-  if (fgsmobileidentity->imeisv.typeofidentity == FGS_MOBILE_IDENTITY_IMEISV) {
++  } else if (fgsmobileidentity->imeisv.typeofidentity == FGS_MOBILE_IDENTITY_IMEISV) {
+     encoded_rc = encode_imeisv_5gs_mobile_identity(&fgsmobileidentity->imeisv,
+                  buffer + encoded);
+   }

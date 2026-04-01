@@ -1,0 +1,32 @@
+{
+  "run_id": "s00017_889a20",
+  "function": {
+    "name": "config_csiim",
+    "file": "openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c",
+    "start_line": 561,
+    "end_line": 611,
+    "body_lines": 51,
+    "signature": "static void config_csiim(int do_csirs, int dl_antenna_ports, int curr_bwp, NR_CSI_MeasConfig_t *csi_MeasConfig, int id)",
+    "subsystem": "openair2/LAYER2/NR_MAC_gNB",
+    "token_estimate": 182
+  },
+  "bug": {
+    "bug_id": "telecom_missing_optional_field",
+    "description": "missing optional field that is conditionally mandatory per 3GPP specification",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a missing optional field that is conditionally mandatory per 3GPP specification downstream of function config_csiim in the openair2/LAYER2/NR_MAC_gNB subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c:561.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00017_889a20_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00017_889a20_p1.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 44,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T08:37:46Z"
+}

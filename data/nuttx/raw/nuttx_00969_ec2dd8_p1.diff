@@ -1,0 +1,134 @@
+diff --git a/arch/sim/src/sim/posix/sim_linux_gpiochip.c b/arch/sim/src/sim/posix/sim_linux_gpiochip.c
+index e6bdd252..eeba2d6d 100644
+--- a/arch/sim/src/sim/posix/sim_linux_gpiochip.c
++++ b/arch/sim/src/sim/posix/sim_linux_gpiochip.c
+@@ -94,6 +94,24 @@ int host_gpiochip_direction(struct host_gpiochip_dev *priv, uint8_t pin,
+ 
+   if (priv->line_fd[pin] > 0)
+     {
++      /* Check if the line is already configured with the same direction */
++      struct gpio_v2_line_info info;
++      memset(&info, 0, sizeof(info));
++      info.offset = pin;
++      
++      ret = host_uninterruptible(ioctl, priv->file, GPIO_V2_GET_LINEINFO_IOCTL, &info);
++      if (ret == 0)
++        {
++          bool current_input = (info.flags & GPIO_V2_LINE_FLAG_OUTPUT) == 0;
++          
++          /* If the direction is already correct, no need to reconfigure */
++          if (current_input == input && (info.flags & GPIO_V2_LINE_FLAG_USED))
++            {
++              return 0;
++            }
++        }
++      
++      /* Close the existing file descriptor */
+       close(priv->line_fd[pin]);
+       priv->line_fd[pin] = -1;
+     }
+@@ -149,6 +167,39 @@ int host_gpiochip_irq_request(struct host_gpiochip_dev *priv, uint8_t pin,
+ 
+   if (priv->line_fd[pin] > 0)
+     {
++      /* Check if the line is already configured for interrupt with the same configuration */
++      struct gpio_v2_line_info info;
++      memset(&info, 0, sizeof(info));
++      info.offset = pin;
++      
++      ret = host_uninterruptible(ioctl, priv->file, GPIO_V2_GET_LINEINFO_IOCTL, &info);
++      if (ret == 0 && (info.flags & GPIO_V2_LINE_FLAG_USED))
++        {
++          /* Check if it's already configured for the same interrupt type */
++          uint64_t expected_flags = GPIO_V2_LINE_FLAG_INPUT;
++          switch (cfg)
++            {
++              case GPIOCHIP_LINE_FLAG_FALLING:
++                expected_flags |= GPIO_V2_LINE_FLAG_EDGE_FALLING;
++                break;
++              case GPIOCHIP_LINE_FLAG_RISING:
++                expected_flags |= GPIO_V2_LINE_FLAG_EDGE_RISING;
++                break;
++              case GPIOCHIP_LINE_FLAG_BOTH:
++                expected_flags |= GPIO_V2_LINE_FLAG_EDGE_FALLING |
++                                  GPIO_V2_LINE_FLAG_EDGE_RISING;
++                break;
++              default:
++                break;
++            }
++          
++          if ((info.flags & expected_flags) == expected_flags)
++            {
++              return 0; /* Already configured correctly */
++            }
++        }
++      
++      /* Close the existing file descriptor */
+       close(priv->line_fd[pin]);
+       priv->line_fd[pin] = -1;
+     }
+@@ -178,6 +229,10 @@ int host_gpiochip_irq_request(struct host_gpiochip_dev *priv, uint8_t pin,
+     {
+       snprintf(req.consumer, sizeof(req.consumer) - 1, "gpio-irq%d", pin);
+     }
++  else
++    {
++      snprintf(req.consumer, sizeof(req.consumer) - 1, "gpio%d", pin);
++    }
+ 
+   /* Warn only pin 10 can register in ch341A */
+ 
+@@ -236,7 +291,7 @@ int host_gpiochip_writepin(struct host_gpiochip_dev *priv, uint8_t pin,
+                              GPIO_V2_LINE_SET_VALUES_IOCTL, &vals);
+   if (ret < 0)
+     {
+-      gpioerr("ERROR: Failed to set pin %d value %d\n", pin, value);
++      gpioerr("ERROR: Failed to set pin %d value %d: %s\n", pin, value, strerror(errno));
+       return -errno;
+     }
+ 
+@@ -382,6 +437,7 @@ int host_gpiochip_get_line(struct host_gpiochip_dev *priv, uint8_t pin,
+ struct host_gpiochip_dev *host_gpiochip_alloc(const char *filename)
+ {
+   struct host_gpiochip_dev *dev;
++  int i;
+ 
+   dev = malloc(sizeof(struct host_gpiochip_dev));
+   if (!dev)
+@@ -398,6 +454,12 @@ struct host_gpiochip_dev *host_gpiochip_alloc(const char *filename)
+       return NULL;
+     }
+ 
++  /* Initialize all line file descriptors to -1 (invalid) */
++  for (i = 0; i < CONFIG_IOEXPANDER_NPINS; i++)
++    {
++      dev->line_fd[i] = -1;
++    }
++
+   return dev;
+ }
+ 
+@@ -414,6 +476,21 @@ struct host_gpiochip_dev *host_gpiochip_alloc(const char *filename)
+ 
+ void host_gpiochip_free(struct host_gpiochip_dev *priv)
+ {
+-  host_uninterruptible(close, priv->file);
+-  free(priv);
++  int i;
++  
++  if (priv)
++    {
++      /* Close all open line file descriptors */
++      for (i = 0; i < CONFIG_IOEXPANDER_NPINS; i++)
++        {
++          if (priv->line_fd[i] > 0)
++            {
++              host_uninterruptible(close, priv->line_fd[i]);
++              priv->line_fd[i] = -1;
++            }
++        }
++      
++      host_uninterruptible(close, priv->file);
++      free(priv);
++    }
+ }

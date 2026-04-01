@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix missing sample rate case in IRIS RX gain offset calculation\n\n### Summary\nThe IRIS radio driver's `set_rx_gain_offset` function was missing support for the 46.08 MHz sample rate in its gain adjustment logic. When users called the function directly with `bw_gain_adjust=1` and this sample rate, the program would exit unexpectedly instead of applying the appropriate (zero) gain adjustment.\n\nThis caused unexpected termination during manual calibration procedures that used this sample rate.\n\n### Changes\n- `radio/IRIS/iris_lib.cpp`: Added missing case for 46080000 sample rate in the gain adjustment switch statement to prevent premature exit and ensure consistent behavior with USRP driver.\n\n"
+}

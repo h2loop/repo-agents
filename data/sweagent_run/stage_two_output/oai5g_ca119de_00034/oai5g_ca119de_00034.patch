@@ -1,0 +1,101 @@
+diff --git a/executables/nr-ru.c b/executables/nr-ru.c
+index 7d2b11cf65..6e89dc6bbc 100644
+--- a/executables/nr-ru.c
++++ b/executables/nr-ru.c
+@@ -48,6 +48,7 @@
+ #include "PHY/NR_TRANSPORT/nr_transport_proto.h"
+ #include "PHY/INIT/nr_phy_init.h"
+ #include "SCHED_NR/sched_nr.h"
++#include "SCHED_NR/phy_frame_config_nr.h"
+ 
+ #include "common/utils/LOG/log.h"
+ #include "common/utils/LOG/vcd_signal_dumper.h"
+@@ -288,12 +289,12 @@ void fh_if5_south_out(RU_t *ru, int frame, int slot, uint64_t timestamp) {
+   LOG_D(PHY,"IF5 TX %d.%d, TS %llu, buffs[0] %p, buffs[1] %p ener0 %f dB, tx start %d\n",frame,slot,(unsigned long long)timestamp,buffs[0],buffs[1],
+   10*log10((double)signal_energy(buffs[0],ru->nr_frame_parms->get_samples_per_slot(slot,ru->nr_frame_parms))),(int)txmeas.tv_nsec);
+   ru->ifdevice.trx_write_func2(&ru->ifdevice,
+-  		               timestamp,
++                               timestamp,
+                                buffs,
+-			       0,
+-			       ru->nr_frame_parms->get_samples_per_slot(slot,ru->nr_frame_parms),
+-			       0,
+-			       ru->nb_tx); 
++                               0,
++                               ru->nr_frame_parms->get_samples_per_slot(slot,ru->nr_frame_parms),
++                               0,
++                               ru->nb_tx); 
+ 
+ }
+ 
+@@ -589,18 +590,23 @@ void fh_if5_north_out(RU_t *ru) {
+ // RRU IF4p5 northbound interface (RX)
+ void fh_if4p5_north_out(RU_t *ru) {
+   RU_proc_t *proc=&ru->proc;
++  nfapi_nr_config_request_scf_t *cfg = &ru->config;
+ 
+   //NR_DL_FRAME_PARMS *fp = ru->nr_frame_parms;
+   //const int subframe     = proc->tti_rx;
+   if (ru->idx==0) VCD_SIGNAL_DUMPER_DUMP_VARIABLE_BY_NAME( VCD_SIGNAL_DUMPER_VARIABLES_TTI_NUMBER_RX0_RU, proc->tti_rx );
+ 
+-  /*
+-    if ((fp->frame_type == TDD) && (subframe_select(fp,subframe)!=SF_UL)) {
+-      /// **** in TDD during DL send_IF4 of ULTICK to RCC **** ///
+-      send_IF4p5(ru, proc->frame_rx, proc->tti_rx, IF4p5_PULTICK);
+-      return;
+-    }*/
++  LOG_D(PHY,"fh_if4p5_north_out: Sending IF4p5 for frame %d slot %d\n", proc->frame_rx, proc->tti_rx);
++
++  if ((cfg->cell_config.frame_duplex_type.value == TDD) && 
++      (nr_slot_select(cfg,proc->frame_rx,proc->tti_rx) != NR_UPLINK_SLOT)) {
++    /// **** in TDD during DL send_IF4 of ULTICK to RCC **** ///
++    LOG_D(PHY,"fh_if4p5_north_out: Sending IF4p5_PULTICK for frame %d slot %d (slot_type %d)\n", proc->frame_rx, proc->tti_rx, nr_slot_select(cfg,proc->frame_rx,proc->tti_rx));
++    send_IF4p5(ru, proc->frame_rx, proc->tti_rx, IF4p5_PULTICK);
++    return;
++  }
+   start_meas(&ru->tx_fhaul);
++  LOG_D(PHY,"fh_if4p5_north_out: Sending IF4p5_PULFFT for frame %d slot %d\n", proc->frame_rx, proc->tti_rx);
+   send_IF4p5(ru, proc->frame_rx, proc->tti_rx, IF4p5_PULFFT);
+   stop_meas(&ru->tx_fhaul);
+ }
+@@ -688,8 +694,8 @@ void rx_rf(RU_t *ru,int *frame,int *slot) {
+         ru->idx,
+         0,
+         ts, //(unsigned long long int)(proc->timestamp_rx+ru->ts_offset),
+-	gps_sec,
+-	cfg->sample_rate,
++        gps_sec,
++        cfg->sample_rate,
+         proc->frame_rx,proc->tti_rx,proc->tti_tx,fp->slots_per_frame);
+ 
+   // dump VCD output for first RU in list
+@@ -1210,12 +1216,12 @@ void *ru_thread( void *param ) {
+ 
+   // This is a forever while loop, it loops over subframes which are scheduled by incoming samples from HW devices
+   struct timespec slot_start;
+-	clock_gettime(CLOCK_MONOTONIC, &slot_start);
++        clock_gettime(CLOCK_MONOTONIC, &slot_start);
+   
+   struct timespec slot_duration; 
+-	slot_duration.tv_sec = 0;
+-	//slot_duration.tv_nsec = 0.5e6;
+-	slot_duration.tv_nsec = 0.5e6;
++        slot_duration.tv_sec = 0;
++        //slot_duration.tv_nsec = 0.5e6;
++        slot_duration.tv_nsec = 0.5e6;
+ 
+   
+ 
+@@ -1230,9 +1236,9 @@ void *ru_thread( void *param ) {
+       struct timespec sleep_time;
+       
+       if((slot_start.tv_sec > curr_time.tv_sec) || (slot_start.tv_sec == curr_time.tv_sec && slot_start.tv_nsec > curr_time.tv_nsec)){
+-	sleep_time = timespec_sub(slot_start,curr_time);
+-	
+-	usleep(sleep_time.tv_nsec * 1e-3); 
++        sleep_time = timespec_sub(slot_start,curr_time);
++        
++        usleep(sleep_time.tv_nsec * 1e-3); 
+       }
+     }
+     

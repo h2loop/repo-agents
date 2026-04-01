@@ -1,0 +1,21 @@
+diff --git a/common/utils/T/tracer/gnb.c b/common/utils/T/tracer/gnb.c
+index 6629a1efd6..fa5d9e8e16 100644
+--- a/common/utils/T/tracer/gnb.c
++++ b/common/utils/T/tracer/gnb.c
+@@ -121,6 +121,16 @@ static void click(void *private, gui *g, char *notification, widget *w, void *no
+   int do_reset = 0;
+ 
+   if (button != 1) return;
++  
++  /* Validate socket connection state before processing UE navigation */
++  if (pthread_mutex_lock(&ed->lock)) abort();
++  if (ed->socket == -1) {
++    /* No connection, don't process navigation */
++    if (pthread_mutex_unlock(&ed->lock)) abort();
++    return;
++  }
++  if (pthread_mutex_unlock(&ed->lock)) abort();
++
+   if (w == e->prev_ue_button) { ue--; if (ue < 0) ue = 0; }
+   if (w == e->next_ue_button) ue++;
+   if (w == e->current_ue_button) do_reset = 1;

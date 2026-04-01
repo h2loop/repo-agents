@@ -1,0 +1,14 @@
+diff --git a/openair3/NAS/UE/EMM/IdleMode.c b/openair3/NAS/UE/EMM/IdleMode.c
+index 66a82c8011..e85e784113 100644
+--- a/openair3/NAS/UE/EMM/IdleMode.c
++++ b/openair3/NAS/UE/EMM/IdleMode.c
+@@ -1069,6 +1069,9 @@ static int _IdleMode_plmn_str(char *plmn_str, const plmn_t *plmn)
+     sprintf(p++, "%u", plmn->MNCdigit3);
+   }
+ 
++  // Ensure null termination
++  *p = '\0';
++
+   return (p - plmn_str);
+ }
+ 

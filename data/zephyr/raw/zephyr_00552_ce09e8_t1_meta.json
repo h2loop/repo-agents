@@ -1,0 +1,26 @@
+{
+  "run_id": "zephyr_00552_ce09e8",
+  "function": {
+    "name": "do_write_op_tlv_dummy_read",
+    "file": "subsys/net/lib/lwm2m/lwm2m_rw_oma_tlv.c",
+    "start_line": 817,
+    "end_line": 831,
+    "body_lines": 15,
+    "signature": "static int do_write_op_tlv_dummy_read(struct lwm2m_message *msg)",
+    "subsystem": "subsys/net/lib",
+    "token_estimate": 30
+  },
+  "bug": {
+    "bug_id": "protocol_missing_timeout",
+    "description": "missing timeout handling on a protocol wait causing indefinite hang",
+    "domain": "protocol",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a missing timeout handling on a protocol wait causing indefinite hang downstream of function do_write_op_tlv_dummy_read in the subsys/net/lib subsystem.\nThe function is located at subsys/net/lib/lwm2m/lwm2m_rw_oma_tlv.c:817.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 6,
+  "trajectory_steps": 30,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-17T09:06:14Z"
+}

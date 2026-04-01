@@ -1,0 +1,32 @@
+{
+  "run_id": "s00322_7cf4d2",
+  "function": {
+    "name": "config_request",
+    "file": "nfapi/open-nFAPI/pnf_sim/src/main.cpp",
+    "start_line": 1617,
+    "end_line": 1671,
+    "body_lines": 55,
+    "signature": "int config_request(nfapi_pnf_config_t* config, nfapi_pnf_phy_config_t* phy, nfapi_config_request_t* req)",
+    "subsystem": "nfapi/open-nFAPI/pnf_sim",
+    "token_estimate": 122
+  },
+  "bug": {
+    "bug_id": "c_integer_truncation",
+    "description": "integer truncation when assigning a wider type to a narrower type",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a integer truncation when assigning a wider type to a narrower type downstream of function config_request in the nfapi/open-nFAPI/pnf_sim subsystem.\nThe function is located at nfapi/open-nFAPI/pnf_sim/src/main.cpp:1617.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00322_7cf4d2_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00322_7cf4d2_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 27,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:37:01Z"
+}

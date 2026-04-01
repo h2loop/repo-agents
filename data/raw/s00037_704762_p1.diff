@@ -1,0 +1,32 @@
+diff --git a/openair1/PHY/LTE_TRANSPORT/dlsch_coding.c b/openair1/PHY/LTE_TRANSPORT/dlsch_coding.c
+index 5099a63439..06944940fa 100644
+--- a/openair1/PHY/LTE_TRANSPORT/dlsch_coding.c
++++ b/openair1/PHY/LTE_TRANSPORT/dlsch_coding.c
+@@ -492,6 +492,13 @@ int dlsch_encoding_fembms_pmch(PHY_VARS_eNB *eNB,
+     delNotifiedFIFO_elt(res);
+     nbEncode--;
+   }
++  
++  // Clean up any remaining elements in the FIFO to prevent stale protocol state
++  notifiedFIFO_elt_t *remaining_elt;
++  while ((remaining_elt = pollNotifiedFIFO(&respEncode)) != NULL) {
++    delNotifiedFIFO_elt(remaining_elt);
++  }
++  
+   return(0);
+ }
+ 
+diff --git a/openair1/PHY/LTE_TRANSPORT/pmch.c b/openair1/PHY/LTE_TRANSPORT/pmch.c
+index 37fe0d17ae..63f2826de4 100644
+--- a/openair1/PHY/LTE_TRANSPORT/pmch.c
++++ b/openair1/PHY/LTE_TRANSPORT/pmch.c
+@@ -160,5 +160,9 @@ void generate_mch_khz_1dot25(PHY_VARS_eNB *eNB,L1_rxtx_proc_t *proc,uint8_t *a)
+                  subframe,
+                  &eNB->frame_parms,
+                  eNB->dlsch_MCH);
++
++  // Cleanup HARQ process state after MCH generation to prevent stale protocol state
++  eNB->dlsch_MCH->harq_processes[0]->round = 0;
++  eNB->dlsch_MCH->harq_processes[0]->status = SCH_IDLE;
+ }
+ 

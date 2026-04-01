@@ -1,0 +1,26 @@
+{
+  "run_id": "mbed-os_00568_36491f",
+  "function": {
+    "name": "L2CACHE_LockdownByWayEnable",
+    "file": "targets/TARGET_NXP/TARGET_MCUXpresso_MCUS/TARGET_MIMXRT1170/drivers/fsl_cache.c",
+    "start_line": 457,
+    "end_line": 483,
+    "body_lines": 27,
+    "signature": "void L2CACHE_LockdownByWayEnable(uint32_t masterId, uint32_t mask, bool enable)",
+    "subsystem": "targets/TARGET_NXP/TARGET_MCUXpresso_MCUS",
+    "token_estimate": 83
+  },
+  "bug": {
+    "bug_id": "c_buffer_overflow",
+    "description": "buffer overflow vulnerability",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a buffer overflow vulnerability downstream of function L2CACHE_LockdownByWayEnable in the targets/TARGET_NXP/TARGET_MCUXpresso_MCUS subsystem.\nThe function is located at targets/TARGET_NXP/TARGET_MCUXpresso_MCUS/TARGET_MIMXRT1170/drivers/fsl_cache.c:457.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 12,
+  "trajectory_steps": 60,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:32:20Z"
+}

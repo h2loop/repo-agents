@@ -1,0 +1,32 @@
+diff --git a/openair3/M3AP/m3ap_MME_management_procedures.c b/openair3/M3AP/m3ap_MME_management_procedures.c
+index 1225db2213..0cd3644fc0 100644
+--- a/openair3/M3AP/m3ap_MME_management_procedures.c
++++ b/openair3/M3AP/m3ap_MME_management_procedures.c
+@@ -174,14 +174,12 @@ void m3ap_dump_MME (m3ap_MME_data_t  * MME_ref);
+ void
+ m3ap_dump_MME_list (void) {
+    m3ap_MME_instance_t *inst = NULL;
+-   struct m3ap_MME_data_s *found = NULL;
+-   struct m3ap_MME_data_s temp;
+-
+-   memset(&temp, 0, sizeof(struct m3ap_MME_data_s));
++   struct m3ap_MME_data_s *mme_entry = NULL;
+ 
+   STAILQ_FOREACH (inst, &m3ap_MME_internal_data.m3ap_MME_instances_head,  m3ap_MME_entries) {
+-    found = RB_FIND(m3ap_mme_map, &inst->m3ap_mme_head, &temp);
+-    m3ap_dump_MME (found);
++    RB_FOREACH(mme_entry, m3ap_mme_map, &inst->m3ap_mme_head) {
++      m3ap_dump_MME (mme_entry);
++    }
+   }
+ }
+ 
+@@ -247,7 +245,7 @@ m3ap_MME_data_t  * m3ap_is_MME_assoc_id_in_list (const uint32_t sctp_assoc_id)
+     found = RB_FIND(m3ap_mme_map, &inst->m3ap_mme_head, &temp);
+     if (found != NULL){
+       if (found->assoc_id == sctp_assoc_id) {
+-	return found;
++        return found;
+       }
+     }
+   }

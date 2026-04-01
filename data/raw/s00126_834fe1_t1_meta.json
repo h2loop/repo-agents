@@ -1,0 +1,33 @@
+{
+  "run_id": "s00126_834fe1",
+  "function": {
+    "name": "nr_get_ssb_start_symbol",
+    "file": "openair1/PHY/INIT/nr_parms.c",
+    "start_line": 111,
+    "end_line": 151,
+    "body_lines": 41,
+    "signature": "int nr_get_ssb_start_symbol(const NR_DL_FRAME_PARMS *fp, uint8_t i_ssb)",
+    "subsystem": "openair1/PHY/INIT",
+    "token_estimate": 169
+  },
+  "bug": {
+    "bug_id": "c_signed_unsigned_mismatch",
+    "description": "signed/unsigned integer comparison mismatch leading to incorrect branch",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a signed/unsigned integer comparison mismatch leading to incorrect branch downstream of function nr_get_ssb_start_symbol in the openair1/PHY/INIT subsystem.\nThe function is located at openair1/PHY/INIT/nr_parms.c:111.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00126_834fe1_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00126_834fe1_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 26,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:19:57Z"
+}

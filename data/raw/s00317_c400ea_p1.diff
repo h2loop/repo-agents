@@ -1,0 +1,43 @@
+diff --git a/openair2/COMMON/m2ap_messages_types.h b/openair2/COMMON/m2ap_messages_types.h
+index d38c493bcb..7dfd02fbf8 100644
+--- a/openair2/COMMON/m2ap_messages_types.h
++++ b/openair2/COMMON/m2ap_messages_types.h
+@@ -545,14 +545,16 @@ typedef struct m2ap_mbms_scheduling_information_resp_s {
+   uint32_t dummy;
+ } m2ap_mbms_scheduling_information_resp_t;
+ typedef struct m2ap_session_start_req_s {
+-  // This dummy element is to avoid CLANG warning: empty struct has size 0 in C, size 1 in C++
+-  // To be removed if the structure is filled
+-  uint32_t dummy;
++  /* MCE MBMS M2AP ID - mandatory IE */
++  uint32_t mce_mbms_m2ap_id;
++  /* ENB MBMS M2AP ID - mandatory IE */
++  uint32_t enb_mbms_m2ap_id;
+ } m2ap_session_start_req_t;
+ typedef struct m2ap_session_start_resp_s {
+-  // This dummy element is to avoid CLANG warning: empty struct has size 0 in C, size 1 in C++
+-  // To be removed if the structure is filled
+-  uint32_t dummy;
++  /* MCE MBMS M2AP ID - mandatory IE */
++  uint32_t mce_mbms_m2ap_id;
++  /* ENB MBMS M2AP ID - mandatory IE */
++  uint32_t enb_mbms_m2ap_id;
+ } m2ap_session_start_resp_t;
+ typedef struct m2ap_session_start_failure_s {
+   // This dummy element is to avoid CLANG warning: empty struct has size 0 in C, size 1 in C++
+diff --git a/openair2/RRC/LTE/rrc_eNB_M2AP.c b/openair2/RRC/LTE/rrc_eNB_M2AP.c
+index 63760907fd..ca3cfc20c5 100644
+--- a/openair2/RRC/LTE/rrc_eNB_M2AP.c
++++ b/openair2/RRC/LTE/rrc_eNB_M2AP.c
+@@ -1375,6 +1375,11 @@ rrc_eNB_process_M2AP_MBMS_SESSION_START_REQ(
+ 
+  MessageDef      *msg_p;
+  msg_p = itti_alloc_new_message (TASK_RRC_ENB, 0, M2AP_MBMS_SESSION_START_RESP);
++ 
++ /* Set mandatory IEs in the response */
++ M2AP_MBMS_SESSION_START_RESP(msg_p).mce_mbms_m2ap_id = m2ap_mbms_session_start_req->mce_mbms_m2ap_id;
++ M2AP_MBMS_SESSION_START_RESP(msg_p).enb_mbms_m2ap_id = m2ap_mbms_session_start_req->enb_mbms_m2ap_id;
++ 
+  itti_send_msg_to_task (TASK_M2AP_ENB, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);
+ 
+  return 0;

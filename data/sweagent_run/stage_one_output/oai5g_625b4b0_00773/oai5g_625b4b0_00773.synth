@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix missing TRP positioning encoder function in F1AP library\n\n### Summary\nThe F1AP positioning functionality was missing a critical encoder function for TRP (Transmit Receive Point) information type response items. When applications attempted to call `encode_trp_info_type_response_item()`, the function was not found, causing undefined behavior or build failures.\n\nThis fix implements the missing `encode_trp_info_type_response_item()` function in a newly created file, following the existing F1AP library patterns and ASN.1 specifications.\n\n### Changes\n- `openair2/F1AP/lib/f1ap_positioning.c`: New file implementing the missing encoder function\n- `openair2/F1AP/lib/f1ap_positioning.h`: New header file with type definitions for TRP positioning\n- `openair2/F1AP/lib/f1ap_lib_includes.h`: Added include for the new positioning header\n\n"
+}

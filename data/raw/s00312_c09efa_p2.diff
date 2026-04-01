@@ -1,0 +1,46 @@
+diff --git a/openair1/PHY/CODING/nrPolar_tools/nr_polar_decoder.c b/openair1/PHY/CODING/nrPolar_tools/nr_polar_decoder.c
+index 14013681b0..c6f691a2ca 100644
+--- a/openair1/PHY/CODING/nrPolar_tools/nr_polar_decoder.c
++++ b/openair1/PHY/CODING/nrPolar_tools/nr_polar_decoder.c
+@@ -147,8 +147,8 @@ int8_t polar_decoder(double *input,
+     if (polarParams->information_bit_pattern[currentBit] == 0) { // Frozen bit.
+       updatePathMetric(pathMetric, currentListSize, 0, currentBit, polarParams->N, polarParams->n + 1, 2 * listSize, llr);
+     } else { // Information or CRC bit.
+-      updatePathMetric2(pathMetric, currentListSize, currentBit, polarParams->N, polarParams->n + 1, 2 * listSize, llr);
+-
++      // First copy LLR values from existing paths to newly created paths
++      // to ensure all memory is initialized before updatePathMetric2 reads from it
+       for (int i = 0; i < currentListSize; i++) {
+         for (int j = 0; j < polarParams->N; j++) {
+           for (int k = 0; k < (polarParams->n + 1); k++) {
+@@ -158,6 +158,9 @@ int8_t polar_decoder(double *input,
+         }
+       }
+ 
++      // Now update path metrics with properly initialized LLR values
++      updatePathMetric2(pathMetric, currentListSize, currentBit, polarParams->N, polarParams->n + 1, 2 * listSize, llr);
++
+       for (int i = 0; i < currentListSize; i++) {
+         bit[currentBit][0][i] = 0;
+         crcState[i + currentListSize] = crcState[i];
+@@ -431,8 +434,8 @@ int8_t polar_decoder_dci(double *input,
+     if (polarParams->information_bit_pattern[currentBit] == 0) { // Frozen bit.
+       updatePathMetric(pathMetric, currentListSize, 0, currentBit, polarParams->N, polarParams->n + 1, 2 * listSize, llr);
+     } else { // Information or CRC bit.
+-      updatePathMetric2(pathMetric, currentListSize, currentBit, polarParams->N, polarParams->n + 1, 2 * listSize, llr);
+-
++      // First copy LLR values from existing paths to newly created paths
++      // to ensure all memory is initialized before updatePathMetric2 reads from it
+       for (int i = 0; i < currentListSize; i++) {
+         for (int j = 0; j < polarParams->N; j++) {
+           for (int k = 0; k < (polarParams->n + 1); k++) {
+@@ -442,6 +445,9 @@ int8_t polar_decoder_dci(double *input,
+         }
+       }
+ 
++      // Now update path metrics with properly initialized LLR values
++      updatePathMetric2(pathMetric, currentListSize, currentBit, polarParams->N, polarParams->n + 1, 2 * listSize, llr);
++
+       for (int i = 0; i < currentListSize; i++) {
+         bit[currentBit][0][i] = 0;
+         crcState[i + currentListSize] = crcState[i];

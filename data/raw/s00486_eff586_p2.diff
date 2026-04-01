@@ -1,0 +1,53 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c b/openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c
+index 5fba6dcaaf..0319d7c3f3 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c
++++ b/openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c
+@@ -1518,12 +1518,44 @@ static struct NR_SetupRelease_PUSCH_Config *config_pusch(NR_PUSCH_Config_t *pusc
+   pusch_Config->pusch_AggregationFactor = NULL;
+   set_ul_mcs_table(uecap, scc, pusch_Config);
+   pusch_Config->transformPrecoder = NULL;
+-  if (!pusch_Config->codebookSubset)
+-    pusch_Config->codebookSubset = calloc(1, sizeof(*pusch_Config->codebookSubset));
+-  *pusch_Config->codebookSubset = NR_PUSCH_Config__codebookSubset_nonCoherent;
++  
++  // Determine UL MIMO configuration based on UE capabilities
++  int ul_max_layers = 1; // Default fallback value
++  
++  if (uecap && uecap->featureSets && uecap->featureSets->featureSetsUplinkPerCC) {
++    // Use the first feature set for the primary component carrier
++    NR_FeatureSetUplinkPerCC_t *ul_feature_set = uecap->featureSets->featureSetsUplinkPerCC->list.array[0];
++    if (ul_feature_set && ul_feature_set->maxNumberMIMO_LayersCB_PUSCH) {
++      switch (*ul_feature_set->maxNumberMIMO_LayersCB_PUSCH) {
++        case NR_MIMO_LayersUL_twoLayers:
++          ul_max_layers = 2;
++          break;
++        case NR_MIMO_LayersUL_fourLayers:
++          ul_max_layers = 4;
++          break;
++        case NR_MIMO_LayersUL_oneLayer:
++        default:
++          ul_max_layers = 1;
++          break;
++      }
++    }
++  }
++  
++  // Set maxRank based on UE capability
+   if (!pusch_Config->maxRank)
+     pusch_Config->maxRank = calloc(1, sizeof(*pusch_Config->maxRank));
+-  *pusch_Config->maxRank = 1;
++  *pusch_Config->maxRank = ul_max_layers;
++  
++  // Set codebookSubset based on layer support
++  if (!pusch_Config->codebookSubset)
++    pusch_Config->codebookSubset = calloc(1, sizeof(*pusch_Config->codebookSubset));
++  if (ul_max_layers > 1) {
++    // Multi-layer UEs use partialAndNonCoherent for better spatial multiplexing
++    *pusch_Config->codebookSubset = NR_PUSCH_Config__codebookSubset_partialAndNonCoherent;
++  } else {
++    // Single-layer UEs use nonCoherent
++    *pusch_Config->codebookSubset = NR_PUSCH_Config__codebookSubset_nonCoherent;
++  }
+   pusch_Config->rbg_Size = NULL;
+   pusch_Config->uci_OnPUSCH = NULL;
+   pusch_Config->tp_pi2BPSK = NULL;

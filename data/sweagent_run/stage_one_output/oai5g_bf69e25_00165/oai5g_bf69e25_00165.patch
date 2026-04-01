@@ -1,0 +1,15 @@
+diff --git a/openair1/PHY/TOOLS/signal_energy.c b/openair1/PHY/TOOLS/signal_energy.c
+index 4e29f0ab2b..0597f2a31f 100644
+--- a/openair1/PHY/TOOLS/signal_energy.c
++++ b/openair1/PHY/TOOLS/signal_energy.c
+@@ -78,8 +78,8 @@ uint32_t signal_energy_nodc(const c16_t *input, uint32_t length)
+   // leftover
+   float leftover_sum = 0;
+   c16_t *leftover_input = (c16_t *)input;
+-  uint16_t lefover_count = length - ((length >> 2) << 2);
+-  for (int32_t i = 0; i < lefover_count; i++) {
++  uint16_t leftover_count = length - ((length >> 2) << 2);
++  for (int32_t i = 0; i < leftover_count; i++) {
+     leftover_sum += leftover_input[i].r * leftover_input[i].r + leftover_input[i].i * leftover_input[i].i;
+   }
+ 

@@ -1,0 +1,26 @@
+{
+  "run_id": "nuttx_00539_b801d8",
+  "function": {
+    "name": "lib_blkoutstream_close",
+    "file": "libs/libc/stream/lib_blkoutstream.c",
+    "start_line": 238,
+    "end_line": 255,
+    "body_lines": 18,
+    "signature": "void lib_blkoutstream_close(FAR struct lib_blkoutstream_s *stream)",
+    "subsystem": "libs/libc/stream",
+    "token_estimate": 34
+  },
+  "bug": {
+    "bug_id": "c_missing_null_check_after_alloc",
+    "description": "missing NULL check after memory allocation that can fail",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a missing NULL check after memory allocation that can fail downstream of function lib_blkoutstream_close in the libs/libc/stream subsystem.\nThe function is located at libs/libc/stream/lib_blkoutstream.c:238.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 45,
+  "trajectory_steps": 25,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:05:34Z"
+}

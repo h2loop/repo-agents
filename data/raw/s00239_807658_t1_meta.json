@@ -1,0 +1,40 @@
+{
+  "run_id": "s00239_807658",
+  "function": {
+    "name": "encodeSmallBlock",
+    "file": "openair1/PHY/CODING/nrSmallBlock/encodeSmallBlock.c",
+    "start_line": 38,
+    "end_line": 48,
+    "body_lines": 11,
+    "signature": "uint32_t encodeSmallBlock(int in, int len)",
+    "subsystem": "openair1/PHY/CODING",
+    "token_estimate": 47
+  },
+  "bug": {
+    "bug_id": "c_buffer_overflow",
+    "description": "buffer overflow vulnerability",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables",
+      "radio",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a buffer overflow vulnerability downstream of function encodeSmallBlock in the openair1/PHY/CODING subsystem.\nThe function is located at openair1/PHY/CODING/nrSmallBlock/encodeSmallBlock.c:38.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00239_807658_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00239_807658_p1.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 11,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:38:03Z"
+}

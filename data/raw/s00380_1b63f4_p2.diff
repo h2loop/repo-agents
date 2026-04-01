@@ -1,0 +1,36 @@
+diff --git a/common/utils/T/tracer/gui/label.c b/common/utils/T/tracer/gui/label.c
+index 02efabfaf3..84a723aef1 100644
+--- a/common/utils/T/tracer/gui/label.c
++++ b/common/utils/T/tracer/gui/label.c
+@@ -86,13 +86,29 @@ void label_set_text(gui *_g, widget *_this, char *text)
+ {
+   struct gui *g = _g;
+   struct label_widget *this = _this;
++  char *text_to_store;
+ 
+   glock(g);
+ 
++  /* Handle NULL input by converting to empty string */
++  if (text == NULL) {
++    text = "";
++  }
++
++  /* Truncate text longer than 1023 characters to prevent stack buffer overflow */
++  if (strlen(text) > 1023) {
++    text_to_store = strndup(text, 1023);
++  } else {
++    text_to_store = strdup(text);
++  }
++  
++  if (text_to_store == NULL) OOM;
++
+   free(this->t);
+-  this->t = strdup(text); if (this->t == NULL) OOM;
++  this->t = text_to_store;
+ 
+-  x_text_get_dimensions(g->x, DEFAULT_FONT, text,
++  /* Use the stored text (which may be truncated) for dimension calculation */
++  x_text_get_dimensions(g->x, DEFAULT_FONT, this->t,
+       &this->width, &this->height, &this->baseline);
+ 
+   send_event(g, REPACK, this->common.id);

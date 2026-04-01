@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix uninitialized memory read in rfsimulator header transmission\n\n### Summary\nThe rfsimulator_write_internal function was transmitting a samplesBlockHeader_t structure with uninitialized fields for option_value and option_flag. This caused unpredictable behavior when the receiving end attempted to interpret these values, leading to inconsistent timestamp handling and occasional data corruption in the RF simulation stream.\n\nThis fix ensures all fields in the header structure are properly initialized before transmission.\n\n### Changes\n- `radio/rfsimulator/simulator.c`: Initialize all fields of samplesBlockHeader_t structure in rfsimulator_write_internal function\n- `radio/rfsimulator/simulator.c`: Add NULL pointer checks before calling signal_energy function in both read and write paths\n\n"
+}

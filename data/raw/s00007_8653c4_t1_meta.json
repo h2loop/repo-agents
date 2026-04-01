@@ -1,0 +1,35 @@
+{
+  "run_id": "s00007_8653c4",
+  "function": {
+    "name": "allocate",
+    "file": "common/utils/T/tracer/gui/timeline.c",
+    "start_line": 37,
+    "end_line": 55,
+    "body_lines": 19,
+    "signature": "static void allocate(gui *_gui, widget *_this, int x, int y, int width, int height)",
+    "subsystem": "common/utils/T",
+    "token_estimate": 89
+  },
+  "bug": {
+    "bug_id": "c_race_condition",
+    "description": "race condition on shared data accessed from multiple threads without synchronization",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a race condition on shared data accessed from multiple threads without synchronization downstream of function allocate in the common/utils/T subsystem.\nThe function is located at common/utils/T/tracer/gui/timeline.c:37.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00007_8653c4_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00007_8653c4_p1.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 6,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T07:33:33Z"
+}

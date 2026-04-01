@@ -1,0 +1,23 @@
+diff --git a/openair2/LAYER2/MAC/eNB_scheduler_ulsch.c b/openair2/LAYER2/MAC/eNB_scheduler_ulsch.c
+index 058ce4db34..d20bac5ffe 100644
+--- a/openair2/LAYER2/MAC/eNB_scheduler_ulsch.c
++++ b/openair2/LAYER2/MAC/eNB_scheduler_ulsch.c
+@@ -517,7 +517,7 @@ rx_sdu(const module_id_t enb_mod_idP,
+                                             (uint8_t *) payload_ptr,
+                                             rx_lengths[i],
+                                             0,
+-                                            ra->rach_resource_type > 0
++                                            0
+                                            );
+ 
+               /* Received a new rnti */
+@@ -781,7 +781,8 @@ rx_sdu(const module_id_t enb_mod_idP,
+                            CCCH,
+                            (uint8_t *) payload_ptr,
+                            rx_lengths[i],
+-                           0,ra->rach_resource_type > 0
++                           0,
++                           0
+                           );
+ 
+           if (num_ce > 0) { // handle msg3 which is not RRCConnectionRequest

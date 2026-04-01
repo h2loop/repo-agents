@@ -1,0 +1,33 @@
+{
+  "run_id": "s00165_09594f",
+  "function": {
+    "name": "check_Msg4_retransmission",
+    "file": "openair2/LAYER2/MAC/eNB_scheduler_RA.c",
+    "start_line": 1116,
+    "end_line": 1242,
+    "body_lines": 127,
+    "signature": "void check_Msg4_retransmission(module_id_t module_idP, int CC_idP, frame_t frameP, sub_frame_t subframeP, RA_t *ra)",
+    "subsystem": "openair2/LAYER2/MAC",
+    "token_estimate": 531
+  },
+  "bug": {
+    "bug_id": "c_signed_unsigned_mismatch",
+    "description": "signed/unsigned integer comparison mismatch leading to incorrect branch",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a signed/unsigned integer comparison mismatch leading to incorrect branch downstream of function check_Msg4_retransmission in the openair2/LAYER2/MAC subsystem.\nThe function is located at openair2/LAYER2/MAC/eNB_scheduler_RA.c:1116.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00165_09594f_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00165_09594f_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 47,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:38:39Z"
+}

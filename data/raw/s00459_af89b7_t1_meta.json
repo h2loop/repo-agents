@@ -1,0 +1,29 @@
+{
+  "run_id": "s00459_af89b7",
+  "function": {
+    "name": "clear_cache",
+    "file": "common/utils/T/tracer/hacks/multi-rru-clean.c",
+    "start_line": 29,
+    "end_line": 37,
+    "body_lines": 9,
+    "signature": "void clear_cache(int n, cache_t *c)",
+    "subsystem": "common/utils/T",
+    "token_estimate": 28
+  },
+  "bug": {
+    "bug_id": "telecom_harq_error",
+    "description": "HARQ process error such as incorrect retransmission or wrong redundancy version",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a HARQ process error such as incorrect retransmission or wrong redundancy version downstream of function clear_cache in the common/utils/T subsystem.\nThe function is located at common/utils/T/tracer/hacks/multi-rru-clean.c:29.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00459_af89b7_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00459_af89b7_p1.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 51,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:29:02Z"
+}

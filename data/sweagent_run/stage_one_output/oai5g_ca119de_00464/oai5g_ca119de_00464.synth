@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix unreachable code path in _pdn_connectivity_reject due to missing optional field handling\n\n### Summary\nThere is an unreachable code path due to incorrect conditional logic downstream of function _pdn_connectivity_reject in openair3/NAS/TEST/AS_SIMULATOR/nas_process.c. When calling _pdn_connectivity_reject() the behavior is not what is expected. The issue may be in _pdn_connectivity_reject or a function downstream/upstream of it.\n\nThis fix ensures all optional fields are processed consistently across ESM reject message handlers.\n\n### Changes\n- `openair3/NAS/TEST/AS_SIMULATOR/nas_process.c`: Added ProtocolConfigurationOptions presence checking in _pdn_connectivity_reject, _pdn_disconnect_reject, _activate_default_eps_bearer_context_reject, and _activate_dedicated_eps_bearer_context_reject functions.\n\n"
+}

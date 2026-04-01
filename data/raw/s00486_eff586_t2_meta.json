@@ -1,0 +1,9 @@
+{
+  "run_id": "s00486_eff586",
+  "pr_text": "## Title: Fix UL MIMO configuration mismatch in NR MAC gNB\n\n### Summary\nThe PUSCH configuration logic in the NR MAC gNB was hardcoding uplink MIMO parameters (`maxRank = 1` and `codebookSubset = nonCoherent`) regardless of UE capabilities. This created a configuration mismatch between protocol layers where the gNB would configure single-layer operation even for UEs that support multi-layer UL MIMO, causing inconsistent behavior in downstream scheduling and link adaptation logic.\n\nThis fix parses",
+  "trajectory_path": "data/raw/s00486_eff586_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00486_eff586_p2.diff",
+  "patch_lines": 36,
+  "trajectory_steps": 52,
+  "timestamp": "2026-02-10T13:41:27Z"
+}

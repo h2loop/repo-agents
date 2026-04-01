@@ -1,0 +1,52 @@
+diff --git a/openair3/NAS/COMMON/IES/MobileIdentity.c b/openair3/NAS/COMMON/IES/MobileIdentity.c
+index fbe6d93e47..63fc7e0c67 100644
+--- a/openair3/NAS/COMMON/IES/MobileIdentity.c
++++ b/openair3/NAS/COMMON/IES/MobileIdentity.c
+@@ -22,12 +22,16 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <stdint.h>
++#include <pthread.h>
+ 
+ 
+ #include "TLVEncoder.h"
+ #include "TLVDecoder.h"
+ #include "MobileIdentity.h"
+ 
++/* Mutex for protecting shared state in mobile identity decoding */
++static pthread_mutex_t mobile_identity_mutex = PTHREAD_MUTEX_INITIALIZER;
++
+ static int decode_imsi_mobile_identity(ImsiMobileIdentity_t *imsi, uint8_t *buffer);
+ static int decode_imei_mobile_identity(ImeiMobileIdentity_t *imei, uint8_t *buffer);
+ static int decode_imeisv_mobile_identity(ImeisvMobileIdentity_t *imeisv, uint8_t *buffer);
+@@ -260,9 +264,14 @@ void dump_mobile_identity_xml(MobileIdentity *mobileidentity, uint8_t iei)
+ static int decode_imsi_mobile_identity(ImsiMobileIdentity_t *imsi, uint8_t *buffer)
+ {
+   int decoded = 0;
++  
++  /* Lock mutex before accessing shared state */
++  pthread_mutex_lock(&mobile_identity_mutex);
++  
+   imsi->typeofidentity = *(buffer + decoded) & 0x7;
+ 
+   if (imsi->typeofidentity != MOBILE_IDENTITY_IMSI) {
++    pthread_mutex_unlock(&mobile_identity_mutex);
+     return (TLV_ENCODE_VALUE_DOESNT_MATCH);
+   }
+ 
+@@ -296,10 +305,15 @@ static int decode_imsi_mobile_identity(ImsiMobileIdentity_t *imsi, uint8_t *buff
+    * mark coded as "1111".
+    */
+   if ((imsi->oddeven == MOBILE_IDENTITY_EVEN) && (imsi->digit15 != 0x0f)) {
++    pthread_mutex_unlock(&mobile_identity_mutex);
+     return (TLV_ENCODE_VALUE_DOESNT_MATCH);
+   }
+ 
+   decoded++;
++  
++  /* Unlock mutex after accessing shared state */
++  pthread_mutex_unlock(&mobile_identity_mutex);
++  
+   return decoded;
+ }
+ 

@@ -1,0 +1,26 @@
+diff --git a/openair1/PHY/LTE_UE_TRANSPORT/dlsch_demodulation.c b/openair1/PHY/LTE_UE_TRANSPORT/dlsch_demodulation.c
+index 416a5dbf39..23f33b4cb6 100644
+--- a/openair1/PHY/LTE_UE_TRANSPORT/dlsch_demodulation.c
++++ b/openair1/PHY/LTE_UE_TRANSPORT/dlsch_demodulation.c
+@@ -852,7 +852,7 @@ int rx_pdsch(PHY_VARS_UE *ue,
+              pdsch_vars[eNB_id]->llr_offset[symbol],
+              (int16_t*)pdsch_vars[eNB_id]->llr[0],
+              pllr_symbol_cw0,
+-	     signal_energy(pdsch_vars[eNB_id]->rxdataF_comp0[0], 7*2*frame_parms->N_RB_DL*12));
++             signal_energy(pdsch_vars[eNB_id]->rxdataF_comp0[0], 7*2*frame_parms->N_RB_DL*12));
+   switch (dlsch0_harq->Qm) {
+     case 2 :
+       if ((rx_type==rx_standard) || (codeword_TB1 == -1)) {
+@@ -4537,9 +4537,9 @@ void dlsch_channel_level_TM7(int **dl_bf_ch_estimates_ext,
+ }
+ //#define ONE_OVER_2_Q15 16384
+ void dlsch_alamouti(LTE_DL_FRAME_PARMS *frame_parms,
+-                    int **rxdataF_comp,
+-                    int **dl_ch_mag,
+-                    int **dl_ch_magb,
++                    int32_t **rxdataF_comp,
++                    int32_t **dl_ch_mag,
++                    int32_t **dl_ch_magb,
+                     unsigned char symbol,
+                     unsigned short nb_rb) {
+ #if defined(__x86_64__)||defined(__i386__)

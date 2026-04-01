@@ -1,0 +1,93 @@
+diff --git a/openair2/UTIL/OMG/defs.h b/openair2/UTIL/OMG/defs.h
+index 1102a69cc5..26f5745488 100644
+--- a/openair2/UTIL/OMG/defs.h
++++ b/openair2/UTIL/OMG/defs.h
+@@ -358,6 +358,18 @@ job_list* quick_sort (job_list* list);
+  */
+ job_list* remove_job(job_list* list, int nid, int node_type);
+ 
++/**
++ * \fn void clear_job_list(Job_list* job_list_ptr)
++ * \brief Safely traverse and free all memory associated with a job list, including nested mobility structures.
++ *        This function prevents memory leaks and stale protocol state by properly cleaning up job lists
++ *        after procedure completion or failure. It performs defensive NULL checking at each nesting level
++ *        and frees mobility structures, node pairs, and job list nodes in the correct order.
++ * \param job_list_ptr pointer to the job list pointer to be cleared (will be set to NULL after cleanup)
++ * \note This function addresses the issue where nodes_avgspeed() accessed job list entries without proper
++ *       validation, risking division by zero and NULL pointer dereferences when the list contained invalid entries.
++ */
++void clear_job_list(job_list** job_list_ptr);
++
+ /**
+  * \fn int length(char* s)
+  * \brief Helper function to return the length of a string
+diff --git a/openair2/UTIL/OMG/job.c b/openair2/UTIL/OMG/job.c
+index 1df44cb2c0..7cc69c5e0b 100644
+--- a/openair2/UTIL/OMG/job.c
++++ b/openair2/UTIL/OMG/job.c
+@@ -199,3 +199,65 @@ remove_job (job_list * list, int nid, int node_type)
+   return list;
+ 
+ }
++
++/**
++ * \fn void clear_job_list(Job_list *list)
++ * \brief Safely traverse and free all memory associated with job lists, including nested mobility structures
++ * \param list pointer to the Job_list pointer to be cleared (double pointer to allow nullification)
++ * \details This function performs defensive NULL checking at each nesting level and frees
++ *          mobility structures, node pairs, and job list nodes in the correct order.
++ *          It handles empty lists, single-entry lists, and multi-entry lists robustly.
++ */
++void clear_job_list(job_list **list)
++{
++  // Check if list pointer itself is NULL
++  if (list == NULL) {
++    LOG_W(OMG, "clear_job_list called with NULL list pointer\n");
++    return;
++  }
++  
++  // Check if list is already NULL (empty)
++  if (*list == NULL) {
++    LOG_D(OMG, "clear_job_list: Job list is already empty\n");
++    return;
++  }
++  
++  job_list *current = *list;
++  job_list *next_node = NULL;
++  unsigned int freed_count = 0;
++  
++  LOG_D(OMG, "clear_job_list: Starting cleanup of job list\n");
++  
++  // Traverse the list and free all nodes and their associated data
++  while (current != NULL) {
++    next_node = current->next;  // Save next pointer before freeing current node
++    
++    // Free pair_struct and its contents if they exist
++    if (current->pair != NULL) {
++      // Free node_struct and its mobility data if they exist
++      if (current->pair->b != NULL) {
++        // Free mobility_struct if it exists
++        if (current->pair->b->mob != NULL) {
++          free(current->pair->b->mob);
++          current->pair->b->mob = NULL;
++        }
++        free(current->pair->b);
++        current->pair->b = NULL;
++      }
++      free(current->pair);
++      current->pair = NULL;
++    }
++    
++    // Free the current job_list node
++    free(current);
++    freed_count++;
++    
++    // Move to next node
++    current = next_node;
++  }
++  
++  // Nullify the list pointer to prevent stale references
++  *list = NULL;
++  
++  LOG_D(OMG, "clear_job_list: Successfully freed %u job list entries\n", freed_count);
++}

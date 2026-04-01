@@ -1,0 +1,9 @@
+{
+  "run_id": "s00283_d60516",
+  "pr_text": "## Title: Fix scheduling priority inversion in M2AP message processing\n\n### Summary\nThe M2AP PDU decoder processed message types in an order that caused scheduling priority inversion. The switch statement in `m2ap_decode_pdu()` evaluated `initiatingMessage` cases before `unsuccessfulOutcome` and `successfulOutcome` cases. This resulted in lower-priority new requests being processed before higher-priority response messages, potentially delaying error handling and success acknowledgments in time-c",
+  "trajectory_path": "data/raw/s00283_d60516_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00283_d60516_p2.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 9,
+  "timestamp": "2026-02-10T12:21:23Z"
+}

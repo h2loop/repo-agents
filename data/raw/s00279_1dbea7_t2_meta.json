@@ -1,0 +1,9 @@
+{
+  "run_id": "s00279_1dbea7",
+  "pr_text": "## Title: Fix scheduling priority inversion in nfapi_vnf_phy_info_list\n\n### Summary\nThe `nfapi_vnf_phy_info_list_add` function was inserting new PHY info entries at the head of the linked list (LIFO order). Since `nfapi_vnf_phy_info_list_find` traverses from head to tail, this caused a scheduling priority inversion where recently added entries would be served before older ones, regardless of their intended priority. In practice, this meant lower-priority traffic could preempt higher-priority tra",
+  "trajectory_path": "data/raw/s00279_1dbea7_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00279_1dbea7_p2.diff",
+  "patch_lines": 19,
+  "trajectory_steps": 11,
+  "timestamp": "2026-02-11T14:02:25Z"
+}

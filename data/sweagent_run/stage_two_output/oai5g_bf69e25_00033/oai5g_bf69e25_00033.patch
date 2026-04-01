@@ -1,0 +1,24 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c b/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c
+index 7353e61711..cec109783c 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c
++++ b/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c
+@@ -31,6 +31,7 @@
+ 
+ #include "uper_decoder.h"
+ #include "uper_encoder.h"
++#include <string.h>
+ 
+ // Standarized 5QI values and Default Priority levels as mentioned in 3GPP TS 23.501 Table 5.7.4-1
+ const uint64_t qos_fiveqi[26] = {1, 2, 3, 4, 65, 66, 67, 71, 72, 73, 74, 76, 5, 6, 7, 8, 9, 69, 70, 79, 80, 82, 83, 84, 85, 86};
+@@ -304,6 +305,11 @@ static int handle_ue_context_drbs_release(NR_UE_info_t *UE,
+       DevAssert(ret == 0);
+     }
+   }
++  
++  /* Reset DL BLER statistics after DRB release to ensure fresh MCS calculation 
++   * based on current channel conditions */
++  memset(&UE->UE_sched_ctrl.dl_bler_stats, 0, sizeof(UE->UE_sched_ctrl.dl_bler_stats));
++
+   return drbs_len;
+ }
+ 

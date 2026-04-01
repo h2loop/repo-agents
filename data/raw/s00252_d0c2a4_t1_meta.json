@@ -1,0 +1,30 @@
+{
+  "run_id": "s00252_d0c2a4",
+  "function": {
+    "name": "wls_mac_print_stats",
+    "file": "nfapi/oai_integration/wls_integration/wls_vnf.c",
+    "start_line": 200,
+    "end_line": 225,
+    "body_lines": 26,
+    "signature": "void wls_mac_print_stats(void)",
+    "subsystem": "nfapi/oai_integration/wls_integration",
+    "token_estimate": 50
+  },
+  "bug": {
+    "bug_id": "telecom_interface_f1ap_error",
+    "description": "F1AP interface handling error between CU and DU causing message loss or corruption",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/LAYER2/MAC",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a F1AP interface handling error between CU and DU causing message loss or corruption downstream of function wls_mac_print_stats in the nfapi/oai_integration/wls_integration subsystem.\nThe function is located at nfapi/oai_integration/wls_integration/wls_vnf.c:200.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00252_d0c2a4_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00252_d0c2a4_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 11,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:08:06Z"
+}

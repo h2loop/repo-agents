@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix type confusion in PUCCH scheduling due to uninitialized structure\n\n### Summary\nThe `get_downlink_ack` function in the NR MAC UE procedures was not properly initializing the `PUCCH_sched_t` structure before use. In error conditions, partially initialized data could be passed to downstream functions, causing type confusion when pointers were cast to incompatible struct types.\n\nThis manifested as memory corruption during PUCCH resource configuration when ACK/NACK reporting failed validation checks. The issue was particularly evident when the number of HARQ feedback bits didn't match the expected DAI counter values.\n\n### Changes\n- `openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c`: Added initialization of `pucch` structure at function entry in `get_downlink_ack`\n\n"
+}

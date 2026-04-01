@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix signed/unsigned integer comparison mismatch in ESM message decoding\n\n### Summary\nA signed/unsigned integer comparison mismatch in the ESM message decoding functions was causing incorrect branch evaluation. The issue occurred when comparing buffer length (uint32_t) against minimum length constants (int) in the CHECK_PDU_POINTER_AND_LENGTH_DECODER macro.\n\nThis could lead to unexpected behavior when processing ESM messages with boundary length values, particularly in the decode_activate_dedicated_eps_bearer_context_reject function and other related ESM message handlers.\n\n### Changes\n- `openair3/NAS/COMMON/UTIL/TLVDecoder.h`: Cast mINIMUMlENGTH to uint32_t in CHECK_PDU_POINTER_AND_LENGTH_DECODER macro\n- `openair3/NAS/COMMON/UTIL/TLVEncoder.h`: Cast mINIMUMlENGTH to uint32_t in CHECK_PDU_POINTER_AND_LENGTH_ENCODER macro\n\n"
+}

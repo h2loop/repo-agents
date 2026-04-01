@@ -1,0 +1,9 @@
+{
+  "run_id": "s00645_90f730",
+  "pr_text": "## Title: Add state validation for DCI message processing in LTE PHY downlink simulation\n\n### Summary\nThe LTE PHY downlink simulator processes DCI (Downlink Control Information) messages without validating whether any DCI messages are actually available. When `num_dci` is zero after PDCCH detection, the code continues to process downstream protocol messages, leading to potential undefined behavior from operating on empty DCI allocations. This manifests as either silent failures or crashes when t",
+  "trajectory_path": "data/raw/s00645_90f730_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00645_90f730_p2.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 23,
+  "timestamp": "2026-02-10T17:41:12Z"
+}

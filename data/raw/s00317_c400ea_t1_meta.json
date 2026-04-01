@@ -1,0 +1,32 @@
+{
+  "run_id": "s00317_c400ea",
+  "function": {
+    "name": "rrc_eNB_process_M2AP_MBMS_SESSION_START_REQ",
+    "file": "openair2/RRC/LTE/rrc_eNB_M2AP.c",
+    "start_line": 1346,
+    "end_line": 1381,
+    "body_lines": 36,
+    "signature": "int rrc_eNB_process_M2AP_MBMS_SESSION_START_REQ( const protocol_ctxt_t *const ctxt_pP, int CC_id, instance_t instance, const m2ap_session_start_req_t *const m2ap_mbms_session_start_req )",
+    "subsystem": "openair2/RRC/LTE",
+    "token_estimate": 62
+  },
+  "bug": {
+    "bug_id": "telecom_missing_mandatory_ie",
+    "description": "missing mandatory information element in outgoing signaling message",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a missing mandatory information element in outgoing signaling message downstream of function rrc_eNB_process_M2AP_MBMS_SESSION_START_REQ in the openair2/RRC/LTE subsystem.\nThe function is located at openair2/RRC/LTE/rrc_eNB_M2AP.c:1346.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00317_c400ea_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00317_c400ea_p1.diff",
+  "patch_lines": 13,
+  "trajectory_steps": 49,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:36:14Z"
+}

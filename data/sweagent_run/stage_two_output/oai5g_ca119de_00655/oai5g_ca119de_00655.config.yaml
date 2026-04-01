@@ -1,0 +1,153 @@
+'{"env":{"deployment":{"image":"oai5g-sera:ca119de","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_ca119de_00655","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix buffer overread in eAxC ID configuration when using custom categories\n\n###
+  Summary\nThe `set_fh_eaxcid_conf` function in the O-RAN fronthaul configuration
+  could cause a segmentation fault when called with invalid category values. The function
+  did not properly validate input parameters before dereferencing pointers.\n\nThis
+  issue occurred when users attempted to configure custom eAxC ID mappings through
+  modified configuration paths. The original function would attempt to write to uninitialized
+  memory locations when passed NULL pointers or invalid category enums.\n\n### Changes\n-
+  `radio/fhi_72/oran-config.c`: Added NULL pointer validation and structure initialization
+  in `set_fh_eaxcid_conf`\n- `radio/fhi_72/oran-config.c`: Added `set_fh_eaxcid_conf_custom`
+  for flexible eAxC ID configuration\n- `radio/fhi_72/oran-params.h`: Added configurable
+  RU category parameter\n\n### Reproduction Steps\n1. Modify configuration to expose
+  `set_fh_eaxcid_conf` function externally\n2. Call function with NULL pointer: `set_fh_eaxcid_conf(NULL,
+  XRAN_CATEGORY_A)`\n3. Observe segmentation fault due to direct pointer dereference\n4.
+  Alternatively, call with invalid category enum value outside expected range\n5.
+  Function would return false without clear indication of failure reason\n\nThe fix
+  ensures proper error handling and prevents crashes when invalid parameters are provided,
+  while maintaining backward compatibility with existing configurations.\n","extra_fields":{"bug_description":"missing
+  mandatory information element in outgoing signaling message","bug_id":"telecom_missing_mandatory_ie","stage_one_patch":"diff
+  --git a/radio/fhi_72/oran-config.c b/radio/fhi_72/oran-config.c\nindex 2973fdc2b0..ad7cc302b4
+  100644\n--- a/radio/fhi_72/oran-config.c\n+++ b/radio/fhi_72/oran-config.c\n@@ -519,6
+  +519,14 @@ static bool set_fh_io_cfg(struct xran_io_cfg *io_cfg, const paramdef_t
+  *fhip, in\n \n static bool set_fh_eaxcid_conf(struct xran_eaxcid_config *eaxcid_conf,
+  enum xran_category cat)\n {\n+  // Validate input parameters\n+  if (eaxcid_conf
+  == NULL) {\n+    return false;\n+  }\n+\n+  // Initialize the structure to zero
+  to ensure all fields are cleared\n+  memset(eaxcid_conf, 0, sizeof(struct xran_eaxcid_config));\n+\n   //
+  values taken from sample app\n   switch (cat) {\n     case XRAN_CATEGORY_A:\n@@
+  -548,6 +556,34 @@ static bool set_fh_eaxcid_conf(struct xran_eaxcid_config *eaxcid_conf,
+  enum xran\n   return true;\n }\n \n+// Extended version that allows custom eAxC
+  ID configuration\n+static bool set_fh_eaxcid_conf_custom(struct xran_eaxcid_config
+  *eaxcid_conf,\n+                                      uint16_t mask_cuPortId, uint8_t
+  bit_cuPortId,\n+                                      uint16_t mask_bandSectorId,
+  uint8_t bit_bandSectorId,\n+                                      uint16_t mask_ccId,
+  uint8_t bit_ccId,\n+                                      uint16_t mask_ruPortId,
+  uint8_t bit_ruPortId)\n+{\n+  // Validate input parameters\n+  if (eaxcid_conf ==
+  NULL) {\n+    return false;\n+  }\n+\n+  // Initialize the structure to zero to
+  ensure all fields are cleared\n+  memset(eaxcid_conf, 0, sizeof(struct xran_eaxcid_config));\n+\n+  //
+  Set custom values\n+  eaxcid_conf->mask_cuPortId = mask_cuPortId;\n+  eaxcid_conf->mask_bandSectorId
+  = mask_bandSectorId;\n+  eaxcid_conf->mask_ccId = mask_ccId;\n+  eaxcid_conf->mask_ruPortId
+  = mask_ruPortId;\n+  eaxcid_conf->bit_cuPortId = bit_cuPortId;\n+  eaxcid_conf->bit_bandSectorId
+  = bit_bandSectorId;\n+  eaxcid_conf->bit_ccId = bit_ccId;\n+  eaxcid_conf->bit_ruPortId
+  = bit_ruPortId;\n+\n+  return true;\n+}\n+\n uint8_t *get_ether_addr(const char
+  *addr, struct rte_ether_addr *ether_addr)\n {\n #pragma GCC diagnostic push\n@@
+  -603,6 +639,8 @@ bool set_fh_init(struct xran_fh_init *fh_init)\n \n   if (!set_fh_io_cfg(&fh_init->io_cfg,
+  fhip, nump))\n     return false;\n+  // Use Category A for eAxC ID configuration
+  by default for backward compatibility\n+  // In the future, this could be made configurable
+  if different categories are needed\n   if (!set_fh_eaxcid_conf(&fh_init->eAxCId_conf,
+  XRAN_CATEGORY_A))\n     return false;\n \n@@ -732,7 +770,9 @@ static bool set_fh_frame_config(const
+  openair0_config_t *oai0, struct xran_frame\n static bool set_fh_ru_config(const
+  paramdef_t *rup, uint16_t fftSize, int nru, struct xran_ru_config *ru_config)\n
+  {\n   ru_config->xranTech = XRAN_RAN_5GNR;\n-  ru_config->xranCat = XRAN_CATEGORY_A;\n+  //
+  Read category from configuration, default to Category A\n+  int category = *gpd(rup,
+  nru, ORAN_RU_CONFIG_CATEGORY)->iptr;\n+  ru_config->xranCat = (category == 1) ?
+  XRAN_CATEGORY_B : XRAN_CATEGORY_A;\n   ru_config->xranCompHdrType = XRAN_COMP_HDR_TYPE_STATIC;\n   ru_config->iqWidth
+  = *gpd(rup, nru, ORAN_RU_CONFIG_IQWIDTH)->uptr;\n   AssertFatal(ru_config->iqWidth
+  <= 16, \"IQ Width cannot be > 16!\\n\");\ndiff --git a/radio/fhi_72/oran-params.h
+  b/radio/fhi_72/oran-params.h\nindex ff8058f9ca..aa52468a01 100644\n--- a/radio/fhi_72/oran-params.h\n+++
+  b/radio/fhi_72/oran-params.h\n@@ -93,11 +93,13 @@\n \n #define ORAN_RU_CONFIG_IQWIDTH
+  \"iq_width\"\n #define ORAN_RU_CONFIG_IQWIDTH_PRACH \"iq_width_prach\"\n+#define
+  ORAN_RU_CONFIG_CATEGORY \"category\"\n \n // clang-format off\n #define ORAN_RU_DESC
+  {\\\n   {ORAN_RU_CONFIG_IQWIDTH,       \"sample IQ width (16=uncompressed)\\n\",       PARAMFLAG_MANDATORY,
+  .u8ptr=NULL, .defuintval=16, TYPE_UINT8, 0}, \\\n   {ORAN_RU_CONFIG_IQWIDTH_PRACH,
+  \"PRACH sample IQ width (16=uncompressed)\\n\", PARAMFLAG_MANDATORY, .u8ptr=NULL,
+  .defuintval=16, TYPE_UINT8, 0}, \\\n+  {ORAN_RU_CONFIG_CATEGORY,      \"RU Category
+  (0=Category A, 1=Category B)\\n\", 0,                   .iptr=NULL,  .defintval=0,   TYPE_INT,   0},
+  \\\n }\n // clang-format on\n \n","start_fn":"set_fh_eaxcid_conf","start_fn_file":"radio/fhi_72/oran-config.c","subsystem":"radio/fhi_72"},"type":"text","id":"oai5g_ca119de_00655"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

@@ -1,0 +1,25 @@
+diff --git a/nfapi/open-nFAPI/common/public_inc/nfapi.h b/nfapi/open-nFAPI/common/public_inc/nfapi.h
+index 2cb9cee996..f35d69b2a9 100644
+--- a/nfapi/open-nFAPI/common/public_inc/nfapi.h
++++ b/nfapi/open-nFAPI/common/public_inc/nfapi.h
+@@ -24,6 +24,7 @@ extern "C" {
+ // todo : move to public_inc so can be used by vendor extensions
+ 
+ #define MAX_BAD_TAG 3
++#define NFAPI_NO_TLV 0  // Indicates no TLVs to process
+ int nfapitooai_level(int nfapilevel);
+ uint8_t push8(uint8_t in, uint8_t **out, uint8_t *end);
+ uint8_t pushs8(int8_t in, uint8_t **out, uint8_t *end);
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+index e75e418500..fd1756186d 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+@@ -5694,7 +5694,7 @@ static uint8_t unpack_nr_dl_node_sync(uint8_t **ppReadPackedMsg, uint8_t *end, v
+ {
+   nfapi_nr_dl_node_sync_t *pNfapiMsg = (nfapi_nr_dl_node_sync_t *)msg;
+   return (pull32(ppReadPackedMsg, &pNfapiMsg->t1, end) && pulls32(ppReadPackedMsg, &pNfapiMsg->delta_sfn_slot, end)
+-          && unpack_nr_p7_tlv_list(NULL, 0, ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension));
++          && unpack_nr_p7_tlv_list(NULL, NFAPI_NO_TLV, ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension));
+ }
+ 
+ static uint8_t unpack_dl_node_sync(uint8_t **ppReadPackedMsg, uint8_t *end, void *msg, nfapi_p7_codec_config_t *config) {

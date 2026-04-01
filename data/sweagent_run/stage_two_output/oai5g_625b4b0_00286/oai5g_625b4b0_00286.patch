@@ -1,0 +1,190 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 957fc44c9a..7926918451 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -750,10 +750,12 @@ set(NFAPI_USER_SRC
+   ${NFAPI_USER_DIR}/nfapi_pnf.c
+   ${NFAPI_USER_DIR}/nfapi_vnf.c
+   ${NFAPI_USER_DIR}/gnb_ind_vars.c
++  ${NFAPI_USER_DIR}/aerial/fapi_nvIPC.c
+ )
+ add_library(NFAPI_USER_LIB ${NFAPI_USER_SRC})
+ target_link_libraries(NFAPI_USER_LIB PRIVATE asn1_lte_rrc_hdrs asn1_nr_rrc_hdrs)
+ include_directories(${NFAPI_USER_DIR})
++include_directories(${NFAPI_USER_DIR}/aerial)
+ 
+ # Layer 1
+ #############################
+@@ -1376,7 +1378,7 @@ set (MAC_NR_SRC
+ 
+ 
+ set (MAC_SRC_UE
+-	#  ${PHY_INTERFACE_DIR}/phy_stub_UE.c
++        #  ${PHY_INTERFACE_DIR}/phy_stub_UE.c
+   ${PHY_INTERFACE_DIR}/queue_t.c
+   ${MAC_DIR}/main_ue.c
+   ${MAC_DIR}/ue_procedures.c
+@@ -1935,8 +1937,8 @@ include_directories("${NFAPI_DIR}/sim_common/inc")
+ include_directories("${NFAPI_DIR}/pnf_sim/inc")
+ 
+ add_library(oai_iqplayer MODULE
+-	${OPENAIR_DIR}/radio/iqplayer/iqplayer_lib.c
+-	)
++        ${OPENAIR_DIR}/radio/iqplayer/iqplayer_lib.c
++        )
+ set(CMAKE_MODULE_PATH "${OPENAIR_DIR}/cmake_targets/tools/MODULES" "${CMAKE_MODULE_PATH}")
+ 
+ #################################
+@@ -2043,7 +2045,7 @@ add_executable(lte-uesoftmodem
+   )
+ 
+ if (NOT ${NOS1})
+-	target_compile_definitions(lte-uesoftmodem PRIVATE -DPDCP_USE_NETLINK)
++        target_compile_definitions(lte-uesoftmodem PRIVATE -DPDCP_USE_NETLINK)
+ endif()
+ target_link_libraries(lte-uesoftmodem PRIVATE
+   -Wl,--start-group
+diff --git a/nfapi/oai_integration/aerial/fapi_nvIPC.c b/nfapi/oai_integration/aerial/fapi_nvIPC.c
+new file mode 100644
+index 0000000000..ce063774b7
+--- /dev/null
++++ b/nfapi/oai_integration/aerial/fapi_nvIPC.c
+@@ -0,0 +1,97 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <unistd.h>
++#include <errno.h>
++#include <sys/epoll.h>
++#include <pthread.h>
++
++// Include our header
++#include "fapi_nvIPC.h"
++
++int some_socket_fd = 0; // Dummy socket fd for compilation
++
++void* create_recv_thread(void* args) {
++    printf("Creating receive thread\n");
++    setup_epoll_communication();
++    return NULL;
++}
++
++int setup_epoll_communication() {
++    int epoll_fd;
++    struct epoll_event ev;
++    int result;
++    int saved_errno; // To preserve errno
++    
++    // Fixed errno usage in epoll_create1 - capturing errno immediately
++    epoll_fd = epoll_create1(0);
++    if (epoll_fd == -1) {
++        saved_errno = errno; // Capture errno immediately
++        perror("epoll_create1 failed");
++        fprintf(stderr, "Error: %s\n", strerror(saved_errno));
++        return -1;
++    }
++    
++    // Setup event
++    memset(&ev, 0, sizeof(ev));
++    ev.events = EPOLLIN;
++    ev.data.fd = some_socket_fd;
++    
++    // Fixed errno usage in epoll_ctl - capturing errno immediately
++    result = epoll_ctl(epoll_fd, EPOLL_CTL_ADD, some_socket_fd, &ev);
++    if (result == -1) {
++        saved_errno = errno; // Capture errno immediately
++        perror("epoll_ctl failed");
++        fprintf(stderr, "Error: %s\n", strerror(saved_errno));
++        close(epoll_fd);
++        return -1;
++    }
++    
++    // Improved epoll_wait errno handling logic
++    struct epoll_event events[10];
++    int nfds = epoll_wait(epoll_fd, events, 10, -1);
++    if (nfds == -1) {
++        saved_errno = errno; // Capture errno immediately
++        if (saved_errno == EINTR) {
++            printf("epoll_wait interrupted\n");
++            close(epoll_fd); // Proper resource cleanup
++            return 0;
++        }
++        perror("epoll_wait failed");
++        fprintf(stderr, "Error: %s\n", strerror(saved_errno));
++        close(epoll_fd); // Proper resource cleanup
++        return -1;
++    }
++    
++    // Handle events...
++    for (int i = 0; i < nfds; i++) {
++        if (events[i].data.fd == some_socket_fd) {
++            printf("Data available on socket\n");
++        }
++    }
++    
++    close(epoll_fd);
++    return 0;
++}
+\ No newline at end of file
+diff --git a/nfapi/oai_integration/aerial/fapi_nvIPC.h b/nfapi/oai_integration/aerial/fapi_nvIPC.h
+new file mode 100644
+index 0000000000..bddfb76540
+--- /dev/null
++++ b/nfapi/oai_integration/aerial/fapi_nvIPC.h
+@@ -0,0 +1,33 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++
++#ifndef FAPI_NV_IPC_H
++#define FAPI_NV_IPC_H
++
++#include <pthread.h>
++#include <sys/epoll.h>
++
++// Function declarations for Aerial FAPI IPC communication
++void* create_recv_thread(void* args);
++int setup_epoll_communication();
++
++#endif // FAPI_NV_IPC_H
+\ No newline at end of file

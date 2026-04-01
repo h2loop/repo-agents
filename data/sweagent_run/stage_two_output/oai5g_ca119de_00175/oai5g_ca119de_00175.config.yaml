@@ -1,0 +1,259 @@
+'{"env":{"deployment":{"image":"oai5g-sera:ca119de","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_ca119de_00175","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix missing free_positioning_information_resp() function causing memory leaks\n\n###
+  Summary\nThe F1AP positioning functionality was missing the required `free_positioning_information_resp()`
+  function to properly clean up dynamically allocated memory in positioning response
+  messages. This caused memory leaks when positioning procedures were used.\n\nThis
+  fix adds the missing implementation file and function following the established
+  patterns in the codebase.\n\n### Changes\n- `openair2/F1AP/lib/f1ap_positioning.c`:
+  New file implementing positioning response handling functions\n- `openair2/F1AP/lib/f1ap_positioning.h`:
+  New header declaring positioning response functions  \n- `openair2/COMMON/f1ap_messages_types.h`:
+  Added `f1ap_positioning_information_response_t` structure\n- `openair2/F1AP/lib/CMakeLists.txt`:
+  Added new source file to build\n- `openair2/F1AP/lib/f1ap_lib_includes.h`: Added
+  required ASN.1 includes\n- `openair2/F1AP/lib/f1ap_lib_extern.h`: Added header include\n\n###
+  Reproduction\nWhen running gNB with positioning capabilities enabled, memory usage
+  steadily increases during positioning procedures. Valgrind reports show unfreed
+  memory blocks corresponding to SRS configuration and SFN timing fields in positioning
+  response messages.\n\nThe missing function caused a linker error when other components
+  tried to call `free_positioning_information_resp()`, indicating the function was
+  expected to exist but was not implemented.\n","extra_fields":{"bug_description":"missing
+  mutex lock around critical section accessing shared state","bug_id":"c_missing_mutex","stage_one_patch":"diff
+  --git a/openair2/COMMON/f1ap_messages_types.h b/openair2/COMMON/f1ap_messages_types.h\nindex
+  36c3ad4f76..b37d6540c0 100644\n--- a/openair2/COMMON/f1ap_messages_types.h\n+++
+  b/openair2/COMMON/f1ap_messages_types.h\n@@ -315,6 +315,22 @@ typedef struct f1ap_gnb_du_configuration_update_failure_s
+  {\n   uint16_t criticality_diagnostics;\n } f1ap_gnb_du_configuration_update_failure_t;\n
+  \n+/* Positioning Information Response */\n+typedef struct f1ap_positioning_information_response_s
+  {\n+  /// ulong transaction id\n+  uint64_t gNB_CU_ue_id;\n+  uint64_t gNB_DU_ue_id;\n+  ///
+  SRS Configuration (optional)\n+  uint8_t *srs_configuration;\n+  int srs_configuration_length;\n+  ///
+  SFN Initialisation Time (optional)\n+  uint8_t *sfn_initialisation_time;\n+  int
+  sfn_initialisation_time_length;\n+  /// Criticality Diagnostics (optional)\n+  uint8_t
+  *criticality_diagnostics;\n+  int criticality_diagnostics_length;\n+} f1ap_positioning_information_response_t;\n+\n
+  typedef struct f1ap_dl_rrc_message_s {\n \n   uint32_t gNB_CU_ue_id;\ndiff --git
+  a/openair2/F1AP/lib/CMakeLists.txt b/openair2/F1AP/lib/CMakeLists.txt\nindex cb8d8b9712..85739cd1f2
+  100644\n--- a/openair2/F1AP/lib/CMakeLists.txt\n+++ b/openair2/F1AP/lib/CMakeLists.txt\n@@
+  -2,6 +2,7 @@ add_library(f1ap_lib OBJECT\n             f1ap_lib_common.c\n             f1ap_rrc_message_transfer.c\n             f1ap_interface_management.c\n+            f1ap_positioning.c\n
+  )\n target_link_libraries(f1ap_lib PRIVATE asn1_f1ap)\n target_include_directories(f1ap_lib
+  PUBLIC\ndiff --git a/openair2/F1AP/lib/f1ap_lib_extern.h b/openair2/F1AP/lib/f1ap_lib_extern.h\nindex
+  f95b685540..631f55372d 100644\n--- a/openair2/F1AP/lib/f1ap_lib_extern.h\n+++ b/openair2/F1AP/lib/f1ap_lib_extern.h\n@@
+  -23,5 +23,6 @@\n #define F1AP_LIB_EXTERN_H_\n \n #include \"f1ap_rrc_message_transfer.h\"\n+#include
+  \"f1ap_positioning.h\"\n \n #endif /* F1AP_LIB_EXTERN_H_ */\ndiff --git a/openair2/F1AP/lib/f1ap_lib_includes.h
+  b/openair2/F1AP/lib/f1ap_lib_includes.h\nindex 6ff60a4897..417e696b05 100644\n---
+  a/openair2/F1AP/lib/f1ap_lib_includes.h\n+++ b/openair2/F1AP/lib/f1ap_lib_includes.h\n@@
+  -40,5 +40,9 @@\n #include \"F1AP_SuccessfulOutcome.h\"\n #include \"F1AP_SibtypetobeupdatedListItem.h\"\n
+  #include \"F1AP_UnsuccessfulOutcome.h\"\n+#include \"F1AP_PositioningInformationResponse.h\"\n+#include
+  \"F1AP_SRSConfiguration.h\"\n+#include \"F1AP_SFNInitialisationTime.h\"\n+#include
+  \"F1AP_CriticalityDiagnostics.h\"\n \n #endif /* F1AP_LIB_INCLUDES_H_ */\ndiff --git
+  a/openair2/F1AP/lib/f1ap_positioning.c b/openair2/F1AP/lib/f1ap_positioning.c\nnew
+  file mode 100644\nindex 0000000000..dca629ef64\n--- /dev/null\n+++ b/openair2/F1AP/lib/f1ap_positioning.c\n@@
+  -0,0 +1,220 @@\n+/*\n+ * Licensed to the OpenAirInterface (OAI) Software Alliance
+  under one or more\n+ * contributor license agreements.  See the NOTICE file distributed
+  with\n+ * this work for additional information regarding copyright ownership.\n+
+  * The OpenAirInterface Software Alliance licenses this file to You under\n+ * the
+  OAI Public License, Version 1.1  (the \"License\"); you may not use this file\n+
+  * except in compliance with the License.\n+ * You may obtain a copy of the License
+  at\n+ *\n+ *      http://www.openairinterface.org/?page_id=698\n+ *\n+ * Unless
+  required by applicable law or agreed to in writing, software\n+ * distributed under
+  the License is distributed on an \"AS IS\" BASIS,\n+ * WITHOUT WARRANTIES OR CONDITIONS
+  OF ANY KIND, either express or implied.\n+ * See the License for the specific language
+  governing permissions and\n+ * limitations under the License.\n+ *-------------------------------------------------------------------------------\n+
+  * For more information about the OpenAirInterface (OAI) Software Alliance:\n+ *      contact@openairinterface.org\n+
+  */\n+\n+#include <string.h>\n+\n+#include \"common/utils/assertions.h\"\n+#include
+  \"openair3/UTILS/conversions.h\"\n+#include \"common/utils/oai_asn1.h\"\n+#include
+  \"common/utils/utils.h\"\n+\n+#include \"f1ap_positioning.h\"\n+#include \"f1ap_lib_common.h\"\n+#include
+  \"f1ap_lib_includes.h\"\n+#include \"f1ap_messages_types.h\"\n+#include \"f1ap_lib_extern.h\"\n+\n+/*
+  ====================================\n+ *      Positioning Information Response\n+
+  * ==================================== */\n+\n+/**\n+ * @brief Positioning Information
+  Response encoding\n+ */\n+F1AP_F1AP_PDU_t *encode_f1ap_positioning_information_response(const
+  f1ap_positioning_information_response_t *msg)\n+{\n+  F1AP_F1AP_PDU_t *pdu = calloc_or_fail(1,
+  sizeof(*pdu));\n+  /* Create */\n+  /* 0. Message Type */\n+  asn1cCalloc(pdu->choice.successfulOutcome,
+  SuccessfulOutcome);\n+  pdu->present = F1AP_F1AP_PDU_PR_successfulOutcome;\n+  SuccessfulOutcome->procedureCode
+  = F1AP_ProcedureCode_id_PositioningInformationExchange;\n+  SuccessfulOutcome->criticality
+  = F1AP_Criticality_reject;\n+  SuccessfulOutcome->value.present = F1AP_SuccessfulOutcome__value_PR_PositioningInformationResponse;\n+  F1AP_PositioningInformationResponse_t
+  *out = &pdu->choice.successfulOutcome->value.choice.PositioningInformationResponse;\n+  \n+  /*
+  mandatory */\n+  /* c1. GNB-CU-UE-F1AP-ID (integer value)*/\n+  asn1cSequenceAdd(out->protocolIEs.list,
+  F1AP_PositioningInformationResponseIEs_t, ie1);\n+  ie1->id = F1AP_ProtocolIE_ID_id_gNB_CU_UE_F1AP_ID;\n+  ie1->criticality
+  = F1AP_Criticality_reject;\n+  ie1->value.present = F1AP_PositioningInformationResponseIEs__value_PR_GNB_CU_UE_F1AP_ID;\n+  ie1->value.choice.GNB_CU_UE_F1AP_ID
+  = msg->gNB_CU_ue_id;\n+  \n+  /* mandatory */\n+  /* c2. GNB-DU-UE-F1AP-ID (integer
+  value)*/\n+  asn1cSequenceAdd(out->protocolIEs.list, F1AP_PositioningInformationResponseIEs_t,
+  ie2);\n+  ie2->id = F1AP_ProtocolIE_ID_id_gNB_DU_UE_F1AP_ID;\n+  ie2->criticality
+  = F1AP_Criticality_reject;\n+  ie2->value.present = F1AP_PositioningInformationResponseIEs__value_PR_GNB_DU_UE_F1AP_ID;\n+  ie2->value.choice.GNB_DU_UE_F1AP_ID
+  = msg->gNB_DU_ue_id;\n+  \n+  /* optional */\n+  /* c3. SRS Configuration */\n+  if
+  (msg->srs_configuration_length > 0) {\n+    asn1cSequenceAdd(out->protocolIEs.list,
+  F1AP_PositioningInformationResponseIEs_t, ie3);\n+    ie3->id = F1AP_ProtocolIE_ID_id_SRSConfiguration;\n+    ie3->criticality
+  = F1AP_Criticality_ignore;\n+    ie3->value.present = F1AP_PositioningInformationResponseIEs__value_PR_SRSConfiguration;\n+    OCTET_STRING_fromBuf(&ie3->value.choice.SRSConfiguration,
+  (char *)msg->srs_configuration, msg->srs_configuration_length);\n+  }\n+  \n+  /*
+  optional */\n+  /* c4. SFN Initialisation Time */\n+  if (msg->sfn_initialisation_time_length
+  > 0) {\n+    asn1cSequenceAdd(out->protocolIEs.list, F1AP_PositioningInformationResponseIEs_t,
+  ie4);\n+    ie4->id = F1AP_ProtocolIE_ID_id_SFNInitialisationTime;\n+    ie4->criticality
+  = F1AP_Criticality_ignore;\n+    ie4->value.present = F1AP_PositioningInformationResponseIEs__value_PR_SFNInitialisationTime;\n+    OCTET_STRING_fromBuf(&ie4->value.choice.SFNInitialisationTime,
+  (char *)msg->sfn_initialisation_time, msg->sfn_initialisation_time_length);\n+  }\n+  \n+  /*
+  optional */\n+  /* c5. Criticality Diagnostics */\n+  if (msg->criticality_diagnostics_length
+  > 0) {\n+    asn1cSequenceAdd(out->protocolIEs.list, F1AP_PositioningInformationResponseIEs_t,
+  ie5);\n+    ie5->id = F1AP_ProtocolIE_ID_id_CriticalityDiagnostics;\n+    ie5->criticality
+  = F1AP_Criticality_ignore;\n+    ie5->value.present = F1AP_PositioningInformationResponseIEs__value_PR_CriticalityDiagnostics;\n+    OCTET_STRING_fromBuf(&ie5->value.choice.CriticalityDiagnostics,
+  (char *)msg->criticality_diagnostics, msg->criticality_diagnostics_length);\n+  }\n+  \n+  return
+  pdu;\n+}\n+\n+bool decode_f1ap_positioning_information_response(const F1AP_F1AP_PDU_t
+  *pdu, f1ap_positioning_information_response_t *out)\n+{\n+  DevAssert(pdu != NULL
+  && out != NULL);\n+  memset(out, 0, sizeof(*out));\n+  \n+  F1AP_PositioningInformationResponse_t
+  *container = &pdu->choice.successfulOutcome->value.choice.PositioningInformationResponse;\n+  \n+  for
+  (int i = 0; i < container->protocolIEs.list.count; i++) {\n+    F1AP_PositioningInformationResponseIEs_t
+  *ie = container->protocolIEs.list.array[i];\n+    \n+    switch (ie->id) {\n+      case
+  F1AP_ProtocolIE_ID_id_gNB_CU_UE_F1AP_ID:\n+        DevAssert(ie->value.present ==
+  F1AP_PositioningInformationResponseIEs__value_PR_GNB_CU_UE_F1AP_ID);\n+        out->gNB_CU_ue_id
+  = ie->value.choice.GNB_CU_UE_F1AP_ID;\n+        break;\n+        \n+      case F1AP_ProtocolIE_ID_id_gNB_DU_UE_F1AP_ID:\n+        DevAssert(ie->value.present
+  == F1AP_PositioningInformationResponseIEs__value_PR_GNB_DU_UE_F1AP_ID);\n+        out->gNB_DU_ue_id
+  = ie->value.choice.GNB_DU_UE_F1AP_ID;\n+        break;\n+        \n+      case F1AP_ProtocolIE_ID_id_SRSConfiguration:\n+        if
+  (ie->value.present == F1AP_PositioningInformationResponseIEs__value_PR_SRSConfiguration)
+  {\n+          out->srs_configuration_length = ie->value.choice.SRSConfiguration.size;\n+          out->srs_configuration
+  = malloc(out->srs_configuration_length);\n+          memcpy(out->srs_configuration,
+  ie->value.choice.SRSConfiguration.buf, out->srs_configuration_length);\n+        }\n+        break;\n+        \n+      case
+  F1AP_ProtocolIE_ID_id_SFNInitialisationTime:\n+        if (ie->value.present ==
+  F1AP_PositioningInformationResponseIEs__value_PR_SFNInitialisationTime) {\n+          out->sfn_initialisation_time_length
+  = ie->value.choice.SFNInitialisationTime.size;\n+          out->sfn_initialisation_time
+  = malloc(out->sfn_initialisation_time_length);\n+          memcpy(out->sfn_initialisation_time,
+  ie->value.choice.SFNInitialisationTime.buf, out->sfn_initialisation_time_length);\n+        }\n+        break;\n+        \n+      case
+  F1AP_ProtocolIE_ID_id_CriticalityDiagnostics:\n+        if (ie->value.present ==
+  F1AP_PositioningInformationResponseIEs__value_PR_CriticalityDiagnostics) {\n+          out->criticality_diagnostics_length
+  = ie->value.choice.CriticalityDiagnostics.size;\n+          out->criticality_diagnostics
+  = malloc(out->criticality_diagnostics_length);\n+          memcpy(out->criticality_diagnostics,
+  ie->value.choice.CriticalityDiagnostics.buf, out->criticality_diagnostics_length);\n+        }\n+        break;\n+        \n+      default:\n+        return
+  false;\n+    }\n+  }\n+  \n+  return true;\n+}\n+\n+void free_f1ap_positioning_information_response(const
+  f1ap_positioning_information_response_t *msg)\n+{\n+  DevAssert(msg != NULL);\n+  \n+  if
+  (msg->srs_configuration) {\n+    free(msg->srs_configuration);\n+  }\n+  \n+  if
+  (msg->sfn_initialisation_time) {\n+    free(msg->sfn_initialisation_time);\n+  }\n+  \n+  if
+  (msg->criticality_diagnostics) {\n+    free(msg->criticality_diagnostics);\n+  }\n+}\n+\n+f1ap_positioning_information_response_t
+  cp_f1ap_positioning_information_response(const f1ap_positioning_information_response_t
+  *msg)\n+{\n+  DevAssert(msg != NULL);\n+  f1ap_positioning_information_response_t
+  out;\n+  memset(&out, 0, sizeof(out));\n+  \n+  out.gNB_CU_ue_id = msg->gNB_CU_ue_id;\n+  out.gNB_DU_ue_id
+  = msg->gNB_DU_ue_id;\n+  \n+  if (msg->srs_configuration_length > 0) {\n+    out.srs_configuration_length
+  = msg->srs_configuration_length;\n+    out.srs_configuration = malloc(out.srs_configuration_length);\n+    memcpy(out.srs_configuration,
+  msg->srs_configuration, out.srs_configuration_length);\n+  }\n+  \n+  if (msg->sfn_initialisation_time_length
+  > 0) {\n+    out.sfn_initialisation_time_length = msg->sfn_initialisation_time_length;\n+    out.sfn_initialisation_time
+  = malloc(out.sfn_initialisation_time_length);\n+    memcpy(out.sfn_initialisation_time,
+  msg->sfn_initialisation_time, out.sfn_initialisation_time_length);\n+  }\n+  \n+  if
+  (msg->criticality_diagnostics_length > 0) {\n+    out.criticality_diagnostics_length
+  = msg->criticality_diagnostics_length;\n+    out.criticality_diagnostics = malloc(out.criticality_diagnostics_length);\n+    memcpy(out.criticality_diagnostics,
+  msg->criticality_diagnostics, out.criticality_diagnostics_length);\n+  }\n+  \n+  return
+  out;\n+}\n+\n+bool eq_f1ap_positioning_information_response(const f1ap_positioning_information_response_t
+  *a, const f1ap_positioning_information_response_t *b)\n+{\n+  DevAssert(a != NULL
+  && b != NULL);\n+  \n+  if (a->gNB_CU_ue_id != b->gNB_CU_ue_id) return false;\n+  if
+  (a->gNB_DU_ue_id != b->gNB_DU_ue_id) return false;\n+  \n+  if (a->srs_configuration_length
+  != b->srs_configuration_length) return false;\n+  if (a->srs_configuration_length
+  > 0 && memcmp(a->srs_configuration, b->srs_configuration, a->srs_configuration_length)
+  != 0) return false;\n+  \n+  if (a->sfn_initialisation_time_length != b->sfn_initialisation_time_length)
+  return false;\n+  if (a->sfn_initialisation_time_length > 0 && memcmp(a->sfn_initialisation_time,
+  b->sfn_initialisation_time, a->sfn_initialisation_time_length) != 0) return false;\n+  \n+  if
+  (a->criticality_diagnostics_length != b->criticality_diagnostics_length) return
+  false;\n+  if (a->criticality_diagnostics_length > 0 && memcmp(a->criticality_diagnostics,
+  b->criticality_diagnostics, a->criticality_diagnostics_length) != 0) return false;\n+  \n+  return
+  true;\n+}\n\\ No newline at end of file\ndiff --git a/openair2/F1AP/lib/f1ap_positioning.h
+  b/openair2/F1AP/lib/f1ap_positioning.h\nnew file mode 100644\nindex 0000000000..b685db42c3\n---
+  /dev/null\n+++ b/openair2/F1AP/lib/f1ap_positioning.h\n@@ -0,0 +1,37 @@\n+/*\n+
+  * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more\n+
+  * contributor license agreements.  See the NOTICE file distributed with\n+ * this
+  work for additional information regarding copyright ownership.\n+ * The OpenAirInterface
+  Software Alliance licenses this file to You under\n+ * the OAI Public License, Version
+  1.1  (the \"License\"); you may not use this file\n+ * except in compliance with
+  the License.\n+ * You may obtain a copy of the License at\n+ *\n+ *      http://www.openairinterface.org/?page_id=698\n+
+  *\n+ * Unless required by applicable law or agreed to in writing, software\n+ *
+  distributed under the License is distributed on an \"AS IS\" BASIS,\n+ * WITHOUT
+  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n+ * See the License
+  for the specific language governing permissions and\n+ * limitations under the License.\n+
+  *-------------------------------------------------------------------------------\n+
+  * For more information about the OpenAirInterface (OAI) Software Alliance:\n+ *      contact@openairinterface.org\n+
+  */\n+\n+#ifndef F1AP_POSITIONING_H_\n+#define F1AP_POSITIONING_H_\n+\n+#include
+  <stdbool.h>\n+#include \"f1ap_messages_types.h\"\n+\n+struct F1AP_F1AP_PDU;\n+\n+/*
+  Positioning Information Response */\n+struct F1AP_F1AP_PDU *encode_f1ap_positioning_information_response(const
+  f1ap_positioning_information_response_t *msg);\n+bool decode_f1ap_positioning_information_response(const
+  struct F1AP_F1AP_PDU *pdu, f1ap_positioning_information_response_t *out);\n+void
+  free_f1ap_positioning_information_response(const f1ap_positioning_information_response_t
+  *msg);\n+f1ap_positioning_information_response_t cp_f1ap_positioning_information_response(const
+  f1ap_positioning_information_response_t *msg);\n+bool eq_f1ap_positioning_information_response(const
+  f1ap_positioning_information_response_t *a, const f1ap_positioning_information_response_t
+  *b);\n+\n+#endif /* F1AP_POSITIONING_H_ */\n\\ No newline at end of file\n","start_fn":"free_positioning_information_resp","start_fn_file":"openair2/F1AP/lib/f1ap_positioning.c","subsystem":"openair2/F1AP/lib"},"type":"text","id":"oai5g_ca119de_00175"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

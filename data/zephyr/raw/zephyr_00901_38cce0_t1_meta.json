@@ -1,0 +1,26 @@
+{
+  "run_id": "zephyr_00901_38cce0",
+  "function": {
+    "name": "arch_thread_return_value_set",
+    "file": "arch/mips/include/kernel_arch_func.h",
+    "start_line": 34,
+    "end_line": 38,
+    "body_lines": 5,
+    "signature": "static ALWAYS_INLINE void arch_thread_return_value_set(struct k_thread *thread, unsigned int value)",
+    "subsystem": "arch/mips/include",
+    "token_estimate": 14
+  },
+  "bug": {
+    "bug_id": "c_string_buffer_overrun",
+    "description": "string buffer overrun from unbounded string copy or concatenation",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a string buffer overrun from unbounded string copy or concatenation downstream of function arch_thread_return_value_set in the arch/mips/include subsystem.\nThe function is located at arch/mips/include/kernel_arch_func.h:34.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 10,
+  "trajectory_steps": 44,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:14:07Z"
+}

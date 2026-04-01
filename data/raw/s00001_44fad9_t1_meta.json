@@ -1,0 +1,32 @@
+{
+  "run_id": "s00001_44fad9",
+  "function": {
+    "name": "pdcp_serialize_control_plane_data_pdu_with_SRB_sn_buffer",
+    "file": "openair2/LAYER2/PDCP_v10.1.0/pdcp_primitives.c",
+    "start_line": 107,
+    "end_line": 121,
+    "body_lines": 15,
+    "signature": "bool pdcp_serialize_control_plane_data_pdu_with_SRB_sn_buffer(unsigned char* pdu_buffer, pdcp_control_plane_data_pdu_header* pdu)",
+    "subsystem": "openair2/LAYER2/PDCP_v10.1.0",
+    "token_estimate": 42
+  },
+  "bug": {
+    "bug_id": "telecom_missing_mandatory_ie",
+    "description": "missing mandatory information element in outgoing signaling message",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a missing mandatory information element in outgoing signaling message downstream of function pdcp_serialize_control_plane_data_pdu_with_SRB_sn_buffer in the openair2/LAYER2/PDCP_v10.1.0 subsystem.\nThe function is located at openair2/LAYER2/PDCP_v10.1.0/pdcp_primitives.c:107.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00001_44fad9_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00001_44fad9_p1.diff",
+  "patch_lines": 7,
+  "trajectory_steps": 11,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:32:54Z"
+}

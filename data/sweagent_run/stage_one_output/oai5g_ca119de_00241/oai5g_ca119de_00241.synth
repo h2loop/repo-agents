@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix undefined behavior in KPM indication header generation\n\n### Summary\nThe KPM RAN function in the E2 agent had undefined behavior when generating indication headers due to missing function implementations and incomplete structure definitions. This caused crashes during E2 indication message processing.\n\nThis fix addresses the core issues by implementing the missing `get_ngran_name` function, adding a local `time_now_us` implementation, and providing complete structure definitions for all KPM data types.\n\n### Changes\n- `openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_kpm.c`: Added `get_ngran_name` function implementation and local `time_now_us` function\n- `openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_kpm.h`: Added complete structure and enum definitions for all KPM data types\n- `common/ngran_types.h`: Extended `ngran_node_t` enum with `END_NGRAN_NODE_TYPE` for array sizing\n\n"
+}

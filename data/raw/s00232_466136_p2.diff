@@ -1,0 +1,81 @@
+diff --git a/openair3/NAS/UE/EMM/LowerLayer_defs.h b/openair3/NAS/UE/EMM/LowerLayer_defs.h
+index 1a0ae7d656..588c04e9a6 100644
+--- a/openair3/NAS/UE/EMM/LowerLayer_defs.h
++++ b/openair3/NAS/UE/EMM/LowerLayer_defs.h
+@@ -28,6 +28,7 @@ typedef struct {
+   lowerlayer_failure_callback_t failure; /* Lower layer failure   */
+   lowerlayer_release_callback_t release; /* NAS signalling release    */
+   void *args;         /* EMM procedure argument parameters    */
++  bool sched_req;     /* Scheduling request flag for pending data   */
+ } lowerlayer_data_t;
+ 
+ #endif
+diff --git a/openair3/NAS/UE/ESM/SAP/esm_recv.c b/openair3/NAS/UE/ESM/SAP/esm_recv.c
+index ca859f75f2..d7ec1fef1b 100644
+--- a/openair3/NAS/UE/ESM/SAP/esm_recv.c
++++ b/openair3/NAS/UE/ESM/SAP/esm_recv.c
+@@ -86,7 +86,7 @@ Description Defines functions executed at the ESM Service Access
+  **      Others:    None                                       **
+  **                                                                        **
+  ***************************************************************************/
+-int esm_recv_status(int pti, int ebi, const esm_status_msg *msg)
++int esm_recv_status(nas_user_t *user, int pti, int ebi, const esm_status_msg *msg)
+ {
+   int esm_cause;
+   int rc;
+@@ -107,6 +107,29 @@ int esm_recv_status(int pti, int ebi, const esm_status_msg *msg)
+ 
+   if (rc != RETURNerror) {
+     esm_cause = ESM_CAUSE_SUCCESS;
++    
++    /* Check for active bearers and trigger scheduling request if needed */
++    if (user && user->esm_data && user->lowerlayer_data) {
++      bool has_active_bearers = false;
++      
++      /* Iterate through PDN connections to check for active bearers */
++      for (int i = 0; i < user->esm_data->n_pdns; i++) {
++        if (user->esm_data->pdn[i].is_active && user->esm_data->pdn[i].data) {
++          /* Check if there are active bearers */
++          if (user->esm_data->pdn[i].data->n_bearers > 0) {
++            has_active_bearers = true;
++            LOG_TRACE(INFO, "ESM-SAP   - Active bearer found on PDN %d", i);
++            break;
++          }
++        }
++      }
++      
++      /* Set scheduling request flag if active bearers are found */
++      if (has_active_bearers) {
++        LOG_TRACE(INFO, "ESM-SAP   - Active bearers detected, setting scheduling request");
++        user->lowerlayer_data->sched_req = true;
++      }
++    }
+   }
+ 
+   /* Return the ESM cause value */
+diff --git a/openair3/NAS/UE/ESM/SAP/esm_recv.h b/openair3/NAS/UE/ESM/SAP/esm_recv.h
+index 29fcb47092..9eadb87df7 100644
+--- a/openair3/NAS/UE/ESM/SAP/esm_recv.h
++++ b/openair3/NAS/UE/ESM/SAP/esm_recv.h
+@@ -77,7 +77,7 @@ Description Defines functions executed at the ESM Service Access
+  * Functions executed by both the UE and the MME upon receiving ESM messages
+  * --------------------------------------------------------------------------
+  */
+-int esm_recv_status(int pti, int ebi, const esm_status_msg *msg);
++int esm_recv_status(nas_user_t *user, int pti, int ebi, const esm_status_msg *msg);
+ 
+ 
+ /*
+diff --git a/openair3/NAS/UE/ESM/SAP/esm_sap.c b/openair3/NAS/UE/ESM/SAP/esm_sap.c
+index f1663175d4..9d7a2076db 100644
+--- a/openair3/NAS/UE/ESM/SAP/esm_sap.c
++++ b/openair3/NAS/UE/ESM/SAP/esm_sap.c
+@@ -606,7 +606,7 @@ static int _esm_sap_recv(nas_user_t *user, int msg_type, bool is_standalone,
+       /*
+        * Process received ESM status message
+        */
+-      esm_cause = esm_recv_status(pti, ebi, &esm_msg.esm_status);
++      esm_cause = esm_recv_status(user, pti, ebi, &esm_msg.esm_status);
+       break;
+ 
+     default:

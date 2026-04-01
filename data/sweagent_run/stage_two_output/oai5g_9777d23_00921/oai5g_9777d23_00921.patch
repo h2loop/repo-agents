@@ -1,0 +1,214 @@
+diff --git a/openair1/SCHED/phy_procedures_lte_common.c b/openair1/SCHED/phy_procedures_lte_common.c
+index db19817265..6091a20b24 100644
+--- a/openair1/SCHED/phy_procedures_lte_common.c
++++ b/openair1/SCHED/phy_procedures_lte_common.c
+@@ -35,10 +35,10 @@
+ #include "PHY/LTE_TRANSPORT/transport_common_proto.h"
+ 
+ void get_Msg3_alloc(LTE_DL_FRAME_PARMS *frame_parms,
+-                    unsigned char current_subframe,
+-                    unsigned int current_frame,
+-                    unsigned int *frame,
+-                    unsigned char *subframe)
++                    uint8_t current_subframe,
++                    uint32_t current_frame,
++                    uint32_t *frame,
++                    uint8_t *subframe)
+ {
+ 
+   // Fill in other TDD Configuration!!!!
+@@ -146,10 +146,10 @@ void get_Msg3_alloc(LTE_DL_FRAME_PARMS *frame_parms,
+ }
+ 
+ void get_Msg3_alloc_ret(LTE_DL_FRAME_PARMS *frame_parms,
+-                        unsigned char current_subframe,
+-                        unsigned int current_frame,
+-                        unsigned int *frame,
+-                        unsigned char *subframe)
++                        uint8_t current_subframe,
++                        uint32_t current_frame,
++                        uint32_t *frame,
++                        uint8_t *subframe)
+ {
+   if (frame_parms->frame_type == FDD) {
+     /* always retransmit in n+8 */
+@@ -162,31 +162,16 @@ void get_Msg3_alloc_ret(LTE_DL_FRAME_PARMS *frame_parms,
+       *frame = current_frame;
+     }
+   } else {
+-    if (frame_parms->tdd_config == 1) {
+-      // original PUSCH in 2, PHICH in 6 (S), ret in 2
+-      // original PUSCH in 3, PHICH in 9, ret in 3
+-      // original PUSCH in 7, PHICH in 1 (S), ret in 7
+-      // original PUSCH in 8, PHICH in 4, ret in 8
+-      *frame = (current_frame+1) & 1023;
+-    } else if (frame_parms->tdd_config == 3) {
+-      // original PUSCH in 2, PHICH in 8, ret in 2 next frame
+-      // original PUSCH in 3, PHICH in 9, ret in 3 next frame
+-      // original PUSCH in 4, PHICH in 0, ret in 4 next frame
+-      *frame=(current_frame+1) & 1023;
+-    } else if (frame_parms->tdd_config == 4) {
+-        // original PUSCH in 2, PHICH in 8, ret in 2 next frame
+-        // original PUSCH in 3, PHICH in 9, ret in 3 next frame
+-        *frame=(current_frame+1) & 1023;
+-    } else if (frame_parms->tdd_config == 5) {
+-        // original PUSCH in 2, PHICH in 8, ret in 2 next frame
+-        *frame=(current_frame+1) & 1023;
+-    }
++    // For TDD, Msg3 retransmission always happens in subframe 2 of the next frame
++    // based on the comments in the original code
++    *subframe = 2;
++    *frame = (current_frame+1) & 1023;
+   }
+ }
+ 
+ uint8_t get_Msg3_harq_pid(LTE_DL_FRAME_PARMS *frame_parms,
+                           uint32_t frame,
+-                          unsigned char current_subframe)
++                          uint8_t current_subframe)
+ {
+ 
+   uint8_t ul_subframe=0;
+@@ -453,7 +438,7 @@ uint8_t get_reset_ack(LTE_DL_FRAME_PARMS *frame_parms,
+ 
+     LOG_D(PHY,"dl subframe %d send_harq_status %d cw_idx %d, reset %d\n",subframe_dl0, status, cw_idx, do_reset);
+     if(do_reset)
+-    	harq_ack[subframe_dl0].send_harq_status = 0;
++        harq_ack[subframe_dl0].send_harq_status = 0;
+     //printf("get_ack: Getting ACK/NAK for PDSCH (subframe %d) => %d\n",subframe_dl,o_ACK[0]);
+   } else {
+     switch (frame_parms->tdd_config) {
+@@ -581,7 +566,7 @@ uint8_t get_reset_ack(LTE_DL_FRAME_PARMS *frame_parms,
+       status = harq_ack[subframe_dl0].send_harq_status + harq_ack[subframe_dl1].send_harq_status;
+ 
+       //LOG_D(PHY,"TDD Config3 UL Sfn %d, dl Sfn0 %d status %d o_Ack %d, dl Sfn1 %d status %d o_Ack %d subframe_rx %d N_bundled %d \n",
+-      //	  subframe_tx, subframe_dl0, harq_ack[subframe_dl0].send_harq_status,harq_ack[subframe_dl0].ack,
++      //          subframe_tx, subframe_dl0, harq_ack[subframe_dl0].send_harq_status,harq_ack[subframe_dl0].ack,
+       //    subframe_dl1, harq_ack[subframe_dl1].send_harq_status,harq_ack[subframe_dl1].ack, subframe_rx, pN_bundled[0]);
+       if (do_reset) {
+         // reset ACK/NACK status
+@@ -751,7 +736,7 @@ int subframe_num(LTE_DL_FRAME_PARMS *frame_parms){
+ }
+ 
+ lte_subframe_t subframe_select(LTE_DL_FRAME_PARMS *frame_parms,
+-		                       unsigned char subframe)
++                                       unsigned char subframe)
+ {
+   // if FDD return dummy value
+   if (frame_parms->frame_type == FDD)
+@@ -999,38 +984,38 @@ void compute_srs_pos(frame_type_t frameType,uint16_t isrs,uint16_t *psrsPeriodic
+ 
+       if((isrs>9)&&(isrs<15))
+         {
+-	  *psrsPeriodicity=5;
+-	  *psrsOffset=isrs-10;
++          *psrsPeriodicity=5;
++          *psrsOffset=isrs-10;
+         }
+       if((isrs>14)&&(isrs<25))
+         {
+-	  *psrsPeriodicity=10;
+-	  *psrsOffset=isrs-15;
++          *psrsPeriodicity=10;
++          *psrsOffset=isrs-15;
+         }
+       if((isrs>24)&&(isrs<45))
+         {
+-	  *psrsPeriodicity=20;
+-	  *psrsOffset=isrs-25;
++          *psrsPeriodicity=20;
++          *psrsOffset=isrs-25;
+         }
+       if((isrs>44)&&(isrs<85))
+         {
+-	  *psrsPeriodicity=40;
+-	  *psrsOffset=isrs-45;
++          *psrsPeriodicity=40;
++          *psrsOffset=isrs-45;
+         }
+       if((isrs>84)&&(isrs<165))
+         {
+-	  *psrsPeriodicity=80;
+-	  *psrsOffset=isrs-85;
++          *psrsPeriodicity=80;
++          *psrsOffset=isrs-85;
+         }
+       if((isrs>164)&&(isrs<325))
+         {
+-	  *psrsPeriodicity=160;
+-	  *psrsOffset=isrs-165;
++          *psrsPeriodicity=160;
++          *psrsOffset=isrs-165;
+         }
+       if((isrs>324)&&(isrs<645))
+         {
+-	  *psrsPeriodicity=320;
+-	  *psrsOffset=isrs-325;
++          *psrsPeriodicity=320;
++          *psrsOffset=isrs-325;
+         }
+       
+       AssertFatal(isrs<=644,"Isrs out of range %d>644\n",isrs);
+@@ -1039,46 +1024,46 @@ void compute_srs_pos(frame_type_t frameType,uint16_t isrs,uint16_t *psrsPeriodic
+     else
+       {
+         if(isrs<2)
+-	  {
++          {
+             *psrsPeriodicity=2;
+             *psrsOffset=isrs;
+-	  }
++          }
+         if((isrs>1)&&(isrs<7))
+-	  {
++          {
+             *psrsPeriodicity=5;
+             *psrsOffset=isrs-2;
+         }
+         if((isrs>6)&&(isrs<17))
+-	  {
++          {
+             *psrsPeriodicity=10;
+             *psrsOffset=isrs-7;
+-	  }
++          }
+         if((isrs>16)&&(isrs<37))
+-	  {
++          {
+             *psrsPeriodicity=20;
+             *psrsOffset=isrs-17;
+-	  }
++          }
+         if((isrs>36)&&(isrs<77))
+-	  {
++          {
+             *psrsPeriodicity=40;
+             *psrsOffset=isrs-37;
+-	  }
++          }
+         if((isrs>76)&&(isrs<157))
+-	  {
++          {
+             *psrsPeriodicity=80;
+             *psrsOffset=isrs-77;
+-	  }
++          }
+         if((isrs>156)&&(isrs<317))
+-	  {
++          {
+             *psrsPeriodicity=160;
+             *psrsOffset=isrs-157;
+         }
+         if((isrs>316)&&(isrs<637))
+-	  {
++          {
+             *psrsPeriodicity=320;
+             *psrsOffset=isrs-317;
+-	  }
+-	AssertFatal(isrs<=636,"Isrs out of range %d>636\n",isrs);
+-	
++          }
++        AssertFatal(isrs<=636,"Isrs out of range %d>636\n",isrs);
++        
+       }
+ }

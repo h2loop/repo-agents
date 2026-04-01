@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect RB range calculation in UL TDA selection\n\n### Summary\nThe NR gNB MAC scheduler contained an incorrect loop condition in the `get_max_rb_range` function that caused improper resource block allocation during UL TDA selection. The bug manifested as UEs being allocated incorrect PRB ranges, leading to transmission conflicts and reduced throughput.\n\nThe issue was in the loop termination condition which treated the length parameter as an absolute end position rather than a relative length.\n\n### Changes\n- `openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c`: Corrected loop condition in `get_max_rb_range` function to properly calculate RB ranges.\n\n"
+}

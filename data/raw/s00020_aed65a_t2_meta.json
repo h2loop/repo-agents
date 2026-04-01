@@ -1,0 +1,9 @@
+{
+  "run_id": "s00020_aed65a",
+  "pr_text": "## Title: Fix buffer overflow vulnerability in IMEISV mobile identity encoder\n\n### Summary\nThe `encode_imeisv_mobile_identity` function in the NAS mobile identity encoder was writing up to 9 bytes to the target buffer without verifying available space, creating a buffer overflow vulnerability. When encoding IMEISV mobile identities, the function would unconditionally write digit fields and parity bits directly to the buffer pointer, potentially corrupting adjacent memory if the caller provided a",
+  "trajectory_path": "data/raw/s00020_aed65a_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00020_aed65a_p2.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 41,
+  "timestamp": "2026-02-10T10:44:00Z"
+}

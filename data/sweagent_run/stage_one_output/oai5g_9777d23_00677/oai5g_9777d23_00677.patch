@@ -1,0 +1,33 @@
+diff --git a/openair1/PHY/NR_UE_TRANSPORT/nr_pscch_pssch_rx.c b/openair1/PHY/NR_UE_TRANSPORT/nr_pscch_pssch_rx.c
+index a86209803d..17c7aa848d 100644
+--- a/openair1/PHY/NR_UE_TRANSPORT/nr_pscch_pssch_rx.c
++++ b/openair1/PHY/NR_UE_TRANSPORT/nr_pscch_pssch_rx.c
+@@ -21,6 +21,7 @@
+ 
+ #define _GNU_SOURCE
+ 
++#include <limits.h>
+ #include "PHY/defs_nr_UE.h"
+ #include "NR_IF_Module.h"
+ #include "openair1/SCHED_NR_UE/defs.h"
+@@ -80,10 +81,16 @@ void nr_pdcch_unscrambling(int16_t *e_rx,
+       reset = 0;
+     }
+ 
+-    if (((s >> (i % 32)) & 1) == 1)
+-      z2[i] = -e_rx[i];
+-    else
+-      z2[i]=e_rx[i];
++    if (((s >> (i % 32)) & 1) == 1) {
++      // Handle int16_t overflow when negating -32768
++      if (e_rx[i] == INT16_MIN) {
++        z2[i] = INT16_MAX;
++      } else {
++        z2[i] = -e_rx[i];
++      }
++    } else {
++      z2[i] = e_rx[i];
++    }
+   }
+ }
+ 

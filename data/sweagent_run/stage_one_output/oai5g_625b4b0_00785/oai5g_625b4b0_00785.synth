@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Add missing rrc_ue_generate_measurementReport implementation for NR UE\n\n### Summary\nThe NR UE code was missing the implementation of the `rrc_ue_generate_measurementReport` function that is expected to be called when the UE needs to send measurement reports to the gNB. This caused a linking error when trying to build the NR UE with measurement reporting enabled.\n\nThe function was declared in the header but never implemented, causing undefined reference errors during linking.\n\n### Changes\n- `openair2/RRC/NR_UE/rrc_UE.c`: Added implementation of `rrc_ue_generate_measurementReport` function\n- `openair2/RRC/NR_UE/rrc_proto.h`: Added function declaration\n- `openair2/RRC/NR_UE/rrc_UE.c`: Added missing include for `NR_MeasResults.h`\n\n"
+}

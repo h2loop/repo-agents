@@ -1,0 +1,32 @@
+diff --git a/openair3/NGAP/ngap_common.h b/openair3/NGAP/ngap_common.h
+index 3c060eac03..1ae7819787 100644
+--- a/openair3/NGAP/ngap_common.h
++++ b/openair3/NGAP/ngap_common.h
+@@ -72,6 +72,7 @@
+ #include "NGAP_PDUSessionResourceFailedToModifyItemModRes.h"
+ #include "NGAP_PDUSessionResourceModifyUnsuccessfulTransfer.h"
+ #include "NGAP_PDUSessionResourceReleasedItemRelRes.h"
++#include "NGAP_PDUSessionResourceReleaseResponseTransfer.h"
+ #include "NGAP_PDUSessionResourceToReleaseItemRelCmd.h"
+ #include "NGAP_PDUSessionResourceModifyItemModReq.h"
+ #include "NGAP_PDUSessionResourceModifyRequestTransfer.h"
+diff --git a/openair3/NGAP/ngap_gNB_nas_procedures.c b/openair3/NGAP/ngap_gNB_nas_procedures.c
+index 29541d8acf..814991a157 100644
+--- a/openair3/NGAP/ngap_gNB_nas_procedures.c
++++ b/openair3/NGAP/ngap_gNB_nas_procedures.c
+@@ -1223,7 +1223,14 @@ int ngap_gNB_pdusession_release_resp(instance_t instance, ngap_pdusession_releas
+     for (i = 0; i < pdusession_release_resp_p->nb_of_pdusessions_released; i++) {
+       asn1cSequenceAdd(ie->value.choice.PDUSessionResourceReleasedListRelRes.list, NGAP_PDUSessionResourceReleasedItemRelRes_t, item);
+       item->pDUSessionID = pdusession_release_resp_p->pdusession_release[i].pdusession_id;
+-      allocCopy(&item->pDUSessionResourceReleaseResponseTransfer, pdusession_release_resp_p->pdusession_release[i].data);
++
++      NGAP_PDUSessionResourceReleaseResponseTransfer_t pdusessionTransfer = {0};
++      asn_encode_to_new_buffer_result_t res = asn_encode_to_new_buffer(NULL, ATS_ALIGNED_CANONICAL_PER, &asn_DEF_NGAP_PDUSessionResourceReleaseResponseTransfer, &pdusessionTransfer);
++      AssertFatal(res.buffer, "ASN1 message encoding failed (%s, %lu)!\n", res.result.failed_type->name, res.result.encoded);
++      item->pDUSessionResourceReleaseResponseTransfer.buf = res.buffer;
++      item->pDUSessionResourceReleaseResponseTransfer.size = res.result.encoded;
++
++      ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_NGAP_PDUSessionResourceReleaseResponseTransfer, &pdusessionTransfer);
+       NGAP_DEBUG("pdusession_release_resp: pdusession ID %ld\n", item->pDUSessionID);
+     }
+   }

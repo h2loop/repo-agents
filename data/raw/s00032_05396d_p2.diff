@@ -1,0 +1,96 @@
+diff --git a/common/utils/T/tracer/hacks/time_meas.c b/common/utils/T/tracer/hacks/time_meas.c
+index 5c945db814..7c1c5980c5 100644
+--- a/common/utils/T/tracer/hacks/time_meas.c
++++ b/common/utils/T/tracer/hacks/time_meas.c
+@@ -26,13 +26,25 @@ void usage(void)
+ struct timespec time_sub(struct timespec a, struct timespec b)
+ {
+   struct timespec ret;
++  int64_t nsec_diff;
++  
+   if (a.tv_nsec < b.tv_nsec) {
+-    ret.tv_nsec = (int64_t)a.tv_nsec - (int64_t)b.tv_nsec + 1000000000;
++    nsec_diff = (int64_t)a.tv_nsec - (int64_t)b.tv_nsec + 1000000000;
+     ret.tv_sec = a.tv_sec - b.tv_sec - 1;
+   } else {
+-    ret.tv_nsec = a.tv_nsec - b.tv_nsec;
++    nsec_diff = (int64_t)a.tv_nsec - (int64_t)b.tv_nsec;
+     ret.tv_sec = a.tv_sec - b.tv_sec;
+   }
++  
++  /* Clamp nsec_diff to valid POSIX range [0, 999999999] */
++  if (nsec_diff < 0) {
++    ret.tv_nsec = 0;
++  } else if (nsec_diff > 999999999) {
++    ret.tv_nsec = 999999999;
++  } else {
++    ret.tv_nsec = nsec_diff;
++  }
++  
+   return ret;
+ }
+ 
+diff --git a/common/utils/T/tracer/view/ticktime.c b/common/utils/T/tracer/view/ticktime.c
+index 7fa13e4d7a..47294d2c7a 100644
+--- a/common/utils/T/tracer/view/ticktime.c
++++ b/common/utils/T/tracer/view/ticktime.c
+@@ -56,13 +56,25 @@ static struct timespec time_add(struct timespec a, struct timespec b)
+ static struct timespec time_sub(struct timespec a, struct timespec b)
+ {
+   struct timespec ret;
++  int64_t nsec_diff;
++  
+   if (a.tv_nsec < b.tv_nsec) {
+-    ret.tv_nsec = (int64_t)a.tv_nsec - (int64_t)b.tv_nsec + 1000000000;
++    nsec_diff = (int64_t)a.tv_nsec - (int64_t)b.tv_nsec + 1000000000;
+     ret.tv_sec = a.tv_sec - b.tv_sec - 1;
+   } else {
+-    ret.tv_nsec = a.tv_nsec - b.tv_nsec;
++    nsec_diff = (int64_t)a.tv_nsec - (int64_t)b.tv_nsec;
+     ret.tv_sec = a.tv_sec - b.tv_sec;
+   }
++  
++  /* Clamp nsec_diff to valid POSIX range [0, 999999999] */
++  if (nsec_diff < 0) {
++    ret.tv_nsec = 0;
++  } else if (nsec_diff > 999999999) {
++    ret.tv_nsec = 999999999;
++  } else {
++    ret.tv_nsec = nsec_diff;
++  }
++  
+   return ret;
+ }
+ 
+diff --git a/common/utils/T/tracer/view/time.c b/common/utils/T/tracer/view/time.c
+index 18fc02e4d7..06c05892c8 100644
+--- a/common/utils/T/tracer/view/time.c
++++ b/common/utils/T/tracer/view/time.c
+@@ -49,13 +49,25 @@ static struct timespec time_add(struct timespec a, struct timespec b)
+ static struct timespec time_sub(struct timespec a, struct timespec b)
+ {
+   struct timespec ret;
++  int64_t nsec_diff;
++  
+   if (a.tv_nsec < b.tv_nsec) {
+-    ret.tv_nsec = (int64_t)a.tv_nsec - (int64_t)b.tv_nsec + 1000000000;
++    nsec_diff = (int64_t)a.tv_nsec - (int64_t)b.tv_nsec + 1000000000;
+     ret.tv_sec = a.tv_sec - b.tv_sec - 1;
+   } else {
+-    ret.tv_nsec = a.tv_nsec - b.tv_nsec;
++    nsec_diff = (int64_t)a.tv_nsec - (int64_t)b.tv_nsec;
+     ret.tv_sec = a.tv_sec - b.tv_sec;
+   }
++  
++  /* Clamp nsec_diff to valid POSIX range [0, 999999999] */
++  if (nsec_diff < 0) {
++    ret.tv_nsec = 0;
++  } else if (nsec_diff > 999999999) {
++    ret.tv_nsec = 999999999;
++  } else {
++    ret.tv_nsec = nsec_diff;
++  }
++  
+   return ret;
+ }
+ 

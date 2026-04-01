@@ -1,0 +1,74 @@
+diff --git a/openair3/NGAP/ngap_gNB_handlers.c b/openair3/NGAP/ngap_gNB_handlers.c
+index b80902add9..de5d3ce189 100644
+--- a/openair3/NGAP/ngap_gNB_handlers.c
++++ b/openair3/NGAP/ngap_gNB_handlers.c
+@@ -175,6 +175,69 @@ static int ngap_gNB_handle_ng_setup_response(sctp_assoc_t assoc_id, uint32_t str
+   DevAssert(pdu != NULL);
+   container = &pdu->choice.successfulOutcome->value.choice.NGSetupResponse;
+ 
++  /* Cleanup existing protocol state before processing new configuration */
++  if ((amf_desc_p = ngap_gNB_get_AMF(NULL, assoc_id, 0)) != NULL) {
++    struct served_guami_s *guami_item, *guami_temp;
++    struct plmn_support_s *plmn_item, *plmn_temp;
++    struct plmn_identity_s *plmn_id, *plmn_id_temp;
++    struct served_region_id_s *region_id, *region_id_temp;
++    struct amf_set_id_s *set_id, *set_id_temp;
++    struct amf_pointer_s *pointer, *pointer_temp;
++    struct slice_support_s *slice, *slice_temp;
++
++    /* Free served_guami list and all nested sub-lists */
++    STAILQ_FOREACH_SAFE(guami_item, &amf_desc_p->served_guami, next, guami_temp) {
++      /* Free served_plmns sub-list */
++      STAILQ_FOREACH_SAFE(plmn_id, &guami_item->served_plmns, next, plmn_id_temp) {
++        STAILQ_REMOVE(&guami_item->served_plmns, plmn_id, plmn_identity_s, next);
++        free(plmn_id);
++      }
++      
++      /* Free served_region_ids sub-list */
++      STAILQ_FOREACH_SAFE(region_id, &guami_item->served_region_ids, next, region_id_temp) {
++        STAILQ_REMOVE(&guami_item->served_region_ids, region_id, served_region_id_s, next);
++        free(region_id);
++      }
++      
++      /* Free amf_set_ids sub-list */
++      STAILQ_FOREACH_SAFE(set_id, &guami_item->amf_set_ids, next, set_id_temp) {
++        STAILQ_REMOVE(&guami_item->amf_set_ids, set_id, amf_set_id_s, next);
++        free(set_id);
++      }
++      
++      /* Free amf_pointers sub-list */
++      STAILQ_FOREACH_SAFE(pointer, &guami_item->amf_pointers, next, pointer_temp) {
++        STAILQ_REMOVE(&guami_item->amf_pointers, pointer, amf_pointer_s, next);
++        free(pointer);
++      }
++      
++      /* Remove and free the GUAMI item itself */
++      STAILQ_REMOVE(&amf_desc_p->served_guami, guami_item, served_guami_s, next);
++      free(guami_item);
++    }
++    STAILQ_INIT(&amf_desc_p->served_guami);
++
++    /* Free plmn_supports list and slice_supports sub-lists */
++    STAILQ_FOREACH_SAFE(plmn_item, &amf_desc_p->plmn_supports, next, plmn_temp) {
++      /* Free slice_supports sub-list */
++      STAILQ_FOREACH_SAFE(slice, &plmn_item->slice_supports, next, slice_temp) {
++        STAILQ_REMOVE(&plmn_item->slice_supports, slice, slice_support_s, next);
++        free(slice);
++      }
++      
++      /* Remove and free the PLMN support item */
++      STAILQ_REMOVE(&amf_desc_p->plmn_supports, plmn_item, plmn_support_s, next);
++      free(plmn_item);
++    }
++    STAILQ_INIT(&amf_desc_p->plmn_supports);
++
++    /* Free AMF name if allocated */
++    if (amf_desc_p->amf_name != NULL) {
++      free(amf_desc_p->amf_name);
++      amf_desc_p->amf_name = NULL;
++    }
++  }
++
+   /* NG Setup Response == Non UE-related procedure -> stream 0 */
+   if (stream != 0) {
+     NGAP_ERROR("[SCTP %u] Received ng setup response on stream != 0 (%u)\n",

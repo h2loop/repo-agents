@@ -1,0 +1,58 @@
+diff --git a/targets/TARGET_Freescale/TARGET_MCUXpresso_MCUS/TARGET_K82F/drivers/fsl_flexio_i2c_master.c b/targets/TARGET_Freescale/TARGET_MCUXpresso_MCUS/TARGET_K82F/drivers/fsl_flexio_i2c_master.c
+index 20d6ecc7..ea07e8d6 100644
+--- a/targets/TARGET_Freescale/TARGET_MCUXpresso_MCUS/TARGET_K82F/drivers/fsl_flexio_i2c_master.c
++++ b/targets/TARGET_Freescale/TARGET_MCUXpresso_MCUS/TARGET_K82F/drivers/fsl_flexio_i2c_master.c
+@@ -29,6 +29,7 @@
+  */
+ 
+ #include "fsl_flexio_i2c_master.h"
++#include "fsl_common.h"
+ 
+ /*******************************************************************************
+  * Definitions
+@@ -562,16 +563,23 @@ void FLEXIO_I2C_MasterSetBaudRate(FLEXIO_I2C_Type *base, uint32_t baudRate_Bps,
+     uint16_t timerDiv = 0;
+     uint16_t timerCmp = 0;
+     FLEXIO_Type *flexioBase = base->flexioBase;
++    uint32_t regPrimask = 0U;
+ 
+     /* Set TIMCMP[7:0] = (baud rate divider / 2) - 1.*/
+     timerDiv = srcClock_Hz / baudRate_Bps;
+     timerDiv = timerDiv / 2 - 1U;
+ 
++    /* Disable interrupts to prevent race condition */
++    regPrimask = DisableGlobalIRQ();
++    
+     timerCmp = flexioBase->TIMCMP[base->timerIndex[0]];
+     timerCmp &= 0xFF00;
+     timerCmp |= timerDiv;
+ 
+     flexioBase->TIMCMP[base->timerIndex[0]] = timerCmp;
++    
++    /* Re-enable interrupts */
++    EnableGlobalIRQ(regPrimask);
+ }
+ 
+ status_t FLEXIO_I2C_MasterSetTransferCount(FLEXIO_I2C_Type *base, uint8_t count)
+@@ -584,7 +592,11 @@ status_t FLEXIO_I2C_MasterSetTransferCount(FLEXIO_I2C_Type *base, uint8_t count)
+     uint16_t timerCmp = 0;
+     uint32_t timerConfig = 0;
+     FLEXIO_Type *flexioBase = base->flexioBase;
++    uint32_t regPrimask = 0U;
+ 
++    /* Disable interrupts to prevent race condition */
++    regPrimask = DisableGlobalIRQ();
++    
+     timerCmp = flexioBase->TIMCMP[base->timerIndex[0]];
+     timerCmp &= 0x00FFU;
+     timerCmp |= (count * 18 + 1U) << 8U;
+@@ -593,6 +605,9 @@ status_t FLEXIO_I2C_MasterSetTransferCount(FLEXIO_I2C_Type *base, uint8_t count)
+     timerConfig &= ~FLEXIO_TIMCFG_TIMDIS_MASK;
+     timerConfig |= FLEXIO_TIMCFG_TIMDIS(kFLEXIO_TimerDisableOnTimerCompare);
+     flexioBase->TIMCFG[base->timerIndex[0]] = timerConfig;
++    
++    /* Re-enable interrupts */
++    EnableGlobalIRQ(regPrimask);
+ 
+     return kStatus_Success;
+ }

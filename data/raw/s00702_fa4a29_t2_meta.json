@@ -1,0 +1,9 @@
+{
+  "run_id": "s00702_fa4a29",
+  "pr_text": "## Title: Add range validation for PRNG seed parameter in Tausworthe generator\n\n### Summary\nThe `set_taus_seed()` function initializes the Tausworthe random number generator using a user-provided seed value. The function accepts an `unsigned int` parameter but casts it to `(long int)` when calling `srand48_r()`. On 32-bit and LP64 systems, `long int` has a maximum value of 2^31-1 (2147483647), while `unsigned int` can range up to 2^32-1 (4294967295). When seed values exceed the `long int` range,",
+  "trajectory_path": "data/raw/s00702_fa4a29_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00702_fa4a29_p2.diff",
+  "patch_lines": 12,
+  "trajectory_steps": 6,
+  "timestamp": "2026-02-11T07:05:10Z"
+}

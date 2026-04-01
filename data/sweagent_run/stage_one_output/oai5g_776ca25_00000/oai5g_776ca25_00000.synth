@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix PRACH subframe detection when eMTC not enabled\n\n### Summary\nThe `is_prach_subframe` function in the LTE PHY layer was returning incorrect results when eMTC was not enabled. The issue occurred because the function was checking eMTB PRACH configuration flags even when the eMTB configuration structure contained uninitialized memory.\n\nThis caused unpredictable behavior in PRACH detection, leading to missed PRACH opportunities or false PRACH detections in some scenarios.\n\n### Changes\n- `openair1/PHY/LTE_TRANSPORT/prach_common.c`: Added check for `prach_Config_enabled` flag before processing eMTB PRACH configurations in `is_prach_subframe` function.\n\n"
+}

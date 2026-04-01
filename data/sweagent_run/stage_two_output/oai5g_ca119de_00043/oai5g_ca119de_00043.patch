@@ -1,0 +1,349 @@
+diff --git a/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c b/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c
+index d612a6dcc6..050b3d4a16 100644
+--- a/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c
++++ b/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c
+@@ -96,11 +96,11 @@ static const uint16_t NCS_restricted_TypeB_delta_f_RA_5[14] =
+ // Table 6.3.3.1-7 (38.211) NCS for preamble formats with delta_f_RA = 15 * 2mu KHz where mu = {0,1,2,3}
+ static const uint16_t NCS_unrestricted_delta_f_RA_15[16] = {0, 2, 4, 6, 8, 10, 12, 13, 15, 17, 19, 23, 27, 34, 46, 69};
+ 
+-//	specification mapping talbe, table_38$x_$y_$z_c$a
+-//	- $x: specification
+-//	- $y: subclause-major
+-//	- $z: subclause-minor
+-//	- $a: ($a)th of column in table, start from zero
++//      specification mapping talbe, table_38$x_$y_$z_c$a
++//      - $x: specification
++//      - $y: subclause-major
++//      - $z: subclause-minor
++//      - $a: ($a)th of column in table, start from zero
+ const int32_t table_38213_13_1_c1[16] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, reserved}; // index 15 reserved
+ const int32_t table_38213_13_1_c2[16] = {24, 24, 24, 24, 24, 24, 48, 48, 48, 48, 48, 48, 96, 96, 96, reserved}; // index 15 reserved
+ const int32_t table_38213_13_1_c3[16] = { 2,  2,  2,  3,  3,  3,  1,  1,  2,  2,  3,  3,  1,  2,  3, reserved}; // index 15 reserved
+@@ -151,10 +151,10 @@ const int32_t table_38213_13_10_c2[16] = {48, 48, 48, 48, 24, 24, 48, 48, reserv
+ const int32_t table_38213_13_10_c3[16] = { 1,  1,  2,  2,  1,  1,  1,  1, reserved, reserved, reserved, reserved, reserved, reserved, reserved, reserved}; // index 08-15 reserved
+ const int32_t table_38213_13_10_c4[16] = { 0,  8,  0,  8,-41, 25,-41, 49, reserved, reserved, reserved, reserved, reserved, reserved, reserved, reserved}; // index 08-15 reserved, condition A as default
+ 
+-const float   table_38213_13_11_c1[16] = { 0,  0,  2,  2,  5,  5,  7,  7,  0,  5,  0,  0,  2,  2,  5,  5};	//	O
++const float   table_38213_13_11_c1[16] = { 0,  0,  2,  2,  5,  5,  7,  7,  0,  5,  0,  0,  2,  2,  5,  5};      //      O
+ const int32_t table_38213_13_11_c2[16] = { 1,  2,  1,  2,  1,  2,  1,  2,  1,  1,  1,  1,  1,  1,  1,  1};
+-const float   table_38213_13_11_c3[16] = { 1, 0.5f, 1, 0.5f, 1, 0.5f, 1, 0.5f,  2,  2,  1,  1,  1,  1,  1,  1};	//	M
+-const int32_t table_38213_13_11_c4[16] = { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  2,  1,  2,  1,  2};	// i is even as default
++const float   table_38213_13_11_c3[16] = { 1, 0.5f, 1, 0.5f, 1, 0.5f, 1, 0.5f,  2,  2,  1,  1,  1,  1,  1,  1}; //      M
++const int32_t table_38213_13_11_c4[16] = { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  2,  1,  2,  1,  2};      // i is even as default
+ 
+ const float   table_38213_13_12_c1[16] = { 0, 0, 2.5f, 2.5f, 5, 5, 0, 2.5f, 5, 7.5f, 7.5f, 7.5f, 0, 5, reserved, reserved}; // O, index 14-15 reserved
+ const int32_t table_38213_13_12_c2[16] = { 1,  2,  1,  2,  1,  2,  2,  2,  2,  1,  2,  2,  1,  1,  reserved,  reserved}; // index 14-15 reserved
+@@ -653,7 +653,7 @@ NR_tda_info_t get_dl_tda_info(const NR_UE_DL_BWP_t *dl_BWP,
+ uint16_t get_NCS(uint8_t index, uint16_t format0, uint8_t restricted_set_config) {
+ 
+   LOG_D(MAC,"get_NCS: indx %d,format0 %d, restriced_set_config %d\n",
+-	index,format0,restricted_set_config);
++        index,format0,restricted_set_config);
+ 
+   if (format0 < 3) {
+     switch(restricted_set_config){
+@@ -718,7 +718,7 @@ int16_t get_N_RA_RB (int delta_f_RA_PRACH, int delta_f_PUSCH)
+         index += 0;
+       else
+         index += 1;
+-      break;		
++      break;            
+     case 3:
+       index = 13;
+       if (delta_f_PUSCH == 2)
+@@ -729,7 +729,7 @@ int16_t get_N_RA_RB (int delta_f_RA_PRACH, int delta_f_PUSCH)
+     default : index = 10;/*30khz prach scs and 30khz pusch scs*/
+   }
+   return N_RA_RB[index];
+-}	
++}       
+ // Table 6.3.3.2-2: Random access configurations for FR1 and paired spectrum/supplementary uplink
+ // the column 5, (SFN_nbr is a bitmap where we set bit to '1' in the position of the subframe where the RACH can be sent.
+ // E.g. in row 4, and column 5 we have set value 512 ('1000000000') which means RACH can be sent at subframe 9.
+@@ -1517,7 +1517,7 @@ static const int64_t table_6_3_3_2_4_prachConfig_Index[256][10] = {
+ 
+ int get_format0(uint8_t index,
+                 uint8_t unpaired,
+-		frequency_range_t frequency_range){
++                frequency_range_t frequency_range){
+ 
+   uint16_t format=0;
+   if (unpaired) {
+@@ -1701,7 +1701,7 @@ int get_nr_prach_occasion_info_from_index(uint8_t index,
+             *start_symbol,
+             *N_t_slot,
+             *N_dur,
+-	    *N_RA_sfn);
++            *N_RA_sfn);
+     }
+     return 1;
+  }
+@@ -1770,7 +1770,7 @@ int get_nr_prach_info_from_index(uint8_t index,
+                                  uint8_t *N_dur,
+                                  uint16_t *RA_sfn_index,
+                                  uint8_t *N_RA_slot,
+-				 uint8_t *config_period) {
++                                 uint8_t *config_period) {
+ 
+   int x,y;
+   int64_t s_map;
+@@ -1965,7 +1965,7 @@ static const uint16_t table_63313[838] = {
+ uint8_t compute_nr_root_seq(NR_RACH_ConfigCommon_t *rach_config,
+                             uint8_t nb_preambles,
+                             uint8_t unpaired,
+-			    frequency_range_t frequency_range) {
++                            frequency_range_t frequency_range) {
+ 
+   uint8_t config_index = rach_config->rach_ConfigGeneric.prach_ConfigurationIndex;
+   uint8_t ncs_index = rach_config->rach_ConfigGeneric.zeroCorrelationZoneConfig;
+@@ -2153,7 +2153,7 @@ static const uint16_t table_7_3_1_1_2_32[3][15] = {
+ };
+ 
+ void nr_get_tbs_dl(nfapi_nr_dl_tti_pdsch_pdu *pdsch_pdu,
+-		   int x_overhead,
++                   int x_overhead,
+                    uint8_t numdmrscdmgroupnodata,
+                    uint8_t tb_scaling) {
+ 
+@@ -2193,7 +2193,7 @@ void nr_get_tbs_dl(nfapi_nr_dl_tti_pdsch_pdu *pdsch_pdu,
+                        N_PRB_DMRS*dmrs_length,
+                        N_PRB_oh,
+                        tb_scaling,
+-		       pdsch_rel15->nrOfLayers)>>3;
++                       pdsch_rel15->nrOfLayers)>>3;
+ 
+   pdsch_rel15->targetCodeRate[0] = R;
+   pdsch_rel15->qamModOrder[0] = Qm;
+@@ -2897,36 +2897,35 @@ uint8_t compute_precoding_information(NR_PUSCH_Config_t *pusch_Config,
+           nbits = 3;
+           if (val && srs_feedback) {
+             AssertFatal(srs_feedback->tpmi <= 3 || srs_feedback->tpmi == 13, "TPMI %d is invalid!\n", srs_feedback->tpmi);
++            *val = table_7_3_1_1_2_3A[srs_feedback->tpmi];
+           }
+         } else {
+           nbits = 4;
+           if (val && srs_feedback) {
+             AssertFatal(srs_feedback->tpmi <= 15, "TPMI %d is invalid!\n", srs_feedback->tpmi);
++            *val = table_7_3_1_1_2_3A[srs_feedback->tpmi];
+           }
+         }
+-        if (val && srs_feedback) {
+-          *val = table_7_3_1_1_2_3A[srs_feedback->tpmi];
+-        }
+       } else {
+         if (codebookSubset && *codebookSubset == NR_PUSCH_Config__codebookSubset_nonCoherent) {
+           nbits = 2;
+           if (val && srs_feedback) {
+             AssertFatal(srs_feedback->tpmi <= 3, "TPMI %d is invalid!\n", srs_feedback->tpmi);
++            *val = srs_feedback->tpmi;
+           }
+         } else if (codebookSubset && *codebookSubset == NR_PUSCH_Config__codebookSubset_partialAndNonCoherent) {
+           nbits = 4;
+           if (val && srs_feedback) {
+             AssertFatal(srs_feedback->tpmi <= 11, "TPMI %d is invalid!\n", srs_feedback->tpmi);
++            *val = srs_feedback->tpmi;
+           }
+         } else {
+           nbits = 5;
+           if (val && srs_feedback) {
+             AssertFatal(srs_feedback->tpmi <= 27, "TPMI %d is invalid!\n", srs_feedback->tpmi);
++            *val = srs_feedback->tpmi;
+           }
+         }
+-        if (val && srs_feedback) {
+-          *val = srs_feedback->tpmi;
+-        }
+       }
+     } else {
+       // - 4, 5, or 6 bits according to Table 7.3.1.1.2-2 for 4 antenna ports, if txConfig = codebook, ul-FullPowerTransmission
+@@ -2945,17 +2944,16 @@ uint8_t compute_precoding_information(NR_PUSCH_Config_t *pusch_Config,
+             if (val && srs_feedback) {
+               AssertFatal((*nrOfLayers==1 && (srs_feedback->tpmi <= 3 || srs_feedback->tpmi==13)) || (*nrOfLayers==2 && srs_feedback->tpmi <= 6),
+                           "TPMI %d is invalid!\n", srs_feedback->tpmi);
++              *val = *nrOfLayers==1 ? table_7_3_1_1_2_2A_1layer[srs_feedback->tpmi] : table_7_3_1_1_2_2A_2layers[srs_feedback->tpmi];
+             }
+           } else {
+             nbits = 5;
+             if (val && srs_feedback) {
+               AssertFatal((*nrOfLayers==1 && srs_feedback->tpmi <= 15) || (*nrOfLayers==2 && srs_feedback->tpmi <= 13),
+                           "TPMI %d is invalid!\n", srs_feedback->tpmi);
++              *val = *nrOfLayers==1 ? table_7_3_1_1_2_2A_1layer[srs_feedback->tpmi] : table_7_3_1_1_2_2A_2layers[srs_feedback->tpmi];
+             }
+           }
+-          if (val && srs_feedback) {
+-            *val = *nrOfLayers==1 ? table_7_3_1_1_2_2A_1layer[srs_feedback->tpmi] : table_7_3_1_1_2_2A_2layers[srs_feedback->tpmi];
+-          }
+         } else {
+           if (codebookSubset && *codebookSubset == NR_PUSCH_Config__codebookSubset_nonCoherent) {
+             nbits = 4;
+@@ -2963,6 +2961,22 @@ uint8_t compute_precoding_information(NR_PUSCH_Config_t *pusch_Config,
+               AssertFatal((*nrOfLayers==1 && (srs_feedback->tpmi <= 3 || srs_feedback->tpmi == 13)) || (*nrOfLayers==2 && srs_feedback->tpmi <= 6) ||
+                           (*nrOfLayers==3 && srs_feedback->tpmi <= 1) || (*nrOfLayers==4 && srs_feedback->tpmi == 0),
+                           "TPMI %d is invalid!\n", srs_feedback->tpmi);
++              switch (*nrOfLayers) {
++                case 1:
++                  *val = table_7_3_1_1_2_2B_1layer[srs_feedback->tpmi];
++                  break;
++                case 2:
++                  *val = table_7_3_1_1_2_2B_2layers[srs_feedback->tpmi];
++                  break;
++                case 3:
++                  *val = table_7_3_1_1_2_2B_3layers[srs_feedback->tpmi];
++                  break;
++                case 4:
++                  *val = table_7_3_1_1_2_2B_4layers[srs_feedback->tpmi];
++                  break;
++                default:
++                  LOG_E(NR_MAC,"Number of layers %d is invalid!\n", *nrOfLayers);
++              }
+             }
+           } else {
+             nbits = 6;
+@@ -2970,41 +2984,71 @@ uint8_t compute_precoding_information(NR_PUSCH_Config_t *pusch_Config,
+               AssertFatal((*nrOfLayers==1 && srs_feedback->tpmi <= 15) || (*nrOfLayers==2 && srs_feedback->tpmi <= 13) ||
+                           (*nrOfLayers==3 && srs_feedback->tpmi <= 2) || (*nrOfLayers==4 && srs_feedback->tpmi <= 2),
+                           "TPMI %d is invalid!\n", srs_feedback->tpmi);
++              switch (*nrOfLayers) {
++                case 1:
++                  *val = table_7_3_1_1_2_2B_1layer[srs_feedback->tpmi];
++                  break;
++                case 2:
++                  *val = table_7_3_1_1_2_2B_2layers[srs_feedback->tpmi];
++                  break;
++                case 3:
++                  *val = table_7_3_1_1_2_2B_3layers[srs_feedback->tpmi];
++                  break;
++                case 4:
++                  *val = table_7_3_1_1_2_2B_4layers[srs_feedback->tpmi];
++                  break;
++                default:
++                  LOG_E(NR_MAC,"Number of layers %d is invalid!\n", *nrOfLayers);
++              }
+             }
+           }
++        }
++      } else {
++        if (codebookSubset && *codebookSubset == NR_PUSCH_Config__codebookSubset_nonCoherent) {
++          nbits = 4;
+           if (val && srs_feedback) {
++            AssertFatal((*nrOfLayers==1 && srs_feedback->tpmi <= 3) || (*nrOfLayers==2 && srs_feedback->tpmi <= 5) ||
++                        (*nrOfLayers==3 && srs_feedback->tpmi == 0) || (*nrOfLayers==4 && srs_feedback->tpmi == 0),
++                        "TPMI %d is invalid!\n", srs_feedback->tpmi);
+             switch (*nrOfLayers) {
+               case 1:
+-                *val = table_7_3_1_1_2_2B_1layer[srs_feedback->tpmi];
++                *val = table_7_3_1_1_2_2_1layer[srs_feedback->tpmi];
+                 break;
+               case 2:
+-                *val = table_7_3_1_1_2_2B_2layers[srs_feedback->tpmi];
++                *val = table_7_3_1_1_2_2_2layers[srs_feedback->tpmi];
+                 break;
+               case 3:
+-                *val = table_7_3_1_1_2_2B_3layers[srs_feedback->tpmi];
++                *val = table_7_3_1_1_2_2_3layers[srs_feedback->tpmi];
+                 break;
+               case 4:
+-                *val = table_7_3_1_1_2_2B_4layers[srs_feedback->tpmi];
++                *val = table_7_3_1_1_2_2_4layers[srs_feedback->tpmi];
+                 break;
+               default:
+                 LOG_E(NR_MAC,"Number of layers %d is invalid!\n", *nrOfLayers);
+             }
+           }
+-        }
+-      } else {
+-        if (codebookSubset && *codebookSubset == NR_PUSCH_Config__codebookSubset_nonCoherent) {
+-          nbits = 4;
+-          if (val && srs_feedback) {
+-            AssertFatal((*nrOfLayers==1 && srs_feedback->tpmi <= 3) || (*nrOfLayers==2 && srs_feedback->tpmi <= 5) ||
+-                        (*nrOfLayers==3 && srs_feedback->tpmi == 0) || (*nrOfLayers==4 && srs_feedback->tpmi == 0),
+-                        "TPMI %d is invalid!\n", srs_feedback->tpmi);
+-          }
+         } else if (codebookSubset && *codebookSubset == NR_PUSCH_Config__codebookSubset_partialAndNonCoherent) {
+           nbits = 5;
+           if (val && srs_feedback) {
+             AssertFatal((*nrOfLayers==1 && srs_feedback->tpmi <= 11) || (*nrOfLayers==2 && srs_feedback->tpmi <= 13) ||
+                         (*nrOfLayers==3 && srs_feedback->tpmi <= 2) || (*nrOfLayers==4 && srs_feedback->tpmi <= 2),
+                         "TPMI %d is invalid!\n", srs_feedback->tpmi);
++            switch (*nrOfLayers) {
++              case 1:
++                *val = table_7_3_1_1_2_2_1layer[srs_feedback->tpmi];
++                break;
++              case 2:
++                *val = table_7_3_1_1_2_2_2layers[srs_feedback->tpmi];
++                break;
++              case 3:
++                *val = table_7_3_1_1_2_2_3layers[srs_feedback->tpmi];
++                break;
++              case 4:
++                *val = table_7_3_1_1_2_2_4layers[srs_feedback->tpmi];
++                break;
++              default:
++                LOG_E(NR_MAC,"Number of layers %d is invalid!\n", *nrOfLayers);
++            }
+           }
+         } else {
+           nbits = 6;
+@@ -3012,24 +3056,22 @@ uint8_t compute_precoding_information(NR_PUSCH_Config_t *pusch_Config,
+             AssertFatal((*nrOfLayers==1 && srs_feedback->tpmi <= 28) || (*nrOfLayers==2 && srs_feedback->tpmi <= 22) ||
+                         (*nrOfLayers==3 && srs_feedback->tpmi <= 7) || (*nrOfLayers==4 && srs_feedback->tpmi <= 5),
+                         "TPMI %d is invalid!\n", srs_feedback->tpmi);
+-          }
+-        }
+-        if (val && srs_feedback) {
+-          switch (*nrOfLayers) {
+-            case 1:
+-              *val = table_7_3_1_1_2_2_1layer[srs_feedback->tpmi];
+-              break;
+-            case 2:
+-              *val = table_7_3_1_1_2_2_2layers[srs_feedback->tpmi];
+-              break;
+-            case 3:
+-              *val = table_7_3_1_1_2_2_3layers[srs_feedback->tpmi];
+-              break;
+-            case 4:
+-              *val = table_7_3_1_1_2_2_4layers[srs_feedback->tpmi];
+-              break;
+-            default:
+-              LOG_E(NR_MAC,"Number of layers %d is invalid!\n", *nrOfLayers);
++            switch (*nrOfLayers) {
++              case 1:
++                *val = table_7_3_1_1_2_2_1layer[srs_feedback->tpmi];
++                break;
++              case 2:
++                *val = table_7_3_1_1_2_2_2layers[srs_feedback->tpmi];
++                break;
++              case 3:
++                *val = table_7_3_1_1_2_2_3layers[srs_feedback->tpmi];
++                break;
++              case 4:
++                *val = table_7_3_1_1_2_2_4layers[srs_feedback->tpmi];
++                break;
++              default:
++                LOG_E(NR_MAC,"Number of layers %d is invalid!\n", *nrOfLayers);
++            }
+           }
+         }
+       }
+@@ -3476,7 +3518,7 @@ bool is_nr_DL_slot(NR_TDD_UL_DL_ConfigCommon_t *tdd_UL_DL_ConfigurationCommon, s
+     period1 = 3000+*tdd_UL_DL_ConfigurationCommon->pattern1.ext1->dl_UL_TransmissionPeriodicity_v1530;
+   else
+     period1 = tdd_period_to_num[tdd_UL_DL_ConfigurationCommon->pattern1.dl_UL_TransmissionPeriodicity];
+-			       
++                               
+   if (tdd_UL_DL_ConfigurationCommon->pattern2) {
+     if (tdd_UL_DL_ConfigurationCommon->pattern2->ext1 &&
+         tdd_UL_DL_ConfigurationCommon->pattern2->ext1->dl_UL_TransmissionPeriodicity_v1530)
+@@ -3511,10 +3553,10 @@ bool is_nr_UL_slot(NR_TDD_UL_DL_ConfigCommon_t *tdd_UL_DL_ConfigurationCommon, s
+     period1 = 3000 + *tdd_UL_DL_ConfigurationCommon->pattern1.ext1->dl_UL_TransmissionPeriodicity_v1530;
+   else
+     period1 = tdd_period_to_num[tdd_UL_DL_ConfigurationCommon->pattern1.dl_UL_TransmissionPeriodicity];
+-			       
++                               
+   if (tdd_UL_DL_ConfigurationCommon->pattern2) {
+     if (tdd_UL_DL_ConfigurationCommon->pattern2->ext1 &&
+-	      tdd_UL_DL_ConfigurationCommon->pattern2->ext1->dl_UL_TransmissionPeriodicity_v1530)
++              tdd_UL_DL_ConfigurationCommon->pattern2->ext1->dl_UL_TransmissionPeriodicity_v1530)
+       period2 = 3000 + *tdd_UL_DL_ConfigurationCommon->pattern2->ext1->dl_UL_TransmissionPeriodicity_v1530;
+     else
+       period2 = tdd_period_to_num[tdd_UL_DL_ConfigurationCommon->pattern2->dl_UL_TransmissionPeriodicity];

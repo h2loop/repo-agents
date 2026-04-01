@@ -1,0 +1,22 @@
+diff --git a/nfapi/open-nFAPI/vnf/src/vnf_p7.c b/nfapi/open-nFAPI/vnf/src/vnf_p7.c
+index 28c7b71656..380cc6f025 100644
+--- a/nfapi/open-nFAPI/vnf/src/vnf_p7.c
++++ b/nfapi/open-nFAPI/vnf/src/vnf_p7.c
+@@ -206,7 +206,7 @@ void vnf_p7_rx_reassembly_queue_remove_msg(vnf_p7_t* vnf_p7, vnf_p7_rx_reassembl
+ 			//NFAPI_TRACE(NFAPI_TRACE_INFO, "Deleting reassembly message\n");
+ 			// delete the message
+ 			uint16_t i;
+-			for(i = 0; i < 128; ++i)
++			for(i = 0; i < iterator->num_segments_expected; ++i)
+ 			{
+ 				if(iterator->segments[i].buffer)
+ 					vnf_p7_free(vnf_p7, iterator->segments[i].buffer);
+@@ -249,7 +249,7 @@ void vnf_p7_rx_reassembly_queue_remove_old_msgs(vnf_p7_t* vnf_p7, vnf_p7_rx_reas
+ 
+ 			// delete the message
+ 			uint16_t i;
+-			for(i = 0; i < 128; ++i)
++			for(i = 0; i < to_delete->num_segments_expected; ++i)
+ 			{
+ 				if(to_delete->segments[i].buffer)
+ 					vnf_p7_free(vnf_p7, to_delete->segments[i].buffer);

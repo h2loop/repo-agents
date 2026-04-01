@@ -1,0 +1,33 @@
+{
+  "run_id": "s00424_71a5ae",
+  "function": {
+    "name": "cli_help",
+    "file": "openair2/UTIL/CLI/cli_cmd.c",
+    "start_line": 178,
+    "end_line": 191,
+    "body_lines": 14,
+    "signature": "int cli_help(char *caller, char * arg)",
+    "subsystem": "openair2/UTIL/CLI",
+    "token_estimate": 77
+  },
+  "bug": {
+    "bug_id": "c_incorrect_loop_bounds",
+    "description": "incorrect loop bounds causing iteration over invalid indices",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a incorrect loop bounds causing iteration over invalid indices downstream of function cli_help in the openair2/UTIL/CLI subsystem.\nThe function is located at openair2/UTIL/CLI/cli_cmd.c:178.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00424_71a5ae_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00424_71a5ae_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 19,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:11:36Z"
+}

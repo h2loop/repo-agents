@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix memory leak and improper error handling in websrv status callback\n\n### Summary\nThe web server status callback contained improper error handling that could lead to memory leaks and undefined behavior when ulfius functions fail. The bug manifested under high load conditions when the web server was unable to allocate resources for JSON responses.\n\nThe issue was introduced during a previous refactor that added JSON response handling but did not properly manage resource cleanup on error paths.\n\n### Changes\n- `common/utils/websrv/websrv.c`: Fixed error handling in `websrv_callback_get_softmodemstatus` and related callback functions to properly free allocated resources and return immediately on ulfius failures.\n- Added missing `json_decref()` calls and `free()` calls in error paths\n- Added missing `return U_CALLBACK_COMPLETE` statements after error responses\n\n"
+}

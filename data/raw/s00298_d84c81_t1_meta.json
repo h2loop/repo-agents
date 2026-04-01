@@ -1,0 +1,31 @@
+{
+  "run_id": "s00298_d84c81",
+  "function": {
+    "name": "pucchfmt3_AvgSym",
+    "file": "openair1/PHY/LTE_TRANSPORT/pucch.c",
+    "start_line": 613,
+    "end_line": 638,
+    "body_lines": 26,
+    "signature": "uint16_t pucchfmt3_AvgSym( int16_t Fmt3xDataAvgAnt[2][5][12][2], int16_t Fmt3xDataAvgSym[2][12][2], uint8_t shortened_format )",
+    "subsystem": "openair1/PHY/LTE_TRANSPORT",
+    "token_estimate": 71
+  },
+  "bug": {
+    "bug_id": "c_missing_null_terminator",
+    "description": "missing null terminator on a string buffer leading to out-of-bounds read",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/RRC",
+      "openair3/NAS",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a missing null terminator on a string buffer leading to out-of-bounds read downstream of function pucchfmt3_AvgSym in the openair1/PHY/LTE_TRANSPORT subsystem.\nThe function is located at openair1/PHY/LTE_TRANSPORT/pucch.c:613.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00298_d84c81_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00298_d84c81_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 12,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T14:12:12Z"
+}

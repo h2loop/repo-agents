@@ -1,0 +1,50 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c b/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
+index 1fc6f4b6e8..5e630e4c46 100644
+--- a/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
++++ b/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
+@@ -483,18 +483,19 @@ void ra_preambles_config(NR_PRACH_RESOURCES_t *prach_resources, NR_UE_MAC_INST_t
+ 
+   /* Msg3 has not been transmitted yet */
+   if (ra->first_Msg3) {
+-    if(ra->ra_PreambleIndex < 0 || ra->ra_PreambleIndex > 63) {
++    // For CFRA, preamble index is configured by RRC and should not be overwritten
++    if((ra->ra_PreambleIndex < 0 || ra->ra_PreambleIndex > 255) && !ra->cfra) {
+       if (noGroupB) {
+-        // use Group A preamble
++        // use Group A preamble for contention-based random access
+         ra->ra_PreambleIndex = ra->starting_preamble_nb + (rand_r(&seed) % ra->cb_preambles_per_ssb);
+         ra->RA_usedGroupA = 1;
+       } else if ((ra->Msg3_size < messageSizeGroupA) && (dl_pathloss > PLThreshold)) {
+-        // Group B is configured and RA preamble Group A is used
++        // Group B is configured and RA preamble Group A is used for contention-based random access
+         // - todo add condition on CCCH_sdu_size for initiation by CCCH
+         ra->ra_PreambleIndex = ra->starting_preamble_nb + (rand_r(&seed) % sizeOfRA_PreamblesGroupA);
+         ra->RA_usedGroupA = 1;
+       } else {
+-        // Group B preamble is configured and used
++        // Group B preamble is configured and used for contention-based random access
+         // the first sizeOfRA_PreamblesGroupA RA preambles belong to RA Preambles Group A
+         // the remaining belong to RA Preambles Group B
+         ra->ra_PreambleIndex = ra->starting_preamble_nb + sizeOfRA_PreamblesGroupA + (rand_r(&seed) % (ra->cb_preambles_per_ssb - sizeOfRA_PreamblesGroupA));
+@@ -502,12 +503,15 @@ void ra_preambles_config(NR_PRACH_RESOURCES_t *prach_resources, NR_UE_MAC_INST_t
+       }
+     }
+   } else { // Msg3 is being retransmitted
+-    if (ra->RA_usedGroupA && noGroupB) {
+-      ra->ra_PreambleIndex = ra->starting_preamble_nb + (rand_r(&seed) % ra->cb_preambles_per_ssb);
+-    } else if (ra->RA_usedGroupA && !noGroupB){
+-      ra->ra_PreambleIndex = ra->starting_preamble_nb + (rand_r(&seed) % sizeOfRA_PreamblesGroupA);
+-    } else {
+-      ra->ra_PreambleIndex = ra->starting_preamble_nb + sizeOfRA_PreamblesGroupA + (rand_r(&seed) % (ra->cb_preambles_per_ssb - sizeOfRA_PreamblesGroupA));
++    // For CFRA, preamble index is configured by RRC and should not be overwritten even during retransmissions
++    if (!ra->cfra) {
++      if (ra->RA_usedGroupA && noGroupB) {
++        ra->ra_PreambleIndex = ra->starting_preamble_nb + (rand_r(&seed) % ra->cb_preambles_per_ssb);
++      } else if (ra->RA_usedGroupA && !noGroupB){
++        ra->ra_PreambleIndex = ra->starting_preamble_nb + (rand_r(&seed) % sizeOfRA_PreamblesGroupA);
++      } else {
++        ra->ra_PreambleIndex = ra->starting_preamble_nb + sizeOfRA_PreamblesGroupA + (rand_r(&seed) % (ra->cb_preambles_per_ssb - sizeOfRA_PreamblesGroupA));
++      }
+     }
+   }
+ }

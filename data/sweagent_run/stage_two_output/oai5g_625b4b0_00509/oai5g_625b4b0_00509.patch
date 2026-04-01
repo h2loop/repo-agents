@@ -1,0 +1,44 @@
+diff --git a/common/utils/T/tracer/view/xy.c b/common/utils/T/tracer/view/xy.c
+index 96a44cf512..2cbda41c44 100644
+--- a/common/utils/T/tracer/view/xy.c
++++ b/common/utils/T/tracer/view/xy.c
+@@ -54,7 +54,7 @@ static void append_loop(view *_this, float *x, float *y, int length)
+   for (i = 0; i < length; i++) {
+     this->x[ip] = x[i];
+     this->y[ip] = y[i];
+-    ip++; if (ip == this->length) ip = 0;
++    ip++; if (ip == this->max_length) ip = 0;
+   }
+ 
+   this->insert_point = ip;
+@@ -94,8 +94,9 @@ static void set(view *_this, char *name, ...)
+     free(this->x);
+     free(this->y);
+     this->length = va_arg(ap, int);
+-    this->x = calloc(this->length, sizeof(float)); if (this->x==NULL)abort();
+-    this->y = calloc(this->length, sizeof(float)); if (this->y==NULL)abort();
++    this->max_length = this->length;  // Keep max_length consistent with length
++    this->x = calloc(this->max_length, sizeof(float)); if (this->x==NULL)abort();
++    this->y = calloc(this->max_length, sizeof(float)); if (this->y==NULL)abort();
+     this->insert_point = 0;
+ 
+     va_end(ap);
+@@ -121,6 +122,7 @@ view *new_view_xy(int length, float refresh_rate, gui *g, widget *w,
+     ret->common.append = (void (*)(view *, ...))append_loop;
+     ret->common.set = set;
+     ret->length = length;
++    ret->max_length = length;
+     ret->insert_point = 0;
+     break;
+   case XY_FORCED_MODE:
+@@ -136,8 +138,8 @@ view *new_view_xy(int length, float refresh_rate, gui *g, widget *w,
+   ret->w = w;
+   ret->plot = xy_plot_new_plot(g, w, color);
+ 
+-  ret->x = calloc(length, sizeof(float)); if (ret->x == NULL) abort();
+-  ret->y = calloc(length, sizeof(float)); if (ret->y == NULL) abort();
++  ret->x = calloc(ret->max_length, sizeof(float)); if (ret->x == NULL) abort();
++  ret->y = calloc(ret->max_length, sizeof(float)); if (ret->y == NULL) abort();
+ 
+   if (pthread_mutex_init(&ret->lock, NULL)) abort();
+ 

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00296_dbcdaf",
+  "pr_text": "## Title: Fix incorrect pointer type casting in PDCCH Alamouti RX combining\n\n### Summary\nThe `pdcch_alamouti` function in the LTE UE PHY was using incorrect pointer types for accessing complex-valued channel-compensated data. The function cast `int32_t` arrays (`rxdataF_comp`) to `int16_t*`, causing pointer arithmetic errors and data corruption during Alamouti combining. Specifically, incrementing pointers by 4 `int16_t` elements did not advance to the correct memory location for the next resour",
+  "trajectory_path": "data/raw/s00296_dbcdaf_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00296_dbcdaf_p2.diff",
+  "patch_lines": 14,
+  "trajectory_steps": 16,
+  "timestamp": "2026-02-11T14:11:43Z"
+}

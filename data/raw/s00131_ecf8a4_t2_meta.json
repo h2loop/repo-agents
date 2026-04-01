@@ -1,0 +1,9 @@
+{
+  "run_id": "s00131_ecf8a4",
+  "pr_text": "## Title: Fix copy-paste error in NAS network simulator attach complete handling\n\n### Summary\nThe `_process_attach_complete()` function in the NAS network simulator contains a copy-paste error where failure simulation logic was incorrectly placed at the end of the function rather than at the beginning. This static counter-based logic is designed to occasionally inject transmission failures for testing purposes, but its placement meant it would never execute before the main processing path. Addit",
+  "trajectory_path": "data/raw/s00131_ecf8a4_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00131_ecf8a4_p2.diff",
+  "patch_lines": 10,
+  "trajectory_steps": 35,
+  "timestamp": "2026-02-11T12:15:45Z"
+}

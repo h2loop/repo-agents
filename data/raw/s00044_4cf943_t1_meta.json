@@ -1,0 +1,32 @@
+{
+  "run_id": "s00044_4cf943",
+  "function": {
+    "name": "usage",
+    "file": "common/utils/T/tracer/textlog.c",
+    "start_line": 24,
+    "end_line": 44,
+    "body_lines": 21,
+    "signature": "void usage(void)",
+    "subsystem": "common/utils/T",
+    "token_estimate": 107
+  },
+  "bug": {
+    "bug_id": "c_string_buffer_overrun",
+    "description": "string buffer overrun from unbounded string copy or concatenation",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/NAS",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a string buffer overrun from unbounded string copy or concatenation downstream of function usage in the common/utils/T subsystem.\nThe function is located at common/utils/T/tracer/textlog.c:24.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00044_4cf943_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00044_4cf943_p1.diff",
+  "patch_lines": 8,
+  "trajectory_steps": 14,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:46:47Z"
+}

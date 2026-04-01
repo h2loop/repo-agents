@@ -1,0 +1,24 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+index 45d5f15ffe..e0f5b09ea5 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+@@ -7230,8 +7230,17 @@ static uint8_t unpack_srs_indication_fdd_rel8_value(void *tlv, uint8_t **ppReadP
+   if(!(pull16(ppReadPackedMsg, &srs_pdu_fdd_rel8->doppler_estimation, end) &&
+        pull16(ppReadPackedMsg, &srs_pdu_fdd_rel8->timing_advance, end) &&
+        pull8(ppReadPackedMsg, &srs_pdu_fdd_rel8->number_of_resource_blocks, end) &&
+-       pull8(ppReadPackedMsg, &srs_pdu_fdd_rel8->rb_start, end) &&
+-       pullarray8(ppReadPackedMsg, srs_pdu_fdd_rel8->snr, NFAPI_NUM_RB_MAX, srs_pdu_fdd_rel8->number_of_resource_blocks, end)))
++       pull8(ppReadPackedMsg, &srs_pdu_fdd_rel8->rb_start, end)))
++    return 0;
++
++  // Validate number_of_resource_blocks to prevent buffer overrun
++  if(srs_pdu_fdd_rel8->number_of_resource_blocks > NFAPI_NUM_RB_MAX) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s: number_of_resource_blocks exceeds maximum (%d > %d)\n", 
++                  __FUNCTION__, srs_pdu_fdd_rel8->number_of_resource_blocks, NFAPI_NUM_RB_MAX);
++    return 0;
++  }
++
++  if(!pullarray8(ppReadPackedMsg, srs_pdu_fdd_rel8->snr, NFAPI_NUM_RB_MAX, srs_pdu_fdd_rel8->number_of_resource_blocks, end))
+     return 0;
+ 
+   return 1;

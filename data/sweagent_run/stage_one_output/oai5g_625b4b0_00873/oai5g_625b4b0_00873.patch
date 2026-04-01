@@ -1,0 +1,13 @@
+diff --git a/openair1/PHY/LTE_ESTIMATION/lte_dl_channel_estimation.c b/openair1/PHY/LTE_ESTIMATION/lte_dl_channel_estimation.c
+index 3c11dbe921..94bc3b10ef 100644
+--- a/openair1/PHY/LTE_ESTIMATION/lte_dl_channel_estimation.c
++++ b/openair1/PHY/LTE_ESTIMATION/lte_dl_channel_estimation.c
+@@ -43,7 +43,7 @@ int lte_dl_channel_estimation(PHY_VARS_UE *ue,
+   int ch_offset,symbol_offset;
+   //  unsigned int n;
+   //  int i;
+-  static int interpolateS11S12 = 1;
++  static __thread int interpolateS11S12 = 1;
+   uint16_t Nid_cell = (eNB_offset == 0) ? ue->frame_parms.Nid_cell : ue->measurements.adj_cell_id[eNB_offset-1];
+   uint8_t nushift,pilot0,pilot1,pilot2,pilot3;
+   uint8_t previous_thread_id = ue->current_thread_id[Ns>>1]==0 ? (RX_NB_TH-1):(ue->current_thread_id[Ns>>1]-1);

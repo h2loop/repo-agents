@@ -1,0 +1,108 @@
+diff --git a/common/utils/load_module_shlib.c b/common/utils/load_module_shlib.c
+index 825012ce6a..a74939ff00 100644
+--- a/common/utils/load_module_shlib.c
++++ b/common/utils/load_module_shlib.c
+@@ -43,9 +43,14 @@
+ 
+ #include "common/config/config_userapi.h"
+ #include "load_module_shlib.h"
+-loader_data_t loader_data;
++loader_data_t loader_data = {0};
+ 
+ void loader_init(void) {
++  /* Check if already initialized */
++  if (loader_data.initialized) {
++    return;
++  }
++
+   paramdef_t LoaderParams[] = LOADER_PARAMS_DESC;
+ 
+   loader_data.mainexec_buildversion = OAI_PACKAGE_VERSION;
+@@ -63,6 +68,9 @@ void loader_init(void) {
+      exit_fun("[LOADER] unrecoverable error");
+   }
+   memset(loader_data.shlibs,0,loader_data.maxshlibs * sizeof(loader_shlibdesc_t));
++  
++  /* Mark as initialized */
++  loader_data.initialized = 1;
+ }
+ 
+ /* build the full shared lib name from the module name */
+@@ -133,7 +141,7 @@ int load_module_version_shlib(char *modname, char *version, loader_shlibfunc_t *
+     return -1;
+   }
+ 
+-  if (!loader_data.shlibpath) {
++  if (!loader_data.initialized) {
+      loader_init();
+   }
+ 
+@@ -268,19 +276,37 @@ void * get_shlibmodule_fptr(char *modname, char *fname)
+ 
+ void loader_reset()
+ {
+-  for (int i = 0; i < loader_data.numshlibs && loader_data.shlibs[i].name != NULL; i++) {
+-    loader_shlibdesc_t *shlib = &loader_data.shlibs[i];
+-    free(shlib->name);
+-    free(shlib->thisshlib_path);
+-    for (int j = 0; j < shlib->numfunc; ++j)
+-      free(shlib->funcarray[j].fname);
+-    free(shlib->funcarray);
+-    shlib->numfunc = 0;
+-    shlib->len_funcarray = 0;
++  if (loader_data.shlibs) {
++    for (int i = 0; i < loader_data.numshlibs; i++) {
++      loader_shlibdesc_t *shlib = &loader_data.shlibs[i];
++      if (shlib->name) {
++        free(shlib->name);
++      }
++      if (shlib->thisshlib_path) {
++        free(shlib->thisshlib_path);
++      }
++      if (shlib->funcarray) {
++        for (int j = 0; j < shlib->numfunc; ++j) {
++          if (shlib->funcarray[j].fname) {
++            free(shlib->funcarray[j].fname);
++          }
++        }
++        free(shlib->funcarray);
++      }
++      shlib->numfunc = 0;
++      shlib->len_funcarray = 0;
++    }
++    free(loader_data.shlibs);
+   }
++  
+   if(loader_data.shlibpath){
+     free(loader_data.shlibpath);
+     loader_data.shlibpath=NULL;
+   }
+-  free(loader_data.shlibs);
++  
++  /* Reset all state fields */
++  loader_data.shlibs = NULL;
++  loader_data.numshlibs = 0;
++  loader_data.maxshlibs = 0;
++  loader_data.initialized = 0;
+ }
+diff --git a/common/utils/load_module_shlib.h b/common/utils/load_module_shlib.h
+index ac99778474..de67650548 100644
+--- a/common/utils/load_module_shlib.h
++++ b/common/utils/load_module_shlib.h
+@@ -53,6 +53,7 @@ typedef struct {
+   uint32_t           maxshlibs;
+   uint32_t           numshlibs;
+   loader_shlibdesc_t *shlibs;
++  int                initialized;  /* Flag to track initialization state */
+ }loader_data_t;
+ 
+ /* function type of functions which may be implemented by a module */
+@@ -72,7 +73,7 @@ extern loader_data_t loader_data;
+ 
+ /*----------------------------------------------------------------------------------------------------------------------------------------------------------*/
+ /*                                       LOADER parameters                                                                                                  */
+-/*   optname      helpstr   paramflags           XXXptr	                           defXXXval	              type       numelt   check func*/
++/*   optname      helpstr   paramflags           XXXptr                            defXXXval                  type       numelt   check func*/
+ /*----------------------------------------------------------------------------------------------------------------------------------------------------------*/
+ // clang-format off
+ #define LOADER_PARAMS_DESC {                                                                                                      \

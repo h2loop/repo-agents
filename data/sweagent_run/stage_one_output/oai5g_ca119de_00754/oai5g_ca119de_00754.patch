@@ -1,0 +1,55 @@
+diff --git a/openair2/M2AP/m2ap_handler.c b/openair2/M2AP/m2ap_handler.c
+index 2840f0bce8..719cc7bcd6 100644
+--- a/openair2/M2AP/m2ap_handler.c
++++ b/openair2/M2AP/m2ap_handler.c
+@@ -82,6 +82,7 @@ int m2ap_handle_message(instance_t instance,
+ {
+   M2AP_M2AP_PDU_t pdu;
+   int ret;
++  uint32_t pdu_index;
+ 
+   DevAssert(data != NULL);
+ 
+@@ -93,8 +94,8 @@ int m2ap_handle_message(instance_t instance,
+   }
+ 
+   /* Checking procedure Code and direction of message */
+-  if (pdu.choice.initiatingMessage.procedureCode > sizeof(m2ap_messages_callback) / (3 * sizeof(
+-        m2ap_message_decoded_callback))
++  if (pdu.choice.initiatingMessage.procedureCode >= sizeof(m2ap_messages_callback) / sizeof(m2ap_messages_callback[0])
++      || (pdu.present < M2AP_M2AP_PDU_PR_initiatingMessage)
+       || (pdu.present > M2AP_M2AP_PDU_PR_unsuccessfulOutcome)) {
+     LOG_E(M2AP, "[SCTP %d] Either procedureCode %ld or direction %d exceed expected\n",
+                assoc_id, pdu.choice.initiatingMessage.procedureCode, pdu.present);
+@@ -102,20 +103,28 @@ int m2ap_handle_message(instance_t instance,
+     return -1;
+   }
+ 
++  /* Convert pdu.present to array index (0, 1, 2) */
++  pdu_index = pdu.present - M2AP_M2AP_PDU_PR_initiatingMessage;
++  if (pdu_index >= 3) {
++    LOG_E(M2AP, "[SCTP %d] Invalid PDU present value %d\n", assoc_id, pdu.present);
++    ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_M2AP_M2AP_PDU, &pdu);
++    return -1;
++  }
++
+   /* No handler present.
+    * This can mean not implemented or no procedure for eNB (wrong direction).
+    */
+-  if (m2ap_messages_callback[pdu.choice.initiatingMessage.procedureCode][pdu.present - 1] == NULL) {
++  if (m2ap_messages_callback[pdu.choice.initiatingMessage.procedureCode][pdu_index] == NULL) {
+     LOG_E(M2AP, "[SCTP %d] No handler for procedureCode %ld in %s\n",
+                 assoc_id, pdu.choice.initiatingMessage.procedureCode,
+-               m2ap_direction2String(pdu.present - 1));
++               m2ap_direction2String(pdu_index));
+     ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_M2AP_M2AP_PDU, &pdu);
+     return -1;
+   }
+   
+   /* Calling the right handler */
+   LOG_I(M2AP, "Calling handler with instance %d\n",instance);
+-  ret = (*m2ap_messages_callback[pdu.choice.initiatingMessage.procedureCode][pdu.present - 1])
++  ret = (*m2ap_messages_callback[pdu.choice.initiatingMessage.procedureCode][pdu_index])
+         (instance, assoc_id, stream, &pdu);
+   ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_M2AP_M2AP_PDU, &pdu);
+   return ret;

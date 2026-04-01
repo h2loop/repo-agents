@@ -1,0 +1,26 @@
+diff --git a/openair3/NAS/UE/UEprocess.c b/openair3/NAS/UE/UEprocess.c
+index 2a38c6a461..e1b68f0d6a 100644
+--- a/openair3/NAS/UE/UEprocess.c
++++ b/openair3/NAS/UE/UEprocess.c
+@@ -321,19 +321,8 @@ static int _nas_set_signal_handler(int signal, void (handler)(int))
+   /* Initialize signal set */
+   (void) memset (&act, 0, sizeof(act));
+   (void) sigfillset (&act.sa_mask);
+-  (void) sigdelset (&act.sa_mask, SIGHUP);
+-  (void) sigdelset (&act.sa_mask, SIGINT);
+-  (void) sigdelset (&act.sa_mask, SIGTERM);
+-  (void) sigdelset (&act.sa_mask, SIGILL);
+-  (void) sigdelset (&act.sa_mask, SIGTRAP);
+-  (void) sigdelset (&act.sa_mask, SIGIOT);
+-#ifndef LINUX
+-  (void) sigdelset (&act.sa_mask, SIGEMT);
+-#endif
+-  (void) sigdelset (&act.sa_mask, SIGFPE);
+-  (void) sigdelset (&act.sa_mask, SIGBUS);
+-  (void) sigdelset (&act.sa_mask, SIGSEGV);
+-  (void) sigdelset (&act.sa_mask, SIGSYS);
++  /* Unblock the signal being handled to allow recursive signals */
++  (void) sigdelset (&act.sa_mask, signal);
+ 
+   /* Initialize signal handler */
+   act.sa_handler = handler;

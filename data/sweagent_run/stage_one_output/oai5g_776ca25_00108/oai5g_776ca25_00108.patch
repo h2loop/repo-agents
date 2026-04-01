@@ -1,0 +1,46 @@
+diff --git a/openair2/LAYER2/rlc_v2/rlc_entity_um.c b/openair2/LAYER2/rlc_v2/rlc_entity_um.c
+index 06cd8c8cc4..10e9fba4b5 100644
+--- a/openair2/LAYER2/rlc_v2/rlc_entity_um.c
++++ b/openair2/LAYER2/rlc_v2/rlc_entity_um.c
+@@ -199,20 +199,29 @@ static void rlc_um_reception_actions(rlc_entity_um_t *entity,
+     rlc_rx_pdu_segment_t *pdu_segment)
+ {
+   if (!sn_in_recv_window(entity, pdu_segment->sn)) {
+-    entity->vr_uh = (pdu_segment->sn + 1) % entity->sn_modulus;
+-    rlc_um_reassemble(entity, outside_of_reordering_window);
+-    if (!sn_in_recv_window(entity, entity->vr_ur))
+-      entity->vr_ur = (entity->vr_uh - entity->window_size
+-                         + entity->sn_modulus) % entity->sn_modulus;
+-  }
+-
+-  if (rlc_um_pdu_received(entity, entity->vr_ur)) {
+-    do {
+-      entity->vr_ur = (entity->vr_ur + 1) % entity->sn_modulus;
+-    } while (rlc_um_pdu_received(entity, entity->vr_ur));
+-    rlc_um_reassemble(entity, less_than_vr_ur);
++    /* According to 36.322, if SN >= VR(UH), update VR(UH) */
++    if (sn_compare_rx(entity, pdu_segment->sn, entity->vr_uh) >= 0) {
++      entity->vr_uh = (pdu_segment->sn + 1) % entity->sn_modulus;
++      rlc_um_reassemble(entity, outside_of_reordering_window);
++      /* Update VR(UR) if needed */
++      if (!sn_in_recv_window(entity, entity->vr_ur))
++        entity->vr_ur = (entity->vr_uh - entity->window_size
++                           + entity->sn_modulus) % entity->sn_modulus;
++    }
++    /* If SN < VR(UR) - UM_Window_Size, this PDU should be discarded
++     * but we assume it has already been checked before calling this function */
++  } else {
++    /* PDU is within the reception window */
++    /* Check if we can advance VR(UR) */
++    if (rlc_um_pdu_received(entity, entity->vr_ur)) {
++      do {
++        entity->vr_ur = (entity->vr_ur + 1) % entity->sn_modulus;
++      } while (rlc_um_pdu_received(entity, entity->vr_ur));
++      rlc_um_reassemble(entity, less_than_vr_ur);
++    }
+   }
+ 
++  /* Handle t-Reordering timer */
+   if (entity->t_reordering_start) {
+     if (sn_compare_rx(entity, entity->vr_ux, entity->vr_ur) <= 0 ||
+         (!sn_in_recv_window(entity, entity->vr_ux) &&

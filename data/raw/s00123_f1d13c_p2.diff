@@ -1,0 +1,13 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
+index dc442bedd0..60d51f19fd 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
+@@ -3203,6 +3203,8 @@ NR_beam_alloc_t beam_allocation_procedure(NR_beam_info_t *beam_info, int frame,
+       return beam_struct;
+   }
+ 
++  LOG_E(NR_MAC, "Critical beam allocation failure: No beam available for beam_index %d at frame %d slot %d (beams_per_period: %d)\n",
++          beam_index, frame, slot, beam_info->beams_per_period);
+   return (NR_beam_alloc_t) {.new_beam = false, .idx = -1};
+ }
+ 

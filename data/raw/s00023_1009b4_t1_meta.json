@@ -1,0 +1,35 @@
+{
+  "run_id": "s00023_1009b4",
+  "function": {
+    "name": "parse_cops_test",
+    "file": "openair3/NAS/UE/API/USER/at_command.c",
+    "start_line": 1306,
+    "end_line": 1311,
+    "body_lines": 6,
+    "signature": "static int parse_cops_test(const char* string, int position, at_command_t* at_command)",
+    "subsystem": "openair3/NAS/UE",
+    "token_estimate": 24
+  },
+  "bug": {
+    "bug_id": "c_use_after_free",
+    "description": "use-after-free vulnerability where freed memory is subsequently accessed",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a use-after-free vulnerability where freed memory is subsequently accessed downstream of function parse_cops_test in the openair3/NAS/UE subsystem.\nThe function is located at openair3/NAS/UE/API/USER/at_command.c:1306.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00023_1009b4_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00023_1009b4_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 42,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:41:39Z"
+}

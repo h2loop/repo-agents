@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Add missing gtpv1uSendDirectWithNRUSeqNum function for NR U-plane sequence numbering\n\n### Summary\nThe NR GTP-U stack was missing the `gtpv1uSendDirectWithNRUSeqNum` function that is expected by upper layers when transmitting user plane packets with sequence numbering enabled. This caused compilation errors in modules that attempted to call this function for NR-specific traffic handling.\n\nThe function should enable GTP-U sequence numbering which is typical for NR U-plane traffic, especially during handover and retransmission scenarios.\n\n### Changes\n- `openair3/ocp-gtpu/gtp_itf.h`: Added function declaration for `gtpv1uSendDirectWithNRUSeqNum`\n- `openair3/ocp-gtpu/gtp_itf.cpp`: Implemented the function to call existing `gtpv1uSend` with sequence numbering enabled\n\nAdditional whitespace cleanup in `gtp_itf.cpp` to improve code consistency.\n\n"
+}

@@ -1,0 +1,35 @@
+diff --git a/openair2/RRC/LTE/utils.c b/openair2/RRC/LTE/utils.c
+index c84a2be476..a6ed8b543d 100644
+--- a/openair2/RRC/LTE/utils.c
++++ b/openair2/RRC/LTE/utils.c
+@@ -31,6 +31,7 @@ ________________________________________________________________*/
+ 
+ #include "defs.h"
+ #include "extern.h"
++#include <string.h>
+ 
+ 
+ //------------------------------------------------------------------------------------------------------------------//
+@@ -75,13 +76,16 @@ uint8_t rrc_find_free_ue_index(uint8_t Mod_id) {
+ //-------------------------------------------------------------------------------------------//
+ unsigned short rrc_find_ue_index(unsigned char Mod_id, L2_ID Mac_id) {
+   //-------------------------------------------------------------------------------------------//
+-  unsigned char i;
+-  /*
+-  for(i=0;i<=NB_CNX_CH;i++)
+-    if( bcmp(Mac_id.L2_id,CH_rrc_inst[Mod_id].Info.UE_info[i].L2_id,sizeof(L2_ID))==0)
++  unsigned short i;
++  
++  for(i=0; i<NB_CNX_CH; i++) {
++    if( bcmp(Mac_id.L2_id, CH_rrc_inst[Mod_id].Info.UE_info[i].L2_id, sizeof(L2_ID)) == 0) {
+       return i;
+-  return i;
+-  */
++    }
++  }
++  
++  // Return error value if not found
++  return 0xffff;
+ }
+ //-------------------------------------------------------------------------------------------//
+ uint8_t rrc_is_node_isolated(uint8_t Mod_id) {

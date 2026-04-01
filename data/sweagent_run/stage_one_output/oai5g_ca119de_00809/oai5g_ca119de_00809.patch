@@ -1,0 +1,216 @@
+diff --git a/executables/lte-ru.c b/executables/lte-ru.c
+index b7734aa9ed..37f1ff9d03 100644
+--- a/executables/lte-ru.c
++++ b/executables/lte-ru.c
+@@ -134,12 +134,12 @@ static inline void fh_if5_south_out(RU_t *ru,int frame, int subframe, uint64_t t
+   for (int aid=0;aid<ru->nb_tx;aid++) buffs[aid] = (void*)&ru->common.txdata[aid][offset]; 
+ 
+   ru->ifdevice.trx_write_func2(&ru->ifdevice,
+-  		               timestamp,
++                               timestamp,
+                                buffs,
+-			       0,
+-			       ru->frame_parms->samples_per_tti,
+-			       0,
+-			       ru->nb_tx); 
++                               0,
++                               ru->frame_parms->samples_per_tti,
++                               0,
++                               ru->nb_tx); 
+ 
+ }
+ 
+@@ -372,27 +372,53 @@ void fh_if4p5_south_asynch_in(RU_t *ru,
+ void fh_if4p5_north_in(RU_t *ru,
+                        int *frame,
+                        int *subframe) {
++  LTE_DL_FRAME_PARMS *fp = ru->frame_parms;
++  RU_proc_t *proc        = &ru->proc;
+   uint32_t symbol_number=0;
+   uint32_t symbol_mask, symbol_mask_full;
+   uint16_t packet_type;
++  int tti_tx, frame_tx;
+   /// **** incoming IF4p5 from remote RCC/RAU **** ///
+   symbol_number = 0;
+   symbol_mask = 0;
+-  symbol_mask_full = (1<<ru->frame_parms->symbols_per_tti)-1;
++  symbol_mask_full = (1<<fp->symbols_per_tti)-1;
+   LOG_D(PHY,"fh_if4p5_north_in: frame %d, subframe %d\n",*frame,*subframe);
+ 
+   do {
+-    recv_IF4p5(ru, frame, subframe, &packet_type, &symbol_number);
++    recv_IF4p5(ru, &frame_tx, &tti_tx, &packet_type, &symbol_number);
+     symbol_mask = symbol_mask | (1<<symbol_number);
++    
++    // Validate that we're receiving the expected frame/subframe
++    if (proc->first_tx == 0) {
++      AssertFatal(frame_tx == *frame, "frame_tx %d is not what we expect %d\n",frame_tx,*frame);
++      AssertFatal(tti_tx == *subframe, "In frame_tx %d : tti_tx %d is not what we expect %d\n",frame_tx,tti_tx,*subframe);
++    } else {
++      *frame    = frame_tx;
++      *subframe = tti_tx;
++      proc->first_tx = 0;
++    }
+   } while (symbol_mask != symbol_mask_full);
+ 
+   ru->north_in_cnt++;
+ 
++  // Update RU internal state
++  proc->tti_tx   = tti_tx;
++  proc->frame_tx = frame_tx;
++
++  if ((frame_tx == 0)&&(tti_tx == 0)) proc->frame_tx_unwrap += 1024;
++
++  proc->timestamp_tx = ((((uint64_t)frame_tx + (uint64_t)proc->frame_tx_unwrap) * 10) + (uint64_t)tti_tx) * (uint64_t)fp->samples_per_tti;
++  LOG_D(PHY,"RU %d/%d TST %llu, frame %d, subframe %d\n",ru->idx,0,(long long unsigned int)proc->timestamp_tx,frame_tx,tti_tx);
++
+   // dump VCD output for first RU in list
+   if (ru->idx == 0) {
+-    VCD_SIGNAL_DUMPER_DUMP_VARIABLE_BY_NAME( VCD_SIGNAL_DUMPER_VARIABLES_FRAME_NUMBER_TX0_RU, *frame );
+-    VCD_SIGNAL_DUMPER_DUMP_VARIABLE_BY_NAME( VCD_SIGNAL_DUMPER_VARIABLES_TTI_NUMBER_TX0_RU, *subframe );
++    VCD_SIGNAL_DUMPER_DUMP_VARIABLE_BY_NAME( VCD_SIGNAL_DUMPER_VARIABLES_FRAME_NUMBER_TX0_RU, frame_tx );
++    VCD_SIGNAL_DUMPER_DUMP_VARIABLE_BY_NAME( VCD_SIGNAL_DUMPER_VARIABLES_TTI_NUMBER_TX0_RU, tti_tx );
+   }
++  
++  // Call downstream processing functions
++  if (ru->feptx_ofdm) ru->feptx_ofdm(ru, frame_tx, tti_tx);
++  if (ru->fh_south_out) ru->fh_south_out(ru, frame_tx, tti_tx, proc->timestamp_tx);
+ }
+ 
+ void fh_if5_north_asynch_in(RU_t *ru,
+@@ -1660,7 +1686,7 @@ static void *ru_thread( void *param ) {
+       
+     if (setup_RU_buffers(ru)!=0) {
+         LOG_I(PHY,"Exiting, cannot initialize RU Buffers\n");
+-	      exit(-1);
++              exit(-1);
+     }
+ 
+     AssertFatal((ret=pthread_mutex_lock(ru->ru_mutex))==0,"mutex_lock returns %d\n",ret);
+@@ -1708,9 +1734,9 @@ static void *ru_thread( void *param ) {
+ 
+       // Start RF device if any
+       if (ru->start_rf) {
+-	if (ru->start_rf(ru) != 0)
+-	  AssertFatal(1==0,"Could not start the RF device\n");
+-	else LOG_I(PHY,"RU %d rf device ready\n",ru->idx);
++        if (ru->start_rf(ru) != 0)
++          AssertFatal(1==0,"Could not start the RF device\n");
++        else LOG_I(PHY,"RU %d rf device ready\n",ru->idx);
+       } else LOG_D(PHY,"RU %d no rf device\n",ru->idx);
+     }
+ 
+@@ -1848,19 +1874,19 @@ static void *ru_thread( void *param ) {
+ 
+         AssertFatal((ret=pthread_mutex_unlock(&ru->proc.mutex_pre_scd))==0,"[eNB] error unlocking mutex_pre_scd mutex for eNB pre scd\n");
+ #endif
+-	// wakeup all eNB processes waiting for this RU
+-	if (ru->num_eNB>0) wakeup_L1s(ru);
++        // wakeup all eNB processes waiting for this RU
++        if (ru->num_eNB>0) wakeup_L1s(ru);
+ 
+ #ifdef MBMS_EXPERIMENTAL
+-	//Workaround ... this must be properly handled
+-	if(ru->if_south==LOCAL_RF && ru->function==eNodeB_3GPP && ru->eNB_list[0]!=NULL){
+-		if(ru->frame_parms->num_MBSFN_config!=ru->eNB_list[0]->frame_parms.num_MBSFN_config){
+-			ru->frame_parms = &ru->eNB_list[0]->frame_parms;//->frame_parms;
+-			LOG_W(PHY,"RU MBSFN SF PARAMS Updated\n");
+-		}
+-	}
++        //Workaround ... this must be properly handled
++        if(ru->if_south==LOCAL_RF && ru->function==eNodeB_3GPP && ru->eNB_list[0]!=NULL){
++                if(ru->frame_parms->num_MBSFN_config!=ru->eNB_list[0]->frame_parms.num_MBSFN_config){
++                        ru->frame_parms = &ru->eNB_list[0]->frame_parms;//->frame_parms;
++                        LOG_W(PHY,"RU MBSFN SF PARAMS Updated\n");
++                }
++        }
+ #endif
+-	
++        
+ #ifndef PHY_TX_THREAD
+ 
+         if(get_thread_parallel_conf() == PARALLEL_SINGLE_THREAD || ru->num_eNB==0) {
+@@ -2614,6 +2640,7 @@ void set_function_spec_param(RU_t *ru) {
+       ru->fh_south_asynch_in     = (ru->if_timing == synch_to_other) ? fh_if4p5_south_in : NULL;                // asynchronous UL if synch_to_other
+       ru->fh_north_out           = NULL;
+       ru->fh_north_asynch_in     = NULL;
++      ru->fh_north_in            = fh_if4p5_north_in;   // synchronous IF4p5 reception from north
+       ru->start_rf               = NULL;                // no local RF
+       ru->stop_rf                = NULL;
+       ru->start_if               = start_if;            // need to start if interface for IF4p5
+@@ -2701,8 +2728,8 @@ void init_RU(RU_t **rup,int nb_RU,PHY_VARS_eNB ***eNBp,int nb_L1,int *nb_CC,char
+       LOG_D(PHY, "%s() ru[%d].num_eNB:%d ru->eNB_list[0]:%p eNB[0][0]:%p rf_config_file:%s\n", __FUNCTION__, ru_id, ru->num_eNB, ru->eNB_list[0], eNBp[0][0], ru->rf_config_file);
+       
+       if (ru->eNB_list[0] == 0) {
+-	LOG_E(PHY,"%s() DJP - ru->eNB_list ru->num_eNB are not initialized - so do it manually\n", __FUNCTION__);
+-	ru->eNB_list[0] = eNBp[0][0];
++        LOG_E(PHY,"%s() DJP - ru->eNB_list ru->num_eNB are not initialized - so do it manually\n", __FUNCTION__);
++        ru->eNB_list[0] = eNBp[0][0];
+         ru->num_eNB=1;
+         //
+         // DJP - feptx_prec() / feptx_ofdm() parses the eNB_list (based on num_eNB) and copies the txdata_F to txdata in RU
+@@ -2932,7 +2959,7 @@ RU_t **RCconfig_RU(int nb_RU,int nb_L1_inst,PHY_VARS_eNB ***eNB,uint64_t *ru_mas
+         }
+       }
+       else {
+-	ru[j]->openair0_cfg.clock_source = unset;
++        ru[j]->openair0_cfg.clock_source = unset;
+       }
+ 
+       if (config_isparamset(RUParamList.paramarray[j], RU_SDR_TME_SRC)) {
+@@ -2950,7 +2977,7 @@ RU_t **RCconfig_RU(int nb_RU,int nb_L1_inst,PHY_VARS_eNB ***eNB,uint64_t *ru_mas
+         }
+       }
+       else {
+-	ru[j]->openair0_cfg.time_source = unset;
++        ru[j]->openair0_cfg.time_source = unset;
+       }      
+ 
+       ru[j]->openair0_cfg.tune_offset = get_softmodem_params()->tune_offset;
+@@ -3032,28 +3059,28 @@ RU_t **RCconfig_RU(int nb_RU,int nb_L1_inst,PHY_VARS_eNB ***eNB,uint64_t *ru_mas
+         ru[j]->eth_params.remote_portd       = *(RUParamList.paramarray[j][RU_REMOTE_PORTD_IDX].uptr);
+       
+         if (strcmp(*(RUParamList.paramarray[j][RU_TRANSPORT_PREFERENCE_IDX].strptr), "udp") == 0) {
+-	  ru[j]->if_south                     = REMOTE_IF5;
+-	  ru[j]->function                     = NGFI_RAU_IF5;
+-	  ru[j]->eth_params.transp_preference = ETH_UDP_MODE;
++          ru[j]->if_south                     = REMOTE_IF5;
++          ru[j]->function                     = NGFI_RAU_IF5;
++          ru[j]->eth_params.transp_preference = ETH_UDP_MODE;
+         } else if (strcmp(*(RUParamList.paramarray[j][RU_TRANSPORT_PREFERENCE_IDX].strptr), "udp_ecpri_if5") == 0) {
+-	  ru[j]->if_south                     = REMOTE_IF5;
+-	  ru[j]->function                     = NGFI_RAU_IF5;
+-	  ru[j]->eth_params.transp_preference = ETH_UDP_IF5_ECPRI_MODE;
++          ru[j]->if_south                     = REMOTE_IF5;
++          ru[j]->function                     = NGFI_RAU_IF5;
++          ru[j]->eth_params.transp_preference = ETH_UDP_IF5_ECPRI_MODE;
+         } else if (strcmp(*(RUParamList.paramarray[j][RU_TRANSPORT_PREFERENCE_IDX].strptr), "raw") == 0) {
+-	  ru[j]->if_south                     = REMOTE_IF5;
+-	  ru[j]->function                     = NGFI_RAU_IF5;
+-	  ru[j]->eth_params.transp_preference = ETH_RAW_MODE;
++          ru[j]->if_south                     = REMOTE_IF5;
++          ru[j]->function                     = NGFI_RAU_IF5;
++          ru[j]->eth_params.transp_preference = ETH_RAW_MODE;
+         } else if (strcmp(*(RUParamList.paramarray[j][RU_TRANSPORT_PREFERENCE_IDX].strptr), "udp_if4p5") == 0) {
+-	  ru[j]->if_south                     = REMOTE_IF4p5;
+-	  ru[j]->function                     = NGFI_RAU_IF4p5;
+-  	  ru[j]->eth_params.transp_preference = ETH_UDP_IF4p5_MODE;
+-	  ru[j]->has_ctrl_prt                 = 1;
++          ru[j]->if_south                     = REMOTE_IF4p5;
++          ru[j]->function                     = NGFI_RAU_IF4p5;
++          ru[j]->eth_params.transp_preference = ETH_UDP_IF4p5_MODE;
++          ru[j]->has_ctrl_prt                 = 1;
+         } else if (strcmp(*(RUParamList.paramarray[j][RU_TRANSPORT_PREFERENCE_IDX].strptr), "raw_if4p5") == 0) {
+-	  ru[j]->if_south                     = REMOTE_IF4p5;
+-	  ru[j]->function                     = NGFI_RAU_IF4p5;
+-	  ru[j]->eth_params.transp_preference = ETH_RAW_IF4p5_MODE;
+-	  ru[j]->has_ctrl_prt                 = 1;
+-	
++          ru[j]->if_south                     = REMOTE_IF4p5;
++          ru[j]->function                     = NGFI_RAU_IF4p5;
++          ru[j]->eth_params.transp_preference = ETH_RAW_IF4p5_MODE;
++          ru[j]->has_ctrl_prt                 = 1;
++        
+           if (strcmp(*(RUParamList.paramarray[j][RU_IS_SLAVE_IDX].strptr), "yes") == 0) ru[j]->is_slave=1;
+           else ru[j]->is_slave=0;
+         }

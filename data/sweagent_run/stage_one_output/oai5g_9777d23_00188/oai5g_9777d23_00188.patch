@@ -1,0 +1,18 @@
+diff --git a/common/utils/T/tracer/gui/textlist.c b/common/utils/T/tracer/gui/textlist.c
+index e919b7c0a5..da815b9c84 100644
+--- a/common/utils/T/tracer/gui/textlist.c
++++ b/common/utils/T/tracer/gui/textlist.c
+@@ -84,6 +84,13 @@ widget *new_textlist(gui *_gui, int width, int nlines, int bgcol)
+   w->background_color = bgcol;
+   w->wanted_width = width;
+ 
++  /* Initialize text list fields */
++  w->text = NULL;
++  w->color = NULL;
++  w->text_count = 0;
++  w->starting_line = 0;
++  w->allocated_nlines = 0;
++
+   w->common.paint = paint;
+   w->common.hints = hints;
+   w->common.allocate = allocate;

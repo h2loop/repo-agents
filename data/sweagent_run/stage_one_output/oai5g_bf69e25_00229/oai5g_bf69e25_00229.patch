@@ -1,0 +1,56 @@
+diff --git a/common/utils/LOG/vcd_signal_dumper.c b/common/utils/LOG/vcd_signal_dumper.c
+index 841f2889b6..b758eeab19 100644
+--- a/common/utils/LOG/vcd_signal_dumper.c
++++ b/common/utils/LOG/vcd_signal_dumper.c
+@@ -559,9 +559,7 @@ FILE *vcd_fd = NULL;
+ static inline unsigned long long int vcd_get_time(void);
+ #endif
+ 
+-#if defined(ENABLE_USE_CPU_EXECUTION_TIME)
+ struct timespec     g_time_start;
+-#endif
+ 
+ 
+ #if defined(ENABLE_VCD_FIFO)
+@@ -753,9 +751,7 @@ void vcd_signal_dumper_init(char *filename)
+       return;
+     }
+ 
+-#if defined(ENABLE_USE_CPU_EXECUTION_TIME)
+-    clock_gettime(CLOCK_MONOTONIC, &g_time_start);
+-#endif
++clock_gettime(CLOCK_MONOTONIC, &g_time_start);
+ 
+     vcd_signal_dumper_create_header();
+ 
+@@ -795,7 +791,6 @@ void vcd_signal_dumper_close(void)
+ static inline void vcd_signal_dumper_print_time_since_start(void)
+ {
+   if (vcd_fd != NULL) {
+-#if defined(ENABLE_USE_CPU_EXECUTION_TIME)
+     struct timespec time;
+     long long unsigned int nanosecondsSinceStart;
+     long long unsigned int secondsSinceStart;
+@@ -807,22 +802,18 @@ static inline void vcd_signal_dumper_print_time_since_start(void)
+     secondsSinceStart     = (long long unsigned int)time.tv_sec - (long long unsigned int)g_time_start.tv_sec;
+     /* Write time in nanoseconds */
+     fprintf(vcd_fd, "#%llu\n", nanosecondsSinceStart + (secondsSinceStart * 1000000000UL));
+-#endif
+   }
+ }
+ 
+ #if defined(ENABLE_VCD_FIFO)
+ static inline unsigned long long int vcd_get_time(void)
+ {
+-#if defined(ENABLE_USE_CPU_EXECUTION_TIME)
+   struct timespec time;
+ 
+   clock_gettime(CLOCK_MONOTONIC, &time);
+ 
+   return (long long unsigned int)((time.tv_nsec - g_time_start.tv_nsec)) +
+          ((long long unsigned int)time.tv_sec - (long long unsigned int)g_time_start.tv_sec) * 1000000000UL;
+-#endif
+-  return 0;
+ }
+ #endif
+ 

@@ -1,0 +1,165 @@
+diff --git a/openair3/S1AP/s1ap_eNB_decoder.c b/openair3/S1AP/s1ap_eNB_decoder.c
+index 14e4b49238..f013c0bf8f 100644
+--- a/openair3/S1AP/s1ap_eNB_decoder.c
++++ b/openair3/S1AP/s1ap_eNB_decoder.c
+@@ -43,47 +43,87 @@ static int s1ap_eNB_decode_initiating_message(S1AP_S1AP_PDU_t *pdu) {
+   switch(pdu->choice.initiatingMessage.procedureCode) {
+     case S1AP_ProcedureCode_id_downlinkNASTransport:
+       res = asn_encode_to_new_buffer(NULL, ATS_CANONICAL_XER, &asn_DEF_S1AP_S1AP_PDU, pdu);
+-      free(res.buffer);
++      if (res.result.encoded > 0) {
++        free(res.buffer);
++      } else {
++        S1AP_ERROR("Failed to encode downlinkNASTransport initiating message\n");
++        return -1;
++      }
+       break;
+ 
+     case S1AP_ProcedureCode_id_InitialContextSetup:
+       res = asn_encode_to_new_buffer(NULL, ATS_CANONICAL_XER, &asn_DEF_S1AP_S1AP_PDU, pdu);
+-      free(res.buffer);
++      if (res.result.encoded > 0) {
++        free(res.buffer);
++      } else {
++        S1AP_ERROR("Failed to encode InitialContextSetup initiating message\n");
++        return -1;
++      }
+       break;
+ 
+     case S1AP_ProcedureCode_id_UEContextRelease:
+       res = asn_encode_to_new_buffer(NULL, ATS_CANONICAL_XER, &asn_DEF_S1AP_S1AP_PDU, pdu);
+-      free(res.buffer);
++      if (res.result.encoded > 0) {
++        free(res.buffer);
++      } else {
++        S1AP_ERROR("Failed to encode UEContextRelease initiating message\n");
++        return -1;
++      }
+       break;
+ 
+     case S1AP_ProcedureCode_id_Paging:
+       res = asn_encode_to_new_buffer(NULL, ATS_CANONICAL_XER, &asn_DEF_S1AP_S1AP_PDU, pdu);
+-      S1AP_INFO("Paging initiating message\n");
+-      free(res.buffer);
++      if (res.result.encoded > 0) {
++        S1AP_INFO("Paging initiating message\n");
++        free(res.buffer);
++      } else {
++        S1AP_ERROR("Failed to encode Paging initiating message\n");
++        return -1;
++      }
+       break;
+ 
+     case S1AP_ProcedureCode_id_E_RABSetup:
+       res = asn_encode_to_new_buffer(NULL, ATS_CANONICAL_XER, &asn_DEF_S1AP_S1AP_PDU, pdu);
+-      free(res.buffer);
+-      S1AP_INFO("E_RABSetup initiating message\n");
++      if (res.result.encoded > 0) {
++        free(res.buffer);
++        S1AP_INFO("E_RABSetup initiating message\n");
++      } else {
++        S1AP_ERROR("Failed to encode E_RABSetup initiating message\n");
++        return -1;
++      }
+       break;
+ 
+     case S1AP_ProcedureCode_id_E_RABModify:
+       res = asn_encode_to_new_buffer(NULL, ATS_CANONICAL_XER, &asn_DEF_S1AP_S1AP_PDU, pdu);
+-      free(res.buffer);
+-      S1AP_INFO("E_RABModify initiating message\n");
++      if (res.result.encoded > 0) {
++        free(res.buffer);
++        S1AP_INFO("E_RABModify initiating message\n");
++      } else {
++        S1AP_ERROR("Failed to encode E_RABModify initiating message\n");
++        return -1;
++      }
+       break;
+ 
+     case S1AP_ProcedureCode_id_E_RABRelease:
+       res = asn_encode_to_new_buffer(NULL, ATS_CANONICAL_XER, &asn_DEF_S1AP_S1AP_PDU, pdu);
+-      free(res.buffer);
+-      S1AP_INFO("TODO E_RABRelease initiating message\n");
++      if (res.result.encoded > 0) {
++        free(res.buffer);
++        S1AP_INFO("TODO E_RABRelease initiating message\n");
++      } else {
++        S1AP_ERROR("Failed to encode E_RABRelease initiating message\n");
++        return -1;
++      }
+       break;
+ 
+     case S1AP_ProcedureCode_id_ErrorIndication:
+       res = asn_encode_to_new_buffer(NULL, ATS_CANONICAL_XER, &asn_DEF_S1AP_S1AP_PDU, pdu);
+-      free(res.buffer);
+-      S1AP_INFO("TODO ErrorIndication initiating message\n");
++      if (res.result.encoded > 0) {
++        free(res.buffer);
++        S1AP_INFO("TODO ErrorIndication initiating message\n");
++      } else {
++        S1AP_ERROR("Failed to encode ErrorIndication initiating message\n");
++        return -1;
++      }
+       break;
+ 
+     default:
+@@ -102,17 +142,32 @@ static int s1ap_eNB_decode_successful_outcome(S1AP_S1AP_PDU_t *pdu) {
+   switch(pdu->choice.successfulOutcome.procedureCode) {
+     case S1AP_ProcedureCode_id_S1Setup:
+       res = asn_encode_to_new_buffer(NULL, ATS_CANONICAL_XER, &asn_DEF_S1AP_S1AP_PDU, pdu);
+-      free(res.buffer);
++      if (res.result.encoded > 0) {
++        free(res.buffer);
++      } else {
++        S1AP_ERROR("Failed to encode S1Setup successful outcome\n");
++        return -1;
++      }
+       break;
+ 
+     case S1AP_ProcedureCode_id_PathSwitchRequest:
+       res = asn_encode_to_new_buffer(NULL, ATS_CANONICAL_XER, &asn_DEF_S1AP_S1AP_PDU, pdu);
+-      free(res.buffer);
++      if (res.result.encoded > 0) {
++        free(res.buffer);
++      } else {
++        S1AP_ERROR("Failed to encode PathSwitchRequest successful outcome\n");
++        return -1;
++      }
+       break;
+ 
+     case S1AP_ProcedureCode_id_E_RABModificationIndication:
+       res = asn_encode_to_new_buffer(NULL, ATS_CANONICAL_XER, &asn_DEF_S1AP_S1AP_PDU, pdu);
+-      free(res.buffer);
++      if (res.result.encoded > 0) {
++        free(res.buffer);
++      } else {
++        S1AP_ERROR("Failed to encode E_RABModificationIndication successful outcome\n");
++        return -1;
++      }
+       break;
+ 
+ 
+@@ -132,11 +187,21 @@ static int s1ap_eNB_decode_unsuccessful_outcome(S1AP_S1AP_PDU_t *pdu) {
+   switch(pdu->choice.unsuccessfulOutcome.procedureCode) {
+     case S1AP_ProcedureCode_id_S1Setup:
+       res = asn_encode_to_new_buffer(NULL, ATS_CANONICAL_XER, &asn_DEF_S1AP_S1AP_PDU, pdu);
+-      free(res.buffer);
++      if (res.result.encoded > 0) {
++        free(res.buffer);
++      } else {
++        S1AP_ERROR("Failed to encode S1Setup unsuccessful outcome\n");
++        return -1;
++      }
+       break;
+    case S1AP_ProcedureCode_id_PathSwitchRequest:
+       res = asn_encode_to_new_buffer(NULL, ATS_CANONICAL_XER, &asn_DEF_S1AP_S1AP_PDU, pdu);
+-      free(res.buffer);
++      if (res.result.encoded > 0) {
++        free(res.buffer);
++      } else {
++        S1AP_ERROR("Failed to encode PathSwitchRequest unsuccessful outcome\n");
++        return -1;
++      }
+       break;
+ 
+     default:

@@ -1,0 +1,35 @@
+diff --git a/openair2/RRC/NR/rrc_gNB.c b/openair2/RRC/NR/rrc_gNB.c
+index 000c4f46cb..f589baa5e6 100644
+--- a/openair2/RRC/NR/rrc_gNB.c
++++ b/openair2/RRC/NR/rrc_gNB.c
+@@ -1567,8 +1567,6 @@ static void handle_ueCapabilityInformation(gNB_RRC_INST *rrc, gNB_RRC_UE_t *UE,
+     return;
+   }
+ 
+-  int eutra_index = -1;
+-
+   if (ue_cap_info->criticalExtensions.present == NR_UECapabilityInformation__criticalExtensions_PR_ueCapabilityInformation) {
+     const NR_UE_CapabilityRAT_ContainerList_t *ue_CapabilityRAT_ContainerList =
+         ue_cap_info->criticalExtensions.choice.ueCapabilityInformation->ue_CapabilityRAT_ContainerList;
+@@ -1623,11 +1621,6 @@ static void handle_ueCapabilityInformation(gNB_RRC_INST *rrc, gNB_RRC_UE_t *UE,
+         }
+ 
+         UE->UE_Capability_size = ue_cap_container->ue_CapabilityRAT_Container.size;
+-        if (eutra_index != -1) {
+-          LOG_E(NR_RRC, "fatal: more than 1 eutra capability\n");
+-          return;
+-        }
+-        eutra_index = i;
+       }
+ 
+       if (ue_cap_container->rat_Type == NR_RAT_Type_eutra_nr) {
+@@ -1659,9 +1652,6 @@ static void handle_ueCapabilityInformation(gNB_RRC_INST *rrc, gNB_RRC_UE_t *UE,
+         // TODO
+       }
+     }
+-
+-    if (eutra_index == -1)
+-      return;
+   }
+ 
+   rrc_gNB_send_NGAP_UE_CAPABILITIES_IND(rrc, UE, ue_cap_info);

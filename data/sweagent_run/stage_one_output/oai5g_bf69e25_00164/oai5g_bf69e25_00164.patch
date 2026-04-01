@@ -1,0 +1,165 @@
+diff --git a/openair1/PHY/LTE_TRANSPORT/dlsch_coding.c b/openair1/PHY/LTE_TRANSPORT/dlsch_coding.c
+index 8541d11771..ca7093de09 100644
+--- a/openair1/PHY/LTE_TRANSPORT/dlsch_coding.c
++++ b/openair1/PHY/LTE_TRANSPORT/dlsch_coding.c
+@@ -66,9 +66,13 @@ void free_eNB_dlsch(LTE_eNB_DLSCH_t *dlsch) {
+ 
+   if (dlsch) {
+     for (layer=0; layer<4; layer++) {
+-      for (aa=0; aa<64; aa++) free16(dlsch->ue_spec_bf_weights[layer][aa], OFDM_SYMBOL_SIZE_COMPLEX_SAMPLES*sizeof(int32_t));
+-
+-      free16(dlsch->ue_spec_bf_weights[layer], 64*sizeof(int32_t *));
++      if (dlsch->ue_spec_bf_weights[layer]) {
++        for (aa=0; aa<64; aa++) {
++          if (dlsch->ue_spec_bf_weights[layer][aa])
++            free16(dlsch->ue_spec_bf_weights[layer][aa], OFDM_SYMBOL_SIZE_COMPLEX_SAMPLES*sizeof(int32_t));
++        }
++        free16(dlsch->ue_spec_bf_weights[layer], 64*sizeof(int32_t *));
++      }
+     }
+ 
+     for (i=0; i<dlsch->Mdlharq; i++) {
+@@ -137,13 +141,23 @@ LTE_eNB_DLSCH_t *new_eNB_dlsch(unsigned char Kmimo,
+ 
+     for (layer=0; layer<4; layer++) {
+       dlsch->ue_spec_bf_weights[layer] = (int32_t **)malloc16(64*sizeof(int32_t *));
+-
+-      for (aa=0; aa<64; aa++) {
+-        dlsch->ue_spec_bf_weights[layer][aa] = (int32_t *)malloc16(OFDM_SYMBOL_SIZE_COMPLEX_SAMPLES*sizeof(int32_t));
+-
+-        for (re=0; re<OFDM_SYMBOL_SIZE_COMPLEX_SAMPLES; re++) {
+-          dlsch->ue_spec_bf_weights[layer][aa][re] = 0x00007fff;
++      
++      if (dlsch->ue_spec_bf_weights[layer]) {
++        for (aa=0; aa<64; aa++) {
++          dlsch->ue_spec_bf_weights[layer][aa] = (int32_t *)malloc16(OFDM_SYMBOL_SIZE_COMPLEX_SAMPLES*sizeof(int32_t));
++          
++          if (dlsch->ue_spec_bf_weights[layer][aa]) {
++            for (re=0; re<OFDM_SYMBOL_SIZE_COMPLEX_SAMPLES; re++) {
++              dlsch->ue_spec_bf_weights[layer][aa][re] = 0x00007fff;
++            }
++          } else {
++            AssertFatal(1==0,"Can't get ue_spec_bf_weights[%d][%d]\n", layer, aa);
++            exit_flag=4;
++          }
+         }
++      } else {
++        AssertFatal(1==0,"Can't get ue_spec_bf_weights[%d]\n", layer);
++        exit_flag=5;
+       }
+     }
+ 
+@@ -170,17 +184,25 @@ LTE_eNB_DLSCH_t *new_eNB_dlsch(unsigned char Kmimo,
+       if (dlsch->harq_processes[i]) {
+         bzero(dlsch->harq_processes[i],sizeof(LTE_DL_eNB_HARQ_t));
+         //    dlsch->harq_processes[i]->first_tx=1;
+-        dlsch->harq_processes[i]->b = (unsigned char *)malloc16(MAX_DLSCH_PAYLOAD_BYTES/bw_scaling);
++        // Allocate full size instead of scaled size to avoid allocation/deallocation mismatch
++        dlsch->harq_processes[i]->b = (unsigned char *)malloc16(MAX_DLSCH_PAYLOAD_BYTES);
+ 
+         if (dlsch->harq_processes[i]->b) {
++          // Initialize only the needed portion
+           memset(dlsch->harq_processes[i]->b,0,MAX_DLSCH_PAYLOAD_BYTES/bw_scaling);
++          // Zero out the rest if needed
++          if (bw_scaling > 1) {
++            memset(dlsch->harq_processes[i]->b + MAX_DLSCH_PAYLOAD_BYTES/bw_scaling, 
++                   0, 
++                   MAX_DLSCH_PAYLOAD_BYTES - MAX_DLSCH_PAYLOAD_BYTES/bw_scaling);
++          }
+         } else {
+           AssertFatal(1==0,"Can't get b\n");
+           exit_flag=1;
+         }
+ 
+         if (abstraction_flag==0) {
+-          for (r=0; r<MAX_NUM_DLSCH_SEGMENTS/bw_scaling; r++) {
++          for (r=0; r<MAX_NUM_DLSCH_SEGMENTS; r++) {
+             // account for filler in first segment and CRCs for multiple segment case
+             dlsch->harq_processes[i]->c[r] = (uint8_t *)malloc16(((r==0)?8:0) + 3+ 768);
+ 
+@@ -255,15 +277,15 @@ static void TPencode(void * arg) {
+     memset(tmp,LTE_NULL, TURBO_SIMD_SOFTBITS);
+     start_meas(rdata->te_stats);
+     encoder(rdata->input,
+-	    rdata->Kr_bytes,
+-	    tmp+96,//&dlsch->harq_processes[harq_pid]->d[r][96],
+-	    rdata->filler);
++            rdata->Kr_bytes,
++            tmp+96,//&dlsch->harq_processes[harq_pid]->d[r][96],
++            rdata->filler);
+     stop_meas(rdata->te_stats);
+     start_meas(rdata->i_stats);
+     hadlsch->RTC[rdata->r] =
+       sub_block_interleaving_turbo(4+(rdata->Kr_bytes*8),
+-				   tmp+96,
+-				   hadlsch->w[rdata->r]);
++                                   tmp+96,
++                                   hadlsch->w[rdata->r]);
+     stop_meas(rdata->i_stats);
+   }
+   
+@@ -271,18 +293,18 @@ static void TPencode(void * arg) {
+   // outputs for each code segment, see Section 5.1.5 p.20
+     start_meas(rdata->rm_stats);
+   lte_rate_matching_turbo(hadlsch->RTC[rdata->r],
+-			  rdata->G,  //G
+-			  hadlsch->w[rdata->r],
+-			  hadlsch->eDL+rdata->r_offset,
+-			  hadlsch->C, // C
+-			  rdata->dlsch->Nsoft,                    // Nsoft,
+-			  rdata->dlsch->Mdlharq,
+-			  rdata->dlsch->Kmimo,
+-			  hadlsch->rvidx,
+-			  hadlsch->Qm,
+-			  hadlsch->Nl,
+-			  rdata->r,
+-			  hadlsch->nb_rb);
++                          rdata->G,  //G
++                          hadlsch->w[rdata->r],
++                          hadlsch->eDL+rdata->r_offset,
++                          hadlsch->C, // C
++                          rdata->dlsch->Nsoft,                    // Nsoft,
++                          rdata->dlsch->Mdlharq,
++                          rdata->dlsch->Kmimo,
++                          hadlsch->rvidx,
++                          hadlsch->Qm,
++                          hadlsch->Nl,
++                          rdata->r,
++                          hadlsch->nb_rb);
+     stop_meas(rdata->rm_stats);
+ }
+ 
+@@ -315,11 +337,11 @@ int dlsch_encoding(PHY_VARS_eNB *eNB,
+     beamforming_mode = 9;
+ 
+   unsigned int G = get_G(frame_parms,hadlsch->nb_rb,
+-	    hadlsch->rb_alloc,
+-	    hadlsch->Qm, // mod order
+-	    hadlsch->Nl,
+-	    num_pdcch_symbols,
+-	    frame,subframe,beamforming_mode);
++            hadlsch->rb_alloc,
++            hadlsch->Qm, // mod order
++            hadlsch->Nl,
++            num_pdcch_symbols,
++            frame,subframe,beamforming_mode);
+ 
+   int nbEncode = 0;
+ 
+@@ -423,11 +445,11 @@ int dlsch_encoding_fembms_pmch(PHY_VARS_eNB *eNB,
+     beamforming_mode = 9;
+ 
+   unsigned int G = get_G_khz_1dot25(frame_parms,hadlsch->nb_rb,
+-	    hadlsch->rb_alloc,
+-	    hadlsch->Qm, // mod order
+-	    hadlsch->Nl,
+-	    num_pdcch_symbols,
+-	    frame,subframe,beamforming_mode);
++            hadlsch->rb_alloc,
++            hadlsch->Qm, // mod order
++            hadlsch->Nl,
++            num_pdcch_symbols,
++            frame,subframe,beamforming_mode);
+ 
+   //  if (hadlsch->Ndi == 1) {  // this is a new packet
+   if (hadlsch->round == 0) {  // this is a new packet

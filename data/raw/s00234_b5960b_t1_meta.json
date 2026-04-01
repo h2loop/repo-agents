@@ -1,0 +1,33 @@
+{
+  "run_id": "s00234_b5960b",
+  "function": {
+    "name": "get_first_uci_symbol",
+    "file": "openair1/PHY/NR_UE_TRANSPORT/nr_ulsch_ue.c",
+    "start_line": 789,
+    "end_line": 814,
+    "body_lines": 26,
+    "signature": "static void get_first_uci_symbol(const uint8_t start_symbol, const uint8_t num_symbols, const uint16_t dmrs_map, uint8_t *first_non_dmrs_sym, uint8_t *dmrs_p1)",
+    "subsystem": "openair1/PHY/NR_UE_TRANSPORT",
+    "token_estimate": 88
+  },
+  "bug": {
+    "bug_id": "c_copy_paste_error",
+    "description": "copy-paste error where duplicated code was not correctly updated for its new context",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a copy-paste error where duplicated code was not correctly updated for its new context downstream of function get_first_uci_symbol in the openair1/PHY/NR_UE_TRANSPORT subsystem.\nThe function is located at openair1/PHY/NR_UE_TRANSPORT/nr_ulsch_ue.c:789.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00234_b5960b_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00234_b5960b_p1.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 68,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:36:24Z"
+}

@@ -1,0 +1,37 @@
+diff --git a/openair2/UTIL/OTG/otg_models.c b/openair2/UTIL/OTG/otg_models.c
+index d866713ecb..1eee3283e0 100644
+--- a/openair2/UTIL/OTG/otg_models.c
++++ b/openair2/UTIL/OTG/otg_models.c
+@@ -134,6 +134,10 @@ tarmaStream_t *tarmaInitStream(tarmaStream_t *stream)
+ {
+   if(stream==0) {
+     stream=(tarmaStream_t*) malloc(sizeof(tarmaStream_t));
++    if (stream == NULL) {
++      LOG_E(OTG, "Failed to allocate memory for tarmaStream_t\n");
++      return NULL;
++    }
+   }
+ 
+   tarmaProcess_t *proc;
+@@ -331,6 +335,10 @@ tarmaVideo_t *tarmaInitVideo(tarmaVideo_t *video)
+ 
+   if(video==0) {
+     video=(tarmaVideo_t*) malloc(sizeof(tarmaVideo_t));
++    if (video == NULL) {
++      LOG_E(OTG, "Failed to allocate memory for tarmaVideo_t\n");
++      return NULL;
++    }
+   }
+ 
+   proc=&(video->tarma_size);
+@@ -539,6 +547,10 @@ backgroundStream_t *backgroundStreamInit(backgroundStream_t *stream, double lamb
+ 
+   if(stream==0) {
+     stream=(backgroundStream_t*) malloc(sizeof(backgroundStream_t));
++    if (stream == NULL) {
++      LOG_E(OTG, "Failed to allocate memory for backgroundStream_t\n");
++      return NULL;
++    }
+   }
+ 
+   stream->meanNumSessions=lambda_n;

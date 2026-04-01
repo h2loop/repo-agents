@@ -1,0 +1,81 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c
+index f890ae087b..1acb8f0413 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c
+@@ -1468,14 +1468,14 @@ static void nr_ue_max_mcs_min_rb(int mu,
+ }
+ 
+ static bool allocate_ul_retransmission(gNB_MAC_INST *nrmac,
+-				       frame_t frame,
+-				       sub_frame_t slot,
+-				       uint16_t *rballoc_mask,
+-				       int *n_rb_sched,
+-				       NR_UE_info_t* UE,
+-				       int harq_pid,
+-				       const NR_ServingCellConfigCommon_t *scc,
+-				       const int tda)
++                                       frame_t frame,
++                                       sub_frame_t slot,
++                                       uint16_t *rballoc_mask,
++                                       int *n_rb_sched,
++                                       NR_UE_info_t* UE,
++                                       int harq_pid,
++                                       const NR_ServingCellConfigCommon_t *scc,
++                                       const int tda)
+ {
+   const int CC_id = 0;
+   NR_UE_sched_ctrl_t *sched_ctrl = &UE->UE_sched_ctrl;
+@@ -1616,7 +1616,7 @@ static void pf_ul(module_id_t module_id,
+                   sub_frame_t slot,
+                   NR_UE_info_t *UE_list[],
+                   int max_num_ue,
+-                  int n_rb_sched,
++                  int *n_rb_sched,
+                   uint16_t *rballoc_mask)
+ {
+ 
+@@ -1769,7 +1769,7 @@ static void pf_ul(module_id_t module_id,
+                                             sched_pusch->nrOfLayers) >> 3;
+ 
+       /* Mark the corresponding RBs as used */
+-      n_rb_sched -= sched_pusch->rbSize;
++      *n_rb_sched -= sched_pusch->rbSize;
+       for (int rb = 0; rb < sched_ctrl->sched_pusch.rbSize; rb++)
+         rballoc_mask[rb + sched_ctrl->sched_pusch.rbStart] ^= slbitmap;
+ 
+@@ -1798,7 +1798,7 @@ static void pf_ul(module_id_t module_id,
+   UEsched_t *iterator=UE_sched;
+ 
+   /* Loop UE_sched to find max coeff and allocate transmission */
+-  while (remainUEs> 0 && n_rb_sched >= min_rb && iterator->UE != NULL) {
++  while (remainUEs> 0 && *n_rb_sched >= min_rb && iterator->UE != NULL) {
+ 
+     NR_UE_sched_ctrl_t *sched_ctrl = &iterator->UE->UE_sched_ctrl;
+     int CCEIndex = get_cce_index(nrmac,
+@@ -1894,7 +1894,7 @@ static void pf_ul(module_id_t module_id,
+                        CCEIndex,
+                        sched_ctrl->aggregation_level);
+ 
+-    n_rb_sched -= sched_pusch->rbSize;
++    *n_rb_sched -= sched_pusch->rbSize;
+     for (int rb = 0; rb < sched_ctrl->sched_pusch.rbSize; rb++)
+       rballoc_mask[rb + sched_ctrl->sched_pusch.rbStart] ^= slbitmap;
+ 
+@@ -1946,7 +1946,7 @@ static bool nr_fr1_ulsch_preprocessor(module_id_t module_id, frame_t frame, sub_
+     NR_UE_sched_ctrl_t *sched_ctrl = &UE2->UE_sched_ctrl;
+     AssertFatal(K2 == get_K2(tdaList, tda, mu),
+                 "Different K2, %d(UE%d) != %ld(UE%04x)\n",
+-		K2, 0, get_K2(tdaList, tda, mu), UE2->rnti);
++                K2, 0, get_K2(tdaList, tda, mu), UE2->rnti);
+     sched_ctrl->sched_pusch.slot = sched_slot;
+     sched_ctrl->sched_pusch.frame = sched_frame;
+   }
+@@ -1998,7 +1998,7 @@ static bool nr_fr1_ulsch_preprocessor(module_id_t module_id, frame_t frame, sub_
+         slot,
+         nr_mac->UE_info.list,
+         max_sched_ues,
+-        len,
++        &len,
+         rballoc_mask);
+   return true;
+ }

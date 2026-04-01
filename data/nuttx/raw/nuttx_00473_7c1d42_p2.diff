@@ -1,0 +1,65 @@
+diff --git a/arch/xtensa/src/common/espressif/esp_dedic_gpio.c b/arch/xtensa/src/common/espressif/esp_dedic_gpio.c
+index a1780a54..168ac03e 100644
+--- a/arch/xtensa/src/common/espressif/esp_dedic_gpio.c
++++ b/arch/xtensa/src/common/espressif/esp_dedic_gpio.c
+@@ -698,8 +698,37 @@ struct file *esp_dedic_gpio_new_bundle(
+ 
+   dedic_gpio_common[cpu].refs++;
+ 
+-  register_driver(config->path, &dedic_gpio_ops,
+-                  0666, priv);
++  if (register_driver(config->path, &dedic_gpio_ops,
++                      0666, priv) != OK)
++    {
++      gpioerr("ERROR: register_driver failed\n");
++
++      /* Clean up allocated resources */
++      flags = spin_lock_irqsave(&dedic_gpio_common[cpu].spinlock);
++
++      /* Release occupied masks */
++      dedic_gpio_common[cpu].out_occupied_mask &= ~out_mask;
++      dedic_gpio_common[cpu].in_occupied_mask &= ~in_mask;
++
++      /* Decrement reference count */
++      dedic_gpio_common[cpu].refs--;
++
++      /* If this was the last reference, disable clock */
++      if (dedic_gpio_common[cpu].refs == 0)
++        {
++          PERIPH_RCC_ATOMIC()
++            {
++              dedic_gpio_ll_enable_bus_clock(false);
++            }
++        }
++
++      spin_unlock_irqrestore(&dedic_gpio_common[cpu].spinlock, flags);
++
++      /* Free private data */
++      free(priv);
++      return NULL;
++    }
++
+   return (struct file *)priv;
+ }
+ 
+diff --git a/boards/xtensa/esp32s3/esp32s3-devkit/src/esp32s3_gpio.c b/boards/xtensa/esp32s3/esp32s3-devkit/src/esp32s3_gpio.c
+index df719860..628bbd24 100644
+--- a/boards/xtensa/esp32s3/esp32s3-devkit/src/esp32s3_gpio.c
++++ b/boards/xtensa/esp32s3/esp32s3-devkit/src/esp32s3_gpio.c
+@@ -511,8 +511,14 @@ int esp32s3_gpio_init(void)
+ 
+ #ifdef CONFIG_ESPRESSIF_DEDICATED_GPIO
+   dedicated_gpio = esp_dedic_gpio_new_bundle(&dedic_gpio_conf);
+-
+-  pincount++;
++  if (dedicated_gpio == NULL)
++    {
++      syslog(LOG_ERR, "ERROR: Failed to initialize dedicated GPIO\n");
++    }
++  else
++    {
++      pincount++;
++    }
+ #endif
+ 
+ #ifdef CONFIG_ESPRESSIF_USE_ULP_RISCV_CORE

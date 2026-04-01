@@ -1,0 +1,9 @@
+{
+  "run_id": "s00310_842a8f",
+  "pr_text": "## Title: Fix uninitialized memory read in GUTI Reallocation Command encoder\n\n### Summary\nThe `encode_guti_reallocation_command` function in the NAS EMM subsystem reads the `presencemask` field of the `guti_reallocation_command_msg` structure before it is initialized. This leads to undefined behavior when the encoder checks for optional Information Elements (IEs) like the TAI list. The uninitialized memory access occurs at line 91 where the code tests `guti_reallocation_command->presencemask` ag",
+  "trajectory_path": "data/raw/s00310_842a8f_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00310_842a8f_p2.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 21,
+  "timestamp": "2026-02-11T14:21:12Z"
+}

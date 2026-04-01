@@ -1,0 +1,28 @@
+{
+  "run_id": "s00475_fc2749",
+  "function": {
+    "name": "eNB_scheduler",
+    "file": "openair1/SIMULATION/LTE_PHY/framegen.c",
+    "start_line": 52,
+    "end_line": 56,
+    "body_lines": 5,
+    "signature": "void eNB_scheduler(uint8_t Mod_id, uint8_t cooperation_flag, uint8_t frame, uint8_t subframe)",
+    "subsystem": "openair1/SIMULATION/LTE_PHY",
+    "token_estimate": 19
+  },
+  "bug": {
+    "bug_id": "telecom_sched_missed_opportunity",
+    "description": "missed scheduling opportunity where a UE with pending data is not scheduled",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a missed scheduling opportunity where a UE with pending data is not scheduled downstream of function eNB_scheduler in the openair1/SIMULATION/LTE_PHY subsystem.\nThe function is located at openair1/SIMULATION/LTE_PHY/framegen.c:52.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00475_fc2749_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00475_fc2749_p1.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 18,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:31:47Z"
+}

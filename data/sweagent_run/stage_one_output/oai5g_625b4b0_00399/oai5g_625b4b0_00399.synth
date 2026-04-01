@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix uninitialized memory read in DFT butterfly operations\n\n### Summary\nThe DFT butterfly functions `bfly3_tw1`, `bfly3_tw1_256`, and `bfly5_tw1` in the PHY processing chain declared temporary variables `tmpre` and `tmpim` without initialization. These variables are used in `cmac` operations which add to existing values, potentially causing undefined behavior when reading uninitialized memory.\n\nThis issue manifests as incorrect FFT computations during signal processing, particularly affecting downlink synchronization in poor radio conditions. Users may observe higher BLER and sync failures.\n\nThe fix explicitly initializes these temporary variables to zero before use, ensuring deterministic behavior.\n\n### Changes\n- `openair1/PHY/TOOLS/oai_dfts.c`: Initialize `tmpre` and `tmpim` variables to zero in `bfly3_tw1`, `bfly3_tw1_256`, and `bfly5_tw1` functions.\n\n"
+}

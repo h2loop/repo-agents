@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix race condition in file existence check for NAS tools\n\n### Summary\nThe `file_exist_and_is_readable` function in the NAS tools module was vulnerable to a time-of-check-to-time-of-use (TOCTOU) race condition. The function would open and close a file to check its existence and readability, creating a window where another process could modify or delete the file between the check and subsequent read operations.\n\nThis issue could lead to unexpected behavior when multiple threads or processes accessed the same files, particularly in scenarios where file states changed rapidly.\n\n### Changes\n- `openair3/NAS/TOOLS/fs.c`: Replaced `fopen`/`fclose` pattern with atomic `access()` system call for checking file readability.\n- Added `#include <unistd.h>` for `access()` function.\n\n"
+}

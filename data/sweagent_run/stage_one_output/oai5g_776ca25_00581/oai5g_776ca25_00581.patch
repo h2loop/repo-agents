@@ -1,0 +1,97 @@
+diff --git a/openair3/NAS/UE/API/USER/at_command.c b/openair3/NAS/UE/API/USER/at_command.c
+index a6591c6748..53a81db287 100644
+--- a/openair3/NAS/UE/API/USER/at_command.c
++++ b/openair3/NAS/UE/API/USER/at_command.c
+@@ -39,11 +39,11 @@ Description Defines the ATtention (AT) command set supported by the NAS
+ *****************************************************************************/
+ 
+ #include "at_command.h"
++#include "at_response.h"
++#include "at_error.h"
+ #include "commonDef.h"
+ #include "nas_log.h"
+ 
+-#include "at_error.h"
+-
+ #include <ctype.h>  // isspace, isdigit
+ #include <stdlib.h> // strtol, malloc, free
+ #include <string.h> // strncpy, strstr, strchr, strcmp, strncasecmp
+@@ -54,11 +54,6 @@ Description Defines the ATtention (AT) command set supported by the NAS
+ /****************  E X T E R N A L    D E F I N I T I O N S  ****************/
+ /****************************************************************************/
+ 
+-// FIXME Put this in .h
+-extern int at_response_format_v1;
+-extern int at_error_code_suppression_q1;
+-extern at_error_format_t at_error_format;
+-
+ /****************************************************************************/
+ /*******************  L O C A L    D E F I N I T I O N S  *******************/
+ /****************************************************************************/
+diff --git a/openair3/NAS/UE/API/USER/at_error.c b/openair3/NAS/UE/API/USER/at_error.c
+index 78a3c407e9..5b69d161d2 100644
+--- a/openair3/NAS/UE/API/USER/at_error.c
++++ b/openair3/NAS/UE/API/USER/at_error.c
+@@ -39,19 +39,13 @@ Description Defines error codes returned when execution of AT command
+ *****************************************************************************/
+ 
+ #include "at_error.h"
++#include "at_response.h"
+ #include "commonDef.h"
+ #include "nas_log.h"
+ 
+ #include <string.h> // strcpy
+ #include <stdio.h>  // sprintf
+ 
+-/****************************************************************************/
+-/****************  E X T E R N A L    D E F I N I T I O N S  ****************/
+-/****************************************************************************/
+-
+-// FIXME put this in .h
+-extern int at_response_format_v1;
+-
+ /*
+  * Result code suppression indicator (set by ATQ0 and ATQ1)
+  * -------------------------------------------------------
+@@ -244,11 +238,11 @@ void at_error_set_format(at_error_format_t format)
+  **                                                                        **
+  ** Description: Gets the format of the error code                         **
+  **                                                                        **
+- ** Inputs:  format:  Format of the error code                   **
++ ** Inputs:  None                                                      **
+  **      Others:  None                                       **
+  **                                                                        **
+- ** Outputs:   Return:  None                                       **
+- **      Others:  at_error_format                            **
++ ** Outputs:   Return:  The format of the error code               **
++ **      Others:  None                                       **
+  **                                                                        **
+  ***************************************************************************/
+ at_error_format_t at_error_get_format(void)
+diff --git a/openair3/NAS/UE/API/USER/at_error.h b/openair3/NAS/UE/API/USER/at_error.h
+index a84875a43c..4d015bd515 100644
+--- a/openair3/NAS/UE/API/USER/at_error.h
++++ b/openair3/NAS/UE/API/USER/at_error.h
+@@ -182,6 +182,9 @@ typedef enum {
+ /********************  G L O B A L    V A R I A B L E S  ********************/
+ /****************************************************************************/
+ 
++extern bool at_error_code_suppression_q1;
++extern at_error_format_t at_error_format;
++
+ /****************************************************************************/
+ /******************  E X P O R T E D    F U N C T I O N S  ******************/
+ /****************************************************************************/
+diff --git a/openair3/NAS/UE/API/USER/at_response.h b/openair3/NAS/UE/API/USER/at_response.h
+index b0303c5875..c0fa692bf0 100644
+--- a/openair3/NAS/UE/API/USER/at_response.h
++++ b/openair3/NAS/UE/API/USER/at_response.h
+@@ -773,6 +773,8 @@ typedef struct {
+ /********************  G L O B A L    V A R I A B L E S  ********************/
+ /****************************************************************************/
+ 
++extern bool at_response_format_v1;
++
+ /****************************************************************************/
+ /******************  E X P O R T E D    F U N C T I O N S  ******************/
+ /****************************************************************************/

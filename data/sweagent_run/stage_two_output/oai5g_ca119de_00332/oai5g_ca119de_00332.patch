@@ -1,0 +1,13 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_srs.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_srs.c
+index c384691e87..6c061ff21d 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_srs.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_srs.c
+@@ -133,6 +133,8 @@ void nr_srs_ri_computation(const nfapi_nr_srs_normalized_channel_iq_matrix_t *nr
+ 
+   if (count > 0) {
+     *ul_ri = 1;
++  } else {
++    *ul_ri = 0;
+   }
+ 
+ #ifdef SRS_DEBUG

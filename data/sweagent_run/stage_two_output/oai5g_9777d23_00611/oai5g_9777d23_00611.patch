@@ -1,0 +1,113 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c b/openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c
+index 5fba6dcaaf..ca134cd8c9 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c
++++ b/openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c
+@@ -161,18 +161,68 @@ static NR_SetupRelease_PUSCH_ConfigCommon_t *clone_pusch_configcommon(const NR_S
+ 
+ static NR_SetupRelease_PUCCH_ConfigCommon_t *clone_pucch_configcommon(const NR_SetupRelease_PUCCH_ConfigCommon_t *pcc)
+ {
+-  if (pcc == NULL || pcc->present == NR_SetupRelease_PUCCH_ConfigCommon_PR_NOTHING)
++  // Enhanced validation checks
++  if (pcc == NULL) {
++    LOG_W(NR_RRC, "clone_pucch_configcommon: input parameter is NULL\n");
+     return NULL;
++  }
++  
++  if (pcc->present == NR_SetupRelease_PUCCH_ConfigCommon_PR_NOTHING) {
++    LOG_D(NR_RRC, "clone_pucch_configcommon: PUCCH Config Common is set to NOTHING\n");
++    return NULL;
++  }
++  
+   NR_SetupRelease_PUCCH_ConfigCommon_t *clone = calloc_or_fail(1, sizeof(*clone));
+   clone->present = pcc->present;
+-  if (clone->present == NR_SetupRelease_PUCCH_ConfigCommon_PR_release)
++  
++  if (clone->present == NR_SetupRelease_PUCCH_ConfigCommon_PR_release) {
++    LOG_D(NR_RRC, "clone_pucch_configcommon: PUCCH Config Common is set to release\n");
+     return clone;
++  }
++  
++  // Validate that setup choice is not NULL when present is setup
++  if (pcc->present == NR_SetupRelease_PUCCH_ConfigCommon_PR_setup && pcc->choice.setup == NULL) {
++    LOG_E(NR_RRC, "clone_pucch_configcommon: setup choice is NULL but present indicates setup\n");
++    free(clone);
++    return NULL;
++  }
+ 
+   uint8_t buf[1024];
+   asn_enc_rval_t enc_rval = uper_encode_to_buffer(&asn_DEF_NR_PUCCH_ConfigCommon, NULL, pcc->choice.setup, buf, sizeof(buf));
+-  AssertFatal(enc_rval.encoded > 0 && enc_rval.encoded < sizeof(buf), "could not clone NR_PUCCH_ConfigCommon: problem while encoding\n");
++  if (enc_rval.encoded <= 0 || enc_rval.encoded >= sizeof(buf)) {
++    LOG_E(NR_RRC, "clone_pucch_configcommon: could not encode NR_PUCCH_ConfigCommon (encoded=%ld)\n", enc_rval.encoded);
++    free(clone);
++    return NULL;
++  }
++  
+   asn_dec_rval_t dec_rval = uper_decode(NULL, &asn_DEF_NR_PUCCH_ConfigCommon, (void **)&clone->choice.setup, buf, enc_rval.encoded, 0, 0);
+-  AssertFatal(dec_rval.code == RC_OK && dec_rval.consumed == enc_rval.encoded, "could not clone NR_PUCCH_ConfigCommon: problem while decoding\n");
++  if (dec_rval.code != RC_OK || dec_rval.consumed != enc_rval.encoded) {
++    LOG_E(NR_RRC, "clone_pucch_configcommon: could not decode NR_PUCCH_ConfigCommon (code=%d, consumed=%zu, encoded=%ld)\n", 
++          dec_rval.code, dec_rval.consumed, enc_rval.encoded);
++    free(clone);
++    return NULL;
++  }
++  
++  // Consistency validation after cloning
++  if (clone->present == NR_SetupRelease_PUCCH_ConfigCommon_PR_setup && clone->choice.setup == NULL) {
++    LOG_E(NR_RRC, "clone_pucch_configcommon: cloned setup choice is NULL\n");
++    free(clone);
++    return NULL;
++  }
++  
++  // Additional consistency checks for critical fields
++  if (clone->present == NR_SetupRelease_PUCCH_ConfigCommon_PR_setup) {
++    NR_PUCCH_ConfigCommon_t *setup = clone->choice.setup;
++    if (setup->hoppingId != NULL && *setup->hoppingId > 1023) {
++      LOG_W(NR_RRC, "clone_pucch_configcommon: hoppingId value (%lu) exceeds maximum allowed (1023)\n", *setup->hoppingId);
++    }
++    
++    if (setup->p0_nominal != NULL && (*setup->p0_nominal < -202 || *setup->p0_nominal > 24)) {
++      LOG_W(NR_RRC, "clone_pucch_configcommon: p0_nominal value (%ld) outside valid range [-202, 24]\n", *setup->p0_nominal);
++    }
++  }
++  
++  LOG_D(NR_RRC, "clone_pucch_configcommon: successfully cloned PUCCH Config Common\n");
+   return clone;
+ }
+ 
+@@ -1446,7 +1496,7 @@ static void set_dl_mcs_table(int scs,
+ }
+ 
+ static struct NR_SetupRelease_PUSCH_Config *config_pusch(NR_PUSCH_Config_t *pusch_Config,
+-							 const bool use_deltaMCS,
++                                                         const bool use_deltaMCS,
+                                                          const NR_ServingCellConfigCommon_t *scc,
+                                                          const NR_UE_NR_Capability_t *uecap)
+ {
+@@ -2634,7 +2684,7 @@ NR_BCCH_DL_SCH_Message_t *get_SIB1_NR(const NR_ServingCellConfigCommon_t *scc,
+                                frequency_range);
+ 
+   LOG_I(NR_RRC,
+-	"SIB1 freq: offsetToPointA %d\n",
++        "SIB1 freq: offsetToPointA %d\n",
+         (int)sib1->servingCellConfigCommon->downlinkConfigCommon.frequencyInfoDL.offsetToPointA);
+   
+   for (int i = 0; i < frequencyInfoDL->scs_SpecificCarrierList.list.count; i++) {
+@@ -3260,7 +3310,7 @@ static NR_SpCellConfig_t *get_initial_SpCellConfig(int uid,
+     }
+     const NR_BWP_Id_t *firstActiveDownlinkBWP_Id = servingcellconfigdedicated->firstActiveDownlinkBWP_Id;
+     first_active_dl_bwp = firstActiveDownlinkBWP_Id ? *firstActiveDownlinkBWP_Id : 1;
+-    const NR_BWP_Id_t	*defaultDownlinkBWP_Id = servingcellconfigdedicated->defaultDownlinkBWP_Id;
++    const NR_BWP_Id_t   *defaultDownlinkBWP_Id = servingcellconfigdedicated->defaultDownlinkBWP_Id;
+     default_dl_bwp = defaultDownlinkBWP_Id ? *defaultDownlinkBWP_Id : 1;
+   }
+   asn1cCallocOne(SpCellConfig->spCellConfigDedicated->firstActiveDownlinkBWP_Id, first_active_dl_bwp);
+@@ -3585,7 +3635,7 @@ NR_CellGroupConfig_t *get_initial_cellGroupConfig(int uid,
+   cellGroupConfig->cellGroupId = 0;
+ 
+   /* Rlc Bearer Config */
+-  /* TS38.331 9.2.1	Default SRB configurations */
++  /* TS38.331 9.2.1     Default SRB configurations */
+   cellGroupConfig->rlc_BearerToAddModList = calloc(1, sizeof(*cellGroupConfig->rlc_BearerToAddModList));
+   NR_RLC_BearerConfig_t *rlc_BearerConfig =
+       get_SRB_RLC_BearerConfig(1, 1, NR_LogicalChannelConfig__ul_SpecificParameters__bucketSizeDuration_ms1000, default_rlc_config);

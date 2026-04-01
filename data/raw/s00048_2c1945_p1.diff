@@ -1,0 +1,86 @@
+diff --git a/openair2/RRC/NR/cucp_cuup_e1ap.c b/openair2/RRC/NR/cucp_cuup_e1ap.c
+index b567fd76d4..d4610c054f 100644
+--- a/openair2/RRC/NR/cucp_cuup_e1ap.c
++++ b/openair2/RRC/NR/cucp_cuup_e1ap.c
+@@ -32,7 +32,31 @@ static void cucp_cuup_bearer_context_setup_e1ap(sctp_assoc_t assoc_id, const e1a
+   MessageDef *msg_p = itti_alloc_new_message(TASK_CUCP_E1, 0, E1AP_BEARER_CONTEXT_SETUP_REQ);
+   msg_p->ittiMsgHeader.originInstance = assoc_id;
+   e1ap_bearer_setup_req_t *bearer_req = &E1AP_BEARER_CONTEXT_SETUP_REQ(msg_p);
+-  memcpy(bearer_req, req, sizeof(e1ap_bearer_setup_req_t));
++  
++  /* Perform deep copy instead of shallow memcpy to avoid pointer issues */
++  bearer_req->gNB_cu_cp_ue_id = req->gNB_cu_cp_ue_id;
++  bearer_req->gNB_cu_up_ue_id = req->gNB_cu_up_ue_id;
++  bearer_req->cipheringAlgorithm = req->cipheringAlgorithm;
++  bearer_req->integrityProtectionAlgorithm = req->integrityProtectionAlgorithm;
++  bearer_req->ueDlAggMaxBitRate = req->ueDlAggMaxBitRate;
++  bearer_req->servingPLMNid = req->servingPLMNid;
++  bearer_req->bearerContextStatus = req->bearerContextStatus;
++  bearer_req->activityNotificationLevel = req->activityNotificationLevel;
++  bearer_req->numPDUSessions = req->numPDUSessions;
++  bearer_req->numPDUSessionsMod = req->numPDUSessionsMod;
++  
++  /* Copy encryption and integrity keys safely */
++  memcpy(bearer_req->encryptionKey, req->encryptionKey, sizeof(req->encryptionKey));
++  memcpy(bearer_req->integrityProtectionKey, req->integrityProtectionKey, sizeof(req->integrityProtectionKey));
++  
++  /* Copy PDU session data - need to handle any nested pointers carefully */
++  for (int i = 0; i < req->numPDUSessions; i++) {
++    bearer_req->pduSession[i] = req->pduSession[i];
++  }
++  
++  for (int i = 0; i < req->numPDUSessionsMod; i++) {
++    bearer_req->pduSessionMod[i] = req->pduSessionMod[i];
++  }
+ 
+   itti_send_msg_to_task (TASK_CUCP_E1, 0, msg_p);
+ }
+@@ -43,7 +67,32 @@ static void cucp_cuup_bearer_context_mod_e1ap(sctp_assoc_t assoc_id, const e1ap_
+   MessageDef *msg = itti_alloc_new_message(TASK_CUCP_E1, 0, E1AP_BEARER_CONTEXT_MODIFICATION_REQ);
+   msg->ittiMsgHeader.originInstance = assoc_id;
+   e1ap_bearer_mod_req_t *req_msg = &E1AP_BEARER_CONTEXT_MODIFICATION_REQ(msg);
+-  memcpy(req_msg, req, sizeof(*req));
++  
++  /* Perform deep copy instead of shallow memcpy to avoid pointer issues */
++  req_msg->gNB_cu_cp_ue_id = req->gNB_cu_cp_ue_id;
++  req_msg->gNB_cu_up_ue_id = req->gNB_cu_up_ue_id;
++  req_msg->cipheringAlgorithm = req->cipheringAlgorithm;
++  req_msg->integrityProtectionAlgorithm = req->integrityProtectionAlgorithm;
++  req_msg->ueDlAggMaxBitRate = req->ueDlAggMaxBitRate;
++  req_msg->servingPLMNid = req->servingPLMNid;
++  req_msg->bearerContextStatus = req->bearerContextStatus;
++  req_msg->activityNotificationLevel = req->activityNotificationLevel;
++  req_msg->numPDUSessions = req->numPDUSessions;
++  req_msg->numPDUSessionsMod = req->numPDUSessionsMod;
++  
++  /* Copy encryption and integrity keys safely */
++  memcpy(req_msg->encryptionKey, req->encryptionKey, sizeof(req->encryptionKey));
++  memcpy(req_msg->integrityProtectionKey, req->integrityProtectionKey, sizeof(req->integrityProtectionKey));
++  
++  /* Copy PDU session data - need to handle any nested pointers carefully */
++  for (int i = 0; i < req->numPDUSessions; i++) {
++    req_msg->pduSession[i] = req->pduSession[i];
++  }
++  
++  for (int i = 0; i < req->numPDUSessionsMod; i++) {
++    req_msg->pduSessionMod[i] = req->pduSessionMod[i];
++  }
++
+   itti_send_msg_to_task(TASK_CUCP_E1, 0, msg);
+ }
+ 
+@@ -53,7 +102,13 @@ static void cucp_cuup_bearer_context_release_cmd_e1ap(sctp_assoc_t assoc_id, con
+   MessageDef *msg = itti_alloc_new_message(TASK_CUCP_E1, 0, E1AP_BEARER_CONTEXT_RELEASE_CMD);
+   msg->ittiMsgHeader.originInstance = assoc_id;
+   e1ap_bearer_release_cmd_t *cmd_msg = &E1AP_BEARER_CONTEXT_RELEASE_CMD(msg);
+-  memcpy(cmd_msg, cmd, sizeof(*cmd));
++  
++  /* Perform deep copy instead of shallow memcpy to avoid pointer issues */
++  cmd_msg->gNB_cu_cp_ue_id = cmd->gNB_cu_cp_ue_id;
++  cmd_msg->gNB_cu_up_ue_id = cmd->gNB_cu_up_ue_id;
++  cmd_msg->cause_type = cmd->cause_type;
++  cmd_msg->cause = cmd->cause;
++
+   itti_send_msg_to_task(TASK_CUCP_E1, 0, msg);
+ }
+ 

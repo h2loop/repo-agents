@@ -1,0 +1,38 @@
+diff --git a/openair3/NAS/COMMON/IES/NasKeySetIdentifier.c b/openair3/NAS/COMMON/IES/NasKeySetIdentifier.c
+index a547675675..e4dfc4ae4a 100644
+--- a/openair3/NAS/COMMON/IES/NasKeySetIdentifier.c
++++ b/openair3/NAS/COMMON/IES/NasKeySetIdentifier.c
+@@ -34,7 +34,8 @@ int decode_nas_key_set_identifier(NasKeySetIdentifier *naskeysetidentifier, uint
+   CHECK_PDU_POINTER_AND_LENGTH_DECODER(buffer, NAS_KEY_SET_IDENTIFIER_MINIMUM_LENGTH, len);
+ 
+   if (iei > 0) {
+-    CHECK_IEI_DECODER((*buffer & 0xf0), iei);
++    CHECK_IEI_DECODER(iei, *buffer);
++    decoded++;
+   }
+ 
+   naskeysetidentifier->tsc = (*(buffer + decoded) >> 3) & 0x1;
+@@ -67,7 +68,13 @@ int encode_nas_key_set_identifier(NasKeySetIdentifier *naskeysetidentifier, uint
+ #if defined (NAS_DEBUG)
+   dump_nas_key_set_identifier_xml(naskeysetidentifier, iei);
+ #endif
+-  *(buffer + encoded) = 0x00 | (iei & 0xf0) |
++
++  if (iei > 0) {
++    *buffer = iei;
++    encoded++;
++  }
++
++  *(buffer + encoded) = 0x00 |
+                         ((naskeysetidentifier->tsc & 0x1) << 3) |
+                         (naskeysetidentifier->naskeysetidentifier & 0x7);
+   encoded++;
+@@ -83,7 +90,7 @@ uint8_t encode_u8_nas_key_set_identifier(NasKeySetIdentifier *naskeysetidentifie
+ #if defined (NAS_DEBUG)
+   dump_nas_key_set_identifier_xml(naskeysetidentifier, 0);
+ #endif
+-  *(buffer + encoded) = 0x00 | (iei & 0xf0) |
++  *(buffer + encoded) = 0x00 |
+                         ((naskeysetidentifier->tsc & 0x1) << 3) |
+                         (naskeysetidentifier->naskeysetidentifier & 0x7);
+   encoded++;

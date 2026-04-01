@@ -1,0 +1,28 @@
+{
+  "run_id": "s00048_219766",
+  "function": {
+    "name": "nas_proc_set_pdn",
+    "file": "openair3/NAS/UE/nas_proc.c",
+    "start_line": 839,
+    "end_line": 861,
+    "body_lines": 23,
+    "signature": "int nas_proc_set_pdn(nas_user_t *user, int cid, int type, const char *apn, int ipv4_addr, int emergency, int p_cscf, int im_cn_signal)",
+    "subsystem": "openair3/NAS/UE",
+    "token_estimate": 71
+  },
+  "bug": {
+    "bug_id": "telecom_sched_missed_opportunity",
+    "description": "missed scheduling opportunity where a UE with pending data is not scheduled",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a missed scheduling opportunity where a UE with pending data is not scheduled downstream of function nas_proc_set_pdn in the openair3/NAS/UE subsystem.\nThe function is located at openair3/NAS/UE/nas_proc.c:839.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00048_219766_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00048_219766_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 115,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:55:48Z"
+}

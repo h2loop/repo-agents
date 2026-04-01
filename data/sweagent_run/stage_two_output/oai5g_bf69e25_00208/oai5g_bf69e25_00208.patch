@@ -1,0 +1,22 @@
+diff --git a/common/config/config_common.c b/common/config/config_common.c
+index c617c426d7..ef95d02ce8 100644
+--- a/common/config/config_common.c
++++ b/common/config/config_common.c
+@@ -229,7 +229,7 @@ int config_assign_ipv4addr(configmodule_interface_t *cfg, paramdef_t *cfgoptions
+   config_check_valptr(cfg, cfgoptions, sizeof(*cfgoptions->uptr), 1);
+   int rst=inet_pton(AF_INET, ipv4addr,cfgoptions->uptr );
+ 
+-  if (rst == 1 && *(cfgoptions->uptr) > 0) {
++  if (rst == 1) {
+     printf_params(cfg, "[CONFIG] %s: %s\n", cfgoptions->optname, ipv4addr);
+     return 1;
+   } else {
+@@ -242,8 +242,6 @@ int config_assign_ipv4addr(configmodule_interface_t *cfg, paramdef_t *cfgoptions
+       return -1;
+     }
+   }
+-
+-  return 0;
+ }
+ 
+ int config_setdefault_ipv4addr(configmodule_interface_t *cfg, paramdef_t *cfgoptions, char *prefix)

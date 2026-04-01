@@ -1,0 +1,139 @@
+diff --git a/openair1/PHY/LTE_ESTIMATION/lte_ue_measurements.c b/openair1/PHY/LTE_ESTIMATION/lte_ue_measurements.c
+index 453b8a3e79..977eee2601 100644
+--- a/openair1/PHY/LTE_ESTIMATION/lte_ue_measurements.c
++++ b/openair1/PHY/LTE_ESTIMATION/lte_ue_measurements.c
+@@ -70,15 +70,23 @@ int16_t get_PL(module_id_t Mod_id,uint8_t CC_id,uint8_t eNB_index)
+     RSoffset = 3;
+   */
+ 
++  // Lock mutex to protect shared measurements structure from concurrent access
++  pthread_mutex_lock(&ue->mutex_rxtx);
++  
+   LOG_D(PHY,"get_PL : Frame %d : rsrp %f dBm/RE (%f), eNB power %d dBm/RE\n", ue->proc.proc_rxtx[0].frame_rx,
+         (1.0*dB_fixed_times10(ue->measurements.rsrp[eNB_index])-(10.0*ue->rx_total_gain_dB))/10.0,
+         10*log10((double)ue->measurements.rsrp[eNB_index]),
+         ue->frame_parms.pdsch_config_common.referenceSignalPower);
+ 
+-  return((int16_t)(((10*ue->rx_total_gain_dB) -
++  int16_t result = (int16_t)(((10*ue->rx_total_gain_dB) -
+                     dB_fixed_times10(ue->measurements.rsrp[eNB_index])+
+                     //        dB_fixed_times10(RSoffset*12*ue_g[Mod_id][CC_id]->frame_parms.N_RB_DL) +
+-                    (ue->frame_parms.pdsch_config_common.referenceSignalPower*10))/10));
++                    (ue->frame_parms.pdsch_config_common.referenceSignalPower*10))/10);
++  
++  // Unlock mutex after accessing shared variables
++  pthread_mutex_unlock(&ue->mutex_rxtx);
++  
++  return result;
+ }
+ 
+ 
+@@ -87,9 +95,14 @@ uint8_t get_n_adj_cells (module_id_t Mod_id,uint8_t CC_id)
+ 
+   PHY_VARS_UE *ue = PHY_vars_UE_g[Mod_id][CC_id];
+ 
+-  if (ue)
+-    return ue->measurements.n_adj_cells;
+-  else
++  if (ue) {
++    // Lock mutex to protect shared measurements structure from concurrent access
++    pthread_mutex_lock(&ue->mutex_rxtx);
++    uint8_t result = ue->measurements.n_adj_cells;
++    // Unlock mutex after accessing shared variables
++    pthread_mutex_unlock(&ue->mutex_rxtx);
++    return result;
++  } else
+     return 0;
+ }
+ 
+@@ -98,8 +111,14 @@ uint32_t get_rx_total_gain_dB (module_id_t Mod_id,uint8_t CC_id)
+ 
+   PHY_VARS_UE *ue = PHY_vars_UE_g[Mod_id][CC_id];
+ 
+-  if (ue)
+-    return ue->rx_total_gain_dB;
++  if (ue) {
++    // Lock mutex to protect shared UE structure from concurrent access
++    pthread_mutex_lock(&ue->mutex_rxtx);
++    uint32_t result = ue->rx_total_gain_dB;
++    // Unlock mutex after accessing shared variables
++    pthread_mutex_unlock(&ue->mutex_rxtx);
++    return result;
++  }
+ 
+   return 0xFFFFFFFF;
+ }
+@@ -134,8 +153,14 @@ uint32_t get_RSRQ(module_id_t Mod_id,uint8_t CC_id,uint8_t eNB_index)
+ 
+   PHY_VARS_UE *ue = PHY_vars_UE_g[Mod_id][CC_id];
+ 
+-  if (ue)
+-    return ue->measurements.rsrq[eNB_index];
++  if (ue) {
++    // Lock mutex to protect shared measurements structure from concurrent access
++    pthread_mutex_lock(&ue->mutex_rxtx);
++    uint32_t result = ue->measurements.rsrq[eNB_index];
++    // Unlock mutex after accessing shared variables
++    pthread_mutex_unlock(&ue->mutex_rxtx);
++    return result;
++  }
+ 
+   return 0xFFFFFFFF;
+ }
+@@ -146,7 +171,11 @@ int8_t set_RSRP_filtered(module_id_t Mod_id,uint8_t CC_id,uint8_t eNB_index,floa
+   PHY_VARS_UE *ue = PHY_vars_UE_g[Mod_id][CC_id];
+ 
+   if (ue) {
++    // Lock mutex to protect shared measurements structure from concurrent access
++    pthread_mutex_lock(&ue->mutex_rxtx);
+     ue->measurements.rsrp_filtered[eNB_index]=rsrp;
++    // Unlock mutex after accessing shared variables
++    pthread_mutex_unlock(&ue->mutex_rxtx);
+     return 0;
+   }
+ 
+@@ -160,7 +189,11 @@ int8_t set_RSRQ_filtered(module_id_t Mod_id,uint8_t CC_id,uint8_t eNB_index,floa
+   PHY_VARS_UE *ue = PHY_vars_UE_g[Mod_id][CC_id];
+ 
+   if (ue) {
++    // Lock mutex to protect shared measurements structure from concurrent access
++    pthread_mutex_lock(&ue->mutex_rxtx);
+     ue->measurements.rsrq_filtered[eNB_index]=rsrq;
++    // Unlock mutex after accessing shared variables
++    pthread_mutex_unlock(&ue->mutex_rxtx);
+     return 0;
+   }
+ 
+@@ -1010,7 +1043,8 @@ void lte_ue_measurements(PHY_VARS_UE *ue,
+                          unsigned char rank_adaptation,
+                          uint8_t subframe)
+ {
+-
++  // Lock mutex to protect shared measurements structure from concurrent access
++  pthread_mutex_lock(&ue->mutex_rxtx);
+ 
+   int aarx,aatx,eNB_id=0; //,gain_offset=0;
+   //int rx_power[NUMBER_OF_CONNECTED_eNB_MAX];
+@@ -1341,13 +1375,21 @@ void lte_ue_measurements(PHY_VARS_UE *ue,
+ 
+   simde_mm_empty();
+   simde_m_empty();
++  
++  // Unlock mutex after accessing shared variables
++  pthread_mutex_unlock(&ue->mutex_rxtx);
+ }
+ 
+ 
+ void lte_ue_measurements_emul(PHY_VARS_UE *ue,uint8_t subframe,uint8_t eNB_id)
+ {
+-
++  // Lock mutex to protect shared measurements structure from concurrent access
++  pthread_mutex_lock(&ue->mutex_rxtx);
++  
+   LOG_D(PHY,"EMUL UE lte_ue_measurements_emul subframe %d, eNB_id %d\n",subframe,eNB_id);
++  
++  // Unlock mutex after accessing shared variables
++  pthread_mutex_unlock(&ue->mutex_rxtx);
+ }
+ 
+ 

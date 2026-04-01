@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix frequency setting in SODERA radio driver\n\n### Summary\nThe `trx_sodera_set_freq` function in the SODERA radio driver was not properly setting the TX and RX frequencies. The function had an incorrect signature with an extra parameter and contained only placeholder code that was commented out. This caused the radio to operate at incorrect frequencies since the function was not actually configuring the hardware.\n\nThis fix corrects the function signature and implements proper frequency setting using the LMS7002M control interface, matching the approach used during device initialization.\n\n### Changes\n- `radio/LMSSDR/sodera_lib.cpp`: Fixed function signature and implemented frequency setting logic for both TX and RX paths\n"
+}

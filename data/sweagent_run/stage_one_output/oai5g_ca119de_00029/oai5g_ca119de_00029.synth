@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix AR filter initialization in TARMA traffic model\n\n### Summary\nThe TARMA traffic generation model in the OTG module had incorrect initialization of the AR (AutoRegressive) filter history. The function `tarmaCalculateSample()` was setting `arHist[0]` to zero before filter processing, which corrupted the filter state and produced unexpected traffic patterns.\n\nThis issue manifested when running simulations with TARMA-based traffic models where packet sizes or inter-arrival times would occasionally spike to unrealistic values. The problem was more pronounced in video traffic scenarios using the TARMA model.\n\n### Changes\n- `openair2/UTIL/OTG/otg_models.c`: Removed incorrect zero-initialization of `arHist[0]` and updated comment to reflect proper AR filter behavior.\n\n"
+}

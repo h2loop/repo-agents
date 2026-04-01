@@ -1,0 +1,9 @@
+{
+  "run_id": "s00037_704762",
+  "pr_text": "## Title: Fix stale protocol state cleanup in MCH generation and FEC encoding\n\n### Summary\nThe LTE PHY MCH (Multicast Channel) generation path fails to reset protocol state after procedure completion, causing stale HARQ process state and lingering FIFO elements to persist. After `generate_mch_khz_1dot25()` completes MCH generation, the HARQ process remains active with non-zero round count and status other than idle. Similarly, the FEC encoding function `dlsch_encoding_fembms_pmch()` can leave re",
+  "trajectory_path": "data/raw/s00037_704762_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00037_704762_p2.diff",
+  "patch_lines": 11,
+  "trajectory_steps": 45,
+  "timestamp": "2026-02-11T09:22:04Z"
+}

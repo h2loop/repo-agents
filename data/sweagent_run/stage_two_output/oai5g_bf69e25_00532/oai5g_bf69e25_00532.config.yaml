@@ -1,0 +1,608 @@
+'{"env":{"deployment":{"image":"oai5g-sera:bf69e25","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_bf69e25_00532","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix scheduling priority inversion in DL config REL12 DLSCH PDU packing\n\n###
+  Summary\nThere is a scheduling priority inversion where lower-priority traffic is
+  served before higher-priority downstream of function pack_dl_config_dlsch_pdu_rel12_value().
+  When calling pack_dl_config_dlsch_pdu_rel12_value() the behavior is not what is
+  expected. The issue may be in pack_dl_config_dlsch_pdu_rel12_value or a function
+  downstream/upstream of it.\n\nThe root cause was that the n_dl_harq field in the
+  REL12 DLSCH PDU structure could be set to 0, which is an invalid value according
+  to 3GPP specifications. This invalid value caused downstream scheduling logic to
+  incorrectly prioritize the traffic, leading to priority inversion where lower-priority
+  traffic was served before higher-priority traffic.\n\nThe fix ensures that n_dl_harq
+  is never 0 by setting it to a minimum value of 1 when the original value is 0. This
+  prevents the invalid configuration that was causing the scheduling priority inversion.\n\n###
+  Changes\n- `nfapi/open-nFAPI/nfapi/src/nfapi_p7.c`: Added validation in pack_dl_config_dlsch_pdu_rel12_value()
+  to ensure n_dl_harq is never 0, setting it to 1 as a minimum valid value.\n","extra_fields":{"bug_description":"scheduling
+  priority inversion where lower-priority traffic is served before higher-priority","bug_id":"telecom_sched_priority_inversion","stage_one_patch":"diff
+  --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c\nindex
+  45d5f15ffe..ae82d9bb53 100644\n--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c\n+++
+  b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c\n@@ -453,9 +453,16 @@ static uint8_t pack_dl_config_dlsch_pdu_rel11_value(void
+  *tlv, uint8_t **ppWrite\n }\n static uint8_t pack_dl_config_dlsch_pdu_rel12_value(void
+  *tlv, uint8_t **ppWritePackedMsg, uint8_t *end) {\n   nfapi_dl_config_dlsch_pdu_rel12_t
+  *value = (nfapi_dl_config_dlsch_pdu_rel12_t *)tlv;\n+  \n+  // Ensure n_dl_harq
+  is not 0 to prevent scheduling priority inversion\n+  uint8_t n_dl_harq = value->n_dl_harq;\n+  if
+  (n_dl_harq == 0) {\n+    n_dl_harq = 1;\n+  }\n+  \n   return( push8(value->altcqi_table_r12,
+  ppWritePackedMsg, end) &&\n           push8(value->maxlayers, ppWritePackedMsg,
+  end) &&\n-          push8(value->n_dl_harq, ppWritePackedMsg, end));\n+          push8(n_dl_harq,
+  ppWritePackedMsg, end));\n }\n static uint8_t pack_dl_config_dlsch_pdu_rel13_value(void
+  *tlv, uint8_t **ppWritePackedMsg, uint8_t *end) {\n   nfapi_dl_config_dlsch_pdu_rel13_t
+  *value = (nfapi_dl_config_dlsch_pdu_rel13_t *)tlv;\n@@ -3162,12 +3169,12 @@ static
+  uint8_t pack_nr_timing_info(void *msg, uint8_t **ppWritePackedMsg, uint8_\n \n static
+  uint8_t pack_nr_slot_indication(void *msg, uint8_t **ppWritePackedMsg, uint8_t *end,
+  nfapi_p7_codec_config_t* config)\n {\n-\tnfapi_nr_slot_indication_scf_t *pNfapiMsg
+  = (nfapi_nr_slot_indication_scf_t*)msg;\n+        nfapi_nr_slot_indication_scf_t
+  *pNfapiMsg = (nfapi_nr_slot_indication_scf_t*)msg;\n \n-\tif (!(push16((uint16_t)pNfapiMsg->sfn
+  , ppWritePackedMsg, end) &&\n-\t\tpush16((uint16_t)pNfapiMsg->slot , ppWritePackedMsg,
+  end)\n-\t\t))\n-\t\t\treturn 0;\n+        if (!(push16((uint16_t)pNfapiMsg->sfn
+  , ppWritePackedMsg, end) &&\n+                push16((uint16_t)pNfapiMsg->slot ,
+  ppWritePackedMsg, end)\n+                ))\n+                        return 0;\n
+  \n return 1;\n }\n@@ -3390,43 +3397,43 @@ static uint8_t pack_nr_srs_indication(void
+  *msg, uint8_t **ppWritePackedMsg, uin\n \n static uint8_t pack_nr_rach_indication_body(void*
+  tlv, uint8_t **ppWritePackedMsg, uint8_t *end)\n {\n-\tnfapi_nr_prach_indication_pdu_t*
+  value = (nfapi_nr_prach_indication_pdu_t*)tlv;\n-\n-\tif(!(push16(value->phy_cell_id,
+  ppWritePackedMsg, end) &&\n-\t \t push8(value->symbol_index, ppWritePackedMsg, end)
+  &&\n-\t\t push8(value->slot_index, ppWritePackedMsg, end) &&\n-\t\t push8(value->freq_index,
+  ppWritePackedMsg, end) &&\n-\t\t push8(value->avg_rssi, ppWritePackedMsg, end) &&\n-\t\t
+  push8(value->avg_snr, ppWritePackedMsg, end) &&\n-\t\t push8(value->num_preamble,
+  ppWritePackedMsg, end)\n-\t\t ))\n-\t\t  return 0;\n-\tfor(int i = 0; i < value->num_preamble;
+  i++)\n-\t{\n-\t\tif(!(push8(value->preamble_list[i].preamble_index, ppWritePackedMsg,
+  end) &&\n-\t\t\tpush16(value->preamble_list[i].timing_advance, ppWritePackedMsg,
+  end) &&\n-\t\t\tpush32(value->preamble_list[i].preamble_pwr, ppWritePackedMsg, end)\n-\t\t\t))\n-\t\t\treturn
+  0;\n-\t}\n-\treturn 1;\n+        nfapi_nr_prach_indication_pdu_t* value = (nfapi_nr_prach_indication_pdu_t*)tlv;\n+\n+        if(!(push16(value->phy_cell_id,
+  ppWritePackedMsg, end) &&\n+                 push8(value->symbol_index, ppWritePackedMsg,
+  end) &&\n+                 push8(value->slot_index, ppWritePackedMsg, end) &&\n+                 push8(value->freq_index,
+  ppWritePackedMsg, end) &&\n+                 push8(value->avg_rssi, ppWritePackedMsg,
+  end) &&\n+                 push8(value->avg_snr, ppWritePackedMsg, end) &&\n+                 push8(value->num_preamble,
+  ppWritePackedMsg, end)\n+                 ))\n+                  return 0;\n+        for(int
+  i = 0; i < value->num_preamble; i++)\n+        {\n+                if(!(push8(value->preamble_list[i].preamble_index,
+  ppWritePackedMsg, end) &&\n+                        push16(value->preamble_list[i].timing_advance,
+  ppWritePackedMsg, end) &&\n+                        push32(value->preamble_list[i].preamble_pwr,
+  ppWritePackedMsg, end)\n+                        ))\n+                        return
+  0;\n+        }\n+        return 1;\n }\n \n static uint8_t pack_nr_rach_indication(void
+  *msg, uint8_t **ppWritePackedMsg, uint8_t *end, nfapi_p7_codec_config_t* config)\n
+  {\n-\tnfapi_nr_rach_indication_t *pNfapiMsg = (nfapi_nr_rach_indication_t*)msg;\n+        nfapi_nr_rach_indication_t
+  *pNfapiMsg = (nfapi_nr_rach_indication_t*)msg;\n \n-\tif (!(push16(pNfapiMsg->sfn
+  , ppWritePackedMsg, end) &&\n-\t\tpush16(pNfapiMsg->slot , ppWritePackedMsg, end)
+  &&\n-\t\tpush8(pNfapiMsg->number_of_pdus, ppWritePackedMsg, end)\n-\t\t))\n-\t\t\treturn
+  0;\n+        if (!(push16(pNfapiMsg->sfn , ppWritePackedMsg, end) &&\n+                push16(pNfapiMsg->slot
+  , ppWritePackedMsg, end) &&\n+                push8(pNfapiMsg->number_of_pdus, ppWritePackedMsg,
+  end)\n+                ))\n+                        return 0;\n \n-\tfor(int i=0;
+  i<pNfapiMsg->number_of_pdus;i++)\n-\t{\n-\t\tif(!pack_nr_rach_indication_body(&(pNfapiMsg->pdu_list[i]),ppWritePackedMsg,end))\n-\t\treturn
+  0;\n-\t}\n+        for(int i=0; i<pNfapiMsg->number_of_pdus;i++)\n+        {\n+                if(!pack_nr_rach_indication_body(&(pNfapiMsg->pdu_list[i]),ppWritePackedMsg,end))\n+                return
+  0;\n+        }\n \n return 1;\n }\n@@ -3437,38 +3444,38 @@ return 1;\n static uint8_t
+  pack_nr_uci_pucch_0_1(void* tlv, uint8_t **ppWritePackedMsg, uint8_t *end) {\n   nfapi_nr_uci_pucch_pdu_format_0_1_t*
+  value = (nfapi_nr_uci_pucch_pdu_format_0_1_t*)tlv;\n \n-\tif (!push8(value->pduBitmap,
+  ppWritePackedMsg, end))\n-\t\treturn 0;\n-\tif (!push32(value->handle, ppWritePackedMsg,
+  end))\n-\t\treturn 0;\n-\tif (!push16(value->rnti, ppWritePackedMsg, end))\n-\t\treturn
+  0;\n-\tif (!push8(value->pucch_format, ppWritePackedMsg, end))\n-\t\treturn 0;\n-\tif
+  (!push8(value->ul_cqi, ppWritePackedMsg, end))\n-\t\treturn 0;\n-\tif (!push16(value->timing_advance,
+  ppWritePackedMsg, end))\n-\t\treturn 0;\n-\tif (!push16(value->rssi, ppWritePackedMsg,
+  end))\n-\t\treturn 0;\n-\tif (value->pduBitmap & 0x01) { //SR\n-\t\tif (!push8(value->sr.sr_indication,
+  ppWritePackedMsg, end))\n-\t\t\treturn 0;\n-\t\tif (!push8(value->sr.sr_confidence_level,
+  ppWritePackedMsg, end))\n-\t\t\treturn 0;\n-\t}\n-\n-\tif (((value->pduBitmap >>
+  1) & 0x01)) { //HARQ\n-\t\tif (!push8(value->harq.num_harq, ppWritePackedMsg, end))\n-\t\t\treturn
+  0;\n-\t\tif (!push8(value->harq.harq_confidence_level, ppWritePackedMsg, end))\n-\t\t\treturn
+  0;\n-\t\tfor (int i = 0; i < value->harq.num_harq; i++)\n-\t\t{\n-\t\t\tif (!push8(value->harq.harq_list[i].harq_value,
+  ppWritePackedMsg, end))\n-\t\t\t\treturn 0;\n-\t\t}\n-\t}\n+        if (!push8(value->pduBitmap,
+  ppWritePackedMsg, end))\n+                return 0;\n+        if (!push32(value->handle,
+  ppWritePackedMsg, end))\n+                return 0;\n+        if (!push16(value->rnti,
+  ppWritePackedMsg, end))\n+                return 0;\n+        if (!push8(value->pucch_format,
+  ppWritePackedMsg, end))\n+                return 0;\n+        if (!push8(value->ul_cqi,
+  ppWritePackedMsg, end))\n+                return 0;\n+        if (!push16(value->timing_advance,
+  ppWritePackedMsg, end))\n+                return 0;\n+        if (!push16(value->rssi,
+  ppWritePackedMsg, end))\n+                return 0;\n+        if (value->pduBitmap
+  & 0x01) { //SR\n+                if (!push8(value->sr.sr_indication, ppWritePackedMsg,
+  end))\n+                        return 0;\n+                if (!push8(value->sr.sr_confidence_level,
+  ppWritePackedMsg, end))\n+                        return 0;\n+        }\n+\n+        if
+  (((value->pduBitmap >> 1) & 0x01)) { //HARQ\n+                if (!push8(value->harq.num_harq,
+  ppWritePackedMsg, end))\n+                        return 0;\n+                if
+  (!push8(value->harq.harq_confidence_level, ppWritePackedMsg, end))\n+                        return
+  0;\n+                for (int i = 0; i < value->harq.num_harq; i++)\n+                {\n+                        if
+  (!push8(value->harq.harq_list[i].harq_value, ppWritePackedMsg, end))\n+                                return
+  0;\n+                }\n+        }\n \n   return 1;\n }\n@@ -6063,12 +6070,12 @@
+  static uint8_t unpack_tx_request(uint8_t **ppReadPackedMsg, uint8_t *end, void *\n
+  \n static uint8_t unpack_nr_slot_indication(uint8_t **ppReadPackedMsg, uint8_t *end,
+  nfapi_nr_slot_indication_scf_t *msg, nfapi_p7_codec_config_t* config)\n {\n-\tnfapi_nr_slot_indication_scf_t
+  *pNfapiMsg = (nfapi_nr_slot_indication_scf_t*)msg;\n+        nfapi_nr_slot_indication_scf_t
+  *pNfapiMsg = (nfapi_nr_slot_indication_scf_t*)msg;\n \n-\tif (!(pull16(ppReadPackedMsg,
+  &pNfapiMsg->sfn , end) &&\n-\t\tpull16(ppReadPackedMsg, &pNfapiMsg->slot , end)\n-\t\t))\n-\t\t\treturn
+  0;\n+        if (!(pull16(ppReadPackedMsg, &pNfapiMsg->sfn , end) &&\n+                pull16(ppReadPackedMsg,
+  &pNfapiMsg->slot , end)\n+                ))\n+                        return 0;\n
+  \n return 1;\n }\n@@ -6378,111 +6385,111 @@ static uint8_t unpack_nr_uci_pucch_2_3_4(nfapi_nr_uci_pucch_pdu_format_2_3_4_t*\n                                          uint8_t
+  *end,\n                                          nfapi_p7_codec_config_t *config)
+  {\n \n-\tif (!pull8(ppReadPackedMsg, &value->pduBitmap, end))\n-\t\treturn 0;\n-\tif
+  (!pull32(ppReadPackedMsg, &value->handle, end))\n+        if (!pull8(ppReadPackedMsg,
+  &value->pduBitmap, end))\n+                return 0;\n+        if (!pull32(ppReadPackedMsg,
+  &value->handle, end))\n                 return 0;\n-\tif (!pull16(ppReadPackedMsg,
+  &value->rnti, end))\n+        if (!pull16(ppReadPackedMsg, &value->rnti, end))\n                 return
+  0;\n-\tif (!pull8(ppReadPackedMsg, &value->pucch_format, end))\n+        if (!pull8(ppReadPackedMsg,
+  &value->pucch_format, end))\n                 return 0;\n-\tif (!pull8(ppReadPackedMsg,
+  &value->ul_cqi, end))\n+        if (!pull8(ppReadPackedMsg, &value->ul_cqi, end))\n                 return
+  0;\n-\tif (!pull16(ppReadPackedMsg, &value->timing_advance, end))\n+        if (!pull16(ppReadPackedMsg,
+  &value->timing_advance, end))\n                 return 0;\n-\tif (!pull16(ppReadPackedMsg,
+  &value->rssi, end))\n+        if (!pull16(ppReadPackedMsg, &value->rssi, end))\n                 return
+  0;\n \n   value->pucch_format += 2;\n-\tif (value->pduBitmap & 0x01) { //SR\n-\t\tif
+  (!pull16(ppReadPackedMsg, &value->sr.sr_bit_len, end))\n-\t\t\treturn 0;\n+        if
+  (value->pduBitmap & 0x01) { //SR\n+                if (!pull16(ppReadPackedMsg,
+  &value->sr.sr_bit_len, end))\n+                        return 0;\n \n-\t\tvalue->sr.sr_payload
+  = nfapi_p7_allocate(sizeof(*value->sr.sr_payload) *\n+                value->sr.sr_payload
+  = nfapi_p7_allocate(sizeof(*value->sr.sr_payload) *\n                                                          (int)((value->sr.sr_bit_len
+  / 8) + 1),\n                                                          config);\n-\t\tif
+  (value->sr.sr_payload == NULL)\n-\t\t{\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR, \"%s
+  failed to allocate value->sr.sr_payload\\n\", __FUNCTION__);\n-\t\t\treturn 0;\n-\t\t}\n-\n-\t\tif
+  (!pullarray8(ppReadPackedMsg, value->sr.sr_payload,\n-\t\t\t\t(int)((value->sr.sr_bit_len
+  / 8) + 1),\n-\t\t\t\t(int)((value->sr.sr_bit_len / 8) + 1),\n+                if
+  (value->sr.sr_payload == NULL)\n+                {\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s failed to allocate value->sr.sr_payload\\n\", __FUNCTION__);\n+                        return
+  0;\n+                }\n+\n+                if (!pullarray8(ppReadPackedMsg, value->sr.sr_payload,\n+                                (int)((value->sr.sr_bit_len
+  / 8) + 1),\n+                                (int)((value->sr.sr_bit_len / 8) +
+  1),\n                                 end))\n-\t\t\treturn 0;\n-\t}\n+                        return
+  0;\n+        }\n \n-\tif ((value->pduBitmap >> 1) & 0x01) { //HARQ\n-\t\tif (!pull8(ppReadPackedMsg,
+  &value->harq.harq_crc, end))\n-\t\t\treturn 0;\n-\t\tif (!pull16(ppReadPackedMsg,
+  &value->harq.harq_bit_len, end))\n-\t\t\treturn 0;\n+        if ((value->pduBitmap
+  >> 1) & 0x01) { //HARQ\n+                if (!pull8(ppReadPackedMsg, &value->harq.harq_crc,
+  end))\n+                        return 0;\n+                if (!pull16(ppReadPackedMsg,
+  &value->harq.harq_bit_len, end))\n+                        return 0;\n \n-\t\tvalue->harq.harq_payload
+  = nfapi_p7_allocate(sizeof(*value->harq.harq_payload) *\n+                value->harq.harq_payload
+  = nfapi_p7_allocate(sizeof(*value->harq.harq_payload) *\n                                                              (int)((value->harq.harq_bit_len
+  / 8) + 1),\n                                                              config);\n-\t\tif
+  (value->harq.harq_payload == NULL)\n-\t\t{\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s failed to allocate value->harq.harq_payload\\n\", __FUNCTION__);\n-\t\t\treturn
+  0;\n-\t\t}\n-\n-\t\tif (!pullarray8(ppReadPackedMsg, value->harq.harq_payload,\n-\t\t\t\t(int)((value->harq.harq_bit_len
+  / 8) + 1),\n-\t\t\t\t(int)((value->harq.harq_bit_len / 8) + 1),\n+                if
+  (value->harq.harq_payload == NULL)\n+                {\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s failed to allocate value->harq.harq_payload\\n\", __FUNCTION__);\n+                        return
+  0;\n+                }\n+\n+                if (!pullarray8(ppReadPackedMsg, value->harq.harq_payload,\n+                                (int)((value->harq.harq_bit_len
+  / 8) + 1),\n+                                (int)((value->harq.harq_bit_len / 8)
+  + 1),\n                                 end))\n-\t\t\treturn 0;\n-\t}\n+                        return
+  0;\n+        }\n \n-\tif ((value->pduBitmap >> 2) & 0x01) { //CSI-1\n-\t\tif (!pull8(ppReadPackedMsg,
+  &value->csi_part1.csi_part1_crc, end))\n-\t\t\treturn 0;\n-\t\tif (!pull16(ppReadPackedMsg,
+  &value->csi_part1.csi_part1_bit_len, end))\n-\t\t\treturn 0;\n+        if ((value->pduBitmap
+  >> 2) & 0x01) { //CSI-1\n+                if (!pull8(ppReadPackedMsg, &value->csi_part1.csi_part1_crc,
+  end))\n+                        return 0;\n+                if (!pull16(ppReadPackedMsg,
+  &value->csi_part1.csi_part1_bit_len, end))\n+                        return 0;\n
+  \n-\t\tvalue->csi_part1.csi_part1_payload = nfapi_p7_allocate(sizeof(*value->csi_part1.csi_part1_payload)
+  *\n+                value->csi_part1.csi_part1_payload = nfapi_p7_allocate(sizeof(*value->csi_part1.csi_part1_payload)
+  *\n                                                                        (int)((value->csi_part1.csi_part1_bit_len
+  / 8) + 1),\n                                                                        config);\n-\t\tif
+  (value->csi_part1.csi_part1_payload == NULL)\n-\t\t{\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s failed to allocate value->csi_part1.csi_part1_payload\\n\",\n-\t\t\t\t    __FUNCTION__);\n-\t\t\treturn
+  0;\n-\t\t}\n-\n-\t\tif (!pullarray8(ppReadPackedMsg, value->csi_part1.csi_part1_payload,\n+                if
+  (value->csi_part1.csi_part1_payload == NULL)\n+                {\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s failed to allocate value->csi_part1.csi_part1_payload\\n\",\n+                                    __FUNCTION__);\n+                        return
+  0;\n+                }\n+\n+                if (!pullarray8(ppReadPackedMsg, value->csi_part1.csi_part1_payload,\n                                 (int)((value->csi_part1.csi_part1_bit_len
+  / 8) + 1),\n                                 (int)((value->csi_part1.csi_part1_bit_len
+  / 8) + 1),\n                                 end))\n-\t\t\treturn 0;\n-\t}\n+                        return
+  0;\n+        }\n \n-\tif ((value->pduBitmap >> 3) & 0x01) { //CSI-2\n-\t\tif (!pull8(ppReadPackedMsg,
+  &value->csi_part2.csi_part2_crc, end))\n-\t\t\treturn 0;\n-\t\tif (!pull16(ppReadPackedMsg,
+  &value->csi_part2.csi_part2_bit_len, end))\n-\t\t\treturn 0;\n+        if ((value->pduBitmap
+  >> 3) & 0x01) { //CSI-2\n+                if (!pull8(ppReadPackedMsg, &value->csi_part2.csi_part2_crc,
+  end))\n+                        return 0;\n+                if (!pull16(ppReadPackedMsg,
+  &value->csi_part2.csi_part2_bit_len, end))\n+                        return 0;\n
+  \n-\t\tvalue->csi_part2.csi_part2_payload = nfapi_p7_allocate(sizeof(*value->csi_part2.csi_part2_payload)
+  *\n+                value->csi_part2.csi_part2_payload = nfapi_p7_allocate(sizeof(*value->csi_part2.csi_part2_payload)
+  *\n                                                                        (int)((value->csi_part2.csi_part2_bit_len
+  / 8) + 1),\n                                                                        config);\n-\t\tif
+  (value->csi_part2.csi_part2_payload == NULL)\n-\t\t{\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s failed to allocate value->csi_part2.csi_part2_payload\\n\",\n-\t\t\t            __FUNCTION__);\n-\t\t\treturn
+  0;\n-\t\t}\n-\n-\t\tif (!pullarray8(ppReadPackedMsg, value->csi_part2.csi_part2_payload,\n+                if
+  (value->csi_part2.csi_part2_payload == NULL)\n+                {\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s failed to allocate value->csi_part2.csi_part2_payload\\n\",\n+                                    __FUNCTION__);\n+                        return
+  0;\n+                }\n+\n+                if (!pullarray8(ppReadPackedMsg, value->csi_part2.csi_part2_payload,\n                                 (int)((value->csi_part2.csi_part2_bit_len
+  / 8) + 1),\n                                 (int)((value->csi_part2.csi_part2_bit_len
+  / 8) + 1),\n                                 end))\n-\t\t\treturn 0;\n-\t}\n+                        return
+  0;\n+        }\n \n-\treturn 1;\n+        return 1;\n }\n \n static uint8_t unpack_nr_uci_pusch(nfapi_nr_uci_pusch_pdu_t
+  *value,\n@@ -7006,139 +7013,139 @@ static uint8_t unpack_rx_indication_rel9_value(void
+  *tlv, uint8_t **ppReadPacked\n \n static uint8_t unpack_rx_indication_body_value(void
+  *tlv, uint8_t **ppReadPackedMsg, uint8_t *end, nfapi_p7_codec_config_t *config)\n
+  {\n-\tnfapi_rx_indication_body_t *value = (nfapi_rx_indication_body_t*)tlv;\n-\n-\tNFAPI_TRACE(NFAPI_TRACE_DEBUG,
+  \"%s value->tl.length in unpack: %u \\n\", __FUNCTION__,\n-\t\t\t\tvalue->tl.length);\n-\tuint8_t
+  *rxBodyEnd = *ppReadPackedMsg + value->tl.length;\n-\n-\tNFAPI_TRACE(NFAPI_TRACE_DEBUG,
+  \"%s rxBodyEnd: %p end: %p\\n\", __FUNCTION__,\n-\t\t\t\trxBodyEnd, end);\n-\tif
+  (rxBodyEnd > end)\n-\t{\n-\t\t// pdu end is past buffer end\n-\t\treturn 0;\n-\t}\n-\n-\tif
+  (pull16(ppReadPackedMsg, &value->number_of_pdus, end) == 0)\n-\t\treturn 0;\n-\n-\tif
+  (value->number_of_pdus > NFAPI_RX_IND_MAX_PDU)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s number of rx ind pdu''s exceed maxium (count:%d max:%d)\\n\", __FUNCTION__,
+  value->number_of_pdus, NFAPI_RX_IND_MAX_PDU);\n-\t\treturn 0;\n-\t}\n-\n-\tif (value->number_of_pdus
+  > 0)\n-\t{\n-\t\tassert(value->number_of_pdus <= NFAPI_RX_IND_MAX_PDU);\n-\t\tvalue->rx_pdu_list
+  = (nfapi_rx_indication_pdu_t *)nfapi_p7_allocate(sizeof(nfapi_rx_indication_pdu_t)
+  * NFAPI_RX_IND_MAX_PDU, config);\n-\t\tif (value->rx_pdu_list == NULL)\n-\t\t{\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s failed to allocate rx ind pdu list (count:%d)\\n\", __FUNCTION__, value->number_of_pdus);\n-\t\t\treturn
+  0;\n-\t\t}\n-\t}\n-\telse\n-\t{\n-\t\tvalue->rx_pdu_list = 0;\n-\t}\n-\n-\tNFAPI_TRACE(NFAPI_TRACE_INFO,
+  \"%s number_of_pdus = %u\\n\", __FUNCTION__, value->number_of_pdus);\n-\tfor (int
+  i = 0; i < value->number_of_pdus; i++)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_INFO,
+  \"%s i = %u\\n\", __FUNCTION__, i);\n-\t\tnfapi_tl_t generic_tl;\n-\n-\t\t// NFAPI_RX_UE_INFORMATION_TAG\n-\t\tif
+  (unpack_tl(ppReadPackedMsg, &generic_tl, end) == 0)\n-\t\t{\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s unpack_tl failed\\n\", __FUNCTION__);\n-\t\t\treturn 0;\n-\t\t}\n-\n-\t\tNFAPI_TRACE(NFAPI_TRACE_INFO,
+  \"%s generic_tl.tag = 0x%x length = %u\\n\", __FUNCTION__, generic_tl.tag, generic_tl.length);\n-\n-\t\tif
+  (generic_tl.tag != NFAPI_RX_UE_INFORMATION_TAG)\n-\t\t{\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s generic_tl.tag wrong\\n\", __FUNCTION__);\n-\t\t\treturn 0;\n-\t\t}\n-\n-\t\tassert(i
+  < NFAPI_RX_IND_MAX_PDU);\n-\t\tnfapi_rx_indication_pdu_t *pdu = &value->rx_pdu_list[i];\n-\n-\t\tpdu->rx_ue_information.tl
+  = generic_tl;\n-\t\tif (unpack_rx_ue_information_value(&pdu->rx_ue_information,
+  ppReadPackedMsg, end) == 0)\n-\t\t{\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR, \"%s
+  unpack_rx_ue_info failure\\n\", __FUNCTION__);\n-\t\t\treturn 0;\n-\t\t}\n-\n-\t\t//
+  NFAPI_RX_INDICATION_REL8_TAG\n-\t\tif (unpack_tl(ppReadPackedMsg, &generic_tl, end)
+  == 0)\n-\t\t{\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR, \"%s unpack_tl failed\\n\",
+  __FUNCTION__);\n-\t\t\treturn 0;\n-\t\t}\n-\n-\t\tNFAPI_TRACE(NFAPI_TRACE_INFO,
+  \"%s generic_tl.tag = 0x%x length = %u\\n\", __FUNCTION__, generic_tl.tag, generic_tl.length);\n-\n-\t\tif
+  (generic_tl.tag != NFAPI_RX_INDICATION_REL8_TAG)\n-\t\t{\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s generic_tl.tag wrong\\n\", __FUNCTION__);\n-\t\t\treturn 0;\n-\t\t}\n-\n-\t\tpdu->rx_indication_rel8.tl
+  = generic_tl;\n-\t\tif (unpack_rx_indication_rel8_value(&pdu->rx_indication_rel8,
+  ppReadPackedMsg, end) == 0)\n-\t\t{\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR, \"%s
+  unpack_rx_indication_rel8 failure\\n\", __FUNCTION__);\n-\t\t\treturn 0;\n-\t\t}\n-\t\t//What
+  is offset not stripping 10 bytes\n-\t\tNFAPI_TRACE(NFAPI_TRACE_INFO, \"%s pdu->rx_indication_rel8.offset
+  = %u\", __FUNCTION__,\n-\t\t\t\t\tpdu->rx_indication_rel8.offset);\n-\n-\t\t// NFAPI_RX_INDICATION_REL9_TAG\n-\t\tif
+  (unpack_tl(ppReadPackedMsg, &generic_tl, end) == 0)\n-\t\t{\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s unpack_tl failed\\n\", __FUNCTION__);\n-\t\t\treturn 0;\n-\t\t}\n-\n-\t\tNFAPI_TRACE(NFAPI_TRACE_INFO,
+  \"%s generic_tl.tag = 0x%x length = %u\\n\", __FUNCTION__, generic_tl.tag, generic_tl.length);\n-\n-\t\tif
+  (generic_tl.tag != NFAPI_RX_INDICATION_REL9_TAG)\n-\t\t{\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s generic_tl.tag wrong\\n\", __FUNCTION__);\n-\t\t\treturn 0;\n-\t\t}\n-\n-\t\tpdu->rx_indication_rel9.tl
+  = generic_tl;\n-\t\tif (unpack_rx_indication_rel9_value(&pdu->rx_indication_rel9,
+  ppReadPackedMsg, end) == 0)\n-\t\t{\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR, \"%s
+  unpack_rx_indication_rel9 failure\\n\", __FUNCTION__);\n-\t\t\treturn 0;\n-\t\t}\n-\t}\n+        nfapi_rx_indication_body_t
+  *value = (nfapi_rx_indication_body_t*)tlv;\n+\n+        NFAPI_TRACE(NFAPI_TRACE_DEBUG,
+  \"%s value->tl.length in unpack: %u \\n\", __FUNCTION__,\n+                                value->tl.length);\n+        uint8_t
+  *rxBodyEnd = *ppReadPackedMsg + value->tl.length;\n+\n+        NFAPI_TRACE(NFAPI_TRACE_DEBUG,
+  \"%s rxBodyEnd: %p end: %p\\n\", __FUNCTION__,\n+                                rxBodyEnd,
+  end);\n+        if (rxBodyEnd > end)\n+        {\n+                // pdu end is
+  past buffer end\n+                return 0;\n+        }\n+\n+        if (pull16(ppReadPackedMsg,
+  &value->number_of_pdus, end) == 0)\n+                return 0;\n+\n+        if (value->number_of_pdus
+  > NFAPI_RX_IND_MAX_PDU)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s number of rx ind pdu''s exceed maxium (count:%d max:%d)\\n\", __FUNCTION__,
+  value->number_of_pdus, NFAPI_RX_IND_MAX_PDU);\n+                return 0;\n+        }\n+\n+        if
+  (value->number_of_pdus > 0)\n+        {\n+                assert(value->number_of_pdus
+  <= NFAPI_RX_IND_MAX_PDU);\n+                value->rx_pdu_list = (nfapi_rx_indication_pdu_t
+  *)nfapi_p7_allocate(sizeof(nfapi_rx_indication_pdu_t) * NFAPI_RX_IND_MAX_PDU, config);\n+                if
+  (value->rx_pdu_list == NULL)\n+                {\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s failed to allocate rx ind pdu list (count:%d)\\n\", __FUNCTION__, value->number_of_pdus);\n+                        return
+  0;\n+                }\n+        }\n+        else\n+        {\n+                value->rx_pdu_list
+  = 0;\n+        }\n+\n+        NFAPI_TRACE(NFAPI_TRACE_INFO, \"%s number_of_pdus
+  = %u\\n\", __FUNCTION__, value->number_of_pdus);\n+        for (int i = 0; i < value->number_of_pdus;
+  i++)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_INFO, \"%s i = %u\\n\",
+  __FUNCTION__, i);\n+                nfapi_tl_t generic_tl;\n+\n+                //
+  NFAPI_RX_UE_INFORMATION_TAG\n+                if (unpack_tl(ppReadPackedMsg, &generic_tl,
+  end) == 0)\n+                {\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s unpack_tl failed\\n\", __FUNCTION__);\n+                        return 0;\n+                }\n+\n+                NFAPI_TRACE(NFAPI_TRACE_INFO,
+  \"%s generic_tl.tag = 0x%x length = %u\\n\", __FUNCTION__, generic_tl.tag, generic_tl.length);\n+\n+                if
+  (generic_tl.tag != NFAPI_RX_UE_INFORMATION_TAG)\n+                {\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s generic_tl.tag wrong\\n\", __FUNCTION__);\n+                        return
+  0;\n+                }\n+\n+                assert(i < NFAPI_RX_IND_MAX_PDU);\n+                nfapi_rx_indication_pdu_t
+  *pdu = &value->rx_pdu_list[i];\n+\n+                pdu->rx_ue_information.tl =
+  generic_tl;\n+                if (unpack_rx_ue_information_value(&pdu->rx_ue_information,
+  ppReadPackedMsg, end) == 0)\n+                {\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s unpack_rx_ue_info failure\\n\", __FUNCTION__);\n+                        return
+  0;\n+                }\n+\n+                // NFAPI_RX_INDICATION_REL8_TAG\n+                if
+  (unpack_tl(ppReadPackedMsg, &generic_tl, end) == 0)\n+                {\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s unpack_tl failed\\n\", __FUNCTION__);\n+                        return 0;\n+                }\n+\n+                NFAPI_TRACE(NFAPI_TRACE_INFO,
+  \"%s generic_tl.tag = 0x%x length = %u\\n\", __FUNCTION__, generic_tl.tag, generic_tl.length);\n+\n+                if
+  (generic_tl.tag != NFAPI_RX_INDICATION_REL8_TAG)\n+                {\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s generic_tl.tag wrong\\n\", __FUNCTION__);\n+                        return
+  0;\n+                }\n+\n+                pdu->rx_indication_rel8.tl = generic_tl;\n+                if
+  (unpack_rx_indication_rel8_value(&pdu->rx_indication_rel8, ppReadPackedMsg, end)
+  == 0)\n+                {\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s unpack_rx_indication_rel8 failure\\n\", __FUNCTION__);\n+                        return
+  0;\n+                }\n+                //What is offset not stripping 10 bytes\n+                NFAPI_TRACE(NFAPI_TRACE_INFO,
+  \"%s pdu->rx_indication_rel8.offset = %u\", __FUNCTION__,\n+                                        pdu->rx_indication_rel8.offset);\n+\n+                //
+  NFAPI_RX_INDICATION_REL9_TAG\n+                if (unpack_tl(ppReadPackedMsg, &generic_tl,
+  end) == 0)\n+                {\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s unpack_tl failed\\n\", __FUNCTION__);\n+                        return 0;\n+                }\n+\n+                NFAPI_TRACE(NFAPI_TRACE_INFO,
+  \"%s generic_tl.tag = 0x%x length = %u\\n\", __FUNCTION__, generic_tl.tag, generic_tl.length);\n+\n+                if
+  (generic_tl.tag != NFAPI_RX_INDICATION_REL9_TAG)\n+                {\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s generic_tl.tag wrong\\n\", __FUNCTION__);\n+                        return
+  0;\n+                }\n+\n+                pdu->rx_indication_rel9.tl = generic_tl;\n+                if
+  (unpack_rx_indication_rel9_value(&pdu->rx_indication_rel9, ppReadPackedMsg, end)
+  == 0)\n+                {\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s unpack_rx_indication_rel9 failure\\n\", __FUNCTION__);\n+                        return
+  0;\n+                }\n+        }\n \n         assert(value->number_of_pdus <=
+  NFAPI_RX_IND_MAX_PDU);\n-\tfor (int i = 0; i < value->number_of_pdus; ++i)\n-\t{\n-\t\tnfapi_rx_indication_pdu_t
+  *pdu = &value->rx_pdu_list[i];\n-\t\tif (pdu->rx_indication_rel8.tl.tag == NFAPI_RX_INDICATION_REL8_TAG)\n-\t\t{\n-\t\t\tuint32_t
+  length = pdu->rx_indication_rel8.length;\n-\t\t\tif (pullarray8(ppReadPackedMsg,
+  pdu->rx_ind_data, NFAPI_RX_IND_DATA_MAX, length, end) == 0)\n-\t\t\t{\n-\t\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s pullarray8 failure\\n\", __FUNCTION__);\n-\t\t\t\treturn 0;\n-\t\t\t}\n-\t\t}\n-\t}\n-\n-\treturn
+  1;\n+        for (int i = 0; i < value->number_of_pdus; ++i)\n+        {\n+                nfapi_rx_indication_pdu_t
+  *pdu = &value->rx_pdu_list[i];\n+                if (pdu->rx_indication_rel8.tl.tag
+  == NFAPI_RX_INDICATION_REL8_TAG)\n+                {\n+                        uint32_t
+  length = pdu->rx_indication_rel8.length;\n+                        if (pullarray8(ppReadPackedMsg,
+  pdu->rx_ind_data, NFAPI_RX_IND_DATA_MAX, length, end) == 0)\n+                        {\n+                                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s pullarray8 failure\\n\", __FUNCTION__);\n+                                return
+  0;\n+                        }\n+                }\n+        }\n+\n+        return
+  1;\n }\n \n static uint8_t unpack_rx_indication(uint8_t **ppReadPackedMsg, uint8_t
+  *end, void *msg, nfapi_p7_codec_config_t *config) {\n@@ -8062,71 +8069,71 @@ static
+  int check_unpack_length(nfapi_message_id_e msgId, uint32_t unpackedBufLen\n \n static
+  int check_nr_unpack_length(nfapi_nr_phy_msg_type_e msgId, uint32_t unpackedBufLen)\n
+  {\n-\tint retLen = 0;\n-\n-\tswitch (msgId)\n-\t{\n-\t\tcase NFAPI_NR_PHY_MSG_TYPE_DL_TTI_REQUEST:\n-\t\t\tif
+  (unpackedBufLen >= sizeof(nfapi_nr_dl_tti_request_t))\n-\t\t\t\tretLen = sizeof(nfapi_nr_dl_tti_request_t);\n-\t\t\tbreak;\n-\n-\t\tcase
+  NFAPI_NR_PHY_MSG_TYPE_UL_TTI_REQUEST:\n-\t\t\tif (unpackedBufLen >= sizeof(nfapi_nr_ul_tti_request_t))\n-\t\t\t\tretLen
+  = sizeof(nfapi_nr_ul_tti_request_t);\n-\t\t\tbreak;\n-\n-\t\tcase NFAPI_SUBFRAME_INDICATION:\n-\t\t\tif
+  (unpackedBufLen >= sizeof(nfapi_subframe_indication_t))\n-\t\t\t\tretLen = sizeof(nfapi_subframe_indication_t);\n-\t\t\tbreak;\n-\n-\t\tcase
+  NFAPI_NR_PHY_MSG_TYPE_UL_DCI_REQUEST:\n-\t\t\tif (unpackedBufLen >= sizeof(nfapi_nr_ul_dci_request_t))\n-\t\t\t\tretLen
+  = sizeof(nfapi_nr_ul_dci_request_t);\n-\t\t\tbreak;\n-\n-\t\tcase NFAPI_NR_PHY_MSG_TYPE_TX_DATA_REQUEST:\n-\t\t\tif
+  (unpackedBufLen >= sizeof(nfapi_nr_tx_data_request_t))\n-\t\t\t\tretLen = sizeof(nfapi_nr_tx_data_request_t);\n-\t\t\tbreak;\n-\t\tcase
+  NFAPI_NR_PHY_MSG_TYPE_RX_DATA_INDICATION:\n-\t\t\tif (unpackedBufLen >= sizeof(nfapi_nr_rx_data_indication_t))\n-\t\t\t\tretLen
+  = sizeof(nfapi_nr_rx_data_indication_t);\n-\t\t\tbreak;\n-\t\tcase NFAPI_NR_PHY_MSG_TYPE_CRC_INDICATION:\n-\t\t\tif
+  (unpackedBufLen >= sizeof(nfapi_nr_crc_indication_t))\n-\t\t\t\tretLen = sizeof(nfapi_nr_crc_indication_t);\n-\t\t\tbreak;\n-\n-\t\tcase
+  NFAPI_NR_PHY_MSG_TYPE_RACH_INDICATION:\n-\t\t\tif (unpackedBufLen >= sizeof(nfapi_nr_rach_indication_t))\n-\t\t\t\tretLen
+  = sizeof(nfapi_nr_rach_indication_t);\n-\t\t\tbreak;\n-\t\tcase NFAPI_NR_PHY_MSG_TYPE_UCI_INDICATION:\n-\t\t\tif
+  (unpackedBufLen >= sizeof(nfapi_nr_uci_indication_t))\n-\t\t\t\tretLen = sizeof(nfapi_nr_uci_indication_t);\n-\t\t\tbreak;\n-\t\tcase
+  NFAPI_NR_PHY_MSG_TYPE_SRS_INDICATION:\n-\t\t\tif (unpackedBufLen >= sizeof(nfapi_nr_srs_indication_t))\n-\t\t\t\tretLen
+  = sizeof(nfapi_nr_srs_indication_t);\n-\t\t\tbreak;\n-\t\tcase NFAPI_NR_PHY_MSG_TYPE_DL_NODE_SYNC:\n-\t\t\tif
+  (unpackedBufLen >= sizeof(nfapi_nr_dl_node_sync_t))\n-\t\t\t\tretLen = sizeof(nfapi_nr_dl_node_sync_t);\n-\t\t\tbreak;\n-\n-\t\tcase
+  NFAPI_NR_PHY_MSG_TYPE_UL_NODE_SYNC:\n-\t\t\tif (unpackedBufLen >= sizeof(nfapi_nr_ul_node_sync_t))\n-\t\t\t\tretLen
+  = sizeof(nfapi_nr_ul_node_sync_t);\n-\t\t\tbreak;\n-\n-\t\tdefault:\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"Unknown message ID %d\\n\", msgId);\n-\t\t\tbreak;\n-\t}\n-\n-\treturn retLen;\n+        int
+  retLen = 0;\n+\n+        switch (msgId)\n+        {\n+                case NFAPI_NR_PHY_MSG_TYPE_DL_TTI_REQUEST:\n+                        if
+  (unpackedBufLen >= sizeof(nfapi_nr_dl_tti_request_t))\n+                                retLen
+  = sizeof(nfapi_nr_dl_tti_request_t);\n+                        break;\n+\n+                case
+  NFAPI_NR_PHY_MSG_TYPE_UL_TTI_REQUEST:\n+                        if (unpackedBufLen
+  >= sizeof(nfapi_nr_ul_tti_request_t))\n+                                retLen =
+  sizeof(nfapi_nr_ul_tti_request_t);\n+                        break;\n+\n+                case
+  NFAPI_SUBFRAME_INDICATION:\n+                        if (unpackedBufLen >= sizeof(nfapi_subframe_indication_t))\n+                                retLen
+  = sizeof(nfapi_subframe_indication_t);\n+                        break;\n+\n+                case
+  NFAPI_NR_PHY_MSG_TYPE_UL_DCI_REQUEST:\n+                        if (unpackedBufLen
+  >= sizeof(nfapi_nr_ul_dci_request_t))\n+                                retLen =
+  sizeof(nfapi_nr_ul_dci_request_t);\n+                        break;\n+\n+                case
+  NFAPI_NR_PHY_MSG_TYPE_TX_DATA_REQUEST:\n+                        if (unpackedBufLen
+  >= sizeof(nfapi_nr_tx_data_request_t))\n+                                retLen
+  = sizeof(nfapi_nr_tx_data_request_t);\n+                        break;\n+                case
+  NFAPI_NR_PHY_MSG_TYPE_RX_DATA_INDICATION:\n+                        if (unpackedBufLen
+  >= sizeof(nfapi_nr_rx_data_indication_t))\n+                                retLen
+  = sizeof(nfapi_nr_rx_data_indication_t);\n+                        break;\n+                case
+  NFAPI_NR_PHY_MSG_TYPE_CRC_INDICATION:\n+                        if (unpackedBufLen
+  >= sizeof(nfapi_nr_crc_indication_t))\n+                                retLen =
+  sizeof(nfapi_nr_crc_indication_t);\n+                        break;\n+\n+                case
+  NFAPI_NR_PHY_MSG_TYPE_RACH_INDICATION:\n+                        if (unpackedBufLen
+  >= sizeof(nfapi_nr_rach_indication_t))\n+                                retLen
+  = sizeof(nfapi_nr_rach_indication_t);\n+                        break;\n+                case
+  NFAPI_NR_PHY_MSG_TYPE_UCI_INDICATION:\n+                        if (unpackedBufLen
+  >= sizeof(nfapi_nr_uci_indication_t))\n+                                retLen =
+  sizeof(nfapi_nr_uci_indication_t);\n+                        break;\n+                case
+  NFAPI_NR_PHY_MSG_TYPE_SRS_INDICATION:\n+                        if (unpackedBufLen
+  >= sizeof(nfapi_nr_srs_indication_t))\n+                                retLen =
+  sizeof(nfapi_nr_srs_indication_t);\n+                        break;\n+                case
+  NFAPI_NR_PHY_MSG_TYPE_DL_NODE_SYNC:\n+                        if (unpackedBufLen
+  >= sizeof(nfapi_nr_dl_node_sync_t))\n+                                retLen = sizeof(nfapi_nr_dl_node_sync_t);\n+                        break;\n+\n+                case
+  NFAPI_NR_PHY_MSG_TYPE_UL_NODE_SYNC:\n+                        if (unpackedBufLen
+  >= sizeof(nfapi_nr_ul_node_sync_t))\n+                                retLen = sizeof(nfapi_nr_ul_node_sync_t);\n+                        break;\n+\n+                default:\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"Unknown message ID %d\\n\", msgId);\n+                        break;\n+        }\n+\n+        return
+  retLen;\n }\n \n \n@@ -8399,165 +8406,165 @@ int nfapi_p7_message_unpack(void *pMessageBuf,
+  uint32_t messageBufLen, void *pUn\n \n int nfapi_nr_p7_message_unpack(void *pMessageBuf,
+  uint32_t messageBufLen, void *pUnpackedBuf, uint32_t unpackedBufLen, nfapi_p7_codec_config_t*
+  config)\n {\n-\tint result = 0;\n-\tnfapi_p7_message_header_t *pMessageHeader =
+  (nfapi_p7_message_header_t*)pUnpackedBuf;\n-\tuint8_t *pReadPackedMessage = pMessageBuf;\n-\n-\tif
+  (pMessageBuf == NULL || pUnpackedBuf == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"P7 unpack supplied pointers are null\\n\");\n-\t\treturn -1;\n-\t}\n+        int
+  result = 0;\n+        nfapi_p7_message_header_t *pMessageHeader = (nfapi_p7_message_header_t*)pUnpackedBuf;\n+        uint8_t
+  *pReadPackedMessage = pMessageBuf;\n+\n+        if (pMessageBuf == NULL || pUnpackedBuf
+  == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR, \"P7 unpack
+  supplied pointers are null\\n\");\n+                return -1;\n+        }\n \n         uint8_t
+  *end = (uint8_t*)pMessageBuf + messageBufLen;\n \n-\tif (messageBufLen < NFAPI_P7_HEADER_LENGTH
+  || unpackedBufLen < sizeof(nfapi_p7_message_header_t))\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"P7 unpack supplied message buffer is too small %d, %d\\n\", messageBufLen, unpackedBufLen);\n-\t\treturn
+  -1;\n-\t}\n-\n-\t// clean the supplied buffer for - tag value blanking\n-\t(void)memset(pUnpackedBuf,
+  0, unpackedBufLen);\n-\n-\t// process the header\n-\tif(!(pull16(&pReadPackedMessage,
+  &pMessageHeader->phy_id, end) &&\n-\t\t pull16(&pReadPackedMessage, &pMessageHeader->message_id,
+  end) &&\n-\t\t pull16(&pReadPackedMessage, &pMessageHeader->message_length, end)
+  &&\n-\t\t pull16(&pReadPackedMessage, &pMessageHeader->m_segment_sequence, end)
+  &&\n-\t\t pull32(&pReadPackedMessage, &pMessageHeader->checksum, end) &&\n-\t\t
+  pull32(&pReadPackedMessage, &pMessageHeader->transmit_timestamp, end)))\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"P7 unpack header failed\\n\");\n-\t\treturn -1;\n-\t}\n-\n-\tif((uint8_t*)(pMessageBuf
+  + pMessageHeader->message_length) > end)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"P7 unpack message length is greater than the message buffer \\n\");\n-\t\treturn
+  -1;\n-\t}\n-\n-\t/*\n-\tif(check_unpack_length(pMessageHeader->message_id, unpackedBufLen)
+  == 0)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR, \"P7 unpack unpack buffer is not
+  large enough \\n\");\n-\t\treturn -1;\n-\t}\n-\t*/\n-\n-\t// look for the specific
+  message\n-\tswitch (pMessageHeader->message_id)\n-\t{\n-\t\tcase NFAPI_NR_PHY_MSG_TYPE_DL_TTI_REQUEST:\n-\t\t\tif
+  (check_nr_unpack_length(NFAPI_NR_PHY_MSG_TYPE_DL_TTI_REQUEST, unpackedBufLen))\n-\t\t\t\tresult
+  = unpack_dl_tti_request(&pReadPackedMessage,  end, pMessageHeader, config);\n-\t\t\tbreak;\n-\n-\t\tcase
+  NFAPI_NR_PHY_MSG_TYPE_UL_TTI_REQUEST:\n-\t\t\tif (check_nr_unpack_length(NFAPI_NR_PHY_MSG_TYPE_UL_TTI_REQUEST,
+  unpackedBufLen))\n-\t\t\t\tresult = unpack_ul_tti_request(&pReadPackedMessage,  end,
+  pMessageHeader, config);\n-\t\t\tbreak;\n-\t\tcase NFAPI_NR_PHY_MSG_TYPE_TX_DATA_REQUEST:\n-\t\t\tif
+  (check_nr_unpack_length(NFAPI_NR_PHY_MSG_TYPE_TX_DATA_REQUEST, unpackedBufLen))\n-\t\t\t\tresult
+  = unpack_tx_data_request(&pReadPackedMessage,  end, pMessageHeader, config);\n-\t\t\tbreak;\n-\t\tcase
+  NFAPI_NR_PHY_MSG_TYPE_UL_DCI_REQUEST:\n-\t\t\tif (check_nr_unpack_length(NFAPI_NR_PHY_MSG_TYPE_UL_DCI_REQUEST,
+  unpackedBufLen))\n-\t\t\t\tresult = unpack_ul_dci_request(&pReadPackedMessage,  end,
+  pMessageHeader, config);\n-\t\t\tbreak;\n-\t\tcase NFAPI_UE_RELEASE_REQUEST:\n-\t\t\tif
+  (check_unpack_length(NFAPI_UE_RELEASE_REQUEST, unpackedBufLen))\n-\t\t\t\tresult
+  = unpack_ue_release_request(&pReadPackedMessage,  end, pMessageHeader, config);\n-\t\t\tbreak;\n-\t\tcase
+  NFAPI_NR_PHY_MSG_TYPE_SLOT_INDICATION:\n-\t\t\tif (check_nr_unpack_length(NFAPI_NR_PHY_MSG_TYPE_SLOT_INDICATION,
+  unpackedBufLen)){\n-\t\t\t\tnfapi_nr_slot_indication_scf_t* msg = (nfapi_nr_slot_indication_scf_t*)
+  pMessageHeader;\n-\t\t\t\tresult = unpack_nr_slot_indication(&pReadPackedMessage,  end,
+  msg, config);\n-\t\t\t}\n-\t\t\tbreak;\n-\n-\t\tcase  NFAPI_NR_PHY_MSG_TYPE_RX_DATA_INDICATION:\n-\t\t\tif
+  (check_nr_unpack_length(NFAPI_NR_PHY_MSG_TYPE_RX_DATA_INDICATION, unpackedBufLen)){\n-\t\t\t\tnfapi_nr_rx_data_indication_t*
+  msg = (nfapi_nr_rx_data_indication_t*) pMessageHeader;\n-\t\t\t\tmsg->pdu_list =
+  (nfapi_nr_rx_data_pdu_t*) malloc(sizeof(nfapi_nr_rx_data_pdu_t));\n-\t\t\t\tmsg->pdu_list->pdu
+  = (uint8_t *) malloc(sizeof(uint8_t));\n-\t\t\t\tresult = unpack_nr_rx_data_indication(&pReadPackedMessage,  end,
+  msg, config);\n-\t\t\t}\n-\t\t\tbreak;\n-\n-\t\tcase  NFAPI_NR_PHY_MSG_TYPE_CRC_INDICATION:\n-\t\t\tif
+  (check_nr_unpack_length(NFAPI_NR_PHY_MSG_TYPE_CRC_INDICATION, unpackedBufLen)){\n-\n-\t\t\t\tnfapi_nr_crc_indication_t*
+  msg = (nfapi_nr_crc_indication_t*) pMessageHeader;\n-\t\t\t\tmsg->crc_list = (nfapi_nr_crc_t*)
+  malloc(sizeof(nfapi_nr_crc_t));\n-\t\t\t\tresult = unpack_nr_crc_indication(&pReadPackedMessage,end
+  , msg, config);\n-\t\t\t}\n-\t\t\tbreak;\n-\n-\t\tcase  NFAPI_NR_PHY_MSG_TYPE_UCI_INDICATION:\n-\t\t\tif
+  (check_nr_unpack_length(NFAPI_NR_PHY_MSG_TYPE_UCI_INDICATION, unpackedBufLen)){\n-\t\t\t\tnfapi_nr_uci_indication_t*
+  msg = (nfapi_nr_uci_indication_t*) pMessageHeader;\n-\t\t\t\tmsg->uci_list = (nfapi_nr_uci_t*)
+  malloc(sizeof(nfapi_nr_uci_t));\n-\t\t\t\tresult = unpack_nr_uci_indication(&pReadPackedMessage,  end,
+  msg, config);\n-\t\t\t}\n-\t\t\tbreak;\n-\n-\t\tcase  NFAPI_NR_PHY_MSG_TYPE_SRS_INDICATION:\n-\t\t\tif
+  (check_nr_unpack_length(NFAPI_NR_PHY_MSG_TYPE_SRS_INDICATION, unpackedBufLen)){\n-\t\t\t\tnfapi_nr_srs_indication_t*
+  msg = (nfapi_nr_srs_indication_t*) pMessageHeader;\n-\t\t\t\tmsg->pdu_list = (nfapi_nr_srs_indication_pdu_t*)
+  malloc(sizeof(nfapi_nr_srs_indication_pdu_t));\n-\t\t\t\tresult = unpack_nr_srs_indication(&pReadPackedMessage,  end,
+  msg, config);\n-\t\t\t}\n-\t\t\tbreak;\n-\n-\t\tcase  NFAPI_NR_PHY_MSG_TYPE_RACH_INDICATION:\n-\t\t\tif
+  (check_nr_unpack_length(NFAPI_NR_PHY_MSG_TYPE_RACH_INDICATION, unpackedBufLen)){\n-\t\t\t\tnfapi_nr_rach_indication_t*
+  msg = (nfapi_nr_rach_indication_t*) pMessageHeader;\n-\t\t\t\tresult = unpack_nr_rach_indication(&pReadPackedMessage,  end,
+  msg, config);\n-\t\t\t}\n-\t\t\tbreak;\n-\n-\t\tcase NFAPI_NR_PHY_MSG_TYPE_DL_NODE_SYNC:\n-\t\t\tif
+  (check_nr_unpack_length(NFAPI_NR_PHY_MSG_TYPE_DL_NODE_SYNC, unpackedBufLen))\n-\t\t\t\tresult
+  = unpack_nr_dl_node_sync(&pReadPackedMessage,  end, pMessageHeader, config);\n-\t\t\tbreak;\n-\n-\t\tcase
+  NFAPI_NR_PHY_MSG_TYPE_UL_NODE_SYNC:\n-\t\t\tif (check_nr_unpack_length(NFAPI_NR_PHY_MSG_TYPE_UL_NODE_SYNC,
+  unpackedBufLen))\n-\t\t\t\tresult = unpack_nr_ul_node_sync(&pReadPackedMessage,
+  end , pMessageHeader, config);\n-\t\t\tbreak;\n-\n-\t\tcase NFAPI_TIMING_INFO:\n-\t\t\tif
+  (check_unpack_length(NFAPI_TIMING_INFO, unpackedBufLen))\n-\t\t\t\tresult = unpack_nr_timing_info(&pReadPackedMessage,
+  end, pMessageHeader, config);\n-\t\t\tbreak;\n-\n-\t\tcase NFAPI_UE_RELEASE_RESPONSE:\n-\t\t\tif
+  (check_unpack_length(NFAPI_UE_RELEASE_RESPONSE, unpackedBufLen))\n-\t\t\t\tresult
+  = unpack_ue_release_resp(&pReadPackedMessage,  end, pMessageHeader, config);\n-\t\t\tbreak;\n-\n-\t\tdefault:\n-\n-\t\t\tif(pMessageHeader->message_id
+  >= NFAPI_VENDOR_EXT_MSG_MIN &&\n-\t\t\t   pMessageHeader->message_id <= NFAPI_VENDOR_EXT_MSG_MAX)\n-\t\t\t{\n-\t\t\t\tif(config
+  && config->unpack_p7_vendor_extension)\n-\t\t\t\t{\n-\t\t\t\t\tresult = (config->unpack_p7_vendor_extension)(pMessageHeader,
+  &pReadPackedMessage, end, config);\n-\t\t\t\t}\n-\t\t\t\telse\n-\t\t\t\t{\n-\t\t\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s VE NFAPI message ID %d. No ve decoder provided\\n\", __FUNCTION__, pMessageHeader->message_id);\n-\t\t\t\t}\n-\t\t\t}\n-\t\t\telse\n-\t\t\t{\n-\t\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s NFAPI Unknown message ID %d\\n\", __FUNCTION__, pMessageHeader->message_id);\n-\t\t\t}\n-\t\t\tbreak;\n-\t}\n+        if
+  (messageBufLen < NFAPI_P7_HEADER_LENGTH || unpackedBufLen < sizeof(nfapi_p7_message_header_t))\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"P7 unpack supplied message buffer is too small %d, %d\\n\", messageBufLen, unpackedBufLen);\n+                return
+  -1;\n+        }\n+\n+        // clean the supplied buffer for - tag value blanking\n+        (void)memset(pUnpackedBuf,
+  0, unpackedBufLen);\n+\n+        // process the header\n+        if(!(pull16(&pReadPackedMessage,
+  &pMessageHeader->phy_id, end) &&\n+                 pull16(&pReadPackedMessage,
+  &pMessageHeader->message_id, end) &&\n+                 pull16(&pReadPackedMessage,
+  &pMessageHeader->message_length, end) &&\n+                 pull16(&pReadPackedMessage,
+  &pMessageHeader->m_segment_sequence, end) &&\n+                 pull32(&pReadPackedMessage,
+  &pMessageHeader->checksum, end) &&\n+                 pull32(&pReadPackedMessage,
+  &pMessageHeader->transmit_timestamp, end)))\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"P7 unpack header failed\\n\");\n+                return -1;\n+        }\n+\n+        if((uint8_t*)(pMessageBuf
+  + pMessageHeader->message_length) > end)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"P7 unpack message length is greater than the message buffer \\n\");\n+                return
+  -1;\n+        }\n+\n+        /*\n+        if(check_unpack_length(pMessageHeader->message_id,
+  unpackedBufLen) == 0)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"P7 unpack unpack buffer is not large enough \\n\");\n+                return -1;\n+        }\n+        */\n+\n+        //
+  look for the specific message\n+        switch (pMessageHeader->message_id)\n+        {\n+                case
+  NFAPI_NR_PHY_MSG_TYPE_DL_TTI_REQUEST:\n+                        if (check_nr_unpack_length(NFAPI_NR_PHY_MSG_TYPE_DL_TTI_REQUEST,
+  unpackedBufLen))\n+                                result = unpack_dl_tti_request(&pReadPackedMessage,  end,
+  pMessageHeader, config);\n+                        break;\n+\n+                case
+  NFAPI_NR_PHY_MSG_TYPE_UL_TTI_REQUEST:\n+                        if (check_nr_unpack_length(NFAPI_NR_PHY_MSG_TYPE_UL_TTI_REQUEST,
+  unpackedBufLen))\n+                                result = unpack_ul_tti_request(&pReadPackedMessage,  end,
+  pMessageHeader, config);\n+                        break;\n+                case
+  NFAPI_NR_PHY_MSG_TYPE_TX_DATA_REQUEST:\n+                        if (check_nr_unpack_length(NFAPI_NR_PHY_MSG_TYPE_TX_DATA_REQUEST,
+  unpackedBufLen))\n+                                result = unpack_tx_data_request(&pReadPackedMessage,  end,
+  pMessageHeader, config);\n+                        break;\n+                case
+  NFAPI_NR_PHY_MSG_TYPE_UL_DCI_REQUEST:\n+                        if (check_nr_unpack_length(NFAPI_NR_PHY_MSG_TYPE_UL_DCI_REQUEST,
+  unpackedBufLen))\n+                                result = unpack_ul_dci_request(&pReadPackedMessage,  end,
+  pMessageHeader, config);\n+                        break;\n+                case
+  NFAPI_UE_RELEASE_REQUEST:\n+                        if (check_unpack_length(NFAPI_UE_RELEASE_REQUEST,
+  unpackedBufLen))\n+                                result = unpack_ue_release_request(&pReadPackedMessage,  end,
+  pMessageHeader, config);\n+                        break;\n+                case
+  NFAPI_NR_PHY_MSG_TYPE_SLOT_INDICATION:\n+                        if (check_nr_unpack_length(NFAPI_NR_PHY_MSG_TYPE_SLOT_INDICATION,
+  unpackedBufLen)){\n+                                nfapi_nr_slot_indication_scf_t*
+  msg = (nfapi_nr_slot_indication_scf_t*) pMessageHeader;\n+                                result
+  = unpack_nr_slot_indication(&pReadPackedMessage,  end, msg, config);\n+                        }\n+                        break;\n+\n+                case  NFAPI_NR_PHY_MSG_TYPE_RX_DATA_INDICATION:\n+                        if
+  (check_nr_unpack_length(NFAPI_NR_PHY_MSG_TYPE_RX_DATA_INDICATION, unpackedBufLen)){\n+                                nfapi_nr_rx_data_indication_t*
+  msg = (nfapi_nr_rx_data_indication_t*) pMessageHeader;\n+                                msg->pdu_list
+  = (nfapi_nr_rx_data_pdu_t*) malloc(sizeof(nfapi_nr_rx_data_pdu_t));\n+                                msg->pdu_list->pdu
+  = (uint8_t *) malloc(sizeof(uint8_t));\n+                                result
+  = unpack_nr_rx_data_indication(&pReadPackedMessage,  end, msg, config);\n+                        }\n+                        break;\n+\n+                case  NFAPI_NR_PHY_MSG_TYPE_CRC_INDICATION:\n+                        if
+  (check_nr_unpack_length(NFAPI_NR_PHY_MSG_TYPE_CRC_INDICATION, unpackedBufLen)){\n+\n+                                nfapi_nr_crc_indication_t*
+  msg = (nfapi_nr_crc_indication_t*) pMessageHeader;\n+                                msg->crc_list
+  = (nfapi_nr_crc_t*) malloc(sizeof(nfapi_nr_crc_t));\n+                                result
+  = unpack_nr_crc_indication(&pReadPackedMessage,end , msg, config);\n+                        }\n+                        break;\n+\n+                case  NFAPI_NR_PHY_MSG_TYPE_UCI_INDICATION:\n+                        if
+  (check_nr_unpack_length(NFAPI_NR_PHY_MSG_TYPE_UCI_INDICATION, unpackedBufLen)){\n+                                nfapi_nr_uci_indication_t*
+  msg = (nfapi_nr_uci_indication_t*) pMessageHeader;\n+                                msg->uci_list
+  = (nfapi_nr_uci_t*) malloc(sizeof(nfapi_nr_uci_t));\n+                                result
+  = unpack_nr_uci_indication(&pReadPackedMessage,  end, msg, config);\n+                        }\n+                        break;\n+\n+                case  NFAPI_NR_PHY_MSG_TYPE_SRS_INDICATION:\n+                        if
+  (check_nr_unpack_length(NFAPI_NR_PHY_MSG_TYPE_SRS_INDICATION, unpackedBufLen)){\n+                                nfapi_nr_srs_indication_t*
+  msg = (nfapi_nr_srs_indication_t*) pMessageHeader;\n+                                msg->pdu_list
+  = (nfapi_nr_srs_indication_pdu_t*) malloc(sizeof(nfapi_nr_srs_indication_pdu_t));\n+                                result
+  = unpack_nr_srs_indication(&pReadPackedMessage,  end, msg, config);\n+                        }\n+                        break;\n+\n+                case  NFAPI_NR_PHY_MSG_TYPE_RACH_INDICATION:\n+                        if
+  (check_nr_unpack_length(NFAPI_NR_PHY_MSG_TYPE_RACH_INDICATION, unpackedBufLen)){\n+                                nfapi_nr_rach_indication_t*
+  msg = (nfapi_nr_rach_indication_t*) pMessageHeader;\n+                                result
+  = unpack_nr_rach_indication(&pReadPackedMessage,  end, msg, config);\n+                        }\n+                        break;\n+\n+                case
+  NFAPI_NR_PHY_MSG_TYPE_DL_NODE_SYNC:\n+                        if (check_nr_unpack_length(NFAPI_NR_PHY_MSG_TYPE_DL_NODE_SYNC,
+  unpackedBufLen))\n+                                result = unpack_nr_dl_node_sync(&pReadPackedMessage,  end,
+  pMessageHeader, config);\n+                        break;\n+\n+                case
+  NFAPI_NR_PHY_MSG_TYPE_UL_NODE_SYNC:\n+                        if (check_nr_unpack_length(NFAPI_NR_PHY_MSG_TYPE_UL_NODE_SYNC,
+  unpackedBufLen))\n+                                result = unpack_nr_ul_node_sync(&pReadPackedMessage,
+  end , pMessageHeader, config);\n+                        break;\n+\n+                case
+  NFAPI_TIMING_INFO:\n+                        if (check_unpack_length(NFAPI_TIMING_INFO,
+  unpackedBufLen))\n+                                result = unpack_nr_timing_info(&pReadPackedMessage,
+  end, pMessageHeader, config);\n+                        break;\n+\n+                case
+  NFAPI_UE_RELEASE_RESPONSE:\n+                        if (check_unpack_length(NFAPI_UE_RELEASE_RESPONSE,
+  unpackedBufLen))\n+                                result = unpack_ue_release_resp(&pReadPackedMessage,  end,
+  pMessageHeader, config);\n+                        break;\n+\n+                default:\n+\n+                        if(pMessageHeader->message_id
+  >= NFAPI_VENDOR_EXT_MSG_MIN &&\n+                           pMessageHeader->message_id
+  <= NFAPI_VENDOR_EXT_MSG_MAX)\n+                        {\n+                                if(config
+  && config->unpack_p7_vendor_extension)\n+                                {\n+                                        result
+  = (config->unpack_p7_vendor_extension)(pMessageHeader, &pReadPackedMessage, end,
+  config);\n+                                }\n+                                else\n+                                {\n+                                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s VE NFAPI message ID %d. No ve decoder provided\\n\", __FUNCTION__, pMessageHeader->message_id);\n+                                }\n+                        }\n+                        else\n+                        {\n+                                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s NFAPI Unknown message ID %d\\n\", __FUNCTION__, pMessageHeader->message_id);\n+                        }\n+                        break;\n+        }\n
+  \n   if (result == 0) {\n     NFAPI_TRACE(NFAPI_TRACE_ERROR, \"P7 Pack failed to
+  pack message\\n\");\n","start_fn":"pack_dl_config_dlsch_pdu_rel12_value","start_fn_file":"nfapi/open-nFAPI/nfapi/src/nfapi_p7.c","subsystem":"nfapi/open-nFAPI/nfapi"},"type":"text","id":"oai5g_bf69e25_00532"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

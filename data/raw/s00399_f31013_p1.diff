@@ -1,0 +1,14 @@
+diff --git a/openair2/LAYER2/nr_pdcp/nr_pdcp_oai_api.c b/openair2/LAYER2/nr_pdcp/nr_pdcp_oai_api.c
+index a416ddd617..3416e2982f 100644
+--- a/openair2/LAYER2/nr_pdcp/nr_pdcp_oai_api.c
++++ b/openair2/LAYER2/nr_pdcp/nr_pdcp_oai_api.c
+@@ -586,8 +586,8 @@ void nr_pdcp_layer_init(void)
+   if ((RC.nrrrc == NULL) || (!NODE_IS_CU(node_type))) {
+     init_nr_rlc_data_req_queue();
+   }
+-  nr_pdcp_e1_if_init(node_type == ngran_gNB_CUUP || node_type == ngran_gNB_CUCP);
+   init_nr_pdcp_data_ind_queue();
++  nr_pdcp_e1_if_init(node_type == ngran_gNB_CUUP || node_type == ngran_gNB_CUCP);
+   nr_pdcp_init_timer_thread(nr_pdcp_ue_manager);
+   if (NODE_IS_CU(node_type)) {
+     nr_pdcp_init_tick_thread();

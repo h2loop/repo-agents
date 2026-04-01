@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect SRS symbol data handling in AERIAL mode\n\n### Summary\nThe NR SRS parameter packing/unpacking contained a logic error in AERIAL mode that caused incorrect symbol data to be stored in the SRS parameters structure. The bug manifested when processing SRS configurations with fewer than 4 symbols, where padding data would overwrite valid symbol information.\n\nThe issue was in the AERIAL-specific code paths where the unpacking function was incorrectly storing padding symbols back into the symbol list array, overwriting valid data that should have been preserved.\n\n### Changes\n- `nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c`: Fixed SRS parameter packing/unpacking logic in AERIAL mode to always process 4 symbols without separate padding handling\n"
+}

@@ -1,0 +1,12 @@
+diff --git a/openair3/NAS/TEST/AS_SIMULATOR/as_process.c b/openair3/NAS/TEST/AS_SIMULATOR/as_process.c
+index 740c67b1e0..d07f7ae958 100644
+--- a/openair3/NAS/TEST/AS_SIMULATOR/as_process.c
++++ b/openair3/NAS/TEST/AS_SIMULATOR/as_process.c
+@@ -377,6 +377,7 @@ int process_dl_info_transfer_req(int msg_id, const dl_info_transfer_req_t* req,
+   }
+ 
+   /* Setup downlink information indication message */
++  ind->UEid = req->UEid;
+   if (req->nasMsg.length > 0) {
+     ind->nasMsg.data = malloc(req->nasMsg.length);
+ 

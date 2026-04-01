@@ -1,0 +1,156 @@
+diff --git a/openair1/SIMULATION/LTE_PHY/LTE_Configuration.c b/openair1/SIMULATION/LTE_PHY/LTE_Configuration.c
+index c894e49e90..4006c29ef6 100644
+--- a/openair1/SIMULATION/LTE_PHY/LTE_Configuration.c
++++ b/openair1/SIMULATION/LTE_PHY/LTE_Configuration.c
+@@ -26,7 +26,7 @@
+ #include "LTE_Configuration.h"
+ 
+ 
+-void gpib_send(unsigned int gpib_board, unsigned int gpib_device, char *command_string )
++int gpib_send(unsigned int gpib_board, unsigned int gpib_device, char *command_string )
+ {
+   unsigned short addlist[2] = {gpib_device, NOADDR};
+   SendIFC(gpib_board);
+@@ -37,6 +37,7 @@ void gpib_send(unsigned int gpib_board, unsigned int gpib_device, char *command_
+ 
+   if(ibsta & ERR) {
+     printf("gpib_send: Instrument enable failed! \n");
++    return -1;
+   }
+ 
+   //Send Control Commandss
+@@ -45,57 +46,59 @@ void gpib_send(unsigned int gpib_board, unsigned int gpib_device, char *command_
+   if(ibsta & ERR) {
+ 
+     printf("gpib_send: Send failed! \n");
++    return -1;
+ 
+   }
+ 
+   printf("%s \n",command_string);
++  return 0;
+ 
+ }
+ 
+ 
+-void calibration(unsigned int gpib_card,unsigned int gpib_device,unsigned int freqband,LTE_DL_FRAME_PARMS *frame_parms,DCI_ALLOC_t *dci_alloc)
++int calibration(unsigned int gpib_card,unsigned int gpib_device,unsigned int freqband,LTE_DL_FRAME_PARMS *frame_parms,DCI_ALLOC_t *dci_alloc)
+ {
+   char string[256];
+   void *DLSCH_alloc_pdu = (void *)dci_alloc[0].dci_pdu;
+ 
+   //Start the configuration
+-  gpib_send(gpib_card,gpib_device,"*RST;*CLS");   //reset and configure the signal generator
+-  gpib_send(gpib_card,gpib_device,"BB:EUTR:PRES");
+-  gpib_send(gpib_card,gpib_device,"BB:EUTR:STAT ON");
++  if (gpib_send(gpib_card,gpib_device,"*RST;*CLS") != 0) return -1;   //reset and configure the signal generator
++  if (gpib_send(gpib_card,gpib_device,"BB:EUTR:PRES") != 0) return -1;
++  if (gpib_send(gpib_card,gpib_device,"BB:EUTR:STAT ON") != 0) return -1;
+ 
+-  gpib_send(gpib_card,gpib_device,"POW -70dBm");  // set output signal power
++  if (gpib_send(gpib_card,gpib_device,"POW -70dBm") != 0) return -1;
+   //gpib_send(gpib_card,gpib_device,"FREQ 1.91");  // set frequency
+ 
+ 
+ 
+   //Selects the duplexing mode
+   if (frame_parms->frame_type == 0)
+-    gpib_send(gpib_card,gpib_device,"BB:EUTR:DUPL FDD");
++    if (gpib_send(gpib_card,gpib_device,"BB:EUTR:DUPL FDD") != 0) return -1;
+   else
+-    gpib_send(gpib_card,gpib_device,"BB:EUTR:DUPL TDD");
++    if (gpib_send(gpib_card,gpib_device,"BB:EUTR:DUPL TDD") != 0) return -1;
+ 
+-  gpib_send(gpib_card,gpib_device,"BB:EUTR:LINK DOWN");
++  if (gpib_send(gpib_card,gpib_device,"BB:EUTR:LINK DOWN") != 0) return -1;
+   //gpib_send(gpib_card,gpib_device,"BB:EUTR:SETT:TMOD:DL 'E-TM1_1__20MHz'");  //EUTRA test model
+-  gpib_send(gpib_card,gpib_device,"BB:EUTR:SLEN 4");                        //sequence length of the signal in number of frames
++  if (gpib_send(gpib_card,gpib_device,"BB:EUTR:SLEN 4") != 0) return -1;
+ 
+ 
+ 
+   /*
+   //Filter/Clipping/Power Settings
+-  gpib_send(gpib_card,gpib_device,"BB:EUTR:FILT:TYPE LTEF");              //set the filter type into LET filter
+-  gpib_send(gpib_card,gpib_device,"BB:EUTR:FILT:MODE RT");                //select a realtime filter mode
+-  gpib_send(gpib_card,gpib_device,"BB:EUTR:FILT:PAR:LTE:COFF 0.35");     // set the roll-off factor for LTE filter
+-  gpib_send(gpib_card,gpib_device,"BB:EUTR:FILT:PAR:LTE:COFS -0.3");     //set the cut of the frequency for LET filter, here -0.3 the BW is 20 MHz
+-  gpib_send(gpib_card,gpib_device,"BB:EUTR:FILT:PAR:LTE:OPT ACPN");      //selects ACP (Narrow) optimization
+-  gpib_send(gpib_card,gpib_device,"BB:EUTR:FILT:PAR:LTE:ROF 0.2");       //the roll-off factor is set to 0.2.
++  if (gpib_send(gpib_card,gpib_device,"BB:EUTR:FILT:TYPE LTEF") != 0) return -1;
++  if (gpib_send(gpib_card,gpib_device,"BB:EUTR:FILT:MODE RT") != 0) return -1;
++  if (gpib_send(gpib_card,gpib_device,"BB:EUTR:FILT:PAR:LTE:COFF 0.35") != 0) return -1;
++  if (gpib_send(gpib_card,gpib_device,"BB:EUTR:FILT:PAR:LTE:COFS -0.3") !=
+... [truncated] ...
+ DLSCH_alloc_pdu)->harq_pid);
+-    gpib_send(gpib_card,gpib_device,string);
++    if (gpib_send(gpib_card,gpib_device,string) != 0) return -1;
+ 
+     //sets the Modulation and Coding Scheme
+     sprintf(string,"BB:EUTR:DL:SUBF6:ENCC:PDCC:EXTC:ITEM1:DCIC:MCSR %d",((DCI1_5MHz_TDD_t*)DLSCH_alloc_pdu)->mcs);
+-    gpib_send(gpib_card,gpib_device,string);
++    if (gpib_send(gpib_card,gpib_device,string) != 0) return -1;
+ 
+     //sets the New Data Indicator
+     if(((DCI1_5MHz_TDD_t*)DLSCH_alloc_pdu)->ndi==1)
+-      gpib_send(gpib_card,gpib_device,"BB:EUTR:DL:SUBF6:ENCC:PDCC:EXTC:ITEM1:DCIC:NDI ON");
++      if (gpib_send(gpib_card,gpib_device,"BB:EUTR:DL:SUBF6:ENCC:PDCC:EXTC:ITEM1:DCIC:NDI ON") != 0) return -1;
+     else
+-      gpib_send(gpib_card,gpib_device,"BB:EUTR:DL:SUBF6:ENCC:PDCC:EXTC:ITEM1:DCIC:NDI OFF");
++      if (gpib_send(gpib_card,gpib_device,"BB:EUTR:DL:SUBF6:ENCC:PDCC:EXTC:ITEM1:DCIC:NDI OFF") != 0) return -1;
+ 
+     //disables Resource Allocation Header
+     if(((DCI1_5MHz_TDD_t*)DLSCH_alloc_pdu)->rah==1)
+-      gpib_send(gpib_card,gpib_device,"BB:EUTR:DL:SUBF6:ENCC:PDCC:EXTC:ITEM1:DCIC:RAH ON");
++      if (gpib_send(gpib_card,gpib_device,"BB:EUTR:DL:SUBF6:ENCC:PDCC:EXTC:ITEM1:DCIC:RAH ON") != 0) return -1;
+     else
+-      gpib_send(gpib_card,gpib_device,"BB:EUTR:DL:SUBF6:ENCC:PDCC:EXTC:ITEM1:DCIC:RAH OFF");
++      if (gpib_send(gpib_card,gpib_device,"BB:EUTR:DL:SUBF6:ENCC:PDCC:EXTC:ITEM1:DCIC:RAH OFF") != 0) return -1;
+ 
+     //sets Resource Block Assignment
+     sprintf(string,"BB:EUTR:DL:SUBF6:ENCC:PDCC:EXTC:ITEM1:DCIC:RBA %d",((DCI1_5MHz_TDD_t*)DLSCH_alloc_pdu)->rballoc );
+-    gpib_send(gpib_card,gpib_device,string);
++    if (gpib_send(gpib_card,gpib_device,string) != 0) return -1;
+ 
+     //sets the Redundancy Version
+     sprintf(string,"BB:EUTR:DL:SUBF6:ENCC:PDCC:EXTC:ITEM1:DCIC:RV %d",((DCI1_5MHz_TDD_t*)DLSCH_alloc_pdu)->rv );
+-    gpib_send(gpib_card,gpib_device,string);
++    if (gpib_send(gpib_card,gpib_device,string) != 0) return -1;
+ 
+     //sets the TPC Command for PUSCH
+     sprintf(string,"BB:EUTR:DL:SUBF6:ENCC:PDCC:EXTC:ITEM1:DCIC:TPCC %d",((DCI1_5MHz_TDD_t*)DLSCH_alloc_pdu)->TPC );
+-    gpib_send(gpib_card,gpib_device,string);
++    if (gpib_send(gpib_card,gpib_device,string) != 0) return -1;
+   }
+ 
+-  gpib_send(gpib_card,gpib_device,"BB:EUTR:DL:SUBF6:ENCC:PDCC:EXTC:SIT 0");
+-  gpib_send(gpib_card,gpib_device,"BB:EUTR:DL:SUBF6:ENCC:PDCC:EXTC:DEL");
++  if (gpib_send(gpib_card,gpib_device,"BB:EUTR:DL:SUBF6:ENCC:PDCC:EXTC:SIT 0") != 0) return -1;
++  if (gpib_send(gpib_card,gpib_device,"BB:EUTR:DL:SUBF6:ENCC:PDCC:EXTC:DEL") != 0) return -1;
+   //gpib_send(gpib_card,gpib_device,"AWGN:STAT ON"); // to add noise in the system
+-  gpib_send(gpib_card,gpib_device,"FREQ 1.2GHz");
+-  gpib_send(gpib_card,gpib_device,"SOUR:POW:POW -50");
+-  gpib_send(gpib_card,gpib_device,"SYSTem:ERRor?");
+-  gpib_send(gpib_card,gpib_device,"OUTP ON");
++  if (gpib_send(gpib_card,gpib_device,"FREQ 1.2GHz") != 0) return -1;
++  if (gpib_send(gpib_card,gpib_device,"SOUR:POW:POW -50") != 0) return -1;
++  if (gpib_send(gpib_card,gpib_device,"SYSTem:ERRor?") != 0) return -1;
++  if (gpib_send(gpib_card,gpib_device,"OUTP ON") != 0) return -1;
+ 
+ 
++return 0;
+ }
+ 
+ 
+diff --git a/openair1/SIMULATION/LTE_PHY/LTE_Configuration.h b/openair1/SIMULATION/LTE_PHY/LTE_Configuration.h
+index 06b93650e7..46141f040b 100644
+--- a/openair1/SIMULATION/LTE_PHY/LTE_Configuration.h
++++ b/openair1/SIMULATION/LTE_PHY/LTE_Configuration.h
+@@ -22,5 +22,5 @@
+ #include "PHY/types.h"
+ #include "PHY/defs.h"
+ 
+-void gpib_send(unsigned int gpib_board, unsigned int gpib_device, char *command_string );
+-void calibration(unsigned int gpib_card,unsigned int gpib_device,unsigned int freqband,LTE_DL_FRAME_PARMS *frame_parms,DCI_ALLOC_t *dci_alloc);
++int gpib_send(unsigned int gpib_board, unsigned int gpib_device, char *command_string );
++int calibration(unsigned int gpib_card,unsigned int gpib_device,unsigned int freqband,LTE_DL_FRAME_PARMS *frame_parms,DCI_ALLOC_t *dci_alloc);

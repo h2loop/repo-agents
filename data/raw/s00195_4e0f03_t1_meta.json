@@ -1,0 +1,34 @@
+{
+  "run_id": "s00195_4e0f03",
+  "function": {
+    "name": "get_ssb_bitmap",
+    "file": "openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c",
+    "start_line": 338,
+    "end_line": 357,
+    "body_lines": 20,
+    "signature": "uint64_t get_ssb_bitmap(const NR_ServingCellConfigCommon_t *scc)",
+    "subsystem": "openair2/LAYER2/NR_MAC_gNB",
+    "token_estimate": 57
+  },
+  "bug": {
+    "bug_id": "c_stack_buffer_overflow",
+    "description": "stack buffer overflow from unbounded copy into fixed-size local array",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a stack buffer overflow from unbounded copy into fixed-size local array downstream of function get_ssb_bitmap in the openair2/LAYER2/NR_MAC_gNB subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c:338.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00195_4e0f03_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00195_4e0f03_p1.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 29,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:12:09Z"
+}

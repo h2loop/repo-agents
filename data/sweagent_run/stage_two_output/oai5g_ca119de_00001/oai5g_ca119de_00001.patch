@@ -1,0 +1,36 @@
+diff --git a/openair3/NAS/UE/EMM/Attach.c b/openair3/NAS/UE/EMM/Attach.c
+index 52f7ebce44..55669a940f 100644
+--- a/openair3/NAS/UE/EMM/Attach.c
++++ b/openair3/NAS/UE/EMM/Attach.c
+@@ -357,6 +357,15 @@ int emm_proc_attach_accept(nas_user_t *user, long t3412, long t3402, long t3423,
+   LOG_TRACE(INFO, "EMM-PROC  - Stop timer T3410 (%d)", emm_timers->T3410.id);
+   emm_timers->T3410.id = nas_timer_stop(emm_timers->T3410.id);
+ 
++  /* Validate and clamp n_tais to prevent integer overflow when storing in Byte_t field */
++  if (n_tais < 0) {
++    LOG_TRACE(ERROR, "EMM-PROC  - Invalid negative n_tais value: %d, setting to 0", n_tais);
++    n_tais = 0;
++  } else if (n_tais > 255) {
++    LOG_TRACE(ERROR, "EMM-PROC  - n_tais value too large: %d, clamping to 255", n_tais);
++    n_tais = 255;
++  }
++
+   /* Delete old TAI list and store the received TAI list */
+   user->emm_data->ltai.n_tais = n_tais;
+ 
+@@ -382,6 +391,15 @@ int emm_proc_attach_accept(nas_user_t *user, long t3412, long t3402, long t3423,
+     *user->emm_data->guti = *guti;
+   }
+ 
++  /* Validate and clamp n_eplmns to prevent integer overflow when storing in Byte_t field */
++  if (n_eplmns < 0) {
++    LOG_TRACE(ERROR, "EMM-PROC  - Invalid negative n_eplmns value: %d, setting to 0", n_eplmns);
++    n_eplmns = 0;
++  } else if (n_eplmns > 255) {
++    LOG_TRACE(ERROR, "EMM-PROC  - n_eplmns value too large: %d, clamping to 255", n_eplmns);
++    n_eplmns = 255;
++  }
++
+   /* Update the stored list of equivalent PLMNs */
+   user->emm_data->nvdata.eplmn.n_plmns = 0;
+ 

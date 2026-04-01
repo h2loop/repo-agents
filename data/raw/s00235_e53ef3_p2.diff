@@ -1,0 +1,61 @@
+diff --git a/openair3/NAS/COMMON/IES/EpsMobileIdentity.c b/openair3/NAS/COMMON/IES/EpsMobileIdentity.c
+index 4437412b86..a790fe107f 100644
+--- a/openair3/NAS/COMMON/IES/EpsMobileIdentity.c
++++ b/openair3/NAS/COMMON/IES/EpsMobileIdentity.c
+@@ -51,7 +51,7 @@ int decode_eps_mobile_identity(EpsMobileIdentity *epsmobileidentity, uint8_t iei
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+ 
+-  uint8_t typeofidentity = *(buffer + decoded) & 0x7;
++  uint8_t typeofidentity = *(buffer + decoded) & EPS_MOBILE_IDENTITY_TYPE_MASK;
+ 
+   if (typeofidentity == EPS_MOBILE_IDENTITY_IMSI) {
+     decoded_rc = decode_imsi_eps_mobile_identity(&epsmobileidentity->imsi,
+@@ -191,7 +191,7 @@ static int decode_guti_eps_mobile_identity(GutiEpsMobileIdentity_t *guti, uint8_
+   }
+ 
+   guti->oddeven = (*(buffer + decoded) >> 3) & 0x1;
+-  guti->typeofidentity = *(buffer + decoded) & 0x7;
++  guti->typeofidentity = *(buffer + decoded) & EPS_MOBILE_IDENTITY_TYPE_MASK;
+ 
+   if (guti->typeofidentity != EPS_MOBILE_IDENTITY_GUTI) {
+     return (TLV_ENCODE_VALUE_DOESNT_MATCH);
+@@ -219,7 +219,7 @@ static int decode_guti_eps_mobile_identity(GutiEpsMobileIdentity_t *guti, uint8_
+ static int decode_imsi_eps_mobile_identity(ImsiEpsMobileIdentity_t *imsi, uint8_t *buffer)
+ {
+   int decoded = 0;
+-  imsi->typeofidentity = *(buffer + decoded) & 0x7;
++  imsi->typeofidentity = *(buffer + decoded) & EPS_MOBILE_IDENTITY_TYPE_MASK;
+ 
+   if (imsi->typeofidentity != EPS_MOBILE_IDENTITY_IMSI) {
+     return (TLV_ENCODE_VALUE_DOESNT_MATCH);
+@@ -265,7 +265,7 @@ static int decode_imsi_eps_mobile_identity(ImsiEpsMobileIdentity_t *imsi, uint8_
+ static int decode_imei_eps_mobile_identity(ImeiEpsMobileIdentity_t *imei, uint8_t *buffer)
+ {
+   int decoded = 0;
+-  imei->typeofidentity = *(buffer + decoded) & 0x7;
++  imei->typeofidentity = *(buffer + decoded) & EPS_MOBILE_IDENTITY_TYPE_MASK;
+ 
+   if (imei->typeofidentity != EPS_MOBILE_IDENTITY_IMEI) {
+     return (TLV_ENCODE_VALUE_DOESNT_MATCH);
+@@ -302,7 +302,7 @@ static int encode_guti_eps_mobile_identity(GutiEpsMobileIdentity_t *guti, uint8_
+ {
+   uint32_t encoded = 0;
+   *(buffer + encoded) = 0xf0 | ((guti->oddeven & 0x1) << 3) |
+-                        (guti->typeofidentity & 0x7);
++                        (guti->typeofidentity & EPS_MOBILE_IDENTITY_TYPE_MASK);
+   encoded++;
+   *(buffer + encoded) = 0x00 | ((guti->mccdigit2 & 0xf) << 4) |
+                         (guti->mccdigit1 & 0xf);
+diff --git a/openair3/NAS/COMMON/IES/EpsMobileIdentity.h b/openair3/NAS/COMMON/IES/EpsMobileIdentity.h
+index d9b13f250c..9bcdfd8651 100644
+--- a/openair3/NAS/COMMON/IES/EpsMobileIdentity.h
++++ b/openair3/NAS/COMMON/IES/EpsMobileIdentity.h
+@@ -30,6 +30,7 @@
+ 
+ #define EPS_MOBILE_IDENTITY_MINIMUM_LENGTH 3
+ #define EPS_MOBILE_IDENTITY_MAXIMUM_LENGTH 13
++#define EPS_MOBILE_IDENTITY_TYPE_MASK 0x7
+ 
+ typedef struct {
+   uint8_t  spare:4;

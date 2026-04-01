@@ -1,0 +1,55 @@
+diff --git a/openair2/LAYER2/MAC/pre_processor.c b/openair2/LAYER2/MAC/pre_processor.c
+index f9f6269f43..20d4a6e2b0 100644
+--- a/openair2/LAYER2/MAC/pre_processor.c
++++ b/openair2/LAYER2/MAC/pre_processor.c
+@@ -791,7 +791,7 @@ int pp_find_rb_table_index(int approximate) {
+ 
+ void *rr_ul_setup(void) {
+   void *data = malloc(sizeof(int));
+-  *(int *) data = 0;
++  *(int *) data = -1;
+   AssertFatal(data, "could not allocate data in %s()\n", __func__);
+   return data;
+ }
+@@ -866,13 +866,13 @@ int rr_ul_run(module_id_t Mod_id,
+         mac->HI_DCI0_req[CC_id][subframe].hi_dci0_request_body.number_of_dci--;
+         continue;
+       }
++      UE_template->pre_allocated_nb_rb_ul = nb_rb;
+       LOG_D(MAC, "%4d.%d UE %d retx %d RBs at start %d\n",
+             sched_frame,
+             sched_subframe,
+             UE_id,
+             UE_template->pre_allocated_nb_rb_ul,
+             UE_template->pre_first_nb_rb_ul);
+-      UE_template->pre_allocated_nb_rb_ul = nb_rb;
+       max_num_ue--;
+       if (max_num_ue == 0) /* in this case, cannot allocate any other UE anymore */
+         return rbs[0].length + (num_contig_rb > 1 ? rbs[1].length : 0);
+@@ -890,7 +890,7 @@ int rr_ul_run(module_id_t Mod_id,
+     if (B == 0 && UE_to_be_scheduled) {
+       UE_template->pre_assigned_mcs_ul = 10; /* use QPSK mcs only */
+       rb_idx_required[UE_id] = 2;
+-      //UE_template->pre_allocated_nb_rb_ul = 3;
++      UE_template->pre_allocated_nb_rb_ul = 3;
+       continue;
+     }
+ 
+@@ -912,7 +912,7 @@ int rr_ul_run(module_id_t Mod_id,
+     /* rb_idx_given >= MAX index: limit RBs to value in configuration file 
+      * RBs in the uplink.  */
+     rb_idx_required[UE_id] = min(mac->max_ul_rb_index, rb_table_index);
+-    //UE_template->pre_allocated_nb_rb_ul = rb_table[rb_table_index];
++    UE_template->pre_allocated_nb_rb_ul = rb_table[rb_table_index];
+     /* only print log when PHR changed */
+     static int phr = 0;
+     if (phr != UE_template->phr_info) {
+@@ -1109,7 +1109,7 @@ void ulsch_scheduler_pre_processor(module_id_t Mod_id,
+     }
+   }
+ 
+-  mac->pre_processor_ul.ul_algo.run(Mod_id,
++  int remaining_rbs = mac->pre_processor_ul.ul_algo.run(Mod_id,
+                                     CC_id,
+                                     frameP,
+                                     subframeP,

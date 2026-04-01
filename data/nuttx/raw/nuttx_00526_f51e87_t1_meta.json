@@ -1,0 +1,26 @@
+{
+  "run_id": "nuttx_00526_f51e87",
+  "function": {
+    "name": "tmc_etr_hw_disable_and_read",
+    "file": "drivers/coresight/coresight_tmc_etr.c",
+    "start_line": 240,
+    "end_line": 251,
+    "body_lines": 12,
+    "signature": "static void tmc_etr_hw_disable_and_read(FAR struct coresight_tmc_dev_s *tmcdev)",
+    "subsystem": "drivers/coresight",
+    "token_estimate": 22
+  },
+  "bug": {
+    "bug_id": "c_heap_buffer_overflow",
+    "description": "heap buffer overflow due to incorrect size calculation",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a heap buffer overflow due to incorrect size calculation downstream of function tmc_etr_hw_disable_and_read in the drivers/coresight subsystem.\nThe function is located at drivers/coresight/coresight_tmc_etr.c:240.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 33,
+  "trajectory_steps": 34,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:23:23Z"
+}

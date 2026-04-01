@@ -1,0 +1,52 @@
+diff --git a/include/zephyr/shell/shell.h b/include/zephyr/shell/shell.h
+index cce85b10..e45d54c0 100644
+--- a/include/zephyr/shell/shell.h
++++ b/include/zephyr/shell/shell.h
+@@ -78,6 +78,10 @@ extern "C" {
+  * @version 1.0.0
+  * @ingroup os_services
+  * @{
++ *
++ * @note Stack Usage: Shell completion functions can use significant stack space.
++ *       For applications with complex command structures, ensure adequate stack
++ *       size is configured via CONFIG_SHELL_STACK_SIZE (minimum recommended 4096 bytes).
+  */
+ 
+ struct shell_static_entry;
+diff --git a/subsys/shell/Kconfig b/subsys/shell/Kconfig
+index 4bbc1aef..ff45c619 100644
+--- a/subsys/shell/Kconfig
++++ b/subsys/shell/Kconfig
+@@ -47,10 +47,15 @@ config SHELL_STACK_SIZE
+ 	int "Shell thread stack size"
+ 	default 3168 if OPENTHREAD_SHELL
+ 	default 3072 if 64BIT
+-	default 2048 if MULTITHREADING
++	default 4096 if MULTITHREADING
+ 	default 0 if !MULTITHREADING
+ 	help
+ 	  Stack size for thread created for each instance.
++	  
++	  Note: Shell completion functions (e.g., find_completion_candidates) 
++	  can use significant stack space. For applications with complex command 
++	  structures, a stack size of at least 4096 bytes is recommended to avoid 
++	  stack overflow issues.
+ 
+ config SHELL_BACKSPACE_MODE_DELETE
+ 	bool "Default escape code for backspace is DELETE (0x7F)"
+diff --git a/subsys/shell/shell.c b/subsys/shell/shell.c
+index b86806a1..56149fab 100644
+--- a/subsys/shell/shell.c
++++ b/subsys/shell/shell.c
+@@ -332,6 +332,11 @@ static void find_completion_candidates(const struct shell *sh,
+ 				       uint16_t *longest)
+ {
+ 	const struct shell_static_entry *candidate;
++	/* Note: dloc is allocated on stack and used by z_shell_cmd_get.
++	 * This function can contribute to stack usage, especially when called
++	 * in complex completion scenarios. Ensure adequate stack size is configured
++	 * via CONFIG_SHELL_STACK_SIZE (minimum recommended 4096 bytes).
++	 */
+ 	struct shell_static_entry dloc;
+ 	size_t incompl_cmd_len;
+ 	size_t idx = 0;

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix potential segfault in has_cap_sys_nice when cap_get_pid returns NULL\n\n### Summary\nThe `has_cap_sys_nice()` function in system.c can cause a segfault when `cap_get_pid(0)` returns NULL due to insufficient privileges or other errors. The function proceeds to call `cap_get_flag()` with a NULL capability pointer, leading to undefined behavior.\n\nThis issue manifests when running OAI applications in restricted environments where capability retrieval fails. Users may observe sudden termination with SIGSEGV during thread initialization.\n\n### Changes\n- `common/utils/system.c`: Added NULL check after `cap_get_pid(0)` call to prevent segfault\n- Return false safely when capabilities cannot be retrieved\n\nTo reproduce: Run any OAI executable in a container or environment without proper capability setup. The application will crash during startup when checking for CAP_SYS_NICE.\n"
+}

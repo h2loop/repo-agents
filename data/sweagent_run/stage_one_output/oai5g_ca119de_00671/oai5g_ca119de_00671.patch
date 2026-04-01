@@ -1,0 +1,40 @@
+diff --git a/openair1/PHY/NR_TRANSPORT/nr_prs.c b/openair1/PHY/NR_TRANSPORT/nr_prs.c
+index 4a93e4d66a..9d51aff6ab 100644
+--- a/openair1/PHY/NR_TRANSPORT/nr_prs.c
++++ b/openair1/PHY/NR_TRANSPORT/nr_prs.c
+@@ -55,13 +55,18 @@ int nr_generate_prs(uint32_t **nr_gold_prs,
+       LOG_D("m %d at k %d of l %d reIdx %d\n", m, k, l, (l*frame_parms->ofdm_symbol_size + k)<<1);
+ #endif
+       
+-      ((int16_t *)txdataF)[(l*frame_parms->ofdm_symbol_size + k)<<1]       = (amp * mod_prs[m<<1]) >> 15;
+-      ((int16_t *)txdataF)[((l*frame_parms->ofdm_symbol_size + k)<<1) + 1] = (amp * mod_prs[(m<<1) + 1]) >> 15;
++      int32_t index = (l*frame_parms->ofdm_symbol_size + k)<<1;
++      if (index >= 0 && index + 1 < frame_parms->samples_per_slot_wCP * 2) {
++        ((int16_t *)txdataF)[index]       = (amp * mod_prs[m<<1]) >> 15;
++        ((int16_t *)txdataF)[index + 1]   = (amp * mod_prs[(m<<1) + 1]) >> 15;
++      }
+     
+ #ifdef DEBUG_PRS_MAP
+-      LOG_D("(%d,%d)\n",
+-      ((int16_t *)txdataF)[(l*frame_parms->ofdm_symbol_size + k)<<1],
+-      ((int16_t *)txdataF)[((l*frame_parms->ofdm_symbol_size + k)<<1)+1]);
++      if (index >= 0 && index + 1 < frame_parms->samples_per_slot_wCP * 2) {
++        LOG_D("(%d,%d)\n",
++        ((int16_t *)txdataF)[index],
++        ((int16_t *)txdataF)[index+1]);
++      }
+ #endif
+ 
+       k = k +  prs_cfg->CombSize;
+@@ -71,7 +76,10 @@ int nr_generate_prs(uint32_t **nr_gold_prs,
+       }
+   }
+ #ifdef DEBUG_PRS_MAP
+-  LOG_M("nr_prs.m", "prs",(int16_t *)&txdataF[prs_cfg->SymbolStart*frame_parms->ofdm_symbol_size],prs_cfg->NumPRSSymbols*frame_parms->ofdm_symbol_size, 1, 1);
++  int32_t debug_start_index = prs_cfg->SymbolStart*frame_parms->ofdm_symbol_size;
++  if (debug_start_index >= 0 && debug_start_index < frame_parms->samples_per_slot_wCP) {
++    LOG_M("nr_prs.m", "prs",(int16_t *)&txdataF[debug_start_index],prs_cfg->NumPRSSymbols*frame_parms->ofdm_symbol_size, 1, 1);
++  }
+ #endif
+   return 0;
+ }

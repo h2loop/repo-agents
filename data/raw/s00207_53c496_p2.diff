@@ -1,0 +1,63 @@
+diff --git a/openair2/F1AP/f1ap_ids.c b/openair2/F1AP/f1ap_ids.c
+index 5569d60c48..8d4d251cc4 100644
+--- a/openair2/F1AP/f1ap_ids.c
++++ b/openair2/F1AP/f1ap_ids.c
+@@ -115,6 +115,15 @@ bool cu_remove_f1_ue_data(uint32_t ue_id)
+   return ret == HASH_TABLE_OK;
+ }
+ 
++void cu_destroy_f1_ue_data(void)
++{
++  pthread_mutex_lock(&cu2du_mutex);
++  if (cu2du_ue_mapping != NULL) {
++    hashtable_destroy(&cu2du_ue_mapping);
++  }
++  pthread_mutex_unlock(&cu2du_mutex);
++}
++
+ /* DU version below */
+ static hash_table_t *du2cu_ue_mapping;
+ static pthread_mutex_t du2cu_mutex = PTHREAD_MUTEX_INITIALIZER;
+@@ -170,3 +179,12 @@ bool du_remove_f1_ue_data(uint32_t ue_id)
+   pthread_mutex_unlock(&du2cu_mutex);
+   return ret == HASH_TABLE_OK;
+ }
++
++void du_destroy_f1_ue_data(void)
++{
++  pthread_mutex_lock(&du2cu_mutex);
++  if (du2cu_ue_mapping != NULL) {
++    hashtable_destroy(&du2cu_ue_mapping);
++  }
++  pthread_mutex_unlock(&du2cu_mutex);
++}
+diff --git a/openair2/F1AP/f1ap_ids.h b/openair2/F1AP/f1ap_ids.h
+index 585ed33322..d1bc8216d0 100644
+--- a/openair2/F1AP/f1ap_ids.h
++++ b/openair2/F1AP/f1ap_ids.h
+@@ -43,11 +43,13 @@ bool cu_exists_f1_ue_data(uint32_t ue_id);
+ bool cu_update_f1_ue_data(uint32_t ue_id, const f1_ue_data_t *data);
+ f1_ue_data_t cu_get_f1_ue_data(uint32_t ue_id);
+ bool cu_remove_f1_ue_data(uint32_t ue_id);
++void cu_destroy_f1_ue_data(void);
+ 
+ void du_init_f1_ue_data(void);
+ bool du_add_f1_ue_data(uint32_t ue_id, const f1_ue_data_t *data);
+ bool du_exists_f1_ue_data(uint32_t ue_id);
+ f1_ue_data_t du_get_f1_ue_data(uint32_t ue_id);
+ bool du_remove_f1_ue_data(uint32_t ue_id);
++void du_destroy_f1_ue_data(void);
+ 
+ #endif /* F1AP_IDS_H_ */
+diff --git a/openair2/F1AP/f1ap_ids_test.c b/openair2/F1AP/f1ap_ids_test.c
+index a58059339d..449f15eeb3 100644
+--- a/openair2/F1AP/f1ap_ids_test.c
++++ b/openair2/F1AP/f1ap_ids_test.c
+@@ -38,6 +38,7 @@ void du_data_test()
+   DevAssert(exists);
+   f1_ue_data_t rdata = du_get_f1_ue_data(rnti);
+   DevAssert(rdata.secondary_ue == data.secondary_ue);
++  du_destroy_f1_ue_data();
+ }
+ 
+ void cu_data_test()

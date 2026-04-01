@@ -1,0 +1,9 @@
+{
+  "run_id": "s00319_58d1cb",
+  "pr_text": "## Title: Fix buffer overflow in DLSCH UE selection functions\n\n### Summary\nThe DLSCH UE selection functions `set_dl_ue_select_msg2` and `set_dl_ue_select_msg4` in the eNB MAC scheduler lack bounds checking when populating the UE selection list. When more than 20 UEs are scheduled for downlink transmission within a single scheduling interval, the code writes beyond the fixed-size array `dlsch_ue_select[CC_id].list[20]`, causing memory corruption and potential segmentation faults.\n\nThe root cause ",
+  "trajectory_path": "data/raw/s00319_58d1cb_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00319_58d1cb_p2.diff",
+  "patch_lines": 18,
+  "trajectory_steps": 22,
+  "timestamp": "2026-02-11T14:25:35Z"
+}

@@ -1,0 +1,35 @@
+{
+  "run_id": "s00000_be5e18",
+  "function": {
+    "name": "init_ue_list",
+    "file": "openair2/LAYER2/MAC/eNB_scheduler_primitives.c",
+    "start_line": 2153,
+    "end_line": 2157,
+    "body_lines": 5,
+    "signature": "inline void init_ue_list(UE_list_t *listP)",
+    "subsystem": "openair2/LAYER2/MAC",
+    "token_estimate": 21
+  },
+  "bug": {
+    "bug_id": "c_race_condition",
+    "description": "race condition on shared data accessed from multiple threads without synchronization",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a race condition on shared data accessed from multiple threads without synchronization downstream of function init_ue_list in the openair2/LAYER2/MAC subsystem.\nThe function is located at openair2/LAYER2/MAC/eNB_scheduler_primitives.c:2153.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00000_be5e18_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00000_be5e18_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 54,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:34:52Z"
+}

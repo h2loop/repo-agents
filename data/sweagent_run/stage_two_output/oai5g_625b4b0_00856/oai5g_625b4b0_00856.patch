@@ -1,0 +1,114 @@
+diff --git a/openair2/LAYER2/rlc_v2/rlc_oai_api.c b/openair2/LAYER2/rlc_v2/rlc_oai_api.c
+index 88e4761f23..c0b50c353b 100644
+--- a/openair2/LAYER2/rlc_v2/rlc_oai_api.c
++++ b/openair2/LAYER2/rlc_v2/rlc_oai_api.c
+@@ -312,7 +312,8 @@ rlc_op_status_t rlc_data_req(const protocol_ctxt_t *const ctxt_pP,
+     rb->recv_sdu(rb, (char *)sdu_pP, sdu_sizeP, muiP);
+   } else {
+     LOG_E(RLC, "%s:%d:%s: fatal: SDU sent to unknown RB\n", __FILE__, __LINE__, __FUNCTION__);
+-    exit(1);
++    rlc_manager_unlock(rlc_ue_manager);
++    return RLC_OP_STATUS_BAD_PARAMETER;
+   }
+ 
+   rlc_manager_unlock(rlc_ue_manager);
+@@ -804,16 +805,15 @@ rlc_op_status_t rrc_rlc_config_asn1_req (const protocol_ctxt_t   * const ctxt_pP
+       (ctxt_pP->module_id != 0 || ctxt_pP->instance != 0)) {
+     LOG_E(RLC, "%s: module_id != 0 or instance != 0 not handled for eNB\n",
+           __FUNCTION__);
+-    exit(1);
++    return RLC_OP_STATUS_BAD_PARAMETER;
+   }
+ 
+-  if (0 /*||
+-      ctxt_pP->instance != 0 || ctxt_pP->eNB_index != 0 ||
+-      ctxt_pP->brOption != 0 */) {
++  if (ctxt_pP->instance != 0 || ctxt_pP->eNB_index != 0 ||
++      ctxt_pP->brOption != 0) {
+     LOG_E(RLC, "%s: ctxt_pP not handled (%d %d %ld %d %d)\n", __FUNCTION__,
+           ctxt_pP->enb_flag , ctxt_pP->module_id, ctxt_pP->instance,
+           ctxt_pP->eNB_index, ctxt_pP->brOption);
+-    exit(1);
++    return RLC_OP_STATUS_BAD_PARAMETER;
+   }
+ 
+   if (pmch_InfoList_r9_pP != NULL) {
+@@ -840,7 +840,6 @@ rlc_op_status_t rrc_rlc_config_asn1_req (const protocol_ctxt_t   * const ctxt_pP
+         mbms_service_id    = MBMS_SessionInfo_p->tmgi_r9.serviceId_r9.buf[2]; //serviceId is 3-octet string
+ //        mbms_service_id    = j;
+ 
+-#if 0
+         /* TODO: check if this code should stay there
+          * as it is both enb and ue cases do the same thing
+          */
+@@ -850,9 +849,6 @@ rlc_op_status_t rrc_rlc_config_asn1_req (const protocol_ctxt_t   * const ctxt_pP
+         } else {
+           drb_id =  (mbms_service_id * LTE_maxSessionPerPMCH ) + mbms_session_id; // + (LTE_maxDRB + 3); // 15
+         }
+-#endif
+-
+-        drb_id =  (mbms_service_id * LTE_maxSessionPerPMCH ) + mbms_session_id;
+ 
+         LOG_I(RLC, PROTOCOL_CTXT_FMT" CONFIG REQ MBMS ASN1 LC ID %u RB ID %u SESSION ID %u SERVICE ID %u, mbms_rnti %x\n",
+               PROTOCOL_CTXT_ARGS(ctxt_pP),
+@@ -892,8 +888,33 @@ rlc_op_status_t rrc_rlc_config_asn1_req (const protocol_ctxt_t   * const ctxt_pP
+   }
+ 
+   if (drb2release_listP != NULL) {
+-    LOG_E(RLC, "%s:%d:%s: TODO\n", __FILE__, __LINE__, __FUNCTION__);
+-    exit(1);
++    rlc_ue_t *ue;
++    
++    rlc_manager_lock(rlc_ue_manager);
++    ue = rlc_manager_get_ue(rlc_ue_manager, rnti);
++    
++    for (i = 0; i < drb2release_listP->list.count; i++) {
++      rb_id_t drb_id = *(drb2release_listP->list.array[i]);
++      
++      if (drb_id >= 1 && drb_id <= 5) {
++        if (ue->drb[drb_id-1] != NULL) {
++          ue->drb[drb_id-1]->delete(ue->drb[drb_id-1]);
++          ue->drb[drb_id-1] = NULL;
++          LOG_D(RLC, "%s:%d:%s: released DRB %d for UE %d\n", 
++                __FILE__, __LINE__, __FUNCTION__, (int)drb_id, rnti);
++        } else {
++          LOG_W(RLC, "%s:%d:%s: trying to release non-allocated DRB %d for UE %d\n", 
++                __FILE__, __LINE__, __FUNCTION__, (int)drb_id, rnti);
++        }
++      } else {
++        LOG_E(RLC, "%s:%d:%s: invalid DRB ID %d for release\n", 
++              __FILE__, __LINE__, __FUNCTION__, (int)drb_id);
++        rlc_manager_unlock(rlc_ue_manager);
++        return RLC_OP_STATUS_BAD_PARAMETER;
++      }
++    }
++    
++    rlc_manager_unlock(rlc_ue_manager);
+   }
+ 
+   if (srb2add_listP != NULL) {
+@@ -923,20 +944,20 @@ rlc_op_status_t rrc_rlc_config_req   (
+ 
+   if (mbms_flagP) {
+     LOG_E(RLC, "%s:%d:%s: todo (mbms not supported)\n", __FILE__, __LINE__, __FUNCTION__);
+-    exit(1);
++    return RLC_OP_STATUS_BAD_PARAMETER;
+   }
+   if (actionP != CONFIG_ACTION_REMOVE) {
+     LOG_E(RLC, "%s:%d:%s: todo (only CONFIG_ACTION_REMOVE supported)\n", __FILE__, __LINE__, __FUNCTION__);
+-    exit(1);
++    return RLC_OP_STATUS_BAD_PARAMETER;
+   }
+   if (ctxt_pP->module_id) {
+     LOG_E(RLC, "%s:%d:%s: todo (only module_id 0 supported)\n", __FILE__, __LINE__, __FUNCTION__);
+-    exit(1);
++    return RLC_OP_STATUS_BAD_PARAMETER;
+   }
+   if ((srb_flagP && !(rb_idP >= 1 && rb_idP <= 2)) ||
+       (!srb_flagP && !(rb_idP >= 1 && rb_idP <= 5))) {
+     LOG_E(RLC, "%s:%d:%s: bad rb_id (%d) (is_srb %d)\n", __FILE__, __LINE__, __FUNCTION__, (int)rb_idP, srb_flagP);
+-    exit(1);
++    return RLC_OP_STATUS_BAD_PARAMETER;
+   }
+   rlc_manager_lock(rlc_ue_manager);
+   LOG_D(RLC, "remove rb %d (is_srb %d) for UE %lx\n", (int)rb_idP, srb_flagP, ctxt_pP->rntiMaybeUEid);

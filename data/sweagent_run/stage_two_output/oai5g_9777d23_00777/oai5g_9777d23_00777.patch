@@ -1,0 +1,107 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c
+index f890ae087b..28f6eced2e 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c
+@@ -1468,14 +1468,14 @@ static void nr_ue_max_mcs_min_rb(int mu,
+ }
+ 
+ static bool allocate_ul_retransmission(gNB_MAC_INST *nrmac,
+-				       frame_t frame,
+-				       sub_frame_t slot,
+-				       uint16_t *rballoc_mask,
+-				       int *n_rb_sched,
+-				       NR_UE_info_t* UE,
+-				       int harq_pid,
+-				       const NR_ServingCellConfigCommon_t *scc,
+-				       const int tda)
++                                       frame_t frame,
++                                       sub_frame_t slot,
++                                       uint16_t *rballoc_mask,
++                                       int *n_rb_sched,
++                                       NR_UE_info_t* UE,
++                                       int harq_pid,
++                                       const NR_ServingCellConfigCommon_t *scc,
++                                       const int tda)
+ {
+   const int CC_id = 0;
+   NR_UE_sched_ctrl_t *sched_ctrl = &UE->UE_sched_ctrl;
+@@ -1595,7 +1595,7 @@ static bool allocate_ul_retransmission(gNB_MAC_INST *nrmac,
+   /* no need to recompute the TBS, it will be the same */
+ 
+   /* Mark the corresponding RBs as used */
+-  n_rb_sched -= sched_pusch->rbSize;
++  *n_rb_sched -= sched_pusch->rbSize;
+   for (int rb = 0; rb < sched_ctrl->sched_pusch.rbSize; rb++)
+     rballoc_mask[rb + sched_ctrl->sched_pusch.rbStart] ^= SL_to_bitmap(sched_pusch->tda_info.startSymbolIndex, sched_pusch->tda_info.nrOfSymbols);
+   return true;
+@@ -1616,10 +1616,15 @@ static void pf_ul(module_id_t module_id,
+                   sub_frame_t slot,
+                   NR_UE_info_t *UE_list[],
+                   int max_num_ue,
+-                  int n_rb_sched,
++                  int *n_rb_sched,
+                   uint16_t *rballoc_mask)
+ {
+ 
++  if (n_rb_sched == NULL) {
++    LOG_E(NR_MAC, "n_rb_sched is NULL in pf_ul\n");
++    return;
++  }
++
+   const int CC_id = 0;
+   gNB_MAC_INST *nrmac = RC.nrmac[module_id];
+   NR_ServingCellConfigCommon_t *scc = nrmac->common_channels[CC_id].ServingCellConfigCommon;
+@@ -1660,7 +1665,7 @@ static void pf_ul(module_id_t module_id,
+     if (sched_pusch->ul_harq_pid >= 0) {
+       /* Allocate retransmission*/
+       const int tda = get_ul_tda(nrmac, scc, sched_pusch->frame, sched_pusch->slot);
+-      bool r = allocate_ul_retransmission(nrmac, frame, slot, rballoc_mask, &n_rb_sched, UE, sched_pusch->ul_harq_pid, scc, tda);
++      bool r = allocate_ul_retransmission(nrmac, frame, slot, rballoc_mask, n_rb_sched, UE, sched_pusch->ul_harq_pid, scc, tda);
+       if (!r) {
+         LOG_D(NR_MAC, "[UE %04x][%4d.%2d] UL retransmission could not be allocated\n",
+               UE->rnti,
+@@ -1769,7 +1774,7 @@ static void pf_ul(module_id_t module_id,
+                                             sched_pusch->nrOfLayers) >> 3;
+ 
+       /* Mark the corresponding RBs as used */
+-      n_rb_sched -= sched_pusch->rbSize;
++      *n_rb_sched -= sched_pusch->rbSize;
+       for (int rb = 0; rb < sched_ctrl->sched_pusch.rbSize; rb++)
+         rballoc_mask[rb + sched_ctrl->sched_pusch.rbStart] ^= slbitmap;
+ 
+@@ -1798,7 +1803,7 @@ static void pf_ul(module_id_t module_id,
+   UEsched_t *iterator=UE_sched;
+ 
+   /* Loop UE_sched to find max coeff and allocate transmission */
+-  while (remainUEs> 0 && n_rb_sched >= min_rb && iterator->UE != NULL) {
++  while (remainUEs> 0 && *n_rb_sched >= min_rb && iterator->UE != NULL) {
+ 
+     NR_UE_sched_ctrl_t *sched_ctrl = &iterator->UE->UE_sched_ctrl;
+     int CCEIndex = get_cce_index(nrmac,
+@@ -1894,7 +1899,7 @@ static void pf_ul(module_id_t module_id,
+                        CCEIndex,
+                        sched_ctrl->aggregation_level);
+ 
+-    n_rb_sched -= sched_pusch->rbSize;
++    *n_rb_sched -= sched_pusch->rbSize;
+     for (int rb = 0; rb < sched_ctrl->sched_pusch.rbSize; rb++)
+       rballoc_mask[rb + sched_ctrl->sched_pusch.rbStart] ^= slbitmap;
+ 
+@@ -1946,7 +1951,7 @@ static bool nr_fr1_ulsch_preprocessor(module_id_t module_id, frame_t frame, sub_
+     NR_UE_sched_ctrl_t *sched_ctrl = &UE2->UE_sched_ctrl;
+     AssertFatal(K2 == get_K2(tdaList, tda, mu),
+                 "Different K2, %d(UE%d) != %ld(UE%04x)\n",
+-		K2, 0, get_K2(tdaList, tda, mu), UE2->rnti);
++                K2, 0, get_K2(tdaList, tda, mu), UE2->rnti);
+     sched_ctrl->sched_pusch.slot = sched_slot;
+     sched_ctrl->sched_pusch.frame = sched_frame;
+   }
+@@ -1998,7 +2003,7 @@ static bool nr_fr1_ulsch_preprocessor(module_id_t module_id, frame_t frame, sub_
+         slot,
+         nr_mac->UE_info.list,
+         max_sched_ues,
+-        len,
++        &len,
+         rballoc_mask);
+   return true;
+ }

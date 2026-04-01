@@ -1,0 +1,84 @@
+diff --git a/targets/TARGET_STM/TARGET_STM32F0/STM32Cube_FW/STM32F0xx_HAL_Driver/stm32f0xx_ll_adc.h b/targets/TARGET_STM/TARGET_STM32F0/STM32Cube_FW/STM32F0xx_HAL_Driver/stm32f0xx_ll_adc.h
+index f9bea0ea..f4873c6b 100644
+--- a/targets/TARGET_STM/TARGET_STM32F0/STM32Cube_FW/STM32F0xx_HAL_Driver/stm32f0xx_ll_adc.h
++++ b/targets/TARGET_STM/TARGET_STM32F0/STM32Cube_FW/STM32F0xx_HAL_Driver/stm32f0xx_ll_adc.h
+@@ -2746,12 +2746,9 @@ __STATIC_INLINE uint32_t LL_ADC_GetAnalogWDThresholds(ADC_TypeDef *ADCx, uint32_
+   */
+ __STATIC_INLINE void LL_ADC_Enable(ADC_TypeDef *ADCx)
+ {
+-  /* Note: Write register with some additional bits forced to state reset     */
+-  /*       instead of modifying only the selected bit for this function,      */
+-  /*       to not interfere with bits with HW property "rs".                  */
+-  MODIFY_REG(ADCx->CR,
+-             ADC_CR_BITS_PROPERTY_RS,
+-             ADC_CR_ADEN);
++  /* Note: For bits with HW property "rs", only set the bit without clearing others */
++  /*       to avoid race conditions in multi-threaded environments.               */
++  SET_BIT(ADCx->CR, ADC_CR_ADEN);
+ }
+ 
+ /**
+@@ -2766,12 +2763,9 @@ __STATIC_INLINE void LL_ADC_Enable(ADC_TypeDef *ADCx)
+   */
+ __STATIC_INLINE void LL_ADC_Disable(ADC_TypeDef *ADCx)
+ {
+-  /* Note: Write register with some additional bits forced to state reset     */
+-  /*       instead of modifying only the selected bit for this function,      */
+-  /*       to not interfere with bits with HW property "rs".                  */
+-  MODIFY_REG(ADCx->CR,
+-             ADC_CR_BITS_PROPERTY_RS,
+-             ADC_CR_ADDIS);
++  /* Note: For bits with HW property "rs", only set the bit without clearing others */
++  /*       to avoid race conditions in multi-threaded environments.               */
++  SET_BIT(ADCx->CR, ADC_CR_ADDIS);
+ }
+ 
+ /**
+@@ -2826,12 +2820,9 @@ __STATIC_INLINE uint32_t LL_ADC_IsDisableOngoing(ADC_TypeDef *ADCx)
+   */
+ __STATIC_INLINE void LL_ADC_StartCalibration(ADC_TypeDef *ADCx)
+ {
+-  /* Note: Write register with some additional bits forced to state reset     */
+-  /*       instead of modifying only the selected bit for this function,      */
+-  /*       to not interfere with bits with HW property "rs".                  */
+-  MODIFY_REG(ADCx->CR,
+-             ADC_CR_BITS_PROPERTY_RS,
+-             ADC_CR_ADCAL);
++  /* Note: For bits with HW property "rs", only set the bit without clearing others */
++  /*       to avoid race conditions in multi-threaded environments.               */
++  SET_BIT(ADCx->CR, ADC_CR_ADCAL);
+ }
+ 
+ /**
+@@ -2873,12 +2864,9 @@ __STATIC_INLINE uint32_t LL_ADC_IsCalibrationOnGoing(ADC_TypeDef *ADCx)
+   */
+ __STATIC_INLINE void LL_ADC_REG_StartConversion(ADC_TypeDef *ADCx)
+ {
+-  /* Note: Write register with some additional bits forced to state reset     */
+-  /*       instead of modifying only the selected bit for this function,      */
+-  /*       to not interfere with bits with HW property "rs".                  */
+-  MODIFY_REG(ADCx->CR,
+-             ADC_CR_BITS_PROPERTY_RS,
+-             ADC_CR_ADSTART);
++  /* Note: For bits with HW property "rs", only set the bit without clearing others */
++  /*       to avoid race conditions in multi-threaded environments.               */
++  SET_BIT(ADCx->CR, ADC_CR_ADSTART);
+ }
+ 
+ /**
+@@ -2893,12 +2881,9 @@ __STATIC_INLINE void LL_ADC_REG_StartConversion(ADC_TypeDef *ADCx)
+   */
+ __STATIC_INLINE void LL_ADC_REG_StopConversion(ADC_TypeDef *ADCx)
+ {
+-  /* Note: Write register with some additional bits forced to state reset     */
+-  /*       instead of modifying only the selected bit for this function,      */
+-  /*       to not interfere with bits with HW property "rs".                  */
+-  MODIFY_REG(ADCx->CR,
+-             ADC_CR_BITS_PROPERTY_RS,
+-             ADC_CR_ADSTP);
++  /* Note: For bits with HW property "rs", only set the bit without clearing others */
++  /*       to avoid race conditions in multi-threaded environments.               */
++  SET_BIT(ADCx->CR, ADC_CR_ADSTP);
+ }
+ 
+ /**

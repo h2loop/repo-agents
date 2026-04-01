@@ -1,0 +1,58 @@
+diff --git a/openair2/RRC/NR/rrc_gNB_du.c b/openair2/RRC/NR/rrc_gNB_du.c
+index b24e6f594c..771b9f702d 100644
+--- a/openair2/RRC/NR/rrc_gNB_du.c
++++ b/openair2/RRC/NR/rrc_gNB_du.c
+@@ -388,10 +388,22 @@ void rrc_gNB_process_f1_du_configuration_update(f1ap_gnb_du_configuration_update
+   nr_rrc_du_container_t *du = get_du_by_assoc_id(rrc, assoc_id);
+   AssertError(du != NULL, return, "no DU found for assoc_id %d\n", assoc_id);
+ 
++  // If there's nothing to do, we can acknowledge immediately
++  if (conf_up->num_cells_to_add == 0 && conf_up->num_cells_to_modify == 0 && conf_up->num_cells_to_delete == 0) {
++    LOG_I(RRC, "gNB-DU configuration update with no operations, sending acknowledge\n");
++    f1ap_gnb_du_configuration_update_acknowledge_t ack = {.transaction_id = conf_up->transaction_id};
++    rrc->mac_rrc.gnb_du_configuration_update_acknowledge(assoc_id, &ack);
++    return;
++  }
++
+   const f1ap_served_cell_info_t *info = &du->setup_req->cell[0].info;
+   if (conf_up->num_cells_to_add > 0) {
+-    // Here we check if the number of cell limit is respectet, otherwise send failure
++    // Here we check if the number of cell limit is respected, otherwise send failure
+     LOG_W(RRC, "du_configuration_update->cells_to_add_list is not supported yet");
++    // Send acknowledge for unsupported operation (no failure callback available)
++    f1ap_gnb_du_configuration_update_acknowledge_t ack = {.transaction_id = conf_up->transaction_id};
++    rrc->mac_rrc.gnb_du_configuration_update_acknowledge(assoc_id, &ack);
++    return;
+   }
+ 
+   if (conf_up->num_cells_to_modify > 0) {
+@@ -400,12 +412,18 @@ void rrc_gNB_process_f1_du_configuration_update(f1ap_gnb_du_configuration_update
+ 
+     if (info->nr_cellid != conf_up->cell_to_modify[0].old_nr_cellid) {
+       LOG_W(RRC, "no cell with ID %ld found, ignoring gNB-DU configuration update\n", conf_up->cell_to_modify[0].old_nr_cellid);
++      // Send acknowledge even if we didn't modify anything
++      f1ap_gnb_du_configuration_update_acknowledge_t ack = {.transaction_id = conf_up->transaction_id};
++      rrc->mac_rrc.gnb_du_configuration_update_acknowledge(assoc_id, &ack);
+       return;
+     }
+ 
+     // verify the new plmn of the cell
+     if (!rrc_gNB_plmn_matches(rrc, &conf_up->cell_to_modify[0].info)) {
+       LOG_W(RRC, "PLMN does not match, ignoring gNB-DU configuration update\n");
++      // Send acknowledge even if we didn't modify anything
++      f1ap_gnb_du_configuration_update_acknowledge_t ack = {.transaction_id = conf_up->transaction_id};
++      rrc->mac_rrc.gnb_du_configuration_update_acknowledge(assoc_id, &ack);
+       return;
+     }
+ 
+@@ -438,6 +456,10 @@ void rrc_gNB_process_f1_du_configuration_update(f1ap_gnb_du_configuration_update
+   if (conf_up->num_cells_to_delete > 0) {
+     // delete the cell and send cell to desactive IE in the response.
+     LOG_W(RRC, "du_configuration_update->cells_to_delete_list is not supported yet");
++    // Send acknowledge for unsupported operation (no failure callback available)
++    f1ap_gnb_du_configuration_update_acknowledge_t ack = {.transaction_id = conf_up->transaction_id};
++    rrc->mac_rrc.gnb_du_configuration_update_acknowledge(assoc_id, &ack);
++    return;
+   }
+ 
+   /* Send DU Configuration Acknowledgement */

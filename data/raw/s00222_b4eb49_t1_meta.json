@@ -1,0 +1,30 @@
+{
+  "run_id": "s00222_b4eb49",
+  "function": {
+    "name": "emm_proc_attach_release",
+    "file": "openair3/NAS/UE/EMM/Attach.c",
+    "start_line": 851,
+    "end_line": 866,
+    "body_lines": 16,
+    "signature": "int emm_proc_attach_release(void *args)",
+    "subsystem": "openair3/NAS/UE",
+    "token_estimate": 33
+  },
+  "bug": {
+    "bug_id": "telecom_asn1_encoding_error",
+    "description": "ASN.1 encoding error producing malformed protocol message",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a ASN.1 encoding error producing malformed protocol message downstream of function emm_proc_attach_release in the openair3/NAS/UE subsystem.\nThe function is located at openair3/NAS/UE/EMM/Attach.c:851.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00222_b4eb49_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00222_b4eb49_p1.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 28,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:26:15Z"
+}

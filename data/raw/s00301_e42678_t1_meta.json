@@ -1,0 +1,32 @@
+{
+  "run_id": "s00301_e42678",
+  "function": {
+    "name": "nas_timer_start",
+    "file": "openair3/NAS/COMMON/UTIL/nas_timer.c",
+    "start_line": 190,
+    "end_line": 226,
+    "body_lines": 37,
+    "signature": "int nas_timer_start(long sec, nas_timer_callback_t cb, void *args)",
+    "subsystem": "openair3/NAS/COMMON",
+    "token_estimate": 114
+  },
+  "bug": {
+    "bug_id": "c_type_confusion",
+    "description": "type confusion where a pointer is cast to an incompatible struct type",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a type confusion where a pointer is cast to an incompatible struct type downstream of function nas_timer_start in the openair3/NAS/COMMON subsystem.\nThe function is located at openair3/NAS/COMMON/UTIL/nas_timer.c:190.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00301_e42678_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00301_e42678_p1.diff",
+  "patch_lines": 10,
+  "trajectory_steps": 54,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:28:39Z"
+}

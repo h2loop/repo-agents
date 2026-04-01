@@ -1,0 +1,85 @@
+diff --git a/common/utils/T/tracer/gnb.c b/common/utils/T/tracer/gnb.c
+index 22567492f8..673556ee70 100644
+--- a/common/utils/T/tracer/gnb.c
++++ b/common/utils/T/tracer/gnb.c
+@@ -3,6 +3,7 @@
+ #include <string.h>
+ #include <pthread.h>
+ #include <unistd.h>
++#include <signal.h>
+ #include "database.h"
+ #include "event.h"
+ #include "handler.h"
+@@ -15,6 +16,13 @@
+ int ue_id[65536];
+ int next_ue_id;
+ 
++volatile int exit_flag = 0;
++
++void signal_handler(int sig)
++{
++  exit_flag = 1;
++}
++
+ typedef struct {
+   widget *pucch_pusch_iq_plot;
+   widget *ul_freq_estimate_ue_xy_plot;
+@@ -267,6 +275,12 @@ int main(int n, char **v)
+ 
+   OBUF ebuf = {.osize = 0, .omaxsize = 0, .obuf = NULL};
+ 
++  /* Register signal handlers for graceful shutdown */
++  if (signal(SIGINT, signal_handler) == SIG_ERR) abort();
++  if (signal(SIGTERM, signal_handler) == SIG_ERR) abort();
++  /* Ignore SIGPIPE to prevent crashes when socket is closed */
++  if (signal(SIGPIPE, SIG_IGN) == SIG_ERR) abort();
++
+ restart:
+   clear_remote_config();
+   if (gnb_data.socket != -1) close(gnb_data.socket);
+@@ -276,7 +290,7 @@ restart:
+   is_on_changed(&gnb_data);
+ 
+   /* read messages */
+-  while (1) {
++  while (!exit_flag) {
+     event e;
+     e = get_event(gnb_data.socket, &ebuf, database);
+     if (e.type == -1) goto restart;
+@@ -285,5 +299,36 @@ restart:
+     if (pthread_mutex_unlock(&gnb_data.lock)) abort();
+   }
+ 
++  /* Cleanup section */
++  printf("Cleaning up resources...\n");
++  
++  /* Close socket connection */
++  if (gnb_data.socket != -1) {
++    close(gnb_data.socket);
++    gnb_data.socket = -1;
++  }
++  
++  /* Free OBUF buffer */
++  if (ebuf.obuf != NULL) {
++    free(ebuf.obuf);
++    ebuf.obuf = NULL;
++  }
++  
++  /* Destroy mutex */
++  pthread_mutex_destroy(&gnb_data.lock);
++  
++  /* Free is_on array */
++  if (is_on != NULL) {
++    free(is_on);
++    is_on = NULL;
++  }
++  
++  /* Free database */
++  if (database != NULL) {
++    free_database(database);
++    database = NULL;
++  }
++  
++  printf("Cleanup completed. Exiting.\n");
+   return 0;
+ }

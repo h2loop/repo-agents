@@ -1,0 +1,115 @@
+diff --git a/nfapi/open-nFAPI/nfapi/public_inc/nfapi_interface.h b/nfapi/open-nFAPI/nfapi/public_inc/nfapi_interface.h
+index 7ce7da2290..fdcee2a26c 100644
+--- a/nfapi/open-nFAPI/nfapi/public_inc/nfapi_interface.h
++++ b/nfapi/open-nFAPI/nfapi/public_inc/nfapi_interface.h
+@@ -20,6 +20,7 @@
+ 
+ #include "stddef.h"
+ #include <stdint.h>
++#include <pthread.h>
+ 
+ // Constants - update based on implementation
+ #define NFAPI_MAX_PHY_RF_INSTANCES 2
+@@ -3875,6 +3876,11 @@ typedef struct nfapi_p4_p5_codec_config {
+ 	 */
+ 	void (*deallocate)(void* ptr);
+ 
++	/*! Optional mutex for thread-safe access to shared data during packing/unpacking
++	 *  This mutex should be initialized by the user if thread-safe access is required
++	 */
++	void* mutex;
++
+ 	/*! Optional call back function to handle unpacking vendor extension tlv.
+ 	 *  \param tl A pointer to a decoded tag length structure
+ 	 *  \param ppReadPackedMsg A handle to the data buffer to decode
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c
+index d1ac9fcdcb..0aa5c8b1ae 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c
+@@ -77,25 +77,38 @@ static uint8_t pack_rf_config_info(void *elem, uint8_t **ppWritePackedMsg, uint8
+ }
+ 
+ 
+-static uint8_t pack_pnf_phy_info(void *elem, uint8_t **ppWritePackedMsg, uint8_t *end) {
++static uint8_t pack_pnf_phy_info(void *elem, uint8_t **ppWritePackedMsg, uint8_t *end, nfapi_p4_p5_codec_config_t *config) {
+   nfapi_pnf_phy_info_t *phy = (nfapi_pnf_phy_info_t *)elem;
+-  return (  push16(phy->phy_config_index, ppWritePackedMsg, end) &&
+-            push16(phy->number_of_rfs, ppWritePackedMsg, end) &&
+-            packarray(phy->rf_config, sizeof(nfapi_rf_config_info_t), NFAPI_MAX_PNF_PHY_RF_CONFIG, phy->number_of_rfs, ppWritePackedMsg, end, &pack_rf_config_info) &&
+-            push16(phy->number_of_rf_exclusions, ppWritePackedMsg, end) &&
+-            packarray(phy->excluded_rf_config, sizeof(nfapi_rf_config_info_t), NFAPI_MAX_PNF_PHY_RF_CONFIG, phy->number_of_rf_exclusions, ppWritePackedMsg, end, &pack_rf_config_info) &&
+-            push16(phy->downlink_channel_bandwidth_supported, ppWritePackedMsg, end) &&
+-            push16(phy->uplink_channel_bandwidth_supported, ppWritePackedMsg, end) &&
+-            push8(phy->number_of_dl_layers_supported, ppWritePackedMsg, end) &&
+-            push8(phy->number_of_ul_layers_supported, ppWritePackedMsg, end) &&
+-            push16(phy->maximum_3gpp_release_supported, ppWritePackedMsg, end) &&
+-            push8(phy->nmm_modes_supported, ppWritePackedMsg, end));
+-}
+-
+-static uint8_t pack_pnf_phy_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end) {
++  
++  // Lock mutex if available to protect shared RF config data
++  if (config && config->mutex) {
++    pthread_mutex_lock((pthread_mutex_t *)config->mutex);
++  }
++  
++  uint8_t result = (push16(phy->phy_config_index, ppWritePackedMsg, end) &&
++                    push16(phy->number_of_rfs, ppWritePackedMsg, end) &&
++                    packarray(phy->rf_config, sizeof(nfapi_rf_config_info_t), NFAPI_MAX_PNF_PHY_RF_CONFIG, phy->number_of_rfs, ppWritePackedMsg, end, &pack_rf_config_info) &&
++                    push16(phy->number_of_rf_exclusions, ppWritePackedMsg, end) &&
++                    packarray(phy->excluded_rf_config, sizeof(nfapi_rf_config_info_t), NFAPI_MAX_PNF_PHY_RF_CONFIG, phy->number_of_rf_exclusions, ppWritePackedMsg, end, &pack_rf_config_info) &&
++                    push16(phy->downlink_channel_bandwidth_supported, ppWritePackedMsg, end) &&
++                    push16(phy->uplink_channel_bandwidth_supported, ppWritePackedMsg, end) &&
++                    push8(phy->number_of_dl_layers_supported, ppWritePackedMsg, end) &&
++                    push8(phy->number_of_ul_layers_supported, ppWritePackedMsg, end) &&
++                    push16(phy->maximum_3gpp_release_supported, ppWritePackedMsg, end) &&
++                    push8(phy->nmm_modes_supported, ppWritePackedMsg, end));
++  
++  // Unlock mutex if it was locked
++  if (config && config->mutex) {
++    pthread_mutex_unlock((pthread_mutex_t *)config->mutex);
++  }
++  
++  return result;
++}
++
++static uint8_t pack_pnf_phy_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end, nfapi_p4_p5_codec_config_t *config) {
+   nfapi_pnf_phy_t *value = (nfapi_pnf_phy_t *)tlv;
+   return ( push16(value->number_of_phys, ppWritePackedMsg, end) &&
+-           packarray(value->phy, sizeof(nfapi_pnf_phy_info_t), NFAPI_MAX_PNF_PHY, value->number_of_phys, ppWritePackedMsg, end, &pack_pnf_phy_info));
++           packarray(value->phy, sizeof(nfapi_pnf_phy_info_t), NFAPI_MAX_PNF_PHY, value->number_of_phys, ppWritePackedMsg, end, &pack_pnf_phy_info, config));
+ }
+ 
+ static uint8_t pack_pnf_rf_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end) {
+@@ -188,9 +201,15 @@ static uint8_t pack_pnf_phy_rel13_value(void *tlv, uint8_t **ppWritePackedMsg, u
+           packarray(value->phy, sizeof(nfapi_pnf_phy_rel13_info_t), NFAPI_MAX_PNF_PHY, value->number_of_phys, ppWritePackedMsg, end, &pack_pnf_phy_rel13_info));
+ }
+ 
+-static uint8_t pack_pnf_phy_rel13_nb_iot_info(void *elem, uint8_t **ppWritePackedMsg, uint8_t *end) {
++static uint8_t pack_pnf_phy_rel13_nb_iot_info(void *elem, uint8_t **ppWritePackedMsg, uint8_t *end, nfapi_p4_p5_codec_config_t *config) {
+   nfapi_pnf_phy_rel13_nb_iot_info_t *phy = (nfapi_pnf_phy_rel13_nb_iot_info_t *)elem;
+-  return( push16(phy->phy_config_index, ppWritePackedMsg, end) &&
++  
++  // Lock mutex if available to protect shared RF config data
++  if (config && config->mutex) {
++    pthread_mutex_lock((pthread_mutex_t *)config->mutex);
++  }
++  
++  uint8_t result = ( push16(phy->phy_config_index, ppWritePackedMsg, end) &&
+           push16(phy->number_of_rfs, ppWritePackedMsg, end) &&
+           packarray(phy->rf_config, sizeof(nfapi_rf_config_info_t), NFAPI_MAX_PNF_PHY_RF_CONFIG, phy->number_of_rfs, ppWritePackedMsg, end, &pack_rf_config_info) &&
+           push16(phy->number_of_rf_exclusions, ppWritePackedMsg, end) &&
+@@ -199,6 +218,13 @@ static uint8_t pack_pnf_phy_rel13_nb_iot_info(void *elem, uint8_t **ppWritePacke
+           push8(phy->number_of_ul_layers_supported, ppWritePackedMsg, end) &&
+           push16(phy->maximum_3gpp_release_supported, ppWritePackedMsg, end) &&
+           push8(phy->nmm_modes_supported, ppWritePackedMsg, end));
++  
++  // Unlock mutex if it was locked
++  if (config && config->mutex) {
++    pthread_mutex_unlock((pthread_mutex_t *)config->mutex);
++  }
++  
++  return result;
+ }
+ 
+ static uint8_t pack_pnf_phy_rel13_nb_iot_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end) {

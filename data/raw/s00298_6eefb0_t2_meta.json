@@ -1,0 +1,9 @@
+{
+  "run_id": "s00298_6eefb0",
+  "pr_text": "## Title: Fix race condition in NFAPI P5 PHY info packing\n\n### Summary\nFix a race condition in the NFAPI P5 parameter packing code where shared RF configuration data could be accessed concurrently from multiple threads without synchronization. The vulnerability existed in `pack_pnf_phy_info()` when packing RF config arrays, leading to potential data corruption and undefined behavior under multi-threaded operation.\n\nThe fix introduces an optional mutex mechanism in the codec configuration structu",
+  "trajectory_path": "data/raw/s00298_6eefb0_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00298_6eefb0_p2.diff",
+  "patch_lines": 0,
+  "trajectory_steps": 38,
+  "timestamp": "2026-02-10T12:32:26Z"
+}

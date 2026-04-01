@@ -1,0 +1,42 @@
+diff --git a/openair2/RRC/NR/nr_rrc_config.c b/openair2/RRC/NR/nr_rrc_config.c
+index 266d842276..8ab3d480cb 100644
+--- a/openair2/RRC/NR/nr_rrc_config.c
++++ b/openair2/RRC/NR/nr_rrc_config.c
+@@ -36,6 +36,7 @@
+ 
+ #include "uper_decoder.h"
+ #include "uper_encoder.h"
++#include "PHY/impl_defs_top.h"
+ 
+ const uint8_t slotsperframe[5] = {10, 20, 40, 80, 160};
+ 
+@@ -774,8 +775,10 @@ static void set_dl_DataToUL_ACK(NR_PUCCH_Config_t *pucch_Config, int min_feedbac
+ {
+   pucch_Config->dl_DataToUL_ACK = calloc(1,sizeof(*pucch_Config->dl_DataToUL_ACK));
+   long *delay[8];
++  // Ensure all values meet the DURATION_RX_TO_TX constraint (must be > DURATION_RX_TO_TX)
++  int base_delay = (min_feedback_time > DURATION_RX_TO_TX) ? min_feedback_time : (DURATION_RX_TO_TX + 1);
+   for (int i = 0; i < 8; i++) {
+-    int curr_delay = i + min_feedback_time;
++    int curr_delay = base_delay + i;
+     delay[i] = calloc(1,sizeof(*delay[i]));
+     *delay[i] = curr_delay;
+     asn1cSeqAdd(&pucch_Config->dl_DataToUL_ACK->list,delay[i]);
+@@ -1843,7 +1846,7 @@ NR_BCCH_DL_SCH_Message_t *get_SIB1_NR(const gNB_RrcConfigurationReq *configurati
+                                frequency_range);
+ 
+   LOG_I(NR_RRC,
+-	"SIB1 freq: offsetToPointA %d\n",
++        "SIB1 freq: offsetToPointA %d\n",
+         (int)sib1->servingCellConfigCommon->downlinkConfigCommon.frequencyInfoDL.offsetToPointA);
+   
+   for (int i = 0; i < frequencyInfoDL->scs_SpecificCarrierList.list.count; i++) {
+@@ -2328,7 +2331,7 @@ NR_CellGroupConfig_t *get_initial_cellGroupConfig(int uid,
+   cellGroupConfig->cellGroupId = 0;
+ 
+   /* Rlc Bearer Config */
+-  /* TS38.331 9.2.1	Default SRB configurations */
++  /* TS38.331 9.2.1     Default SRB configurations */
+   cellGroupConfig->rlc_BearerToAddModList = calloc(1, sizeof(*cellGroupConfig->rlc_BearerToAddModList));
+   NR_RLC_BearerConfig_t *rlc_BearerConfig =
+       get_SRB_RLC_BearerConfig(1, 1, NR_LogicalChannelConfig__ul_SpecificParameters__bucketSizeDuration_ms1000);

@@ -1,0 +1,49 @@
+diff --git a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+index 60b5528096..fbbbd2ffdc 100644
+--- a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
++++ b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+@@ -380,26 +380,27 @@ subframe2harqpid(COMMON_channels_t *cc,
+   } else {
+     switch (cc->tdd_Config->subframeAssignment) {
+       case 1:
+-        if (subframe == 2 || subframe == 3 || subframe == 7 || subframe == 8) {
+-          switch (subframe) {
+-            case 2:
+-            case 3:
+-              ret = (subframe - 2);
+-              break;
++        AssertFatal(subframe == 2 || subframe == 3 || subframe == 7 || subframe == 8, 
++                    "subframe2_harq_pid, Illegal subframe %d for TDD mode %d\n",
++                    subframe,
++                    (int) cc->tdd_Config->subframeAssignment);
++        switch (subframe) {
++          case 2:
++          case 3:
++            ret = (subframe - 2);
++            break;
+ 
+-            case 7:
+-            case 8:
+-              ret = (subframe - 5);
+-              break;
++          case 7:
++          case 8:
++            ret = (subframe - 5);
++            break;
+ 
+-            default:
+-              AssertFatal(1 == 0, "subframe2_harq_pid, Illegal subframe %d for TDD mode %d\n",
+-                          subframe,
+-                          (int) cc->tdd_Config->subframeAssignment);
+-              break;
+-          }
++          default:
++            AssertFatal(1 == 0, "subframe2_harq_pid, Illegal subframe %d for TDD mode %d\n",
++                        subframe,
++                        (int) cc->tdd_Config->subframeAssignment);
++            break;
+         }
+-
+         break;
+ 
+       case 2:

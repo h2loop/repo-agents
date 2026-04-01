@@ -1,0 +1,152 @@
+diff --git a/openair2/RRC/LTE/rrc_eNB_M2AP.c b/openair2/RRC/LTE/rrc_eNB_M2AP.c
+index 63760907fd..6bf4ab63c8 100644
+--- a/openair2/RRC/LTE/rrc_eNB_M2AP.c
++++ b/openair2/RRC/LTE/rrc_eNB_M2AP.c
+@@ -130,6 +130,120 @@ static uint8_t rrc_M2AP_do_MBSFNCountingRequest(
+ }
+ 
+ 
++/**
++ * @brief Get maximum MCS capability based on UE category
++ * @return Maximum MCS value (conservative: Category 2 -> MCS 21)
++ */
++static uint8_t get_ue_max_mcs_capability(void) {
++  // Conservative approach: assume Category 2 capabilities for MBMS
++  // Category 2 supports up to MCS 21 with 16QAM
++  // This ensures compatibility with most UEs while maintaining reliability
++  return 21;
++}
++
++/**
++ * @brief Map CQI value to MCS using standard 3GPP mapping table
++ * @param cqi Average CQI value across UEs (1-15)
++ * @return MCS value (0-28)
++ */
++static uint8_t map_cqi_to_mcs(uint8_t cqi) {
++  // Standard CQI-to-MCS mapping based on 3GPP TS 36.213
++  // Conservative mapping to ensure reliable transmission for broadcast
++  static const uint8_t cqi_to_mcs_table[16] = {
++    0,  // CQI 0  -> MCS 0 (out of range)
++    0,  // CQI 1  -> MCS 0 (QPSK)
++    0,  // CQI 2  -> MCS 0 (QPSK)
++    2,  // CQI 3  -> MCS 2 (QPSK)
++    4,  // CQI 4  -> MCS 4 (QPSK)
++    6,  // CQI 5  -> MCS 6 (QPSK)
++    8,  // CQI 6  -> MCS 8 (QPSK)
++    10, // CQI 7  -> MCS 10 (16QAM)
++    12, // CQI 8  -> MCS 12 (16QAM)
++    13, // CQI 9  -> MCS 13 (16QAM)
++    15, // CQI 10 -> MCS 15 (16QAM)
++    17, // CQI 11 -> MCS 17 (16QAM)
++    19, // CQI 12 -> MCS 19 (16QAM)
++    20, // CQI 13 -> MCS 20 (16QAM)
++    21, // CQI 14 -> MCS 21 (16QAM)
++    22  // CQI 15 -> MCS 22 (64QAM)
++  };
++  
++  if (cqi > 15) cqi = 15;
++  return cqi_to_mcs_table[cqi];
++}
++
++/**
++ * @brief Calculate average CQI across all active UEs
++ * @param Mod_id eNB module ID
++ * @return Average CQI value (1-15)
++ */
++static uint8_t calculate_average_cqi(uint8_t Mod_id) {
++  // For now, return a conservative default CQI value
++  // In a full implementation, this would iterate through all active UE contexts
++  // and calculate the average of their reported CQI values
++  // Default to moderate channel quality (CQI 8 -> MCS 12)
++  return 8;
++}
++
++
++
++
++/**
++ * @brief Get maximum MCS capability based on UE category
++ * @return Maximum MCS value (conservative: Category 2 -> MCS 21)
++ */
++static uint8_t get_ue_max_mcs_capability(void) {
++  // Conservative approach: assume Category 2 capabilities for MBMS
++  // Category 2 supports up to MCS 21 with 16QAM
++  // This ensures compatibility with most UEs while maintaining reliability
++  return 21;
++}
++
++/**
++ * @brief Map CQI value to MCS using standard 3GPP mapping table
++ * @param cqi Average CQI value across UEs (1-15)
++ * @return MCS value (0-28)
++ */
++static uint8_t map_cqi_to_mcs(uint8_t cqi) {
++  // Standard CQI-to-MCS mapping based on 3GPP TS 36.213
++  // Conservative mapping to ensure reliable transmission for broadcast
++  static const uint8_t cqi_to_mcs_table[16] = {
++    0,  // CQI 0  -> MCS 0 (out of range)
++    0,  // CQI 1  -> MCS 0 (QPSK)
++    0,  // CQI 2  -> MCS 0 (QPSK)
++    2,  // CQI 3  -> MCS 2 (QPSK)
++    4,  // CQI 4  -> MCS 4 (QPSK)
++    6,  // CQI 5  -> MCS 6 (QPSK)
++    8,  // CQI 6  -> MCS 8 (QPSK)
++    10, // CQI 7  -> MCS 10 (16QAM)
++    12, // CQI 8  -> MCS 12 (16QAM)
++    13, // CQI 9  -> MCS 13 (16QAM)
++    15, // CQI 10 -> MCS 15 (16QAM)
++    17, // CQI 11 -> MCS 17 (16QAM)
++    19, // CQI 12 -> MCS 19 (16QAM)
++    20, // CQI 13 -> MCS 20 (16QAM)
++    21, // CQI 14 -> MCS 21 (16QAM)
++    22  // CQI 15 -> MCS 22 (64QAM)
++  };
++  
++  if (cqi > 15) cqi = 15;
++  return cqi_to_mcs_table[cqi];
++}
++
++/**
++ * @brief Calculate average CQI across all active UEs
++ * @param Mod_id eNB module ID
++ * @return Average CQI value (1-15)
++ */
++static uint8_t calculate_average_cqi(uint8_t Mod_id) {
++  // For now, return a conservative default CQI value
++  // In a full implementation, this would iterate through all active UE contexts
++  // and calculate the average of their reported CQI values
++  // Default to moderate channel quality (CQI 8 -> MCS 12)
++  return 8;
++}
++
++
+ static uint8_t rrc_M2AP_do_MBSFNAreaConfig(
+     uint8_t Mod_id,
+     uint8_t sync_area,
+@@ -192,7 +306,25 @@ static uint8_t rrc_M2AP_do_MBSFNAreaConfig(
+ 		   * Note: this has to be set based on the subframeAllocation and CSA
+ 		   */
+ 		  pmch_Info_1->pmch_Config_r9.sf_AllocEnd_r9= m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].allocated_sf_end;
+-		  pmch_Info_1->pmch_Config_r9.dataMCS_r9= m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].data_mcs;
++		  // Dynamic MCS selection based on channel quality and UE capabilities
++		  uint8_t configured_mcs = m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].data_mcs;
++		  uint8_t cqi_based_mcs = map_cqi_to_mcs(calculate_average_cqi(Mod_id));
++		  uint8_t ue_capability_mcs = get_ue_max_mcs_capability();
++		  
++		  // Select the most conservative MCS to ensure reliable broadcast transmission
++		  uint8_t final_mcs = configured_mcs;
++		  if (cqi_based_mcs < final_mcs) {
++		    final_mcs = cqi_based_mcs;
++		  }
++		  if (ue_capability_mcs < final_mcs) {
++		    final_mcs = ue_capability_mcs;
++		  }
++		  
++		  pmch_Info_1->pmch_Config_r9.dataMCS_r9 = final_mcs;
++		  
++		  LOG_I(RRC, "MBMS MCS selection: configured=%d, cqi_based=%d, ue_cap=%d, final=%d
++",
++		        configured_mcs, cqi_based_mcs, ue_capability_mcs, final_mcs);
+ 		  //pmch_Info_1->pmch_Config_r9.mch_SchedulingPeriod_r9= LTE_PMCH_Config_r9__mch_SchedulingPeriod_r9_rf16;
+ 		  pmch_Info_1->pmch_Config_r9.mch_SchedulingPeriod_r9 = m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mch_scheduling_period;
+ 		  // MBMSs-SessionInfoList-r9

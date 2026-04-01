@@ -1,0 +1,247 @@
+diff --git a/openair2/GNB_APP/gnb_config.c b/openair2/GNB_APP/gnb_config.c
+index 44c402fb8a..2b77ea62f7 100644
+--- a/openair2/GNB_APP/gnb_config.c
++++ b/openair2/GNB_APP/gnb_config.c
+@@ -48,12 +48,32 @@
+ #include "nfapi/oai_integration/aerial/fapi_vnf_p5.h"
+ #endif
+ #include "lib/f1ap_interface_management.h"
++#include "LOG/log.h"
++#include "assertions.h"
+ 
+ static int DEFBANDS[] = {7};
+ static int DEFENBS[] = {0};
+ static int DEFBFW[] = {0x00007fff};
+ static int DEFRUTPCORES[] = {-1,-1,-1,-1};
+ 
++/**
++ * @brief Check if pattern2 is configured
++ */
++static bool is_pattern2_config(struct NR_TDD_UL_DL_Pattern *pattern2)
++{
++  if (pattern2 == NULL) {
++    return false;
++  }
++  
++  // Check if pattern2 has valid configuration
++  // Using 320 as threshold as seen in fix_scc function
++  if (pattern2->dl_UL_TransmissionPeriodicity > 320) {
++    return false;
++  }
++  
++  return true;
++}
++
+ /**
+  * @brief Helper define to allocate and initialize SetupRelease structures
+  */
+@@ -76,7 +96,7 @@ void prepare_scc(NR_ServingCellConfigCommon_t *scc)
+   scc->ssb_periodicityServingCell = calloc_or_fail(1, sizeof(*scc->ssb_periodicityServingCell));
+   scc->ssbSubcarrierSpacing = calloc_or_fail(1, sizeof(*scc->ssbSubcarrierSpacing));
+   scc->tdd_UL_DL_ConfigurationCommon = calloc_or_fail(1, sizeof(*scc->tdd_UL_DL_ConfigurationCommon));
+-  scc->tdd_UL_DL_ConfigurationCommon->pattern2 = calloc_or_fail(1, sizeof(*scc->tdd_UL_DL_ConfigurationCommon->pattern2));
++  scc->tdd_UL_DL_ConfigurationCommon->pattern2 = NULL;
+   scc->downlinkConfigCommon = calloc_or_fail(1, sizeof(*scc->downlinkConfigCommon));
+   scc->downlinkConfigCommon->frequencyInfoDL = calloc_or_fail(1, sizeof(*scc->downlinkConfigCommon->frequencyInfoDL));
+   scc->downlinkConfigCommon->initialDownlinkBWP = calloc_or_fail(1, sizeof(*scc->downlinkConfigCommon->initialDownlinkBWP));
+@@ -319,12 +339,15 @@ void fill_scc_sim(NR_ServingCellConfigCommon_t *scc, uint64_t *ssb_bitmap, int N
+   p1->nrofUplinkSlots = 2;
+   p1->nrofUplinkSymbols = 4;
+ 
+-  struct NR_TDD_UL_DL_Pattern *p2 = tdd_UL_DL_ConfigurationCommon->pattern2;
+-  p2->dl_UL_TransmissionPeriodicity = 321;
+-  p2->nrofDownlinkSlots = -1;
+-  p2->nrofDownlinkSymbols = -1;
+-  p2->nrofUplinkSlots = -1;
+-  p2->nrofUplinkSymbols = -1;
++  // Only configure pattern2 if it's allocated
++  if (tdd_UL_DL_ConfigurationCommon->pattern2 != NULL) {
++    struct NR_TDD_UL_DL_Pattern *p2 = tdd_UL_DL_ConfigurationCommon->pattern2;
++    p2->dl_UL_TransmissionPeriodicity = 321;
++    p2->nrofDownlinkSlots = -1;
++    p2->nrofDownlinkSymbols = -1;
++    p2->nrofUplinkSlots = -1;
++    p2->nrofUplinkSymbols = -1;
++  }
+ 
+   scc->ss_PBCH_BlockPower = 20;
+ }
+@@ -399,7 +422,9 @@ void fix_scc(NR_ServingCellConfigCommon_t *scc, uint64_t ssbmap)
+     ASN_STRUCT_FREE(asn_DEF_NR_TDD_UL_DL_ConfigCommon, scc->tdd_UL_DL_ConfigurationCommon);
+     scc->tdd_UL_DL_ConfigurationCommon = NULL;
+   } else { // TDD
+-    if (scc->tdd_UL_DL_ConfigurationCommon->pattern2->dl_UL_TransmissionPeriodicity > 320 ) {
++    // Check if pattern2 exists and has invalid configuration
++    if (scc->tdd_UL_DL_ConfigurationCommon->pattern2 != NULL &&
++        scc->tdd_UL_DL_ConfigurationCommon->pattern2->dl_UL_TransmissionPeriodicity > 320) {
+       free(scc->tdd_UL_DL_ConfigurationCommon->pattern2);
+       scc->tdd_UL_DL_ConfigurationCommon->pattern2 = NULL;
+     }
+@@ -426,7 +451,7 @@ void fix_scc(NR_ServingCellConfigCommon_t *scc, uint64_t ssbmap)
+ 
+   // check pucch_ResourceConfig
+   AssertFatal(*scc->uplinkConfigCommon->initialUplinkBWP->pucch_ConfigCommon->choice.setup->pucch_ResourceCommon < 2,
+-	      "pucch_ResourceConfig should be 0 or 1 for now\n");
++              "pucch_ResourceConfig should be 0 or 1 for now\n");
+ 
+   if (*scc->ext2->ntn_Config_r17->cellSpecificKoffset_r17 == 0) {
+     free(scc->ext2->ntn_Config_r17->cellSpecificKoffset_r17);
+@@ -949,7 +974,86 @@ static NR_ServingCellConfigCommon_t *get_scc_config(configmodule_interface_t *cf
+   NR_ServingCellConfigCommon_t *scc = calloc_or_fail(1, sizeof(*scc));
+   uint64_t ssb_bitmap=0xff;
+   prepare_scc(scc);
+-  paramdef_t SCCsParams[] = SCCPARAMS_DESC(scc);
++  
++  // Temporary variables for pattern2 configuration
++  long pattern2_dl_UL_TransmissionPeriodicity = -1;
++  long pattern2_nrofDownlinkSlots = -1;
++  long pattern2_nrofDownlinkSymbols = -1;
++  long pattern2_nrofUplinkSlots = -1;
++  long pattern2_nrofUplinkSymbols = -1;
++  
++  // Create a modified parameter list that doesn't directly reference pattern2
++  paramdef_t SCCsParams[] = {
++    {GNB_CONFIG_STRING_PHYSCELLID,NULL,0,.i64ptr=scc->physCellId,.defint64val=0,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_NTIMINGADVANCEOFFSET,NULL,0,.i64ptr=scc->n_TimingAdvanceOffset,.defint64val=-1,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_SSBPERIODICITYSERVINGCELL,NULL,0,.i64ptr=scc->ssb_periodicityServingCell,.defint64val=NR_ServingCellConfigCommon__ssb_periodicityServingCell_ms20,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_DMRSTYPEAPOSITION,NULL,0,.i64ptr=&scc->dmrs_TypeA_Position,.defint64val=NR_ServingCellConfigCommon__dmrs_TypeA_Position_pos2,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_SUBCARRIERSPACING,NULL,0,.i64ptr=scc->ssbSubcarrierSpacing,.defint64val=NR_SubcarrierSpacing_kHz30,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_ABSOLUTEFREQUENCYSSB,NULL,0,.i64ptr=scc->downlinkConfigCommon->frequencyInfoDL->absoluteFrequencySSB,.defint64val=660960,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_DLFREQUENCYBAND,NULL,0,.i64ptr=scc->downlinkConfigCommon->frequencyInfoDL->frequencyBandList.list.array[0],.defint64val=78,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_DLABSOLUEFREQUENCYPOINTA,NULL,0,.i64ptr=&scc->downlinkConfigCommon->frequencyInfoDL->absoluteFrequencyPointA,.defint64val=660000,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_DLOFFSETTOCARRIER,NULL,0,.i64ptr=&scc->downlinkConfigCommon->frequencyInfoDL->scs_SpecificCarrierList.list.array[0]->offsetToCarrier,.defint64val=0,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_DLSUBCARRIERSPACING,NULL,0,.i64ptr=&scc->downlinkConfigCommon->frequencyInfoDL->scs_SpecificCarrierList.list.array[0]->subcarrierSpacing,.defint64val=NR_SubcarrierSpacing_kHz30,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_DLCARRIERBANDWIDTH,NULL,0,.i64ptr=&scc->downlinkConfigCommon->frequencyInfoDL->scs_SpecificCarrierList.list.array[0]->carrierBandwidth,.defint64val=217,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_INITIALDLBWPLOCATIONANDBANDWIDTH,NULL,0,.i64ptr=&scc->downlinkConfigCommon->initialDownlinkBWP->genericParameters.locationAndBandwidth,.defint64val=13036,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_INITIALDLBWPSUBCARRIERSPACING,NULL,0,.i64ptr=&scc->downlinkConfigCommon->initialDownlinkBWP->genericParameters.subcarrierSpacing,.defint64val=NR_SubcarrierSpacing_kHz30,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_INITIALDLBWPCONTROLRESOURCESETZERO,NULL,0,.i64ptr=scc->downlinkConfigCommon->initialDownlinkBWP->pdcch_ConfigCommon->choice.setup->controlResourceSetZero,.defint64val=-1,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_INITIALDLBWPSEARCHSPACEZERO,NULL,0,.i64ptr=scc->downlinkConfigCommon->initialDownlinkBWP->pdcch_ConfigCommon->choice.setup->searchSpaceZero,.defint64val=-1,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_ULFREQUENCYBAND,NULL,0,.i64ptr=scc->uplinkConfigCommon->frequencyInfoUL->frequencyBandList->list.array[0],.defint64val=-1,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_ULABSOLUEFREQUENCYPOINTA,NULL,0,.i64ptr=scc->uplinkConfigCommon->frequencyInfoUL->absoluteFrequencyPointA,.defint64val=-1,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_ULOFFSETTOCARRIER,NULL,0,.i64ptr=&scc->uplinkConfigCommon->frequencyInfoUL->scs_SpecificCarrierList.list.array[0]->offsetToCarrier,.defint64val=0,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_ULSUBCARRIERSPACING,NULL,0,.i64ptr=&scc->uplinkConfigCommon->frequencyInfoUL->scs_SpecificCarrierList.list.array[0]->subcarrierSpacing,.defint64val=NR_SubcarrierSpacing_kHz30,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_ULCARRIERBANDWIDTH,NULL,0,.i64ptr=&scc->uplinkConfigCommon->frequencyInfoUL->scs_SpecificCarrierList.list.array[0]->carrierBandwidth,.defint64val=217,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_PMAX,NULL,0,.i64ptr=scc->uplinkConfigCommon->frequencyInfoUL->p_Max,.defint64val=20,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_INITIALULBWPLOCATIONANDBANDWIDTH,NULL,0,.i64ptr=&scc->uplinkConfigCommon->initialUplinkBWP->genericParameters.locationAndBandwidth,.defint64val=13036,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_INITIALULBWPSUBCARRIERSPACING,NULL,0,.i64ptr=&scc->uplinkConfigCommon->initialUplinkBWP->genericParameters.subcarrierSpacing,.defint64val=NR_SubcarrierSpacing_kHz30,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_PRACHCONFIGURATIONINDEX,NULL,0,.i64ptr=&scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->rach_ConfigGeneric.prach_ConfigurationIndex,.defint64val=98,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_PRACHMSG1FDM,NULL,0,.i64ptr=&scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->rach_ConfigGeneric.msg1_FDM,.defint64val=NR_RACH_ConfigGeneric__msg1_FDM_one,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_PRACHMSG1FREQUENCYSTART,NULL,0,.i64ptr=&scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->rach_ConfigGeneric.msg1_FrequencyStart,.defint64val=0,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_ZEROCORRELATIONZONECONFIG,NULL,0,.i64ptr=&scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->rach_ConfigGeneric.zeroCorrelationZoneConfig,.defint64val=13,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_PREAMBLERECEIVEDTARGETPOWER,NULL,0,.i64ptr=&scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->rach_ConfigGeneric.preambleReceivedTargetPower,.defintval=-118,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_PREAMBLETRANSMAX,NULL,0,.i64ptr=&scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->rach_ConfigGeneric.preambleTransMax,.defint64val=NR_RACH_ConfigGeneric__preambleTransMax_n10,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_POWERRAMPINGSTEP,NULL,0,.i64ptr=&scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->rach_ConfigGeneric.powerRampingStep,.defint64val=NR_RACH_ConfigGeneric__powerRampingStep_dB2,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_RARESPONSEWINDOW,NULL,0,.i64ptr=&scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->rach_ConfigGeneric.ra_ResponseWindow,.defint64val=NR_RACH_ConfigGeneric__ra_ResponseWindow_sl20,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_SSBPERRACHOCCASIONANDCBPREAMBLESPERSSBPR,NULL,0,.uptr=&scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->ssb_perRACH_OccasionAndCB_PreamblesPerSSB->present,.defuintval=NR_RACH_ConfigCommon__ssb_perRACH_OccasionAndCB_PreamblesPerSSB_PR_one,TYPE_UINT,0},
++    {GNB_CONFIG_STRING_SSBPERRACHOCCASIONANDCBPREAMBLESPERSSB,NULL,0,.i64ptr=&scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->ssb_perRACH_OccasionAndCB_PreamblesPerSSB->choice.one,.defint64val=NR_RACH_ConfigCommon__ssb_perRACH_OccasionAndCB_PreamblesPerSSB__one_n64,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_RACONTENTIONRESOLUTIONTIMER,NULL,0,.i64ptr=&scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->ra_ContentionResolutionTimer,.defint64val=NR_RACH_ConfigGeneric__ra_ContentionResolutionTimer_sf64,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_RSRPTHRESHOLDSSB,NULL,0,.i64ptr=scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->rsrp_ThresholdSSB,.defint64val=19,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_PRACHROOTSEQUENCEINDEXPR,NULL,0,.uptr=&scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->prach_RootSequenceIndex.present,.defuintval=NR_RACH_ConfigCommon__prach_RootSequenceIndex_PR_l139,TYPE_UINT,0},
++    {GNB_CONFIG_STRING_PRACHROOTSEQUENCEINDEX,NULL,0,.i64ptr=&scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->prach_RootSequenceIndex.choice.l139,.defint64val=0,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_RESTRICTEDSETCONFIG,NULL,0,.i64ptr=&scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->restrictedSetConfig,.defintval=NR_RACH_ConfigCommon__restrictedSetConfig_unrestrictedSet,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_MSG3TRANSFPREC,NULL,0,.i64ptr=scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->msg3_transformPrecoder,.defintval=1,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_MSG3DELTAPREABMLE, NULL,0,.i64ptr=scc->uplinkConfigCommon->initialUplinkBWP->pusch_ConfigCommon->choice.setup->msg3_DeltaPreamble,.defint64val=1,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_P0NOMINALWITHGRANT, NULL,0,.i64ptr=scc->uplinkConfigCommon->initialUplinkBWP->pusch_ConfigCommon->choice.setup->p0_NominalWithGrant,.defint64val=1,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_PUCCHGROUPHOPPING, NULL,0,.i64ptr=&scc->uplinkConfigCommon->initialUplinkBWP->pucch_ConfigCommon->choice.setup->pucch_GroupHopping,.defint64val=NR_PUCCH_ConfigCommon__pucch_GroupHopping_neither,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_HOPPINGID, NULL,0,.i64ptr=scc->uplinkConfigCommon->initialUplinkBWP->pucch_ConfigCommon->choice.setup->hoppingId,.defint64val=40,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_P0NOMINAL, NULL,0,.i64ptr=scc->uplinkConfigCommon->initialUplinkBWP->pucch_ConfigCommon->choice.setup->p0_nominal,.defint64val=1,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_PUCCHRES, NULL,0,.i64ptr=scc->uplinkConfigCommon->initialUplinkBWP->pucch_ConfigCommon->choice.setup->pucch_ResourceCommon,.defint64val=0,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_SSBPOSITIONSINBURST,NULL,0,.u64ptr=&ssb_bitmap,.defintval=0xff,TYPE_UINT64,0},
++    {GNB_CONFIG_STRING_REFERENCESUBCARRIERSPACING,NULL,0,.i64ptr=&scc->tdd_UL_DL_ConfigurationCommon->referenceSubcarrierSpacing,.defint64val=NR_SubcarrierSpacing_kHz30,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_DLULTRANSMISSIONPERIODICITY,NULL,0,.i64ptr=&scc->tdd_UL_DL_ConfigurationCommon->pattern1.dl_UL_TransmissionPeriodicity,.defint64val=NR_TDD_UL_DL_Pattern__dl_UL_TransmissionPeriodicity_ms0p5,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_NROFDOWNLINKSLOTS,NULL,0,.i64ptr=&scc->tdd_UL_DL_ConfigurationCommon->pattern1.nrofDownlinkSlots,.defint64val=7,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_NROFDOWNLINKSYMBOLS,NULL,0,.i64ptr=&scc->tdd_UL_DL_ConfigurationCommon->pattern1.nrofDownlinkSymbols,.defint64val=6,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_NROFUPLINKSLOTS,NULL,0,.i64ptr=&scc->tdd_UL_DL_ConfigurationCommon->pattern1.nrofUplinkSlots,.defint64val=2,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_NROFUPLINKSYMBOLS,NULL,0,.i64ptr=&scc->tdd_UL_DL_ConfigurationCommon->pattern1.nrofUplinkSymbols,.defint64val=4,TYPE_INT64,0},
++    // Pattern2 parameters stored in temporary variables
++    {GNB_CONFIG_STRING_DLULTRANSMISSIONPERIODICITY2,NULL,0,.i64ptr=&pattern2_dl_UL_TransmissionPeriodicity,.defintval=-1,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_NROFDOWNLINKSLOTS2,NULL,0,.i64ptr=&pattern2_nrofDownlinkSlots,.defint64val=-1,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_NROFDOWNLINKSYMBOLS2,NULL,0,.i64ptr=&pattern2_nrofDownlinkSymbols,.defint64val=-1,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_NROFUPLINKSLOTS2,NULL,0,.i64ptr=&pattern2_nrofUplinkSlots,.defint64val=-1,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_NROFUPLINKSYMBOLS2,NULL,0,.i64ptr=&pattern2_nrofUplinkSymbols,.defint64val=-1,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_SSPBCHBLOCKPOWER,NULL,0,.i64ptr=&scc->ss_PBCH_BlockPower,.defint64val=20,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_CELLSPECIFICKOFFSET,NULL,0,.i64ptr=scc->ext2->ntn_Config_r17->cellSpecificKoffset_r17,.defint64val=0,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_EPHEMERIS_POSITION_X,NULL,0,.i64ptr=&scc->ext2->ntn_Config_r17->ephemerisInfo_r17->choice.positionVelocity_r17->positionX_r17,.defint64val=LONG_MAX,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_EPHEMERIS_POSITION_Y,NULL,0,.i64ptr=&scc->ext2->ntn_Config_r17->ephemerisInfo_r17->choice.positionVelocity_r17->positionY_r17,.defint64val=LONG_MAX,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_EPHEMERIS_POSITION_Z,NULL,0,.i64ptr=&scc->ext2->ntn_Config_r17->ephemerisInfo_r17->choice.positionVelocity_r17->positionZ_r17,.defint64val=LONG_MAX,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_EPHEMERIS_VELOCITY_VX,NULL,0,.i64ptr=&scc->ext2->ntn_Config_r17->ephemerisInfo_r17->choice.positionVelocity_r17->velocityVX_r17,.defint64val=LONG_MAX,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_EPHEMERIS_VELOCITY_VY,NULL,0,.i64ptr=&scc->ext2->ntn_Config_r17->ephemerisInfo_r17->choice.positionVelocity_r17->velocityVY_r17,.defint64val=LONG_MAX,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_EPHEMERIS_VELOCITY_VZ,NULL,0,.i64ptr=&scc->ext2->ntn_Config_r17->ephemerisInfo_r17->choice.positionVelocity_r17->velocityVZ_r17,.defint64val=LONG_MAX,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_TA_COMMON,NULL,0,.i64ptr=&scc->ext2->ntn_Config_r17->ta_Info_r17->ta_Common_r17,.defint64val=-1,TYPE_INT64,0},
++    {GNB_CONFIG_STRING_MSG1SUBCARRIERSPACING,NULL,0,.i64ptr=scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->msg1_SubcarrierSpacing,.defintval=-1,TYPE_INT64,0}
++  };
++  
+   prepare_msgA_scc(scc);
+   paramdef_t MsgASCCsParams[] = MSGASCCPARAMS_DESC(scc);
+   paramlist_def_t SCCsParamList = {GNB_CONFIG_STRING_SERVINGCELLCONFIGCOMMON, NULL, 0};
+@@ -982,6 +1086,25 @@ static NR_ServingCellConfigCommon_t *get_scc_config(configmodule_interface_t *cf
+     LOG_I(RRC, "absoluteFrequencySSB %ld corresponds to %lu Hz\n", *frequencyInfoDL->absoluteFrequencySSB, ssb_freq);
+     if (IS_SA_MODE(get_softmodem_params()))
+       check_ssb_raster(ssb_freq, *frequencyInfoDL->frequencyBandList.list.array[0], *scc->ssbSubcarrierSpacing);
++    
++    // Check if pattern2 is configured and allocate memory if needed
++    if (pattern2_dl_UL_TransmissionPeriodicity != -1 ||
++        pattern2_nrofDownlinkSlots != -1 ||
++        pattern2_nrofDownlinkSymbols != -1 ||
++        pattern2_nrofUplinkSlots != -1 ||
++        pattern2_nrofUplinkSymbols != -1) {
++      
++      // Allocate pattern2 memory
++      scc->tdd_UL_DL_ConfigurationCommon->pattern2 = calloc_or_fail(1, sizeof(*scc->tdd_UL_DL_ConfigurationCommon->pattern2));
++      
++      // Set the pattern2 values
++      scc->tdd_UL_DL_ConfigurationCommon->pattern2->dl_UL_TransmissionPeriodicity = pattern2_dl_UL_TransmissionPeriodicity;
++      scc->tdd_UL_DL_ConfigurationCommon->pattern2->nrofDownlinkSlots = pattern2_nrofDownlinkSlots;
++      scc->tdd_UL_DL_ConfigurationCommon->pattern2->nrofDownlinkSymbols = pattern2_nrofDownlinkSymbols;
++      scc->tdd_UL_DL_ConfigurationCommon->pattern2->nrofUplinkSlots = pattern2_nrofUplinkSlots;
++      scc->tdd_UL_DL_ConfigurationCommon->pattern2->nrofUplinkSymbols = pattern2_nrofUplinkSymbols;
++    }
++    
+     fix_scc(scc, ssb_bitmap);
+   }
+   nr_rrc_config_ul_tda(scc, minRXTXTIME);
+@@ -1852,7 +1975,7 @@ gNB_RRC_INST *RCconfig_NRRRC()
+     gNB_RrcConfigurationReq nrrrc_config = {0};
+     for (k=0; k <num_gnbs ; k++) {
+       if (strcmp(GNBSParams[GNB_ACTIVE_GNBS_IDX].strlistptr[k], *(GNBParamList.paramarray[i][GNB_GNB_NAME_IDX].strptr) )== 0) {
+-	
++        
+         char gnbpath[MAX_OPTNAME_SIZE + 8];
+         sprintf(gnbpath,"%s.[%i]",GNB_CONFIG_STRING_GNB_LIST,k);
+ 
+@@ -1888,13 +2011,13 @@ gNB_RRC_INST *RCconfig_NRRRC()
+         nrrrc_config.num_plmn = PLMNParamList.numelt;
+ 
+         for (int l = 0; l < PLMNParamList.numelt; ++l) {
+-	
+-	  nrrrc_config.mcc[l]               = *PLMNParamList.paramarray[l][GNB_MOBILE_COUNTRY_CODE_IDX].uptr;
+-	  nrrrc_config.mnc[l]               = *PLMNParamList.paramarray[l][GNB_MOBILE_NETWORK_CODE_IDX].uptr;
+-	  nrrrc_config.mnc_digit_length[l]  = *PLMNParamList.paramarray[l][GNB_MNC_DIGIT_LENGTH].u8ptr;
+-	  AssertFatal((nrrrc_config.mnc_digit_length[l] == 2) ||
+-		      (nrrrc_config.mnc_digit_length[l] == 3),"BAD MNC DIGIT LENGTH %d",
+-		      nrrrc_config.mnc_digit_length[l]);
++        
++          nrrrc_config.mcc[l]               = *PLMNParamList.paramarray[l][GNB_MOBILE_COUNTRY_CODE_IDX].uptr;
++          nrrrc_config.mnc[l]               = *PLMNParamList.paramarray[l][GNB_MOBILE_NETWORK_CODE_IDX].uptr;
++          nrrrc_config.mnc_digit_length[l]  = *PLMNParamList.paramarray[l][GNB_MNC_DIGIT_LENGTH].u8ptr;
++          AssertFatal((nrrrc_config.mnc_digit_length[l] == 2) ||
++                      (nrrrc_config.mnc_digit_length[l] == 3),"BAD MNC DIGIT LENGTH %d",
++                      nrrrc_config.mnc_digit_length[l]);
+         }
+         nrrrc_config.enable_sdap = *GNBParamList.paramarray[i][GNB_ENABLE_SDAP_IDX].iptr;
+         LOG_I(GNB_APP, "SDAP layer is %s\n", nrrrc_config.enable_sdap ? "enabled" : "disabled");
+@@ -2243,10 +2366,10 @@ int RCconfig_NR_X2(MessageDef *msg_p, uint32_t i) {
+             paramdef_t X2Params[]  = X2PARAMS_DESC;
+             paramlist_def_t X2ParamList = {ENB_CONFIG_STRING_TARGET_ENB_X2_IP_ADDRESS,NULL,0};
+             paramdef_t SCTPParams[]  = GNBSCTPPARAMS_DESC;
+-	    char*             gnb_ipv4_address_for_NGU      = NULL;
+-	    uint32_t          gnb_port_for_NGU              = 0;
+-	    char*             gnb_ipv4_address_for_S1U      = NULL;
+-	    uint32_t          gnb_port_for_S1U              = 0;
++            char*             gnb_ipv4_address_for_NGU      = NULL;
++            uint32_t          gnb_port_for_NGU              = 0;
++            char*             gnb_ipv4_address_for_S1U      = NULL;
++            uint32_t          gnb_port_for_S1U              = 0;
+ 
+             paramdef_t NETParams[]  =  GNBNETPARAMS_DESC;
+             /* TODO: fix the size - if set lower we have a crash (MAX_OPTNAME_SIZE was 64 when this code was written) */

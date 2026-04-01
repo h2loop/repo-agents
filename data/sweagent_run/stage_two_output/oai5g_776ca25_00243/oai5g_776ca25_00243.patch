@@ -1,0 +1,79 @@
+diff --git a/openair3/NAS/COMMON/EMM/MSG/ServiceReject.c b/openair3/NAS/COMMON/EMM/MSG/ServiceReject.c
+index 0f703871ca..91231bfb9e 100644
+--- a/openair3/NAS/COMMON/EMM/MSG/ServiceReject.c
++++ b/openair3/NAS/COMMON/EMM/MSG/ServiceReject.c
+@@ -34,6 +34,9 @@ int decode_service_reject(service_reject_msg *service_reject, uint8_t *buffer, u
+   uint32_t decoded = 0;
+   int decoded_result = 0;
+ 
++  /* Initialize the optional fields */
++  service_reject->presencemask = 0;
++
+   // Check if we got a NULL pointer and if buffer length is >= minimum length expected for the message.
+   CHECK_PDU_POINTER_AND_LENGTH_DECODER(buffer, SERVICE_REJECT_MINIMUM_LENGTH, len);
+ 
+@@ -43,6 +46,23 @@ int decode_service_reject(service_reject_msg *service_reject, uint8_t *buffer, u
+   else
+     decoded += decoded_result;
+ 
++  /* Decoding optional fields */
++  while (len - decoded > 0) {
++    uint8_t ieiDecoded = *(buffer + decoded);
++
++    if (ieiDecoded == SERVICE_REJECT_T3442_VALUE_IEI) {
++      service_reject->presencemask |= SERVICE_REJECT_T3442_VALUE_PRESENT;
++      if ((decoded_result = decode_gprs_timer(&service_reject->t3442value,
++                                              SERVICE_REJECT_T3442_VALUE_IEI, buffer + decoded, len - decoded)) < 0)
++        return decoded_result;
++      else
++        decoded += decoded_result;
++    } else {
++      // Unknown or invalid IEI
++      break;
++    }
++  }
++
+   return decoded;
+ }
+ 
+@@ -60,11 +80,16 @@ int encode_service_reject(service_reject_msg *service_reject, uint8_t *buffer, u
+   else
+     encoded += encode_result;
+ 
+-  if ((encode_result = encode_gprs_timer(&service_reject->t3442value, 0,
+-                                         buffer + encoded, len - encoded)) < 0)        //Return in case of error
+-    return encode_result;
+-  else
+-    encoded += encode_result;
++  /* Encoding optional fields */
++  if ((service_reject->presencemask & SERVICE_REJECT_T3442_VALUE_PRESENT)
++      == SERVICE_REJECT_T3442_VALUE_PRESENT) {
++    if ((encode_result = encode_gprs_timer(&service_reject->t3442value,
++                                           SERVICE_REJECT_T3442_VALUE_IEI, buffer + encoded, len -
++                                           encoded)) < 0)        //Return in case of error
++      return encode_result;
++    else
++      encoded += encode_result;
++  }
+ 
+   return encoded;
+ }
+diff --git a/openair3/NAS/COMMON/EMM/MSG/ServiceReject.h b/openair3/NAS/COMMON/EMM/MSG/ServiceReject.h
+index 67a0317afd..618c420195 100644
+--- a/openair3/NAS/COMMON/EMM/MSG/ServiceReject.h
++++ b/openair3/NAS/COMMON/EMM/MSG/ServiceReject.h
+@@ -41,6 +41,14 @@
+     EMM_CAUSE_MAXIMUM_LENGTH + \
+     GPRS_TIMER_MAXIMUM_LENGTH )
+ 
++/* If an optional value is present and should be encoded, the corresponding
++ * Bit mask should be set to 1.
++ */
++# define SERVICE_REJECT_T3442_VALUE_PRESENT (1<<0)
++
++typedef enum service_reject_iei_tag {
++  SERVICE_REJECT_T3442_VALUE_IEI  = 0x5B, /* 0x5B = 91 */
++} service_reject_iei;
+ 
+ /*
+  * Message name: Service reject

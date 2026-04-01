@@ -1,0 +1,17 @@
+diff --git a/executables/nr-uesoftmodem.c b/executables/nr-uesoftmodem.c
+index a1dcaed52c..35696429f0 100644
+--- a/executables/nr-uesoftmodem.c
++++ b/executables/nr-uesoftmodem.c
+@@ -103,9 +103,9 @@ int get_node_type() {return -1;}
+ RAN_CONTEXT_t RC;
+ int oai_exit = 0;
+ 
+-uint64_t        downlink_frequency[MAX_NUM_CCs][4];
+-int32_t         uplink_frequency_offset[MAX_NUM_CCs][4];
+-uint64_t        sidelink_frequency[MAX_NUM_CCs][4];
++uint64_t        downlink_frequency[MAX_NUM_CCs][4] = {{0}};
++int32_t         uplink_frequency_offset[MAX_NUM_CCs][4] = {{0}};
++uint64_t        sidelink_frequency[MAX_NUM_CCs][4] = {{0}};
+ 
+ // UE and OAI config variables
+ double            cpuf;

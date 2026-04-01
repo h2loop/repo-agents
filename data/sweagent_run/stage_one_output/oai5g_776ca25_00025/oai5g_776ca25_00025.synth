@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix UL retransmission allocation not updating available RB count\n\n### Summary\nThe `allocate_ul_retransmission` function in the gNB scheduler was not properly updating the number of available RBs after allocation. This caused the scheduler to over-allocate resources, leading to potential conflicts and incorrect scheduling decisions.\n\nThe issue was caused by the `pf_ul` function taking the `n_rb_sched` parameter by value instead of by pointer. This meant that when `allocate_ul_retransmission` modified the available RB count, the changes were not propagated back to the caller.\n\n### Changes\n- `openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c`: Changed `pf_ul` function signature to take `n_rb_sched` as a pointer, updated all references to dereference the pointer, and updated the function call to pass the address of the variable.\n\n"
+}

@@ -1,0 +1,24 @@
+diff --git a/openair2/GNB_APP/gnb_config.c b/openair2/GNB_APP/gnb_config.c
+index 94e9012855..b3ea9eb06a 100644
+--- a/openair2/GNB_APP/gnb_config.c
++++ b/openair2/GNB_APP/gnb_config.c
+@@ -1160,8 +1160,18 @@ void RCconfig_NR_L1(void)
+  */
+ bool is_pattern2_config(paramdef_t *param)
+ {
+-  if (param == NULL || param->i64ptr == NULL || *(param->i64ptr) == -1)
++  // First check pointer validity
++  if (param == NULL || param->i64ptr == NULL)
+     return false;
++  
++  // Then verify parameter initialization flags
++  if (!(param->paramflags & (PARAMFLAG_PARAMSET | PARAMFLAG_PARAMSETDEF)))
++    return false;
++  
++  // Finally check the value
++  if (*(param->i64ptr) == -1)
++    return false;
++  
+   return true;
+ }
+ 

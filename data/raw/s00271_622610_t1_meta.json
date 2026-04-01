@@ -1,0 +1,28 @@
+{
+  "run_id": "s00271_622610",
+  "function": {
+    "name": "llr_scaling",
+    "file": "openair1/PHY/CODING/nrLDPC_coding/nrLDPC_coding_aal/nrLDPC_coding_aal.c",
+    "start_line": 1173,
+    "end_line": 1251,
+    "body_lines": 79,
+    "signature": "static void llr_scaling(int16_t *llr, int llr_len, uint8_t *llr_scaled, int8_t llr_size, int8_t llr_decimal, int8_t nb_layers, int8_t Qm)",
+    "subsystem": "openair1/PHY/CODING",
+    "token_estimate": 360
+  },
+  "bug": {
+    "bug_id": "telecom_sched_priority_inversion",
+    "description": "scheduling priority inversion where lower-priority traffic is served before higher-priority",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a scheduling priority inversion where lower-priority traffic is served before higher-priority downstream of function llr_scaling in the openair1/PHY/CODING subsystem.\nThe function is located at openair1/PHY/CODING/nrLDPC_coding/nrLDPC_coding_aal/nrLDPC_coding_aal.c:1173.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00271_622610_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00271_622610_p1.diff",
+  "patch_lines": 10,
+  "trajectory_steps": 23,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T14:00:20Z"
+}

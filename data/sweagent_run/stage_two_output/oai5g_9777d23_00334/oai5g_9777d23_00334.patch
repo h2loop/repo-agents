@@ -1,0 +1,30 @@
+diff --git a/openair3/SECU/secu_defs.c b/openair3/SECU/secu_defs.c
+index 17e3ca96ec..e461e16de8 100644
+--- a/openair3/SECU/secu_defs.c
++++ b/openair3/SECU/secu_defs.c
+@@ -67,9 +67,9 @@ void stream_compute_encrypt(eea_alg_id_e alg, nas_stream_cipher_t const* stream_
+ stream_security_context_t *stream_integrity_init(int integrity_algorithm, const uint8_t *integrity_key)
+ {
+   switch (integrity_algorithm) {
+-    case EEA0_ALG_ID: return NULL;
+-    case EEA1_128_ALG_ID: return stream_integrity_init_eia1(integrity_key);
+-    case EEA2_128_ALG_ID: return stream_integrity_init_eia2(integrity_key);
++    case EIA0_ALG_ID: return NULL;
++    case EIA1_128_ALG_ID: return stream_integrity_init_eia1(integrity_key);
++    case EIA2_128_ALG_ID: return stream_integrity_init_eia2(integrity_key);
+     default: AssertFatal(0, "unsupported integrity algorithm\n");
+   }
+ }
+@@ -77,9 +77,9 @@ stream_security_context_t *stream_integrity_init(int integrity_algorithm, const
+ void stream_integrity_free(int integrity_algorithm, stream_security_context_t *integrity_context)
+ {
+   switch (integrity_algorithm) {
+-    case EEA0_ALG_ID: return;
+-    case EEA1_128_ALG_ID: return stream_integrity_free_eia1(integrity_context);
+-    case EEA2_128_ALG_ID: return stream_integrity_free_eia2(integrity_context);
++    case EIA0_ALG_ID: return;
++    case EIA1_128_ALG_ID: return stream_integrity_free_eia1(integrity_context);
++    case EIA2_128_ALG_ID: return stream_integrity_free_eia2(integrity_context);
+     default: AssertFatal(0, "unsupported integrity algorithm\n");
+   }
+ }

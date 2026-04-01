@@ -1,0 +1,115 @@
+diff --git a/openair1/PHY/LAYER2/NR_MAC_UE/nr_power_control.c b/openair1/PHY/LAYER2/NR_MAC_UE/nr_power_control.c
+new file mode 100644
+index 0000000000..b5c9646ab1
+--- /dev/null
++++ b/openair1/PHY/LAYER2/NR_MAC_UE/nr_power_control.c
+@@ -0,0 +1,108 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++/*! \file nr_power_control.c
++ * \brief Implementation of UE PUSCH Power Control procedures for NR
++ * \author Navid Nikaein, Raymond Knopp
++ * \date 2020
++ * \version 0.1
++ * \company Eurecom
++ * \email: navid.nikaein@eurecom.fr, raymond.knopp@eurecom.fr
++ * \note
++ * \warning
++ */
++
++#include "PHY/defs_nr_UE.h"
++#include "SCHED_NR_UE/phy_frame_config_nr_ue.h"
++#include "LAYER2/NR_MAC_UE/mac_proto.h"
++
++// Function to get PUSCH power considering TDD configuration
++int16_t get_pusch_power_ue(PHY_VARS_NR_UE *ue, 
++                           int Mod_id,
++                           int CC_id,
++                           uint8_t gNB_id,
++                           int slot_tx) {
++  // Check if TDD configuration exists and if the slot is configured for uplink
++  int slot_direction = NR_DOWNLINK_SLOT;
++  if (ue->frame_parms.frame_type == TDD) {
++    slot_direction = slot_select_nr(&ue->frame_parms, 
++                                   (ue->proc.proc_rxtx[0].frame_tx + (slot_tx / ue->frame_parms.slots_per_subframe)) % 1024, 
++                                   slot_tx % ue->frame_parms.slots_per_subframe);
++  }
++
++  // Only calculate power for uplink slots or for FDD (where all slots are considered uplink)
++  if (ue->frame_parms.frame_type == FDD || (slot_direction & NR_UPLINK_SLOT)) {
++    // Get pathloss using existing function
++    int16_t pathloss;
++    
++    // For NR, we need to determine the proper pathloss reference
++    // Using SSB-based pathloss as a reference
++    NR_UE_MAC_INST_t *mac = get_mac_inst(Mod_id);
++    if (mac != NULL) {
++      // Use the most recent SSB RSRP measurement for pathloss calculation
++      short ssb_rsrp_dBm = mac->ssb_measurements.ssb_rsrp_dBm[0]; // Taking the first measurement
++      
++      // Compute pathloss using SSB reference signal power
++      long referenceSignalPower;
++      if (mac->scc)
++        referenceSignalPower = mac->scc->ss_PBCH_BlockPower;
++      else if (mac->scc_SIB)
++        referenceSignalPower = mac->scc_SIB->ss_PBCH_BlockPower;
++      else
++        referenceSignalPower = 0; // Default if not available
++      
++      pathloss = (int16_t)(referenceSignalPower - ssb_rsrp_dBm);
++    } else {
++      // Fallback to default pathloss calculation if MAC instance unavailable
++      pathloss = 0;
++    }
++
++    // PUSCH power control calculation
++    // P_PUSCH = P_O_PUSCH + alpha*PL + delta_TF + f(i)
++    // Simplified implementation - would need to be expanded with actual parameters
++    
++    int16_t po_pusch = ue->frame_parms.uplink_config_common.p0_NominalWithGrant; // P_O_PUSCH
++    uint8_t alpha = ue->frame_parms.uplink_config_common.alpha; // Alpha value
++    
++    // Calculate alpha*pathloss
++    int16_t alpha_pl = (alpha * pathloss) / 10; // Alpha is scaled by 10 in config
++    
++    // Placeholder values for delta_TF and f(i) - these would need to be properly implemented
++    int16_t delta_tf = 0; // Transport format dependent component
++    int16_t fi = 0; // Accumulated value f(i) from TPC commands
++    
++    int16_t pusch_power = po_pusch + alpha_pl + delta_tf + fi;
++    
++    // Apply maximum power limit
++    if (pusch_power > ue->tx_power_max_dBm) {
++      pusch_power = ue->tx_power_max_dBm;
++    }
++    
++    LOG_D(PHY, "[UE %d] PUSCH Power for slot %d: Po_PUSCH %d dBm, PL %d dB, alpha*PL %d dB, final power %d dBm\n",
++          Mod_id, slot_tx, po_pusch, pathloss, alpha_pl, pusch_power);
++    
++    return pusch_power;
++  } else {
++    // For downlink slots in TDD, return 0 or a low power value
++    LOG_D(PHY, "[UE %d] Slot %d is not configured for uplink in TDD - setting low power\n", Mod_id, slot_tx);
++    return -40; // Very low power for non-uplink slots
++  }
++}
+\ No newline at end of file

@@ -1,0 +1,115 @@
+diff --git a/common/utils/load_module_shlib.c b/common/utils/load_module_shlib.c
+index 15d2b3d852..7ada05e18f 100644
+--- a/common/utils/load_module_shlib.c
++++ b/common/utils/load_module_shlib.c
+@@ -124,6 +124,7 @@ int load_module_version_shlib(char *modname, char *version, loader_shlibfunc_t *
+   char *afname = NULL;
+   int ret = 0;
+   int lib_idx = -1;
++  int new_lib = 0;  // flag to indicate if we're loading a new library
+ 
+   if (!modname) {
+     fprintf(stderr, "[LOADER] load_module_shlib(): no library name given\n");
+@@ -148,13 +149,34 @@ int load_module_version_shlib(char *modname, char *version, loader_shlibfunc_t *
+   if (lib_idx < 0) {
+     lib_idx = loader_data.numshlibs;
+     ++loader_data.numshlibs;
++    new_lib = 1;
+     if (loader_data.numshlibs > loader_data.maxshlibs) {
+       fprintf(stderr, "[LOADER] can not load more than %u shlibs\n", loader_data.maxshlibs);
++      --loader_data.numshlibs;
+       ret = -1;
+       goto load_module_shlib_exit;
+     }
+     loader_data.shlibs[lib_idx].name = strdup(modname);
++    if (!loader_data.shlibs[lib_idx].name) {
++      fprintf(stderr, "[LOADER] unable to allocate memory for library name\n");
++      --loader_data.numshlibs;
++      ret = -1;
++      goto load_module_shlib_exit;
++    }
+     loader_data.shlibs[lib_idx].thisshlib_path = strdup(shlib_path);
++    if (!loader_data.shlibs[lib_idx].thisshlib_path) {
++      fprintf(stderr, "[LOADER] unable to allocate memory for library path\n");
++      free(loader_data.shlibs[lib_idx].name);
++      --loader_data.numshlibs;
++      ret = -1;
++      goto load_module_shlib_exit;
++    }
++    // Initialize other fields
++    loader_data.shlibs[lib_idx].shlib_version = NULL;
++    loader_data.shlibs[lib_idx].shlib_buildversion = NULL;
++    loader_data.shlibs[lib_idx].numfunc = 0;
++    loader_data.shlibs[lib_idx].funcarray = NULL;
++    loader_data.shlibs[lib_idx].len_funcarray = 0;
+   }
+ 
+   lib_handle = dlopen(shlib_path, RTLD_LAZY|RTLD_NODELETE|RTLD_GLOBAL);
+@@ -233,6 +255,11 @@ int load_module_version_shlib(char *modname, char *version, loader_shlibfunc_t *
+           shlib->len_funcarray = shlib->numfunc * 2;
+         }
+         shlib->funcarray[j].fname = strdup(farray[i].fname);
++        if (!shlib->funcarray[j].fname) {
++          fprintf(stderr, "[LOADER] unable to allocate memory for function name\n");
++          ret = -1;
++          goto load_module_shlib_exit;
++        }
+         shlib->funcarray[j].fptr = farray[i].fptr;
+         shlib->numfunc++;
+       }
+@@ -247,6 +274,42 @@ int load_module_version_shlib(char *modname, char *version, loader_shlibfunc_t *
+   } /* farray ! NULL */
+ 
+ load_module_shlib_exit:
++  if (ret != 0 && new_lib) {
++    // Clean up resources allocated for a new library that failed to load completely
++    loader_shlibdesc_t *shlib = &loader_data.shlibs[lib_idx];
++    if (shlib->name) {
++      free(shlib->name);
++      shlib->name = NULL;
++    }
++    if (shlib->thisshlib_path) {
++      free(shlib->thisshlib_path);
++      shlib->thisshlib_path = NULL;
++    }
++    if (shlib->shlib_version) {
++      free(shlib->shlib_version);
++      shlib->shlib_version = NULL;
++    }
++    if (shlib->shlib_buildversion) {
++      free(shlib->shlib_buildversion);
++      shlib->shlib_buildversion = NULL;
++    }
++    if (shlib->funcarray) {
++      // Free individual function names
++      for (int i = 0; i < shlib->numfunc; i++) {
++        if (shlib->funcarray[i].fname) {
++          free(shlib->funcarray[i].fname);
++        }
++      }
++      free(shlib->funcarray);
++      shlib->funcarray = NULL;
++    }
++    shlib->numfunc = 0;
++    shlib->len_funcarray = 0;
++    // Decrement numshlibs since we failed to load this library
++    if (loader_data.numshlibs > 0) {
++      --loader_data.numshlibs;
++    }
++  }
+   if (shlib_path) free(shlib_path);
+   if (afname)     free(afname);
+   if (lib_handle) dlclose(lib_handle);
+@@ -273,6 +336,12 @@ void loader_reset()
+     loader_shlibdesc_t *shlib = &loader_data.shlibs[i];
+     free(shlib->name);
+     free(shlib->thisshlib_path);
++    if (shlib->shlib_version) {
++      free(shlib->shlib_version);
++    }
++    if (shlib->shlib_buildversion) {
++      free(shlib->shlib_buildversion);
++    }
+     for (int j = 0; j < shlib->numfunc; ++j)
+       free(shlib->funcarray[j].fname);
+     free(shlib->funcarray);

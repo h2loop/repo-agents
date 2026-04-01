@@ -1,0 +1,34 @@
+{
+  "run_id": "s00350_2fb724",
+  "function": {
+    "name": "nr_rx_psbch",
+    "file": "openair1/PHY/NR_UE_TRANSPORT/nr_psbch_rx.c",
+    "start_line": 113,
+    "end_line": 246,
+    "body_lines": 134,
+    "signature": "int nr_rx_psbch(PHY_VARS_NR_UE *ue, const UE_nr_rxtx_proc_t *proc, int estimateSz, struct complex16 dl_ch_estimates[][estimateSz], NR_DL_FRAME_PARMS *frame_parms, uint8_t *decoded_output, c16_t rxdataF[][frame_parms->samples_per_slot_wCP], uint16_t slss_id)",
+    "subsystem": "openair1/PHY/NR_UE_TRANSPORT",
+    "token_estimate": 489
+  },
+  "bug": {
+    "bug_id": "c_off_by_one",
+    "description": "off-by-one error in array indexing or loop boundary",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a off-by-one error in array indexing or loop boundary downstream of function nr_rx_psbch in the openair1/PHY/NR_UE_TRANSPORT subsystem.\nThe function is located at openair1/PHY/NR_UE_TRANSPORT/nr_psbch_rx.c:113.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00350_2fb724_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00350_2fb724_p1.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 41,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:47:35Z"
+}

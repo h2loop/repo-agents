@@ -1,0 +1,14 @@
+diff --git a/connectivity/mbedtls/source/pkcs5.c b/connectivity/mbedtls/source/pkcs5.c
+index e9e743fa..bbfd7409 100644
+--- a/connectivity/mbedtls/source/pkcs5.c
++++ b/connectivity/mbedtls/source/pkcs5.c
+@@ -59,6 +59,9 @@ static int pkcs5_parse_pbkdf2_params( const mbedtls_asn1_buf *params,
+     unsigned char *p = params->p;
+     const unsigned char *end = params->p + params->len;
+ 
++    /* Set default values */
++    *md_type = MBEDTLS_MD_SHA1;
++
+     if( params->tag != ( MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) )
+         return( MBEDTLS_ERR_PKCS5_INVALID_FORMAT +
+                 MBEDTLS_ERR_ASN1_UNEXPECTED_TAG );

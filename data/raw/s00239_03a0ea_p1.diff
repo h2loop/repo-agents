@@ -1,0 +1,25 @@
+diff --git a/radio/ETHERNET/eth_raw.c b/radio/ETHERNET/eth_raw.c
+index 89d6c97c3f..baa232790a 100644
+--- a/radio/ETHERNET/eth_raw.c
++++ b/radio/ETHERNET/eth_raw.c
+@@ -389,7 +389,19 @@ int trx_eth_read_raw_IF4p5(openair0_device *device, openair0_timestamp *timestam
+   printf("\n");
+ #endif
+   
+-  *timestamp = test_header->sub_type; 
++  // Extract frame and subframe from frame_status field
++  uint32_t frame = (test_header->frame_status >> 6) & 0xffff;
++  uint32_t subframe = (test_header->frame_status >> 22) & 0x000f;
++  
++  // Calculate timestamp based on frame and subframe
++  // timestamp = frame * samples_per_subframe * 10 + subframe * samples_per_subframe
++  // We need to get samples_per_subframe from device configuration
++  if (device->openair0_cfg && device->openair0_cfg->samples_per_subframe > 0) {
++    *timestamp = (frame * 10 + subframe) * device->openair0_cfg->samples_per_subframe;
++  } else {
++    // Fallback: assume standard LTE subframe duration (307200 samples for 30.72MHz)
++    *timestamp = (frame * 10 + subframe) * 30720;
++  } 
+   
+   if (test_header->sub_type == IF4p5_PDLFFT) {
+     packet_size = RAW_IF4p5_PDLFFT_SIZE_BYTES(nblocks);             

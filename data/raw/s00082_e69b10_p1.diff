@@ -1,0 +1,58 @@
+diff --git a/openair2/F1AP/lib/f1ap_ue_context.c b/openair2/F1AP/lib/f1ap_ue_context.c
+index 9d8cbfe15f..82db1af7ee 100644
+--- a/openair2/F1AP/lib/f1ap_ue_context.c
++++ b/openair2/F1AP/lib/f1ap_ue_context.c
+@@ -123,6 +123,12 @@ static bool decode_cu_to_du_rrc_info(f1ap_cu_to_du_rrc_info_t *dec, const F1AP_C
+       }
+     }
+   }
++  /* According to 3GPP TS 38.473, validate conditionally mandatory IEs */
++  if (out->plmn && out->nr_cellid && !out->servCellIndex) {
++    LOG_E(F1AP, "Decoded UE Context Modification Request has SpCellID but missing ServCellIndex - violates 3GPP TS 38.473\n");
++    return false;
++  }
++
+   return true;
+ }
+ 
+@@ -1305,6 +1311,11 @@ bool decode_ue_context_setup_req(const F1AP_F1AP_PDU_t *pdu, f1ap_ue_context_set
+     }
+   }
+ 
++  /* According to 3GPP TS 38.473, ServCellIndex is conditionally mandatory when SpCellID is present */
++  if (out->plmn && out->nr_cellid && !out->servCellIndex) {
++    LOG_W(F1AP, "Decoded UE Context Modification Request: SpCellID (NRCGI) is present but ServCellIndex is missing - this violates 3GPP TS 38.473 (conditionally mandatory)\n");
++  }
++
+   return true;
+ }
+ 
+@@ -1614,6 +1625,14 @@ F1AP_F1AP_PDU_t *encode_ue_context_mod_req(const f1ap_ue_context_mod_req_t *req)
+     const plmn_id_t *plmn = req->plmn;
+     MCC_MNC_TO_PLMNID(plmn->mcc, plmn->mnc, plmn->mnc_digit_length, &nrcgi->pLMN_Identity);
+     NR_CELL_ID_TO_BIT_STRING(*req->nr_cellid, &nrcgi->nRCellIdentity);
++    
++    /* According to 3GPP TS 38.473, ServCellIndex is conditionally mandatory when SpCellID is present */
++    if (!req->servCellIndex) {
++      LOG_E(F1AP, "SpCellID (NRCGI) is present but ServCellIndex is missing - this violates 3GPP TS 38.473 (conditionally mandatory)\n");
++      ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_F1AP_F1AP_PDU, pdu);
++      free(pdu);
++      return NULL;
++    }
+   }
+ 
+   /* optional: ServCellIndex */
+@@ -1803,6 +1822,13 @@ bool decode_ue_context_mod_req(const F1AP_F1AP_PDU_t *pdu, f1ap_ue_context_mod_r
+     }
+   }
+ 
++  /* According to 3GPP TS 38.473, ServCellIndex is conditionally mandatory when SpCellID is present */
++  if (out->plmn && out->nr_cellid && !out->servCellIndex) {
++    LOG_E(F1AP, "SpCellID (NRCGI) is present but ServCellIndex is missing - this violates 3GPP TS 38.473 (conditionally mandatory)\n");
++    free_ue_context_mod_req(out);
++    return false;
++  }
++
+   return true;
+ }
+ 

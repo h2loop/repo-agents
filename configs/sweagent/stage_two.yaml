@@ -1,0 +1,65 @@
+agent:
+  type: default
+  templates:
+    system_template: |-
+      You are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.
+      You can interact with the codebase using bash commands and a file editor to investigate and fix issues.
+    instance_template: |-
+      <uploaded_files>
+      {{working_dir}}
+      </uploaded_files>
+      I've uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following PR description:
+
+      <pr_description>
+      {{problem_statement}}
+      </pr_description>
+
+      Can you help me implement the necessary changes to the repository so that the requirements specified in the <pr_description> are met?
+      Your task is to make the minimal changes to non-tests files in the {{working_dir}} directory to ensure the <pr_description> is satisfied.
+      Follow these steps to resolve the issue:
+      1. As a first step, find and read code relevant to the <pr_description>
+      2. Understand the issue and identify the root cause
+      3. Edit the source code to resolve the issue
+      4. Verify your changes make sense
+      5. Think about edge cases and make sure your fix handles them as well
+      Your thinking should be thorough and so it's fine if it's very long.
+    next_step_template: |-
+      OBSERVATION:
+      {{observation}}
+    next_step_no_output_template: |-
+      Your last command ran successfully and did not produce any output.
+  tools:
+    execution_timeout: 300
+    bundles:
+      - path: tools/registry
+      - path: tools/edit_anthropic
+      - path: tools/review_on_submit_m
+      - path: tools/diff_state
+    enable_bash_tool: true
+    parse_function:
+      type: function_calling
+    registry_variables:
+      USE_FILEMAP: 'true'
+      SUBMIT_REVIEW_MESSAGES:
+        - |
+          Thank you for your work on this issue. Please review your changes:
+
+          1. Make sure your fix is minimal and targeted
+          2. Verify you haven't introduced any new issues
+          3. Run the submit command again to confirm
+
+          Here is a list of all of your changes:
+
+          <diff>
+          {{diff}}
+          </diff>
+  history_processors: []
+  model:
+    name: bedrock/qwen.qwen3-coder-480b-a35b-v1:0
+    api_key: ABSKQmVkcm9ja0FQSUtleS0yMjJoLWF0LTUwMTIzNTE2MjM2NTpsRDQyb0Q5UFBlUUJnQjdOelM0WTMyNVZoQkExMTFic1pXUDRRcWRELytjdkZzOHBwSkJIbXJtTzlidz0=
+    litellm_model_registry: /Users/metamyth/projects/sera/configs/litellm_model_registry.json
+    per_instance_cost_limit: 0
+    per_instance_call_limit: 115
+    total_cost_limit: 0
+    temperature: 0.7
+    delay: 0.0

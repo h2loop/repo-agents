@@ -1,0 +1,409 @@
+'{"env":{"deployment":{"image":"oai5g-sera:bf69e25","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_bf69e25_00190","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix incorrect error code usage in NR PNF response functions\n\n### Summary\nThe
+  NR PNF (Physical Network Function) response functions were using LTE error codes
+  instead of NR-specific error codes when checking response status. This caused the
+  PNF state to not update correctly after receiving configuration and start responses,
+  leading to unexpected behavior in the NR PNF state machine.\n\nSpecifically, `nfapi_nr_pnf_pnf_config_resp`
+  and `nfapi_nr_pnf_pnf_start_resp` were checking for `NFAPI_MSG_OK` (LTE error code)
+  instead of `NFAPI_NR_CONFIG_MSG_OK` and `NFAPI_NR_START_MSG_OK` respectively.\n\nThis
+  fix ensures that NR PNF functions use the appropriate NR error codes, allowing proper
+  state transitions in the PNF.\n\n### Changes\n- `nfapi/open-nFAPI/pnf/src/pnf_interface.c`:
+  \n  - Updated `nfapi_nr_pnf_pnf_config_resp` to use `NFAPI_NR_CONFIG_MSG_OK` instead
+  of `NFAPI_MSG_OK`\n  - Updated `nfapi_nr_pnf_pnf_start_resp` to use `NFAPI_NR_START_MSG_OK`
+  instead of `NFAPI_MSG_OK`\n\n","extra_fields":{"bug_description":"use-after-free
+  vulnerability where freed memory is subsequently accessed","bug_id":"c_use_after_free","stage_one_patch":"diff
+  --git a/nfapi/open-nFAPI/pnf/src/pnf_interface.c b/nfapi/open-nFAPI/pnf/src/pnf_interface.c\nindex
+  a53604640c..740c01b26e 100644\n--- a/nfapi/open-nFAPI/pnf/src/pnf_interface.c\n+++
+  b/nfapi/open-nFAPI/pnf/src/pnf_interface.c\n@@ -24,562 +24,562 @@\n \n nfapi_pnf_config_t*
+  nfapi_pnf_config_create()\n {\n-\tpnf_t* _this = (pnf_t*)malloc(sizeof(pnf_t));\n+        pnf_t*
+  _this = (pnf_t*)malloc(sizeof(pnf_t));\n \n-\tif(_this == 0)\n-\t\treturn 0;\n+        if(_this
+  == 0)\n+                return 0;\n \n-\tmemset(_this, 0, sizeof(pnf_t));\n+        memset(_this,
+  0, sizeof(pnf_t));\n \n-\t_this->sctp = 1;\t// enable sctp\n+        _this->sctp
+  = 1;        // enable sctp\n \n-\t_this->_public.vnf_p5_port = NFAPI_P5_SCTP_PORT;\n+        _this->_public.vnf_p5_port
+  = NFAPI_P5_SCTP_PORT;\n \n-\t_this->_public.malloc = &malloc;\n-\t_this->_public.free
+  = &free;\n+        _this->_public.malloc = &malloc;\n+        _this->_public.free
+  = &free;\n \n-\t_this->_public.codec_config.allocate = &malloc;\n-\t_this->_public.codec_config.deallocate
+  = &free;\n+        _this->_public.codec_config.allocate = &malloc;\n+        _this->_public.codec_config.deallocate
+  = &free;\n \n-\treturn (nfapi_pnf_config_t* )_this;\n+        return (nfapi_pnf_config_t*
+  )_this;\n }\n \n void nfapi_pnf_config_destory(nfapi_pnf_config_t* config)\n {\n-\tfree(config);\n+        free(config);\n
+  }\n \n int nfapi_pnf_start(nfapi_pnf_config_t* config)\n {\n-\t// Verify that config
+  is not null\n-\tif(config == 0)\n-\t\treturn -1;\n+        // Verify that config
+  is not null\n+        if(config == 0)\n+                return -1;\n \n-\tNFAPI_TRACE(NFAPI_TRACE_INFO,
+  \"%s\\n\", __FUNCTION__);\n+        NFAPI_TRACE(NFAPI_TRACE_INFO, \"%s\\n\", __FUNCTION__);\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\twhile (_this->terminate == 0)\n-\t{\n-\t\tint connect_result = pnf_connect(_this);\n+        while
+  (_this->terminate == 0)\n+        {\n+                int connect_result = pnf_connect(_this);\n
+  \n-\t\tif(connect_result > 0)\n-\t\t{\n-\t\t\tpnf_message_pump(_this);\n-\t\t}\n-\t\telse
+  if(connect_result < 0)\n-\t\t{\n-\t\t\treturn connect_result;\n-\t\t}\n+                if(connect_result
+  > 0)\n+                {\n+                        pnf_message_pump(_this);\n+                }\n+                else
+  if(connect_result < 0)\n+                {\n+                        return connect_result;\n+                }\n
+  \n-\t\tsleep(1);\n-\t}\n-\tNFAPI_TRACE(NFAPI_TRACE_INFO, \"%s() terminate=1 - EXITTING............\\n\",
+  __FUNCTION__);\n+                sleep(1);\n+        }\n+        NFAPI_TRACE(NFAPI_TRACE_INFO,
+  \"%s() terminate=1 - EXITTING............\\n\", __FUNCTION__);\n \n-\treturn 0;\n+        return
+  0;\n }\n \n int nfapi_nr_pnf_start(nfapi_pnf_config_t* config)\n {\n-\t// Verify
+  that config is not null\n-\tif(config == 0)\n-\t\treturn -1;\n+        // Verify
+  that config is not null\n+        if(config == 0)\n+                return -1;\n
+  \n-\tNFAPI_TRACE(NFAPI_TRACE_INFO, \"%s\\n\", __FUNCTION__);\n+        NFAPI_TRACE(NFAPI_TRACE_INFO,
+  \"%s\\n\", __FUNCTION__);\n \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t*
+  _this = (pnf_t*)(config);\n \n-\twhile (_this->terminate == 0)\n-\t{\n-\t\tint connect_result
+  = pnf_connect(_this);\n+        while (_this->terminate == 0)\n+        {\n+                int
+  connect_result = pnf_connect(_this);\n \n-\t\tif(connect_result > 0)\n-\t\t{\n-\t\t\tpnf_nr_message_pump(_this);\n-\t\t}\n-\t\telse
+  if(connect_result < 0)\n-\t\t{\n-\t\t\treturn connect_result;\n-\t\t}\n+                if(connect_result
+  > 0)\n+                {\n+                        pnf_nr_message_pump(_this);\n+                }\n+                else
+  if(connect_result < 0)\n+                {\n+                        return connect_result;\n+                }\n
+  \n-\t\tsleep(1);\n-\t}\n-\tNFAPI_TRACE(NFAPI_TRACE_INFO, \"%s() terminate=1 - EXITTING............\\n\",
+  __FUNCTION__);\n+                sleep(1);\n+        }\n+        NFAPI_TRACE(NFAPI_TRACE_INFO,
+  \"%s() terminate=1 - EXITTING............\\n\", __FUNCTION__);\n \n-\treturn 0;\n+        return
+  0;\n }\n \n int nfapi_pnf_stop(nfapi_pnf_config_t* config)\n {\n-\t// Verify that
+  config is not null\n-\tif(config == 0)\n-\t\treturn -1;\n+        // Verify that
+  config is not null\n+        if(config == 0)\n+                return -1;\n \n \n-\tpnf_t*
+  _this = (pnf_t*)(config);\n-\t_this->terminate = 1;\n+        pnf_t* _this = (pnf_t*)(config);\n+        _this->terminate
+  = 1;\n \n-\t// todo wait for the pnf to stop before returning\n+        // todo
+  wait for the pnf to stop before returning\n \n-\treturn 0;\n+        return 0;\n
+  }\n \n \n int nfapi_nr_pnf_pnf_param_resp(nfapi_pnf_config_t* config, nfapi_nr_pnf_param_response_t*
+  resp)\n {\n-\t// ensure it''s valid\n-\tif (config == NULL || resp == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n-\t\treturn -1;\n-\t}\n+        // ensure
+  it''s valid\n+        if (config == NULL || resp == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\treturn pnf_nr_pack_and_send_p5_message(_this, &(resp->header), sizeof(nfapi_nr_pnf_param_response_t));\n+        return
+  pnf_nr_pack_and_send_p5_message(_this, &(resp->header), sizeof(nfapi_nr_pnf_param_response_t));\n
+  }\n \n int nfapi_pnf_pnf_param_resp(nfapi_pnf_config_t* config, nfapi_pnf_param_response_t*
+  resp)\n {\n-\t// ensure it''s valid\n-\tif (config == NULL || resp == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n-\t\treturn -1;\n-\t}\n+        // ensure
+  it''s valid\n+        if (config == NULL || resp == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\treturn pnf_pack_and_send_p5_message(_this, &(resp->header), sizeof(nfapi_pnf_param_response_t));\n+        return
+  pnf_pack_and_send_p5_message(_this, &(resp->header), sizeof(nfapi_pnf_param_response_t));\n
+  }\n \n int nfapi_pnf_pnf_config_resp(nfapi_pnf_config_t* config, nfapi_pnf_config_response_t*
+  resp)\n {\n-\t// ensure it''s valid\n-\tif (config == NULL || resp == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n-\t\treturn -1;\n-\t}\n+        // ensure
+  it''s valid\n+        if (config == NULL || resp == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tif(resp->error_code == NFAPI_MSG_OK)\n-\t{\n-\t\tconfig->state = NFAPI_PNF_CONFIGURED;\n-\t}\n+        if(resp->error_code
+  == NFAPI_MSG_OK)\n+        {\n+                config->state = NFAPI_PNF_CONFIGURED;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\treturn pnf_pack_and_send_p5_message(_this, &(resp->header), sizeof(nfapi_pnf_config_response_t));\n+        return
+  pnf_pack_and_send_p5_message(_this, &(resp->header), sizeof(nfapi_pnf_config_response_t));\n
+  }\n \n \n int nfapi_nr_pnf_pnf_config_resp(nfapi_pnf_config_t* config, nfapi_nr_pnf_config_response_t*
+  resp)\n {\n-\t// ensure it''s valid\n-\tif (config == NULL || resp == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n-\t\treturn -1;\n-\t}\n+        // ensure
+  it''s valid\n+        if (config == NULL || resp == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tif(resp->error_code == NFAPI_MSG_OK)\n-\t{\n-\t\tconfig->state = NFAPI_PNF_CONFIGURED;\n-\t}\n+        if(resp->error_code
+  == NFAPI_NR_CONFIG_MSG_OK)\n+        {\n+                config->state = NFAPI_PNF_CONFIGURED;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\treturn pnf_nr_pack_and_send_p5_message(_this, &(resp->header), sizeof(nfapi_nr_pnf_config_response_t));\n+        return
+  pnf_nr_pack_and_send_p5_message(_this, &(resp->header), sizeof(nfapi_nr_pnf_config_response_t));\n
+  }\n \n \n int nfapi_pnf_pnf_start_resp(nfapi_pnf_config_t* config, nfapi_pnf_start_response_t*
+  resp)\n {\n-\t// ensure it''s valid\n-\tif (config == NULL || resp == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n-\t\treturn -1;\n-\t}\n+        // ensure
+  it''s valid\n+        if (config == NULL || resp == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tif(resp->error_code == NFAPI_MSG_OK)\n-\t{\n-\t\tconfig->state = NFAPI_PNF_RUNNING;\n-\t}\n+        if(resp->error_code
+  == NFAPI_MSG_OK)\n+        {\n+                config->state = NFAPI_PNF_RUNNING;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\treturn pnf_pack_and_send_p5_message(_this, &(resp->header), sizeof(nfapi_pnf_start_response_t));\n+        return
+  pnf_pack_and_send_p5_message(_this, &(resp->header), sizeof(nfapi_pnf_start_response_t));\n
+  }\n \n int nfapi_nr_pnf_pnf_start_resp(nfapi_pnf_config_t* config, nfapi_nr_pnf_start_response_t*
+  resp)\n {\n-\t// ensure it''s valid\n-\tif (config == NULL || resp == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n-\t\treturn -1;\n-\t}\n+        // ensure
+  it''s valid\n+        if (config == NULL || resp == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tif(resp->error_code == NFAPI_MSG_OK)\n-\t{\n-\t\tconfig->state = NFAPI_PNF_RUNNING;\n-\t}\n+        if(resp->error_code
+  == NFAPI_NR_START_MSG_OK)\n+        {\n+                config->state = NFAPI_PNF_RUNNING;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\treturn pnf_nr_pack_and_send_p5_message(_this, &(resp->header), sizeof(nfapi_nr_pnf_start_response_t));\n+        return
+  pnf_nr_pack_and_send_p5_message(_this, &(resp->header), sizeof(nfapi_nr_pnf_start_response_t));\n
+  }\n \n \n int nfapi_pnf_pnf_stop_resp(nfapi_pnf_config_t* config, nfapi_pnf_stop_response_t*
+  resp)\n {\n-\t// ensure it''s valid\n-\tif (config == NULL || resp == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n-\t\treturn -1;\n-\t}\n+        // ensure
+  it''s valid\n+        if (config == NULL || resp == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tif(resp->error_code == NFAPI_MSG_OK)\n-\t{\n-\t\tconfig->state = NFAPI_PNF_CONFIGURED;\n-\t}\n+        if(resp->error_code
+  == NFAPI_MSG_OK)\n+        {\n+                config->state = NFAPI_PNF_CONFIGURED;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\treturn pnf_pack_and_send_p5_message(_this, &(resp->header), sizeof(nfapi_pnf_stop_response_t));\n+        return
+  pnf_pack_and_send_p5_message(_this, &(resp->header), sizeof(nfapi_pnf_stop_response_t));\n
+  }\n int nfapi_pnf_param_resp(nfapi_pnf_config_t* config, nfapi_param_response_t*
+  resp)\n {\n-\tif (config == NULL || resp == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n-\t\treturn -1;\n-\t}\n+        if (config
+  == NULL || resp == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\treturn pnf_pack_and_send_p5_message(_this, &(resp->header), sizeof(nfapi_param_response_t));\n+        return
+  pnf_pack_and_send_p5_message(_this, &(resp->header), sizeof(nfapi_param_response_t));\n
+  }\n \n \n int nfapi_nr_pnf_param_resp(nfapi_pnf_config_t* config, nfapi_nr_param_response_scf_t*
+  resp)\n {\n-\tif (config == NULL || resp == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n-\t\treturn -1;\n-\t}\n+        if (config
+  == NULL || resp == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\treturn pnf_nr_pack_and_send_p5_message(_this, &(resp->header), sizeof(nfapi_nr_param_response_scf_t));\n+        return
+  pnf_nr_pack_and_send_p5_message(_this, &(resp->header), sizeof(nfapi_nr_param_response_scf_t));\n
+  }\n \n int nfapi_pnf_config_resp(nfapi_pnf_config_t* config, nfapi_config_response_t*
+  resp)\n {\n-\tif (config == NULL || resp == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n-\t\treturn -1;\n-\t}\n+        if (config
+  == NULL || resp == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\tnfapi_pnf_phy_config_t* phy = nfapi_pnf_phy_config_find(config, resp->header.phy_id);\n+        nfapi_pnf_phy_config_t*
+  phy = nfapi_pnf_phy_config_find(config, resp->header.phy_id);\n \n-\tif(phy)\n-\t{\n-\t\tif(resp->error_code
+  == NFAPI_MSG_OK)\n-\t\t{\n-\t\t\tphy->state = NFAPI_PNF_PHY_CONFIGURED;\n-\t\t}\n-\t}\n-\telse\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: unknow phy id %d\\n\", __FUNCTION__, resp->header.phy_id);\n-\t\treturn -1;\n-\t}\n+        if(phy)\n+        {\n+                if(resp->error_code
+  == NFAPI_MSG_OK)\n+                {\n+                        phy->state = NFAPI_PNF_PHY_CONFIGURED;\n+                }\n+        }\n+        else\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: unknow phy id %d\\n\", __FUNCTION__, resp->header.phy_id);\n+                return
+  -1;\n+        }\n \n-\treturn pnf_pack_and_send_p5_message(_this, &(resp->header),
+  sizeof(nfapi_config_response_t));\n+        return pnf_pack_and_send_p5_message(_this,
+  &(resp->header), sizeof(nfapi_config_response_t));\n }\n \n int nfapi_nr_pnf_config_resp(nfapi_pnf_config_t*
+  config, nfapi_nr_config_response_scf_t* resp)\n {\n-\tif (config == NULL || resp
+  == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR, \"%s: NULL parameters\\n\",
+  __FUNCTION__);\n-\t\treturn -1;\n-\t}\n+        if (config == NULL || resp == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\tnfapi_pnf_phy_config_t* phy = nfapi_pnf_phy_config_find(config, resp->header.phy_id);\n+        nfapi_pnf_phy_config_t*
+  phy = nfapi_pnf_phy_config_find(config, resp->header.phy_id);\n \n-\tif(phy)\n-\t{\n-\t\tif(resp->error_code
+  == NFAPI_NR_CONFIG_MSG_OK)\n-\t\t{\n-\t\t\tphy->state = NFAPI_PNF_PHY_CONFIGURED;\n-\t\t}\n-\t}\n-\telse\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: unknow phy id %d\\n\", __FUNCTION__, resp->header.phy_id);\n-\t\treturn -1;\n-\t}\n+        if(phy)\n+        {\n+                if(resp->error_code
+  == NFAPI_NR_CONFIG_MSG_OK)\n+                {\n+                        phy->state
+  = NFAPI_PNF_PHY_CONFIGURED;\n+                }\n+        }\n+        else\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: unknow phy id %d\\n\", __FUNCTION__, resp->header.phy_id);\n+                return
+  -1;\n+        }\n \n-\treturn pnf_nr_pack_and_send_p5_message(_this, &(resp->header),
+  sizeof(nfapi_nr_config_response_scf_t));\n+        return pnf_nr_pack_and_send_p5_message(_this,
+  &(resp->header), sizeof(nfapi_nr_config_response_scf_t));\n }\n \n \n int nfapi_pnf_start_resp(nfapi_pnf_config_t*
+  config, nfapi_start_response_t* resp)\n {\n-\tif (config == NULL || resp == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n-\t\treturn -1;\n-\t}\n+        if (config
+  == NULL || resp == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\tnfapi_pnf_phy_config_t* phy = nfapi_pnf_phy_config_find(config, resp->header.phy_id);\n-\tif(phy)\n-\t{\n-\t\tif(resp->error_code
+  == NFAPI_MSG_OK)\n-\t\t{\n-\t\t\tphy->state = NFAPI_PNF_PHY_RUNNING;\n-\t\t}\n-\t}\n-\telse\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: unknown phy id %d\\n\", __FUNCTION__, resp->header.phy_id);\n-\t\treturn -1;\n-\t}\n+        nfapi_pnf_phy_config_t*
+  phy = nfapi_pnf_phy_config_find(config, resp->header.phy_id);\n+        if(phy)\n+        {\n+                if(resp->error_code
+  == NFAPI_MSG_OK)\n+                {\n+                        phy->state = NFAPI_PNF_PHY_RUNNING;\n+                }\n+        }\n+        else\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: unknown phy id %d\\n\", __FUNCTION__, resp->header.phy_id);\n+                return
+  -1;\n+        }\n \n-\treturn pnf_pack_and_send_p5_message(_this, &(resp->header),
+  sizeof(nfapi_start_response_t));\n+        return pnf_pack_and_send_p5_message(_this,
+  &(resp->header), sizeof(nfapi_start_response_t));\n }\n \n int nfapi_nr_pnf_start_resp(nfapi_pnf_config_t*
+  config, nfapi_nr_start_response_scf_t* resp)\n {\n-\tif (config == NULL || resp
+  == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR, \"%s: NULL parameters\\n\",
+  __FUNCTION__);\n-\t\treturn -1;\n-\t}\n+        if (config == NULL || resp == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\tnfapi_pnf_phy_config_t* phy = nfapi_pnf_phy_config_find(config, resp->header.phy_id);\n-\tif(phy)\n-\t{\n-\t\tif(resp->error_code
+  == NFAPI_NR_START_MSG_OK)\n-\t\t{\n-\t\t\tphy->state = NFAPI_PNF_PHY_RUNNING;\n-\t\t}\n-\t}\n-\telse\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: unknown phy id %d\\n\", __FUNCTION__, resp->header.phy_id);\n-\t\treturn -1;\n-\t}\n+        nfapi_pnf_phy_config_t*
+  phy = nfapi_pnf_phy_config_find(config, resp->header.phy_id);\n+        if(phy)\n+        {\n+                if(resp->error_code
+  == NFAPI_NR_START_MSG_OK)\n+                {\n+                        phy->state
+  = NFAPI_PNF_PHY_RUNNING;\n+                }\n+        }\n+        else\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: unknown phy id %d\\n\", __FUNCTION__, resp->header.phy_id);\n+                return
+  -1;\n+        }\n \n-\treturn pnf_nr_pack_and_send_p5_message(_this, &(resp->header),
+  sizeof(nfapi_nr_start_response_scf_t));\n+        return pnf_nr_pack_and_send_p5_message(_this,
+  &(resp->header), sizeof(nfapi_nr_start_response_scf_t));\n }\n \n \n int nfapi_pnf_stop_resp(nfapi_pnf_config_t*
+  config, nfapi_stop_response_t* resp)\n {\n-\tif (config == NULL || resp == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n-\t\treturn -1;\n-\t}\n+        if (config
+  == NULL || resp == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\tnfapi_pnf_phy_config_t* phy = nfapi_pnf_phy_config_find(config, resp->header.phy_id);\n-\tif(phy)\n-\t{\n-\t\tif(resp->error_code
+  == NFAPI_MSG_OK)\n-\t\t{\n-\t\t\tphy->state = NFAPI_PNF_PHY_CONFIGURED;\n-\t\t}\n-\t}\n-\telse\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: unknow phy id %d\\n\", __FUNCTION__, resp->header.phy_id);\n-\t\treturn -1;\n-\t}\n+        nfapi_pnf_phy_config_t*
+  phy = nfapi_pnf_phy_config_find(config, resp->header.phy_id);\n+        if(phy)\n+        {\n+                if(resp->error_code
+  == NFAPI_MSG_OK)\n+                {\n+                        phy->state = NFAPI_PNF_PHY_CONFIGURED;\n+                }\n+        }\n+        else\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: unknow phy id %d\\n\", __FUNCTION__, resp->header.phy_id);\n+                return
+  -1;\n+        }\n \n \n-\treturn pnf_pack_and_send_p5_message(_this, &(resp->header),
+  sizeof(nfapi_stop_response_t));\n+        return pnf_pack_and_send_p5_message(_this,
+  &(resp->header), sizeof(nfapi_stop_response_t));\n }\n \n int nfapi_pnf_measurement_resp(nfapi_pnf_config_t*
+  config, nfapi_measurement_response_t* resp)\n {\n-\tif (config == NULL || resp ==
+  NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR, \"%s: NULL parameters\\n\", __FUNCTION__);\n-\t\treturn
+  -1;\n-\t}\n+        if (config == NULL || resp == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\treturn pnf_pack_and_send_p5_message(_this, &(resp->header), sizeof(nfapi_measurement_response_t));\n+        return
+  pnf_pack_and_send_p5_message(_this, &(resp->header), sizeof(nfapi_measurement_response_t));\n
+  }\n \n \n int nfapi_pnf_rssi_resp(nfapi_pnf_config_t* config, nfapi_rssi_response_t*
+  resp)\n {\n-\tif (config == NULL || resp == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n-\t\treturn -1;\n-\t}\n+        if (config
+  == NULL || resp == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\treturn pnf_pack_and_send_p4_message(_this, &(resp->header), sizeof(nfapi_rssi_response_t));\n+        return
+  pnf_pack_and_send_p4_message(_this, &(resp->header), sizeof(nfapi_rssi_response_t));\n
+  }\n \n int nfapi_pnf_rssi_ind(nfapi_pnf_config_t* config, nfapi_rssi_indication_t*
+  ind)\n {\n-\tif (config == NULL || ind == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n-\t\treturn -1;\n-\t}\n+        if (config
+  == NULL || ind == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\treturn pnf_pack_and_send_p4_message(_this, &(ind->header), sizeof(nfapi_rssi_indication_t));\n+        return
+  pnf_pack_and_send_p4_message(_this, &(ind->header), sizeof(nfapi_rssi_indication_t));\n
+  }\n int nfapi_pnf_cell_search_resp(nfapi_pnf_config_t* config, nfapi_cell_search_response_t*
+  resp)\n {\n-\tif (config == NULL || resp == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n-\t\treturn -1;\n-\t}\n+        if (config
+  == NULL || resp == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tNFAPI_TRACE(NFAPI_TRACE_INFO, \"Send CELL_SEARCH.response\\n\");\n+        NFAPI_TRACE(NFAPI_TRACE_INFO,
+  \"Send CELL_SEARCH.response\\n\");\n \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t*
+  _this = (pnf_t*)(config);\n \n-\treturn pnf_pack_and_send_p4_message(_this, &(resp->header),
+  sizeof(nfapi_cell_search_response_t));\n+        return pnf_pack_and_send_p4_message(_this,
+  &(resp->header), sizeof(nfapi_cell_search_response_t));\n }\n int nfapi_pnf_cell_search_ind(nfapi_pnf_config_t*
+  config, nfapi_cell_search_indication_t* ind)\n {\n-\tif (config == NULL || ind ==
+  NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR, \"%s: NULL parameters\\n\", __FUNCTION__);\n-\t\treturn
+  -1;\n-\t}\n+        if (config == NULL || ind == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\treturn pnf_pack_and_send_p4_message(_this, &(ind->header), sizeof(nfapi_cell_search_indication_t));\n+        return
+  pnf_pack_and_send_p4_message(_this, &(ind->header), sizeof(nfapi_cell_search_indication_t));\n
+  }\n int nfapi_pnf_broadcast_detect_resp(nfapi_pnf_config_t* config, nfapi_broadcast_detect_response_t*
+  resp)\n {\n-\tif (config == NULL || resp == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n-\t\treturn -1;\n-\t}\n+        if (config
+  == NULL || resp == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\treturn pnf_pack_and_send_p4_message(_this, &(resp->header), sizeof(nfapi_broadcast_detect_response_t));\n+        return
+  pnf_pack_and_send_p4_message(_this, &(resp->header), sizeof(nfapi_broadcast_detect_response_t));\n
+  }\n int nfapi_pnf_broadcast_detect_ind(nfapi_pnf_config_t* config, nfapi_broadcast_detect_indication_t*
+  ind)\n {\n-\tif (config == NULL || ind == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n-\t\treturn -1;\n-\t}\n+        if (config
+  == NULL || ind == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\treturn pnf_pack_and_send_p4_message(_this, &(ind->header), sizeof(nfapi_broadcast_detect_indication_t));\n+        return
+  pnf_pack_and_send_p4_message(_this, &(ind->header), sizeof(nfapi_broadcast_detect_indication_t));\n
+  }\n int nfapi_pnf_system_information_schedule_resp(nfapi_pnf_config_t* config, nfapi_system_information_schedule_response_t*
+  resp)\n {\n-\tif (config == NULL || resp == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n-\t\treturn -1;;\n-\t}\n+        if
+  (config == NULL || resp == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\treturn pnf_pack_and_send_p4_message(_this, &(resp->header), sizeof(nfapi_system_information_schedule_response_t));\n+        return
+  pnf_pack_and_send_p4_message(_this, &(resp->header), sizeof(nfapi_system_information_schedule_response_t));\n
+  }\n \n int nfapi_pnf_system_information_schedule_ind(nfapi_pnf_config_t* config,
+  nfapi_system_information_schedule_indication_t* ind)\n {\n-\tif (config == NULL
+  || ind == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR, \"%s: NULL parameters\\n\",
+  __FUNCTION__);\n-\t\treturn -1;\n-\t}\n+        if (config == NULL || ind == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\treturn pnf_pack_and_send_p4_message(_this, &(ind->header), sizeof(nfapi_system_information_schedule_indication_t));\n+        return
+  pnf_pack_and_send_p4_message(_this, &(ind->header), sizeof(nfapi_system_information_schedule_indication_t));\n
+  }\n int nfapi_pnf_system_information_resp(nfapi_pnf_config_t* config, nfapi_system_information_response_t*
+  resp)\n {\n-\tif (config == NULL || resp == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n-\t\treturn -1;\n-\t}\n+        if (config
+  == NULL || resp == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\treturn pnf_pack_and_send_p4_message(_this, &(resp->header), sizeof(nfapi_system_information_response_t));\n+        return
+  pnf_pack_and_send_p4_message(_this, &(resp->header), sizeof(nfapi_system_information_response_t));\n
+  }\n \n int nfapi_pnf_system_information_ind(nfapi_pnf_config_t* config, nfapi_system_information_indication_t*
+  ind)\n {\n-\tif (config == NULL || ind == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n-\t\treturn -1;\n-\t}\n+        if (config
+  == NULL || ind == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\treturn pnf_pack_and_send_p4_message(_this, &(ind->header), sizeof(nfapi_system_information_indication_t));\n+        return
+  pnf_pack_and_send_p4_message(_this, &(ind->header), sizeof(nfapi_system_information_indication_t));\n
+  }\n int nfapi_pnf_nmm_stop_resp(nfapi_pnf_config_t* config, nfapi_nmm_stop_response_t*
+  resp)\n {\n-\t// ensure it''s valid\n-\tif (config == NULL || resp == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n-\t\treturn -1;\n-\t}\n+        // ensure
+  it''s valid\n+        if (config == NULL || resp == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\treturn pnf_pack_and_send_p4_message(_this, &(resp->header), sizeof(nfapi_nmm_stop_request_t));\n+        return
+  pnf_pack_and_send_p4_message(_this, &(resp->header), sizeof(nfapi_nmm_stop_request_t));\n
+  }\n \n int nfapi_pnf_vendor_extension(nfapi_pnf_config_t* config, nfapi_p4_p5_message_header_t*
+  msg, uint32_t msg_len)\n {\n-\t// ensure it''s valid\n-\tif (config == NULL || msg
+  == NULL)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR, \"%s: NULL parameters\\n\",
+  __FUNCTION__);\n-\t\treturn -1;\n-\t}\n+        // ensure it''s valid\n+        if
+  (config == NULL || msg == NULL)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: NULL parameters\\n\", __FUNCTION__);\n+                return -1;\n+        }\n
+  \n-\tpnf_t* _this = (pnf_t*)(config);\n+        pnf_t* _this = (pnf_t*)(config);\n
+  \n-\treturn pnf_pack_and_send_p5_message(_this, msg, msg_len);\n+        return
+  pnf_pack_and_send_p5_message(_this, msg, msg_len);\n }\n","start_fn":"nfapi_nr_pnf_pnf_config_resp","start_fn_file":"nfapi/open-nFAPI/pnf/src/pnf_interface.c","subsystem":"nfapi/open-nFAPI/pnf"},"type":"text","id":"oai5g_bf69e25_00190"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

@@ -1,0 +1,28 @@
+{
+  "run_id": "s00016_4d19f7",
+  "function": {
+    "name": "get_phich_resource_times6",
+    "file": "openair2/LAYER2/MAC/eNB_scheduler_primitives.c",
+    "start_line": 168,
+    "end_line": 179,
+    "body_lines": 12,
+    "signature": "int get_phich_resource_times6(COMMON_channels_t *cc) //------------------------------------------------------------------------------",
+    "subsystem": "openair2/LAYER2/MAC",
+    "token_estimate": 47
+  },
+  "bug": {
+    "bug_id": "telecom_sched_priority_inversion",
+    "description": "scheduling priority inversion where lower-priority traffic is served before higher-priority",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a scheduling priority inversion where lower-priority traffic is served before higher-priority downstream of function get_phich_resource_times6 in the openair2/LAYER2/MAC subsystem.\nThe function is located at openair2/LAYER2/MAC/eNB_scheduler_primitives.c:168.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00016_4d19f7_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00016_4d19f7_p1.diff",
+  "patch_lines": 73,
+  "trajectory_steps": 59,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:39:20Z"
+}

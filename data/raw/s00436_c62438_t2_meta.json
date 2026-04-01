@@ -1,0 +1,9 @@
+{
+  "run_id": "s00436_c62438",
+  "pr_text": "## Title: Add defensive clamping to prevent buffer overruns in OTG TARMA model\n\n### Summary\nThe TARMA (Time-AutoRegressive Moving Average) traffic model in the OTG subsystem can generate extreme values that lead to buffer overruns and excessive memory allocation. When `tarmaCalculateSample()` returns very large positive or negative values, these are used directly for memory allocation and string generation, causing potential buffer overruns in downstream string operations. This fix implements mu",
+  "trajectory_path": "data/raw/s00436_c62438_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00436_c62438_p2.diff",
+  "patch_lines": 57,
+  "trajectory_steps": 36,
+  "timestamp": "2026-02-10T13:22:50Z"
+}

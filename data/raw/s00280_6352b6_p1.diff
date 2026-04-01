@@ -1,0 +1,15 @@
+diff --git a/openair3/NAS/COMMON/UTIL/nas_timer.c b/openair3/NAS/COMMON/UTIL/nas_timer.c
+index 0a521ceeb4..1bb64f89cb 100644
+--- a/openair3/NAS/COMMON/UTIL/nas_timer.c
++++ b/openair3/NAS/COMMON/UTIL/nas_timer.c
+@@ -281,6 +281,10 @@ int nas_timer_restart(int id)
+   if (_nas_timer_db_is_active(id)) {
+     /* Remove the entry from the timer queue */
+     nas_timer_entry_t *te = _nas_timer_db_remove_entry(id);
++    /* Check if the entry was successfully removed */
++    if (te == NULL) {
++      return (NAS_TIMER_INACTIVE_ID);
++    }
+     /* Initialize its interval timer value */
+     te->tv = te->itv;
+     /* Insert again the entry into the timer queue */

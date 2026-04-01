@@ -1,0 +1,28 @@
+{
+  "run_id": "s00340_33fb21",
+  "function": {
+    "name": "PCAP_WritePDU",
+    "file": "openair2/UTIL/OPT/probe.c",
+    "start_line": 143,
+    "end_line": 198,
+    "body_lines": 56,
+    "signature": "static int PCAP_WritePDU(const uint8_t *PDU, unsigned int length)",
+    "subsystem": "openair2/UTIL/OPT",
+    "token_estimate": 266
+  },
+  "bug": {
+    "bug_id": "telecom_sched_priority_inversion",
+    "description": "scheduling priority inversion where lower-priority traffic is served before higher-priority",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a scheduling priority inversion where lower-priority traffic is served before higher-priority downstream of function PCAP_WritePDU in the openair2/UTIL/OPT subsystem.\nThe function is located at openair2/UTIL/OPT/probe.c:143.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00340_33fb21_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00340_33fb21_p1.diff",
+  "patch_lines": 0,
+  "trajectory_steps": 35,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:41:15Z"
+}

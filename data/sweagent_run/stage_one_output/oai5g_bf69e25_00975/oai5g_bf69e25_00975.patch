@@ -1,0 +1,13 @@
+diff --git a/openair3/NAS/UE/API/USIM/aka_functions.c b/openair3/NAS/UE/API/USIM/aka_functions.c
+index d2e3fc36c5..7f7ce7a78e 100644
+--- a/openair3/NAS/UE/API/USIM/aka_functions.c
++++ b/openair3/NAS/UE/API/USIM/aka_functions.c
+@@ -280,7 +280,7 @@ void f5star( u8 k_pP[16], u8 rand_pP[16],
+     out[i] ^= op_c[i];
+ 
+   for (i=0; i<6; i++)
+-    ak_pP[i] = out[i];
++    ak_pP[i] = out[i+8];
+ 
+   return;
+ } /* end of function f5star */

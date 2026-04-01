@@ -1,0 +1,56 @@
+diff --git a/openair2/UTIL/OMG/trace_hashtable.c b/openair2/UTIL/OMG/trace_hashtable.c
+index 9a7a67feef..8401ad1341 100644
+--- a/openair2/UTIL/OMG/trace_hashtable.c
++++ b/openair2/UTIL/OMG/trace_hashtable.c
+@@ -201,25 +201,24 @@ hash_table_lookup (hash_table_t * table, int id)
+ 
+ 
+ /**
+- * Function that returns a hash value for a given key and key_len
+- * @param key pointer to the key
+- * @param key_len length of the key
+- * @param max_key max value of the hash to be returned by the function
++ * Function that returns a hash value for a given key and max_key
++ * @param key pointer to the key (int value to hash)
++ * @param max_key max value of the hash to be returned by the function (hash table size)
+  * @returns hash value belonging to [0, max_key)
+  */
+ uint16_t
+-hash (int *key, int len)
++hash (int *key, int max_key)
+ {
+   uint16_t *ptr = (uint16_t *) key;
+   uint16_t hash = 0xbabe; // WHY NOT
+   size_t i = 0;
+ 
+-  for (; i < (sizeof (key) / 2); i++) {
++  for (; i < (sizeof (int) / 2); i++) {
+     hash ^= (i << 4 ^ *ptr << 8 ^ *ptr);
+     ptr++;
+   }
+ 
+-  hash = hash % len;
++  hash = hash % max_key;
+   return hash;
+ }
+ 
+diff --git a/openair2/UTIL/OMG/trace_hashtable.h b/openair2/UTIL/OMG/trace_hashtable.h
+index b842880e29..7c27daff13 100644
+--- a/openair2/UTIL/OMG/trace_hashtable.h
++++ b/openair2/UTIL/OMG/trace_hashtable.h
+@@ -107,12 +107,11 @@ typedef struct nodeinfo {
+ 
+ /**
+  * Function that returns a hash value for a given key and key_len
+- * @param key pointer to the key
+- * @param key_len length of the key
+- *f @param max_key max value of the hash to be returned by the function
++ * @param key pointer to the key (int value to hash)
++ * @param max_key max value of the hash to be returned by the function (hash table size)
+  * @returns hash value belonging to [0, max_key)
+  */
+-uint16_t hash (int *key, int len);
++uint16_t hash (int *key, int max_key);
+ 
+ // hash table operations
+ /**

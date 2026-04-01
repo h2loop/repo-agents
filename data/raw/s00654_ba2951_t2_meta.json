@@ -1,0 +1,9 @@
+{
+  "run_id": "s00654_ba2951",
+  "pr_text": "## Title: Fix ASN.1 encoding error in IF4.5 header frame number packing\n\n### Summary\nThe IF4.5 header generation functions were incorrectly masking the frame number with `0xffff` (16 bits) when packing it into the `frame_status` field. This caused frame numbers to overflow their allocated bit range, corrupting the protocol header and producing malformed ASN.1 messages downstream. The frame number should be limited to 10 bits (0-1023) as per the LTE/NR frame structure. This patch corrects the mas",
+  "trajectory_path": "data/raw/s00654_ba2951_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00654_ba2951_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 7,
+  "timestamp": "2026-02-11T01:54:18Z"
+}

@@ -1,0 +1,44 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c b/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
+index 9820e60107..6b2cd3ef9c 100644
+--- a/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
++++ b/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
+@@ -46,6 +46,14 @@ int16_t get_prach_tx_power(module_id_t mod_id) {
+   RA_config_t *ra = &mac->ra;
+   int16_t pathloss = compute_nr_SSB_PL(mac, mac->ssb_measurements.ssb_rsrp_dBm);
+   int16_t ra_preamble_rx_power = (int16_t)(ra->prach_resources.ra_PREAMBLE_RECEIVED_TARGET_POWER - pathloss + 30);
++  
++  /* Apply timing advance compensation to PRACH power control */
++  if (mac->ul_time_alignment.ta_apply) {
++    /* Convert timing advance to power compensation (0.5 dB per TA unit as per spec) */
++    int16_t ta_compensation = (int16_t)(mac->ul_time_alignment.ta_total * 5); /* 0.5 dB per unit = 5 * 0.1 dB */
++    ra_preamble_rx_power += ta_compensation;
++  }
++  
+   return min(ra->prach_resources.RA_PCMAX, ra_preamble_rx_power);
+ 
+ }
+diff --git a/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c b/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c
+index 19398a1ad0..72c8005af5 100644
+--- a/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c
++++ b/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c
+@@ -1563,10 +1563,17 @@ int16_t get_pucch_tx_power_ue(NR_UE_MAC_INST_t *mac,
+   int16_t pathloss = compute_nr_SSB_PL(mac, mac->ssb_measurements.ssb_rsrp_dBm);
+   int M_pucch_component = (10 * log10((double)(pow(2,scs) * nb_of_prbs)));
+ 
+-  int16_t pucch_power = P_O_PUCCH + M_pucch_component + pathloss + delta_F_PUCCH + DELTA_TF + G_b_f_c;
++  /* Apply timing advance compensation to power control */
++  int16_t ta_compensation = 0;
++  if (mac->ul_time_alignment.ta_apply) {
++    /* Convert timing advance to power compensation (0.5 dB per TA unit as per spec) */
++    ta_compensation = (int16_t)(mac->ul_time_alignment.ta_total * 5); /* 0.5 dB per unit = 5 * 0.1 dB */
++  }
++
++  int16_t pucch_power = P_O_PUCCH + M_pucch_component + pathloss + delta_F_PUCCH + DELTA_TF + G_b_f_c + ta_compensation;
+ 
+-  LOG_D(MAC, "PUCCH ( Tx power : %d dBm ) ( 10Log(...) : %d ) ( from Path Loss : %d ) ( delta_F_PUCCH : %d ) ( DELTA_TF : %d ) ( G_b_f_c : %d ) \n",
+-        pucch_power, M_pucch_component, pathloss, delta_F_PUCCH, DELTA_TF, G_b_f_c);
++  LOG_D(MAC, "PUCCH ( Tx power : %d dBm ) ( 10Log(...) : %d ) ( from Path Loss : %d ) ( delta_F_PUCCH : %d ) ( DELTA_TF : %d ) ( G_b_f_c : %d ) ( TA compensation : %d )\n",
++        pucch_power, M_pucch_component, pathloss, delta_F_PUCCH, DELTA_TF, G_b_f_c, ta_compensation);
+ 
+   return (pucch_power);
+ }

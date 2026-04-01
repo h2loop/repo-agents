@@ -1,0 +1,30 @@
+{
+  "run_id": "s00006_83645f",
+  "function": {
+    "name": "nodes_avgspeed",
+    "file": "openair2/UTIL/OMG/job.c",
+    "start_line": 112,
+    "end_line": 133,
+    "body_lines": 22,
+    "signature": "unsigned int nodes_avgspeed (job_list * job_vector)",
+    "subsystem": "openair2/UTIL/OMG",
+    "token_estimate": 58
+  },
+  "bug": {
+    "bug_id": "telecom_state_machine_stale_state",
+    "description": "stale protocol state not cleared after procedure completion or failure",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a stale protocol state not cleared after procedure completion or failure downstream of function nodes_avgspeed in the openair2/UTIL/OMG subsystem.\nThe function is located at openair2/UTIL/OMG/job.c:112.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00006_83645f_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00006_83645f_p1.diff",
+  "patch_lines": 103,
+  "trajectory_steps": 88,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:30:11Z"
+}

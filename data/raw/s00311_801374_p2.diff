@@ -1,0 +1,73 @@
+diff --git a/common/utils/T/tracer/gui/gui_defs.h b/common/utils/T/tracer/gui/gui_defs.h
+index 88b8121ec9..706560005d 100644
+--- a/common/utils/T/tracer/gui/gui_defs.h
++++ b/common/utils/T/tracer/gui/gui_defs.h
+@@ -156,8 +156,11 @@ struct textarea_widget {
+   int color;
+   int wanted_width;
+   int wanted_height;
++  int width;         /* allocated width after packing */
++  int height;        /* allocated height after packing */
+   int baseline;      /* as given by the graphic's backend */
+   int text_width;    /* as given by the graphic's backend */
++  int text_height;   /* as given by the graphic's backend */
+ };
+ 
+ struct space_widget {
+diff --git a/common/utils/T/tracer/gui/textarea.c b/common/utils/T/tracer/gui/textarea.c
+index da84f850ca..360af6f29a 100644
+--- a/common/utils/T/tracer/gui/textarea.c
++++ b/common/utils/T/tracer/gui/textarea.c
+@@ -28,6 +28,18 @@ static void hints(gui *_gui, widget *_w, int *width, int *height)
+   *height = t->wanted_height;
+ }
+ 
++static void allocate(gui *_gui, widget *_w, int x, int y, int width, int height)
++{
++  struct textarea_widget *t = _w;
++  LOGD("ALLOCATE textarea '%s' %d %d %d %d\n", t->t, x, y, width, height);
++  t->common.x = x;
++  t->common.y = y;
++  t->common.width = width;
++  t->common.height = height;
++  t->width = width;
++  t->height = height;
++}
++
+ widget *new_textarea(gui *_gui, int width, int height, int maxsize)
+ {
+   struct gui *g = _gui;
+@@ -45,12 +57,16 @@ widget *new_textarea(gui *_gui, int width, int height, int maxsize)
+   w->wanted_height = height;
+   w->color = FOREGROUND_COLOR;
+   w->text_width = 0;
++  w->text_height = 0;
++  w->width = 0;
++  w->height = 0;
+ 
+   x_text_get_dimensions(g->x, DEFAULT_FONT, "jlM",
+       &_, &_, &w->baseline);
+ 
+   w->common.paint = paint;
+   w->common.hints = hints;
++  w->common.allocate = allocate;
+ 
+   gunlock(g);
+ 
+@@ -65,7 +81,6 @@ void textarea_set_text(gui *_g, widget *_this, char *text)
+ {
+   struct gui *g = _g;
+   struct textarea_widget *this = _this;
+-  int _;
+   int len = strlen(text);
+   if (len >= this->tmaxsize) {
+     fprintf(stderr, "ERROR: string '%s' too big for textarea\n", text);
+@@ -76,7 +91,7 @@ void textarea_set_text(gui *_g, widget *_this, char *text)
+ 
+   strcpy(this->t, text);
+   x_text_get_dimensions(g->x, DEFAULT_FONT, text,
+-      &this->text_width, &_, &this->baseline);
++      &this->text_width, &this->text_height, &this->baseline);
+   send_event(g, DIRTY, this->common.id);
+ 
+   gunlock(g);

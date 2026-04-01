@@ -1,0 +1,26 @@
+{
+  "run_id": "nuttx_00039_c37f39",
+  "function": {
+    "name": "lchmod",
+    "file": "fs/vfs/fs_chstat.c",
+    "start_line": 232,
+    "end_line": 239,
+    "body_lines": 8,
+    "signature": "int lchmod(FAR const char *path, mode_t mode)",
+    "subsystem": "fs/vfs",
+    "token_estimate": 22
+  },
+  "bug": {
+    "bug_id": "rtos_isr_calling_blocking_api",
+    "description": "blocking RTOS API called from interrupt context causing undefined behavior",
+    "domain": "rtos",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a blocking RTOS API called from interrupt context causing undefined behavior downstream of function lchmod in the fs/vfs subsystem.\nThe function is located at fs/vfs/fs_chstat.c:232.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 90,
+  "trajectory_steps": 70,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:29:35Z"
+}

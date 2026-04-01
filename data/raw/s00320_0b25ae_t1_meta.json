@@ -1,0 +1,33 @@
+{
+  "run_id": "s00320_0b25ae",
+  "function": {
+    "name": "x2ap_eNB_handle_ue_context_release",
+    "file": "openair2/X2AP/x2ap_eNB_handler.c",
+    "start_line": 1029,
+    "end_line": 1107,
+    "body_lines": 79,
+    "signature": "static int x2ap_eNB_handle_ue_context_release(instance_t instance, sctp_assoc_t assoc_id, uint32_t stream, X2AP_X2AP_PDU_t *pdu)",
+    "subsystem": "openair2/X2AP",
+    "token_estimate": 218
+  },
+  "bug": {
+    "bug_id": "c_thread_unsafe_access",
+    "description": "thread-unsafe access to global or shared variable without proper synchronization",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a thread-unsafe access to global or shared variable without proper synchronization downstream of function x2ap_eNB_handle_ue_context_release in the openair2/X2AP subsystem.\nThe function is located at openair2/X2AP/x2ap_eNB_handler.c:1029.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00320_0b25ae_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00320_0b25ae_p1.diff",
+  "patch_lines": 16,
+  "trajectory_steps": 26,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T14:25:14Z"
+}

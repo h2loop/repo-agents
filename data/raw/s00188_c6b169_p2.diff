@@ -1,0 +1,116 @@
+diff --git a/common/utils/telnetsrv/telnetsrv_proccmd.c b/common/utils/telnetsrv/telnetsrv_proccmd.c
+index 4255b20956..9dd9d6391c 100644
+--- a/common/utils/telnetsrv/telnetsrv_proccmd.c
++++ b/common/utils/telnetsrv/telnetsrv_proccmd.c
+@@ -65,6 +65,7 @@ char *strtokptr;
+ char *lptr;
+ int fieldcnt;
+ char toksep[2];
++size_t remaining = sizeof(prntline);
+ 
+ fieldcnt = 0;
+ procfile_fields = strtok_r(record, " ", &strtokptr);
+@@ -77,27 +78,43 @@ while (procfile_fields != NULL && fieldcnt < 42) {
+   if (strlen(procfile_fields) == 0)
+     continue;
+   fieldcnt++;
+-  sprintf(toksep, " ");
++  snprintf(toksep, sizeof(toksep), " ");
+   switch (fieldcnt) {
+     case 1: /* id */
+       if (tdata != NULL) {
+         tdata->lines[tdata->numlines].val[0] = strdup(procfile_fields);
+       }
+-      lptr += sprintf(lptr, "%9.9s ", procfile_fields);
+-      sprintf(toksep, ")");
++      if (remaining > 0) {
++        int written = snprintf(lptr, remaining, "%9.9s ", procfile_fields);
++        lptr += written;
++        remaining = (lptr > prntline) ? sizeof(prntline) - (lptr - prntline) : 0;
++      }
++      snprintf(toksep, sizeof(toksep), ")");
+       break;
+     case 2: /* name */
+       if (tdata != NULL) {
+         tdata->lines[tdata->numlines].val[1] = strdup(procfile_fields);
+       }
+-      lptr += sprintf(lptr, "%20.20s ", procfile_fields + 1);
++      if (remaining > 0) {
++        int written = snprintf(lptr, remaining, "%20.20s ", procfile_fields + 1);
++        lptr += written;
++        remaining = (lptr > prntline) ? sizeof(prntline) - (lptr - prntline) : 0;
++      }
+       break;
+     case 3: // thread state
+-      lptr += sprintf(lptr, "  %c   ", procfile_fields[0]);
++      if (remaining > 0) {
++        int written = snprintf(lptr, remaining, "  %c   ", procfile_fields[0]);
++        lptr += written;
++        remaining = (lptr > prntline) ? sizeof(prntline) - (lptr - prntline) : 0;
++      }
+       break;
+     case 14: // time in user mode
+     case 15: // time in kernel mode
+-      lptr += sprintf(lptr, "%9.9s ", procfile_fields);
++      if (remaining > 0) {
++        int written = snprintf(lptr, remaining, "%9.9s ", procfile_fields);
++        lptr += written;
++        remaining = (lptr > prntline) ? sizeof(prntline) - (lptr - prntline) : 0;
++      }
+       break;
+     case 18: // priority column index 2 in tdata, -2 to -100 (1, min to 99, highest prio)
+       priority = strtol(procfile_fields, NULL, 0);
+@@ -105,20 +122,36 @@ while (procfile_fields != NULL && fieldcnt < 42) {
+       if (tdata != NULL) {
+         tdata->lines[tdata->numlines].val[fieldcnt - 16] = strdup(procfile_fields);
+       }
+-      lptr += sprintf(lptr, "%3.3s ", procfile_fields);
++      if (remaining > 0) {
++        int written = snprintf(lptr, remaining, "%3.3s ", procfile_fields);
++        lptr += written;
++        remaining = (lptr > prntline) ? sizeof(prntline) - (lptr - prntline) : 0;
++      }
+       nice = strtol(procfile_fields, NULL, 0);
+       break;
+     case 23: // vsize
+-      lptr += sprintf(lptr, "%9.9s ", procfile_fields);
++      if (remaining > 0) {
++        int written = snprintf(lptr, remaining, "%9.9s ", procfile_fields);
++        lptr += written;
++        remaining = (lptr > prntline) ? sizeof(prntline) - (lptr - prntline) : 0;
++      }
+       break;
+     case 39: // processor
+       if (tdata != NULL) {
+         tdata->lines[tdata->numlines].val[4] = strdup(procfile_fields);
+       }
+-      lptr += sprintf(lptr, " %2.2s  ", procfile_fields);
++      if (remaining > 0) {
++        int written = snprintf(lptr, remaining, " %2.2s  ", procfile_fields);
++        lptr += written;
++        remaining = (lptr > prntline) ? sizeof(prntline) - (lptr - prntline) : 0;
++      }
+       break;
+     case 41: // policy
+-      lptr += sprintf(lptr, "%3.3s ", procfile_fields);
++      if (remaining > 0) {
++        int written = snprintf(lptr, remaining, "%3.3s ", procfile_fields);
++        lptr += written;
++        remaining = (lptr > prntline) ? sizeof(prntline) - (lptr - prntline) : 0;
++      }
+       policy = strtol(procfile_fields, NULL, 0);
+       char strschedp[64];
+       switch (policy) {
+@@ -151,7 +184,11 @@ while (procfile_fields != NULL && fieldcnt < 42) {
+           snprintf(strschedp, sizeof(strschedp), "%s ", "????");
+           break;
+       }
+-      lptr += sprintf(lptr, "%s ", strschedp);
++      if (remaining > 0) {
++        int written = snprintf(lptr, remaining, "%s ", strschedp);
++        lptr += written;
++        remaining = (lptr > prntline) ? sizeof(prntline) - (lptr - prntline) : 0;
++      }
+       if (tdata != NULL) {
+         tdata->lines[tdata->numlines].val[5] = strdup(strschedp);
+         tdata->lines[tdata->numlines].val[6] = malloc(10);

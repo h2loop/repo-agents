@@ -1,0 +1,111 @@
+diff --git a/openair2/LAYER2/MAC/config.c b/openair2/LAYER2/MAC/config.c
+index 9b965420d6..02629c0943 100644
+--- a/openair2/LAYER2/MAC/config.c
++++ b/openair2/LAYER2/MAC/config.c
+@@ -1046,7 +1046,6 @@ void eNB_Config_Local_DRX(instance_t Mod_id,
+ 
+   /* Get struct to modify */
+   UE_scheduling_control = &(UE_info_mac->UE_sched_ctrl[UE_id]);
+-  UE_scheduling_control->cdrx_configured = false; // will be set to true when no error
+ 
+   /* Check drx_Configuration */
+   if (drx_Configuration == NULL) {
+@@ -1061,13 +1060,15 @@ void eNB_Config_Local_DRX(instance_t Mod_id,
+   }
+ 
+   /* Modify scheduling control structure according to DRX configuration: doesn't support every configurations! */  
+-  UE_scheduling_control->cdrx_configured = false; // will be set to true when receiving RRC Reconfiguration Complete
++  UE_scheduling_control->cdrx_configured = true; // DRX parameters are configured
+   UE_scheduling_control->cdrx_waiting_ack = true; // waiting for RRC Reconfiguration Complete message
+   UE_scheduling_control->in_active_time = false;
+   UE_scheduling_control->dci0_ongoing_timer = 0;
+   UE_scheduling_control->on_duration_timer = 0;
+   struct LTE_DRX_Config__setup *choiceSetup = &drx_Configuration->choice.setup;
+ 
++  bool config_error = false;
++
+   switch (choiceSetup->onDurationTimer) {
+     case 0:
+       UE_scheduling_control->on_duration_timer_thres = 1;
+@@ -1135,8 +1136,14 @@ void eNB_Config_Local_DRX(instance_t Mod_id,
+ 
+     default:
+       LOG_E(MAC, "[eNB_Config_Local_DRX] Error in local DRX configuration, the on duration timer value specified is unknown\n");
++      config_error = true;
+       break;
+   }
++  
++  if (config_error) {
++    UE_scheduling_control->cdrx_configured = false;
++    return;
++  }
+ 
+   UE_scheduling_control->drx_inactivity_timer = 0;
+ 
+@@ -1235,8 +1242,14 @@ void eNB_Config_Local_DRX(instance_t Mod_id,
+ 
+     default:
+       LOG_E(MAC, "[eNB_Config_Local_DRX] Error in local DRX configuration, the drx inactivity timer value specified is unknown\n");
++      config_error = true;
+       break;
+   }
++  
++  if (config_error) {
++    UE_scheduling_control->cdrx_configured = false;
++    return;
++  }
+ 
+   if (choiceSetup->shortDRX == NULL) {
+     UE_scheduling_control->in_short_drx_cycle = false;
+@@ -1315,8 +1328,14 @@ void eNB_Config_Local_DRX(instance_t Mod_id,
+ 
+       default:
+         LOG_E(MAC, "[eNB_Config_Local_DRX] Error in local DRX configuration, the short drx timer value specified is unknown\n");
++        config_error = true;
+         break;
+     }
++    
++    if (config_error) {
++      UE_scheduling_control->cdrx_configured = false;
++      return;
++    }
+ 
+     UE_scheduling_control->drx_shortCycle_timer = 0;
+     UE_scheduling_control->drx_shortCycle_timer_thres = UE_scheduling_control->drx_shortCycle_timer_value * UE_scheduling_control->short_drx_cycle_duration;
+@@ -1326,7 +1345,7 @@ void eNB_Config_Local_DRX(instance_t Mod_id,
+   UE_scheduling_control->drx_longCycle_timer = 0;
+ 
+   switch (choiceSetup->longDRX_CycleStartOffset.present) {
+-    case 	LTE_DRX_Config__setup__longDRX_CycleStartOffset_PR_sf10:
++    case        LTE_DRX_Config__setup__longDRX_CycleStartOffset_PR_sf10:
+       UE_scheduling_control->drx_longCycle_timer_thres = 10;
+       UE_scheduling_control->drx_start_offset = (uint16_t) choiceSetup->longDRX_CycleStartOffset.choice.sf10;
+       break;
+@@ -1408,8 +1427,14 @@ void eNB_Config_Local_DRX(instance_t Mod_id,
+ 
+     default:
+       LOG_E(MAC, "[eNB_Config_Local_DRX] Invalid long_DRX value in DRX local configuration\n");
++      config_error = true;
+       break;
+   }
++  
++  if (config_error) {
++    UE_scheduling_control->cdrx_configured = false;
++    return;
++  }
+ 
+   memset(UE_scheduling_control->drx_retransmission_timer, 0, sizeof(UE_scheduling_control->drx_retransmission_timer));
+ 
+@@ -1448,6 +1473,12 @@ void eNB_Config_Local_DRX(instance_t Mod_id,
+ 
+     default:
+       LOG_E(MAC, "[eNB_Config_Local_DRX] Error in local DRX configuration, the drx retransmission timer value specified is unknown\n");
++      config_error = true;
+       break;
+   }
++  
++  if (config_error) {
++    UE_scheduling_control->cdrx_configured = false;
++    return;
++  }
+ }

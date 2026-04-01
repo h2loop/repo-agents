@@ -1,0 +1,30 @@
+{
+  "run_id": "s00090_9e492d",
+  "function": {
+    "name": "pack_tx_data_request",
+    "file": "nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c",
+    "start_line": 1574,
+    "end_line": 1596,
+    "body_lines": 23,
+    "signature": "uint8_t pack_tx_data_request(void *msg, uint8_t **ppWritePackedMsg, uint8_t *end, nfapi_p7_codec_config_t *config)",
+    "subsystem": "nfapi/open-nFAPI/fapi",
+    "token_estimate": 76
+  },
+  "bug": {
+    "bug_id": "telecom_power_control_error",
+    "description": "power control error causing incorrect transmit power level",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "radio"
+    ]
+  },
+  "prompt": "There is a power control error causing incorrect transmit power level downstream of function pack_tx_data_request in the nfapi/open-nFAPI/fapi subsystem.\nThe function is located at nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c:1574.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00090_9e492d_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00090_9e492d_p1.diff",
+  "patch_lines": 49,
+  "trajectory_steps": 77,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:08:32Z"
+}

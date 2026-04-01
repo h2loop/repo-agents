@@ -1,0 +1,32 @@
+{
+  "run_id": "s00645_90f730",
+  "function": {
+    "name": "handler",
+    "file": "openair1/SIMULATION/LTE_PHY/dlsim.c",
+    "start_line": 93,
+    "end_line": 102,
+    "body_lines": 10,
+    "signature": "void handler(int sig)",
+    "subsystem": "openair1/SIMULATION/LTE_PHY",
+    "token_estimate": 39
+  },
+  "bug": {
+    "bug_id": "telecom_state_machine_missing_validation",
+    "description": "missing state validation before processing a protocol message",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a missing state validation before processing a protocol message downstream of function handler in the openair1/SIMULATION/LTE_PHY subsystem.\nThe function is located at openair1/SIMULATION/LTE_PHY/dlsim.c:93.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00645_90f730_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00645_90f730_p1.diff",
+  "patch_lines": 11,
+  "trajectory_steps": 44,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T17:39:43Z"
+}

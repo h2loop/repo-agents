@@ -1,0 +1,9 @@
+{
+  "run_id": "s00212_d2c4d6",
+  "pr_text": "## Title: Fix signed/unsigned comparison mismatch in ESM Information Transfer Flag decoder\n\n### Summary\nThe `decode_u8_esm_information_transfer_flag` function in the NAS layer contained a signed/unsigned integer comparison mismatch that could lead to incorrect branching behavior. The function declared a signed `int decoded` variable that was compared against an unsigned `uint32_t len` parameter within the `CHECK_PDU_POINTER_AND_LENGTH_DECODER` macro. This mismatch caused potential buffer underru",
+  "trajectory_path": "data/raw/s00212_d2c4d6_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00212_d2c4d6_p2.diff",
+  "patch_lines": 7,
+  "trajectory_steps": 12,
+  "timestamp": "2026-02-11T13:19:42Z"
+}

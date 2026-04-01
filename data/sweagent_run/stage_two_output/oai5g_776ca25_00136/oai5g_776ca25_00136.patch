@@ -1,0 +1,342 @@
+diff --git a/openair1/PHY/CODING/nrPolar_tools/nr_polar_decoding_tools.c b/openair1/PHY/CODING/nrPolar_tools/nr_polar_decoding_tools.c
+index 7fd8d351ff..674f72d4a6 100644
+--- a/openair1/PHY/CODING/nrPolar_tools/nr_polar_decoding_tools.c
++++ b/openair1/PHY/CODING/nrPolar_tools/nr_polar_decoding_tools.c
+@@ -37,38 +37,38 @@
+ //#define DEBUG_NEW_IMPL 1
+ 
+ static inline void updateBit(uint8_t listSize,
+-			     uint16_t row,
+-			     uint16_t col,
+-			     uint16_t xlen,
+-			     uint8_t ylen,
+-			     int zlen,
+-			     uint8_t bit[xlen][ylen][zlen],
+-			     uint8_t bitU[xlen][ylen])
++                             uint16_t row,
++                             uint16_t col,
++                             uint16_t xlen,
++                             uint8_t ylen,
++                             int zlen,
++                             uint8_t bit[xlen][ylen][zlen],
++                             uint8_t bitU[xlen][ylen])
+ {
+-	uint16_t offset = ( xlen/(pow(2,(ylen-col))) );
+-
+-	for (uint8_t i=0; i<listSize; i++) {
+-		if (( (row) % (2*offset) ) >= offset ) {
+-		  if (bitU[row][col-1]==0) updateBit(listSize, row, (col-1), xlen, ylen, zlen, bit, bitU);
+-			bit[row][col][i] = bit[row][col-1][i];
+-		} else {
+-		  if (bitU[row][col-1]==0) updateBit(listSize, row, (col-1), xlen, ylen, zlen, bit, bitU);
+-		  if (bitU[row+offset][col-1]==0) updateBit(listSize, (row+offset), (col-1), xlen, ylen, zlen, bit, bitU);
+-			bit[row][col][i] = ( (bit[row][col-1][i]+bit[row+offset][col-1][i]) % 2);
+-		}
+-	}
+-
+-	bitU[row][col]=1;
++        uint16_t offset = ( xlen/(pow(2,(ylen-col))) );
++
++        for (uint8_t i=0; i<listSize; i++) {
++                if (( (row) % (2*offset) ) >= offset ) {
++                  if (bitU[row][col-1]==0) updateBit(listSize, row, (col-1), xlen, ylen, zlen, bit, bitU);
++                        bit[row][col][i] = bit[row][col-1][i];
++                } else {
++                  if (bitU[row][col-1]==0) updateBit(listSize, row, (col-1), xlen, ylen, zlen, bit, bitU);
++                  if (bitU[row+offset][col-1]==0) updateBit(listSize, (row+offset), (col-1), xlen, ylen, zlen, bit, bitU);
++                        bit[row][col][i] = ( (bit[row][col-1][i]+bit[row+offset][col-1][i]) % 2);
++                }
++        }
++
++        bitU[row][col]=1;
+ }
+ 
+ static inline void computeLLR(uint16_t row,
+-			      uint16_t col,
+-			      uint8_t i,
+-			      uint16_t offset,
+-			      int xlen,
+-			      int ylen,
+-			      int zlen,
+-			      double llr[xlen][ylen][zlen])
++                              uint16_t col,
++                              uint8_t i,
++                              uint16_t offset,
++                              int xlen,
++                              int ylen,
++                              int zlen,
++                              double llr[xlen][ylen][zlen])
+ {
+   double a = llr[row][col + 1][i];
+   double b = llr[row + offset][col + 1][i];
+@@ -77,71 +77,71 @@ static inline void computeLLR(uint16_t row,
+ 
+ 
+ void updateLLR(uint8_t listSize,
+-	       uint16_t row,
+-	       uint16_t col,
+-	        uint16_t xlen,
+-	       uint8_t ylen,
+-	       int zlen,
+-	       double  llr[xlen][ylen][zlen],
+-	       uint8_t llrU[xlen][ylen],
+-	       uint8_t bit[xlen][ylen][zlen],
+-	       uint8_t bitU[xlen][ylen]
+-	       )
++               uint16_t row,
++               uint16_t col,
++                uint16_t xlen,
++               uint8_t ylen,
++               int zlen,
++               double  llr[xlen][ylen][zlen],
++               uint8_t llrU[xlen][ylen],
++               uint8_t bit[xlen][ylen][zlen],
++               uint8_t bitU[xlen][ylen]
++               )
+ {
+-	uint16_t offset = (xlen/(pow(2,(ylen-col-1))));
+-	for (uint8_t i=0; i<listSize; i++) {
+-		if (( (row) % (2*offset) ) >= offset ) {
+-		  if(bitU[row-offset][col]==0) updateBit(listSize, (row-offset), col, xlen, ylen, zlen, bit, bitU);
+-		  if(llrU[row-offset][col+1]==0) updateLLR(listSize, (row-offset), (col+1), xlen, ylen, zlen, llr, llrU, bit, bitU );
+-		  if(llrU[row][col+1]==0) updateLLR(listSize, row, (col+1), xlen, ylen, zlen, llr, llrU, bit, bitU);
+-			llr[row][col][i] = (pow((-1),bit[row-offset][col][i])*llr[row-offset][col+1][i]) + llr[row][col+1][i];
+-		} else {
+-		  if(llrU[row][col+1]==0) updateLLR(listSize, row, (col+1), xlen, ylen, zlen, llr, llrU, bit, bitU );
+-		  if(llrU[row+offset][col+1]==0) updateLLR(listSize, (row+offset), (col+1), xlen, ylen, zlen, llr, llrU, bit, bitU );
+-		  computeLLR(row, col, i, offset, xlen, ylen, zlen, llr);
+-		}
+-	}
+-	llrU[row][col]=1;
+-
+-	//	printf("LLR (a %f, b %f): llr[%d][%d] %f\n",32*a,32*b,col,row,32*llr[col][row]);
++        uint16_t offset = (xlen/(pow(2,(ylen-col-1))));
++        for (uint8_t i=0; i<listSize; i++) {
++                if (( (row) % (2*offset) ) >= offset ) {
++                  if(bitU[row-offset][col]==0) updateBit(listSize, (row-offset), col, xlen, ylen, zlen, bit, bitU);
++                  if(llrU[row-offset][col+1]==0) updateLLR(listSize, (row-offset), (col+1), xlen, ylen, zlen, llr, llrU, bit, bitU );
++                  if(llrU[row][col+1]==0) updateLLR(listSize, row, (col+1), xlen, ylen, zlen, llr, llrU, bit, bitU);
++                        llr[row][col][i] = (pow((-1),bit[row-offset][col][i])*llr[row-offset][col+1][i]) + llr[row][col+1][i];
++                } else {
++                  if(llrU[row][col+1]==0) updateLLR(listSize, row, (col+1), xlen, ylen, zlen, llr, llrU, bit, bitU );
++                  if(llrU[row+offset][col+1]==0) updateLLR(listSize, (row+offset), (col+1), xlen, ylen, zlen, llr, llrU, bit, bitU );
++                  computeLLR(row, col, i, offset, xlen, ylen, zlen, llr);
++                }
++        }
++        llrU[row][col]=1;
++
++        //      printf("LLR (a %f, b %f): llr[%d][%d] %f\n",32*a,32*b,col,row,32*llr[col][row]);
+ }
+ 
+ void updatePathMetric(double *pathMetric,
+-		      uint8_t listSize,
+-		      uint8_t bitValue,
+-		      uint16_t row,
+-		      int xlen,
+-		      int ylen,
+-		      int zlen,
+-		      double llr[xlen][ylen][zlen]
+-		      )
++                      uint8_t listSize,
++                      uint8_t bitValue,
++                      uint16_t row,
++                      int xlen,
++                      int ylen,
++                      int zlen,
++                      double llr[xlen][ylen][zlen]
++                      )
+ {
+-	int8_t multiplier = (2*bitValue) - 1;
+-	for (uint8_t i=0; i<listSize; i++)
+-		pathMetric[i] += log ( 1 + exp(multiplier*llr[row][0][i]) ) ; //eq. (11b)
++        int8_t multiplier = (2*bitValue) - 1;
++        for (uint8_t i=0; i<listSize; i++)
++                pathMetric[i] += log ( 1 + exp(multiplier*llr[row][0][i]) ) ; //eq. (11b)
+ 
+ }
+ 
+ void updatePathMetric2(double *pathMetric,
+-		       uint8_t listSize,
+-		       uint16_t row,
+-		       int xlen,
+-		       int ylen,
+-		       int zlen,
+-		       double llr[xlen][ylen][zlen])
++                       uint8_t listSize,
++                       uint16_t row,
++                       int xlen,
++                       int ylen,
++                       int zlen,
++                       double llr[xlen][ylen][zlen])
+ {
+-	double tempPM[listSize];
+-	memcpy(tempPM, pathMetric, (sizeof(double) * listSize));
++        double tempPM[listSize];
++        memcpy(tempPM, pathMetric, (sizeof(double) * listSize));
+ 
+-	uint8_t bitValue = 0;
+-	int8_t multiplier = (2 * bitValue) - 1;
+-	for (uint8_t i = 0; i < listSize; i++)
+-		pathMetric[i] += log(1 + exp(multiplier * llr[row][0][i])); //eq. (11b)
++        uint8_t bitValue = 0;
++        int8_t multiplier = (2 * bitValue) - 1;
++        for (uint8_t i = 0; i < listSize; i++)
++                pathMetric[i] += log(1 + exp(multiplier * llr[row][0][i])); //eq. (11b)
+ 
+-	bitValue = 1;
+-	multiplier = (2 * bitValue) - 1;
+-	for (uint8_t i = listSize; i < 2*listSize; i++)
+-		pathMetric[i] = tempPM[(i-listSize)] + log(1 + exp(multiplier * llr[row][0][(i-listSize)])); //eq. (11b)
++        bitValue = 1;
++        multiplier = (2 * bitValue) - 1;
++        for (uint8_t i = listSize; i < 2*listSize; i++)
++                pathMetric[i] = tempPM[(i-listSize)] + log(1 + exp(multiplier * llr[row][0][(i-listSize)])); //eq. (11b)
+ 
+ }
+ 
+@@ -183,22 +183,21 @@ decoder_node_t *add_nodes(int level, int first_leaf_index, t_nrPolar_params *pol
+ 
+   for (int i=0;i<Nv;i++) {
+     if (polarParams->information_bit_pattern[i+first_leaf_index]>0) {
+-    	  all_frozen_below=0;
++          all_frozen_below=0;
+         break;
+     }
+   }
+ 
+-  if (all_frozen_below==0)
+-	  new_node->left=add_nodes(level-1, first_leaf_index, polarParams);
+-  else {
++  if (all_frozen_below==0) {
++    new_node->left=add_nodes(level-1, first_leaf_index, polarParams);
++    new_node->right=add_nodes(level-1,first_leaf_index+(Nv/2),polarParams);
++  } else {
+ #ifdef DEBUG_NEW_IMPL
+     printf("aggregating frozen bits %d ... %d at level %d (%s)\n",first_leaf_index,first_leaf_index+Nv-1,level,((first_leaf_index/Nv)&1)==0?"left":"right");
+ #endif
+     new_node->leaf=1;
+     new_node->all_frozen=1;
+   }
+-  if (all_frozen_below==0)
+-	  new_node->right=add_nodes(level-1,first_leaf_index+(Nv/2),polarParams);
+ 
+ #ifdef DEBUG_NEW_IMPL
+   printf("new_node (%d): first_leaf_index %d, left %p, right %p\n",Nv,first_leaf_index,new_node->left,new_node->right);
+@@ -268,12 +267,12 @@ void applyFtoleft(const t_nrPolar_params *pp, decoder_node_t *node) {
+ 
+       //      printf("avx2len %d\n",avx2len);
+       for (int i=0;i<avx2len;i++) {
+-	a256       =((__m256i*)alpha_v)[i];
+-	b256       =((__m256i*)alpha_v)[i+avx2len];
+-	absa256    =simde_mm256_abs_epi16(a256);
+-	absb256    =simde_mm256_abs_epi16(b256);
+-	minabs256  =simde_mm256_min_epi16(absa256,absb256);
+-	((__m256i*)alpha_l)[i] =simde_mm256_sign_epi16(minabs256,simde_mm256_sign_epi16(a256,b256));
++        a256       =((__m256i*)alpha_v)[i];
++        b256       =((__m256i*)alpha_v)[i+avx2len];
++        absa256    =simde_mm256_abs_epi16(a256);
++        absb256    =simde_mm256_abs_epi16(b256);
++        minabs256  =simde_mm256_min_epi16(absa256,absb256);
++        ((__m256i*)alpha_l)[i] =simde_mm256_sign_epi16(minabs256,simde_mm256_sign_epi16(a256,b256));
+       }
+     }
+     else if (avx2mod == 8) {
+@@ -297,16 +296,16 @@ void applyFtoleft(const t_nrPolar_params *pp, decoder_node_t *node) {
+     else
+     { // equivalent scalar code to above, activated only on non x86/ARM architectures
+       for (int i=0;i<node->Nv/2;i++) {
+-    	  a=alpha_v[i];
+-    	  b=alpha_v[i+(node->Nv/2)];
+-    	  maska=a>>15;
+-    	  maskb=b>>15;
+-    	  absa=(a+maska)^maska;
+-    	  absb=(b+maskb)^maskb;
+-    	  minabs = absa<absb ? absa : absb;
+-    	  alpha_l[i] = (maska^maskb)==0 ? minabs : -minabs;
+-    	  //	printf("alphal[%d] %d (%d,%d)\n",i,alpha_l[i],a,b);
+-    	  }
++          a=alpha_v[i];
++          b=alpha_v[i+(node->Nv/2)];
++          maska=a>>15;
++          maskb=b>>15;
++          absa=(a+maska)^maska;
++          absb=(b+maskb)^maskb;
++          minabs = absa<absb ? absa : absb;
++          alpha_l[i] = (maska^maskb)==0 ? minabs : -minabs;
++          //    printf("alphal[%d] %d (%d,%d)\n",i,alpha_l[i],a,b);
++          }
+     }
+     if (node->Nv == 2) { // apply hard decision on left node
+       betal[0] = (alpha_l[0]>0) ? -1 : 1;
+@@ -338,23 +337,23 @@ void applyGtoright(const t_nrPolar_params *pp,decoder_node_t *node) {
+       int avx2len = node->Nv/2/16;
+       
+       for (int i=0;i<avx2len;i++) {
+-	((__m256i *)alpha_r)[i] = 
+-	  simde_mm256_subs_epi16(((__m256i *)alpha_v)[i+avx2len],
+-			    simde_mm256_sign_epi16(((__m256i *)alpha_v)[i],
+-					      ((__m256i *)betal)[i]));	
++        ((__m256i *)alpha_r)[i] = 
++          simde_mm256_subs_epi16(((__m256i *)alpha_v)[i+avx2len],
++                            simde_mm256_sign_epi16(((__m256i *)alpha_v)[i],
++                                              ((__m256i *)betal)[i]));  
+       }
+     }
+     else if (avx2mod == 8) {
+-      ((__m128i *)alpha_r)[0] = _mm_subs_epi16(((__m128i *)alpha_v)[1],_mm_sign_epi16(((__m128i *)alpha_v)[0],((__m128i *)betal)[0]));	
++      ((__m128i *)alpha_r)[0] = _mm_subs_epi16(((__m128i *)alpha_v)[1],_mm_sign_epi16(((__m128i *)alpha_v)[0],((__m128i *)betal)[0]));  
+     }
+     else if (avx2mod == 4) {
+-      ((__m64 *)alpha_r)[0] = _mm_subs_pi16(((__m64 *)alpha_v)[1],_mm_sign_pi16(((__m64 *)alpha_v)[0],((__m64 *)betal)[0]));	
++      ((__m64 *)alpha_r)[0] = _mm_subs_pi16(((__m64 *)alpha_v)[1],_mm_sign_pi16(((__m64 *)alpha_v)[0],((__m64 *)betal)[0]));    
+     }
+     else
+       {
+         int temp_alpha_r;
+-	for (int i = 0; i < node->Nv / 2; i++) {
+-	  temp_alpha_r = alpha_v[i + (node->Nv / 2)] - (betal[i] * alpha_v[i]);
++        for (int i = 0; i < node->Nv / 2; i++) {
++          temp_alpha_r = alpha_v[i + (node->Nv / 2)] - (betal[i] * alpha_v[i]);
+           if (temp_alpha_r > SHRT_MAX) {
+             alpha_r[i] = SHRT_MAX;
+           } else if (temp_alpha_r < -SHRT_MAX) {
+@@ -362,7 +361,7 @@ void applyGtoright(const t_nrPolar_params *pp,decoder_node_t *node) {
+           } else {
+             alpha_r[i] = temp_alpha_r;
+           }
+-	}
++        }
+       }
+     if (node->Nv == 2) { // apply hard decision on right node
+       betar[0] = (alpha_r[0]>0) ? -1 : 1;
+@@ -390,23 +389,23 @@ void computeBeta(const t_nrPolar_params *pp,decoder_node_t *node) {
+     if (avx2mod == 0) {
+       int avx2len = node->Nv/2/16;
+       for (int i=0;i<avx2len;i++) {
+-	((__m256i*)betav)[i] = simde_mm256_or_si256(simde_mm256_cmpeq_epi16(((__m256i*)betar)[i],
+-								  ((__m256i*)betal)[i]),allones);
++        ((__m256i*)betav)[i] = simde_mm256_or_si256(simde_mm256_cmpeq_epi16(((__m256i*)betar)[i],
++                                                                  ((__m256i*)betal)[i]),allones);
+       }
+     }
+     else if (avx2mod == 8) {
+       ((__m128i*)betav)[0] = _mm_or_si128(_mm_cmpeq_epi16(((__m128i*)betar)[0],
+-							  ((__m128i*)betal)[0]),*((__m128i*)all1));
++                                                          ((__m128i*)betal)[0]),*((__m128i*)all1));
+     }
+     else if (avx2mod == 4) {
+       ((__m64*)betav)[0] = _mm_or_si64(_mm_cmpeq_pi16(((__m64*)betar)[0],
+-						      ((__m64*)betal)[0]),*((__m64*)all1));
++                                                      ((__m64*)betal)[0]),*((__m64*)all1));
+     }
+     else
+       {
+-	for (int i=0;i<node->Nv/2;i++) {
+-		betav[i] = (betal[i] != betar[i]) ? 1 : -1;
+-	}
++        for (int i=0;i<node->Nv/2;i++) {
++                betav[i] = (betal[i] != betar[i]) ? 1 : -1;
++        }
+       }
+   }
+   else memcpy((void*)&betav[0],betar,(node->Nv/2)*sizeof(int16_t));

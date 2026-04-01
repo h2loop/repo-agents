@@ -1,0 +1,9 @@
+{
+  "run_id": "s00000_be5e18",
+  "pr_text": "## Title: Fix race condition in UE list management\n\n### Summary\nThe UE list management functions in the eNB MAC scheduler suffer from a race condition when accessed concurrently from multiple threads. The `init_ue_list()`, `add_ue_list()`, and `remove_ue_list()` functions manipulate the `UE_list_t` structure without synchronization, causing potential data corruption during UE attachment and scheduling operations.\n\nThe root cause is the absence of a synchronization primitive in the `UE_list_t` st",
+  "trajectory_path": "data/raw/s00000_be5e18_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00000_be5e18_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 26,
+  "timestamp": "2026-02-10T10:37:20Z"
+}

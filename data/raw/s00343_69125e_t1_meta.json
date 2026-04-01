@@ -1,0 +1,32 @@
+{
+  "run_id": "s00343_69125e",
+  "function": {
+    "name": "MCE_app_send_m2ap_session_start_req",
+    "file": "openair2/MCE_APP/mce_app.c",
+    "start_line": 244,
+    "end_line": 252,
+    "body_lines": 9,
+    "signature": "static uint32_t MCE_app_send_m2ap_session_start_req(instance_t instance)",
+    "subsystem": "openair2/MCE_APP",
+    "token_estimate": 21
+  },
+  "bug": {
+    "bug_id": "c_magic_number",
+    "description": "magic number used without symbolic constant making intent unclear and maintenance error-prone",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a magic number used without symbolic constant making intent unclear and maintenance error-prone downstream of function MCE_app_send_m2ap_session_start_req in the openair2/MCE_APP subsystem.\nThe function is located at openair2/MCE_APP/mce_app.c:244.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00343_69125e_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00343_69125e_p1.diff",
+  "patch_lines": 9,
+  "trajectory_steps": 62,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:44:15Z"
+}

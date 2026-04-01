@@ -1,0 +1,53 @@
+diff --git a/openair2/RRC/NR/MESSAGES/asn1_msg.c b/openair2/RRC/NR/MESSAGES/asn1_msg.c
+index 2c3cf2717a..2aa6c38058 100644
+--- a/openair2/RRC/NR/MESSAGES/asn1_msg.c
++++ b/openair2/RRC/NR/MESSAGES/asn1_msg.c
+@@ -461,7 +461,7 @@ int do_NR_SA_UECapabilityEnquiry(uint8_t *const buffer, const uint8_t Transactio
+     xer_fprint(stdout, &asn_DEF_NR_DL_DCCH_Message, (void *)&dl_dcch_msg);
+   }
+ 
+-  asn_enc_rval_t enc_rval = uper_encode_to_buffer(&asn_DEF_NR_DL_DCCH_Message, NULL, (void *)&dl_dcch_msg, buffer, 100);
++  asn_enc_rval_t enc_rval = uper_encode_to_buffer(&asn_DEF_NR_DL_DCCH_Message, NULL, (void *)&dl_dcch_msg, buffer, 1024);
+ 
+   AssertFatal(enc_rval.encoded >0, "ASN1 message encoding failed (%s, %lu)!\n",
+               enc_rval.failed_type->name, enc_rval.encoded);
+@@ -764,7 +764,7 @@ int do_NR_RRCReconfigurationComplete_for_nsa(
+   rrc_complete_msg.criticalExtensions.choice.rrcReconfigurationComplete =
+         CALLOC(1, sizeof(*rrc_complete_msg.criticalExtensions.choice.rrcReconfigurationComplete));
+   rrc_complete_msg.criticalExtensions.present =
+-	NR_RRCReconfigurationComplete__criticalExtensions_PR_rrcReconfigurationComplete;
++NR_RRCReconfigurationComplete__criticalExtensions_PR_rrcReconfigurationComplete;
+   rrc_complete_msg.criticalExtensions.choice.rrcReconfigurationComplete->nonCriticalExtension = NULL;
+   rrc_complete_msg.criticalExtensions.choice.rrcReconfigurationComplete->lateNonCriticalExtension = NULL;
+   if (0) {
+@@ -1019,7 +1019,7 @@ int do_RRCReestablishmentRequest(uint8_t *buffer,
+   asn_enc_rval_t enc_rval;
+   NR_UL_CCCH_Message_t ul_ccch_msg;
+   NR_RRCReestablishmentRequest_t *rrcReestablishmentRequest;
+-  uint8_t buf[2];
++  uint8_t *buf;
+ 
+   memset((void *)&ul_ccch_msg,0,sizeof(NR_UL_CCCH_Message_t));
+   ul_ccch_msg.message.present            = NR_UL_CCCH_MessageType_PR_c1;
+@@ -1033,6 +1033,8 @@ int do_RRCReestablishmentRequest(uint8_t *buffer,
+   rrcReestablishmentRequest->rrcReestablishmentRequest.ue_Identity.c_RNTI = c_rnti;
+   rrcReestablishmentRequest->rrcReestablishmentRequest.ue_Identity.physCellId = cell_id;
+   // TODO properly setting shortMAC-I (see 5.3.7.4 of 331)
++  buf = malloc(2);
++  AssertFatal(buf != NULL, "malloc failed\n");
+   rrcReestablishmentRequest->rrcReestablishmentRequest.ue_Identity.shortMAC_I.buf = buf;
+   rrcReestablishmentRequest->rrcReestablishmentRequest.ue_Identity.shortMAC_I.buf[0] = 0x08;
+   rrcReestablishmentRequest->rrcReestablishmentRequest.ue_Identity.shortMAC_I.buf[1] = 0x32;
+@@ -1046,9 +1048,10 @@ int do_RRCReestablishmentRequest(uint8_t *buffer,
+                                    NULL,
+                                    (void *)&ul_ccch_msg,
+                                    buffer,
+-                                   100);
++                                   1024);
+   AssertFatal (enc_rval.encoded > 0, "ASN1 message encoding failed (%s, %lu)!\n", enc_rval.failed_type->name, enc_rval.encoded);
+-  // shortMAC_I.buf is on the stack, cannot free useing ASN_STRUCT_FREE macro
++  // Free the dynamically allocated buffer
++  free(rrcReestablishmentRequest->rrcReestablishmentRequest.ue_Identity.shortMAC_I.buf);
+   rrcReestablishmentRequest->rrcReestablishmentRequest.ue_Identity.shortMAC_I.buf = NULL;
+   ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_NR_UL_CCCH_Message, &ul_ccch_msg);
+   LOG_D(NR_RRC,"[UE] RRCReestablishmentRequest Encoded %zd bits (%zd bytes)\n", enc_rval.encoded, (enc_rval.encoded+7)/8);

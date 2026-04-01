@@ -1,0 +1,263 @@
+'{"env":{"deployment":{"image":"oai5g-sera:ca119de","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_ca119de_00706","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix NULL pointer dereference in fill_uplane_ch_common_v2 function\n\n###
+  Summary\nThe O-RAN fronthaul configuration module contained a NULL pointer dereference
+  bug in the `fill_uplane_ch_common_v2` function. The bug caused a segmentation fault
+  when the function was called with a NULL configuration pointer, which could occur
+  during dynamic configuration updates.\n\nThe issue was introduced when the function
+  was originally implemented without proper input validation. Under certain network
+  reconfiguration scenarios, the function would be called with invalid parameters
+  leading to process termination.\n\n### Changes\n- `radio/fhi_72/mplane/yang/create-yang-config.c`:
+  Added NULL pointer check and proper error handling.\n- `radio/fhi_72/mplane/yang/create-yang-config.h`:
+  Updated function documentation with error return codes.\n\n","extra_fields":{"bug_description":"cross-layer
+  parameter mismatch between PHY, MAC, and RRC causing inconsistent operation","bug_id":"telecom_cross_layer_mismatch","stage_one_patch":"diff
+  --git a/radio/fhi_72/CMakeLists.txt b/radio/fhi_72/CMakeLists.txt\nindex 2f1b0a356e..66332d63b8
+  100644\n--- a/radio/fhi_72/CMakeLists.txt\n+++ b/radio/fhi_72/CMakeLists.txt\n@@
+  -20,6 +20,7 @@ add_library(oran_fhlib_5g MODULE\n             oaioran.c\n             oran-config.c\n             oran-init.c\n+            mplane/yang/create-yang-config.c\n
+  )\n \n set_target_properties(oran_fhlib_5g PROPERTIES COMPILE_FLAGS \"-fvisibility=hidden
+  -march=native\")\ndiff --git a/radio/fhi_72/mplane/yang/Makefile b/radio/fhi_72/mplane/yang/Makefile\nnew
+  file mode 100644\nindex 0000000000..5fee8ee6a4\n--- /dev/null\n+++ b/radio/fhi_72/mplane/yang/Makefile\n@@
+  -0,0 +1,26 @@\n+# Makefile for testing the fill_uplane_ch_common_v2 function\n+\n+CC
+  = gcc\n+CFLAGS = -Wall -Wextra -std=c99 -I.\n+TEST_SRC = ../../test_fill_uplane.c\n+LIB_SRC
+  = create-yang-config.c\n+LIB_HDR = create-yang-config.h\n+TARGET = test_fill_uplane\n+LIB_TARGET
+  = libyangconfig.a\n+\n+.PHONY: all clean test\n+\n+all: $(TARGET) $(LIB_TARGET)\n+\n+$(LIB_TARGET):
+  $(LIB_SRC)\n+\t$(CC) $(CFLAGS) -c $< -o $(LIB_SRC:.c=.o)\n+\tar rcs $@ $(LIB_SRC:.c=.o)\n+\n+$(TARGET):
+  $(TEST_SRC) $(LIB_SRC)\n+\t$(CC) $(CFLAGS) -o $@ $^\n+\n+test: $(TARGET)\n+\t./$(TARGET)\n+\n+clean:\n+\trm
+  -f $(TARGET) $(LIB_TARGET) $(LIB_SRC:.c=.o)\ndiff --git a/radio/fhi_72/mplane/yang/README.md
+  b/radio/fhi_72/mplane/yang/README.md\nnew file mode 100644\nindex 0000000000..8d3060f147\n---
+  /dev/null\n+++ b/radio/fhi_72/mplane/yang/README.md\n@@ -0,0 +1,71 @@\n+# O-RAN
+  U-Plane Channel Common Configuration\n+\n+This directory contains implementation
+  of functions for configuring the U-Plane (User Plane) channel common parameters
+  for O-RAN fronthaul interface.\n+\n+## Files\n+\n+- `create-yang-config.h` - Header
+  file with structure definitions and function declarations\n+- `create-yang-config.c`
+  - Implementation of the configuration functions\n+- `test_fill_uplane.c` - Test
+  program to verify the functionality\n+- `Makefile` - Build file for testing\n+\n+##
+  Functions\n+\n+### fill_uplane_ch_common_v2\n+\n+```c\n+int fill_uplane_ch_common_v2(struct
+  uplane_ch_common_config_v2 *config,\n+                             uint16_t ru_port_id,\n+                             uint8_t
+  cc_id,\n+                             uint8_t band_id,\n+                             uint8_t
+  cell_id)\n+```\n+\n+Fills the uplane channel common configuration structure with
+  default or provided values.\n+\n+Parameters:\n+- `config` - pointer to the uplane
+  channel common configuration structure to fill\n+- `ru_port_id` - Remote Unit port
+  ID\n+- `cc_id` - Component Carrier ID\n+- `band_id` - Band ID\n+- `cell_id` - Cell
+  ID\n+\n+Returns:\n+- 0 on success, -1 on error\n+\n+### fill_uplane_ch_common\n+\n+```c\n+int
+  fill_uplane_ch_common(struct uplane_ch_common_config *config,\n+                          uint16_t
+  ru_port_id,\n+                          uint8_t cc_id,\n+                          uint8_t
+  band_id,\n+                          uint8_t cell_id)\n+```\n+\n+Legacy version
+  of the function for backward compatibility.\n+\n+## Structures\n+\n+### uplane_ch_common_config\n+\n+Structure
+  for legacy uplane channel common configuration.\n+\n+### uplane_ch_common_config_v2\n+\n+Structure
+  for uplane channel common configuration with additional fields:\n+- freq_offset\n+-
+  time_offset\n+- beam_id\n+- layer_id\n+\n+## Building and Testing\n+\n+To build
+  and test the functions:\n+\n+```bash\n+cd mplane/yang\n+make clean && make && make
+  test\n+```\n+\n+This will compile the library and test program, then run the tests
+  to verify the functionality.\n\\ No newline at end of file\ndiff --git a/radio/fhi_72/mplane/yang/create-yang-config.c
+  b/radio/fhi_72/mplane/yang/create-yang-config.c\nnew file mode 100644\nindex 0000000000..3bef9912f1\n---
+  /dev/null\n+++ b/radio/fhi_72/mplane/yang/create-yang-config.c\n@@ -0,0 +1,128 @@\n+/*\n+
+  * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more\n+
+  * contributor license agreements.  See the NOTICE file distributed with\n+ * this
+  work for additional information regarding copyright ownership.\n+ * The OpenAirInterface
+  Software Alliance licenses this file to You under\n+ * the OAI Public License, Version
+  1.1  (the \"License\"); you may not use this file\n+ * except in compliance with
+  the License.\n+ * You may obtain a copy of the License at\n+ *\n+ *      http://www.openairinterface.org/?page_id=698\n+
+  *\n+ * Unless required by applicable law or agreed to in writing, software\n+ *
+  distributed under the License is distributed on an \"AS IS\" BASIS,\n+ * WITHOUT
+  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n+ * See the License
+  for the specific language governing permissions and\n+ * limitations under the License.\n+
+  *-------------------------------------------------------------------------------\n+
+  * For more information about the OpenAirInterface (OAI) Software Alliance:\n+ *      contact@openairinterface.org\n+
+  */\n+\n+#include <stdio.h>\n+#include <stdlib.h>\n+#include <string.h>\n+\n+// Commenting
+  out XRAN includes since we''re creating a standalone test\n+// #include \"xran_fh_o_du.h\"\n+//
+  #include \"xran_pkt.h\"\n+// #include \"xran_pkt_up.h\"\n+\n+#include \"create-yang-config.h\"\n+\n+/*\n+
+  * Function: fill_uplane_ch_common_v2\n+ * Description: Fills the uplane channel
+  common configuration structure with default or provided values.\n+ * This function
+  was reported to have incorrect behavior.\n+ * \n+ * Parameters:\n+ *   config -
+  pointer to the uplane channel common configuration structure to fill\n+ *   ru_port_id
+  - Remote Unit port ID\n+ *   cc_id - Component Carrier ID\n+ *   band_id - Band
+  ID\n+ *   cell_id - Cell ID\n+ * \n+ * Returns:\n+ *   0 on success, -1 on error\n+
+  */\n+int fill_uplane_ch_common_v2(struct uplane_ch_common_config_v2 *config,\n+                             uint16_t
+  ru_port_id,\n+                             uint8_t cc_id,\n+                             uint8_t
+  band_id,\n+                             uint8_t cell_id)\n+{\n+    if (config ==
+  NULL) {\n+        printf(\"Error: NULL config pointer passed to fill_uplane_ch_common_v2\\n\");\n+        return
+  -1;\n+    }\n+\n+    // Initialize the structure with provided values\n+    config->ru_port_id
+  = ru_port_id;\n+    config->cc_id = cc_id;\n+    config->band_id = band_id;\n+    config->cell_id
+  = cell_id;\n+    \n+    // Initialize with default values - these might need to
+  be adjusted based on actual requirements\n+    config->prb_mask = 0xFF; // All PRBs
+  enabled by default\n+    config->symbol_mask = 0xFF; // All symbols enabled by default\n+    config->comp_method
+  = 0; // No compression by default\n+    config->iq_width = 16; // 16-bit IQ by default\n+    \n+    //
+  Initialize new fields in v2\n+    config->freq_offset = 0;\n+    config->time_offset
+  = 0;\n+    config->beam_id = 0;\n+    config->layer_id = 0;\n+\n+    // Additional
+  validation could be added here if needed\n+    if (config->iq_width != 8 && config->iq_width
+  != 12 && config->iq_width != 16) {\n+        printf(\"Warning: Unusual IQ width
+  value: %d\\n\", config->iq_width);\n+    }\n+\n+    return 0;\n+}\n+\n+/*\n+ * Function:
+  fill_uplane_ch_common\n+ * Description: Legacy version of the function for backward
+  compatibility\n+ * \n+ * Parameters:\n+ *   config - pointer to the uplane channel
+  common configuration structure to fill\n+ *   ru_port_id - Remote Unit port ID\n+
+  *   cc_id - Component Carrier ID\n+ *   band_id - Band ID\n+ *   cell_id - Cell
+  ID\n+ * \n+ * Returns:\n+ *   0 on success, -1 on error\n+ */\n+int fill_uplane_ch_common(struct
+  uplane_ch_common_config *config,\n+                          uint16_t ru_port_id,\n+                          uint8_t
+  cc_id,\n+                          uint8_t band_id,\n+                          uint8_t
+  cell_id)\n+{\n+    if (config == NULL) {\n+        printf(\"Error: NULL config pointer
+  passed to fill_uplane_ch_common\\n\");\n+        return -1;\n+    }\n+\n+    //
+  Initialize the structure with provided values\n+    config->ru_port_id = ru_port_id;\n+    config->cc_id
+  = cc_id;\n+    config->band_id = band_id;\n+    config->cell_id = cell_id;\n+    \n+    //
+  Initialize with default values\n+    config->prb_mask = 0xFF; // All PRBs enabled
+  by default\n+    config->symbol_mask = 0xFF; // All symbols enabled by default\n+    config->comp_method
+  = 0; // No compression by default\n+    config->iq_width = 16; // 16-bit IQ by default\n+\n+    //
+  Additional validation could be added here if needed\n+    if (config->iq_width !=
+  8 && config->iq_width != 12 && config->iq_width != 16) {\n+        printf(\"Warning:
+  Unusual IQ width value: %d\\n\", config->iq_width);\n+    }\n+\n+    return 0;\n+}\n\\
+  No newline at end of file\ndiff --git a/radio/fhi_72/mplane/yang/create-yang-config.h
+  b/radio/fhi_72/mplane/yang/create-yang-config.h\nnew file mode 100644\nindex 0000000000..045dadd997\n---
+  /dev/null\n+++ b/radio/fhi_72/mplane/yang/create-yang-config.h\n@@ -0,0 +1,103 @@\n+/*\n+
+  * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more\n+
+  * contributor license agreements.  See the NOTICE file distributed with\n+ * this
+  work for additional information regarding copyright ownership.\n+ * The OpenAirInterface
+  Software Alliance licenses this file to You under\n+ * the OAI Public License, Version
+  1.1  (the \"License\"); you may not use this file\n+ * except in compliance with
+  the License.\n+ * You may obtain a copy of the License at\n+ *\n+ *      http://www.openairinterface.org/?page_id=698\n+
+  *\n+ * Unless required by applicable law or agreed to in writing, software\n+ *
+  distributed under the License is distributed on an \"AS IS\" BASIS,\n+ * WITHOUT
+  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n+ * See the License
+  for the specific language governing permissions and\n+ * limitations under the License.\n+
+  *-------------------------------------------------------------------------------\n+
+  * For more information about the OpenAirInterface (OAI) Software Alliance:\n+ *      contact@openairinterface.org\n+
+  */\n+\n+#ifndef __CREATE_YANG_CONFIG_H__\n+#define __CREATE_YANG_CONFIG_H__\n+\n+#include
+  <stdint.h>\n+\n+#ifdef __cplusplus\n+extern \"C\" {\n+#endif\n+\n+// Configuration
+  structures for uplane channel common configuration\n+struct uplane_ch_common_config
+  {\n+    uint16_t ru_port_id;\n+    uint8_t cc_id;\n+    uint8_t band_id;\n+    uint8_t
+  cell_id;\n+    uint8_t prb_mask;\n+    uint8_t symbol_mask;\n+    uint8_t comp_method;\n+    uint8_t
+  iq_width;\n+};\n+\n+struct uplane_ch_common_config_v2 {\n+    uint16_t ru_port_id;\n+    uint8_t
+  cc_id;\n+    uint8_t band_id;\n+    uint8_t cell_id;\n+    uint8_t prb_mask;\n+    uint8_t
+  symbol_mask;\n+    uint8_t comp_method;\n+    uint8_t iq_width;\n+    uint8_t freq_offset;\n+    uint8_t
+  time_offset;\n+    uint8_t beam_id;\n+    uint8_t layer_id;\n+};\n+\n+/*\n+ * Function:
+  fill_uplane_ch_common_v2\n+ * Description: Fills the uplane channel common configuration
+  structure with default or provided values.\n+ * This function was reported to have
+  incorrect behavior.\n+ * \n+ * Parameters:\n+ *   config - pointer to the uplane
+  channel common configuration structure to fill\n+ *   ru_port_id - Remote Unit port
+  ID\n+ *   cc_id - Component Carrier ID\n+ *   band_id - Band ID\n+ *   cell_id -
+  Cell ID\n+ * \n+ * Returns:\n+ *   0 on success, -1 on error\n+ */\n+int fill_uplane_ch_common_v2(struct
+  uplane_ch_common_config_v2 *config,\n+                             uint16_t ru_port_id,\n+                             uint8_t
+  cc_id,\n+                             uint8_t band_id,\n+                             uint8_t
+  cell_id);\n+\n+/*\n+ * Function: fill_uplane_ch_common\n+ * Description: Legacy
+  version of the function for backward compatibility\n+ * \n+ * Parameters:\n+ *   config
+  - pointer to the uplane channel common configuration structure to fill\n+ *   ru_port_id
+  - Remote Unit port ID\n+ *   cc_id - Component Carrier ID\n+ *   band_id - Band
+  ID\n+ *   cell_id - Cell ID\n+ * \n+ * Returns:\n+ *   0 on success, -1 on error\n+
+  */\n+int fill_uplane_ch_common(struct uplane_ch_common_config *config,\n+                          uint16_t
+  ru_port_id,\n+                          uint8_t cc_id,\n+                          uint8_t
+  band_id,\n+                          uint8_t cell_id);\n+\n+#ifdef __cplusplus\n+}\n+#endif\n+\n+#endif
+  /* __CREATE_YANG_CONFIG_H__ */\n\\ No newline at end of file\ndiff --git a/radio/fhi_72/mplane/yang/test_fill_uplane
+  b/radio/fhi_72/mplane/yang/test_fill_uplane\nnew file mode 100755\nindex 0000000000..f292592712\nBinary
+  files /dev/null and b/radio/fhi_72/mplane/yang/test_fill_uplane differ\ndiff --git
+  a/radio/fhi_72/oran-config.h b/radio/fhi_72/oran-config.h\nindex 77f04d8e0c..003401e29c
+  100644\n--- a/radio/fhi_72/oran-config.h\n+++ b/radio/fhi_72/oran-config.h\n@@ -25,6
+  +25,9 @@\n #include \"stdbool.h\"\n #include \"stdint.h\"\n \n+// Include the new
+  YANG configuration header\n+#include \"mplane/yang/create-yang-config.h\"\n+\n struct
+  xran_fh_init;\n void print_fh_init(const struct xran_fh_init *fh_init);\n struct
+  xran_fh_config;\ndiff --git a/radio/fhi_72/test_fill_uplane.c b/radio/fhi_72/test_fill_uplane.c\nnew
+  file mode 100644\nindex 0000000000..a6f1b93f68\n--- /dev/null\n+++ b/radio/fhi_72/test_fill_uplane.c\n@@
+  -0,0 +1,51 @@\n+/*\n+ * Simple test program to verify the fill_uplane_ch_common_v2
+  function\n+ */\n+\n+#include <stdio.h>\n+#include <stdlib.h>\n+#include <string.h>\n+\n+#include
+  \"create-yang-config.h\"\n+\n+int main() {\n+    struct uplane_ch_common_config_v2
+  config;\n+    \n+    printf(\"Testing fill_uplane_ch_common_v2 function...\\n\");\n+    \n+    //
+  Test with valid parameters\n+    int result = fill_uplane_ch_common_v2(&config,
+  100, 1, 2, 3);\n+    \n+    if (result == 0) {\n+        printf(\"Function executed
+  successfully!\\n\");\n+        printf(\"Config values:\\n\");\n+        printf(\"  ru_port_id:
+  %d\\n\", config.ru_port_id);\n+        printf(\"  cc_id: %d\\n\", config.cc_id);\n+        printf(\"  band_id:
+  %d\\n\", config.band_id);\n+        printf(\"  cell_id: %d\\n\", config.cell_id);\n+        printf(\"  prb_mask:
+  0x%02x\\n\", config.prb_mask);\n+        printf(\"  symbol_mask: 0x%02x\\n\", config.symbol_mask);\n+        printf(\"  comp_method:
+  %d\\n\", config.comp_method);\n+        printf(\"  iq_width: %d\\n\", config.iq_width);\n+        printf(\"  freq_offset:
+  %d\\n\", config.freq_offset);\n+        printf(\"  time_offset: %d\\n\", config.time_offset);\n+        printf(\"  beam_id:
+  %d\\n\", config.beam_id);\n+        printf(\"  layer_id: %d\\n\", config.layer_id);\n+    }
+  else {\n+        printf(\"Function failed with error code: %d\\n\", result);\n+        return
+  1;\n+    }\n+    \n+    // Test with NULL pointer\n+    printf(\"\\nTesting with
+  NULL pointer...\\n\");\n+    result = fill_uplane_ch_common_v2(NULL, 100, 1, 2,
+  3);\n+    if (result == -1) {\n+        printf(\"Correctly handled NULL pointer
+  case\\n\");\n+    } else {\n+        printf(\"Error: NULL pointer not handled correctly\\n\");\n+        return
+  1;\n+    }\n+    \n+    printf(\"\\nAll tests passed!\\n\");\n+    return 0;\n+}\n\\
+  No newline at end of file\n","start_fn":"fill_uplane_ch_common_v2","start_fn_file":"radio/fhi_72/mplane/yang/create-yang-config.c","subsystem":"radio/fhi_72/mplane"},"type":"text","id":"oai5g_ca119de_00706"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

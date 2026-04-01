@@ -1,0 +1,23 @@
+diff --git a/openair2/LAYER2/PDCP_v10.1.0/pdcp_primitives.c b/openair2/LAYER2/PDCP_v10.1.0/pdcp_primitives.c
+index c27eef4e67..ad7281e4a8 100644
+--- a/openair2/LAYER2/PDCP_v10.1.0/pdcp_primitives.c
++++ b/openair2/LAYER2/PDCP_v10.1.0/pdcp_primitives.c
+@@ -112,11 +112,17 @@ bool pdcp_serialize_control_plane_data_pdu_with_SRB_sn_buffer(unsigned char* pdu
+   }
+ 
+   /*
+-   * Fill the Sequence Number field
++   * Fill the Sequence Number field (5 bits in first octet)
+    */
+   uint8_t sequence_number = pdu->sn;
+   pdu_buffer[0] = sequence_number & 0x1F; // 5bit sn
+ 
++  /*
++   * Fill the MAC-I field (4 octets) - mandatory for control plane PDUs
++   * According to 3GPP TS 36.323 Section 6.2.2
++   */
++  memcpy(&pdu_buffer[1], pdu->mac_i, PDCP_CONTROL_PLANE_DATA_PDU_MAC_I_SIZE);
++
+   return true;
+ }
+ 

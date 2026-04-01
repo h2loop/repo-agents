@@ -1,0 +1,34 @@
+{
+  "run_id": "s00294_76c43a",
+  "function": {
+    "name": "is_pattern2_config",
+    "file": "openair2/GNB_APP/gnb_config.c",
+    "start_line": 936,
+    "end_line": 941,
+    "body_lines": 6,
+    "signature": "bool is_pattern2_config(paramdef_t *param)",
+    "subsystem": "openair2/GNB_APP",
+    "token_estimate": 21
+  },
+  "bug": {
+    "bug_id": "c_uninitialized_memory_read",
+    "description": "read of uninitialized memory leading to undefined behavior",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "common",
+      "radio",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a read of uninitialized memory leading to undefined behavior downstream of function is_pattern2_config in the openair2/GNB_APP subsystem.\nThe function is located at openair2/GNB_APP/gnb_config.c:936.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00294_76c43a_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00294_76c43a_p1.diff",
+  "patch_lines": 8,
+  "trajectory_steps": 21,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:24:01Z"
+}

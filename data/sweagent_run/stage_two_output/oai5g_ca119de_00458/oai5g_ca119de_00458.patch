@@ -1,0 +1,244 @@
+diff --git a/openair1/PHY/CODING/nrPolar_tools/nr_polar_procedures.c b/openair1/PHY/CODING/nrPolar_tools/nr_polar_procedures.c
+index 4df7557495..90d8363ee9 100644
+--- a/openair1/PHY/CODING/nrPolar_tools/nr_polar_procedures.c
++++ b/openair1/PHY/CODING/nrPolar_tools/nr_polar_procedures.c
+@@ -31,6 +31,9 @@
+  */
+ 
+ #include "PHY/CODING/nrPolar_tools/nr_polar_defs.h"
++#include <string.h>
++#include <stdlib.h>
++#include <stdio.h>
+ 
+ 
+ // TS 38.212 - Section 5.3.1.2 Polar encoding
+@@ -144,12 +147,12 @@ void nr_polar_uxG(uint64_t *D, const uint64_t *u, const uint64_t **G_N_tab, uint
+ }
+ 
+ void nr_polar_bit_insertion(uint8_t *input,
+-			    uint8_t *output,
+-			    uint16_t N,
+-			    uint16_t K,
+-			    int16_t *Q_I_N,
+-			    int16_t *Q_PC_N,
+-			    uint8_t n_PC)
++                            uint8_t *output,
++                            uint16_t N,
++                            uint16_t K,
++                            int16_t *Q_I_N,
++                            int16_t *Q_PC_N,
++                            uint8_t n_PC)
+ {
+   uint16_t k=0;
+   uint8_t flag;
+@@ -162,16 +165,16 @@ void nr_polar_bit_insertion(uint8_t *input,
+     for (int n=0; n<=N-1; n++) {
+       flag=0;
+       for (int m=0; m<=(K+n_PC)-1; m++) {
+-	if ( n == Q_I_N[m]) {
+-	  flag=1;
+-	  break;
+-	}
++        if ( n == Q_I_N[m]) {
++          flag=1;
++          break;
++        }
+       }
+       if (flag) { // n ϵ Q_I_N
+-	output[n]=input[k];
+-	k++;
++        output[n]=input[k];
++        k++;
+       } else {
+-	output[n] = 0;
++        output[n] = 0;
+       }
+     }
+   }
+@@ -180,8 +183,8 @@ void nr_polar_bit_insertion(uint8_t *input,
+ 
+ 
+ uint32_t nr_polar_output_length(uint16_t K,
+-				uint16_t E,
+-				uint8_t n_max)
++                                uint16_t E,
++                                uint8_t n_max)
+ {
+   uint8_t n_1, n_2, n_min=5, n;
+   double R_min=1.0/8;
+@@ -200,15 +203,15 @@ uint32_t nr_polar_output_length(uint16_t K,
+   if (n<n_min) n=n_min;
+ 
+   /*printf("nr_polar_output_length: K %d, E %d, n %d (n_max %d,n_min %d, n_1 %d,n_2 %d)\n",
+-	 K,E,n,n_max,n_min,n_1,n_2);
+-	 exit(-1);*/
++         K,E,n,n_max,n_min,n_1,n_2);
++         exit(-1);*/
+   return ((uint32_t) pow(2.0,n)); //=polar_code_output_length
+ }
+ 
+ 
+ void nr_polar_channel_interleaver_pattern(uint16_t *cip,
+-					  uint8_t I_BIL,
+-					  uint16_t E)
++                                          uint8_t I_BIL,
++                                          uint16_t E)
+ {
+   if (I_BIL == 1) {
+     uint16_t T=0, k;
+@@ -220,22 +223,22 @@ void nr_polar_channel_interleaver_pattern(uint16_t *cip,
+     k=0;
+     for (int i = 0; i <= T-1; i++) {
+       for (int j = 0; j <= (T-1)-i; j++) {
+-	if (k<E) {
+-	  v[i][j] = k;
+-	} else {
+-	  v[i][j] = (-1);
+-	}
+-	k++;
++        if (k<E) {
++          v[i][j] = k;
++        } else {
++          v[i][j] = (-1);
++        }
++        k++;
+       }
+     }
+     
+     k=0;
+     for (int j = 0; j <= T-1; j++) {
+       for (int i = 0; i <= (T-1)-j; i++) {
+-	if ( v[i][j] != (-1) ) {
+-	  cip[k]=v[i][j];
+-	  k++;
+-	}
++        if ( v[i][j] != (-1) ) {
++          cip[k]=v[i][j];
++          k++;
++        }
+       }
+     }
+     
+@@ -374,9 +377,9 @@ void nr_polar_info_bit_pattern(uint8_t *ibp,
+ 
+ 
+ void nr_polar_info_bit_extraction(uint8_t *input,
+-				  uint8_t *output,
+-				  uint8_t *pattern,
+-				  uint16_t size)
++                                  uint8_t *output,
++                                  uint8_t *pattern,
++                                  uint16_t size)
+ {
+   uint16_t j = 0;
+   for (int i = 0; i < size; i++) {
+@@ -389,11 +392,11 @@ void nr_polar_info_bit_extraction(uint8_t *input,
+ 
+ 
+ void nr_polar_rate_matching_pattern(uint16_t *rmp,
+-				    uint16_t *J,
+-				    const uint8_t *P_i_,
+-				    uint16_t K,
+-				    uint16_t N,
+-				    uint16_t E)
++                                    uint16_t *J,
++                                    const uint8_t *P_i_,
++                                    uint16_t K,
++                                    uint16_t N,
++                                    uint16_t E)
+ {
+   uint8_t i;
+   uint16_t *d, *y, ind;
+@@ -416,11 +419,11 @@ void nr_polar_rate_matching_pattern(uint16_t *rmp,
+   } else {
+     if ( (K/(double)E) <= (7.0/16) ) { //puncturing
+       for (int k=0; k<=E-1; k++) {
+-	rmp[k]=y[k+N-E];
++        rmp[k]=y[k+N-E];
+       }
+     } else { //shortening
+       for (int k=0; k<=E-1; k++) {
+-	rmp[k]=y[k];
++        rmp[k]=y[k];
+       }
+     }
+   }
+@@ -431,11 +434,11 @@ void nr_polar_rate_matching_pattern(uint16_t *rmp,
+ 
+ 
+ void nr_polar_rate_matching(double *input,
+-			    double *output,
+-			    uint16_t *rmp,
+-			    uint16_t K,
+-			    uint16_t N,
+-			    uint16_t E)
++                            double *output,
++                            uint16_t *rmp,
++                            uint16_t K,
++                            uint16_t N,
++                            uint16_t E)
+ {
+   if (E>=N) { //repetition
+     for (int i=0; i<=N-1; i++) output[i]=0;
+@@ -507,14 +510,39 @@ void nr_polar_rate_matching_int16(int16_t *input,
+                                   const uint16_t E,
+                                   const uint8_t i_bil)
+ {
++  // Handle edge cases
++  if (N == 0 || E == 0) {
++    if (N > 0) {
++      memset(output, 0, N * sizeof(int16_t));
++    }
++    return;
++  }
++
++  int16_t *temp_input = NULL;
++
+   if (i_bil == 1) {
+-    nr_polar_rm_deinterleaving_cb(input, input, E);
++    // Allocate temporary buffer to prevent self-modification during deinterleaving
++    temp_input = malloc(E * sizeof(int16_t));
++    if (temp_input == NULL) {
++      // Handle memory allocation failure - clear output and return
++      printf("Error: Failed to allocate memory for temporary buffer in nr_polar_rate_matching_int16\n");
++      memset(output, 0, N * sizeof(int16_t));
++      return;
++    }
++    memcpy(temp_input, input, E * sizeof(int16_t));
++    nr_polar_rm_deinterleaving_cb(temp_input, temp_input, E);
+   }
+ 
++  const int16_t *proc_input = (i_bil == 1) ? temp_input : input;
++
+   if (E >= N) { // repetition
+     memset((void *)output, 0, N * sizeof(int16_t));
+-    for (int i = 0; i <= E - 1; i++)
+-      output[rmp[i]] += input[i];
++    for (int i = 0; i <= E - 1; i++) {
++      // Bounds checking to prevent buffer overflows
++      if (rmp[i] < N) {
++        output[rmp[i]] += proc_input[i];
++      }
++    }
+   } else {
+     if ((K / (double)E) <= (7.0 / 16))
+       memset((void *)output, 0, N * sizeof(int16_t)); // puncturing
+@@ -523,7 +551,16 @@ void nr_polar_rate_matching_int16(int16_t *input,
+         output[i] = 32767; // instead of INFINITY, to prevent [-Woverflow]
+     }
+ 
+-    for (int i = 0; i <= E - 1; i++)
+-      output[rmp[i]] = input[i];
++    for (int i = 0; i <= E - 1; i++) {
++      // Bounds checking to prevent buffer overflows
++      if (rmp[i] < N) {
++        output[rmp[i]] = proc_input[i];
++      }
++    }
++  }
++
++  // Free temporary buffer if allocated
++  if (temp_input != NULL) {
++    free(temp_input);
+   }
+ }

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix thread-unsafe access in RadioPriority decoder\n\n### Summary\nThe `decode_radio_priority` function in the NAS IES module was using CHECK macros that could lead to race conditions when accessed by multiple threads. In high-load scenarios with concurrent NAS message processing, this could result in incorrect error reporting and potential memory access issues.\n\nThis fix replaces the macro-based validation with inline checks to eliminate global variable access that was causing thread safety issues.\n\n### Changes\n- `openair3/NAS/COMMON/IES/RadioPriority.c`: Replaced CHECK macro calls with direct validation logic in `decode_radio_priority` function to prevent thread-unsafe global variable access.\n\n"
+}

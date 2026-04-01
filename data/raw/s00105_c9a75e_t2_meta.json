@@ -1,0 +1,9 @@
+{
+  "run_id": "s00105_c9a75e",
+  "pr_text": "## Title: Add mutex protection for PUCCH2 shared lookup tables\n\n### Summary\nThe `init_pucch2_luts()` function initializes static lookup tables (LUTs) used for PUCCH2 decoding without any synchronization mechanism. These LUTs are shared global state accessed by multiple threads, creating a race condition where concurrent initialization or simultaneous read/write access could corrupt data structures and lead to undefined behavior.\n\nThis change introduces a static mutex to protect both the initiali",
+  "trajectory_path": "data/raw/s00105_c9a75e_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00105_c9a75e_p2.diff",
+  "patch_lines": 14,
+  "trajectory_steps": 57,
+  "timestamp": "2026-02-10T11:16:56Z"
+}

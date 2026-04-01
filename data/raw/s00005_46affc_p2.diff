@@ -1,0 +1,15 @@
+diff --git a/openair1/PHY/CODING/nrSmallBlock/encodeSmallBlock.c b/openair1/PHY/CODING/nrSmallBlock/encodeSmallBlock.c
+index 3078243c8f..b89f3dbc76 100644
+--- a/openair1/PHY/CODING/nrSmallBlock/encodeSmallBlock.c
++++ b/openair1/PHY/CODING/nrSmallBlock/encodeSmallBlock.c
+@@ -36,6 +36,10 @@
+ //output = [d_31 d_30 ... d_2 d_1 d_0]
+ uint32_t encodeSmallBlock(int in, int len)
+ {
++  // Clamp len to maximum supported value to prevent out-of-bounds array access
++  if (len > 11)
++    len = 11;
++
+   uint32_t out = 0;
+   for (int i = 0; i < len; i++)
+     if ((in & (1 << i)) > 0)

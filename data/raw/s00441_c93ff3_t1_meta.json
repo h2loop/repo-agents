@@ -1,0 +1,33 @@
+{
+  "run_id": "s00441_c93ff3",
+  "function": {
+    "name": "lte_ue_measurements_emul",
+    "file": "openair1/PHY/LTE_ESTIMATION/lte_ue_measurements.c",
+    "start_line": 1306,
+    "end_line": 1310,
+    "body_lines": 5,
+    "signature": "void lte_ue_measurements_emul(PHY_VARS_UE *ue,uint8_t subframe,uint8_t eNB_id)",
+    "subsystem": "openair1/PHY/LTE_ESTIMATION",
+    "token_estimate": 14
+  },
+  "bug": {
+    "bug_id": "c_thread_unsafe_access",
+    "description": "thread-unsafe access to global or shared variable without proper synchronization",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a thread-unsafe access to global or shared variable without proper synchronization downstream of function lte_ue_measurements_emul in the openair1/PHY/LTE_ESTIMATION subsystem.\nThe function is located at openair1/PHY/LTE_ESTIMATION/lte_ue_measurements.c:1306.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00441_c93ff3_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00441_c93ff3_p1.diff",
+  "patch_lines": 53,
+  "trajectory_steps": 67,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:21:51Z"
+}

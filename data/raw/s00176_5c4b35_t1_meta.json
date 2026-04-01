@@ -1,0 +1,32 @@
+{
+  "run_id": "s00176_5c4b35",
+  "function": {
+    "name": "nr_generate_Msg2",
+    "file": "openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_RA.c",
+    "start_line": 1417,
+    "end_line": 1675,
+    "body_lines": 259,
+    "signature": "static void nr_generate_Msg2(module_id_t module_idP, int CC_id, frame_t frameP, slot_t slotP, NR_UE_info_t *UE, nfapi_nr_dl_tti_request_t *DL_req, nfapi_nr_tx_data_request_t *TX_req)",
+    "subsystem": "openair2/LAYER2/NR_MAC_gNB",
+    "token_estimate": 957
+  },
+  "bug": {
+    "bug_id": "telecom_incorrect_ie",
+    "description": "incorrect information element value set in outgoing protocol message",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a incorrect information element value set in outgoing protocol message downstream of function nr_generate_Msg2 in the openair2/LAYER2/NR_MAC_gNB subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_RA.c:1417.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00176_5c4b35_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00176_5c4b35_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 56,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:01:51Z"
+}

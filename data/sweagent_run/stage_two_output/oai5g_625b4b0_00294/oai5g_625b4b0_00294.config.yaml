@@ -1,0 +1,188 @@
+'{"env":{"deployment":{"image":"oai5g-sera:625b4b0","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_625b4b0_00294","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix memory allocation error handling in static mobility generator\n\n###
+  Summary\nThe `start_static_generator()` function in the OMG mobility module was
+  not properly handling memory allocation failures, which could lead to segmentation
+  faults when the system is under memory pressure. Additionally, the function had
+  an inconsistent interface compared to other generator functions in the codebase.\n\nThis
+  fix addresses these issues by:\n1. Changing the function signature to return an
+  integer status code\n2. Adding proper error checking for memory allocation failures\n3.
+  Ensuring consistent error handling across all generator functions\n4. Adding proper
+  cleanup when allocation fails\n\n### Changes\n- `openair2/UTIL/OMG/static.c`: Changed
+  return type from void to int, added error checking for node and mobility structure
+  allocation, added proper return values\n- `openair2/UTIL/OMG/static.h`: Updated
+  function signature and documentation to reflect return value\n- `openair2/UTIL/OMG/omg.c`:
+  Updated caller to check return value and log errors appropriately\n- `openair2/UTIL/OMG/rwalk.h`:
+  Updated documentation to reflect correct return type\n- `openair2/UTIL/OMG/rwp.h`:
+  Updated documentation to reflect correct return type\n- `openair2/UTIL/OMG/steadystaterwp.h`:
+  Added missing function documentation\n- `openair2/UTIL/OMG/trace.h`: Added missing
+  function documentation\n\n### Reproduction\nTo reproduce the original issue:\n1.
+  Run the OMG mobility generator with static node configuration\n2. Under memory pressure
+  or when malloc fails, the function would crash instead of returning an error\n3.
+  The inconsistent interface made it difficult to handle errors properly in the calling
+  code\n\nThe fix ensures that allocation failures are properly reported and that
+  all generator functions have a consistent interface for error handling.\n","extra_fields":{"bug_description":"dead
+  code that is never executed and may mask intended logic","bug_id":"c_dead_code","stage_one_patch":"diff
+  --git a/openair2/UTIL/OMG/omg.c b/openair2/UTIL/OMG/omg.c\nindex 67a78d245a..cbd8385e18
+  100644\n--- a/openair2/UTIL/OMG/omg.c\n+++ b/openair2/UTIL/OMG/omg.c\n@@ -93,29
+  +93,41 @@ init_mobility_generator (omg_global_param omg_param_list[]) {\n \n     switch
+  (mobility_t) {\n       case STATIC:\n-        start_static_generator (omg_param_list[node_t]);\n+        if
+  (start_static_generator (omg_param_list[node_t]) != 0) {\n+          LOG_E(OMG,
+  \"Failed to start static generator for node type %d\\n\", node_t);\n+        }\n         break;\n
+  \n       case RWP:\n-        start_rwp_generator (omg_param_list[node_t]);\n+        if
+  (start_rwp_generator (omg_param_list[node_t]) != 0) {\n+          LOG_E(OMG, \"Failed
+  to start RWP generator for node type %d\\n\", node_t);\n+        }\n         break;\n
+  \n       case RWALK:\n-        start_rwalk_generator (omg_param_list[node_t]);\n+        if
+  (start_rwalk_generator (omg_param_list[node_t]) != 0) {\n+          LOG_E(OMG, \"Failed
+  to start RWALK generator for node type %d\\n\", node_t);\n+        }\n         break;\n
+  \n       case TRACE:\n-        start_trace_generator (omg_param_list[node_t]);\n+        if
+  (start_trace_generator (omg_param_list[node_t]) != 0) {\n+          LOG_E(OMG, \"Failed
+  to start TRACE generator for node type %d\\n\", node_t);\n+        }\n         break;\n
+  #ifdef SUMO_IF\n \n       case SUMO:\n-        start_sumo_generator (omg_param_list[node_t]);\n+        if
+  (start_sumo_generator (omg_param_list[node_t]) != 0) {\n+          LOG_E(OMG, \"Failed
+  to start SUMO generator for node type %d\\n\", node_t);\n+        }\n         break;\n
+  #endif\n \n       case STEADY_RWP:\n-        start_steadystaterwp_generator (omg_param_list[node_t]);\n+        if
+  (start_steadystaterwp_generator (omg_param_list[node_t]) != 0) {\n+          LOG_E(OMG,
+  \"Failed to start STEADY_RWP generator for node type %d\\n\", node_t);\n+        }\n         break;\n
+  \n       default:\ndiff --git a/openair2/UTIL/OMG/rwalk.h b/openair2/UTIL/OMG/rwalk.h\nindex
+  114f8a48f9..7f338880ab 100644\n--- a/openair2/UTIL/OMG/rwalk.h\n+++ b/openair2/UTIL/OMG/rwalk.h\n@@
+  -31,9 +31,10 @@\n #include \"omg.h\"\n \n /**\n- * \\fn void start_rwalk_generator(omg_global_param
+  omg_param_list)\n+ * \\fn int start_rwalk_generator(omg_global_param omg_param_list)\n  *
+  \\brief Start the RWALK model by setting the initial positions of each node then
+  letting it sleep for a random duration. This new job is then added to the Job_Vector\n  *
+  \\param omg_param_list a structure that contains the main parameters needed to establish
+  the random positions distribution\n+ * \\return 0 on success, -1 on failure\n  */\n
+  int start_rwalk_generator(omg_global_param omg_param_list) ;\n \ndiff --git a/openair2/UTIL/OMG/rwp.h
+  b/openair2/UTIL/OMG/rwp.h\nindex 4a6c32cd56..22162d6b66 100644\n--- a/openair2/UTIL/OMG/rwp.h\n+++
+  b/openair2/UTIL/OMG/rwp.h\n@@ -33,9 +33,10 @@\n #include \"grid.h\"\n \n /**\n-
+  * \\fn void start_rwp_generator(omg_global_param omg_param_list)\n+ * \\fn int start_rwp_generator(omg_global_param
+  omg_param_list)\n  * \\brief Start the RWP model by setting the initial positions
+  of each node then letting it sleep for a random duration and adding this job to
+  the Job_Vector\n  * \\param omg_param_list a structure that contains the main parameters
+  needed to establish the random positions distribution\n+ * \\return 0 on success,
+  -1 on failure\n  */\n int start_rwp_generator(omg_global_param omg_param_list) ;\n
+  \ndiff --git a/openair2/UTIL/OMG/static.c b/openair2/UTIL/OMG/static.c\nindex 361fa969e9..d0f3bbbbc4
+  100644\n--- a/openair2/UTIL/OMG/static.c\n+++ b/openair2/UTIL/OMG/static.c\n@@ -36,7
+  +36,7 @@\n #include \"static.h\"\n \n \n-void\n+int\n start_static_generator (omg_global_param
+  omg_param_list)\n {\n \n@@ -47,13 +47,23 @@ start_static_generator (omg_global_param
+  omg_param_list)\n \n   srand (omg_param_list.seed + STATIC);\n \n-  LOG_I (OMG,
+  \"Static mobility model for %d %d nodes\\n\", omg_param_list.nodes,\n+  LOG_I (OMG,
+  \"Static mobility model for %d nodes of type %d\\n\", omg_param_list.nodes,\n          omg_param_list.nodes_type);\n
+  \n   for (id = n_id; id < (omg_param_list.nodes + n_id); id++) {\n \n     node =
+  create_node ();\n+    if (node == NULL) {\n+      LOG_E(OMG, \"Failed to create
+  node\\n\");\n+      return -1;\n+    }\n+    \n     mobility = create_mobility ();\n+    if
+  (mobility == NULL) {\n+      LOG_E(OMG, \"Failed to create mobility structure\\n\");\n+      free(node);\n+      return
+  -1;\n+    }\n \n     node->id = id;\n     node->type = omg_param_list.nodes_type;\n@@
+  -64,7 +74,7 @@ start_static_generator (omg_global_param omg_param_list)\n \n   n_id
+  += omg_param_list.nodes;\n \n-\n+  return 0;\n }\n \n \ndiff --git a/openair2/UTIL/OMG/static.h
+  b/openair2/UTIL/OMG/static.h\nindex b7fa800968..bb0fd18f66 100644\n--- a/openair2/UTIL/OMG/static.h\n+++
+  b/openair2/UTIL/OMG/static.h\n@@ -32,11 +32,12 @@\n #include \"omg.h\"\n \n /**\n-
+  * \\fn void start_static_generator(omg_global_param omg_param_list)\n+ * \\fn int
+  start_static_generator(omg_global_param omg_param_list)\n  * \\brief Start the STATIC
+  model by setting the initial position of each node\n  * \\param omg_param_list a
+  structure that contains the main parameters needed to establish the random positions
+  distribution\n+ * \\return 0 on success, -1 on failure\n  */\n-void start_static_generator(omg_global_param
+  omg_param_list);\n+int start_static_generator(omg_global_param omg_param_list);\n
+  \n \n /**\ndiff --git a/openair2/UTIL/OMG/steadystaterwp.h b/openair2/UTIL/OMG/steadystaterwp.h\nindex
+  08bca4d28e..41a50981f6 100644\n--- a/openair2/UTIL/OMG/steadystaterwp.h\n+++ b/openair2/UTIL/OMG/steadystaterwp.h\n@@
+  -32,6 +32,12 @@\n #define STEADYSTATERWP_H_\n \n \n+/**\n+ * \\fn int start_steadystaterwp_generator(omg_global_param
+  omg_param_list)\n+ * \\brief Start the Steady State RWP model by setting the initial
+  positions of each node\n+ * \\param omg_param_list a structure that contains the
+  main parameters needed to establish the random positions distribution\n+ * \\return
+  0 on success, -1 on failure\n+ */\n int start_steadystaterwp_generator (omg_global_param
+  omg_param_list);\n \n void place_steadystaterwp_node (node_struct* node);\ndiff
+  --git a/openair2/UTIL/OMG/trace.h b/openair2/UTIL/OMG/trace.h\nindex f1a4a4a274..7e8c3193be
+  100644\n--- a/openair2/UTIL/OMG/trace.h\n+++ b/openair2/UTIL/OMG/trace.h\n@@ -37,6
+  +37,12 @@\n #include \"trace_hashtable.h\"\n #include \"mobility_parser.h\"\n \n+/**\n+
+  * \\fn int start_trace_generator(omg_global_param omg_param_list)\n+ * \\brief Start
+  the Trace-based mobility model by setting the initial positions of each node\n+
+  * \\param omg_param_list a structure that contains the main parameters needed to
+  establish the positions distribution from trace file\n+ * \\return 0 on success,
+  -1 on failure\n+ */\n int start_trace_generator (omg_global_param omg_param_list);\n
+  \n void place_trace_node (node_struct* node, node_data* n);\n","start_fn":"start_static_generator","start_fn_file":"openair2/UTIL/OMG/static.c","subsystem":"openair2/UTIL/OMG"},"type":"text","id":"oai5g_625b4b0_00294"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

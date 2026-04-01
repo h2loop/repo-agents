@@ -1,0 +1,26 @@
+diff --git a/common/utils/T/tracer/database.c b/common/utils/T/tracer/database.c
+index 347ca7cfcf..c019ccda68 100644
+--- a/common/utils/T/tracer/database.c
++++ b/common/utils/T/tracer/database.c
+@@ -253,14 +253,15 @@ char *format_get_next_token(char **cur)
+   if (*start == 0) return NULL;
+ 
+   /* special cases: ',' and ':' */
+-  if (*start == ',' || *start == ':') { end = start + 1; goto special; }
++  if (*start == ',' || *start == ':') {
++    end = start + 1;
++  } else {
++    end = start;
+ 
+-  end = start;
+-
+-  /* go to end of token */
+-  while (*end && !isspace(*end) && *end != ',' && *end != ':') end++;
++    /* go to end of token */
++    while (*end && !isspace(*end) && *end != ',' && *end != ':') end++;
++  }
+ 
+-special:
+   ret = malloc(end-start+1); if (ret == NULL) abort();
+   memcpy(ret, start, end-start);
+   ret[end-start] = 0;

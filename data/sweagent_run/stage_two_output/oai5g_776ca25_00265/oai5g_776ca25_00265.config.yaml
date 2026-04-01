@@ -1,0 +1,261 @@
+'{"env":{"deployment":{"image":"oai5g-sera:776ca25","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_776ca25_00265","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Implement UE Context Modification Refuse Handler\n\n### Summary\nThe UE context
+  modification failure handling was incomplete in the OAI5G codebase. There was dead
+  code in `CU_handle_UE_CONTEXT_MODIFICATION_FAILURE` that just asserted, and the
+  corresponding `ue_context_modification_refuse` function was missing in the MAC layer.
+  This caused failures during UE context modification to be silently ignored or crash
+  the system.\n\nThe fix implements the missing functionality to properly handle UE
+  context modification failures by:\n1. Replacing the assertion in `CU_handle_UE_CONTEXT_MODIFICATION_FAILURE`
+  with actual message processing\n2. Adding the missing `ue_context_modification_refuse`
+  function in the MAC layer\n3. Connecting all the components with proper function
+  pointers and message definitions\n\n### Changes\n- `openair2/COMMON/f1ap_messages_def.h`:
+  Added `F1AP_UE_CONTEXT_MODIFICATION_FAIL` message definition\n- `openair2/F1AP/f1ap_cu_ue_context_management.c`:
+  Implemented `CU_handle_UE_CONTEXT_MODIFICATION_FAILURE` to process F1AP failure
+  messages\n- `openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c`: Added `ue_context_modification_refuse`
+  function implementation\n- `openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.h`: Added
+  function declaration\n- `openair2/LAYER2/NR_MAC_gNB/mac_rrc_ul.h`: Added `ue_context_modification_refuse_func_t`
+  type definition\n- `openair2/LAYER2/NR_MAC_gNB/nr_mac_gNB.h`: Added function pointer
+  to UL interface structure\n- `openair2/RRC/NR/mac_rrc_dl.h`: Added `ue_context_modification_refuse_func_t`
+  type definition\n- `openair2/RRC/NR/mac_rrc_dl_direct.c`: Initialized function pointer
+  in direct init\n- `openair2/RRC/NR/mac_rrc_dl_f1ap.c`: Added F1AP wrapper function
+  and initialized function pointer\n- `openair2/RRC/NR/nr_rrc_defs.h`: Added function
+  pointer to DL interface structure\n- `openair2/RRC/NR/rrc_gNB.c`: Added handler
+  for F1AP modification failure message\n\n","extra_fields":{"bug_description":"dead
+  code that is never executed and may mask intended logic","bug_id":"c_dead_code","stage_one_patch":"diff
+  --git a/openair2/COMMON/f1ap_messages_def.h b/openair2/COMMON/f1ap_messages_def.h\nindex
+  7c67b22756..e09ddc7893 100644\n--- a/openair2/COMMON/f1ap_messages_def.h\n+++ b/openair2/COMMON/f1ap_messages_def.h\n@@
+  -48,6 +48,7 @@ MESSAGE_DEF(F1AP_UE_CONTEXT_SETUP_REQ,  MESSAGE_PRIORITY_MED, f1ap_ue_context_se\n
+  MESSAGE_DEF(F1AP_UE_CONTEXT_SETUP_RESP, MESSAGE_PRIORITY_MED, f1ap_ue_context_setup_t,
+  f1ap_ue_context_setup_resp)\n MESSAGE_DEF(F1AP_UE_CONTEXT_MODIFICATION_REQ, MESSAGE_PRIORITY_MED,
+  f1ap_ue_context_modif_req_t, f1ap_ue_context_modification_req)\n MESSAGE_DEF(F1AP_UE_CONTEXT_MODIFICATION_RESP,
+  MESSAGE_PRIORITY_MED, f1ap_ue_context_modif_resp_t, f1ap_ue_context_modification_resp)\n+MESSAGE_DEF(F1AP_UE_CONTEXT_MODIFICATION_FAIL,
+  MESSAGE_PRIORITY_MED, f1ap_ue_context_modif_req_t, f1ap_ue_context_modification_fail)\n
+  \n /* CU -> DU*/\n MESSAGE_DEF(F1AP_PAGING_IND, MESSAGE_PRIORITY_MED, f1ap_paging_ind_t,
+  f1ap_paging_ind)\ndiff --git a/openair2/F1AP/f1ap_cu_ue_context_management.c b/openair2/F1AP/f1ap_cu_ue_context_management.c\nindex
+  8fdee52abb..04513b684c 100644\n--- a/openair2/F1AP/f1ap_cu_ue_context_management.c\n+++
+  b/openair2/F1AP/f1ap_cu_ue_context_management.c\n@@ -1725,7 +1725,38 @@ int CU_handle_UE_CONTEXT_MODIFICATION_FAILURE(instance_t       instance,\n     uint32_t         assoc_id,\n     uint32_t         stream,\n     F1AP_F1AP_PDU_t
+  *pdu) {\n-  AssertFatal(1==0,\"Not implemented yet\\n\");\n+  MessageDef                       *msg_p;\n+  F1AP_UEContextModificationFailure_t    *container;\n+  F1AP_UEContextModificationFailureIEs_t
+  *ie;\n+  DevAssert(pdu);\n+  msg_p = itti_alloc_new_message(TASK_DU_F1, 0,  F1AP_UE_CONTEXT_MODIFICATION_FAIL);\n+  f1ap_ue_context_modif_req_t
+  *f1ap_ue_context_modification_fail = &F1AP_UE_CONTEXT_MODIFICATION_FAIL(msg_p);\n+  container
+  = &pdu->choice.unsuccessfulOutcome->value.choice.UEContextModificationFailure;\n+\n+  /*
+  GNB_CU_UE_F1AP_ID */\n+  F1AP_FIND_PROTOCOLIE_BY_ID(F1AP_UEContextModificationFailureIEs_t,
+  ie, container,\n+                             F1AP_ProtocolIE_ID_id_gNB_CU_UE_F1AP_ID,
+  true);\n+  f1ap_ue_context_modification_fail->gNB_CU_ue_id = ie->value.choice.GNB_CU_UE_F1AP_ID;\n+\n+  LOG_D(F1AP,
+  \"f1ap_ue_context_modification_fail->gNB_CU_ue_id is: %d \\n\", f1ap_ue_context_modification_fail->gNB_CU_ue_id);\n+\n+  /*
+  GNB_DU_UE_F1AP_ID */\n+  F1AP_FIND_PROTOCOLIE_BY_ID(F1AP_UEContextModificationFailureIEs_t,
+  ie, container,\n+                             F1AP_ProtocolIE_ID_id_gNB_DU_UE_F1AP_ID,
+  true);\n+  f1ap_ue_context_modification_fail->gNB_DU_ue_id = ie->value.choice.GNB_DU_UE_F1AP_ID;\n+\n+  LOG_D(F1AP,
+  \"f1ap_ue_context_modification_fail->gNB_DU_ue_id is: %d \\n\", f1ap_ue_context_modification_fail->gNB_DU_ue_id);\n+\n+  f1ap_ue_context_modification_fail->rnti
+  =\n+        f1ap_get_rnti_by_du_id(CUtype, instance, f1ap_ue_context_modification_fail->gNB_DU_ue_id);\n+\n+  /*
+  Cause */\n+  F1AP_FIND_PROTOCOLIE_BY_ID(F1AP_UEContextModificationFailureIEs_t,
+  ie, container,\n+                             F1AP_ProtocolIE_ID_id_Cause, true);\n+\n+  /*
+  In case of failure, we just forward the message to RRC */\n+  itti_send_msg_to_task(TASK_RRC_GNB,
+  instance, msg_p);\n+  return 0;\n }\n \n int CU_handle_UE_CONTEXT_MODIFICATION_REQUIRED(instance_t       instance,\ndiff
+  --git a/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c b/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c\nindex
+  582420a0b4..b7065da1a7 100644\n--- a/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c\n+++
+  b/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c\n@@ -22,6 +22,7 @@\n #include
+  \"mac_rrc_dl_handler.h\"\n \n #include \"mac_proto.h\"\n+#include \"common/utils/LOG/log.h\"\n
+  #include \"openair2/LAYER2/nr_rlc/nr_rlc_oai_api.h\"\n #include \"openair2/RRC/NR/MESSAGES/asn1_msg.h\"\n
+  \n@@ -244,6 +245,21 @@ void ue_context_modification_request(const f1ap_ue_context_modif_req_t
+  *req)\n   }\n }\n \n+void ue_context_modification_refuse(const f1ap_ue_context_modif_req_t
+  *req)\n+{\n+  gNB_MAC_INST *mac = RC.nrmac[0];\n+  \n+  /* For now, we just log
+  the refusal and call the response function with empty response\n+   * In a more
+  complete implementation, we might want to clean up any resources \n+   * that were
+  allocated during the modification attempt */\n+  LOG_E(NR_MAC, \"UE context modification
+  refused for RNTI %04x\\n\", req->rnti);\n+  \n+  /* Call the refuse callback if
+  it exists */\n+  if (mac->mac_rrc.ue_context_modification_refuse) {\n+    mac->mac_rrc.ue_context_modification_refuse(req);\n+  }\n+}\n+\n
+  void ue_context_release_command(const f1ap_ue_context_release_cmd_t *cmd)\n {\n   /*
+  mark UE as to be deleted after PUSCH failure */\ndiff --git a/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.h
+  b/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.h\nindex 808277a7f4..334c891bad
+  100644\n--- a/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.h\n+++ b/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.h\n@@
+  -27,6 +27,7 @@\n \n void ue_context_setup_request(const f1ap_ue_context_setup_t
+  *req);\n void ue_context_modification_request(const f1ap_ue_context_modif_req_t
+  *req);\n+void ue_context_modification_refuse(const f1ap_ue_context_modif_req_t *req);\n
+  void ue_context_release_command(const f1ap_ue_context_release_cmd_t *cmd);\n \n
+  int dl_rrc_message(module_id_t module_id, const f1ap_dl_rrc_message_t *dl_rrc);\ndiff
+  --git a/openair2/LAYER2/NR_MAC_gNB/mac_rrc_ul.h b/openair2/LAYER2/NR_MAC_gNB/mac_rrc_ul.h\nindex
+  5d7a7cd644..f16438e0aa 100644\n--- a/openair2/LAYER2/NR_MAC_gNB/mac_rrc_ul.h\n+++
+  b/openair2/LAYER2/NR_MAC_gNB/mac_rrc_ul.h\n@@ -28,6 +28,7 @@\n typedef void (*ue_context_setup_response_func_t)(const
+  f1ap_ue_context_setup_t* req, const f1ap_ue_context_setup_t *resp);\n typedef void
+  (*ue_context_modification_response_func_t)(const f1ap_ue_context_modif_req_t *req,\n                                                         const
+  f1ap_ue_context_modif_resp_t *resp);\n+typedef void (*ue_context_modification_refuse_func_t)(const
+  f1ap_ue_context_modif_req_t *req);\n typedef void (*ue_context_release_request_func_t)(const
+  f1ap_ue_context_release_req_t* req);\n typedef void (*ue_context_release_complete_func_t)(const
+  f1ap_ue_context_release_complete_t *complete);\n \ndiff --git a/openair2/LAYER2/NR_MAC_gNB/nr_mac_gNB.h
+  b/openair2/LAYER2/NR_MAC_gNB/nr_mac_gNB.h\nindex 1de725b6bc..5316cd9b7e 100644\n---
+  a/openair2/LAYER2/NR_MAC_gNB/nr_mac_gNB.h\n+++ b/openair2/LAYER2/NR_MAC_gNB/nr_mac_gNB.h\n@@
+  -624,6 +624,7 @@ typedef struct NR_mac_stats {\n typedef struct nr_mac_rrc_ul_if_s
+  {\n   ue_context_setup_response_func_t ue_context_setup_response;\n   ue_context_modification_response_func_t
+  ue_context_modification_response;\n+  ue_context_modification_refuse_func_t ue_context_modification_refuse;\n   ue_context_release_request_func_t
+  ue_context_release_request;\n   ue_context_release_complete_func_t ue_context_release_complete;\n   initial_ul_rrc_message_transfer_func_t
+  initial_ul_rrc_message_transfer;\ndiff --git a/openair2/RRC/NR/mac_rrc_dl.h b/openair2/RRC/NR/mac_rrc_dl.h\nindex
+  2728174603..5c36386ba8 100644\n--- a/openair2/RRC/NR/mac_rrc_dl.h\n+++ b/openair2/RRC/NR/mac_rrc_dl.h\n@@
+  -27,6 +27,7 @@\n \n typedef void (*ue_context_setup_request_func_t)(const f1ap_ue_context_setup_t
+  *req);\n typedef void (*ue_context_modification_request_func_t)(const f1ap_ue_context_modif_req_t
+  *req);\n+typedef void (*ue_context_modification_refuse_func_t)(const f1ap_ue_context_modif_req_t
+  *req);\n typedef void (*ue_context_release_command_func_t)(const f1ap_ue_context_release_cmd_t
+  *cmd);\n \n typedef void (*dl_rrc_message_transfer_func_t)(module_id_t module_id,
+  const f1ap_dl_rrc_message_t *dl_rrc);\ndiff --git a/openair2/RRC/NR/mac_rrc_dl_direct.c
+  b/openair2/RRC/NR/mac_rrc_dl_direct.c\nindex 2d436c19e3..b6a8b2c37e 100644\n---
+  a/openair2/RRC/NR/mac_rrc_dl_direct.c\n+++ b/openair2/RRC/NR/mac_rrc_dl_direct.c\n@@
+  -35,6 +35,7 @@ void mac_rrc_dl_direct_init(nr_mac_rrc_dl_if_t *mac_rrc)\n {\n   mac_rrc->ue_context_setup_request
+  = ue_context_setup_request;\n   mac_rrc->ue_context_modification_request = ue_context_modification_request;\n+  mac_rrc->ue_context_modification_refuse
+  = ue_context_modification_refuse;\n   mac_rrc->ue_context_release_command = ue_context_release_command;\n   mac_rrc->dl_rrc_message_transfer
+  = dl_rrc_message_transfer_direct;\n }\ndiff --git a/openair2/RRC/NR/mac_rrc_dl_f1ap.c
+  b/openair2/RRC/NR/mac_rrc_dl_f1ap.c\nindex 5bfeda2dc8..d14a496cd1 100644\n--- a/openair2/RRC/NR/mac_rrc_dl_f1ap.c\n+++
+  b/openair2/RRC/NR/mac_rrc_dl_f1ap.c\n@@ -71,6 +71,14 @@ static void ue_context_modification_request_f1ap(const
+  f1ap_ue_context_modif_req\n   itti_send_msg_to_task(TASK_CU_F1, 0, msg);\n }\n \n+static
+  void ue_context_modification_refuse_f1ap(const f1ap_ue_context_modif_req_t *req)\n+{\n+  MessageDef
+  *msg = itti_alloc_new_message(TASK_RRC_GNB, 0, F1AP_UE_CONTEXT_MODIFICATION_FAIL);\n+  f1ap_ue_context_modif_req_t
+  *f1ap_msg = &F1AP_UE_CONTEXT_MODIFICATION_FAIL(msg);\n+  *f1ap_msg = *req;\n+  itti_send_msg_to_task(TASK_CU_F1,
+  0, msg);\n+}\n+\n static void ue_context_release_command_f1ap(const f1ap_ue_context_release_cmd_t
+  *cmd)\n {\n   MessageDef *message_p = itti_alloc_new_message (TASK_RRC_GNB, 0, F1AP_UE_CONTEXT_RELEASE_CMD);\n@@
+  -99,6 +107,7 @@ void mac_rrc_dl_f1ap_init(nr_mac_rrc_dl_if_t *mac_rrc)\n {\n   mac_rrc->ue_context_setup_request
+  = ue_context_setup_request_f1ap;\n   mac_rrc->ue_context_modification_request =
+  ue_context_modification_request_f1ap;\n+  mac_rrc->ue_context_modification_refuse
+  = ue_context_modification_refuse_f1ap;\n   mac_rrc->ue_context_release_command =
+  ue_context_release_command_f1ap;\n   mac_rrc->dl_rrc_message_transfer = dl_rrc_message_transfer_f1ap;\n
+  }\ndiff --git a/openair2/RRC/NR/nr_rrc_defs.h b/openair2/RRC/NR/nr_rrc_defs.h\nindex
+  51ef9d0f8d..1d570ea280 100644\n--- a/openair2/RRC/NR/nr_rrc_defs.h\n+++ b/openair2/RRC/NR/nr_rrc_defs.h\n@@
+  -374,6 +374,7 @@ typedef struct {\n typedef struct nr_mac_rrc_dl_if_s {\n   ue_context_setup_request_func_t
+  ue_context_setup_request;\n   ue_context_modification_request_func_t ue_context_modification_request;\n+  ue_context_modification_refuse_func_t
+  ue_context_modification_refuse;\n   ue_context_release_command_func_t ue_context_release_command;\n   dl_rrc_message_transfer_func_t
+  dl_rrc_message_transfer;\n } nr_mac_rrc_dl_if_t;\ndiff --git a/openair2/RRC/NR/rrc_gNB.c
+  b/openair2/RRC/NR/rrc_gNB.c\nindex f731ed0fbe..22f6ec1bb8 100644\n--- a/openair2/RRC/NR/rrc_gNB.c\n+++
+  b/openair2/RRC/NR/rrc_gNB.c\n@@ -2130,8 +2130,8 @@ void rrc_gNB_process_f1_setup_req(f1ap_setup_req_t
+  *f1_setup_req) {\n       if (rrc->configuration.mcc[0] == f1_setup_req->cell[i].mcc
+  &&\n           rrc->configuration.mnc[0] == f1_setup_req->cell[i].mnc &&\n           rrc->nr_cellid
+  == f1_setup_req->cell[i].nr_cellid) {\n-\t//fixme: multi instance is not consistent
+  here\n-\tF1AP_SETUP_RESP (msg_p).gNB_CU_name  = rrc->node_name;\n+        //fixme:
+  multi instance is not consistent here\n+        F1AP_SETUP_RESP (msg_p).gNB_CU_name  =
+  rrc->node_name;\n         // check that CU rrc instance corresponds to mcc/mnc/cgi
+  (normally cgi should be enough, but just in case)\n         LOG_W(NR_RRC, \"instance
+  %d sib1 length %d\\n\", i, f1_setup_req->sib1_length[i]);\n         AssertFatal(rrc->carrier.mib
+  == NULL, \"CU MIB is already initialized: double F1 setup request?\\n\");\n@@ -2164,12
+  +2164,12 @@ void rrc_gNB_process_f1_setup_req(f1ap_setup_req_t *f1_setup_req) {\n
+  \n         rrc->carrier.physCellId = f1_setup_req->cell[i].nr_pci;\n \n-\tF1AP_GNB_CU_CONFIGURATION_UPDATE
+  (msg_p2).gNB_CU_name                                = rrc->node_name;\n-\tF1AP_GNB_CU_CONFIGURATION_UPDATE
+  (msg_p2).cells_to_activate[cu_cell_ind].mcc                           = rrc->configuration.mcc[0];\n-\tF1AP_GNB_CU_CONFIGURATION_UPDATE
+  (msg_p2).cells_to_activate[cu_cell_ind].mnc                           = rrc->configuration.mnc[0];\n-\tF1AP_GNB_CU_CONFIGURATION_UPDATE
+  (msg_p2).cells_to_activate[cu_cell_ind].mnc_digit_length              = rrc->configuration.mnc_digit_length[0];\n-\tF1AP_GNB_CU_CONFIGURATION_UPDATE
+  (msg_p2).cells_to_activate[cu_cell_ind].nr_cellid                     = rrc->nr_cellid;\n-\tF1AP_GNB_CU_CONFIGURATION_UPDATE
+  (msg_p2).cells_to_activate[cu_cell_ind].nrpci                         = f1_setup_req->cell[i].nr_pci;\n+        F1AP_GNB_CU_CONFIGURATION_UPDATE
+  (msg_p2).gNB_CU_name                                = rrc->node_name;\n+        F1AP_GNB_CU_CONFIGURATION_UPDATE
+  (msg_p2).cells_to_activate[cu_cell_ind].mcc                           = rrc->configuration.mcc[0];\n+        F1AP_GNB_CU_CONFIGURATION_UPDATE
+  (msg_p2).cells_to_activate[cu_cell_ind].mnc                           = rrc->configuration.mnc[0];\n+        F1AP_GNB_CU_CONFIGURATION_UPDATE
+  (msg_p2).cells_to_activate[cu_cell_ind].mnc_digit_length              = rrc->configuration.mnc_digit_length[0];\n+        F1AP_GNB_CU_CONFIGURATION_UPDATE
+  (msg_p2).cells_to_activate[cu_cell_ind].nr_cellid                     = rrc->nr_cellid;\n+        F1AP_GNB_CU_CONFIGURATION_UPDATE
+  (msg_p2).cells_to_activate[cu_cell_ind].nrpci                         = f1_setup_req->cell[i].nr_pci;\n         int
+  num_SI= 0;\n \n         if (rrc->carrier.SIB23) {\n@@ -2180,8 +2180,8 @@ void rrc_gNB_process_f1_setup_req(f1ap_setup_req_t
+  *f1_setup_req) {\n \n         F1AP_GNB_CU_CONFIGURATION_UPDATE (msg_p2).cells_to_activate[cu_cell_ind].num_SI
+  = num_SI;\n         cu_cell_ind++;\n-\tF1AP_GNB_CU_CONFIGURATION_UPDATE (msg_p2).num_cells_to_activate
+  = cu_cell_ind;\n-\t// send\n+        F1AP_GNB_CU_CONFIGURATION_UPDATE (msg_p2).num_cells_to_activate
+  = cu_cell_ind;\n+        // send\n         break;\n       } else {// setup_req mcc/mnc
+  match rrc internal list element\n         LOG_W(NR_RRC,\"[Inst %d] No matching MCC/MNC:
+  rrc->mcc/f1_setup_req->mcc %d/%d rrc->mnc/f1_setup_req->mnc %d/%d rrc->nr_cellid/f1_setup_req->nr_cellid
+  %ld/%ld \\n\",\n@@ -2300,6 +2300,17 @@ static void rrc_CU_process_ue_context_release_complete(MessageDef
+  *msg_p)\n   rrc_gNB_remove_ue_context(rrc, ue_context_p);\n }\n \n+static void rrc_CU_process_ue_context_modification_failure(MessageDef
+  *msg_p, instance_t instance)\n+{\n+  f1ap_ue_context_modif_req_t *fail = &F1AP_UE_CONTEXT_MODIFICATION_FAIL(msg_p);\n+  gNB_RRC_INST
+  *rrc = RC.nrrrc[instance];\n+  \n+  /* Call the MAC layer function to handle the
+  refusal */\n+  if (rrc->mac_rrc.ue_context_modification_refuse) {\n+    rrc->mac_rrc.ue_context_modification_refuse(fail);\n+  }\n+}\n+\n
+  static void rrc_CU_process_ue_context_modification_response(MessageDef *msg_p, instance_t
+  instance)\n {\n   f1ap_ue_context_modif_resp_t *resp = &F1AP_UE_CONTEXT_MODIFICATION_RESP(msg_p);\n@@
+  -2369,7 +2380,7 @@ static unsigned int get_dl_bw_mask(const gNB_RRC_INST *rrc, const
+  NR_UE_NR_Capab\n                    bandNRinfo->channelBWs_DL->choice.fr1 &&\n                    bandNRinfo->channelBWs_DL->choice.fr1->scs_15kHz)\n                      return(mask_flip((unsigned
+  int)*(uint16_t*)bandNRinfo->channelBWs_DL->choice.fr1->scs_15kHz->buf));\n- \t      break;\n+              break;\n             case
+  NR_SubcarrierSpacing_kHz30 :\n                if (bandNRinfo->channelBWs_DL &&\n                    bandNRinfo->channelBWs_DL->choice.fr1
+  &&\n@@ -2419,7 +2430,7 @@ static unsigned int get_ul_bw_mask(const gNB_RRC_INST
+  *rrc, const NR_UE_NR_Capab\n                    bandNRinfo->channelBWs_UL->choice.fr1
+  &&\n                    bandNRinfo->channelBWs_UL->choice.fr1->scs_15kHz)\n                      return(mask_flip((unsigned
+  int)*(uint16_t*)bandNRinfo->channelBWs_UL->choice.fr1->scs_15kHz->buf));\n- \t      break;\n+              break;\n             case
+  NR_SubcarrierSpacing_kHz30 :\n                if (bandNRinfo->channelBWs_UL &&\n                    bandNRinfo->channelBWs_UL->choice.fr1
+  &&\n@@ -2766,6 +2777,10 @@ void *rrc_gnb_task(void *args_p) {\n         rrc_CU_process_ue_context_modification_response(msg_p,
+  instance);\n         break;\n \n+      case F1AP_UE_CONTEXT_MODIFICATION_FAIL:\n+        rrc_CU_process_ue_context_modification_failure(msg_p,
+  instance);\n+        break;\n+\n       case F1AP_UE_CONTEXT_RELEASE_REQ:\n         rrc_CU_process_ue_context_release_request(msg_p);\n         break;\n","start_fn":"ue_context_modification_refuse","start_fn_file":"openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c","subsystem":"openair2/LAYER2/NR_MAC_gNB"},"type":"text","id":"oai5g_776ca25_00265"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

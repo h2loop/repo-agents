@@ -1,0 +1,21 @@
+diff --git a/subsys/bluetooth/controller/ll_sw/ull_adv_aux.c b/subsys/bluetooth/controller/ll_sw/ull_adv_aux.c
+index 0b37613a..81ab548d 100644
+--- a/subsys/bluetooth/controller/ll_sw/ull_adv_aux.c
++++ b/subsys/bluetooth/controller/ll_sw/ull_adv_aux.c
+@@ -1443,8 +1443,16 @@ int ull_adv_aux_init(void)
+ int ull_adv_aux_reset_finalize(void)
+ {
+ 	int err;
++	unsigned int key;
+ 
++	/* Initialize using the reset procedure to correctly initialize the
++	 * memory pool for auxiliary advertising sets. Use critical section
++	 * to protect against race conditions.
++	 */
++	key = arch_irq_lock();
+ 	err = init_reset();
++	arch_irq_unlock(key);
++
+ 	if (err) {
+ 		return err;
+ 	}

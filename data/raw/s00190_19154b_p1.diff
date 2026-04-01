@@ -1,0 +1,31 @@
+diff --git a/openair3/NAS/UE/EMM/LowerLayer.c b/openair3/NAS/UE/EMM/LowerLayer.c
+index 538ba21099..84385083dc 100644
+--- a/openair3/NAS/UE/EMM/LowerLayer.c
++++ b/openair3/NAS/UE/EMM/LowerLayer.c
+@@ -91,6 +91,8 @@ int lowerlayer_success(nas_user_t *user)
+   emm_sap_t emm_sap;
+   int rc;
+ 
++  /* Initialize the EMM-SAP primitive */
++  memset(&emm_sap, 0, sizeof(emm_sap_t));
+   emm_sap.primitive = EMMREG_LOWERLAYER_SUCCESS;
+   emm_sap.u.emm_reg.ueid = user->ueid;
+   rc = emm_sap_send(user, &emm_sap);
+@@ -119,6 +121,8 @@ int lowerlayer_failure(nas_user_t *user)
+   emm_sap_t emm_sap;
+   int rc;
+ 
++  /* Initialize the EMM-SAP primitive */
++  memset(&emm_sap, 0, sizeof(emm_sap_t));
+   emm_sap.primitive = EMMREG_LOWERLAYER_FAILURE;
+   emm_sap.u.emm_reg.ueid = user->ueid;
+   rc = emm_sap_send(user, &emm_sap);
+@@ -177,6 +181,8 @@ int lowerlayer_release(nas_user_t *user, int cause)
+   /* Update the EPS Connection Management status */
+   user->emm_data->ecm_status = ECM_IDLE;
+ 
++  /* Initialize the EMM-SAP primitive */
++  memset(&emm_sap, 0, sizeof(emm_sap_t));
+   emm_sap.primitive = EMMREG_LOWERLAYER_RELEASE;
+   emm_sap.u.emm_reg.ueid = user->ueid;
+   rc = emm_sap_send(user, &emm_sap);

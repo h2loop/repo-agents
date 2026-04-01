@@ -1,0 +1,37 @@
+diff --git a/openair1/PHY/LTE_TRANSPORT/prach_common.c b/openair1/PHY/LTE_TRANSPORT/prach_common.c
+index 14bf35aab7..8d90f67b29 100644
+--- a/openair1/PHY/LTE_TRANSPORT/prach_common.c
++++ b/openair1/PHY/LTE_TRANSPORT/prach_common.c
+@@ -355,13 +355,28 @@ uint8_t get_fid_prach_tdd(module_id_t Mod_id,uint8_t tdd_map_index) {
+ }
+ 
+ int is_prach_subframe(LTE_DL_FRAME_PARMS *frame_parms, uint32_t frame, uint8_t subframe) {
++  // Check for NULL pointer to prevent use-after-free
++  if (frame_parms == NULL) {
++    return 0;
++  }
++  
++  // Check if prach_config_common structure is valid
++  if (frame_parms->prach_config_common.prach_ConfigInfo.prach_Config_enabled == 0) {
++    return 0;
++  }
++  
+   uint8_t prach_ConfigIndex  = frame_parms->prach_config_common.prach_ConfigInfo.prach_ConfigIndex;
+   int prach_mask             = is_prach_subframe0(frame_parms->tdd_config,frame_parms->frame_type, prach_ConfigIndex, frame, subframe);
+ 
+-  for (int i=0; i<4; i++) {
+-    if (frame_parms->prach_emtc_config_common.prach_ConfigInfo.prach_CElevel_enable[i] == 1)
+-      prach_mask |= (is_prach_subframe0(frame_parms->tdd_config,frame_parms->frame_type, frame_parms->prach_emtc_config_common.prach_ConfigInfo.prach_ConfigIndex[i],
+-                                        frame, subframe) << (i+1));
++  // Check if eMTC config structure is valid before accessing it
++  if (frame_parms->prach_emtc_config_common.prach_ConfigInfo.prach_Config_enabled == 1) {
++    for (int i=0; i<4; i++) {
++      if (frame_parms->prach_emtc_config_common.prach_ConfigInfo.prach_CElevel_enable[i] == 1) {
++        prach_mask |= (is_prach_subframe0(frame_parms->tdd_config,frame_parms->frame_type, 
++                                          frame_parms->prach_emtc_config_common.prach_ConfigInfo.prach_ConfigIndex[i],
++                                          frame, subframe) << (i+1));
++      }
++    }
+   }
+ 
+   return(prach_mask);

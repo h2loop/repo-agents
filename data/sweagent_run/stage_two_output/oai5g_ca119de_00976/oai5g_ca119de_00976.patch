@@ -1,0 +1,58 @@
+diff --git a/common/utils/T/tracer/gui/positioner.c b/common/utils/T/tracer/gui/positioner.c
+index 673ffb32de..7595390825 100644
+--- a/common/utils/T/tracer/gui/positioner.c
++++ b/common/utils/T/tracer/gui/positioner.c
+@@ -32,7 +32,7 @@ static void allocate(
+   this->common.width = width;
+   this->common.height = height;
+ 
+-  if (l != NULL) {
++  for (; l != NULL; l = l->next) {
+     l->item->hints(g, l->item, &cwidth, &cheight);
+     l->item->allocate(g, l->item, x+(width-cwidth)/2, y+(height-cheight)/2,
+         cwidth, cheight);
+@@ -45,9 +45,21 @@ static void hints(gui *_gui, widget *_w, int *width, int *height)
+   struct gui *g = _gui;
+   struct positioner_widget *this = _w;
+   struct widget_list *l = this->common.children;
+-  if (l != NULL)
+-    l->item->hints(g, l->item, width, height);
+-  else { *width = *height = 1; }
++  int max_width = 0, max_height = 0;
++  int cwidth, cheight;
++  
++  for (; l != NULL; l = l->next) {
++    l->item->hints(g, l->item, &cwidth, &cheight);
++    if (cwidth > max_width) max_width = cwidth;
++    if (cheight > max_height) max_height = cheight;
++  }
++  
++  if (max_width > 0 && max_height > 0) {
++    *width = max_width;
++    *height = max_height;
++  } else {
++    *width = *height = 1;
++  }
+ }
+ 
+ static void button(gui *_g, widget *_this, int x, int y,
+@@ -57,7 +69,9 @@ static void button(gui *_g, widget *_this, int x, int y,
+   struct gui *g = _g;
+   struct positioner_widget *this = _this;
+   struct widget_list *l = this->common.children;
+-  if (l != NULL)
++  
++  // Send button event to all children since they're all positioned at the same location
++  for (; l != NULL; l = l->next)
+     l->item->button(g, l->item, x, y, key_modifiers, button, up);
+ }
+ 
+@@ -67,7 +81,7 @@ static void paint(gui *_gui, widget *_this)
+   struct gui *g = _gui;
+   struct widget *this = _this;
+   struct widget_list *l = this->children;
+-  if (l != NULL)
++  for (; l != NULL; l = l->next)
+     l->item->paint(g, l->item);
+ }
+ 

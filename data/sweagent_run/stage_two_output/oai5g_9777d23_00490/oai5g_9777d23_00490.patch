@@ -1,0 +1,13 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c
+index 4486be536d..a7a2735f23 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c
+@@ -98,7 +98,7 @@ static void get_max_rb_range(const uint16_t *vrb_map_ul, const uint16_t *ulprbbl
+   int best_len = 0;
+   int current_start = *rb_start;
+   int current_len = 0;
+-  for (int rb = *rb_start; rb < *rb_len; ++rb) {
++  for (int rb = *rb_start; rb < *rb_start + *rb_len; ++rb) {
+     if (ulprbbl[rb] == 0 && (mask & vrb_map_ul[rb]) == 0) {
+       current_len++;
+       continue;

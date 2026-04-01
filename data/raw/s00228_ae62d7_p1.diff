@@ -1,0 +1,25 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
+index dc442bedd0..9cfe60fb63 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
+@@ -825,12 +825,14 @@ void config_uldci(const NR_UE_ServingCell_Info_t *sc_info,
+                                        srs_feedback,
+                                        &dci_pdu_rel15->srs_resource_indicator.val);
+       }
+-      compute_precoding_information(pusch_Config,
+-                                    ul_bwp->srs_Config,
+-                                    dci_pdu_rel15->srs_resource_indicator,
+-                                    srs_feedback,
+-                                    &pusch_pdu->nrOfLayers,
+-                                    &dci_pdu_rel15->precoding_information.val);
++      if (pusch_Config) {
++        compute_precoding_information(pusch_Config,
++                                      ul_bwp->srs_Config,
++                                      dci_pdu_rel15->srs_resource_indicator,
++                                      srs_feedback,
++                                      &pusch_pdu->nrOfLayers,
++                                      &dci_pdu_rel15->precoding_information.val);
++      }
+ 
+       // antenna_ports.val = 0 for transform precoder is disabled, dmrs-Type=1, maxLength=1, Rank=1/2/3/4
+       // Antenna Ports

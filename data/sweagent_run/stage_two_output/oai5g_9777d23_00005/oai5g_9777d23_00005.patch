@@ -1,0 +1,13 @@
+diff --git a/common/utils/T/tracer/filter/filter.c b/common/utils/T/tracer/filter/filter.c
+index ddc9e3af3e..c641222e7e 100644
+--- a/common/utils/T/tracer/filter/filter.c
++++ b/common/utils/T/tracer/filter/filter.c
+@@ -25,7 +25,7 @@ struct filter {
+ int eval_and(struct filter *f, event e)
+ {
+   if (f->v.op2.a->eval(f->v.op2.a, e) == 0) return 0;
+-  return f->v.op2.b->eval(f->v.op2.b, e);
++  return f->v.op2.b->eval(f->v.op2.b, e) != 0;
+ }
+ 
+ int eval_eq(struct filter *f, event e)

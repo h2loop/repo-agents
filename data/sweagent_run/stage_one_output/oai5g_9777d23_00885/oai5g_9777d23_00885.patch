@@ -1,0 +1,40 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c b/openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c
+index 71547f85e7..0cb1ad0ce2 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c
++++ b/openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c
+@@ -892,13 +892,16 @@ static NR_SetupRelease_SRS_Config_t *get_config_srs(const NR_ServingCellConfigCo
+   setup_release_srs_Config->choice.setup = calloc_or_fail(1, sizeof(*setup_release_srs_Config->choice.setup));
+   NR_SRS_Config_t *srs_Config = setup_release_srs_Config->choice.setup;
+ 
++  // Define resource set ID based on resource ID to ensure uniqueness
++  const int resset_id = res_id + 1000; // Offset to distinguish from resource IDs
++
+   srs_Config->srs_ResourceToAddModList = calloc_or_fail(1, sizeof(*srs_Config->srs_ResourceToAddModList));
+   NR_SRS_Resource_t *srs_res0 =
+       get_srs_resource(scc, uecap, curr_bwp, uid, res_id, maxMIMO_Layers, NR_SRS_Resource__transmissionComb_PR_n2, do_srs);
+   asn1cSeqAdd(&srs_Config->srs_ResourceToAddModList->list, srs_res0);
+ 
+   srs_Config->srs_ResourceSetToAddModList = calloc_or_fail(1, sizeof(*srs_Config->srs_ResourceSetToAddModList));
+-  NR_SRS_ResourceSet_t *srs_resset0 = get_srs_resourceset(res_id, res_id, NR_SRS_ResourceSet__usage_codebook, minRXTXTIME, do_srs);
++  NR_SRS_ResourceSet_t *srs_resset0 = get_srs_resourceset(resset_id, res_id, NR_SRS_ResourceSet__usage_codebook, minRXTXTIME, do_srs);
+   asn1cSeqAdd(&srs_Config->srs_ResourceSetToAddModList->list, srs_resset0);
+ 
+   srs_Config->srs_ResourceSetToReleaseList = NULL;
+@@ -2842,7 +2845,7 @@ NR_BCCH_DL_SCH_Message_t *get_SIB1_NR(const NR_ServingCellConfigCommon_t *scc,
+                                frequency_range);
+ 
+   LOG_I(NR_RRC,
+-	"SIB1 freq: offsetToPointA %d\n",
++        "SIB1 freq: offsetToPointA %d\n",
+         (int)sib1->servingCellConfigCommon->downlinkConfigCommon.frequencyInfoDL.offsetToPointA);
+   
+   for (int i = 0; i < frequencyInfoDL->scs_SpecificCarrierList.list.count; i++) {
+@@ -3785,7 +3788,7 @@ NR_CellGroupConfig_t *get_initial_cellGroupConfig(int uid,
+   cellGroupConfig->cellGroupId = 0;
+ 
+   /* Rlc Bearer Config */
+-  /* TS38.331 9.2.1	Default SRB configurations */
++  /* TS38.331 9.2.1     Default SRB configurations */
+   cellGroupConfig->rlc_BearerToAddModList = calloc(1, sizeof(*cellGroupConfig->rlc_BearerToAddModList));
+   NR_RLC_BearerConfig_t *rlc_BearerConfig =
+       get_SRB_RLC_BearerConfig(1, 1, NR_LogicalChannelConfig__ul_SpecificParameters__bucketSizeDuration_ms1000, default_rlc_config);

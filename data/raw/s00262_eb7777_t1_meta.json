@@ -1,0 +1,33 @@
+{
+  "run_id": "s00262_eb7777",
+  "function": {
+    "name": "prepare_NR_SL_ResourcePool",
+    "file": "openair2/RRC/NR_UE/rrc_sl_preconfig.c",
+    "start_line": 83,
+    "end_line": 197,
+    "body_lines": 115,
+    "signature": "static void prepare_NR_SL_ResourcePool(NR_SL_ResourcePool_r16_t *sl_res_pool, uint16_t is_txpool, uint16_t is_sl_syncsource)",
+    "subsystem": "openair2/RRC/NR_UE",
+    "token_estimate": 413
+  },
+  "bug": {
+    "bug_id": "c_integer_overflow",
+    "description": "integer overflow leading to incorrect computation or wraparound",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a integer overflow leading to incorrect computation or wraparound downstream of function prepare_NR_SL_ResourcePool in the openair2/RRC/NR_UE subsystem.\nThe function is located at openair2/RRC/NR_UE/rrc_sl_preconfig.c:83.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00262_eb7777_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00262_eb7777_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 10,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:52:31Z"
+}

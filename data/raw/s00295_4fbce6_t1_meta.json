@@ -1,0 +1,32 @@
+{
+  "run_id": "s00295_4fbce6",
+  "function": {
+    "name": "crc16",
+    "file": "openair1/PHY/CODING/crc_byte.c",
+    "start_line": 228,
+    "end_line": 244,
+    "body_lines": 17,
+    "signature": "uint32_t crc16(unsigned char* inptr, int bitlen)",
+    "subsystem": "openair1/PHY/CODING",
+    "token_estimate": 74
+  },
+  "bug": {
+    "bug_id": "c_magic_number",
+    "description": "magic number used without symbolic constant making intent unclear and maintenance error-prone",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a magic number used without symbolic constant making intent unclear and maintenance error-prone downstream of function crc16 in the openair1/PHY/CODING subsystem.\nThe function is located at openair1/PHY/CODING/crc_byte.c:228.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00295_4fbce6_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00295_4fbce6_p1.diff",
+  "patch_lines": 8,
+  "trajectory_steps": 31,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T14:10:09Z"
+}

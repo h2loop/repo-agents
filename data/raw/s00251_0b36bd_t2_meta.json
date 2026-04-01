@@ -1,0 +1,9 @@
+{
+  "run_id": "s00251_0b36bd",
+  "pr_text": "## Title: Fix missed scheduling opportunity after CSI-RS processing\n\n### Summary\nUEs with pending data were not being scheduled downstream of CSI-RS processing because the scheduler was not being triggered after channel state information computation. The `nr_ue_csi_rs_procedures()` function computes critical channel state information (CQI, PMI, RI) that the MAC scheduler requires for making optimal scheduling decisions, but the scheduler invocation was missing in the processing pipeline.\n\nThis f",
+  "trajectory_path": "data/raw/s00251_0b36bd_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00251_0b36bd_p2.diff",
+  "patch_lines": 30,
+  "trajectory_steps": 23,
+  "timestamp": "2026-02-10T12:13:06Z"
+}

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00312_c09efa",
+  "pr_text": "## Title: Fix uninitialized memory read in Polar decoder path metric update\n\n### Summary\nThe Polar decoder's `updatePathMetric2` function was reading uninitialized memory when processing information bits. The function accesses LLR values for newly created decoder paths (indices `currentListSize` to `2*listSize-1`) before they were initialized, leading to undefined behavior that could cause incorrect decoding results or crashes.\n\nThe root cause was the order of operations in the information bit p",
+  "trajectory_path": "data/raw/s00312_c09efa_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00312_c09efa_p2.diff",
+  "patch_lines": 10,
+  "trajectory_steps": 18,
+  "timestamp": "2026-02-10T12:35:29Z"
+}

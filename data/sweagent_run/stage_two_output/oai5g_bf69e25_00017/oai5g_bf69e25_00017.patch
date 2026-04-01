@@ -1,0 +1,22 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
+index 64ec807d51..fee654d976 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
+@@ -156,8 +156,15 @@ static uint8_t pack_rssi_response(void *msg, uint8_t **ppWritePackedMsg, uint8_t
+ 
+ static uint8_t pack_rssi_indication_body_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end) {
+   nfapi_rssi_indication_body_t *value = (nfapi_rssi_indication_body_t *)tlv;
+-  return (push16(value->number_of_rssi, ppWritePackedMsg, end) &&
+-          pusharrays16(value->rssi, NFAPI_MAX_RSSI, value->number_of_rssi, ppWritePackedMsg, end));
++  
++  // Validate number_of_rssi against array bounds to prevent reading uninitialized memory
++  if(value->number_of_rssi <= NFAPI_MAX_RSSI) {
++    return (push16(value->number_of_rssi, ppWritePackedMsg, end) &&
++            pusharrays16(value->rssi, NFAPI_MAX_RSSI, value->number_of_rssi, ppWritePackedMsg, end));
++  } else {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "More RSSI's than we can decode %d \n", value->number_of_rssi);
++    return 0;
++  }
+ }
+ 
+ static uint8_t pack_rssi_indication(void *msg, uint8_t **ppWritePackedMsg, uint8_t *end, nfapi_p4_p5_codec_config_t *config) {

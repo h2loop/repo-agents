@@ -1,0 +1,9 @@
+{
+  "run_id": "s00007_8653c4",
+  "pr_text": "## Title: Fix race condition in timeline widget allocator\n\n### Summary\nThe `allocate` function in the timeline GUI component lacked proper synchronization when modifying shared widget data, creating a race condition under concurrent access. The function directly manipulated widget properties (`common.x`, `common.y`, `common.width`, `common.height`) and performed memory reallocation on `this->s[i].color` without acquiring the GUI lock, while other functions in the same file correctly use `glock()",
+  "trajectory_path": "data/raw/s00007_8653c4_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00007_8653c4_p2.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 5,
+  "timestamp": "2026-02-11T07:33:58Z"
+}

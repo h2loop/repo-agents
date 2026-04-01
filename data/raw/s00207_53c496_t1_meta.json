@@ -1,0 +1,35 @@
+{
+  "run_id": "s00207_53c496",
+  "function": {
+    "name": "cu_data_test",
+    "file": "openair2/F1AP/f1ap_ids_test.c",
+    "start_line": 43,
+    "end_line": 67,
+    "body_lines": 25,
+    "signature": "void cu_data_test()",
+    "subsystem": "openair2/F1AP",
+    "token_estimate": 68
+  },
+  "bug": {
+    "bug_id": "c_missing_cleanup",
+    "description": "missing cleanup of allocated resources on early return or error path",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a missing cleanup of allocated resources on early return or error path downstream of function cu_data_test in the openair2/F1AP subsystem.\nThe function is located at openair2/F1AP/f1ap_ids_test.c:43.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00207_53c496_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00207_53c496_p1.diff",
+  "patch_lines": 45,
+  "trajectory_steps": 33,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:17:18Z"
+}

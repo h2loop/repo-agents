@@ -1,0 +1,9 @@
+{
+  "run_id": "s00307_8abf8d",
+  "pr_text": "## Title: Fix memory leak in CLI configuration structure\n\n### Summary\nThe CLI subsystem in `openair2/UTIL/CLI` had a memory leak where the `cli_cfg` structure was allocated during initialization but never freed when the CLI session terminated. This caused memory to be leaked on each CLI session lifecycle, which could accumulate in long-running processes or automated test environments that repeatedly create and destroy CLI sessions.\n\nThis patch properly frees the allocated `cli_cfg` memory in the",
+  "trajectory_path": "data/raw/s00307_8abf8d_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00307_8abf8d_p2.diff",
+  "patch_lines": 10,
+  "trajectory_steps": 55,
+  "timestamp": "2026-02-11T14:21:18Z"
+}

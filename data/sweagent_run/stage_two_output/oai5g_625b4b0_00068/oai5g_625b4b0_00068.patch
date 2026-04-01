@@ -1,0 +1,28 @@
+diff --git a/openair2/UTIL/OMG/steadystaterwp.c b/openair2/UTIL/OMG/steadystaterwp.c
+index d4d2fde4e4..36924c23d5 100644
+--- a/openair2/UTIL/OMG/steadystaterwp.c
++++ b/openair2/UTIL/OMG/steadystaterwp.c
+@@ -511,9 +511,9 @@ update_steadystaterwp_nodes (double cur_time)
+       my_node = tmp->pair->b;
+ 
+       if (my_node->mobile == 1)
+-        sleep_rwp_node (tmp->pair, cur_time);
++        sleep_steadystaterwp_node (tmp->pair, cur_time);
+       else
+-        move_rwp_node (tmp->pair, cur_time);
++        move_steadystaterwp_node (tmp->pair, cur_time);
+ 
+     }
+     //case2: current time is greater than the time to next event
+@@ -525,9 +525,9 @@ update_steadystaterwp_nodes (double cur_time)
+ 
+       while (cur_time >= tmp->pair->next_event_t) {
+         if (my_node->mobile == 1)
+-          sleep_rwp_node (tmp->pair, cur_time);
++          sleep_steadystaterwp_node (tmp->pair, cur_time);
+         else
+-          move_rwp_node (tmp->pair, cur_time);
++          move_steadystaterwp_node (tmp->pair, cur_time);
+ 
+       }
+     }

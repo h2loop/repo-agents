@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix uninitialized mandatory fields in new_ue_dlsch causing downstream signaling issues\n\n### Summary\nThe `new_ue_dlsch` function in the LTE UE transport layer was not properly initializing mandatory fields in the `LTE_DL_UE_HARQ_t` structure. This led to undefined behavior in downstream signaling processing functions that check these fields.\n\nThe issue manifested as intermittent failures in PDSCH decoding where the scheduler would incorrectly handle retransmissions due to the HARQ process status field containing garbage values.\n\n### Changes\n- `openair1/PHY/LTE_UE_TRANSPORT/dlsch_decoding.c`: Added initialization for mandatory fields in HARQ processes:\n  - `status` field set to `SCH_IDLE` \n  - `Nl` field set to 1 (single MIMO layer)\n  - `mimo_mode` field set to `SISO`\n\n"
+}

@@ -1,0 +1,227 @@
+diff --git a/openair1/PHY/LTE_UE_TRANSPORT/dlsch_demodulation.c b/openair1/PHY/LTE_UE_TRANSPORT/dlsch_demodulation.c
+index ac045480da..24c7215edd 100644
+--- a/openair1/PHY/LTE_UE_TRANSPORT/dlsch_demodulation.c
++++ b/openair1/PHY/LTE_UE_TRANSPORT/dlsch_demodulation.c
+@@ -852,7 +852,7 @@ int rx_pdsch(PHY_VARS_UE *ue,
+              pdsch_vars[eNB_id]->llr_offset[symbol],
+              (int16_t*)pdsch_vars[eNB_id]->llr[0],
+              pllr_symbol_cw0,
+-	     signal_energy(pdsch_vars[eNB_id]->rxdataF_comp0[0], 7*2*frame_parms->N_RB_DL*12));
++             signal_energy(pdsch_vars[eNB_id]->rxdataF_comp0[0], 7*2*frame_parms->N_RB_DL*12));
+   switch (dlsch0_harq->Qm) {
+     case 2 :
+       if ((rx_type==rx_standard) || (codeword_TB1 == -1)) {
+@@ -2537,23 +2537,119 @@ void mmse_processing_core(int32_t **rxdataF_ext,
+   float imag;
+   float real;
+   float complex **W_MMSE= malloc(n_tx*n_rx*sizeof(float complex *));
++  if (W_MMSE == NULL) {
++    LOG_E(PHY, "malloc failed for W_MMSE\n");
++    return;
++  }
+ 
+   for (int j=0; j<n_tx*n_rx; j++) {
+     W_MMSE[j] = malloc(sizeof(float complex)*length);
++    if (W_MMSE[j] == NULL) {
++      LOG_E(PHY, "malloc failed for W_MMSE[%d]\n", j);
++      // Free previously allocated memory
++      for (int k=0; k<j; k++) {
++        free(W_MMSE[k]);
++      }
++      free(W_MMSE);
++      return;
++    }
+   }
+ 
+   float complex *H=  malloc(n_tx*n_rx*sizeof(float complex));
++  if (H == NULL) {
++    LOG_E(PHY, "malloc failed for H\n");
++    // Free previously allocated memory
++    for (int j=0; j<n_tx*n_rx; j++) {
++      free(W_MMSE[j]);
++    }
++    free(W_MMSE);
++    return;
++  }
+   float complex *W_MMSE_re=  malloc(n_tx*n_rx*sizeof(float complex));
++  if (W_MMSE_re == NULL) {
++    LOG_E(PHY, "malloc failed for W_MMSE_re\n");
++    free(H);
++    // Free previously allocated memory
++    for (int j=0; j<n_tx*n_rx; j++) {
++      free(W_MMSE[j]);
++    }
++    free(W_MMSE);
++    return;
++  }
+   float complex **dl_ch_estimates_ext_flcpx = malloc(n_tx*n_rx*sizeof(float complex *));
++  if (dl_ch_estimates_ext_flcpx == NULL) {
++    LOG_E(PHY, "malloc failed for dl_ch_estimates_ext_flcpx\n");
++    free(W_MMSE_re);
++    free(H);
++    // Free previously allocated memory
++    for (int j=0; j<n_tx*n_rx; j++) {
++      free(W_MMSE[j]);
++    }
++    free(W_MMSE);
++    return;
++  }
+ 
+   for (int j=0; j<n_tx*n_rx; j++) {
+     dl_ch_estimates_ext_flcpx[j] = malloc(sizeof(float complex)*length);
++    if (dl_ch_estimates_ext_flcpx[j] == NULL) {
++      LOG_E(PHY, "malloc failed for dl_ch_estimates_ext_flcpx[%d]\n", j);
++      // Free previously allocated memory
++      for (int k=0; k<j; k++) {
++        free(dl_ch_estimates_ext_flcpx[k]);
++      }
++      free(dl_ch_estimates_ext_flcpx);
++      free(W_MMSE_re);
++      free(H);
++      // Free previously allocated memory
++      for (int k=0; k<n_tx*n_rx; k++) {
++        free(W_MMSE[k]);
++      }
++      free(W_MMSE);
++      return;
++    }
+   }
+ 
+   float complex **rxdataF_ext_flcpx = malloc(n_rx*sizeof(float complex *));
++  if (rxdataF_ext_flcpx == NULL) {
++    LOG_E(PHY, "malloc failed for rxdataF_ext_flcpx\n");
++    // Free previously allocated memory
++    for (int j=0; j<n_tx*n_rx; j++) {
++      free(dl_ch_estimates_ext_flcpx[j]);
++    }
++    free(dl_ch_estimates_ext_flcpx);
++    free(W_MMSE_re);
++    free(H);
++    // Free previously allocated memory
++    for (int j=0; j<n_tx*n_rx; j++) {
++      free(W_MMSE[j]);
++    }
++    free(W_MMSE);
++    return;
++  }
+ 
+   for (int j=0; j<n_rx; j++) {
+     rxdataF_ext_flcpx[j] = malloc(sizeof(float complex)*length);
++    if (rxdataF_ext_flcpx[j] == NULL) {
++      LOG_E(PHY, "malloc failed for rxdataF_ext_flcpx[%d]\n", j);
++      // Free previously allocated memory
++      for (int k=0; k<j; k++) {
++        free(rxdataF_ext_flcpx[k]);
++      }
++      free(rxdataF_ext_flcpx);
++      // Free previously allocated memory
++      for (int k=0; k<n_tx*n_rx; k++) {
++        free(dl_ch_estimates_ext_flcpx[k]);
++      }
++      free(dl_ch_estimates_ext_flcpx);
++      free(W_MMSE_re);
++      free(H);
++      // Free previously allocated memory
++      for (int k=0; k<n_tx*n_rx; k++) {
++        free(W_MMSE[k]);
++      }
++      free(W_MMSE);
++      return;
++    }
+   }
+ 
+   chan_est_to_float(dl_ch_estimates_ext,
+@@ -2632,13 +2728,45 @@ void mmse_processing_core_flp(float complex **rxdataF_ext_flcpx,
+   float max = 0;
+   float one_over_max = 0;
+   float complex **W_MMSE= malloc(n_tx*n_rx*sizeof(float complex *));
++  if (W_MMSE == NULL) {
++    LOG_E(PHY, "malloc failed for W_MMSE\n");
++    return;
++  }
+ 
+   for (int j=0; j<n_tx*n_rx; j++) {
+     W_MMSE[j] = malloc(sizeof(float complex)*length);
++    if (W_MMSE[j] == NULL) {
++      LOG_E(PHY, "malloc failed for W_MMSE[%d]\n", j);
++      // Free previously allocated memory
++      for (int k=0; k<j; k++) {
++        free(W_MMSE[k]);
++      }
++      free(W_MMSE);
++      return;
++    }
+   }
+ 
+   float complex *H_re=  malloc(n_tx*n_rx*sizeof(float complex));
++  if (H_re == NULL) {
++    LOG_E(PHY, "malloc failed for H_re\n");
++    // Free previously allocated memory
++    for (int j=0; j<n_tx*n_rx; j++) {
++      free(W_MMSE[j]);
++    }
++    free(W_MMSE);
++    return;
++  }
+   float complex *W_MMSE_re=  malloc(n_tx*n_rx*sizeof(float complex));
++  if (W_MMSE_re == NULL) {
++    LOG_E(PHY, "malloc failed for W_MMSE_re\n");
++    free(H_re);
++    // Free previously allocated memory
++    for (int j=0; j<n_tx*n_rx; j++) {
++      free(W_MMSE[j]);
++    }
++    free(W_MMSE);
++    return;
++  }
+ 
+   for (re=0; re<length; re++) {
+     for (aatx=0; aatx<n_tx; aatx++) {
+@@ -2947,8 +3075,23 @@ void mult_mmse_rxdataF(float complex **Wmmse,
+   short re;
+   int aarx, aatx;
+   float complex *rxdata_re =  malloc(n_rx*sizeof(float complex));
++  if (rxdata_re == NULL) {
++    LOG_E(PHY, "malloc failed for rxdata_re\n");
++    return;
++  }
+   float complex *rxdata_mmse_re =  malloc(n_rx*sizeof(float complex));
++  if (rxdata_mmse_re == NULL) {
++    LOG_E(PHY, "malloc failed for rxdata_mmse_re\n");
++    free(rxdata_re);
++    return;
++  }
+   float complex *Wmmse_re =  malloc(n_tx*n_rx*sizeof(float complex));
++  if (Wmmse_re == NULL) {
++    LOG_E(PHY, "malloc failed for Wmmse_re\n");
++    free(rxdata_mmse_re);
++    free(rxdata_re);
++    return;
++  }
+ 
+   for (re=0; re<length; re++) {
+     for (aarx=0; aarx<n_rx; aarx++) {
+@@ -2994,8 +3137,23 @@ void mult_mmse_chan_est(float complex **Wmmse,
+   short re;
+   int aarx, aatx;
+   float complex *chan_est_re =  malloc(n_tx*n_rx*sizeof(float complex));
++  if (chan_est_re == NULL) {
++    LOG_E(PHY, "malloc failed for chan_est_re\n");
++    return;
++  }
+   float complex *chan_est_mmse_re =  malloc(n_tx*n_rx*sizeof(float complex));
++  if (chan_est_mmse_re == NULL) {
++    LOG_E(PHY, "malloc failed for chan_est_mmse_re\n");
++    free(chan_est_re);
++    return;
++  }
+   float complex *Wmmse_re =  malloc(n_tx*n_rx*sizeof(float complex));
++  if (Wmmse_re == NULL) {
++    LOG_E(PHY, "malloc failed for Wmmse_re\n");
++    free(chan_est_mmse_re);
++    free(chan_est_re);
++    return;
++  }
+ 
+   for (re=0; re<length; re++) {
+     for (aatx=0; aatx<n_tx; aatx++) {

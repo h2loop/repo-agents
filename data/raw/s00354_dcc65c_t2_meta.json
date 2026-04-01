@@ -1,0 +1,9 @@
+{
+  "run_id": "s00354_dcc65c",
+  "pr_text": "## Title: Fix hardcoded C-RNTI in sidelink SDU processing\n\n### Summary\nCorrect a copy-paste error in `ue_send_sl_sdu()` where a hardcoded test value `0x1234` was incorrectly used as the C-RNTI parameter when calling `mac_rlc_data_ind()`. This bug caused all sidelink SDUs to be tagged with a static C-RNTI instead of the UE's actual assigned C-RNTI, breaking proper UE identification in the RLC layer. This would result in potential data routing failures, dropped sidelink packets, and incorrect asso",
+  "trajectory_path": "data/raw/s00354_dcc65c_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00354_dcc65c_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 16,
+  "timestamp": "2026-02-10T12:46:49Z"
+}

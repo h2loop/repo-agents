@@ -1,0 +1,68 @@
+diff --git a/openair3/NAS/COMMON/IES/QualityOfService.c b/openair3/NAS/COMMON/IES/QualityOfService.c
+index 02c4ceca29..a1e30127ac 100644
+--- a/openair3/NAS/COMMON/IES/QualityOfService.c
++++ b/openair3/NAS/COMMON/IES/QualityOfService.c
+@@ -134,31 +134,31 @@ int encode_quality_of_service(QualityOfService *qualityofservice, uint8_t iei, u
+ 
+ void dump_quality_of_service_xml(QualityOfService *qualityofservice, uint8_t iei)
+ {
+-  printf("<Quality Of Service>\n");
++  printf("<QualityOfService>\n");
+ 
+   if (iei > 0)
+     /* Don't display IEI if = 0 */
+     printf("    <IEI>0x%X</IEI>\n", iei);
+ 
+-  printf("    <Delay class>%u</Delay class>\n", qualityofservice->delayclass);
+-  printf("    <Reliability class>%u</Reliability class>\n", qualityofservice->reliabilityclass);
+-  printf("    <Peak throughput>%u</Peak throughput>\n", qualityofservice->peakthroughput);
+-  printf("    <Precedence class>%u</Precedence class>\n", qualityofservice->precedenceclass);
+-  printf("    <Mean throughput>%u</Mean throughput>\n", qualityofservice->meanthroughput);
+-  printf("    <Traffic class>%u</Traffic class>\n", qualityofservice->trafficclass);
+-  printf("    <Delivery order>%u</Delivery order>\n", qualityofservice->deliveryorder);
+-  printf("    <Delivery of erroneous SDU>%u</Delivery of erroneous SDU>\n", qualityofservice->deliveryoferroneoussdu);
+-  printf("    <Maximum SDU size>%u</Maximum SDU size>\n", qualityofservice->maximumsdusize);
+-  printf("    <Maximum bit rate uplink>%u</Maximum bit rate uplink>\n", qualityofservice->maximumbitrateuplink);
+-  printf("    <Maximum bit rate downlink>%u</Maximum bit rate downlink>\n", qualityofservice->maximumbitratedownlink);
+-  printf("    <Residual BER>%u</Residual BER>\n", qualityofservice->residualber);
+-  printf("    <SDU ratio error>%u</SDU ratio error>\n", qualityofservice->sduratioerror);
+-  printf("    <Transfer delay>%u</Transfer delay>\n", qualityofservice->transferdelay);
+-  printf("    <Traffic handling priority>%u</Traffic handling priority>\n", qualityofservice->traffichandlingpriority);
+-  printf("    <Guaranteed bit rate uplink>%u</Guaranteed bit rate uplink>\n", qualityofservice->guaranteedbitrateuplink);
+-  printf("    <Guaranteed bit rate downlink>%u</Guaranteed bit rate downlink>\n", qualityofservice->guaranteedbitratedownlink);
+-  printf("    <Signaling indication>%u</Signaling indication>\n", qualityofservice->signalingindication);
+-  printf("    <Source statistics descriptor>%u</Source statistics descriptor>\n", qualityofservice->sourcestatisticsdescriptor);
+-  printf("</Quality Of Service>\n");
++  printf("    <DelayClass>%u</DelayClass>\n", qualityofservice->delayclass);
++  printf("    <ReliabilityClass>%u</ReliabilityClass>\n", qualityofservice->reliabilityclass);
++  printf("    <PeakThroughput>%u</PeakThroughput>\n", qualityofservice->peakthroughput);
++  printf("    <PrecedenceClass>%u</PrecedenceClass>\n", qualityofservice->precedenceclass);
++  printf("    <MeanThroughput>%u</MeanThroughput>\n", qualityofservice->meanthroughput);
++  printf("    <TrafficClass>%u</TrafficClass>\n", qualityofservice->trafficclass);
++  printf("    <DeliveryOrder>%u</DeliveryOrder>\n", qualityofservice->deliveryorder);
++  printf("    <DeliveryOfErroneousSdu>%u</DeliveryOfErroneousSdu>\n", qualityofservice->deliveryoferroneoussdu);
++  printf("    <MaximumSduSize>%u</MaximumSduSize>\n", qualityofservice->maximumsdusize);
++  printf("    <MaximumBitRateUplink>%u</MaximumBitRateUplink>\n", qualityofservice->maximumbitrateuplink);
++  printf("    <MaximumBitRateDownlink>%u</MaximumBitRateDownlink>\n", qualityofservice->maximumbitratedownlink);
++  printf("    <ResidualBer>%u</ResidualBer>\n", qualityofservice->residualber);
++  printf("    <SduRatioError>%u</SduRatioError>\n", qualityofservice->sduratioerror);
++  printf("    <TransferDelay>%u</TransferDelay>\n", qualityofservice->transferdelay);
++  printf("    <TrafficHandlingPriority>%u</TrafficHandlingPriority>\n", qualityofservice->traffichandlingpriority);
++  printf("    <GuaranteedBitRateUplink>%u</GuaranteedBitRateUplink>\n", qualityofservice->guaranteedbitrateuplink);
++  printf("    <GuaranteedBitRateDownlink>%u</GuaranteedBitRateDownlink>\n", qualityofservice->guaranteedbitratedownlink);
++  printf("    <SignalingIndication>%u</SignalingIndication>\n", qualityofservice->signalingindication);
++  printf("    <SourceStatisticsDescriptor>%u</SourceStatisticsDescriptor>\n", qualityofservice->sourcestatisticsdescriptor);
++  printf("</QualityOfService>\n");
+ }
+ 
+diff --git a/openair3/NAS/COMMON/IES/QualityOfService.h b/openair3/NAS/COMMON/IES/QualityOfService.h
+index a7f455b237..489f41e739 100644
+--- a/openair3/NAS/COMMON/IES/QualityOfService.h
++++ b/openair3/NAS/COMMON/IES/QualityOfService.h
+@@ -59,5 +59,5 @@ int decode_quality_of_service(QualityOfService *qualityofservice, uint8_t iei, u
+ 
+ void dump_quality_of_service_xml(QualityOfService *qualityofservice, uint8_t iei);
+ 
+-#endif /* QUALITY OF SERVICE_H_ */
++#endif /* QUALITY_OF_SERVICE_H_ */
+ 

@@ -1,0 +1,31 @@
+diff --git a/common/utils/T/tracer/database.c b/common/utils/T/tracer/database.c
+index 347ca7cfcf..a92c671146 100644
+--- a/common/utils/T/tracer/database.c
++++ b/common/utils/T/tracer/database.c
+@@ -460,15 +460,23 @@ database_event_format get_format(void *_database, int event_id)
+ {
+   database *d = _database;
+   database_event_format ret;
++  int pos;
+ 
+   if (event_id < 0 || event_id >= d->isize) {
+     printf("%s:%d: bad event ID (%d)\n", __FILE__, __LINE__, event_id);
+     abort();
+   }
+ 
+-  ret.type = d->i[d->id_to_pos[event_id]].arg_type;
+-  ret.name = d->i[d->id_to_pos[event_id]].arg_name;
+-  ret.count = d->i[d->id_to_pos[event_id]].asize;
++  pos = d->id_to_pos[event_id];
++  if (pos < 0 || pos >= d->isize) {
++    printf("%s:%d: corrupted database: id_to_pos[%d] = %d is out of range [0, %d)\n", 
++           __FILE__, __LINE__, event_id, pos, d->isize);
++    abort();
++  }
++
++  ret.type = d->i[pos].arg_type;
++  ret.name = d->i[pos].arg_name;
++  ret.count = d->i[pos].asize;
+ 
+   return ret;
+ }

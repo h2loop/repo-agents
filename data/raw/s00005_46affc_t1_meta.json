@@ -1,0 +1,34 @@
+{
+  "run_id": "s00005_46affc",
+  "function": {
+    "name": "encodeSmallBlock",
+    "file": "openair1/PHY/CODING/nrSmallBlock/encodeSmallBlock.c",
+    "start_line": 38,
+    "end_line": 48,
+    "body_lines": 11,
+    "signature": "uint32_t encodeSmallBlock(int in, int len)",
+    "subsystem": "openair1/PHY/CODING",
+    "token_estimate": 47
+  },
+  "bug": {
+    "bug_id": "c_uninitialized_memory_read",
+    "description": "read of uninitialized memory leading to undefined behavior",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "common",
+      "radio",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a read of uninitialized memory leading to undefined behavior downstream of function encodeSmallBlock in the openair1/PHY/CODING subsystem.\nThe function is located at openair1/PHY/CODING/nrSmallBlock/encodeSmallBlock.c:38.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00005_46affc_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00005_46affc_p1.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 20,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T07:32:41Z"
+}

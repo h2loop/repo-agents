@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix data length handling in T tracer event processing\n\n### Summary\nThe T tracer's event processing contained an incorrect length calculation that caused downstream CRC validation failures. The bug manifested when processing trace events with large payloads, leading to false positive error detections.\n\nThe issue was in the `get_event` function where the total message length was being incorrectly adjusted by subtracting header sizes before reading the payload data. This caused the function to read an incorrect amount of data from the socket, leading to buffer misalignment and subsequent validation errors.\n\n### Changes\n- `common/utils/T/tracer/event.c`: Fixed length calculation logic in `get_event` function by introducing a separate `payload_length` variable to correctly track the payload size after header extraction.\n"
+}

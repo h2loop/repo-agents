@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix missing remove_ue_e1 function in E1 API\n\n### Summary\nThe E1 API was missing the `remove_ue_e1` function that should handle UE removal requests from the CU-CP to CU-UP. This caused issues when trying to properly clean up UE contexts in the PDCP layer during UE detachment procedures.\n\n### Changes\n- `openair2/LAYER2/nr_pdcp/nr_pdcp_e1_api.h`: Added function declaration for `remove_ue_e1`\n- `openair2/LAYER2/nr_pdcp/nr_pdcp_e1_api.c`: Implemented `remove_ue_e1` function that delegates to existing `nr_pdcp_remove_UE`\n\n### Reproduction\nWhen a UE detaches from the network, the CU-CP sends a UE context release command to the CU-UP. The CU-UP tries to call `remove_ue_e1` to clean up PDCP resources, but this function was missing, causing the UE context to not be properly released in the PDCP layer. This led to resource leaks and potential issues with subsequent UEs using the same UE ID.\n\n"
+}

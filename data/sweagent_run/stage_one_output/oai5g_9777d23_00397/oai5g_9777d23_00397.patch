@@ -1,0 +1,35 @@
+diff --git a/openair2/RRC/NR/rrc_gNB_radio_bearers.c b/openair2/RRC/NR/rrc_gNB_radio_bearers.c
+index 77ad016350..8ef5107e5b 100644
+--- a/openair2/RRC/NR/rrc_gNB_radio_bearers.c
++++ b/openair2/RRC/NR/rrc_gNB_radio_bearers.c
+@@ -21,6 +21,7 @@
+ 
+ #include "rrc_gNB_radio_bearers.h"
+ #include "oai_asn1.h"
++#include "common/utils/assertions.h"
+ 
+ rrc_pdu_session_param_t *find_pduSession(gNB_RRC_UE_t *ue, int id, bool create)
+ {
+@@ -167,3 +168,10 @@ bool drb_is_active(gNB_RRC_UE_t *ue, uint8_t drb_id) {
+     return true;
+   return false;
+ }
++
++drb_t *get_drb(gNB_RRC_UE_t *ue, uint8_t drb_id) {
++  DevAssert(drb_id > 0 && drb_id <= MAX_DRBS_PER_UE);
++  if(ue->DRB_active[drb_id-1] == DRB_INACTIVE)
++    return NULL;
++  return &ue->established_drbs[drb_id-1];
++}
+diff --git a/openair2/RRC/NR/rrc_gNB_radio_bearers.h b/openair2/RRC/NR/rrc_gNB_radio_bearers.h
+index aff6e75ea6..765c007932 100644
+--- a/openair2/RRC/NR/rrc_gNB_radio_bearers.h
++++ b/openair2/RRC/NR/rrc_gNB_radio_bearers.h
+@@ -55,6 +55,7 @@ void generateDRB(gNB_RRC_UE_t *ue,
+                  int do_drb_ciphering);
+ uint8_t next_available_drb(gNB_RRC_UE_t *ue, rrc_pdu_session_param_t *pdusession, bool is_gbr);
+ bool drb_is_active(gNB_RRC_UE_t *ue, uint8_t drb_id);
++drb_t *get_drb(gNB_RRC_UE_t *ue, uint8_t drb_id);
+ 
+ rrc_pdu_session_param_t *find_pduSession(gNB_RRC_UE_t *ue, int id, bool create);
+ 

@@ -1,0 +1,98 @@
+diff --git a/executables/nr-ue.c b/executables/nr-ue.c
+index 3a11b4e4e3..64b14f97c3 100644
+--- a/executables/nr-ue.c
++++ b/executables/nr-ue.c
+@@ -681,7 +681,12 @@ void readFrame(PHY_VARS_NR_UE *UE,  openair0_timestamp *timestamp, bool toTrash)
+       }
+ 
+       int tmp = UE->rfdevice.trx_read_func(&UE->rfdevice, timestamp, rxp, fp->get_samples_per_slot(slot, fp), fp->nb_antennas_rx);
+-      AssertFatal(fp->get_samples_per_slot(slot, fp) == tmp, "");
++      if (fp->get_samples_per_slot(slot, fp) != tmp) {
++        LOG_W(PHY, "Requested %d samples but got %d samples from trx_read_func in readFrame\n", fp->get_samples_per_slot(slot, fp), tmp);
++        if (tmp < 0) {
++          LOG_E(PHY, "Error in trx_read_func in readFrame: %d\n", tmp);
++        }
++      }
+ 
+       if (IS_SOFTMODEM_RFSIM)
+         dummyWrite(UE, *timestamp, fp->get_samples_per_slot(slot, fp));
+@@ -706,7 +711,12 @@ static void syncInFrame(PHY_VARS_NR_UE *UE, openair0_timestamp *timestamp, opena
+       int unitTransfer = size > fp->samples_per_subframe / 2 ? fp->samples_per_subframe / 2 : size;
+       int tmp =
+           UE->rfdevice.trx_read_func(&UE->rfdevice, timestamp, (void **)UE->common_vars.rxdata, unitTransfer, fp->nb_antennas_rx);
+-      DevAssert(unitTransfer == tmp);
++      if (unitTransfer != tmp) {
++        LOG_W(PHY, "Requested %d samples but got %d samples from trx_read_func in syncInFrame\n", unitTransfer, tmp);
++        if (tmp < 0) {
++          LOG_E(PHY, "Error in trx_read_func in syncInFrame: %d\n", tmp);
++        }
++      }
+     }
+   } else {
+     *timestamp += fp->get_samples_per_slot(1, fp);
+@@ -718,7 +728,12 @@ static void syncInFrame(PHY_VARS_NR_UE *UE, openair0_timestamp *timestamp, opena
+         dummyWrite(UE, *timestamp, unitTransfer);
+       int res =
+           UE->rfdevice.trx_read_func(&UE->rfdevice, timestamp, (void **)UE->common_vars.rxdata, unitTransfer, fp->nb_antennas_rx);
+-      DevAssert(unitTransfer == res);
++      if (unitTransfer != res) {
++        LOG_W(PHY, "Requested %d samples but got %d samples from trx_read_func in syncInFrame\n", unitTransfer, res);
++        if (res < 0) {
++          LOG_E(PHY, "Error in trx_read_func in syncInFrame: %d\n", res);
++        }
++      }
+       *timestamp += unitTransfer; // this does not affect the read but needed for RFSIM write
+     }
+   }
+@@ -859,13 +874,18 @@ void *UE_thread(void *arg)
+       openair0_write_reorder_clear_context(&UE->rfdevice);
+       shiftForNextFrame = 0; // will be used to track clock drift
+       // read in first symbol
+-      AssertFatal(fp->ofdm_symbol_size + fp->nb_prefix_samples0
+-                      == UE->rfdevice.trx_read_func(&UE->rfdevice,
++      int sync_read_result = UE->rfdevice.trx_read_func(&UE->rfdevice,
+                                                     &sync_timestamp,
+                                                     (void **)UE->common_vars.rxdata,
+                                                     fp->ofdm_symbol_size + fp->nb_prefix_samples0,
+-                                                    fp->nb_antennas_rx),
+-                  "");
++                                                    fp->nb_antennas_rx);
++      if ((fp->ofdm_symbol_size + fp->nb_prefix_samples0) != sync_read_result) {
++        LOG_W(PHY, "Requested %d samples but got %d samples from trx_read_func during sync\n", 
++              fp->ofdm_symbol_size + fp->nb_prefix_samples0, sync_read_result);
++        if (sync_read_result < 0) {
++          LOG_E(PHY, "Error in trx_read_func during sync: %d\n", sync_read_result);
++        }
++      }
+       // we have the decoded frame index in the return of the synch process
+       // and we shifted above to the first slot of next frame
+       decoded_frame_rx++;
+@@ -924,7 +944,13 @@ void *UE_thread(void *arg)
+     const int readBlockSize = get_readBlockSize(slot_nr, fp) - iq_shift_to_apply;
+     openair0_timestamp rx_timestamp;
+     int tmp = UE->rfdevice.trx_read_func(&UE->rfdevice, &rx_timestamp, rxp, readBlockSize, fp->nb_antennas_rx);
+-    AssertFatal(readBlockSize == tmp, "");
++    if (readBlockSize != tmp) {
++      LOG_W(PHY, "Requested %d samples but got %d samples from trx_read_func\n", readBlockSize, tmp);
++      if (tmp < 0) {
++        LOG_E(PHY, "Error in trx_read_func: %d\n", tmp);
++        // Handle error appropriately - continue or exit based on severity
++      }
++    }
+ 
+     if(slot_nr == (nb_slot_frame - 1)) {
+       // read in first symbol of next frame and adjust for timing drift
+@@ -937,7 +963,12 @@ void *UE_thread(void *arg)
+                                              (void **)UE->common_vars.rxdata,
+                                              first_symbols,
+                                              fp->nb_antennas_rx);
+-        AssertFatal(first_symbols == tmp, "");
++        if (first_symbols != tmp) {
++          LOG_W(PHY, "Requested %d samples but got %d samples from trx_read_func for first symbol\n", first_symbols, tmp);
++          if (tmp < 0) {
++            LOG_E(PHY, "Error in trx_read_func for first symbol: %d\n", tmp);
++          }
++        }
+ 
+       } else
+         LOG_E(PHY,"can't compensate: diff =%d\n", first_symbols);

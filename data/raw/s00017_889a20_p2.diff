@@ -1,0 +1,16 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c b/openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c
+index 5fba6dcaaf..07e89172ac 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c
++++ b/openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c
+@@ -570,6 +570,11 @@ static void config_csiim(int do_csirs,
+    imres->freqBand = calloc(1,sizeof(*imres->freqBand));
+    imres->freqBand->startingRB = 0;
+    imres->freqBand->nrofRBs = ((curr_bwp>>2)+(curr_bwp%4>0))<<2;
++   // Configure periodicityAndOffset for CSI-IM resource
++   // Per 3GPP TS 38.331, periodicityAndOffset is mandatory for periodic/semi-persistent CSI-IM resources
++   // and absent for aperiodic CSI-IM resources. This field defines the measurement timing configuration.
++   // We copy the periodicity from the associated NZP CSI-RS resource to ensure synchronized measurement
++   // timing between CSI-RS and CSI-IM, which is critical for accurate interference measurement.
+    imres->periodicityAndOffset = calloc(1,sizeof(*imres->periodicityAndOffset));
+    // same period and offset of the associated CSI-RS
+    imres->periodicityAndOffset->present = nzpcsi->periodicityAndOffset->present;

@@ -1,0 +1,102 @@
+diff --git a/openair1/PHY/LTE_TRANSPORT/edci.c b/openair1/PHY/LTE_TRANSPORT/edci.c
+index f3a43584fb..0787d52f40 100644
+--- a/openair1/PHY/LTE_TRANSPORT/edci.c
++++ b/openair1/PHY/LTE_TRANSPORT/edci.c
+@@ -101,7 +101,7 @@ static uint16_t mpdcch5ss1tab[864];
+ 
+ void init_mpdcch5ss1tab_normal_regular_subframe_evenNRBDL(PHY_VARS_eNB *eNB) {
+   int             l, k, kmod, re=0;
+-  LOG_D(PHY, "Inititalizing mpdcchss15tab for normal prefix, normal prefix, no PSS/SSS/PBCH, even N_RB_DL\n");
++  LOG_D(PHY, "Initializing mpdcchss15tab for normal prefix, no PSS/SSS/PBCH, even N_RB_DL\n");
+ 
+   for (l = 1; l < 14; l++) {
+     for (k = 0; k < 72; k++) {
+@@ -131,7 +131,7 @@ void init_mpdcch5ss2tab_normal_regular_subframe_evenNRBDL(PHY_VARS_eNB *eNB) {
+   int nushift = eNB->frame_parms.Nid_cell % 6;
+   int nushiftp3 = (eNB->frame_parms.Nid_cell+3) % 6;
+   // NOTE : THIS IS FOR TM1 ONLY FOR NOW!!!!!!!
+-  LOG_D(PHY, "Inititalizing mpdcch5ss2tab for normal prefix, normal prefix, no PSS/SSS/PBCH, even N_RB_DL\n");
++  LOG_D(PHY, "Initializing mpdcch5ss2tab for normal prefix, no PSS/SSS/PBCH, even N_RB_DL\n");
+ 
+   for (l = 2; l < 14; l++) {
+     for (k = 0; k < 72; k++) {
+@@ -151,7 +151,7 @@ void init_mpdcch5ss2tab_normal_regular_subframe_evenNRBDL(PHY_VARS_eNB *eNB) {
+     }
+   }
+ 
+-  AssertFatal(re == 684, "RE count not equal to 684\n");
++  AssertFatal(re == 792, "RE count not equal to 792 (%d)\n", re);
+ }
+ 
+ // this table is the allocation of modulated MPDCCH format 5 symbols to REs, antenna ports 107,108
+@@ -162,7 +162,7 @@ void init_mpdcch5ss2tab_normal_regular_subframe_evenNRBDL(PHY_VARS_eNB *eNB) {
+ static uint16_t mpdcch5ss3tab[720];
+ void init_mpdcch5ss3tab_normal_regular_subframe_evenNRBDL(PHY_VARS_eNB *eNB) {
+   int             l, k, kmod, re=0;
+-  LOG_D(PHY, "Inititalizing mpdcch5ss3tab for normal prefix, normal prefix, no PSS/SSS/PBCH, even N_RB_DL\n");
++  LOG_D(PHY, "Initializing mpdcch5ss3tab for normal prefix, no PSS/SSS/PBCH, even N_RB_DL\n");
+ 
+   for (l = 3; l < 14; l++) {
+     for (k = 0; k < 72; k++) {
+@@ -177,7 +177,7 @@ void init_mpdcch5ss3tab_normal_regular_subframe_evenNRBDL(PHY_VARS_eNB *eNB) {
+     }
+   }
+ 
+-  AssertFatal(re == 720, "RE count not equal to 792\n");
++  AssertFatal(re == 720, "RE count not equal to 720 (%d)\n", re);
+ }
+ 
+ // this table is the allocation of modulated MPDCCH format 3 symbols to REs, antenna ports 107,108
+@@ -189,7 +189,7 @@ static uint16_t mpdcch3ss1tab[576];
+ 
+ void init_mpdcch3ss1tab_normal_regular_subframe_evenNRBDL(PHY_VARS_eNB *eNB) {
+   int             l, k, kmod, re=0;
+-  LOG_D(PHY, "Inititalizing mpdcch3ss1tab for normal prefix, normal prefix, no PSS/SSS/PBCH, even N_RB_DL\n");
++  LOG_D(PHY, "Initializing mpdcch3ss1tab for normal prefix, no PSS/SSS/PBCH, even N_RB_DL\n");
+ 
+   for (l = 1, re = 0; l < 14; l++) {
+     for (k = 0; k < 48; k++) {
+@@ -202,7 +202,7 @@ void init_mpdcch3ss1tab_normal_regular_subframe_evenNRBDL(PHY_VARS_eNB *eNB) {
+     }
+   }
+ 
+-  AssertFatal(re == 576, "RE count not equal to 864\n");
++  AssertFatal(re == 576, "RE count not equal to 576 (%d)\n", re);
+ }
+ 
+ // this table is the allocation of modulated MPDCCH format 2 symbols to REs, antenna ports 107,108
+@@ -214,7 +214,7 @@ static uint16_t mpdcch2ss1tab[288];
+ 
+ void init_mpdcch2ss1tab_normal_regular_subframe_evenNRBDL(PHY_VARS_eNB *eNB) {
+   int             l, k, kmod, re=0;
+-  LOG_D(PHY, "Inititalizing mpdcch2ss1tab for normal prefix, normal prefix, no PSS/SSS/PBCH, even N_RB_DL\n");
++  LOG_D(PHY, "Initializing mpdcch2ss1tab for normal prefix, no PSS/SSS/PBCH, even N_RB_DL\n");
+ 
+   for (l = 1, re = 0; l < 14; l++) {
+     for (k = 0; k < 24; k++) {
+@@ -227,7 +227,7 @@ void init_mpdcch2ss1tab_normal_regular_subframe_evenNRBDL(PHY_VARS_eNB *eNB) {
+     }
+   }
+ 
+-  AssertFatal(re == 288, "RE count not equal to 288\n");
++  AssertFatal(re == 288, "RE count not equal to 288 (%d)\n", re);
+ }
+ 
+ 
+@@ -295,13 +295,13 @@ void generate_mdci_top(PHY_VARS_eNB *eNB, int frame, int subframe, int16_t amp,
+ 
+     if (mdci->start_symbol == 1)  {
+       mpdcchtab = mpdcch5ss1tab;
+-      coded_bits = 756*2;
++      coded_bits = 864*2;
+     } else if (mdci->start_symbol == 2) {
+       mpdcchtab = mpdcch5ss2tab;
+-      coded_bits=684*2;
++      coded_bits = 792*2;
+     } else if (mdci->start_symbol == 3) {
+       mpdcchtab = mpdcch5ss3tab;
+-      coded_bits = 612*2;
++      coded_bits = 720*2;
+     } else
+       AssertFatal(1 == 0, "Illegal combination start_symbol %d, a_index %d\n", mdci->start_symbol, a_index);
+ 

@@ -1,0 +1,16 @@
+diff --git a/openair2/E1AP/e1ap.c b/openair2/E1AP/e1ap.c
+index 1eff4ea529..261abec102 100644
+--- a/openair2/E1AP/e1ap.c
++++ b/openair2/E1AP/e1ap.c
+@@ -117,7 +117,10 @@ static void e1_task_handle_sctp_data_ind(instance_t instance, sctp_data_ind_t *s
+ {
+   int result;
+   DevAssert(sctp_data_ind != NULL);
+-  e1ap_handle_message(instance, sctp_data_ind->assoc_id, sctp_data_ind->buffer, sctp_data_ind->buffer_length);
++  int ret = e1ap_handle_message(instance, sctp_data_ind->assoc_id, sctp_data_ind->buffer, sctp_data_ind->buffer_length);
++  if (ret < 0) {
++    LOG_E(E1AP, "Error processing E1AP message\n");
++  }
+   result = itti_free(TASK_UNKNOWN, sctp_data_ind->buffer);
+   AssertFatal(result == EXIT_SUCCESS, "Failed to free memory (%d)!\n", result);
+ }

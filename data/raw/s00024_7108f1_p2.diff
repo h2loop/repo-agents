@@ -1,0 +1,16 @@
+diff --git a/common/utils/time_manager/time_source.c b/common/utils/time_manager/time_source.c
+index 02a7ce0fa6..5b23409513 100644
+--- a/common/utils/time_manager/time_source.c
++++ b/common/utils/time_manager/time_source.c
+@@ -156,9 +156,9 @@ static void *time_source_iq_samples_thread(void *ts)
+     lock(&time_source->common);
+     while (!time_source->common.exit
+            && (time_source->iq_samples_per_second == 0
+-              || time_source->iq_samples_count < time_source->iq_samples_per_second / 1000))
++              || time_source->iq_samples_count < (time_source->iq_samples_per_second + 999) / 1000))
+       condwait(&time_source->common);
+-    time_source->iq_samples_count -= time_source->iq_samples_per_second / 1000;
++    time_source->iq_samples_count -= (time_source->iq_samples_per_second + 999) / 1000;
+     unlock(&time_source->common);
+ 
+     if (time_source->common.exit)

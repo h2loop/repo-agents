@@ -1,0 +1,28 @@
+{
+  "run_id": "s00251_0b36bd",
+  "function": {
+    "name": "nr_ue_csi_rs_procedures",
+    "file": "openair1/PHY/NR_UE_TRANSPORT/csi_rx.c",
+    "start_line": 829,
+    "end_line": 1009,
+    "body_lines": 181,
+    "signature": "void nr_ue_csi_rs_procedures(PHY_VARS_NR_UE *ue, const UE_nr_rxtx_proc_t *proc, const c16_t rxdataF[][ue->frame_parms.samples_per_slot_wCP], fapi_nr_dl_config_csirs_pdu_rel15_t *csirs_config_pdu)",
+    "subsystem": "openair1/PHY/NR_UE_TRANSPORT",
+    "token_estimate": 581
+  },
+  "bug": {
+    "bug_id": "telecom_sched_missed_opportunity",
+    "description": "missed scheduling opportunity where a UE with pending data is not scheduled",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a missed scheduling opportunity where a UE with pending data is not scheduled downstream of function nr_ue_csi_rs_procedures in the openair1/PHY/NR_UE_TRANSPORT subsystem.\nThe function is located at openair1/PHY/NR_UE_TRANSPORT/csi_rx.c:829.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00251_0b36bd_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00251_0b36bd_p1.diff",
+  "patch_lines": 21,
+  "trajectory_steps": 71,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:11:50Z"
+}

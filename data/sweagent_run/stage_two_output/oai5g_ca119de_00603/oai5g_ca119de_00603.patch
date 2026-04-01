@@ -1,0 +1,31 @@
+diff --git a/openair1/PHY/CODING/crc.h b/openair1/PHY/CODING/crc.h
+index b65eacf0bb..60229031d3 100644
+--- a/openair1/PHY/CODING/crc.h
++++ b/openair1/PHY/CODING/crc.h
+@@ -310,7 +310,7 @@ simde__m128i crc32_folding_round(const simde__m128i data_block,
+   simde__m128i tmp = _mm_clmulepi64_si128(fold, k1_k2, 0x11);
+ 
+   return simde_mm_xor_si128(_mm_clmulepi64_si128(fold, k1_k2, 0x00), simde_mm_xor_si128(data_block, tmp));
+-#else	
++#else   
+         simde__m128i tmp = simde_mm_clmulepi64_si128(fold, k1_k2, 0x11);
+ 
+         return simde_mm_xor_si128(simde_mm_clmulepi64_si128(fold, k1_k2, 0x00),
+@@ -371,7 +371,7 @@ crc32_reduce_64_to_32(simde__m128i fold, const simde__m128i k3_q, const simde__m
+                                     k3_q, 0x10 /* Q */);
+         temp = simde_mm_srli_si128(simde_mm_xor_si128(temp, fold), 4);
+         temp = simde_mm_clmulepi64_si128(temp, p_res, 0 /* P */);
+-#endif	
++#endif  
+         return simde_mm_extract_epi32(simde_mm_xor_si128(temp, fold), 0);
+ }
+ 
+@@ -552,7 +552,7 @@ crc32_calc_pclmulqdq(const uint8_t *data,
+         kernel_fpu_end();
+ #endif
+ 
+-        return n;
++        return n << 8;
+ }
+ 
+ #endif /* __CRC_H__ */

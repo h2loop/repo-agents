@@ -1,0 +1,78 @@
+diff --git a/openair2/LAYER2/PDCP_v10.1.0/pdcp.c b/openair2/LAYER2/PDCP_v10.1.0/pdcp.c
+index 28cd37f3af..b1f6d0a6c4 100644
+--- a/openair2/LAYER2/PDCP_v10.1.0/pdcp.c
++++ b/openair2/LAYER2/PDCP_v10.1.0/pdcp.c
+@@ -172,8 +172,8 @@ void *pdcp_stats_thread(void *param) {
+    int old_byte_cnt[MAX_MOBILES_PER_ENB][NB_RB_MAX],old_byte_cnt_rx[MAX_MOBILES_PER_ENB][NB_RB_MAX];
+    for (int i=0;i<MAX_MOBILES_PER_ENB;i++)
+      for (int j=0;j<NB_RB_MAX;j++) {
+-	old_byte_cnt[i][j]=0;
+-	old_byte_cnt_rx[i][j]=0;
++        old_byte_cnt[i][j]=0;
++        old_byte_cnt_rx[i][j]=0;
+      }
+    while (!oai_exit) {
+      sleep(1);
+@@ -962,8 +962,8 @@ bool pdcp_data_ind(const protocol_ctxt_t *const ctxt_pP,
+         LOG_E(PDCP, "bad RLC mode, cannot happen.\n");
+         exit(1);
+     } /* switch (pdcp_p->rlc_mode) */
+-  } else { /* MBMS_flagP == 0 */
+-    payload_offset=0;
++  } else { /* MBMS_flagP != 0 */
++    payload_offset = 0;
+   }
+ 
+   if (otg_enabled==1) {
+@@ -1061,12 +1061,12 @@ bool pdcp_data_ind(const protocol_ctxt_t *const ctxt_pP,
+             }
+           } // nfapi_mode
+         } else {
+-	  if (UE_NAS_USE_TUN) {
+-	    pdcpHead->inst  = ctxt_pP->module_id;
+-	  } else if (ENB_NAS_USE_TUN) {
+-	    pdcpHead->inst  = 0;
+-	  }
+-	}
++          if (UE_NAS_USE_TUN) {
++            pdcpHead->inst  = ctxt_pP->module_id;
++          } else if (ENB_NAS_USE_TUN) {
++            pdcpHead->inst  = 0;
++          }
++        }
+       } else {
+         pdcpHead->rb_id = rb_id + (ctxt_pP->module_id * LTE_maxDRB);
+         pdcpHead->inst  = ctxt_pP->module_id;
+@@ -1080,8 +1080,8 @@ bool pdcp_data_ind(const protocol_ctxt_t *const ctxt_pP,
+ 
+       memcpy(pdcpHead + 1, &sdu_buffer_pP[payload_offset], sdu_buffer_sizeP - payload_offset);
+       if( LOG_DEBUGFLAG(DEBUG_PDCP) )
+-	log_dump(PDCP, pdcpHead+1, min(sdu_buffer_sizeP - payload_offset,30) , LOG_DUMP_CHAR,
+-	         "Printing first bytes of PDCP SDU before adding it to the list: \n");
++        log_dump(PDCP, pdcpHead+1, min(sdu_buffer_sizeP - payload_offset,30) , LOG_DUMP_CHAR,
++                 "Printing first bytes of PDCP SDU before adding it to the list: \n");
+       pushNotifiedFIFO(&pdcp_sdu_list, new_sdu_p); 
+ 
+     /* Print octets of incoming data in hexadecimal form */
+@@ -1104,7 +1104,9 @@ bool pdcp_data_ind(const protocol_ctxt_t *const ctxt_pP,
+   Pdcp_stats_rx_bytes[ctxt_pP->module_id][pdcp_uid][rb_idP+rb_offset]+=(sdu_buffer_sizeP  - payload_offset);
+   Pdcp_stats_rx_bytes_tmp_w[ctxt_pP->module_id][pdcp_uid][rb_idP+rb_offset]+=(sdu_buffer_sizeP  - payload_offset);
+ 
+-  Pdcp_stats_rx_sn[ctxt_pP->module_id][pdcp_uid][rb_idP+rb_offset]=sequence_number;
++  if (MBMS_flagP == 0) {
++    Pdcp_stats_rx_sn[ctxt_pP->module_id][pdcp_uid][rb_idP+rb_offset]=sequence_number;
++  }
+   Pdcp_stats_rx_aiat[ctxt_pP->module_id][pdcp_uid][rb_idP+rb_offset]+= (pdcp_enb[ctxt_pP->module_id].sfn - Pdcp_stats_rx_iat[ctxt_pP->module_id][pdcp_uid][rb_idP+rb_offset]);
+   Pdcp_stats_rx_aiat_tmp_w[ctxt_pP->module_id][pdcp_uid][rb_idP+rb_offset]+=(pdcp_enb[ctxt_pP->module_id].sfn - Pdcp_stats_rx_iat[ctxt_pP->module_id][pdcp_uid][rb_idP+rb_offset]);
+   Pdcp_stats_rx_iat[ctxt_pP->module_id][pdcp_uid][rb_idP+rb_offset]=pdcp_enb[ctxt_pP->module_id].sfn;
+@@ -2320,8 +2322,8 @@ uint64_t pdcp_module_init( uint64_t pdcp_optmask, int id) {
+       nas_config(1, 1, 1, "enb");
+       if(pdcp_optmask & ENB_NAS_USE_TUN_W_MBMS_BIT){
+         netlink_init_mbms_tun("enm", 0);
+-      	nas_config_mbms(1, 2, 1, "enm"); 
+-      	LOG_I(PDCP, "ENB pdcp will use mbms tun interface\n");
++        nas_config_mbms(1, 2, 1, "enm"); 
++        LOG_I(PDCP, "ENB pdcp will use mbms tun interface\n");
+       }
+       LOG_I(PDCP, "ENB pdcp will use tun interface\n");
+     } else {

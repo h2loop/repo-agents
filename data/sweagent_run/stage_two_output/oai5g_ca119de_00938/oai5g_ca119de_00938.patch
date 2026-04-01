@@ -1,0 +1,41 @@
+diff --git a/openair1/PHY/CODING/nrLDPC_encoder/ldpc_encode_parity_check.c b/openair1/PHY/CODING/nrLDPC_encoder/ldpc_encode_parity_check.c
+index 94eb0a4d92..0c72b1cfb3 100644
+--- a/openair1/PHY/CODING/nrLDPC_encoder/ldpc_encode_parity_check.c
++++ b/openair1/PHY/CODING/nrLDPC_encoder/ldpc_encode_parity_check.c
+@@ -91,13 +91,34 @@
+ 
+ static void encode_parity_check_part_optim(uint8_t *cc, uint8_t *d, short BG,short Zc,short Kb, int simd_size, int ncols)
+ {
+-  unsigned char c[2 * 22 * Zc * simd_size] __attribute__((aligned(64))); //double size matrix of c
++  int alloc_multiplier;
++  
++  // Apply SIMD-specific multipliers for Zc=384 to prevent integer overflow
++  if (Zc == 384) {
++#ifdef __AVX512F__
++    alloc_multiplier = 64;  // 64x for AVX-512
++#else
++#ifdef __AVX2__
++    alloc_multiplier = 16;  // 16x for AVX2
++#else
++    alloc_multiplier = 4;   // 4x for SSE
++#endif
++#endif
++    // Ensure we don't reduce allocation compared to original simd_size
++    if (alloc_multiplier < simd_size) {
++      alloc_multiplier = simd_size;
++    }
++  } else {
++    alloc_multiplier = simd_size;
++  }
++  
++  unsigned char c[2 * 22 * Zc * alloc_multiplier] __attribute__((aligned(64))); //double size matrix of c
+   for (int i1 = 0; i1 < ncols; i1++)   {
+     memcpy(&c[2 * i1 * Zc], &cc[i1 * Zc], Zc * sizeof(unsigned char));
+     memcpy(&c[(2 * i1 + 1) * Zc], &cc[i1 * Zc], Zc * sizeof(unsigned char));
+   }
+   for (int i1 = 1; i1 < simd_size; i1++) {
+-    memcpy(&c[(2 * ncols * Zc * i1)], &c[i1], (2 * ncols * Zc * sizeof(unsigned char)) - i1);
++    memcpy(&c[(2 * ncols * Zc * i1)], &c[0], 2 * ncols * Zc * sizeof(unsigned char));
+   }
+   if (BG == 1) {
+     switch (Zc) {

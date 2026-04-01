@@ -1,0 +1,30 @@
+{
+  "run_id": "s00037_704762",
+  "function": {
+    "name": "generate_mch_khz_1dot25",
+    "file": "openair1/PHY/LTE_TRANSPORT/pmch.c",
+    "start_line": 115,
+    "end_line": 163,
+    "body_lines": 49,
+    "signature": "void generate_mch_khz_1dot25(PHY_VARS_eNB *eNB,L1_rxtx_proc_t *proc,uint8_t *a)",
+    "subsystem": "openair1/PHY/LTE_TRANSPORT",
+    "token_estimate": 57
+  },
+  "bug": {
+    "bug_id": "telecom_state_machine_stale_state",
+    "description": "stale protocol state not cleared after procedure completion or failure",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a stale protocol state not cleared after procedure completion or failure downstream of function generate_mch_khz_1dot25 in the openair1/PHY/LTE_TRANSPORT subsystem.\nThe function is located at openair1/PHY/LTE_TRANSPORT/pmch.c:115.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00037_704762_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00037_704762_p1.diff",
+  "patch_lines": 11,
+  "trajectory_steps": 40,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T09:20:28Z"
+}

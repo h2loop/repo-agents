@@ -1,0 +1,200 @@
+diff --git a/common/utils/LOG/log.c b/common/utils/LOG/log.c
+index f936ed5ae2..cfd3875bc3 100644
+--- a/common/utils/LOG/log.c
++++ b/common/utils/LOG/log.c
+@@ -95,11 +95,11 @@ static void log_output_memory(log_component_t *c, const char *file, const char *
+ 
+ 
+ int write_file_matlab(const char *fname,
+-		              const char *vname,
+-					  void *data,
+-					  int length,
+-					  int dec,
+-					  unsigned int format,
++                              const char *vname,
++                                          void *data,
++                                          int length,
++                                          int dec,
++                                          unsigned int format,
+             int multiVec)
+ {
+   FILE *fp=NULL;
+@@ -125,27 +125,27 @@ int write_file_matlab(const char *fname,
+ 
+   if ( (format&MATLAB_RAW) == MATLAB_RAW ) {
+     int sz[16]={sizeof(short), 2*sizeof(short),
+-		sizeof(int), 2*sizeof(int),
+-		sizeof(char), 2*sizeof(char),
+-		sizeof(long long), 
+-		sizeof(double), 2*sizeof(double),
+-		sizeof(unsigned char),
+-		sizeof(short),
+-		sizeof(short),
+-		sizeof(short),
+-		sizeof(short),
+-		sizeof(short),
+-		sizeof(short)
++                sizeof(int), 2*sizeof(int),
++                sizeof(char), 2*sizeof(char),
++                sizeof(long long), 
++                sizeof(double), 2*sizeof(double),
++                sizeof(unsigned char),
++                sizeof(short),
++                sizeof(short),
++                sizeof(short),
++                sizeof(short),
++                sizeof(short),
++                sizeof(short)
+     };
+     int eltSz= sz[format&~MATLAB_RAW];
+     if (dec==1) 
+       fwrite(data, eltSz, length, fp);
+     else 
+       for (i=0; i<length; i+=dec)
+-	fwrite(data+i*eltSz, eltSz, 1, fp);
++        fwrite(data+i*eltSz, eltSz, 1, fp);
+     
+     fclose(fp);
+-    return(0);	
++    return(0);  
+   }
+ 
+   if ((format != 10 && format !=11  && format != 12 && format != 13 && format != 14) || multiVec)
+@@ -510,7 +510,7 @@ int logInit (void)
+   }
+ 
+   AssertFatal(!((g_log->flag & FLAG_TIME) && (g_log->flag & FLAG_REAL_TIME)),
+-		   "Invalid log options: time and wall_clock both set but are mutually exclusive\n");
++                   "Invalid log options: time and wall_clock both set but are mutually exclusive\n");
+ 
+   g_log->flag =  g_log->flag | FLAG_INITIALIZED;
+   printf("log init done\n");
+@@ -525,12 +525,12 @@ void logTerm(void)
+ 
+ #include <sys/syscall.h>
+ static inline int log_header(log_component_t *c,
+-			     char *log_buffer,
+-			     int buffsize,
+-			     const char *file,
+-			     const char *func,
+-			     int line,
+-			     int level)
++                             char *log_buffer,
++                             int buffsize,
++                             const char *file,
++                             const char *func,
++                             int line,
++                             int level)
+ {
+   int flag= g_log->flag | c->flag;
+ 
+@@ -575,23 +575,23 @@ static inline int log_header(log_component_t *c,
+     threadIdString[0] = 0;
+   }
+   return snprintf(log_buffer, buffsize, "%s%s%s[%s] %c %s%s",
+-		   flag & FLAG_NOCOLOR ? "" : log_level_highlight_start[level],
+-		   timeString,
+-		   threadIdString,
+-		   c->name,
+-		   flag & FLAG_LEVEL ? g_log->level2string[level] : ' ',
+-		   l,
+-		   threadname
+-		   );
++                   flag & FLAG_NOCOLOR ? "" : log_level_highlight_start[level],
++                   timeString,
++                   threadIdString,
++                   c->name,
++                   flag & FLAG_LEVEL ? g_log->level2string[level] : ' ',
++                   l,
++                   threadname
++                   );
+ }
+ 
+ void logRecord_mt(const char *file,
+-		  const char *func,
+-		  int line,
+-		  int comp,
+-		  int level,
+-		  const char *format,
+-		  ... )
++                  const char *func,
++                  int line,
++                  int comp,
++                  int level,
++                  const char *format,
++                  ... )
+ {
+   log_component_t *c = &g_log->log_component[comp];
+   va_list args;
+@@ -601,23 +601,23 @@ void logRecord_mt(const char *file,
+ }
+ 
+ void vlogRecord_mt(const char *file,
+-		   const char *func,
+-		   int line,
+-		   int comp,
+-		   int level,
+-		   const char *format,
+-		   va_list args )
++                   const char *func,
++                   int line,
++                   int comp,
++                   int level,
++                   const char *format,
++                   va_list args )
+ {
+   log_component_t *c = &g_log->log_component[comp];
+   log_output_memory(c, file,func,line,comp,level, format,args);
+ }
+ 
+ void log_dump(int component,
+-	      void *buffer,
+-	      int buffsize,
+-	      int datatype,
+-	      const char *format,
+-	      ... )
++              void *buffer,
++              int buffsize,
++              int datatype,
++              const char *format,
++              ... )
+ {
+   va_list args;
+   char *wbuf;
+@@ -663,7 +663,7 @@ void log_dump(int component,
+ }
+ 
+ int set_log(int component,
+-		    int level)
++                    int level)
+ {
+   /* Checking parameters */
+   DevCheck((component >= MIN_LOG_COMPONENTS) && (component < MAX_LOG_COMPONENTS),
+@@ -785,7 +785,7 @@ char *map_int_to_str(const mapping *map, const int val)
+ }
+ 
+ int is_newline(char *str,
+-		       int size)
++                       int size)
+ {
+   int i;
+ 
+@@ -904,16 +904,16 @@ static void log_output_memory(log_component_t *c, const char *file, const char *
+       int temp_index;
+         temp_index=log_mem_d[log_mem_side].buf_index;
+         if(temp_index+len+1 < LOG_MEM_SIZE){
+-          log_mem_d[log_mem_side].buf_index+=len;
+           memcpy(&log_mem_d[log_mem_side].buf_p[temp_index],log_buffer,len);
++          log_mem_d[log_mem_side].buf_index+=len;
+         }else{
+           log_mem_d[log_mem_side].enable_flag=0;
+           if(log_mem_d[1-log_mem_side].enable_flag==1){
+             temp_index=log_mem_d[1-log_mem_side].buf_index;
+             if(temp_index+len+1 < LOG_MEM_SIZE){
++              memcpy(&log_mem_d[1-log_mem_side].buf_p[temp_index],log_buffer,len);
+               log_mem_d[1-log_mem_side].buf_index+=len;
+               log_mem_side=1-log_mem_side;
+-              memcpy(&log_mem_d[log_mem_side].buf_p[temp_index],log_buffer,len);
+               /* write down !*/
+               if (pthread_mutex_lock(&log_mem_lock) != 0) {
+                 return;

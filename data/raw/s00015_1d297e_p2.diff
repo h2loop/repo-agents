@@ -1,0 +1,12 @@
+diff --git a/common/utils/T/tracer/utils.c b/common/utils/T/tracer/utils.c
+index 66dd2a0b48..183e366829 100644
+--- a/common/utils/T/tracer/utils.c
++++ b/common/utils/T/tracer/utils.c
+@@ -56,6 +56,7 @@ void bps(char *out, float v, char *suffix) {
+   else flog = floor(floor(log10(v)) / 3);
+ 
+   if (flog > 3) flog = 3;
++  if (flog < 0) flog = 0;
+ 
+   v /= pow(10, flog*3);
+   sprintf(out, "%g%s%s", round(v*100)/100, bps_unit[flog], suffix);

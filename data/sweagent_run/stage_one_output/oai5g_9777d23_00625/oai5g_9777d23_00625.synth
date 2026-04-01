@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix data loss in M2AP to M3AP message conversion\n\n### Summary\nThe `MCE_app_handle_m2ap_mbms_session_start_resp` function was not properly forwarding message data when converting from M2AP to M3AP responses. This caused the receiving M3AP layer to process empty messages, leading to session establishment failures.\n\nThis fix ensures message payload is properly copied between layers.\n\n### Changes\n- `openair2/MCE_APP/mce_app.c`: Modified function signature to accept source message and added memcpy operation\n- Updated call site to pass original message context\n\n"
+}

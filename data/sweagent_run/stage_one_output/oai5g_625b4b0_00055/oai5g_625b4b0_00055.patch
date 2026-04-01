@@ -1,0 +1,26 @@
+diff --git a/common/utils/T/tracer/database.c b/common/utils/T/tracer/database.c
+index 347ca7cfcf..18385abf78 100644
+--- a/common/utils/T/tracer/database.c
++++ b/common/utils/T/tracer/database.c
+@@ -483,7 +483,7 @@ int database_get_ids(void *_d, char ***ids)
+ {
+   database *d = _d;
+   int i;
+-  *ids = malloc(d->isize * sizeof(char **)); if (*ids == NULL) abort();
++  *ids = malloc(d->isize * sizeof(char *)); if (*ids == NULL) abort();
+   for (i = 0; i < d->isize; i++) (*ids)[i] = d->i[i].name;
+   return d->isize;
+ }
+@@ -492,7 +492,7 @@ int database_get_groups(void *_d, char ***groups)
+ {
+   database *d = _d;
+   int i;
+-  *groups = malloc(d->gsize * sizeof(char **)); if (*groups == NULL) abort();
++  *groups = malloc(d->gsize * sizeof(char *)); if (*groups == NULL) abort();
+   for (i = 0; i < d->gsize; i++) (*groups)[i] = d->g[i].name;
+   return d->gsize;
+ }
+diff --git a/database.o b/database.o
+new file mode 100644
+index 0000000000..850f5be230
+Binary files /dev/null and b/database.o differ

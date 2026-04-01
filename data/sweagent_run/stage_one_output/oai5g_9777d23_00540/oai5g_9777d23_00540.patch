@@ -1,0 +1,12 @@
+diff --git a/openair3/NAS/NR_UE/nr_nas_msg.c b/openair3/NAS/NR_UE/nr_nas_msg.c
+index 8f4f9bd280..a92bb88492 100644
+--- a/openair3/NAS/NR_UE/nr_nas_msg.c
++++ b/openair3/NAS/NR_UE/nr_nas_msg.c
+@@ -452,6 +452,7 @@ static int fill_guti(FGSMobileIdentity *mi, const Guti5GSMobileIdentity_t *guti)
+ {
+   AssertFatal(guti != NULL, "UE has no GUTI\n");
+   mi->guti = *guti;
++  mi->guti.typeofidentity = FGS_MOBILE_IDENTITY_5G_GUTI;
+   LOG_D(NAS,
+         "5G-GUTI in registration request: MCC: %u%u%u, MNC: %u%u, AMF Region ID: %u, AMF Set ID: %u, AMF Pointer: %u, 5G-TMSI: "
+         "%u\n",

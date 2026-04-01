@@ -1,0 +1,15 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c b/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
+index 58269f769a..7f75858c72 100644
+--- a/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
++++ b/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
+@@ -1088,8 +1088,8 @@ static uint8_t *fill_msg3_crnti_pdu(RA_config_t *ra, uint8_t *pdu, uint16_t crnt
+   *(NR_MAC_SUBHEADER_FIXED *)pdu = (NR_MAC_SUBHEADER_FIXED){.LCID = UL_SCH_LCID_C_RNTI, .R = 0};
+   pdu += sizeof(NR_MAC_SUBHEADER_FIXED);
+ 
+-  // C-RNTI MAC CE (2 octets)
+-  uint16_t rnti_pdu = ((crnti & 0xFF) << 8) | ((crnti >> 8) & 0xFF);
++  // C-RNTI MAC CE (2 octets) - use network byte order for F1AP compatibility
++  uint16_t rnti_pdu = htons(crnti);
+   memcpy(pdu, &rnti_pdu, sizeof(rnti_pdu));
+   pdu += sizeof(rnti_pdu);
+   ra->t_crnti = crnti;

@@ -1,0 +1,26 @@
+{
+  "run_id": "mbed-os_00132_7e1166",
+  "function": {
+    "name": "FLEXIO_I2C_MasterSetBaudRate",
+    "file": "targets/TARGET_Freescale/TARGET_MCUXpresso_MCUS/TARGET_K82F/drivers/fsl_flexio_i2c_master.c",
+    "start_line": 560,
+    "end_line": 575,
+    "body_lines": 16,
+    "signature": "void FLEXIO_I2C_MasterSetBaudRate(FLEXIO_I2C_Type *base, uint32_t baudRate_Bps, uint32_t srcClock_Hz)",
+    "subsystem": "targets/TARGET_Freescale/TARGET_MCUXpresso_MCUS",
+    "token_estimate": 56
+  },
+  "bug": {
+    "bug_id": "c_race_condition",
+    "description": "race condition on shared data accessed from multiple threads without synchronization",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a race condition on shared data accessed from multiple threads without synchronization downstream of function FLEXIO_I2C_MasterSetBaudRate in the targets/TARGET_Freescale/TARGET_MCUXpresso_MCUS subsystem.\nThe function is located at targets/TARGET_Freescale/TARGET_MCUXpresso_MCUS/TARGET_K82F/drivers/fsl_flexio_i2c_master.c:560.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 15,
+  "trajectory_steps": 21,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:10:37Z"
+}

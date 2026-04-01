@@ -1,0 +1,32 @@
+{
+  "run_id": "s00374_6b1da3",
+  "function": {
+    "name": "nr_rlc_entity_am_set_time",
+    "file": "openair2/LAYER2/nr_rlc/nr_rlc_entity_am.c",
+    "start_line": 1993,
+    "end_line": 2002,
+    "body_lines": 10,
+    "signature": "void nr_rlc_entity_am_set_time(nr_rlc_entity_t *_entity, uint64_t now)",
+    "subsystem": "openair2/LAYER2/nr_rlc",
+    "token_estimate": 17
+  },
+  "bug": {
+    "bug_id": "c_unreachable_code",
+    "description": "unreachable code path due to incorrect conditional logic",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/NAS",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a unreachable code path due to incorrect conditional logic downstream of function nr_rlc_entity_am_set_time in the openair2/LAYER2/nr_rlc subsystem.\nThe function is located at openair2/LAYER2/nr_rlc/nr_rlc_entity_am.c:1993.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00374_6b1da3_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00374_6b1da3_p1.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 20,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T18:58:15Z"
+}

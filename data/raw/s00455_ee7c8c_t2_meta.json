@@ -1,0 +1,9 @@
+{
+  "run_id": "s00455_ee7c8c",
+  "pr_text": "## Title: Replace magic number with NFAPI_NO_TLV constant in nFAPI P7 codec\n\n### Summary\nThe `unpack_nr_dl_node_sync` function passes a literal `0` as the TLV count parameter to `unpack_nr_p7_tlv_list`, representing that no Type-Length-Value elements should be processed for the NR DL Node Sync message. This magic number lacks semantic meaning and reduces code maintainability.\n\nThis patch introduces the `NFAPI_NO_TLV` symbolic constant to explicitly document the intent of zero TLV processing. The",
+  "trajectory_path": "data/raw/s00455_ee7c8c_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00455_ee7c8c_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 19,
+  "timestamp": "2026-02-10T13:28:15Z"
+}

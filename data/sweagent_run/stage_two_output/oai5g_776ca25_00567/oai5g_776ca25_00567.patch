@@ -1,0 +1,178 @@
+diff --git a/radio/rfsimulator/simulator.c b/radio/rfsimulator/simulator.c
+index e524097898..14f1254226 100644
+--- a/radio/rfsimulator/simulator.c
++++ b/radio/rfsimulator/simulator.c
+@@ -105,7 +105,7 @@ typedef enum { SIMU_ROLE_SERVER = 1, SIMU_ROLE_CLIENT } simuRole;
+ /*   optname                     helpstr                     paramflags           XXXptr                               defXXXval                          type         numelt  */
+ /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+ #define simOpt PARAMFLAG_NOFREE|PARAMFLAG_CMDLINE_NOPREFIXENABLED
+-#define RFSIMULATOR_PARAMS_DESC {					\
++#define RFSIMULATOR_PARAMS_DESC {                                       \
+     {"serveraddr",             "<ip address to connect to>\n",        simOpt,  .strptr=&rfsimulator->ip,               .defstrval="127.0.0.1",           TYPE_STRING,    0 },\
+     {"serverport",             "<port to connect to>\n",              simOpt,  .u16ptr=&(rfsimulator->port),           .defuintval=PORT,                 TYPE_UINT16,    0 },\
+     {RFSIMU_OPTIONS_PARAMNAME, RFSIM_CONFIG_HELP_OPTIONS,             0,       .strlistptr=NULL,                       .defstrlistval=NULL,              TYPE_STRINGLIST,0 },\
+@@ -164,6 +164,7 @@ typedef struct {
+   uint16_t port;
+   int saveIQfile;
+   buffer_t buf[MAX_FD_RFSIMU];
++  int fd_to_buf_map[MAX_FD_RFSIMU]; // Map file descriptors to buffer indices
+   int rx_num_channels;
+   int tx_num_channels;
+   double sample_rate;
+@@ -181,25 +182,43 @@ typedef struct {
+ 
+ static int allocCirBuf(rfsimulator_state_t *bridge, int sock)
+ {
+-  buffer_t *ptr=&bridge->buf[sock];
++  // Find a free buffer slot
++  int buf_index = -1;
++  for (int i = 0; i < MAX_FD_RFSIMU; i++) {
++    if (bridge->buf[i].conn_sock == -1) {
++      buf_index = i;
++      break;
++    }
++  }
++
++  if (buf_index == -1) {
++    LOG_E(HW, "No free buffer slots available\n");
++    return -1;
++  }
++
++  buffer_t *ptr = &bridge->buf[buf_index];
+   ptr->circularBuf = calloc(1, sampleToByte(CirSize, 1));
+   if (ptr->circularBuf == NULL) {
+     LOG_E(HW, "malloc(%lu) failed\n", sampleToByte(CirSize, 1));
+     return -1;
+   }
+-  ptr->circularBufEnd=((char *)ptr->circularBuf)+sampleToByte(CirSize,1);
+-  ptr->conn_sock=sock;
+-  ptr->lastReceivedTS=0;
+-  ptr->headerMode=true;
+-  ptr->trashingPacket=false;
+-  ptr->transferPtr=(char *)&ptr->th;
+-  ptr->remainToTransfer=sizeof(samplesBlockHeader_t);
++  ptr->circularBufEnd = ((char *)ptr->circularBuf) + sampleToByte(CirSize, 1);
++  ptr->conn_sock = sock;
++  ptr->lastReceivedTS = 0;
++  ptr->headerMode = true;
++  ptr->trashingPacket = false;
++  ptr->transferPtr = (char *)&ptr->th;
++  ptr->remainToTransfer = sizeof(samplesBlockHeader_t);
++  
++  // Create mapping from file descriptor to buffer index
++  bridge->fd_to_buf_map[sock] = buf_index;
++
+   int sendbuff = SEND_BUFF_SIZE;
+   if (setsockopt(sock, SOL_SOCKET, SO_SNDBUF, &sendbuff, sizeof(sendbuff)) != 0) {
+     LOG_E(HW, "setsockopt(SO_SNDBUF) failed\n");
+     return -1;
+   }
+-  struct epoll_event ev= {0};
++  struct epoll_event ev = {0};
+   ev.events = EPOLLIN | EPOLLRDHUP;
+   ev.data.fd = sock;
+   if (epoll_ctl(bridge->epollfd, EPOLL_CTL_ADD, sock, &ev) != 0) {
+@@ -207,21 +226,21 @@ static int allocCirBuf(rfsimulator_state_t *bridge, int sock)
+     return -1;
+   }
+ 
+-  if ( bridge->channelmod > 0) {
++  if (bridge->channelmod > 0) {
+     // create channel simulation model for this mode reception
+-    static bool init_done=false;
++    static bool init_done = false;
+ 
+     if (!init_done) {
+       uint64_t rand;
+-      FILE *h=fopen("/dev/random","r");
++      FILE *h = fopen("/dev/random", "r");
+ 
+-      if ( 1 != fread(&rand,sizeof(rand),1,h) )
++      if (1 != fread(&rand, sizeof(rand), 1, h))
+         LOG_W(HW, "Can't read /dev/random\n");
+ 
+       fclose(h);
+       randominit(rand);
+       tableNor(rand);
+-      init_done=true;
++      init_done = true;
+     }
+     char *modelname = (bridge->role == SIMU_ROLE_SERVER) ? "rfsimu_channel_ue0" : "rfsimu_channel_enB0";
+     ptr->channel_model = find_channel_desc_fromname(modelname); // path_loss in dB
+@@ -231,28 +250,41 @@ static int allocCirBuf(rfsimulator_state_t *bridge, int sock)
+     }
+ 
+     set_channeldesc_owner(ptr->channel_model, RFSIMU_MODULEID);
+-    random_channel(ptr->channel_model,false);
++    random_channel(ptr->channel_model, false);
+     LOG_I(HW, "Random channel %s in rfsimulator activated\n", modelname);
+   }
+   return 0;
+ }
+ 
+ static void removeCirBuf(rfsimulator_state_t *bridge, int sock) {
++  // Get the buffer index from the mapping
++  int buf_index = bridge->fd_to_buf_map[sock];
++  if (buf_index < 0 || buf_index >= MAX_FD_RFSIMU) {
++    LOG_E(HW, "Invalid buffer index for fd %d\n", sock);
++    return;
++  }
++  
+   if (epoll_ctl(bridge->epollfd, EPOLL_CTL_DEL, sock, NULL) != 0) {
+     LOG_E(HW, "epoll_ctl(EPOLL_CTL_DEL) failed\n");
+   }
+   close(sock);
+-  free(bridge->buf[sock].circularBuf);
+-  // Fixme: no free_channel_desc_scm(bridge->buf[sock].channel_model) implemented
++  free(bridge->buf[buf_index].circularBuf);
++  // Fixme: no free_channel_desc_scm(bridge->buf[buf_index].channel_model) implemented
+   // a lot of mem leaks
+-  //free(bridge->buf[sock].channel_model);
+-  memset(&bridge->buf[sock], 0, sizeof(buffer_t));
+-  bridge->buf[sock].conn_sock=-1;
++  //free(bridge->buf[buf_index].channel_model);
++  memset(&bridge->buf[buf_index], 0, sizeof(buffer_t));
++  bridge->buf[buf_index].conn_sock = -1;
++  
++  // Clear the mapping
++  bridge->fd_to_buf_map[sock] = -1;
++  
+   nb_ue--;
+ }
+ 
+ static void socketError(rfsimulator_state_t *bridge, int sock) {
+-  if (bridge->buf[sock].conn_sock!=-1) {
++  // Check if there's a valid mapping for this socket
++  int buf_index = bridge->fd_to_buf_map[sock];
++  if (buf_index >= 0 && buf_index < MAX_FD_RFSIMU && bridge->buf[buf_index].conn_sock != -1) {
+     LOG_W(HW, "Lost socket\n");
+     removeCirBuf(bridge, sock);
+ 
+@@ -714,7 +746,14 @@ static bool flushInput(rfsimulator_state_t *t, int timeout, int nsamps_for_initi
+         continue;
+       }
+ 
+-      buffer_t *b=&t->buf[fd];
++      // Get buffer using the mapping
++      int buf_index = t->fd_to_buf_map[fd];
++      if (buf_index < 0 || buf_index >= MAX_FD_RFSIMU) {
++        LOG_E(HW, "Invalid buffer index for fd %d\n", fd);
++        continue;
++      }
++      
++      buffer_t *b=&t->buf[buf_index];
+ 
+       if ( b->circularBuf == NULL ) {
+         LOG_E(HW, "Received data on not connected socket %d\n", events[nbEv].data.fd);
+@@ -1013,8 +1052,10 @@ int device_init(openair0_device *device, openair0_config_t *openair0_cfg) {
+   device->priv = rfsimulator;
+   device->trx_write_init = rfsimulator_write_init;
+ 
+-  for (int i = 0; i < MAX_FD_RFSIMU; i++)
++  for (int i = 0; i < MAX_FD_RFSIMU; i++) {
+     rfsimulator->buf[i].conn_sock=-1;
++    rfsimulator->fd_to_buf_map[i] = -1; // Initialize mapping to -1 (no mapping)
++  }
+ 
+   AssertFatal((rfsimulator->epollfd = epoll_create1(0)) != -1, "epoll_create1() failed, errno(%d)", errno);
+   // we need to call randominit() for telnet server (use gaussdouble=>uniformrand)

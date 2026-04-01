@@ -1,0 +1,30 @@
+{
+  "run_id": "s00164_301686",
+  "function": {
+    "name": "_emm_as_cell_info_req",
+    "file": "openair3/NAS/UE/EMM/SAP/emm_as.c",
+    "start_line": 1445,
+    "end_line": 1456,
+    "body_lines": 12,
+    "signature": "static int _emm_as_cell_info_req(const emm_as_cell_info_t *msg, cell_info_req_t *as_msg)",
+    "subsystem": "openair3/NAS/UE",
+    "token_estimate": 26
+  },
+  "bug": {
+    "bug_id": "telecom_state_machine_stale_state",
+    "description": "stale protocol state not cleared after procedure completion or failure",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a stale protocol state not cleared after procedure completion or failure downstream of function _emm_as_cell_info_req in the openair3/NAS/UE subsystem.\nThe function is located at openair3/NAS/UE/EMM/SAP/emm_as.c:1445.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00164_301686_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00164_301686_p1.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 59,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:38:27Z"
+}

@@ -1,0 +1,263 @@
+'{"env":{"deployment":{"image":"oai5g-sera:9777d23","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_9777d23_00625","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix data loss in M2AP to M3AP message conversion\n\n### Summary\nThe `MCE_app_handle_m2ap_mbms_session_start_resp`
+  function was not properly forwarding message data when converting from M2AP to M3AP
+  responses. This caused the receiving M3AP layer to process empty messages, leading
+  to session establishment failures.\n\nThis fix ensures message payload is properly
+  copied between layers.\n\n### Changes\n- `openair2/MCE_APP/mce_app.c`: Modified
+  function signature to accept source message and added memcpy operation\n- Updated
+  call site to pass original message context\n\n","extra_fields":{"bug_description":"incorrect
+  information element value set in outgoing protocol message","bug_id":"telecom_incorrect_ie","stage_one_patch":"diff
+  --git a/openair2/MCE_APP/mce_app.c b/openair2/MCE_APP/mce_app.c\nindex 7e9d45d99f..03c4efc2c0
+  100644\n--- a/openair2/MCE_APP/mce_app.c\n+++ b/openair2/MCE_APP/mce_app.c\n@@ -80,7
+  +80,7 @@ static uint32_t MCE_app_register(uint32_t mce_id_start, uint32_t mce_id_end)
+  {\n         //RCconfig_S1(msg_p, mce_id);\n \n         //if (mce_id == 0) \n-\t\t//RCconfig_gtpu();\n+                //RCconfig_gtpu();\n
+  \n         //LOG_I(MCE_APP,\"default drx %d\\n\",((M3AP_REGISTER_MCE_REQ(msg_p)).default_drx));\n
+  \n@@ -135,11 +135,11 @@ static uint32_t MCE_app_register(uint32_t mce_id_start,
+  uint32_t mce_id_end) {\n //  LOG_W(MCE_APP,\"Register ...\");\n //  for (mce_id
+  = mce_id_start; (mce_id < mce_id_end) ; mce_id++) {\n //    {\n-//  //\tLOG_W(MCE_APP,\"Register
+  commes inside ...\\n\");\n+//  //  LOG_W(MCE_APP,\"Register commes inside ...\\n\");\n
+  //      msg_p = itti_alloc_new_message (TASK_MCE_APP, 0, M2AP_REGISTER_MCE_REQ);\n
+  //      //RCconfig_M2_MCE(msg_p, mce_id);\n //      itti_send_msg_to_task (TASK_M2AP_MCE,
+  ENB_MODULE_ID_TO_INSTANCE(mce_id), msg_p);\n-//  //\tLOG_W(MCE_APP,\"Register sent
+  ...\\n\");\n+//  //  LOG_W(MCE_APP,\"Register sent ...\\n\");\n //      register_mce_m2_pending++;\n
+  //    }\n //  }\n@@ -156,11 +156,11 @@ static uint32_t MCE_app_register_m3(uint32_t
+  mce_id_start, uint32_t mce_id_end)\n   LOG_D(MCE_APP,\"Register ...\\n\");\n   for
+  (mce_id = mce_id_start; (mce_id < mce_id_end) ; mce_id++) {\n     {\n-  //\tLOG_W(MCE_APP,\"Register
+  commes inside ...\\n\");\n+  //    LOG_W(MCE_APP,\"Register commes inside ...\\n\");\n       msg_p
+  = itti_alloc_new_message (TASK_MCE_APP, 0, M3AP_REGISTER_MCE_REQ);\n       RCconfig_M3(msg_p,
+  mce_id);\n       itti_send_msg_to_task (TASK_M3AP_MCE, ENB_MODULE_ID_TO_INSTANCE(mce_id),
+  msg_p);\n-  \tLOG_D(MCE_APP,\"Register sent ...\\n\");\n+        LOG_D(MCE_APP,\"Register
+  sent ...\\n\");\n       register_mce_m3_pending++;\n     }\n   }\n@@ -170,57 +170,59
+  @@ static uint32_t MCE_app_register_m3(uint32_t mce_id_start, uint32_t mce_id_end)\n
+  \n /***************************  M3AP MCE handle **********************************/\n
+  //static uint32_t MCE_app_handle_m3ap_mbms_session_start_req(instance_t instance){\n-//  \t//uint32_t         mce_id=0;\n-//  //\tMessageDef      *msg_p;\n+//      //uint32_t         mce_id=0;\n+//  //  MessageDef      *msg_p;\n
+  //  //      msg_p = itti_alloc_new_message (TASK_MCE_APP, 0, M3AP_MBMS_SESSION_START_RESP);\n
+  //  //      itti_send_msg_to_task (TASK_M3AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance),
+  msg_p);\n-//\t\n-//\t\n-//\treturn 0;\n+//      \n+//      \n+//      return 0;\n
+  //}\n \n static uint32_t MCE_app_handle_m3ap_mbms_session_stop_req(instance_t instance){\n-  \t//uint32_t         mce_id=0;\n-  \tMessageDef      *msg_p;\n+        //uint32_t         mce_id=0;\n+        MessageDef      *msg_p;\n         msg_p
+  = itti_alloc_new_message (TASK_MCE_APP, 0, M3AP_MBMS_SESSION_STOP_RESP);\n         itti_send_msg_to_task
+  (TASK_M3AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);\n-\t\n-\treturn 0;\n+        \n+        return
+  0;\n }\n \n static uint32_t MCE_app_handle_m3ap_mbms_session_update_req(instance_t
+  instance){\n-  \t//uint32_t         mce_id=0;\n-  \tMessageDef      *msg_p;\n+        //uint32_t         mce_id=0;\n+        MessageDef      *msg_p;\n         msg_p
+  = itti_alloc_new_message (TASK_MCE_APP, 0, M3AP_MBMS_SESSION_UPDATE_RESP);\n         itti_send_msg_to_task
+  (TASK_M3AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);\n-\t\n-\treturn 0;\n+        \n+        return
+  0;\n }\n //// end M3AP MCE handle **********************************/\n \n \n /***************************  M2AP
+  MCE handle **********************************/\n static uint32_t MCE_app_handle_m2ap_setup_req(instance_t
+  instance){\n-\t\n-  \t//uint32_t         mce_id=0;\n-  \tMessageDef      *msg_p;\n+        \n+        //uint32_t         mce_id=0;\n+        MessageDef      *msg_p;\n         msg_p
+  = itti_alloc_new_message (TASK_MCE_APP, 0, M2AP_SETUP_RESP);\n-\tif(m2ap_setup_resp_local)\n-\t\tmemcpy(&M2AP_SETUP_RESP(msg_p),m2ap_setup_resp_local,sizeof(m2ap_setup_resp_t));\n-\telse\n-\t\tRCconfig_M2_MCCH(msg_p,0);\n+        if(m2ap_setup_resp_local)\n+                memcpy(&M2AP_SETUP_RESP(msg_p),m2ap_setup_resp_local,sizeof(m2ap_setup_resp_t));\n+        else\n+                RCconfig_M2_MCCH(msg_p,0);\n
+  \n-\t\n+        \n         itti_send_msg_to_task (TASK_M2AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance),
+  msg_p);\n-\t\n-\treturn 0;\n+        \n+        return 0;\n }\n \n-static uint32_t
+  MCE_app_handle_m2ap_mbms_session_start_resp(instance_t instance){\n-\tMessageDef      *msg_p;\n-  \tmsg_p
+  = itti_alloc_new_message (TASK_MCE_APP, 0, M3AP_MBMS_SESSION_START_RESP); \n-\titti_send_msg_to_task
+  (TASK_M3AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);\n-\treturn 0;\n+static
+  uint32_t MCE_app_handle_m2ap_mbms_session_start_resp(instance_t instance, MessageDef
+  *msg_p_original){\n+        MessageDef      *msg_p;\n+        msg_p = itti_alloc_new_message
+  (TASK_MCE_APP, 0, M3AP_MBMS_SESSION_START_RESP); \n+        // Copy data from original
+  M2AP message to new M3AP message\n+        memcpy(&M3AP_MBMS_SESSION_START_RESP(msg_p),
+  &M2AP_MBMS_SESSION_START_RESP(msg_p_original), sizeof(m2ap_session_start_resp_t));\n+        itti_send_msg_to_task
+  (TASK_M3AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);\n+        return 0;\n
+  }\n \n //// end M2AP MCE handle **********************************/\n@@ -228,83
+  +230,83 @@ static uint32_t MCE_app_handle_m2ap_mbms_session_start_resp(instance_t
+  instance)\n \n /***************************  M2AP MCE send **********************************/\n
+  static uint32_t MCE_app_send_m2ap_mbms_scheduling_information(instance_t instance){\n-\t\n-  \t//uint32_t         mce_id=0;\n-  \tMessageDef      *msg_p;\n+        \n+        //uint32_t         mce_id=0;\n+        MessageDef      *msg_p;\n         msg_p
+  = itti_alloc_new_message (TASK_MCE_APP, 0, M2AP_MBMS_SCHEDULING_INFORMATION);\n-\tif(m2ap_mbms_scheduling_information_local)\n-\t\tmemcpy(&M2AP_MBMS_SCHEDULING_INFORMATION(msg_p),m2ap_mbms_scheduling_information_local,sizeof(m2ap_mbms_scheduling_information_t));\n-\telse\n-\t\tRCconfig_M2_SCHEDULING(msg_p,0);\n+        if(m2ap_mbms_scheduling_information_local)\n+                memcpy(&M2AP_MBMS_SCHEDULING_INFORMATION(msg_p),m2ap_mbms_scheduling_information_local,sizeof(m2ap_mbms_scheduling_information_t));\n+        else\n+                RCconfig_M2_SCHEDULING(msg_p,0);\n         itti_send_msg_to_task
+  (TASK_M2AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);\n-\t\n-\treturn 0;\n+        \n+        return
+  0;\n }\n \n static uint32_t MCE_app_send_m2ap_session_start_req(instance_t instance){\n-\t\n-  \t//uint32_t         mce_id=0;\n-  \tMessageDef      *msg_p;\n+        \n+        //uint32_t         mce_id=0;\n+        MessageDef      *msg_p;\n         msg_p
+  = itti_alloc_new_message (TASK_MCE_APP, 0, M2AP_MBMS_SESSION_START_REQ);\n         itti_send_msg_to_task
+  (TASK_M2AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);\n-\t\n-\treturn 0;\n+        \n+        return
+  0;\n }\n //static uint32_t MCE_app_send_m2ap_session_stop_req(instance_t instance){\n-//\t\n-//  \t//uint32_t         mce_id=0;\n-//  \tMessageDef      *msg_p;\n+//      \n+//      //uint32_t         mce_id=0;\n+//      MessageDef      *msg_p;\n
+  //        msg_p = itti_alloc_new_message (TASK_MCE_APP, 0, M2AP_MBMS_SESSION_STOP_REQ);\n
+  //        itti_send_msg_to_task (TASK_M2AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance),
+  msg_p);\n-//\t\n-//\treturn 0;\n+//      \n+//      return 0;\n //}\n //static uint32_t
+  MCE_app_send_m2ap_mce_configuration_update(instance_t instance){\n-//\t\n-//  \t//uint32_t         mce_id=0;\n-//  \tMessageDef      *msg_p;\n+//      \n+//      //uint32_t         mce_id=0;\n+//      MessageDef      *msg_p;\n
+  //        msg_p = itti_alloc_new_message (TASK_MCE_APP, 0, M2AP_MCE_CONFIGURATION_UPDATE);\n
+  //        itti_send_msg_to_task (TASK_M2AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance),
+  msg_p);\n-//\t\n-//\treturn 0;\n+//      \n+//      return 0;\n //}\n //static uint32_t
+  MCE_app_send_m2ap_enb_configuration_update_ack(instance_t instance){\n-//\t\n-//  \t//uint32_t         mce_id=0;\n-//  \tMessageDef      *msg_p;\n+//      \n+//      //uint32_t         mce_id=0;\n+//      MessageDef      *msg_p;\n
+  //        msg_p = itti_alloc_new_message (TASK_MCE_APP, 0, M2AP_ENB_CONFIGURATION_UPDATE_ACK);\n
+  //        itti_send_msg_to_task (TASK_M2AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance),
+  msg_p);\n-//\t\n-//\treturn 0;\n+//      \n+//      return 0;\n //}\n //static uint32_t
+  MCE_app_send_m2ap_enb_configuration_update_failure(instance_t instance){\n-//\t\n-//  \t//uint32_t         mce_id=0;\n-//  \tMessageDef      *msg_p;\n+//      \n+//      //uint32_t         mce_id=0;\n+//      MessageDef      *msg_p;\n
+  //        msg_p = itti_alloc_new_message (TASK_MCE_APP, 0, M2AP_ENB_CONFIGURATION_UPDATE_FAILURE);\n
+  //        itti_send_msg_to_task (TASK_M2AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance),
+  msg_p);\n-//\t\n-//\treturn 0;\n+//      \n+//      return 0;\n //} //// end M2AP
+  MCE send **********************************/\n \n //static uint32_t MCE_app_send_MME_APP(instance_t
+  instance){\n-//\t\n-//  \t//uint32_t         mce_id=0;\n-//  \tMessageDef      *msg_p;\n+//      \n+//      //uint32_t         mce_id=0;\n+//      MessageDef      *msg_p;\n
+  //        msg_p = itti_alloc_new_message (TASK_MCE_APP, 0, MESSAGE_TEST);\n //        itti_send_msg_to_task
+  (TASK_MME_APP, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);\n-//\t\n-//\treturn
+  0;\n+//      \n+//      return 0;\n //}\n \n //static uint32_t MCE_app_send_MME_APP2(instance_t
+  instance){\n-//\t\n-//  \t//uint32_t         mce_id=0;\n-//  \tMessageDef      *msg_p;\n+//      \n+//      //uint32_t         mce_id=0;\n+//      MessageDef      *msg_p;\n
+  //        msg_p = itti_alloc_new_message (TASK_MCE_APP, 0, MESSAGE_TEST);\n //        itti_send_msg_to_task
+  (TASK_M3AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);\n-//\t\n-//\treturn
+  0;\n+//      \n+//      return 0;\n //}\n \n /*------------------------------------------------------------------------------*/\n@@
+  -315,7 +317,7 @@ void *MCE_app_task(void *args_p) {\n   uint32_t                        register_mce_pending=0;\n   uint32_t                        registered_mce=0;\n   //long                            mce_register_retry_timer_id;\n-  long
+  \t\t\t\t  mce_scheduling_info_timer_id = 0;\n+  long                            mce_scheduling_info_timer_id
+  = 0;\n   //uint32_t                        m3_register_mce_pending = 0;\n  // uint32_t                        x2_registered_mce
+  = 0;\n  // long                            x2_mce_register_retry_timer_id;\n@@ -415,24
+  +417,24 @@ void *MCE_app_task(void *args_p) {\n \n    case M3AP_MBMS_SESSION_START_REQ:\n         LOG_I(MCE_APP,
+  \"Received M3AP_MBMS_SESSION_START_REQ message %s\\n\", ITTI_MSG_NAME (msg_p));\n-\t//MCE_app_handle_m3ap_mbms_session_start_req(ITTI_MSG_DESTINATION_INSTANCE(msg_p));\n-\tif(m2ap_setup_req_local)\n-\t\tif
+  (timer_setup (2, 0, TASK_MCE_APP, INSTANCE_DEFAULT, TIMER_ONE_SHOT,\n+        //MCE_app_handle_m3ap_mbms_session_start_req(ITTI_MSG_DESTINATION_INSTANCE(msg_p));\n+        if(m2ap_setup_req_local)\n+                if
+  (timer_setup (2, 0, TASK_MCE_APP, INSTANCE_DEFAULT, TIMER_ONE_SHOT,\n                                NULL,
+  &mce_scheduling_info_timer_id) < 0) {\n-   \t\t}\n+                }\n \n \n-\tbreak;\n+        break;\n
+  \n    case M3AP_MBMS_SESSION_STOP_REQ:\n         LOG_I(MCE_APP, \"Received M3AP_MBMS_SESSION_STOP_REQ
+  message %s\\n\", ITTI_MSG_NAME (msg_p));\n-\tMCE_app_handle_m3ap_mbms_session_stop_req(ITTI_MSG_DESTINATION_INSTANCE(msg_p));\n-\tbreak;\n+        MCE_app_handle_m3ap_mbms_session_stop_req(ITTI_MSG_DESTINATION_INSTANCE(msg_p));\n+        break;\n
+  \n    case M3AP_MBMS_SESSION_UPDATE_REQ:\n         LOG_I(MCE_APP, \"Received M3AP_MBMS_SESSION_UPDATE_REQ
+  message %s\\n\", ITTI_MSG_NAME (msg_p));\n-\tMCE_app_handle_m3ap_mbms_session_update_req(ITTI_MSG_DESTINATION_INSTANCE(msg_p));\n-\tbreak;\n+        MCE_app_handle_m3ap_mbms_session_update_req(ITTI_MSG_DESTINATION_INSTANCE(msg_p));\n+        break;\n
+  \n \n \n@@ -490,20 +492,20 @@ void *MCE_app_task(void *args_p) {\n       break;\n
+  \n     case TIMER_HAS_EXPIRED:\n-\t      LOG_I(MCE_APP, \" Received %s: timer_id
+  %ld\\n\", ITTI_MSG_NAME (msg_p), TIMER_HAS_EXPIRED(msg_p).timer_id);\n+              LOG_I(MCE_APP,
+  \" Received %s: timer_id %ld\\n\", ITTI_MSG_NAME (msg_p), TIMER_HAS_EXPIRED(msg_p).timer_id);\n
+  \n-\t      if (TIMER_HAS_EXPIRED (msg_p).timer_id == mce_scheduling_info_timer_id/*mce_register_retry_timer_id*/)
+  {\n-\t\t/* Restart the registration process */\n-\t\t//registered_mce = 0;\n-\t\t//register_mce_pending
+  = MCE_app_register (RC.rrc[0]->node_type, mce_id_start, mce_id_end);\n-\t\tMCE_app_send_m2ap_mbms_scheduling_information(0);\n-\t      }\n+              if
+  (TIMER_HAS_EXPIRED (msg_p).timer_id == mce_scheduling_info_timer_id/*mce_register_retry_timer_id*/)
+  {\n+                /* Restart the registration process */\n+                //registered_mce
+  = 0;\n+                //register_mce_pending = MCE_app_register (RC.rrc[0]->node_type,
+  mce_id_start, mce_id_end);\n+                MCE_app_send_m2ap_mbms_scheduling_information(0);\n+              }\n
+  \n-\t      //if (TIMER_HAS_EXPIRED (msg_p).timer_id == x2_mce_register_retry_timer_id)
+  {\n-\t      //  /* Restart the registration process */\n-\t      //  x2_registered_mce
+  = 0;\n-\t      //  x2_register_mce_pending = MCE_app_register_x2 (mce_id_start,
+  mce_id_end);\n-\t      //}\n+              //if (TIMER_HAS_EXPIRED (msg_p).timer_id
+  == x2_mce_register_retry_timer_id) {\n+              //  /* Restart the registration
+  process */\n+              //  x2_registered_mce = 0;\n+              //  x2_register_mce_pending
+  = MCE_app_register_x2 (mce_id_start, mce_id_end);\n+              //}\n \n       break;\n
+  \n@@ -536,8 +538,8 @@ void *MCE_app_task(void *args_p) {\n  //         // timer
+  to retry\n  //         /* Restart the MCE registration process in ENB_REGISTER_RETRY_DELAY
+  seconds */\n  //         if (timer_setup (X2AP_ENB_REGISTER_RETRY_DELAY, 0, TASK_ENB_APP,\n-
+  //       \t\t   INSTANCE_DEFAULT, TIMER_ONE_SHOT, NULL,\n- //       \t\t   &x2_enb_register_retry_timer_id)
+  < 0) {\n+ //                        INSTANCE_DEFAULT, TIMER_ONE_SHOT, NULL,\n+ //                        &x2_enb_register_retry_timer_id)
+  < 0) {\n  //           LOG_E(ENB_APP, \" Can not start MCE X2AP register: retry
+  timer, use \\\"sleep\\\" instead!\\n\");\n  //           sleep(X2AP_ENB_REGISTER_RETRY_DELAY);\n  //           /*
+  Restart the registration process */\n@@ -578,8 +580,8 @@ void *MCE_app_task(void
+  *args_p) {\n  //         // timer to retry\n  //         /* Restart the MCE registration
+  process in ENB_REGISTER_RETRY_DELAY seconds */\n  //         //if (timer_setup (X2AP_ENB_REGISTER_RETRY_DELAY,
+  0, TASK_ENB_APP,\n- //         //      \t   INSTANCE_DEFAULT, TIMER_ONE_SHOT, NULL,\n-
+  //         //      \t   &x2_enb_register_retry_timer_id) < 0) {\n+ //         //             INSTANCE_DEFAULT,
+  TIMER_ONE_SHOT, NULL,\n+ //         //             &x2_enb_register_retry_timer_id)
+  < 0) {\n  //         //  LOG_E(ENB_APP, \" Can not start MCE X2AP register: retry
+  timer, use \\\"sleep\\\" instead!\\n\");\n  //         //  sleep(X2AP_ENB_REGISTER_RETRY_DELAY);\n  //         //  /*
+  Restart the registration process */\n@@ -592,82 +594,82 @@ void *MCE_app_task(void
+  *args_p) {\n  //     break;\n    case M2AP_RESET:\n       LOG_I(MCE_APP, \"Received
+  M2AP_RESET message %s\\n\", ITTI_MSG_NAME (msg_p));\n-\tbreak;\n+        break;\n
+  \n    case M2AP_SETUP_REQ:\n       LOG_I(MCE_APP, \"Received M2AP_SETUP_REQ message
+  %s\\n\", ITTI_MSG_NAME (msg_p));\n-\tif(!m2ap_setup_req_local)\n-\t\tm2ap_setup_req_local
+  = (m2ap_setup_req_t*)calloc(1,sizeof(m2ap_setup_req_t));\n-\tif(m2ap_setup_req_local)\n-\t\tmemcpy(m2ap_setup_req_local,&M2AP_SETUP_REQ(msg_p),sizeof(m2ap_setup_req_t));\n-\tMCE_app_handle_m2ap_setup_req(ITTI_MSG_DESTINATION_INSTANCE(msg_p));\n-\t//MCE_app_send_m2ap_mbms_scheduling_information(0);\n-\t//if
+  (timer_setup (2, 0, TASK_MCE_APP, INSTANCE_DEFAULT, TIMER_ONE_SHOT,\n+        if(!m2ap_setup_req_local)\n+                m2ap_setup_req_local
+  = (m2ap_setup_req_t*)calloc(1,sizeof(m2ap_setup_req_t));\n+        if(m2ap_setup_req_local)\n+                memcpy(m2ap_setup_req_local,&M2AP_SETUP_REQ(msg_p),sizeof(m2ap_setup_req_t));\n+        MCE_app_handle_m2ap_setup_req(ITTI_MSG_DESTINATION_INSTANCE(msg_p));\n+        //MCE_app_send_m2ap_mbms_scheduling_information(0);\n+        //if
+  (timer_setup (2, 0, TASK_MCE_APP, INSTANCE_DEFAULT, TIMER_ONE_SHOT,\n         //                       NULL,
+  &mce_scheduling_info_timer_id) < 0) {\n-   \t//}\n+        //}\n \n \n-   \t/*m3_register_mce_pending
+  =*/ //MCE_app_register_m3 (mce_id_start, mce_id_end);\n+        /*m3_register_mce_pending
+  =*/ //MCE_app_register_m3 (mce_id_start, mce_id_end);\n \n-\t//MCE_app_send_m2ap_session_start_req(0);\n-\tbreak;\n+        //MCE_app_send_m2ap_session_start_req(0);\n+        break;\n
+  \n    case M2AP_MBMS_SESSION_START_RESP:\n       LOG_I(MCE_APP, \"Received M2AP_MBMS_SESSION_START_RESP
+  message %s\\n\", ITTI_MSG_NAME (msg_p));\n-\t//MCE_app_send_m2ap_session_stop_req(0);\n-\tMCE_app_handle_m2ap_mbms_session_start_resp(0);\n-\tbreak;\n+        //MCE_app_send_m2ap_session_stop_req(0);\n+        MCE_app_handle_m2ap_mbms_session_start_resp(0,
+  msg_p);\n+        break;\n \n    case M2AP_MBMS_SESSION_STOP_RESP:\n       LOG_I(MCE_APP,
+  \"Received M2AP_MBMS_SESSION_STOP_RESP message %s\\n\", ITTI_MSG_NAME (msg_p));\n-\t//MCE_app_send_m2ap_session_start_req(0);\n-\t//MCE_app_handle_m2ap_mbms_session_start_resp(0);\n-\t//MCE_app_send_MME_APP(0);\n-\tbreak;\n+        //MCE_app_send_m2ap_session_start_req(0);\n+        //MCE_app_handle_m2ap_mbms_session_start_resp(0);\n+        //MCE_app_send_MME_APP(0);\n+        break;\n
+  \n    case M2AP_MBMS_SCHEDULING_INFORMATION_RESP:\n       LOG_I(MCE_APP, \"Received
+  M2AP_MBMS_SCHEDULING_INFORMATION_RESP message %s\\n\", ITTI_MSG_NAME (msg_p));\n-\tMCE_app_send_m2ap_session_start_req(0);\n-\tbreak;\n+        MCE_app_send_m2ap_session_start_req(0);\n+        break;\n
+  \n    case M2AP_ENB_CONFIGURATION_UPDATE:\n       LOG_I(MCE_APP, \"Received M2AP_ENB_CONFIGURATION_UPDATE
+  message %s\\n\", ITTI_MSG_NAME (msg_p));\n-\tbreak;\n-\t\n+        break;\n+        \n    case
+  M2AP_ERROR_INDICATION:\n       LOG_I(MCE_APP, \"Received M2AP_ERROR_INDICATION message
+  %s\\n\", ITTI_MSG_NAME (msg_p));\n-\tbreak;\n+        break;\n \n    case M2AP_MBMS_SESSION_UPDATE_RESP:\n       LOG_I(MCE_APP,
+  \"Received M2AP_MBMS_SESSION_UPDATE_RESP message %s\\n\", ITTI_MSG_NAME (msg_p));\n-\tbreak;\n+        break;\n
+  \n    case M2AP_MBMS_SESSION_UPDATE_FAILURE:\n       LOG_I(MCE_APP, \"Received M2AP_MBMS_SESSION_UPDATE_FAILURE
+  message %s\\n\", ITTI_MSG_NAME (msg_p));\n-\tbreak;\n+        break;\n \n    case
+  M2AP_MBMS_SERVICE_COUNTING_REPORT:\n       LOG_I(MCE_APP, \"Received M2AP_MBMS_SESSION_UPDATE_REPORT
+  message %s\\n\", ITTI_MSG_NAME (msg_p));\n-\tbreak;\n+        break;\n \n    case
+  M2AP_MBMS_OVERLOAD_NOTIFICATION:\n       LOG_I(MCE_APP, \"Received M2AP_MBMS_OVERLOAD_NOTIFICATION
+  message %s\\n\", ITTI_MSG_NAME (msg_p));\n-\tbreak;\n+        break;\n \n    case
+  M2AP_MBMS_SERVICE_COUNTING_RESP:\n       LOG_I(MCE_APP, \"Received M2AP_MBMS_SESSION_UPDATE_RESP
+  message %s\\n\", ITTI_MSG_NAME (msg_p));\n-\tbreak;\n+        break;\n \n    case
+  M2AP_MBMS_SERVICE_COUNTING_FAILURE:\n       LOG_I(MCE_APP, \"Received M2AP_MBMS_SESSION_UPDATE_FAILURE
+  message %s\\n\", ITTI_MSG_NAME (msg_p));\n-\tbreak;\n+        break;\n \n    case
+  M2AP_MCE_CONFIGURATION_UPDATE_ACK:\n       LOG_I(MCE_APP, \"Received M2AP_MCE_CONFIGURATION_UPDATE_ACK
+  message %s\\n\", ITTI_MSG_NAME (msg_p));\n-\tbreak;\n+        break;\n    case M2AP_MCE_CONFIGURATION_UPDATE_FAILURE:\n       LOG_I(MCE_APP,
+  \"Received M2AP_MCE_CONFIGURATION_UPDATE_FAILURE message %s\\n\", ITTI_MSG_NAME
+  (msg_p));\n-\tbreak;\n+        break;\n \n     default:\n       LOG_E(MCE_APP, \"Received
+  unexpected message %s\\n\", ITTI_MSG_NAME (msg_p));\n","start_fn":"MCE_app_handle_m2ap_mbms_session_start_resp","start_fn_file":"openair2/MCE_APP/mce_app.c","subsystem":"openair2/MCE_APP"},"type":"text","id":"oai5g_9777d23_00625"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

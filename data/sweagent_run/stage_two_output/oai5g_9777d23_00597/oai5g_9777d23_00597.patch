@@ -1,0 +1,15 @@
+diff --git a/openair3/NAS/COMMON/IES/UeRadioCapabilityInformationUpdateNeeded.c b/openair3/NAS/COMMON/IES/UeRadioCapabilityInformationUpdateNeeded.c
+index a56400c54d..08f4cd8465 100644
+--- a/openair3/NAS/COMMON/IES/UeRadioCapabilityInformationUpdateNeeded.c
++++ b/openair3/NAS/COMMON/IES/UeRadioCapabilityInformationUpdateNeeded.c
+@@ -76,8 +76,8 @@ uint8_t encode_u8_ue_radio_capability_information_update_needed(UeRadioCapabilit
+   uint8_t bufferReturn;
+   uint8_t *buffer = &bufferReturn;
+   uint8_t encoded = 0;
+-  uint8_t iei = 0;
+-  dump_ue_radio_capability_information_update_needed_xml(ueradiocapabilityinformationupdateneeded, 0);
++  uint8_t iei = 0xA0;
++  dump_ue_radio_capability_information_update_needed_xml(ueradiocapabilityinformationupdateneeded, 0xA0);
+   *(buffer + encoded) = 0x00 | (iei & 0xf0) |
+                         (*ueradiocapabilityinformationupdateneeded & 0x1);
+   encoded++;

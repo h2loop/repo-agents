@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix GUI thread termination behavior in VCD tracer\n\n### Summary\nThe VCD tracer's GUI thread was not properly terminating the entire program when the GUI loop exited. This caused the main thread to continue running without a GUI, leading to potential resource leaks and undefined behavior.\n\nThis fix modifies the `gui_thread` function in the VCD tracer to match the behavior of similar functions in the codebase, ensuring that when the GUI loop terminates, the entire program exits gracefully.\n\n### Changes\n- `common/utils/T/tracer/vcd.c`: Changed `gui_thread` to call `exit(0)` instead of returning NULL after `gui_loop` returns.\n\n"
+}

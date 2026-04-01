@@ -1,0 +1,41 @@
+diff --git a/openair1/PHY/INIT/nr_init_ue.c b/openair1/PHY/INIT/nr_init_ue.c
+index b167cebc26..a3772eca48 100644
+--- a/openair1/PHY/INIT/nr_init_ue.c
++++ b/openair1/PHY/INIT/nr_init_ue.c
+@@ -275,8 +275,10 @@ int init_nr_ue_signal(PHY_VARS_NR_UE *ue, int nb_connected_gNB)
+   init_timeshift_rotation(fp);
+ 
+   // initialize to false only for SA since in do-ra and phy-test it is already set to true before getting here
+-  if (IS_SA_MODE(get_softmodem_params()))
++  if (IS_SA_MODE(get_softmodem_params())) {
+     ue->received_config_request = false;
++    ue->received_sl_config_request = false;
++  }
+ 
+   return 0;
+ }
+diff --git a/openair1/PHY/defs_nr_UE.h b/openair1/PHY/defs_nr_UE.h
+index 9d8683481d..eca9a1b636 100644
+--- a/openair1/PHY/defs_nr_UE.h
++++ b/openair1/PHY/defs_nr_UE.h
+@@ -397,6 +397,7 @@ typedef struct PHY_VARS_NR_UE_s {
+ 
+   nr_ue_if_module_t *if_inst;
+   bool received_config_request;
++  bool received_sl_config_request;
+   fapi_nr_config_request_t nrUE_config;
+   nr_synch_request_t synch_request;
+ 
+diff --git a/openair1/SCHED_NR_UE/fapi_nr_ue_l1.c b/openair1/SCHED_NR_UE/fapi_nr_ue_l1.c
+index 52d5033457..591505b33f 100644
+--- a/openair1/SCHED_NR_UE/fapi_nr_ue_l1.c
++++ b/openair1/SCHED_NR_UE/fapi_nr_ue_l1.c
+@@ -611,7 +611,7 @@ void nr_ue_sl_phy_config_request(nr_sl_phy_config_t *phy_config)
+   PHY_VARS_NR_UE *phy = PHY_vars_UE_g[phy_config->Mod_id][phy_config->CC_id];
+   sl_nr_phy_config_request_t *sl_config = &phy->SL_UE_PHY_PARAMS.sl_config;
+   if (phy_config != NULL) {
+-    phy->received_config_request = true;
++    phy->received_sl_config_request = true;
+     memcpy(sl_config, &phy_config->sl_config_req, sizeof(sl_nr_phy_config_request_t));
+   }
+ }

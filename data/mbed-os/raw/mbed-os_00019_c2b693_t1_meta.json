@@ -1,0 +1,26 @@
+{
+  "run_id": "mbed-os_00019_c2b693",
+  "function": {
+    "name": "dac_trigger_disable",
+    "file": "targets/TARGET_GigaDevice/TARGET_GD32F30X/GD32F30x_standard_peripheral/Source/gd32f30x_dac.c",
+    "start_line": 170,
+    "end_line": 177,
+    "body_lines": 8,
+    "signature": "void dac_trigger_disable(uint32_t dac_periph)",
+    "subsystem": "targets/TARGET_GigaDevice/TARGET_GD32F30X",
+    "token_estimate": 20
+  },
+  "bug": {
+    "bug_id": "c_signed_unsigned_mismatch",
+    "description": "signed/unsigned integer comparison mismatch leading to incorrect branch",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a signed/unsigned integer comparison mismatch leading to incorrect branch downstream of function dac_trigger_disable in the targets/TARGET_GigaDevice/TARGET_GD32F30X subsystem.\nThe function is located at targets/TARGET_GigaDevice/TARGET_GD32F30X/GD32F30x_standard_peripheral/Source/gd32f30x_dac.c:170.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 17,
+  "trajectory_steps": 63,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:35:13Z"
+}

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect output indexing in LDPC encoder for Zc=288\n\n### Summary\nThe NR LDPC encoder for BG2 with Zc=288 contained an indexing error that caused incorrect parity bits to be generated. The bug manifested when running 5G NR throughput tests at high MCS values where Zc=288 is commonly used.\n\nThe indexing error was in the generated code that processes the parity check equations. Due to incorrect pointer arithmetic, the encoder was writing parity bits to wrong memory locations, causing BER degradation of approximately 0.5% at high SNR conditions.\n\n### Changes\n- `openair1/PHY/CODING/nrLDPC_encoder/ldpc_BG2_Zc288_byte.c`: Fixed output buffer indexing in main processing loop.\n"
+}

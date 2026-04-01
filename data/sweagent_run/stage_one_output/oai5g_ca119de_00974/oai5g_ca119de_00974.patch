@@ -1,0 +1,15 @@
+diff --git a/openair1/PHY/CODING/lte_rate_matching.c b/openair1/PHY/CODING/lte_rate_matching.c
+index 5aedde34df..428582f15f 100644
+--- a/openair1/PHY/CODING/lte_rate_matching.c
++++ b/openair1/PHY/CODING/lte_rate_matching.c
+@@ -718,6 +718,10 @@ int lte_rate_matching_turbo_rx(uint32_t RTC,
+ #endif
+   }
+ 
++  // Reset ind to 0 if we reached the end of the buffer and still have bits to process
++  if (ind == Ncb && k < E)
++    ind = 0;
++
+   while(k<E) {
+     for (ind=0; (ind<Ncb)&&(k<E); ind++) {
+       if (dummy_w[ind] != LTE_NULL) {

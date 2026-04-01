@@ -1,0 +1,25 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
+index 6e79af6348..5710a1590e 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
+@@ -109,11 +109,16 @@ static uint8_t pack_nb_iot_rssi_request_value(void *tlv, uint8_t **ppWritePacked
+          push8(value->earfcn[idx].number_of_ro_dl, ppWritePackedMsg, end)))
+       return 0;
+ 
+-    uint8_t ro_dl_idx = 0;
++    if(value->earfcn[idx].number_of_ro_dl <= NFAPI_MAX_RO_DL) {
++      uint8_t ro_dl_idx = 0;
+ 
+-    for(ro_dl_idx = 0; ro_dl_idx < value->earfcn[idx].number_of_ro_dl; ++ro_dl_idx) {
+-      if(!push8(value->earfcn[idx].ro_dl[ro_dl_idx], ppWritePackedMsg, end))
+-        return 0;
++      for(ro_dl_idx = 0; ro_dl_idx < value->earfcn[idx].number_of_ro_dl; ++ro_dl_idx) {
++        if(!push8(value->earfcn[idx].ro_dl[ro_dl_idx], ppWritePackedMsg, end))
++          return 0;
++      }
++    } else {
++      NFAPI_TRACE(NFAPI_TRACE_ERROR, "pack_nb_iot_rssi_request_value: More ROdl's than we can encode %d \n", value->earfcn[idx].number_of_ro_dl);
++      return 0;
+     }
+   }
+ 

@@ -1,0 +1,19 @@
+diff --git a/openair3/NAS/COMMON/UTIL/device.c b/openair3/NAS/COMMON/UTIL/device.c
+index 41085f0e24..44b654ad8d 100644
+--- a/openair3/NAS/COMMON/UTIL/device.c
++++ b/openair3/NAS/COMMON/UTIL/device.c
+@@ -216,7 +216,13 @@ ssize_t device_write(const void* id, const char* buffer, size_t len)
+   ssize_t sbytes = write(devid->fd, buffer, len);
+   fflush(NULL);
+ 
+-  if (sbytes != len) {
++  if (sbytes < 0) {
++    /* write() returned an error */
++    return RETURNerror;
++  }
++
++  if ((size_t)sbytes != len) {
++    /* Not all bytes were written */
+     return RETURNerror;
+   }
+ 

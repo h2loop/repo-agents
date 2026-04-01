@@ -1,0 +1,30 @@
+{
+  "run_id": "s00308_547bb5",
+  "function": {
+    "name": "get_slot_from_timestamp",
+    "file": "openair1/PHY/INIT/nr_parms.c",
+    "start_line": 323,
+    "end_line": 350,
+    "body_lines": 28,
+    "signature": "uint32_t get_slot_from_timestamp(openair0_timestamp_t timestamp_rx, const NR_DL_FRAME_PARMS *fp)",
+    "subsystem": "openair1/PHY/INIT",
+    "token_estimate": 109
+  },
+  "bug": {
+    "bug_id": "telecom_state_machine_invalid_transition",
+    "description": "incorrect protocol state machine transition that violates 3GPP specification",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a incorrect protocol state machine transition that violates 3GPP specification downstream of function get_slot_from_timestamp in the openair1/PHY/INIT subsystem.\nThe function is located at openair1/PHY/INIT/nr_parms.c:323.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00308_547bb5_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00308_547bb5_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 22,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T14:18:37Z"
+}

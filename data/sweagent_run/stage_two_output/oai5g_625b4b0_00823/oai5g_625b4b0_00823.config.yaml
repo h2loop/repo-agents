@@ -1,0 +1,246 @@
+'{"env":{"deployment":{"image":"oai5g-sera:625b4b0","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_625b4b0_00823","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix address sanitizer errors in LDPC encoder functions\n\n### Summary\nThe
+  NR LDPC encoder functions for BG1 (ldpc176_byte through ldpc384_byte) were causing
+  address sanitizer errors during execution. These functions use complex indexing
+  patterns that appear to access memory beyond array bounds but are actually valid
+  within their SIMD operations context.\n\nThis fix adds the missing `__attribute__
+  ((no_sanitize(\"address\", \"undefined\")))` to all BG1 LDPC encoder functions to
+  prevent false positive sanitizer errors.\n\n### Reproduction\nWhen running OAI5G
+  with address sanitization enabled and Zc=208 (or other BG1 configurations), the
+  following error occurs:\n\n```\nERROR: AddressSanitizer: stack-buffer-overflow on
+  address 0x7fff5fbff000 at pc 0x7ffff7b8c000\nREAD of size 16 at 0x7fff5fbff000 thread
+  T0\n    #0 0x7ffff7b8c000 in ldpc208_byte /repo/openair1/PHY/CODING/nrLDPC_encoder/ldpc208_byte.c:14\n```\n\nThe
+  issue manifests as unexpected behavior or crashes when encoding with BG1 configurations,
+  particularly when Zc >= 176.\n\n### Changes\n- `openair1/PHY/CODING/nrLDPC_encoder/ldpc176_byte.c`:
+  Added no_sanitize attribute\n- `openair1/PHY/CODING/nrLDPC_encoder/ldpc192_byte.c`:
+  Added no_sanitize attribute  \n- `openair1/PHY/CODING/nrLDPC_encoder/ldpc208_byte.c`:
+  Added no_sanitize attribute\n- `openair1/PHY/CODING/nrLDPC_encoder/ldpc224_byte.c`:
+  Added no_sanitize attribute\n- `openair1/PHY/CODING/nrLDPC_encoder/ldpc240_byte.c`:
+  Added no_sanitize attribute\n- `openair1/PHY/CODING/nrLDPC_encoder/ldpc256_byte.c`:
+  Added no_sanitize attribute\n- `openair1/PHY/CODING/nrLDPC_encoder/ldpc288_byte.c`:
+  Added no_sanitize attribute\n- `openair1/PHY/CODING/nrLDPC_encoder/ldpc320_byte.c`:
+  Added no_sanitize attribute\n- `openair1/PHY/CODING/nrLDPC_encoder/ldpc352_byte.c`:
+  Added no_sanitize attribute\n- `openair1/PHY/CODING/nrLDPC_encoder/ldpc384_byte.c`:
+  Added no_sanitize attribute\n- `openair1/PHY/CODING/nrLDPC_encoder/ldpc192_byte_128.c`:
+  Added no_sanitize attribute\n- `openair1/PHY/CODING/nrLDPC_encoder/ldpc224_byte_128.c`:
+  Added no_sanitize attribute\n- `openair1/PHY/CODING/nrLDPC_encoder/ldpc240_byte_128.c`:
+  Added no_sanitize attribute\n- `openair1/PHY/CODING/nrLDPC_encoder/ldpc256_byte_128.c`:
+  Added no_sanitize attribute\n- `openair1/PHY/CODING/nrLDPC_encoder/ldpc288_byte_128.c`:
+  Added no_sanitize attribute\n- `openair1/PHY/CODING/nrLDPC_encoder/ldpc320_byte_128.c`:
+  Added no_sanitize attribute\n- `openair1/PHY/CODING/nrLDPC_encoder/ldpc352_byte_128.c`:
+  Added no_sanitize attribute\n- `openair1/PHY/CODING/nrLDPC_encoder/ldpc384_byte_128.c`:
+  Added no_sanitize attribute\n","extra_fields":{"bug_description":"configuration
+  mismatch between protocol layers causing inconsistent behavior","bug_id":"telecom_config_layer_mismatch","stage_one_patch":"diff
+  --git a/openair1/PHY/CODING/nrLDPC_encoder/ldpc176_byte.c b/openair1/PHY/CODING/nrLDPC_encoder/ldpc176_byte.c\nindex
+  a4b2669155..d9b243b70d 100644\n--- a/openair1/PHY/CODING/nrLDPC_encoder/ldpc176_byte.c\n+++
+  b/openair1/PHY/CODING/nrLDPC_encoder/ldpc176_byte.c\n@@ -1,6 +1,6 @@\n #include
+  \"PHY/sse_intrin.h\"\n // generated code for Zc=176, byte encoding\n-static inline
+  void ldpc176_byte(uint8_t *c,uint8_t *d) {\n+static inline __attribute__ ((no_sanitize(\"address\",
+  \"undefined\"))) void ldpc176_byte(uint8_t *c,uint8_t *d) {\n   simde__m128i *csimd=(simde__m128i
+  *)c,*dsimd=(simde__m128i *)d;\n \n   simde__m128i *c2,*d2;\ndiff --git a/openair1/PHY/CODING/nrLDPC_encoder/ldpc192_byte.c
+  b/openair1/PHY/CODING/nrLDPC_encoder/ldpc192_byte.c\nindex 32b7f6c19d..9ab1837fd5
+  100644\n--- a/openair1/PHY/CODING/nrLDPC_encoder/ldpc192_byte.c\n+++ b/openair1/PHY/CODING/nrLDPC_encoder/ldpc192_byte.c\n@@
+  -1,7 +1,7 @@\n #ifdef __AVX2__\n #include \"PHY/sse_intrin.h\"\n // generated code
+  for Zc=192, byte encoding\n-static inline void ldpc192_byte(uint8_t *c,uint8_t *d)
+  {\n+static inline __attribute__ ((no_sanitize(\"address\", \"undefined\"))) void
+  ldpc192_byte(uint8_t *c,uint8_t *d) {\n   simde__m256i *csimd=(simde__m256i *)c,*dsimd=(simde__m256i
+  *)d;\n \n   simde__m256i *c2,*d2;\ndiff --git a/openair1/PHY/CODING/nrLDPC_encoder/ldpc192_byte_128.c
+  b/openair1/PHY/CODING/nrLDPC_encoder/ldpc192_byte_128.c\nindex 7226870268..d95e1f5500
+  100644\n--- a/openair1/PHY/CODING/nrLDPC_encoder/ldpc192_byte_128.c\n+++ b/openair1/PHY/CODING/nrLDPC_encoder/ldpc192_byte_128.c\n@@
+  -1,7 +1,7 @@\n #ifndef __AVX2__\n #include \"PHY/sse_intrin.h\"\n // generated code
+  for Zc=192, byte encoding\n-static inline void ldpc192_byte(uint8_t *c,uint8_t *d)
+  {\n+static inline __attribute__ ((no_sanitize(\"address\", \"undefined\"))) void
+  ldpc192_byte(uint8_t *c,uint8_t *d) {\n   simde__m128i *csimd=(simde__m128i *)c,*dsimd=(simde__m128i
+  *)d;\n \n   simde__m128i *c2,*d2;\ndiff --git a/openair1/PHY/CODING/nrLDPC_encoder/ldpc208_byte.c
+  b/openair1/PHY/CODING/nrLDPC_encoder/ldpc208_byte.c\nindex 77feb30c5e..f7492a297f
+  100644\n--- a/openair1/PHY/CODING/nrLDPC_encoder/ldpc208_byte.c\n+++ b/openair1/PHY/CODING/nrLDPC_encoder/ldpc208_byte.c\n@@
+  -1,6 +1,6 @@\n #include \"PHY/sse_intrin.h\"\n // generated code for Zc=208, byte
+  encoding\n-static inline void ldpc208_byte(uint8_t *c,uint8_t *d) {\n+static inline
+  __attribute__ ((no_sanitize(\"address\", \"undefined\"))) void ldpc208_byte(uint8_t
+  *c,uint8_t *d) {\n   simde__m128i *csimd=(simde__m128i *)c,*dsimd=(simde__m128i
+  *)d;\n \n   simde__m128i *c2,*d2;\ndiff --git a/openair1/PHY/CODING/nrLDPC_encoder/ldpc224_byte.c
+  b/openair1/PHY/CODING/nrLDPC_encoder/ldpc224_byte.c\nindex 1a6f2264c2..a3bb1abf0c
+  100644\n--- a/openair1/PHY/CODING/nrLDPC_encoder/ldpc224_byte.c\n+++ b/openair1/PHY/CODING/nrLDPC_encoder/ldpc224_byte.c\n@@
+  -1,7 +1,7 @@\n #ifdef __AVX2__\n #include \"PHY/sse_intrin.h\"\n // generated code
+  for Zc=224, byte encoding\n-static inline void ldpc224_byte(uint8_t *c,uint8_t *d)
+  {\n+static inline __attribute__ ((no_sanitize(\"address\", \"undefined\"))) void
+  ldpc224_byte(uint8_t *c,uint8_t *d) {\n   simde__m256i *csimd=(simde__m256i *)c,*dsimd=(simde__m256i
+  *)d;\n \n   simde__m256i *c2,*d2;\ndiff --git a/openair1/PHY/CODING/nrLDPC_encoder/ldpc224_byte_128.c
+  b/openair1/PHY/CODING/nrLDPC_encoder/ldpc224_byte_128.c\nindex 1972280d0d..27271d2487
+  100644\n--- a/openair1/PHY/CODING/nrLDPC_encoder/ldpc224_byte_128.c\n+++ b/openair1/PHY/CODING/nrLDPC_encoder/ldpc224_byte_128.c\n@@
+  -1,7 +1,7 @@\n #ifndef __AVX2__\n #include \"PHY/sse_intrin.h\"\n // generated code
+  for Zc=224, byte encoding\n-static inline void ldpc224_byte(uint8_t *c,uint8_t *d)
+  {\n+static inline __attribute__ ((no_sanitize(\"address\", \"undefined\"))) void
+  ldpc224_byte(uint8_t *c,uint8_t *d) {\n   simde__m128i *csimd=(simde__m128i *)c,*dsimd=(simde__m128i
+  *)d;\n \n   simde__m128i *c2,*d2;\ndiff --git a/openair1/PHY/CODING/nrLDPC_encoder/ldpc240_byte.c
+  b/openair1/PHY/CODING/nrLDPC_encoder/ldpc240_byte.c\nindex b65d1f0ad5..96d84c4bd5
+  100644\n--- a/openair1/PHY/CODING/nrLDPC_encoder/ldpc240_byte.c\n+++ b/openair1/PHY/CODING/nrLDPC_encoder/ldpc240_byte.c\n@@
+  -1,6 +1,6 @@\n #include \"PHY/sse_intrin.h\"\n // generated code for Zc=240, byte
+  encoding\n-static inline void ldpc240_byte(uint8_t *c,uint8_t *d) {\n+static inline
+  __attribute__ ((no_sanitize(\"address\", \"undefined\"))) void ldpc240_byte(uint8_t
+  *c,uint8_t *d) {\n   simde__m128i *csimd=(simde__m128i *)c,*dsimd=(simde__m128i
+  *)d;\n \n   simde__m128i *c2,*d2;\ndiff --git a/openair1/PHY/CODING/nrLDPC_encoder/ldpc240_byte_128.c
+  b/openair1/PHY/CODING/nrLDPC_encoder/ldpc240_byte_128.c\nindex c230ac4805..349fb0267f
+  100644\n--- a/openair1/PHY/CODING/nrLDPC_encoder/ldpc240_byte_128.c\n+++ b/openair1/PHY/CODING/nrLDPC_encoder/ldpc240_byte_128.c\n@@
+  -1,7 +1,7 @@\n #ifndef __AVX2__\n #include \"PHY/sse_intrin.h\"\n // generated code
+  for Zc=240, byte encoding\n-static inline void ldpc240_byte(uint8_t *c,uint8_t *d)
+  {\n+static inline __attribute__ ((no_sanitize(\"address\", \"undefined\"))) void
+  ldpc240_byte(uint8_t *c,uint8_t *d) {\n   simde__m128i *csimd=(simde__m128i *)c,*dsimd=(simde__m128i
+  *)d;\n \n   simde__m128i *c2,*d2;\ndiff --git a/openair1/PHY/CODING/nrLDPC_encoder/ldpc256_byte.c
+  b/openair1/PHY/CODING/nrLDPC_encoder/ldpc256_byte.c\nindex 4be5d7bbfc..fade89dd3e
+  100644\n--- a/openair1/PHY/CODING/nrLDPC_encoder/ldpc256_byte.c\n+++ b/openair1/PHY/CODING/nrLDPC_encoder/ldpc256_byte.c\n@@
+  -1,7 +1,7 @@\n #ifdef __AVX2__\n #include \"PHY/sse_intrin.h\"\n // generated code
+  for Zc=256, byte encoding\n-static inline void ldpc256_byte(uint8_t *c,uint8_t *d)
+  {\n+static inline __attribute__ ((no_sanitize(\"address\", \"undefined\"))) void
+  ldpc256_byte(uint8_t *c,uint8_t *d) {\n   simde__m256i *csimd=(simde__m256i *)c,*dsimd=(simde__m256i
+  *)d;\n \n   simde__m256i *c2,*d2;\ndiff --git a/openair1/PHY/CODING/nrLDPC_encoder/ldpc256_byte_128.c
+  b/openair1/PHY/CODING/nrLDPC_encoder/ldpc256_byte_128.c\nindex 51c904e793..1cc01ca1dd
+  100644\n--- a/openair1/PHY/CODING/nrLDPC_encoder/ldpc256_byte_128.c\n+++ b/openair1/PHY/CODING/nrLDPC_encoder/ldpc256_byte_128.c\n@@
+  -1,7 +1,7 @@\n #ifndef __AVX2__\n #include \"PHY/sse_intrin.h\"\n // generated code
+  for Zc=256, byte encoding\n-static inline void ldpc256_byte(uint8_t *c,uint8_t *d)
+  {\n+static inline __attribute__ ((no_sanitize(\"address\", \"undefined\"))) void
+  ldpc256_byte(uint8_t *c,uint8_t *d) {\n   simde__m128i *csimd=(simde__m128i *)c,*dsimd=(simde__m128i
+  *)d;\n \n   simde__m128i *c2,*d2;\ndiff --git a/openair1/PHY/CODING/nrLDPC_encoder/ldpc288_byte.c
+  b/openair1/PHY/CODING/nrLDPC_encoder/ldpc288_byte.c\nindex cdfbf509ef..ca9acd46d3
+  100644\n--- a/openair1/PHY/CODING/nrLDPC_encoder/ldpc288_byte.c\n+++ b/openair1/PHY/CODING/nrLDPC_encoder/ldpc288_byte.c\n@@
+  -1,7 +1,7 @@\n #ifdef __AVX2__\n #include \"PHY/sse_intrin.h\"\n // generated code
+  for Zc=288, byte encoding\n-static inline void ldpc288_byte(uint8_t *c,uint8_t *d)
+  {\n+static inline __attribute__ ((no_sanitize(\"address\", \"undefined\"))) void
+  ldpc288_byte(uint8_t *c,uint8_t *d) {\n   simde__m256i *csimd=(simde__m256i *)c,*dsimd=(simde__m256i
+  *)d;\n \n   simde__m256i *c2,*d2;\ndiff --git a/openair1/PHY/CODING/nrLDPC_encoder/ldpc288_byte_128.c
+  b/openair1/PHY/CODING/nrLDPC_encoder/ldpc288_byte_128.c\nindex 1ac755aea1..0f66374fd4
+  100644\n--- a/openair1/PHY/CODING/nrLDPC_encoder/ldpc288_byte_128.c\n+++ b/openair1/PHY/CODING/nrLDPC_encoder/ldpc288_byte_128.c\n@@
+  -1,7 +1,7 @@\n #ifndef __AVX2__\n #include \"PHY/sse_intrin.h\"\n // generated code
+  for Zc=288, byte encoding\n-static inline void ldpc288_byte(uint8_t *c,uint8_t *d)
+  {\n+static inline __attribute__ ((no_sanitize(\"address\", \"undefined\"))) void
+  ldpc288_byte(uint8_t *c,uint8_t *d) {\n   simde__m128i *csimd=(simde__m128i *)c,*dsimd=(simde__m128i
+  *)d;\n \n   simde__m128i *c2,*d2;\ndiff --git a/openair1/PHY/CODING/nrLDPC_encoder/ldpc320_byte.c
+  b/openair1/PHY/CODING/nrLDPC_encoder/ldpc320_byte.c\nindex 231c19e504..df4b27535c
+  100644\n--- a/openair1/PHY/CODING/nrLDPC_encoder/ldpc320_byte.c\n+++ b/openair1/PHY/CODING/nrLDPC_encoder/ldpc320_byte.c\n@@
+  -1,7 +1,7 @@\n #ifdef __AVX2__\n #include \"PHY/sse_intrin.h\"\n // generated code
+  for Zc=320, byte encoding\n-static inline void ldpc320_byte(uint8_t *c,uint8_t *d)
+  {\n+static inline __attribute__ ((no_sanitize(\"address\", \"undefined\"))) void
+  ldpc320_byte(uint8_t *c,uint8_t *d) {\n   simde__m256i *csimd=(simde__m256i *)c,*dsimd=(simde__m256i
+  *)d;\n \n   simde__m256i *c2,*d2;\ndiff --git a/openair1/PHY/CODING/nrLDPC_encoder/ldpc320_byte_128.c
+  b/openair1/PHY/CODING/nrLDPC_encoder/ldpc320_byte_128.c\nindex 76ccd4c3f4..fa81984b62
+  100644\n--- a/openair1/PHY/CODING/nrLDPC_encoder/ldpc320_byte_128.c\n+++ b/openair1/PHY/CODING/nrLDPC_encoder/ldpc320_byte_128.c\n@@
+  -1,7 +1,7 @@\n #ifndef __AVX2__\n #include \"PHY/sse_intrin.h\"\n // generated code
+  for Zc=320, byte encoding\n-static inline void ldpc320_byte(uint8_t *c,uint8_t *d)
+  {\n+static inline __attribute__ ((no_sanitize(\"address\", \"undefined\"))) void
+  ldpc320_byte(uint8_t *c,uint8_t *d) {\n   simde__m128i *csimd=(simde__m128i *)c,*dsimd=(simde__m128i
+  *)d;\n \n   simde__m128i *c2,*d2;\ndiff --git a/openair1/PHY/CODING/nrLDPC_encoder/ldpc352_byte.c
+  b/openair1/PHY/CODING/nrLDPC_encoder/ldpc352_byte.c\nindex e920501d85..55fa021a92
+  100644\n--- a/openair1/PHY/CODING/nrLDPC_encoder/ldpc352_byte.c\n+++ b/openair1/PHY/CODING/nrLDPC_encoder/ldpc352_byte.c\n@@
+  -1,7 +1,7 @@\n #ifdef __AVX2__\n #include \"PHY/sse_intrin.h\"\n // generated code
+  for Zc=352, byte encoding\n-static inline void ldpc352_byte(uint8_t *c,uint8_t *d)
+  {\n+static inline __attribute__ ((no_sanitize(\"address\", \"undefined\"))) void
+  ldpc352_byte(uint8_t *c,uint8_t *d) {\n   simde__m256i *csimd=(simde__m256i *)c,*dsimd=(simde__m256i
+  *)d;\n \n   simde__m256i *c2,*d2;\ndiff --git a/openair1/PHY/CODING/nrLDPC_encoder/ldpc352_byte_128.c
+  b/openair1/PHY/CODING/nrLDPC_encoder/ldpc352_byte_128.c\nindex a0add1832c..2338d33c1e
+  100644\n--- a/openair1/PHY/CODING/nrLDPC_encoder/ldpc352_byte_128.c\n+++ b/openair1/PHY/CODING/nrLDPC_encoder/ldpc352_byte_128.c\n@@
+  -1,7 +1,7 @@\n #ifndef __AVX2__\n #include \"PHY/sse_intrin.h\"\n // generated code
+  for Zc=352, byte encoding\n-static inline void ldpc352_byte(uint8_t *c,uint8_t *d)
+  {\n+static inline __attribute__ ((no_sanitize(\"address\", \"undefined\"))) void
+  ldpc352_byte(uint8_t *c,uint8_t *d) {\n   simde__m128i *csimd=(simde__m128i *)c,*dsimd=(simde__m128i
+  *)d;\n \n   simde__m128i *c2,*d2;\ndiff --git a/openair1/PHY/CODING/nrLDPC_encoder/ldpc384_byte.c
+  b/openair1/PHY/CODING/nrLDPC_encoder/ldpc384_byte.c\nindex 7c10922767..fb6631ab5a
+  100644\n--- a/openair1/PHY/CODING/nrLDPC_encoder/ldpc384_byte.c\n+++ b/openair1/PHY/CODING/nrLDPC_encoder/ldpc384_byte.c\n@@
+  -1,7 +1,7 @@\n #ifdef __AVX2__\n #include \"PHY/sse_intrin.h\"\n // generated code
+  for Zc=384, byte encoding\n-static inline void ldpc384_byte(uint8_t *c,uint8_t *d)
+  {\n+static inline __attribute__ ((no_sanitize(\"address\", \"undefined\"))) void
+  ldpc384_byte(uint8_t *c,uint8_t *d) {\n   simde__m256i *csimd=(simde__m256i *)c,*dsimd=(simde__m256i
+  *)d;\n \n   simde__m256i *c2,*d2;\ndiff --git a/openair1/PHY/CODING/nrLDPC_encoder/ldpc384_byte_128.c
+  b/openair1/PHY/CODING/nrLDPC_encoder/ldpc384_byte_128.c\nindex d22c054209..8541ec1b6f
+  100644\n--- a/openair1/PHY/CODING/nrLDPC_encoder/ldpc384_byte_128.c\n+++ b/openair1/PHY/CODING/nrLDPC_encoder/ldpc384_byte_128.c\n@@
+  -1,7 +1,7 @@\n #ifndef __AVX2__\n #include \"PHY/sse_intrin.h\"\n // generated code
+  for Zc=384, byte encoding\n-static inline void ldpc384_byte(uint8_t *c,uint8_t *d)
+  {\n+static inline __attribute__ ((no_sanitize(\"address\", \"undefined\"))) void
+  ldpc384_byte(uint8_t *c,uint8_t *d) {\n   simde__m128i *csimd=(simde__m128i *)c,*dsimd=(simde__m128i
+  *)d;\n \n   simde__m128i *c2,*d2;\n","start_fn":"ldpc208_byte","start_fn_file":"openair1/PHY/CODING/nrLDPC_encoder/ldpc208_byte.c","subsystem":"openair1/PHY/CODING"},"type":"text","id":"oai5g_625b4b0_00823"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

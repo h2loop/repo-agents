@@ -1,0 +1,68 @@
+diff --git a/openair2/RRC/LTE/rrc_common.c b/openair2/RRC/LTE/rrc_common.c
+index 2448ec9bbe..721d2b92a0 100644
+--- a/openair2/RRC/LTE/rrc_common.c
++++ b/openair2/RRC/LTE/rrc_common.c
+@@ -43,6 +43,7 @@
+ #include "rrc_eNB_UE_context.h"
+ #include "common/ran_context.h"
+ #include "openair2/RRC/LTE/rrc_proto.h"
++#include <string.h>
+ 
+ extern RAN_CONTEXT_t RC;
+ extern UE_MAC_INST *UE_mac_inst;
+@@ -56,9 +57,16 @@ rrc_init_global_param(
+ )
+ //-----------------------------------------------------------------------------
+ {
++  // Initialize DCCH parameters
+   DCCH_LCHAN_DESC.transport_block_size = 4;
+   DCCH_LCHAN_DESC.max_transport_blocks = 16;
+   DCCH_LCHAN_DESC.Delay_class = 1;
++  
++  // Initialize CCCH parameters
++  CCCH_LCHAN_DESC.transport_block_size = 4;
++  CCCH_LCHAN_DESC.max_transport_blocks = 16;
++  CCCH_LCHAN_DESC.Delay_class = 1;
++  
+   return 0;
+ }
+ 
+@@ -73,6 +81,38 @@ rrc_config_buffer(
+ {
+   Srb_info->Rx_buffer.payload_size = 0;
+   Srb_info->Tx_buffer.payload_size = 0;
++  
++  // Configure LCHAN_DESC based on Lchan_type
++  switch (Lchan_type) {
++    case BCCH:  // BCCH = 3
++      memcpy(&Srb_info->Lchan_desc[0], &BCCH_LCHAN_DESC, LCHAN_DESC_SIZE);
++      memcpy(&Srb_info->Lchan_desc[1], &BCCH_LCHAN_DESC, LCHAN_DESC_SIZE);
++      Srb_info->Lchan_desc[0].Lchan_t = BCCH;
++      Srb_info->Lchan_desc[1].Lchan_t = BCCH;
++      break;
++      
++    case CCCH:  // CCCH = 0
++      memcpy(&Srb_info->Lchan_desc[0], &CCCH_LCHAN_DESC, LCHAN_DESC_SIZE);
++      memcpy(&Srb_info->Lchan_desc[1], &CCCH_LCHAN_DESC, LCHAN_DESC_SIZE);
++      Srb_info->Lchan_desc[0].Lchan_t = CCCH;
++      Srb_info->Lchan_desc[1].Lchan_t = CCCH;
++      break;
++      
++    case DCCH:  // DCCH = 1
++      memcpy(&Srb_info->Lchan_desc[0], &DCCH_LCHAN_DESC, LCHAN_DESC_SIZE);
++      memcpy(&Srb_info->Lchan_desc[1], &DCCH_LCHAN_DESC, LCHAN_DESC_SIZE);
++      Srb_info->Lchan_desc[0].Lchan_t = DCCH;
++      Srb_info->Lchan_desc[1].Lchan_t = DCCH;
++      break;
++      
++    default:
++      // Use DCCH as default
++      memcpy(&Srb_info->Lchan_desc[0], &DCCH_LCHAN_DESC, LCHAN_DESC_SIZE);
++      memcpy(&Srb_info->Lchan_desc[1], &DCCH_LCHAN_DESC, LCHAN_DESC_SIZE);
++      Srb_info->Lchan_desc[0].Lchan_t = DCCH;
++      Srb_info->Lchan_desc[1].Lchan_t = DCCH;
++      break;
++  }
+ }
+ 
+ 

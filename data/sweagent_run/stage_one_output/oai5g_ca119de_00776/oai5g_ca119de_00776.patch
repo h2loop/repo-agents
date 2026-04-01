@@ -1,0 +1,26 @@
+diff --git a/nfapi/oai_integration/nfapi_vnf.c b/nfapi/oai_integration/nfapi_vnf.c
+index 777da7c319..f1f1a6cb21 100644
+--- a/nfapi/oai_integration/nfapi_vnf.c
++++ b/nfapi/oai_integration/nfapi_vnf.c
+@@ -1574,6 +1574,10 @@ int vendor_ext_cb(nfapi_vnf_config_t *config, int p5_idx, void *msg)
+       nfapi_pnf_start_request_t req;
+       memset(&req, 0, sizeof(req));
+       req.header.message_id = NFAPI_PNF_START_REQUEST;
++      // Set the phy_id to ensure proper resource block allocation
++      vnf_info *vnf = (vnf_info *)(config->user_data);
++      pnf_info *pnf = vnf->pnfs;
++      req.header.phy_id = pnf->phys[0].id;
+       nfapi_vnf_pnf_start_req(config, p5_idx, &req);
+     } break;
+   }
+@@ -1592,6 +1596,10 @@ int vendor_nr_ext_cb(nfapi_vnf_config_t *config, int p5_idx, void *msg)
+       // send the start request
+       nfapi_nr_pnf_start_request_t req = {0};
+       req.header.message_id = NFAPI_PNF_START_REQUEST;
++      // Set the phy_id to ensure proper resource block allocation
++      vnf_info *vnf = (vnf_info *)(config->user_data);
++      pnf_info *pnf = vnf->pnfs;
++      req.header.phy_id = pnf->phys[0].id;
+       nfapi_nr_vnf_pnf_start_req(config, p5_idx, &req);
+     } break;
+   }

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": false,
+    "synth_pr": "\n## Title: Fix positioning measurement result handling in F1AP\n\n### Summary\nThe F1AP positioning functionality is missing the implementation for handling `cp_positioning_measurement_result` which causes incorrect processing of positioning measurement reports from the DU to the CU. This leads to positioning procedures failing silently without proper error reporting.\n\nThis fix implements the missing positioning measurement result handling function and adds proper validation for positioning measurement report messages.\n\n### Changes\n- `openair2/F1AP/f1ap_positioning.c`: Added implementation for `cp_positioning_measurement_result` function.\n- `openair2/F1AP/f1ap_handlers.c`: Integrated positioning measurement result handling in the main F1AP message processor.\n- `openair2/F1AP/f1ap_du_rrc_message_transfer.c`: Added validation for positioning measurement reports.\n\n"
+}

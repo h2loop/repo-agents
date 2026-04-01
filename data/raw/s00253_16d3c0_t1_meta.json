@@ -1,0 +1,29 @@
+{
+  "run_id": "s00253_16d3c0",
+  "function": {
+    "name": "rrc_M2AP_init_MCCH",
+    "file": "openair2/RRC/LTE/rrc_eNB_M2AP.c",
+    "start_line": 293,
+    "end_line": 361,
+    "body_lines": 69,
+    "signature": "static void rrc_M2AP_init_MCCH( const protocol_ctxt_t *const ctxt_pP, uint8_t enb_mod_idP, int CC_id, const m2ap_mbms_scheduling_information_t *const m2ap_mbms_scheduling_information )",
+    "subsystem": "openair2/RRC/LTE",
+    "token_estimate": 190
+  },
+  "bug": {
+    "bug_id": "telecom_wrong_mcs",
+    "description": "incorrect MCS selection not matching channel quality or UE capability",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a incorrect MCS selection not matching channel quality or UE capability downstream of function rrc_M2AP_init_MCCH in the openair2/RRC/LTE subsystem.\nThe function is located at openair2/RRC/LTE/rrc_eNB_M2AP.c:293.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00253_16d3c0_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00253_16d3c0_p1.diff",
+  "patch_lines": 111,
+  "trajectory_steps": 44,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:10:47Z"
+}

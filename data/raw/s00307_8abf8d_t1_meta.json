@@ -1,0 +1,39 @@
+{
+  "run_id": "s00307_8abf8d",
+  "function": {
+    "name": "cli_set_prompt_char",
+    "file": "openair2/UTIL/CLI/cli.c",
+    "start_line": 224,
+    "end_line": 235,
+    "body_lines": 12,
+    "signature": "int cli_set_prompt_char(void)",
+    "subsystem": "openair2/UTIL/CLI",
+    "token_estimate": 35
+  },
+  "bug": {
+    "bug_id": "c_memory_leak",
+    "description": "memory leak where allocated memory is never freed on certain code paths",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a memory leak where allocated memory is never freed on certain code paths downstream of function cli_set_prompt_char in the openair2/UTIL/CLI subsystem.\nThe function is located at openair2/UTIL/CLI/cli.c:224.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00307_8abf8d_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00307_8abf8d_p1.diff",
+  "patch_lines": 8,
+  "trajectory_steps": 43,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T14:18:59Z"
+}

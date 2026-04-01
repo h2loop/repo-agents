@@ -1,0 +1,100 @@
+diff --git a/openair3/NAS/UE/ESM/PdnDisconnect.c b/openair3/NAS/UE/ESM/PdnDisconnect.c
+index cb7b3225bc..3f236ee082 100644
+--- a/openair3/NAS/UE/ESM/PdnDisconnect.c
++++ b/openair3/NAS/UE/ESM/PdnDisconnect.c
+@@ -47,6 +47,8 @@ Description Defines the PDN disconnect ESM procedure executed by the
+ #include "commonDef.h"
+ #include "nas_log.h"
+ 
++#include <pthread.h>
++
+ #include "esmData.h"
+ #include "esm_cause.h"
+ #include "esm_pt.h"
+@@ -83,6 +85,9 @@ static void *_pdn_disconnect_t3492_handler(void *);
+ /* Maximum value of the PDN disconnect request retransmission counter */
+ #define ESM_PDN_DISCONNECT_COUNTER_MAX 5
+ 
++/* Mutex to protect shared resources during PDN disconnect procedure */
++static pthread_mutex_t pdn_disconnect_mutex = PTHREAD_MUTEX_INITIALIZER;
++
+ 
+ 
+ /****************************************************************************/
+@@ -140,6 +145,9 @@ int esm_proc_pdn_disconnect(esm_data_t *esm_data, int cid, unsigned int *pti, un
+     }
+   }
+ 
++  /* Release mutex before returning */
++  pthread_mutex_unlock(&pdn_disconnect_mutex);
++
+   LOG_FUNC_RETURN(rc);
+ }
+ 
+@@ -292,6 +300,9 @@ int esm_proc_pdn_disconnect_reject(nas_user_t *user, int pti, int *esm_cause)
+   LOG_TRACE(WARNING, "ESM-PROC  - PDN disconnection rejected by the network "
+             "(pti=%d), ESM cause = %d", pti, *esm_cause);
+ 
++  /* Acquire mutex to protect shared resources */
++  pthread_mutex_lock(&pdn_disconnect_mutex);
++
+   /* Stop T3492 timer if running */
+   (void) esm_pt_stop_timer(user->esm_pt_data, pti);
+   /* Set the procedure transaction state to INACTIVE */
+@@ -302,6 +313,8 @@ int esm_proc_pdn_disconnect_reject(nas_user_t *user, int pti, int *esm_cause)
+      * as the request may have already been rejected */
+     LOG_TRACE(WARNING, "ESM-PROC  - PTI %d was already INACTIVE", pti);
+     *esm_cause = ESM_CAUSE_MESSAGE_TYPE_NOT_COMPATIBLE;
++    /* Release mutex before returning */
++    pthread_mutex_unlock(&pdn_disconnect_mutex);
+   } else {
+     /* Release the transaction identity assigned to this procedure */
+     rc = esm_pt_release(user->esm_pt_data, pti);
+@@ -317,6 +330,8 @@ int esm_proc_pdn_disconnect_reject(nas_user_t *user, int pti, int *esm_cause)
+       if (ebi < 0) {
+         LOG_TRACE(ERROR, "ESM-PROC  - No default EPS bearer found");
+         *esm_cause = ESM_CAUSE_PROTOCOL_ERROR;
++        /* Release mutex before returning */
++        pthread_mutex_unlock(&pdn_disconnect_mutex);
+         LOG_FUNC_RETURN (RETURNerror);
+       }
+ 
+@@ -338,6 +353,8 @@ int esm_proc_pdn_disconnect_reject(nas_user_t *user, int pti, int *esm_cause)
+     }
+   }
+ 
++  /* Release mutex before returning */
++  pthread_mutex_unlock(&pdn_disconnect_mutex);
+   LOG_FUNC_RETURN(rc);
+ }
+ 
+@@ -385,6 +402,9 @@ static void *_pdn_disconnect_t3492_handler(void *args)
+   esm_data_t *esm_data = user->esm_data;;
+   int rc;
+ 
++  /* Acquire mutex to protect shared resources */
++  pthread_mutex_lock(&pdn_disconnect_mutex);
++
+   /* Get retransmission timer parameters data */
+   esm_pt_timer_data_t *data = (esm_pt_timer_data_t *)(args);
+ 
+@@ -435,6 +455,8 @@ static void *_pdn_disconnect_t3492_handler(void *args)
+ 
+         if (ebi < 0) {
+           LOG_TRACE(ERROR, "ESM-PROC  - No default EPS bearer found");
++          /* Release mutex before returning */
++          pthread_mutex_unlock(&pdn_disconnect_mutex);
+           LOG_FUNC_RETURN (NULL);
+         }
+ 
+@@ -453,6 +475,10 @@ static void *_pdn_disconnect_t3492_handler(void *args)
+     }
+   }
+ 
++  /* Release mutex before returning */
++  pthread_mutex_unlock(&pdn_disconnect_mutex);
++  /* Release mutex before returning */
++  pthread_mutex_unlock(&pdn_disconnect_mutex);
+   LOG_FUNC_RETURN(NULL);
+ }
+ 

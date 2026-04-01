@@ -1,0 +1,9 @@
+{
+  "run_id": "s00120_fdbfe1",
+  "pr_text": "## Title: Fix incorrect type cast in sqrt_float causing precision loss\n\n### Summary\nThe `sqrt_float` helper function in the LTE UE transport layer was performing unnecessary and incorrect type conversions that caused precision loss. The implementation cast the input `float` to `double`, called `sqrt()` (double-precision), then cast back to `float`. This introduced both performance overhead and potential data corruption due to the double rounding.\n\nThis patch replaces the inefficient cast pattern",
+  "trajectory_path": "data/raw/s00120_fdbfe1_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00120_fdbfe1_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 15,
+  "timestamp": "2026-02-10T11:18:32Z"
+}

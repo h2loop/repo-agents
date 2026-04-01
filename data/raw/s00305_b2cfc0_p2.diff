@@ -1,0 +1,37 @@
+diff --git a/common/utils/T/tracer/gui/notify.c b/common/utils/T/tracer/gui/notify.c
+index 5798a01219..4f491d9d94 100644
+--- a/common/utils/T/tracer/gui/notify.c
++++ b/common/utils/T/tracer/gui/notify.c
+@@ -84,7 +84,6 @@ void gui_notify(struct gui *g, char *notification, widget *w,
+   /* calling the handler may modify the list of notifiers, we
+    * need to be careful here
+    */
+-loop:
+ 
+   for (i = 0; i < g->notifiers_count; i++) {
+     if (g->notifiers[i].done == 1 ||
+@@ -92,18 +91,13 @@ loop:
+         strcmp(g->notifiers[i].notification, notification) != 0)
+       continue;
+ 
+-    break;
++    g->notifiers[i].done = 1;
++    handler = g->notifiers[i].handler;
++    private = g->notifiers[i].private;
++    gunlock(g);
++    handler(private, g, notification, w, notification_data);
++    glock(g);
+   }
+ 
+-  if (i == g->notifiers_count) goto done;
+-
+-  g->notifiers[i].done = 1;
+-  handler = g->notifiers[i].handler;
+-  private = g->notifiers[i].private;
+-  gunlock(g);
+-  handler(private, g, notification, w, notification_data);
+-  glock(g);
+-  goto loop;
+-done:
+   inside = 0;
+ }

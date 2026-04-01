@@ -1,0 +1,52 @@
+diff --git a/drivers/sensor/st/lsm6dsvxxx/lsm6dsv320x.c b/drivers/sensor/st/lsm6dsvxxx/lsm6dsv320x.c
+index 604c4742..358d456e 100644
+--- a/drivers/sensor/st/lsm6dsvxxx/lsm6dsv320x.c
++++ b/drivers/sensor/st/lsm6dsvxxx/lsm6dsv320x.c
+@@ -174,12 +174,26 @@ static const float lsm6dsv320x_odr_map[3][13] = {
+ 	 6400.0f},
+ };
+ 
++static int8_t lsm6dsv320x_mode_to_odr_index(int8_t mode)
++{
++	/* Map hardware mode values to ODR map array indices */
++	switch (mode) {
++	case 0: /* HIGH_PERFORMANCE_MD maps to High Accuracy off */
++		return 0;
++	case 1: /* HIGH_ACCURACY_ODR_MD maps to High Accuracy 1 */
++		return 1;
++	/* Note: Other modes (3,4,5,6,7) don't have ODR map entries */
++	default:
++		return -1; /* Invalid mode for ODR mapping */
++	}
++}
++
+ static uint8_t lsm6dsv320x_freq_to_odr_val(const struct device *dev, int32_t freq)
+ {
+ 	const struct lsm6dsvxxx_config *cfg = dev->config;
+ 	stmdev_ctx_t *ctx = (stmdev_ctx_t *)&cfg->ctx;
+ 	lsm6dsv320x_data_rate_t odr;
+-	int8_t mode;
++	int8_t mode, odr_index;
+ 	size_t i;
+ 
+ 	if (lsm6dsv320x_xl_data_rate_get(ctx, &odr) < 0) {
+@@ -187,10 +201,16 @@ static uint8_t lsm6dsv320x_freq_to_odr_val(const struct device *dev, int32_t fre
+ 	}
+ 
+ 	mode = (odr >> 4) & 0xf;
++	odr_index = lsm6dsv320x_mode_to_odr_index(mode);
++	
++	/* Check if mode is valid for ODR mapping */
++	if (odr_index < 0) {
++		return 0xFF;
++	}
+ 
+-	for (i = 0; i < ARRAY_SIZE(lsm6dsv320x_odr_map[mode]); i++) {
+-		if (freq <= lsm6dsv320x_odr_map[mode][i]) {
+-			LOG_DBG("mode: %d - odr: %d", mode, i);
++	for (i = 0; i < ARRAY_SIZE(lsm6dsv320x_odr_map[odr_index]); i++) {
++		if (freq <= lsm6dsv320x_odr_map[odr_index][i]) {
++			LOG_DBG("mode: %d (hw: %d) - odr: %d", odr_index, mode, i);
+ 			return i | (mode << 4);
+ 		}
+ 	}

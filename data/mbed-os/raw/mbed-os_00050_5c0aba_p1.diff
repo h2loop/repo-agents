@@ -1,0 +1,14 @@
+diff --git a/targets/TARGET_Freescale/TARGET_MCUXpresso_MCUS/TARGET_MCU_K64F/drivers/fsl_enet.c b/targets/TARGET_Freescale/TARGET_MCUXpresso_MCUS/TARGET_MCU_K64F/drivers/fsl_enet.c
+index b1fa0b01..17c6fd71 100644
+--- a/targets/TARGET_Freescale/TARGET_MCUXpresso_MCUS/TARGET_MCU_K64F/drivers/fsl_enet.c
++++ b/targets/TARGET_Freescale/TARGET_MCUXpresso_MCUS/TARGET_MCU_K64F/drivers/fsl_enet.c
+@@ -349,6 +349,9 @@ void ENET_Deinit(ENET_Type *base)
+     /* Disable ENET. */
+     base->ECR &= ~ENET_ECR_ETHEREN_MASK;
+ 
++    /* Reset ENET module to ensure clean state. */
++    ENET_Reset(base);
++
+ #if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
+     /* Disables the clock source. */
+     CLOCK_DisableClock(s_enetClock[ENET_GetInstance(base)]);

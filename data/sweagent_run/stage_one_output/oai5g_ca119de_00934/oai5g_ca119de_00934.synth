@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix missing break statement in telnet server proc command parser\n\n### Summary\nThe telnet server's process command parser contained a missing break statement in the field parsing switch logic, causing unintended fallthrough when processing priority fields from /proc files. This resulted in incorrect thread priority and nice value reporting under certain conditions.\n\nThe issue was triggered when the parser encountered field index 18 (priority column) and would incorrectly also process the logic for field index 19 (nice column) due to the missing break.\n\n### Changes\n- `common/utils/telnetsrv/telnetsrv_proccmd.c`: Added missing break statement after case 18 in the field parsing switch.\n- `common/utils/telnetsrv/telnetsrv_proccmd.c`: Minor whitespace cleanup in related functions.\n\n"
+}

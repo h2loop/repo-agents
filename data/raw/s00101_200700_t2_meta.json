@@ -1,0 +1,9 @@
+{
+  "run_id": "s00101_200700",
+  "pr_text": "## Title: Fix incorrect channel estimates pointer in nr_ulsch_mmse_2layers call\n\n### Summary\nCorrect a parameter error in the uplink demodulation module where the wrong channel estimates pointer was passed to the MMSE receiver for 2-layer MIMO processing. The `inner_rx` function incorrectly used `chFext` instead of `pusch_vars->ul_ch_estimates_ext` when calling `nr_ulsch_mmse_2layers`, causing the equalizer to operate on stale or incorrect channel state information. This fix ensures proper chann",
+  "trajectory_path": "data/raw/s00101_200700_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00101_200700_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 13,
+  "timestamp": "2026-02-10T11:18:25Z"
+}

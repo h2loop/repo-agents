@@ -1,0 +1,88 @@
+diff --git a/common/utils/load_module_shlib.c b/common/utils/load_module_shlib.c
+index 15d2b3d852..07203c2d7e 100644
+--- a/common/utils/load_module_shlib.c
++++ b/common/utils/load_module_shlib.c
+@@ -124,6 +124,7 @@ int load_module_version_shlib(char *modname, char *version, loader_shlibfunc_t *
+   char *afname = NULL;
+   int ret = 0;
+   int lib_idx = -1;
++  int new_lib = 0;
+ 
+   if (!modname) {
+     fprintf(stderr, "[LOADER] load_module_shlib(): no library name given\n");
+@@ -148,13 +149,29 @@ int load_module_version_shlib(char *modname, char *version, loader_shlibfunc_t *
+   if (lib_idx < 0) {
+     lib_idx = loader_data.numshlibs;
+     ++loader_data.numshlibs;
++    new_lib = 1;
+     if (loader_data.numshlibs > loader_data.maxshlibs) {
+       fprintf(stderr, "[LOADER] can not load more than %u shlibs\n", loader_data.maxshlibs);
++      --loader_data.numshlibs;
+       ret = -1;
+       goto load_module_shlib_exit;
+     }
++    // Initialize all fields of the new library entry
++    memset(&loader_data.shlibs[lib_idx], 0, sizeof(loader_shlibdesc_t));
+     loader_data.shlibs[lib_idx].name = strdup(modname);
++    if (!loader_data.shlibs[lib_idx].name) {
++      fprintf(stderr, "[LOADER] unable to allocate memory for library %s name\n", modname);
++      --loader_data.numshlibs;
++      ret = -1;
++      goto load_module_shlib_exit;
++    }
+     loader_data.shlibs[lib_idx].thisshlib_path = strdup(shlib_path);
++    if (!loader_data.shlibs[lib_idx].thisshlib_path) {
++      fprintf(stderr, "[LOADER] unable to allocate memory for library %s path\n", modname);
++      --loader_data.numshlibs;
++      ret = -1;
++      goto load_module_shlib_exit;
++    }
+   }
+ 
+   lib_handle = dlopen(shlib_path, RTLD_LAZY|RTLD_NODELETE|RTLD_GLOBAL);
+@@ -247,6 +264,36 @@ int load_module_version_shlib(char *modname, char *version, loader_shlibfunc_t *
+   } /* farray ! NULL */
+ 
+ load_module_shlib_exit:
++  if (ret != 0 && new_lib) {
++    // Clean up newly allocated resources for failed library loading
++    loader_shlibdesc_t *shlib = &loader_data.shlibs[lib_idx];
++    if (shlib->name) {
++      free(shlib->name);
++      shlib->name = NULL;
++    }
++    if (shlib->thisshlib_path) {
++      free(shlib->thisshlib_path);
++      shlib->thisshlib_path = NULL;
++    }
++    if (shlib->shlib_version) {
++      free(shlib->shlib_version);
++      shlib->shlib_version = NULL;
++    }
++    if (shlib->shlib_buildversion) {
++      free(shlib->shlib_buildversion);
++      shlib->shlib_buildversion = NULL;
++    }
++    if (shlib->funcarray) {
++      for (int i = 0; i < shlib->numfunc; i++) {
++        if (shlib->funcarray[i].fname) {
++          free(shlib->funcarray[i].fname);
++        }
++      }
++      free(shlib->funcarray);
++      shlib->funcarray = NULL;
++    }
++    --loader_data.numshlibs;
++  }
+   if (shlib_path) free(shlib_path);
+   if (afname)     free(afname);
+   if (lib_handle) dlclose(lib_handle);
+@@ -273,6 +320,8 @@ void loader_reset()
+     loader_shlibdesc_t *shlib = &loader_data.shlibs[i];
+     free(shlib->name);
+     free(shlib->thisshlib_path);
++    free(shlib->shlib_version);
++    free(shlib->shlib_buildversion);
+     for (int j = 0; j < shlib->numfunc; ++j)
+       free(shlib->funcarray[j].fname);
+     free(shlib->funcarray);

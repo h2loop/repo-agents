@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix thread-unsafe access in LTE DL channel estimation\n\n### Summary\nThe LTE DL channel estimation function contained a thread-safety issue due to a static variable being shared across multiple processing threads. Under high load conditions with multiple UEs being processed simultaneously, this caused unpredictable behavior in channel interpolation logic.\n\nThe issue manifested as incorrect channel estimates leading to higher BLER and occasional processing failures when multiple threads accessed the shared `interpolateS11S12` variable without synchronization.\n\n### Changes\n- `openair1/PHY/LTE_ESTIMATION/lte_dl_channel_estimation.c`: Made the `interpolateS11S12` variable thread-local using the `__thread` keyword to ensure each processing thread maintains its own state.\n\n"
+}

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect error handling in PDN disconnect reject decoder\n\n### Summary\nThe `decode_pdn_disconnect_reject` function was incorrectly treating successful decodings that returned 0 bytes as errors due to using `<= 0` instead of `< 0` in the error check condition. This caused downstream functions to receive incorrect return values, leading to potential processing issues.\n\n### Changes\n- `openair3/NAS/COMMON/ESM/MSG/PdnDisconnectReject.c`: Changed error check condition from `<= 0` to `< 0` for proper error detection\n\n### Reproduction\nUnder certain network conditions where protocol configuration options contain minimal data, the decoder would incorrectly return 0 instead of proceeding with normal processing. This manifested as unexpected message handling failures in the ESM layer during PDN disconnect procedures.\n"
+}

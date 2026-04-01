@@ -1,0 +1,70 @@
+diff --git a/openair1/PHY/LTE_TRANSPORT/pbch.c b/openair1/PHY/LTE_TRANSPORT/pbch.c
+index e589dca525..f7f9020cf4 100644
+--- a/openair1/PHY/LTE_TRANSPORT/pbch.c
++++ b/openair1/PHY/LTE_TRANSPORT/pbch.c
+@@ -85,11 +85,11 @@ int allocate_pbch_REs_in_RB(LTE_DL_FRAME_PARMS *frame_parms,
+         *re_allocated = *re_allocated + 1;
+ 
+         //    printf("%d(%d) : %d,%d => ",tti_offset,*jj,((int16_t*)&txdataF[0][tti_offset])[0],((int16_t*)&txdataF[0][tti_offset])[1]);
+-        ((int16_t*)&txdataF[0][tti_offset])[0] += (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK; //I //b_i
++        ((int16_t*)&txdataF[0][tti_offset])[0] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK; //I //b_i
+ 
+         *jj = *jj + 1;
+ 
+-        ((int16_t*)&txdataF[0][tti_offset])[1] += (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK; //Q //b_{i+1}
++        ((int16_t*)&txdataF[0][tti_offset])[1] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK; //Q //b_{i+1}
+ 
+         *jj = *jj + 1;
+       } else if (mimo_mode == ALAMOUTI) {
+@@ -108,30 +108,39 @@ int allocate_pbch_REs_in_RB(LTE_DL_FRAME_PARMS *frame_parms,
+         *jj=*jj+1;
+ 
+         // normalization for 2 tx antennas
+-        ((int16_t*)&txdataF[0][tti_offset])[0] += (int16_t)((((int16_t*)&tmp_sample1)[0]*ONE_OVER_SQRT2_Q15)>>15);
+-        ((int16_t*)&txdataF[0][tti_offset])[1] += (int16_t)((((int16_t*)&tmp_sample1)[1]*ONE_OVER_SQRT2_Q15)>>15);
+-        ((int16_t*)&txdataF[1][tti_offset])[0] += (int16_t)((((int16_t*)&tmp_sample2)[0]*ONE_OVER_SQRT2_Q15)>>15);
+-        ((int16_t*)&txdataF[1][tti_offset])[1] += (int16_t)((((int16_t*)&tmp_sample2)[1]*ONE_OVER_SQRT2_Q15)>>15);
++        ((int16_t*)&txdataF[0][tti_offset])[0] = (int16_t)((((int16_t*)&tmp_sample1)[0]*ONE_OVER_SQRT2_Q15)>>15);
++        ((int16_t*)&txdataF[0][tti_offset])[1] = (int16_t)((((int16_t*)&tmp_sample1)[1]*ONE_OVER_SQRT2_Q15)>>15);
++        ((int16_t*)&txdataF[1][tti_offset])[0] = (int16_t)((((int16_t*)&tmp_sample2)[0]*ONE_OVER_SQRT2_Q15)>>15);
++        ((int16_t*)&txdataF[1][tti_offset])[1] = (int16_t)((((int16_t*)&tmp_sample2)[1]*ONE_OVER_SQRT2_Q15)>>15);
+ 
+         // fill in the rest of the ALAMOUTI precoding
+         if (is_not_pilot(pilots,re + 1,frame_parms->nushift,0)==1) {
+-          ((int16_t *)&txdataF[0][tti_offset+1])[0] += -((int16_t *)&txdataF[1][tti_offset])[0]; //x1
+-          ((int16_t *)&txdataF[0][tti_offset+1])[1] += ((int16_t *)&txdataF[1][tti_offset])[1];
+-          ((int16_t *)&txdataF[1][tti_offset+1])[0] += ((int16_t *)&txdataF[0][tti_offset])[0];  //x0*
+-          ((int16_t *)&txdataF[1][tti_offset+1])[1] += -((int16_t *)&txdataF[0][tti_offset])[1];
++          ((int16_t *)&txdataF[0][tti_offset+1])[0] = -((int16_t *)&txdataF[1][tti_offset])[0]; //x1
++          ((int16_t *)&txdataF[0][tti_offset+1])[1] = ((int16_t *)&txdataF[1][tti_offset])[1];
++          ((int16_t *)&txdataF[1][tti_offset+1])[0] = ((int16_t *)&txdataF[0][tti_offset])[0];  //x0*
++          ((int16_t *)&txdataF[1][tti_offset+1])[1] = -((int16_t *)&txdataF[0][tti_offset])[1];
+         } else {
+-          ((int16_t *)&txdataF[0][tti_offset+2])[0] += -((int16_t *)&txdataF[1][tti_offset])[0]; //x1
+-          ((int16_t *)&txdataF[0][tti_offset+2])[1] += ((int16_t *)&txdataF[1][tti_offset])[1];
+-          ((int16_t *)&txdataF[1][tti_offset+2])[0] += ((int16_t *)&txdataF[0][tti_offset])[0];  //x0*
+-          ((int16_t *)&txdataF[1][tti_offset+2])[1] += -((int16_t *)&txdataF[0][tti_offset])[1];
++          ((int16_t *)&txdataF[0][tti_offset+2])[0] = -((int16_t *)&txdataF[1][tti_offset])[0]; //x1
++          ((int16_t *)&txdataF[0][tti_offset+2])[1] = ((int16_t *)&txdataF[1][tti_offset])[1];
++          ((int16_t *)&txdataF[1][tti_offset+2])[0] = ((int16_t *)&txdataF[0][tti_offset])[0];  //x0*
++          ((int16_t *)&txdataF[1][tti_offset+2])[1] = -((int16_t *)&txdataF[0][tti_offset])[1];
+         }
+ 
+         re++;  // adjacent carriers are taken care of by precoding
+         *re_allocated = *re_allocated + 1;
+ 
++        // Check if we've reached the end of the RB
++        if (re >= last_re-1) {
++          break;
++        }
++
+         if (is_not_pilot(pilots,re,frame_parms->nushift,0)==0) { // skip pilots
+           re++;
+           *re_allocated = *re_allocated + 1;
++          // Check if we've reached the end of the RB
++          if (re >= last_re) {
++            break;
++          }
+         }
+       }
+     }

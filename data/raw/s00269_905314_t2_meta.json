@@ -1,0 +1,9 @@
+{
+  "run_id": "s00269_905314",
+  "pr_text": "## Title: Fix integer overflow in turbo encoder buffer offset calculation\n\n### Summary\nFix integer overflow in `threegpplte_turbo_encoder_sse()` that occurs when processing large input blocks. The function calculates `input_length_bits = input_length_bytes << 3` using an `unsigned short` variable, which overflows for inputs larger than 8191 bytes. This overflow leads to incorrect buffer offset calculations (`input_length_bits * 3`), causing out-of-bounds memory writes during turbo encoding and p",
+  "trajectory_path": "data/raw/s00269_905314_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00269_905314_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 25,
+  "timestamp": "2026-02-11T14:00:20Z"
+}

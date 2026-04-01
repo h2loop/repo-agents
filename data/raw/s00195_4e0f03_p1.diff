@@ -1,0 +1,19 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c b/openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c
+index 5fba6dcaaf..7b18c10175 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c
++++ b/openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c
+@@ -329,8 +329,12 @@ static uint64_t get_ssb_bitmap(const NR_ServingCellConfigCommon_t *scc)
+       bitmap = ((uint64_t) scc->ssb_PositionsInBurst->choice.mediumBitmap.buf[0])<<56;
+       break;
+     case 3 :
+-      for (int i=0; i<8; i++) {
+-        bitmap |= (((uint64_t) scc->ssb_PositionsInBurst->choice.longBitmap.buf[i])<<((7-i)*8));
++      {
++        int loop_count = (scc->ssb_PositionsInBurst->choice.longBitmap.size < 8) 
++                         ? scc->ssb_PositionsInBurst->choice.longBitmap.size : 8;
++        for (int i=0; i<loop_count; i++) {
++          bitmap |= (((uint64_t) scc->ssb_PositionsInBurst->choice.longBitmap.buf[i])<<((7-i)*8));
++        }
+       }
+       break;
+     default:

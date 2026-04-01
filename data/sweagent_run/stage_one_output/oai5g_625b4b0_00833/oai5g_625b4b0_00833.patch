@@ -1,0 +1,29 @@
+diff --git a/common/utils/utils.c b/common/utils/utils.c
+index 377c4512b7..225058be1a 100644
+--- a/common/utils/utils.c
++++ b/common/utils/utils.c
+@@ -51,18 +51,14 @@ const char *hexdump(const void *data, size_t data_len, char *out, size_t out_len
+  ***************************************************************************/
+ int hex_char_to_hex_value (char c)
+ {
+-  if (!((c >= 'a' && c <= 'f') ||
+-        (c >= 'A' && c <= 'F') ||
+-        (c >= '0' && c <= '9')))
+-    return -1;
+-
+-  if (c >= 'A') {
+-    /* Remove case bit */
+-    c &= ~('a' ^ 'A');
+-
++  if (c >= '0' && c <= '9') {
++    return (c - '0');
++  } else if (c >= 'A' && c <= 'F') {
+     return (c - 'A' + 10);
++  } else if (c >= 'a' && c <= 'f') {
++    return (c - 'a' + 10);
+   } else {
+-    return (c - '0');
++    return -1;
+   }
+ }
+ 

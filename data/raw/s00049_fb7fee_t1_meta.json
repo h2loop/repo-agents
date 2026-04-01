@@ -1,0 +1,33 @@
+{
+  "run_id": "s00049_fb7fee",
+  "function": {
+    "name": "nas_security_rx_process",
+    "file": "openair3/NAS/NR_UE/nr_nas_msg.c",
+    "start_line": 339,
+    "end_line": 418,
+    "body_lines": 80,
+    "signature": "static security_state_t nas_security_rx_process(nr_ue_nas_t *nas, byte_array_t buffer)",
+    "subsystem": "openair3/NAS/NR_UE",
+    "token_estimate": 269
+  },
+  "bug": {
+    "bug_id": "c_incorrect_loop_bounds",
+    "description": "incorrect loop bounds causing iteration over invalid indices",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a incorrect loop bounds causing iteration over invalid indices downstream of function nas_security_rx_process in the openair3/NAS/NR_UE subsystem.\nThe function is located at openair3/NAS/NR_UE/nr_nas_msg.c:339.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00049_fb7fee_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00049_fb7fee_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 18,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T09:26:28Z"
+}

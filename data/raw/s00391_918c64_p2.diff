@@ -1,0 +1,50 @@
+diff --git a/nfapi/open-nFAPI/common/src/nfapi.c b/nfapi/open-nFAPI/common/src/nfapi.c
+index 97352b98f7..91f0cc1445 100644
+--- a/nfapi/open-nFAPI/common/src/nfapi.c
++++ b/nfapi/open-nFAPI/common/src/nfapi.c
+@@ -496,13 +496,25 @@ uint32_t pusharray32(const uint32_t *values_to_push,
+     return 0;
+   }
+ }
++// Static mutex to protect pusharrays32 critical section
++static pthread_mutex_t pusharrays32_mutex = PTHREAD_MUTEX_INITIALIZER;
++
+ uint32_t pusharrays32(int32_t in[], uint32_t max_len, uint32_t len, uint8_t **out, uint8_t *end)
+ {
+-  if (len == 0)
++  // Lock the mutex as the first operation to protect all shared state
++  if (pthread_mutex_lock(&pusharrays32_mutex) != 0) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s failed to acquire mutex\n", __FUNCTION__);
++    return 0;
++  }
++
++  if (len == 0) {
++    pthread_mutex_unlock(&pusharrays32_mutex);
+     return 1;
++  }
+ 
+   if (len > max_len) {
+     NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s exceed array size (%d > %d)\n", __FUNCTION__, len, max_len);
++    pthread_mutex_unlock(&pusharrays32_mutex);
+     on_error();
+     return 0;
+   }
+@@ -511,13 +523,17 @@ uint32_t pusharrays32(int32_t in[], uint32_t max_len, uint32_t len, uint8_t **ou
+     uint32_t idx;
+ 
+     for (idx = 0; idx < len; ++idx) {
+-      if (!pushs32(in[idx], out, end))
++      if (!pushs32(in[idx], out, end)) {
++        pthread_mutex_unlock(&pusharrays32_mutex);
+         return 0;
++      }
+     }
+ 
++    pthread_mutex_unlock(&pusharrays32_mutex);
+     return sizeof(uint32_t) * len;
+   } else {
+     NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s no space in buffer\n", __FUNCTION__);
++    pthread_mutex_unlock(&pusharrays32_mutex);
+     on_error();
+     return 0;
+   }

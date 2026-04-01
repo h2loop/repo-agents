@@ -1,0 +1,9 @@
+{
+  "run_id": "s00366_0230cf",
+  "pr_text": "## Title: Add mutex protection to IMSI mobile identity decoding\n\n### Summary\nThe `decode_imsi_mobile_identity` function in the NAS COMMON IES subsystem accesses shared state during IMSI decoding without synchronization primitives. This creates a race condition vulnerability in multi-threaded environments where multiple UE contexts may be processed concurrently, potentially leading to corrupted IMSI parsing or state inconsistencies.\n\nThis patch adds a pthread mutex to protect the critical section",
+  "trajectory_path": "data/raw/s00366_0230cf_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00366_0230cf_p2.diff",
+  "patch_lines": 9,
+  "trajectory_steps": 42,
+  "timestamp": "2026-02-10T12:55:03Z"
+}

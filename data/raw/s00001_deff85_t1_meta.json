@@ -1,0 +1,32 @@
+{
+  "run_id": "s00001_deff85",
+  "function": {
+    "name": "get_bler_val",
+    "file": "openair2/PHY_INTERFACE/phy_stub_UE.c",
+    "start_line": 2038,
+    "end_line": 2075,
+    "body_lines": 38,
+    "signature": "static float get_bler_val(uint8_t mcs, int sinr)",
+    "subsystem": "openair2/PHY_INTERFACE",
+    "token_estimate": 181
+  },
+  "bug": {
+    "bug_id": "c_magic_number",
+    "description": "magic number used without symbolic constant making intent unclear and maintenance error-prone",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a magic number used without symbolic constant making intent unclear and maintenance error-prone downstream of function get_bler_val in the openair2/PHY_INTERFACE subsystem.\nThe function is located at openair2/PHY_INTERFACE/phy_stub_UE.c:2038.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00001_deff85_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00001_deff85_p1.diff",
+  "patch_lines": 24,
+  "trajectory_steps": 38,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T07:30:36Z"
+}

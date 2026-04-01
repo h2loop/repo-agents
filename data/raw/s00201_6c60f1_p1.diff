@@ -1,0 +1,54 @@
+diff --git a/common/utils/T/tracer/macpdu2wireshark.c b/common/utils/T/tracer/macpdu2wireshark.c
+index d7c4b23b51..4045532bd6 100644
+--- a/common/utils/T/tracer/macpdu2wireshark.c
++++ b/common/utils/T/tracer/macpdu2wireshark.c
+@@ -337,6 +337,9 @@ void nr_ul(void *_d, event e)
+ {
+   ev_data *d = _d;
+ 
++  if (d->nr_ul_rnti == -1 || d->nr_ul_frame == -1 || d->nr_ul_slot == -1 ||
++      d->nr_ul_harq_pid == -1 || d->nr_ul_data == -1) return;
++
+   trace_nr(d, NR_DIRECTION_UPLINK, NR_C_RNTI, e.e[d->nr_ul_rnti].i,
+            e.e[d->nr_ul_frame].i, e.e[d->nr_ul_slot].i,
+            e.e[d->nr_ul_harq_pid].i, e.e[d->nr_ul_data].b,
+@@ -347,6 +350,9 @@ void nr_dl(void *_d, event e)
+ {
+   ev_data *d = _d;
+ 
++  if (d->nr_dl_rnti == -1 || d->nr_dl_frame == -1 || d->nr_dl_slot == -1 ||
++      d->nr_dl_harq_pid == -1 || d->nr_dl_data == -1) return;
++
+   if (e.e[d->dl_rnti].i == 0xffff) {
+     if (d->no_sib) return;
+ 
+@@ -366,6 +372,10 @@ void nr_dl_retx(void *_d, event e)
+ {
+   ev_data *d = _d;
+ 
++  if (d->nr_dl_retx_rnti == -1 || d->nr_dl_retx_frame == -1 ||
++      d->nr_dl_retx_slot == -1 || d->nr_dl_retx_harq_pid == -1 ||
++      d->nr_dl_retx_data == -1) return;
++
+   trace_nr(d, NR_DIRECTION_DOWNLINK, NR_C_RNTI, e.e[d->nr_dl_retx_rnti].i,
+            e.e[d->nr_dl_retx_frame].i, e.e[d->nr_dl_retx_slot].i,
+            e.e[d->nr_dl_retx_harq_pid].i, e.e[d->nr_dl_retx_data].b,
+@@ -376,6 +386,8 @@ void nr_mib(void *_d, event e)
+ {
+   ev_data *d = _d;
+ 
++  if (d->nr_mib_frame == -1 || d->nr_mib_slot == -1 || d->nr_mib_data == -1) return;
++
+   if (d->no_mib) return;
+ 
+   if (d->max_mib && d->cur_mib == d->max_mib) return;
+@@ -391,6 +403,9 @@ void nr_rar(void *_d, event e)
+ {
+   ev_data *d = _d;
+ 
++  if (d->nr_rar_rnti == -1 || d->nr_rar_frame == -1 || d->nr_rar_slot == -1 ||
++      d->nr_rar_data == -1) return;
++
+   trace_nr(d, NR_DIRECTION_DOWNLINK, NR_RA_RNTI, e.e[d->nr_rar_rnti].i,
+            e.e[d->nr_rar_frame].i, e.e[d->nr_rar_slot].i, 0 /* harq pid */,
+            e.e[d->nr_rar_data].b, e.e[d->nr_rar_data].bsize, NO_PREAMBLE);

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix UE capability handling for NR-only devices\n\n### Summary\nThe NR gNB RRC module had incorrect logic in the UE capability information handling that prevented NR-only UEs from having their capabilities properly processed and forwarded to the core network. The bug caused the gNB to silently drop capability information from NR-only devices, leading to connection failures during initial registration.\n\nThe issue was in the `handle_ueCapabilityInformation` function where an incorrectly named variable and flawed conditional logic caused early termination of capability processing for UEs that only reported NR capabilities.\n\n### Changes\n- `openair2/RRC/NR/rrc_gNB.c`: Removed incorrect early return logic and fixed variable naming that was causing NR-only UEs to be treated as having invalid capabilities.\n"
+}

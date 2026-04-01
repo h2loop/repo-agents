@@ -1,0 +1,68 @@
+diff --git a/openair3/NAS/COMMON/API/NETWORK/nas_message.c b/openair3/NAS/COMMON/API/NETWORK/nas_message.c
+index 32454a13e3..ab35518910 100644
+--- a/openair3/NAS/COMMON/API/NETWORK/nas_message.c
++++ b/openair3/NAS/COMMON/API/NETWORK/nas_message.c
+@@ -418,31 +418,40 @@ int nas_message_decode(
+                      emm_security_context
+                    );
+ 
+-#define NAS_CODE_TO_BE_MODIFIED 1
+-#ifdef NAS_CODE_TO_BE_MODIFIED
+-
+-    // According to 3GPP TS 24.301 version 10.15.0 Release 10, 4.4.4.3 Integrity checking of NAS signalling messages in the MME
+-    if ((!emm_security_context) && (mac == 0) && (msg->header.message_authentication_code != 0)) {
+-      // force mac to be the same, but we should check for message types.
+-      // TODO Reverse order of processing in NAS code: decode message type then check MAC
+-      LOG_TRACE(DEBUG,
+-                "Forced computed MAC to be the MSG MAC %04x",
+-                msg->header.message_authentication_code);
+-      mac = msg->header.message_authentication_code;
+-      LOG_TRACE(DEBUG,
+-                "Forced computed MAC to be the same as MAC in message %04x",
+-                msg->header.message_authentication_code);
+-    }
+-
+-#endif
+-
+     /* Check NAS message integrity */
+     if (mac != msg->header.message_authentication_code) {
+-      LOG_TRACE(DEBUG,
+-                "msg->header.message_authentication_code = %04X computed = %04X",
+-                msg->header.message_authentication_code,
+-                mac);
+-      LOG_FUNC_RETURN (TLV_DECODE_MAC_MISMATCH);
++      /* Check if this is a message type that can be sent without integrity protection */
++      int is_unprotected_message = 0;
++      
++      /* First decode the message to determine its type */
++      if (msg->header.protocol_discriminator == EPS_MOBILITY_MANAGEMENT_MESSAGE) {
++        /* For EMM messages, check if it's an initial NAS message that can be unprotected */
++        if (msg->plain.emm.header.message_type == ATTACH_REQUEST ||
++            msg->plain.emm.header.message_type == IDENTITY_RESPONSE ||
++            msg->plain.emm.header.message_type == AUTHENTICATION_RESPONSE ||
++            msg->plain.emm.header.message_type == SECURITY_MODE_COMPLETE) {
++          is_unprotected_message = 1;
++        }
++      }
++      
++      /* Apply bypass only for specific unprotected message types when no security context exists */
++      if ((!emm_security_context) && (mac == 0) && 
++          (msg->header.message_authentication_code != 0) && 
++          is_unprotected_message) {
++        LOG_TRACE(DEBUG,
++                  "Bypassing MAC check for unprotected initial NAS message type 0x%x",
++                  msg->plain.emm.header.message_type);
++        mac = msg->header.message_authentication_code;
++      } else {
++        LOG_TRACE(DEBUG,
++                  "msg->header.message_authentication_code = %04X computed = %04X",
++                  msg->header.message_authentication_code,
++                  mac);
++        LOG_FUNC_RETURN (TLV_DECODE_MAC_MISMATCH);
++      }
++    } else {
++      LOG_TRACE(DEBUG, "Integrity: MAC Success");
++    }
+     }
+ 
+ #if ((defined(NAS_BUILT_IN_EPC) && defined(NAS_MME)) || (defined(ENABLE_NAS_UE_LOGGING) && defined(NAS_BUILT_IN_UE) && defined(NAS_UE)))

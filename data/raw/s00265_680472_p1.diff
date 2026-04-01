@@ -1,0 +1,34 @@
+diff --git a/openair1/SCHED/ru_procedures.c b/openair1/SCHED/ru_procedures.c
+index ecc7ba3149..5108ebdc56 100644
+--- a/openair1/SCHED/ru_procedures.c
++++ b/openair1/SCHED/ru_procedures.c
+@@ -725,6 +725,29 @@ void ru_fep_full_2thread(RU_t *ru,
+                                   0,//interpolate,
+                                   0 /*eNB->ulsch[ru->idx]->rnti rnti or ru->ulsch[eNB_id]->rnti*/);
+ 
++
++    // Process second DMRS symbol (symbol 10) for complete synchronization check
++    ulsch_extract_rbs_single(ru->common.rxdataF,
++                             calibration->rxdataF_ext,
++                             0,
++                             fp->N_RB_DL,
++                             10%(fp->symbols_per_tti/2),// l = symbol within slot
++                             10/(fp->symbols_per_tti/2),// Ns = slot number
++                             fp);
++        
++    lte_ul_channel_estimation_RRU(fp,
++                                  calibration->drs_ch_estimates,
++                                  calibration->drs_ch_estimates_time,
++                                  calibration->rxdataF_ext,
++                                  fp->N_RB_DL, //N_rb_alloc,
++                                  proc->frame_rx,
++                                 proc->tti_rx,//proc->subframe_rx,
++                                  0,//u = 0..29
++                                  0,//v = 0,1
++                                  /*eNB->ulsch[ru->idx]->cyclicShift,cyclic_shift,0..7*/0,
++                                  10,//l (second DMRS symbol)
++                                  1,//interpolate (use both symbols for better estimation)
++                                  0 /*eNB->ulsch[ru->idx]->rnti rnti or ru->ulsch[eNB_id]->rnti*/);
+ 	check_sync_pos = lte_est_timing_advance_pusch(ru->frame_parms, ru->calibration.drs_ch_estimates_time); 
+         if (ru->state == RU_CHECK_SYNC) {
+           if ((check_sync_pos >= 0 && check_sync_pos<8) || (check_sync_pos < 0 && check_sync_pos>-8)) {

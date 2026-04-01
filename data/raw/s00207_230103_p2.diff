@@ -1,0 +1,15 @@
+diff --git a/common/utils/T/tracer/hacks/multi-rru-clean.c b/common/utils/T/tracer/hacks/multi-rru-clean.c
+index fd94253fb0..1c45c90d8c 100644
+--- a/common/utils/T/tracer/hacks/multi-rru-clean.c
++++ b/common/utils/T/tracer/hacks/multi-rru-clean.c
+@@ -48,8 +48,8 @@ int get_field(database_event_format *f, char *field, char *type)
+   int i;
+   for (i = 0; i < f->count; i++)
+     if (!strcmp(f->name[i], field)) {
+-      if (strcmp(f->type[i], type)) break;
+-      return i;
++      if (!strcmp(f->type[i], type))
++        return i;
+     }
+   printf("bad field %s, check that it exists and has type '%s'\n",field,type);
+   exit(1);

@@ -1,0 +1,34 @@
+{
+  "run_id": "s00319_58d1cb",
+  "function": {
+    "name": "set_dl_ue_select_msg4",
+    "file": "openair2/LAYER2/MAC/eNB_scheduler_fairRR.c",
+    "start_line": 85,
+    "end_line": 91,
+    "body_lines": 7,
+    "signature": "void set_dl_ue_select_msg4(int CC_idP, uint16_t nb_rb, int UE_id, rnti_t rnti)",
+    "subsystem": "openair2/LAYER2/MAC",
+    "token_estimate": 24
+  },
+  "bug": {
+    "bug_id": "c_off_by_one",
+    "description": "off-by-one error in array indexing or loop boundary",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a off-by-one error in array indexing or loop boundary downstream of function set_dl_ue_select_msg4 in the openair2/LAYER2/MAC subsystem.\nThe function is located at openair2/LAYER2/MAC/eNB_scheduler_fairRR.c:85.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00319_58d1cb_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00319_58d1cb_p1.diff",
+  "patch_lines": 18,
+  "trajectory_steps": 30,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T14:24:41Z"
+}

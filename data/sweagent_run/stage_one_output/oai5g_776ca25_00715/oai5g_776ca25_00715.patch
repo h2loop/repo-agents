@@ -1,0 +1,41 @@
+diff --git a/openair3/NAS/COMMON/IES/UeSecurityCapability.c b/openair3/NAS/COMMON/IES/UeSecurityCapability.c
+index 9b40b1b85c..835e20875d 100644
+--- a/openair3/NAS/COMMON/IES/UeSecurityCapability.c
++++ b/openair3/NAS/COMMON/IES/UeSecurityCapability.c
+@@ -98,12 +98,11 @@ int encode_ue_security_capability(UeSecurityCapability *uesecuritycapability, ui
+   if (uesecuritycapability->umts_present) {
+     *(buffer + encoded) = uesecuritycapability->uea;
+     encoded++;
+-    *(buffer + encoded) = 0x00 |
+-                          (uesecuritycapability->uia & 0x7f);
++    *(buffer + encoded) = uesecuritycapability->uia & 0x7f;
+     encoded++;
+ 
+     if (uesecuritycapability->gprs_present) {
+-      *(buffer + encoded) = 0x00 | (uesecuritycapability->gea & 0x7f);
++      *(buffer + encoded) = uesecuritycapability->gea & 0x7f;
+       encoded++;
+     }
+   } else {
+@@ -112,7 +111,7 @@ int encode_ue_security_capability(UeSecurityCapability *uesecuritycapability, ui
+       encoded++;
+       *(buffer + encoded) = 0x00;
+       encoded++;
+-      *(buffer + encoded) = 0x00 | (uesecuritycapability->gea & 0x7f);
++      *(buffer + encoded) = uesecuritycapability->gea & 0x7f;
+       encoded++;
+     }
+   }
+diff --git a/openair3/NAS/COMMON/IES/UeSecurityCapability.h b/openair3/NAS/COMMON/IES/UeSecurityCapability.h
+index d9726d76e0..d6d959696d 100644
+--- a/openair3/NAS/COMMON/IES/UeSecurityCapability.h
++++ b/openair3/NAS/COMMON/IES/UeSecurityCapability.h
+@@ -28,7 +28,7 @@
+ #ifndef UE_SECURITY_CAPABILITY_H_
+ #define UE_SECURITY_CAPABILITY_H_
+ 
+-#define UE_SECURITY_CAPABILITY_MINIMUM_LENGTH 2
++#define UE_SECURITY_CAPABILITY_MINIMUM_LENGTH 3
+ #define UE_SECURITY_CAPABILITY_MAXIMUM_LENGTH 7
+ 
+ typedef struct UeSecurityCapability_tag {

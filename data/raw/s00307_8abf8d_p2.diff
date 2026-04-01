@@ -1,0 +1,41 @@
+diff --git a/openair2/UTIL/CLI/cli.c b/openair2/UTIL/CLI/cli.c
+index c6aa0ab0de..0ec84dd1b4 100644
+--- a/openair2/UTIL/CLI/cli.c
++++ b/openair2/UTIL/CLI/cli.c
+@@ -98,7 +98,8 @@ int cli_start(void)
+ 
+   printf(WELCOME_MSG);
+   printf("[CLI] started...\n");
+-  sprintf(cli_cfg->prompt,"%s%c ", cli_prompt(),  cli_cfg->promptchar);
++  char *prompt_ptr = cli_prompt();
++  sprintf(cli_cfg->prompt,"%s%c ", prompt_ptr,  cli_cfg->promptchar);
+   send(cli_cfg->cfd,cli_cfg->prompt, strlen(cli_cfg->prompt), 0);
+   return 1;
+ }
+@@ -248,6 +249,12 @@ void cli_finish(void)
+     printf("[CLI] logout from %s\n", g_sid);
+   }
+ 
++  // Free cli_cfg memory to prevent memory leak
++  if (cli_cfg != NULL) {
++    free(cli_cfg);
++    cli_cfg = NULL;
++  }
++
+   return;
+ }
+ 
+diff --git a/openair2/UTIL/CLI/cli_cmd.c b/openair2/UTIL/CLI/cli_cmd.c
+index 59f6bebfd2..fe67d1822b 100644
+--- a/openair2/UTIL/CLI/cli_cmd.c
++++ b/openair2/UTIL/CLI/cli_cmd.c
+@@ -105,7 +105,8 @@ int prompt (char *arg)
+     // send(cli_cfg->cfd, cli_cfg->prompt, strlen(cli_cfg->prompt), 0);
+   } else {// set func
+     snprintf(cli_cfg->prompt,200,"%s",arg);
+-    sprintf( cli_cfg->prompt,"%s%c ", cli_prompt(),  cli_cfg->promptchar);
++    char *prompt_ptr = cli_prompt();
++    sprintf( cli_cfg->prompt,"%s%c ", prompt_ptr,  cli_cfg->promptchar);
+ 
+   }
+ 

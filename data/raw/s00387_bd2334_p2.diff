@@ -1,0 +1,24 @@
+diff --git a/openair2/GNB_APP/gnb_config.c b/openair2/GNB_APP/gnb_config.c
+index 44c402fb8a..d21571d815 100644
+--- a/openair2/GNB_APP/gnb_config.c
++++ b/openair2/GNB_APP/gnb_config.c
+@@ -842,8 +842,10 @@ static int get_prb_blacklist(uint8_t instance, uint16_t *prbbl)
+   int num_prbbl = 0;
+   char *ulprbbl = *GNBParamList.paramarray[0][GNB_ULPRBBLACKLIST_IDX].strptr;
+ 
+-  if (!ulprbbl)
++  if (!ulprbbl) {
++    end_configmodule(config_get_if());
+     return -1;
++  }
+ 
+   LOG_D(NR_PHY, "PRB blacklist found: %s\n", ulprbbl);
+   char *save = NULL;
+@@ -857,6 +859,7 @@ static int get_prb_blacklist(uint8_t instance, uint16_t *prbbl)
+     pt = strtok_r(NULL, ",", &save);
+     num_prbbl++;
+   }
++  end_configmodule(config_get_if());
+   return num_prbbl;
+ }
+ 

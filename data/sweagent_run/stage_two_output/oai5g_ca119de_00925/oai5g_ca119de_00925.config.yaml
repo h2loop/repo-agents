@@ -1,0 +1,207 @@
+'{"env":{"deployment":{"image":"oai5g-sera:ca119de","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_ca119de_00925","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix pattern2 TDD configuration handling in gNB\n\n### Summary\nThe NR gNB
+  configuration handling for TDD pattern2 had several issues that caused improper
+  memory allocation and configuration parsing. The main problem was that pattern2
+  memory was always allocated even when not configured, and there was no proper function
+  to check if pattern2 was actually configured by the user.\n\nThis caused issues
+  when running gNB with TDD configurations where pattern2 was not explicitly defined
+  in the configuration file, leading to crashes during RRC configuration processing.\n\n###
+  Changes\n- `openair2/GNB_APP/gnb_config.c`: \n  * Added `is_pattern2_config()` function
+  to properly check if pattern2 parameters are configured\n  * Modified `prepare_scc()`
+  to initialize pattern2 as NULL instead of always allocating memory\n  * Updated
+  `fill_scc_sim()` to safely handle NULL pattern2\n  * Fixed `fix_scc()` to properly
+  check pattern2 configuration before accessing it\n  * Added proper pattern2 configuration
+  handling in `get_scc_config()` that reads parameters into temporary variables first,
+  checks if configured, and only then allocates pattern2 memory\n- Added required
+  header includes for logging and assertions\n\n","extra_fields":{"bug_description":"signed/unsigned
+  integer comparison mismatch leading to incorrect branch","bug_id":"c_signed_unsigned_mismatch","stage_one_patch":"diff
+  --git a/openair2/GNB_APP/gnb_config.c b/openair2/GNB_APP/gnb_config.c\nindex 44c402fb8a..447bad7611
+  100644\n--- a/openair2/GNB_APP/gnb_config.c\n+++ b/openair2/GNB_APP/gnb_config.c\n@@
+  -48,12 +48,34 @@\n #include \"nfapi/oai_integration/aerial/fapi_vnf_p5.h\"\n #endif\n
+  #include \"lib/f1ap_interface_management.h\"\n+#include \"common/utils/assertions.h\"\n+#include
+  \"common/utils/LOG/log.h\"\n \n static int DEFBANDS[] = {7};\n static int DEFENBS[]
+  = {0};\n static int DEFBFW[] = {0x00007fff};\n static int DEFRUTPCORES[] = {-1,-1,-1,-1};\n
+  \n+/**\n+ * @brief Returns true when pattern2 is filled in\n+ */\n+static bool is_pattern2_config(const
+  NR_TDD_UL_DL_Pattern_t *pattern2)\n+{\n+  if (pattern2 == NULL)\n+    return false;\n+  \n+  //
+  Check if any pattern2 parameter is configured (not the default values)\n+  // Default
+  values are: periodicity=321, others=-1 (set in fill_scc_sim)\n+  if (pattern2->dl_UL_TransmissionPeriodicity
+  != 321 ||\n+      pattern2->nrofDownlinkSlots != -1 ||\n+      pattern2->nrofDownlinkSymbols
+  != -1 ||\n+      pattern2->nrofUplinkSlots != -1 ||\n+      pattern2->nrofUplinkSymbols
+  != -1)\n+    return true;\n+  \n+  return false;\n+}\n+\n /**\n  * @brief Helper
+  define to allocate and initialize SetupRelease structures\n  */\n@@ -76,7 +98,7
+  @@ void prepare_scc(NR_ServingCellConfigCommon_t *scc)\n   scc->ssb_periodicityServingCell
+  = calloc_or_fail(1, sizeof(*scc->ssb_periodicityServingCell));\n   scc->ssbSubcarrierSpacing
+  = calloc_or_fail(1, sizeof(*scc->ssbSubcarrierSpacing));\n   scc->tdd_UL_DL_ConfigurationCommon
+  = calloc_or_fail(1, sizeof(*scc->tdd_UL_DL_ConfigurationCommon));\n-  scc->tdd_UL_DL_ConfigurationCommon->pattern2
+  = calloc_or_fail(1, sizeof(*scc->tdd_UL_DL_ConfigurationCommon->pattern2));\n+  scc->tdd_UL_DL_ConfigurationCommon->pattern2
+  = NULL;\n   scc->downlinkConfigCommon = calloc_or_fail(1, sizeof(*scc->downlinkConfigCommon));\n   scc->downlinkConfigCommon->frequencyInfoDL
+  = calloc_or_fail(1, sizeof(*scc->downlinkConfigCommon->frequencyInfoDL));\n   scc->downlinkConfigCommon->initialDownlinkBWP
+  = calloc_or_fail(1, sizeof(*scc->downlinkConfigCommon->initialDownlinkBWP));\n@@
+  -319,12 +341,15 @@ void fill_scc_sim(NR_ServingCellConfigCommon_t *scc, uint64_t
+  *ssb_bitmap, int N\n   p1->nrofUplinkSlots = 2;\n   p1->nrofUplinkSymbols = 4;\n
+  \n-  struct NR_TDD_UL_DL_Pattern *p2 = tdd_UL_DL_ConfigurationCommon->pattern2;\n-  p2->dl_UL_TransmissionPeriodicity
+  = 321;\n-  p2->nrofDownlinkSlots = -1;\n-  p2->nrofDownlinkSymbols = -1;\n-  p2->nrofUplinkSlots
+  = -1;\n-  p2->nrofUplinkSymbols = -1;\n+  // Only initialize pattern2 if it''s allocated\n+  if
+  (tdd_UL_DL_ConfigurationCommon->pattern2 != NULL) {\n+    struct NR_TDD_UL_DL_Pattern
+  *p2 = tdd_UL_DL_ConfigurationCommon->pattern2;\n+    p2->dl_UL_TransmissionPeriodicity
+  = 321;\n+    p2->nrofDownlinkSlots = -1;\n+    p2->nrofDownlinkSymbols = -1;\n+    p2->nrofUplinkSlots
+  = -1;\n+    p2->nrofUplinkSymbols = -1;\n+  }\n \n   scc->ss_PBCH_BlockPower = 20;\n
+  }\n@@ -399,11 +424,14 @@ void fix_scc(NR_ServingCellConfigCommon_t *scc, uint64_t
+  ssbmap)\n     ASN_STRUCT_FREE(asn_DEF_NR_TDD_UL_DL_ConfigCommon, scc->tdd_UL_DL_ConfigurationCommon);\n     scc->tdd_UL_DL_ConfigurationCommon
+  = NULL;\n   } else { // TDD\n-    if (scc->tdd_UL_DL_ConfigurationCommon->pattern2->dl_UL_TransmissionPeriodicity
+  > 320 ) {\n-      free(scc->tdd_UL_DL_ConfigurationCommon->pattern2);\n-      scc->tdd_UL_DL_ConfigurationCommon->pattern2
+  = NULL;\n+    // Free pattern2 if it''s not configured or has invalid values\n+    if
+  (scc->tdd_UL_DL_ConfigurationCommon->pattern2 != NULL) {\n+      if (!is_pattern2_config(scc->tdd_UL_DL_ConfigurationCommon->pattern2)
+  ||\n+          scc->tdd_UL_DL_ConfigurationCommon->pattern2->dl_UL_TransmissionPeriodicity
+  > 320) {\n+        free(scc->tdd_UL_DL_ConfigurationCommon->pattern2);\n+        scc->tdd_UL_DL_ConfigurationCommon->pattern2
+  = NULL;\n+      }\n     }\n-\n   }\n \n   if ((int)*scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->msg1_SubcarrierSpacing
+  == -1) {\n@@ -426,7 +454,7 @@ void fix_scc(NR_ServingCellConfigCommon_t *scc, uint64_t
+  ssbmap)\n \n   // check pucch_ResourceConfig\n   AssertFatal(*scc->uplinkConfigCommon->initialUplinkBWP->pucch_ConfigCommon->choice.setup->pucch_ResourceCommon
+  < 2,\n-\t      \"pucch_ResourceConfig should be 0 or 1 for now\\n\");\n+              \"pucch_ResourceConfig
+  should be 0 or 1 for now\\n\");\n \n   if (*scc->ext2->ntn_Config_r17->cellSpecificKoffset_r17
+  == 0) {\n     free(scc->ext2->ntn_Config_r17->cellSpecificKoffset_r17);\n@@ -964,6
+  +992,55 @@ static NR_ServingCellConfigCommon_t *get_scc_config(configmodule_interface_t
+  *cf\n     sprintf(aprefix, \"%s.[%i].%s.[%i]\", GNB_CONFIG_STRING_GNB_LIST,0,GNB_CONFIG_STRING_SERVINGCELLCONFIGCOMMON,
+  0);\n     config_get(cfg, SCCsParams, sizeofArray(SCCsParams), aprefix);\n     config_get(cfg,
+  MsgASCCsParams, sizeofArray(MsgASCCsParams), aprefix);\n+    \n+    // NR_TDD-UL-DL-ConfigCommon
+  pattern2 (optional IE)\n+    // fetch params into temporary variables first\n+    long
+  dl_UL_TransmissionPeriodicity2 = -1;\n+    long nrofDownlinkSlots2 = -1;\n+    long
+  nrofDownlinkSymbols2 = -1;\n+    long nrofUplinkSlots2 = -1;\n+    long nrofUplinkSymbols2
+  = -1;\n+    \n+    // Define temporary parameters for pattern2\n+    paramdef_t
+  pattern2Params[] = {\n+      {GNB_CONFIG_STRING_DLULTRANSMISSIONPERIODICITY2,NULL,0,.i64ptr=&dl_UL_TransmissionPeriodicity2,.defintval=-1,TYPE_INT64,0},\n+      {GNB_CONFIG_STRING_NROFDOWNLINKSLOTS2,NULL,0,.i64ptr=&nrofDownlinkSlots2,.defint64val=-1,TYPE_INT64,0},\n+      {GNB_CONFIG_STRING_NROFDOWNLINKSYMBOLS2,NULL,0,.i64ptr=&nrofDownlinkSymbols2,.defint64val=-1,TYPE_INT64,0},\n+      {GNB_CONFIG_STRING_NROFUPLINKSLOTS2,NULL,0,.i64ptr=&nrofUplinkSlots2,.defint64val=-1,TYPE_INT64,0},\n+      {GNB_CONFIG_STRING_NROFUPLINKSYMBOLS2,NULL,0,.i64ptr=&nrofUplinkSymbols2,.defint64val=-1,TYPE_INT64,0}\n+    };\n+    \n+    //
+  Read pattern2 parameters into temporary variables\n+    char pattern2_aprefix[MAX_OPTNAME_SIZE
+  * 2 + 8];\n+    sprintf(pattern2_aprefix, \"%s.[%i].%s.[%i]\", GNB_CONFIG_STRING_GNB_LIST,
+  0, GNB_CONFIG_STRING_SERVINGCELLCONFIGCOMMON, 0);\n+    config_get(cfg, pattern2Params,
+  sizeofArray(pattern2Params), pattern2_aprefix);\n+    \n+    // Check if any pattern2
+  parameter is configured (not the default -1 value)\n+    bool is_pattern2_configured
+  = false;\n+    for (int i = 0; i < sizeofArray(pattern2Params); i++) {\n+      if
+  (*(pattern2Params[i].i64ptr) != -1) {\n+        is_pattern2_configured = true;\n+        break;\n+      }\n+    }\n+    \n+    //
+  Only allocate pattern2 memory if it''s actually configured\n+    if (is_pattern2_configured
+  && scc->tdd_UL_DL_ConfigurationCommon != NULL) {\n+      LOG_I(GNB_APP, \"tdd->pattern2
+  present\\n\");\n+      scc->tdd_UL_DL_ConfigurationCommon->pattern2 = calloc_or_fail(1,
+  sizeof(*scc->tdd_UL_DL_ConfigurationCommon->pattern2));\n+      \n+      // Fill
+  in the pattern2 values\n+      scc->tdd_UL_DL_ConfigurationCommon->pattern2->dl_UL_TransmissionPeriodicity
+  = dl_UL_TransmissionPeriodicity2;\n+      scc->tdd_UL_DL_ConfigurationCommon->pattern2->nrofDownlinkSlots
+  = nrofDownlinkSlots2;\n+      scc->tdd_UL_DL_ConfigurationCommon->pattern2->nrofDownlinkSymbols
+  = nrofDownlinkSymbols2;\n+      scc->tdd_UL_DL_ConfigurationCommon->pattern2->nrofUplinkSlots
+  = nrofUplinkSlots2;\n+      scc->tdd_UL_DL_ConfigurationCommon->pattern2->nrofUplinkSymbols
+  = nrofUplinkSymbols2;\n+      \n+      AssertFatal(scc->tdd_UL_DL_ConfigurationCommon->pattern2->nrofUplinkSlots
+  ^ scc->tdd_UL_DL_ConfigurationCommon->pattern1.nrofUplinkSlots,\n+                  \"UL
+  slots in pattern1 (%ld) and pattern2 (%ld) are mutually exclusive (e.g. DDDFUU DDDD,
+  DDDD DDDFUU)\\n\",\n+                  scc->tdd_UL_DL_ConfigurationCommon->pattern1.nrofUplinkSlots,\n+                  scc->tdd_UL_DL_ConfigurationCommon->pattern2->nrofUplinkSlots);\n+    }\n     struct
+  NR_FrequencyInfoDL *frequencyInfoDL = scc->downlinkConfigCommon->frequencyInfoDL;\n     LOG_I(RRC,\n           \"Read
+  in ServingCellConfigCommon (PhysCellId %d, ABSFREQSSB %d, DLBand %d, ABSFREQPOINTA
+  %d, DLBW \"\n@@ -1852,7 +1929,7 @@ gNB_RRC_INST *RCconfig_NRRRC()\n     gNB_RrcConfigurationReq
+  nrrrc_config = {0};\n     for (k=0; k <num_gnbs ; k++) {\n       if (strcmp(GNBSParams[GNB_ACTIVE_GNBS_IDX].strlistptr[k],
+  *(GNBParamList.paramarray[i][GNB_GNB_NAME_IDX].strptr) )== 0) {\n-\t\n+        \n         char
+  gnbpath[MAX_OPTNAME_SIZE + 8];\n         sprintf(gnbpath,\"%s.[%i]\",GNB_CONFIG_STRING_GNB_LIST,k);\n
+  \n@@ -1888,13 +1965,13 @@ gNB_RRC_INST *RCconfig_NRRRC()\n         nrrrc_config.num_plmn
+  = PLMNParamList.numelt;\n \n         for (int l = 0; l < PLMNParamList.numelt; ++l)
+  {\n-\t\n-\t  nrrrc_config.mcc[l]               = *PLMNParamList.paramarray[l][GNB_MOBILE_COUNTRY_CODE_IDX].uptr;\n-\t  nrrrc_config.mnc[l]               =
+  *PLMNParamList.paramarray[l][GNB_MOBILE_NETWORK_CODE_IDX].uptr;\n-\t  nrrrc_config.mnc_digit_length[l]  =
+  *PLMNParamList.paramarray[l][GNB_MNC_DIGIT_LENGTH].u8ptr;\n-\t  AssertFatal((nrrrc_config.mnc_digit_length[l]
+  == 2) ||\n-\t\t      (nrrrc_config.mnc_digit_length[l] == 3),\"BAD MNC DIGIT LENGTH
+  %d\",\n-\t\t      nrrrc_config.mnc_digit_length[l]);\n+        \n+          nrrrc_config.mcc[l]               =
+  *PLMNParamList.paramarray[l][GNB_MOBILE_COUNTRY_CODE_IDX].uptr;\n+          nrrrc_config.mnc[l]               =
+  *PLMNParamList.paramarray[l][GNB_MOBILE_NETWORK_CODE_IDX].uptr;\n+          nrrrc_config.mnc_digit_length[l]  =
+  *PLMNParamList.paramarray[l][GNB_MNC_DIGIT_LENGTH].u8ptr;\n+          AssertFatal((nrrrc_config.mnc_digit_length[l]
+  == 2) ||\n+                      (nrrrc_config.mnc_digit_length[l] == 3),\"BAD MNC
+  DIGIT LENGTH %d\",\n+                      nrrrc_config.mnc_digit_length[l]);\n         }\n         nrrrc_config.enable_sdap
+  = *GNBParamList.paramarray[i][GNB_ENABLE_SDAP_IDX].iptr;\n         LOG_I(GNB_APP,
+  \"SDAP layer is %s\\n\", nrrrc_config.enable_sdap ? \"enabled\" : \"disabled\");\n@@
+  -2243,10 +2320,10 @@ int RCconfig_NR_X2(MessageDef *msg_p, uint32_t i) {\n             paramdef_t
+  X2Params[]  = X2PARAMS_DESC;\n             paramlist_def_t X2ParamList = {ENB_CONFIG_STRING_TARGET_ENB_X2_IP_ADDRESS,NULL,0};\n             paramdef_t
+  SCTPParams[]  = GNBSCTPPARAMS_DESC;\n-\t    char*             gnb_ipv4_address_for_NGU      =
+  NULL;\n-\t    uint32_t          gnb_port_for_NGU              = 0;\n-\t    char*             gnb_ipv4_address_for_S1U      =
+  NULL;\n-\t    uint32_t          gnb_port_for_S1U              = 0;\n+            char*             gnb_ipv4_address_for_NGU      =
+  NULL;\n+            uint32_t          gnb_port_for_NGU              = 0;\n+            char*             gnb_ipv4_address_for_S1U      =
+  NULL;\n+            uint32_t          gnb_port_for_S1U              = 0;\n \n             paramdef_t
+  NETParams[]  =  GNBNETPARAMS_DESC;\n             /* TODO: fix the size - if set
+  lower we have a crash (MAX_OPTNAME_SIZE was 64 when this code was written) */\n","start_fn":"is_pattern2_config","start_fn_file":"openair2/GNB_APP/gnb_config.c","subsystem":"openair2/GNB_APP"},"type":"text","id":"oai5g_ca119de_00925"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

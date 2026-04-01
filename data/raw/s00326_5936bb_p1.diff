@@ -1,0 +1,31 @@
+diff --git a/openair3/NAS/UE/EMM/SAP/emm_fsm.c b/openair3/NAS/UE/EMM/SAP/emm_fsm.c
+index 5a715727ad..9ab5c44f72 100644
+--- a/openair3/NAS/UE/EMM/SAP/emm_fsm.c
++++ b/openair3/NAS/UE/EMM/SAP/emm_fsm.c
+@@ -284,15 +284,23 @@ int emm_fsm_process(nas_user_t *user, const emm_reg_t *evt)
+ {
+   int rc;
+   emm_fsm_state_t status;
++  int event_index;
+ 
+   LOG_FUNC_IN;
+ 
+ 
+   status = user->emm_fsm_status;
+ 
+-  LOG_TRACE(INFO, "EMM-FSM   - Received event %s (%d) in state %s",
+-            emm_fsm_event2str(evt->primitive - _EMMREG_START - 1), evt->primitive,
+-            emm_fsm_status2str(status));
++  /* Calculate event string array index with bounds checking */
++  event_index = evt->primitive - _EMMREG_START - 1;
++  if (event_index < 0 || event_index >= (sizeof(_emm_fsm_event_str) / sizeof(_emm_fsm_event_str[0]))) {
++    LOG_TRACE(INFO, "EMM-FSM   - Received event UNKNOWN (%d) in state %s",
++              evt->primitive, emm_fsm_status2str(status));
++  } else {
++    LOG_TRACE(INFO, "EMM-FSM   - Received event %s (%d) in state %s",
++              emm_fsm_event2str(event_index), evt->primitive,
++              emm_fsm_status2str(status));
++  }
+ 
+ 
+   /* Execute the EMM state machine */

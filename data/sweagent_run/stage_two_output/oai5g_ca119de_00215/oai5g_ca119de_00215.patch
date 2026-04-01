@@ -1,0 +1,13 @@
+diff --git a/openair3/NAS/COMMON/ESM/MSG/PdnDisconnectReject.c b/openair3/NAS/COMMON/ESM/MSG/PdnDisconnectReject.c
+index 9081ee885e..b3fd4b18d0 100644
+--- a/openair3/NAS/COMMON/ESM/MSG/PdnDisconnectReject.c
++++ b/openair3/NAS/COMMON/ESM/MSG/PdnDisconnectReject.c
+@@ -56,7 +56,7 @@ int decode_pdn_disconnect_reject(pdn_disconnect_reject_msg *pdn_disconnect_rejec
+       if ((decoded_result =
+              decode_protocol_configuration_options(&pdn_disconnect_reject->protocolconfigurationoptions,
+                  PDN_DISCONNECT_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_IEI,
+-                 buffer + decoded, len - decoded)) <= 0)
++                 buffer + decoded, len - decoded)) < 0)
+         return decoded_result;
+ 
+       decoded += decoded_result;

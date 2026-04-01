@@ -1,0 +1,26 @@
+{
+  "run_id": "zephyr_00919_87850c",
+  "function": {
+    "name": "chunk_idx_decode",
+    "file": "subsys/bluetooth/mesh/blob_cli.c",
+    "start_line": 230,
+    "end_line": 262,
+    "body_lines": 33,
+    "signature": "static int chunk_idx_decode(struct net_buf_simple *buf)",
+    "subsystem": "subsys/bluetooth/mesh",
+    "token_estimate": 115
+  },
+  "bug": {
+    "bug_id": "protocol_state_machine_error",
+    "description": "incorrect protocol state machine transition violating specification",
+    "domain": "protocol",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a incorrect protocol state machine transition violating specification downstream of function chunk_idx_decode in the subsys/bluetooth/mesh subsystem.\nThe function is located at subsys/bluetooth/mesh/blob_cli.c:230.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 14,
+  "trajectory_steps": 32,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:03:51Z"
+}

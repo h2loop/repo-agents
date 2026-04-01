@@ -1,0 +1,46 @@
+diff --git a/openair3/UICC/usim_interface.c b/openair3/UICC/usim_interface.c
+index f1019366b1..88f0127165 100644
+--- a/openair3/UICC/usim_interface.c
++++ b/openair3/UICC/usim_interface.c
+@@ -118,18 +118,32 @@ uicc_t * checkUicc(int Mod_id) {
+ 
+ uint8_t getImeisvDigit(const uicc_t *uicc, uint8_t i)
+ {
+-  uint8_t r = 0;
++  // Check for NULL pointer
++  if (uicc == NULL || uicc->imeisvStr == NULL) {
++    LOG_E(SIM, "NULL pointer passed to getImeisvDigit: uicc=%p, imeisvStr=%p\n", uicc, uicc ? uicc->imeisvStr : NULL);
++    return 0;
++  }
++
++  // Validate index bounds
+   uint8_t l = strlen(uicc->imeisvStr);
+   if (l > IMEISV_STR_MAX_LENGTH) {
+-    l=IMEISV_STR_MAX_LENGTH;
++    l = IMEISV_STR_MAX_LENGTH;
++  }
++
++  // Check if index is within bounds
++  if (i >= l) {
++    LOG_W(SIM, "Index %d out of bounds for IMEISV string length %d\n", i, l);
++    return 0;
+   }
+-  if((uicc->imeisvStr!=NULL) && (i<l))
+-  {
+-    char c = uicc->imeisvStr[i];
+-    if (isdigit(c))
+-    {
+-      r=c-'0';
+-    }
++
++  // Extract character and validate it's a digit
++  char c = uicc->imeisvStr[i];
++  if (!isdigit(c)) {
++    LOG_W(SIM, "Non-digit character '%c' at position %d in IMEISV string: %s\n", c, i, uicc->imeisvStr);
++    return 0;
+   }
++
++  // Convert digit character to numeric value
++  uint8_t r = c - '0';
+   return (0x0f & r);
+ }

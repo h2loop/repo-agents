@@ -1,0 +1,30 @@
+{
+  "run_id": "s00038_58383a",
+  "function": {
+    "name": "nr_ue_process_dci_ul_01",
+    "file": "openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c",
+    "start_line": 594,
+    "end_line": 697,
+    "body_lines": 104,
+    "signature": "static int nr_ue_process_dci_ul_01(NR_UE_MAC_INST_t *mac, frame_t frame, int slot, dci_pdu_rel15_t *dci, fapi_nr_dci_indication_pdu_t *dci_ind)",
+    "subsystem": "openair2/LAYER2/NR_MAC_UE",
+    "token_estimate": 378
+  },
+  "bug": {
+    "bug_id": "telecom_power_control_error",
+    "description": "power control error causing incorrect transmit power level",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "radio"
+    ]
+  },
+  "prompt": "There is a power control error causing incorrect transmit power level downstream of function nr_ue_process_dci_ul_01 in the openair2/LAYER2/NR_MAC_UE subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c:594.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00038_58383a_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00038_58383a_p1.diff",
+  "patch_lines": 0,
+  "trajectory_steps": 21,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:45:03Z"
+}

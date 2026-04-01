@@ -1,0 +1,40 @@
+{
+  "run_id": "s00258_a766cb",
+  "function": {
+    "name": "init_sidelink",
+    "file": "openair2/RRC/NR_UE/rrc_sl_preconfig.c",
+    "start_line": 556,
+    "end_line": 565,
+    "body_lines": 10,
+    "signature": "void init_sidelink(NR_UE_RRC_INST_t *rrc)",
+    "subsystem": "openair2/RRC/NR_UE",
+    "token_estimate": 23
+  },
+  "bug": {
+    "bug_id": "c_buffer_overflow",
+    "description": "buffer overflow vulnerability",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables",
+      "radio",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a buffer overflow vulnerability downstream of function init_sidelink in the openair2/RRC/NR_UE subsystem.\nThe function is located at openair2/RRC/NR_UE/rrc_sl_preconfig.c:556.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00258_a766cb_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00258_a766cb_p1.diff",
+  "patch_lines": 11,
+  "trajectory_steps": 79,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:52:47Z"
+}

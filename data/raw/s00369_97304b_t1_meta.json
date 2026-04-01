@@ -1,0 +1,30 @@
+{
+  "run_id": "s00369_97304b",
+  "function": {
+    "name": "nr_dlsch_layer_demapping",
+    "file": "openair1/PHY/NR_UE_TRANSPORT/nr_dlsch_demodulation.c",
+    "start_line": 1538,
+    "end_line": 1575,
+    "body_lines": 38,
+    "signature": "static void nr_dlsch_layer_demapping(int16_t *llr_cw[2], uint8_t Nl, uint8_t mod_order, uint32_t length, int32_t codeword_TB0, int32_t codeword_TB1, uint sz, int16_t llr_layers[][sz])",
+    "subsystem": "openair1/PHY/NR_UE_TRANSPORT",
+    "token_estimate": 105
+  },
+  "bug": {
+    "bug_id": "telecom_state_machine_stale_state",
+    "description": "stale protocol state not cleared after procedure completion or failure",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a stale protocol state not cleared after procedure completion or failure downstream of function nr_dlsch_layer_demapping in the openair1/PHY/NR_UE_TRANSPORT subsystem.\nThe function is located at openair1/PHY/NR_UE_TRANSPORT/nr_dlsch_demodulation.c:1538.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00369_97304b_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00369_97304b_p1.diff",
+  "patch_lines": 7,
+  "trajectory_steps": 40,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:53:27Z"
+}

@@ -1,0 +1,30 @@
+{
+  "run_id": "s00193_b16afa",
+  "function": {
+    "name": "unpack_preamble_pdu_rel8_value",
+    "file": "nfapi/open-nFAPI/nfapi/src/nfapi_p7.c",
+    "start_line": 4991,
+    "end_line": 4996,
+    "body_lines": 6,
+    "signature": "static uint8_t unpack_preamble_pdu_rel8_value(void *tlv, uint8_t **ppReadPackedMsg, uint8_t *end)",
+    "subsystem": "nfapi/open-nFAPI/nfapi",
+    "token_estimate": 27
+  },
+  "bug": {
+    "bug_id": "telecom_power_control_error",
+    "description": "power control error causing incorrect transmit power level",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "radio"
+    ]
+  },
+  "prompt": "There is a power control error causing incorrect transmit power level downstream of function unpack_preamble_pdu_rel8_value in the nfapi/open-nFAPI/nfapi subsystem.\nThe function is located at nfapi/open-nFAPI/nfapi/src/nfapi_p7.c:4991.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00193_b16afa_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00193_b16afa_p1.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 67,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:09:44Z"
+}

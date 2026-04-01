@@ -1,0 +1,44 @@
+diff --git a/openair3/NAS/TEST/AS_SIMULATOR/nas_process.c b/openair3/NAS/TEST/AS_SIMULATOR/nas_process.c
+index 9b2245acd0..7124e95816 100644
+--- a/openair3/NAS/TEST/AS_SIMULATOR/nas_process.c
++++ b/openair3/NAS/TEST/AS_SIMULATOR/nas_process.c
+@@ -922,6 +922,19 @@ _activate_default_eps_bearer_context_accept(
+ {
+   int index = 0;
+ 
++  /* EPS bearer identity */
++  index += snprintf(buffer + index, length - index, "EBI = %d", 
++                    msg->epsbeareridentity);
++
++  /* Procedure transaction identity */
++  index += snprintf(buffer + index, length - index, ", PTI = %d", 
++                    msg->proceduretransactionidentity);
++
++  /* Protocol configuration options */
++  if (msg->presencemask & ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_ACCEPT_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT) {
++    index += snprintf(buffer + index, length - index, ", PCO present");
++  }
++
+   return (index);
+ }
+ 
+@@ -978,6 +991,19 @@ _activate_dedicated_eps_bearer_context_accept(
+ {
+   int index = 0;
+ 
++  /* EPS bearer identity */
++  index += snprintf(buffer + index, length - index, "EBI = %d", 
++                    msg->epsbeareridentity);
++
++  /* Procedure transaction identity */
++  index += snprintf(buffer + index, length - index, ", PTI = %d", 
++                    msg->proceduretransactionidentity);
++
++  /* Protocol configuration options */
++  if (msg->presencemask & ACTIVATE_DEDICATED_EPS_BEARER_CONTEXT_ACCEPT_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT) {
++    index += snprintf(buffer + index, length - index, ", PCO present");
++  }
++
+   return (index);
+ }
+ 

@@ -1,0 +1,67 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
+index 64ec807d51..20e429bdf7 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
+@@ -1130,13 +1130,55 @@ static uint8_t unpack_nb_iot_system_information_schedule_request_value(void *tlv
+ 
+ static uint8_t unpack_system_information_schedule_request(uint8_t **ppReadPackedMsg, uint8_t *end, void *msg, nfapi_p4_p5_codec_config_t *config) {
+   nfapi_system_information_schedule_request_t *pNfapiMsg = (nfapi_system_information_schedule_request_t *)msg;
+-  unpack_tlv_t unpack_fns[] = {
+-    { NFAPI_LTE_SYSTEM_INFORMATION_SCHEDULE_REQUEST_TAG, &pNfapiMsg->lte_system_information_schedule_request, &unpack_lte_system_information_schedule_request_value},
+-    { NFAPI_NB_IOT_SYSTEM_INFORMATION_SCHEDULE_REQUEST_TAG, &pNfapiMsg->nb_iot_system_information_schedule_request, &unpack_nb_iot_system_information_schedule_request_value},
+-    { NFAPI_PNF_CELL_BROADCAST_STATE_TAG, &pNfapiMsg->pnf_cell_broadcast_state, &unpack_opaque_data_value}
+-  };
+-  return (pull8(ppReadPackedMsg, &pNfapiMsg->rat_type, end) &&
+-          unpack_tlv_list(unpack_fns, sizeof(unpack_fns)/sizeof(unpack_tlv_t), ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension));
++  int result = 0;
++
++  if(pull8(ppReadPackedMsg, &pNfapiMsg->rat_type, end) == 0)
++    return 0;
++
++  switch(pNfapiMsg->rat_type) {
++    case NFAPI_RAT_TYPE_LTE: {
++      unpack_tlv_t unpack_fns[] = {
++        { NFAPI_LTE_SYSTEM_INFORMATION_SCHEDULE_REQUEST_TAG, &pNfapiMsg->lte_system_information_schedule_request, &unpack_lte_system_information_schedule_request_value}
++      };
++      result = unpack_tlv_list(unpack_fns, sizeof(unpack_fns)/sizeof(unpack_tlv_t), ppReadPackedMsg, end, config, NULL);
++    }
++    break;
++
++    case NFAPI_RAT_TYPE_NB_IOT: {
++      unpack_tlv_t unpack_fns[] = {
++        { NFAPI_NB_IOT_SYSTEM_INFORMATION_SCHEDULE_REQUEST_TAG, &pNfapiMsg->nb_iot_system_information_schedule_request, &unpack_nb_iot_system_information_schedule_request_value}
++      };
++      result = unpack_tlv_list(unpack_fns, sizeof(unpack_fns)/sizeof(unpack_tlv_t), ppReadPackedMsg, end, config, NULL);
++    }
++    break;
++
++    default: {
++      // For unsupported RAT types, no specific TLVs to unpack
++      result = unpack_tlv_list(NULL, 0, ppReadPackedMsg, end, config, NULL);
++    }
++    break;
++  }
++
++  // Always unpack PNF cell broadcast state and vendor extension
++  if(result == 1) {
++    unpack_tlv_t unpack_fns[] = {
++      { NFAPI_PNF_CELL_BROADCAST_STATE_TAG, &pNfapiMsg->pnf_cell_broadcast_state, &unpack_opaque_data_value}
++    };
++    result = unpack_tlv_list(unpack_fns, sizeof(unpack_fns)/sizeof(unpack_tlv_t), ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension);
++  }
++
++  // Verify that the rat type and the tlv match
++  if(result == 1 &&
++      !((pNfapiMsg->rat_type == NFAPI_RAT_TYPE_LTE && pNfapiMsg->lte_system_information_schedule_request.tl.tag == NFAPI_LTE_SYSTEM_INFORMATION_SCHEDULE_REQUEST_TAG) ||
++        (pNfapiMsg->rat_type == NFAPI_RAT_TYPE_NB_IOT && pNfapiMsg->nb_iot_system_information_schedule_request.tl.tag == NFAPI_NB_IOT_SYSTEM_INFORMATION_SCHEDULE_REQUEST_TAG) ||
++        (pNfapiMsg->rat_type != NFAPI_RAT_TYPE_LTE && pNfapiMsg->rat_type != NFAPI_RAT_TYPE_NB_IOT))) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "Mismatch RAT Type: %d and TAG value: 0x%04x \n", pNfapiMsg->rat_type, 
++                pNfapiMsg->rat_type == NFAPI_RAT_TYPE_LTE ? pNfapiMsg->lte_system_information_schedule_request.tl.tag : 
++                (pNfapiMsg->rat_type == NFAPI_RAT_TYPE_NB_IOT ? pNfapiMsg->nb_iot_system_information_schedule_request.tl.tag : 0));
++    result = 0;
++  }
++
++  return result;
+ }
+ 
+ static uint8_t unpack_system_information_schedule_response(uint8_t **ppReadPackedMsg, uint8_t *end, void *msg, nfapi_p4_p5_codec_config_t *config) {

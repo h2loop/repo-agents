@@ -1,0 +1,82 @@
+diff --git a/common/utils/ocp_itti/intertask_interface.cpp b/common/utils/ocp_itti/intertask_interface.cpp
+index b0d05c6aca..8a2b6f8cbf 100644
+--- a/common/utils/ocp_itti/intertask_interface.cpp
++++ b/common/utils/ocp_itti/intertask_interface.cpp
+@@ -317,9 +317,74 @@ extern "C" {
+   int itti_create_task(task_id_t task_id,
+                        void *(*start_routine)(void *),
+                        void *args_p) {
+-    task_list_t *t=tasks[task_id];
+-    threadCreate (&t->thread, start_routine, args_p, (char *)itti_get_task_name(task_id),-1,OAI_PRIORITY_RT);
+-    LOG_I(ITTI,"Created Posix thread %s\n",  itti_get_task_name(task_id) );
++    task_list_t *t = tasks[task_id];
++    pthread_attr_t attr;
++    struct sched_param sparam = {0};
++    int ret;
++    
++    // Initialize pthread attributes
++    ret = pthread_attr_init(&attr);
++    if (ret != 0) {
++      LOG_E(ITTI, "pthread_attr_init failed for task %s: %s\n", 
++            itti_get_task_name(task_id), strerror(ret));
++      return -1;
++    }
++    
++    // Set explicit scheduling
++    ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
++    if (ret != 0) {
++      LOG_E(ITTI, "pthread_attr_setinheritsched failed for task %s: %s\n", 
++            itti_get_task_name(task_id), strerror(ret));
++      pthread_attr_destroy(&attr);
++      return -1;
++    }
++    
++    // Set round-robin scheduling policy
++    ret = pthread_attr_setschedpolicy(&attr, SCHED_RR);
++    if (ret != 0) {
++      LOG_E(ITTI, "pthread_attr_setschedpolicy failed for task %s: %s\n", 
++            itti_get_task_name(task_id), strerror(ret));
++      pthread_attr_destroy(&attr);
++      return -1;
++    }
++    
++    // Set real-time priority
++    int priority = OAI_PRIORITY_RT;
++    if (priority < sched_get_priority_min(SCHED_RR) || 
++        priority > sched_get_priority_max(SCHED_RR)) {
++      LOG_E(ITTI, "Priority %d out of range for task %s, min: %d, max: %d\n", 
++            priority, itti_get_task_name(task_id),
++            sched_get_priority_min(SCHED_RR),
++            sched_get_priority_max(SCHED_RR));
++      priority = (sched_get_priority_min(SCHED_RR) + 
++                  sched_get_priority_max(SCHED_RR)) / 2;
++    }
++    
++    sparam.sched_priority = priority;
++    ret = pthread_attr_setschedparam(&attr, &sparam);
++    if (ret != 0) {
++      LOG_E(ITTI, "pthread_attr_setschedparam failed for task %s: %s\n", 
++            itti_get_task_name(task_id), strerror(ret));
++      pthread_attr_destroy(&attr);
++      return -1;
++    }
++    
++    // Create the thread
++    ret = pthread_create(&t->thread, &attr, start_routine, args_p);
++    if (ret != 0) {
++      LOG_E(ITTI, "pthread_create failed for task %s: %s\n", 
++            itti_get_task_name(task_id), strerror(ret));
++      pthread_attr_destroy(&attr);
++      return -1;
++    }
++    
++    // Set thread name
++    pthread_setname_np(t->thread, itti_get_task_name(task_id));
++    
++    // Clean up attributes
++    pthread_attr_destroy(&attr);
++    
++    LOG_I(ITTI, "Created Posix thread %s\n", itti_get_task_name(task_id));
+     return 0;
+   }
+ 

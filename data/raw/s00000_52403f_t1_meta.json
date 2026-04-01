@@ -1,0 +1,30 @@
+{
+  "run_id": "s00000_52403f",
+  "function": {
+    "name": "rx_sdu",
+    "file": "openair2/LAYER2/MAC/eNB_scheduler_ulsch.c",
+    "start_line": 95,
+    "end_line": 1050,
+    "body_lines": 956,
+    "signature": "void rx_sdu(const module_id_t enb_mod_idP, const int CC_idP, const frame_t frameP, const sub_frame_t subframeP, const rnti_t rntiP, uint8_t *sduP, const uint16_t sdu_lenP, const uint16_t timing_advance, const uint8_t ul_cqi) //-----------------------------------------------------------------------------",
+    "subsystem": "openair2/LAYER2/MAC",
+    "token_estimate": 3219
+  },
+  "bug": {
+    "bug_id": "c_wrong_flags",
+    "description": "incorrect flags or bitmask passed to a system or library function",
+    "domain": "generic_c",
+    "subsystems": [
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a incorrect flags or bitmask passed to a system or library function downstream of function rx_sdu in the openair2/LAYER2/MAC subsystem.\nThe function is located at openair2/LAYER2/MAC/eNB_scheduler_ulsch.c:95.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00000_52403f_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00000_52403f_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 15,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:09:15Z"
+}

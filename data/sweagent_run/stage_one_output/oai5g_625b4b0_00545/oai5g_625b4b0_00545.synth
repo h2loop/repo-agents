@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix label click notification data format in GUI tracer\n\n### Summary\nThe label widget in the tracer GUI was sending incorrect notification data when clicked. The button callback was passing a pointer to the button variable instead of a proper data structure containing the button value. This caused handlers to receive malformed data, leading to unexpected behavior when processing label click events.\n\nThe issue was in the button() function in label.c which used `&button` as notification_data. This approach was inconsistent with other widgets and didn't match the documented format `{ int: button }` specified in gui.h.\n\n### Changes\n- `common/utils/T/tracer/gui/label.c`: Modified the button() function to create a proper array containing the button value before passing it to gui_notify, ensuring consistent data format across all widgets.\n\n"
+}

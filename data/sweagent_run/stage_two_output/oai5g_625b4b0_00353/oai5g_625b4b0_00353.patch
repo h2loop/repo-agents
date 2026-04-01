@@ -1,0 +1,16 @@
+diff --git a/openair1/PHY/INIT/nr_parms.c b/openair1/PHY/INIT/nr_parms.c
+index 4fc91037b8..2e43cf9d31 100644
+--- a/openair1/PHY/INIT/nr_parms.c
++++ b/openair1/PHY/INIT/nr_parms.c
+@@ -89,10 +89,7 @@ static const int nr_ssb_table[54][3] = {
+ void set_Lmax(NR_DL_FRAME_PARMS *fp) {
+   // definition of Lmax according to ts 38.213 section 4.1
+   if (fp->dl_CarrierFreq < 6e9) {
+-    if(fp->frame_type && (fp->ssb_type==2))
+-      fp->Lmax = (fp->dl_CarrierFreq < 2.4e9)? 4 : 8;
+-    else
+-      fp->Lmax = (fp->dl_CarrierFreq < 3e9)? 4 : 8;
++    fp->Lmax = (fp->dl_CarrierFreq < 3e9)? 4 : 8;
+   } else {
+     fp->Lmax = 64;
+   }

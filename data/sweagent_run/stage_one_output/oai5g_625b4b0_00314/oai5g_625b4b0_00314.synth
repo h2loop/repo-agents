@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix widget hierarchy management in GUI system\n\n### Summary\nThe GUI widget system in the tracer module had an issue with widget parent-child relationships. When moving a widget from one parent to another using `widget_add_child()`, the widget was not properly removed from its previous parent, leading to inconsistent hierarchy state.\n\nThis could cause unexpected behavior when widgets were moved between containers, potentially leading to double-free errors or widgets not being properly displayed.\n\n### Changes\n- `common/utils/T/tracer/gui/widget.c`: Added check in `widget_add_child_internal` to properly remove child from previous parent before adding to new parent.\n\n"
+}

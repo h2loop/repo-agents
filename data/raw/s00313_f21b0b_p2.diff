@@ -1,0 +1,53 @@
+diff --git a/common/utils/T/tracer/gnb.c b/common/utils/T/tracer/gnb.c
+index 6629a1efd6..4e98fbbe25 100644
+--- a/common/utils/T/tracer/gnb.c
++++ b/common/utils/T/tracer/gnb.c
+@@ -113,13 +113,43 @@ void reset_ue_ids(void)
+ 
+ static void click(void *private, gui *g, char *notification, widget *w, void *notification_data)
+ {
+-  int *d = notification_data;
+-  int button = d[0];
+-  gnb_data *ed = private;
+-  gnb_gui *e = ed->e;
+-  int ue = ed->ue;
++  gnb_data *ed;
++  gnb_gui *e;
++  int *d;
++  int button;
++  int ue;
+   int do_reset = 0;
+ 
++  /* Validate input parameters */
++  if (private == NULL) {
++    fprintf(stderr, "Error in gnb click handler: private data is NULL\n");
++    return;
++  }
++  
++  if (notification_data == NULL) {
++    fprintf(stderr, "Error in gnb click handler: notification_data is NULL\n");
++    return;
++  }
++
++  ed = private;
++  d = notification_data;
++  
++  /* Validate gnb_data structure fields */
++  if (ed->e == NULL) {
++    fprintf(stderr, "Error in gnb click handler: gnb_data->e is NULL\n");
++    return;
++  }
++  
++  if (ed->database == NULL) {
++    fprintf(stderr, "Error in gnb click handler: gnb_data->database is NULL\n");
++    return;
++  }
++
++  /* Now safe to access fields */
++  button = d[0];
++  e = ed->e;
++  ue = ed->ue;
++
+   if (button != 1) return;
+   if (w == e->prev_ue_button) { ue--; if (ue < 0) ue = 0; }
+   if (w == e->next_ue_button) ue++;

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00246_652e6d",
+  "pr_text": "## Title: Fix missing error handling in NGAP SCTP data indication processing\n\n### Summary\nThe NGAP layer's SCTP data indication handler was not checking the return value from `ngap_gNB_handle_message()`, causing F1AP interface errors between CU and DU to go undetected. When message processing failed downstream, the system would silently continue without logging the failure, leading to potential message loss or corruption that was difficult to diagnose.\n\nThis fix adds proper error handling and lo",
+  "trajectory_path": "data/raw/s00246_652e6d_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00246_652e6d_p2.diff",
+  "patch_lines": 5,
+  "trajectory_steps": 13,
+  "timestamp": "2026-02-11T13:43:33Z"
+}

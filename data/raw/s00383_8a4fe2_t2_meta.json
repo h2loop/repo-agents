@@ -1,0 +1,9 @@
+{
+  "run_id": "s00383_8a4fe2",
+  "pr_text": "## Title: Fix incorrect scale_flag propagation in dft1944 DFT function\n\n### Summary\nThe `dft1944` function in the OAI DFT library was incorrectly passing a hardcoded `scale_flag` value of `1` to downstream `dft648` calls, ignoring the `scale_flag` parameter passed by the caller. This caused unintended scaling behavior in 1944-point DFT computations regardless of the caller's intent. When `scale_flag=0` was specified to disable scaling, the function would still apply scaling due to the hardcoded ",
+  "trajectory_path": "data/raw/s00383_8a4fe2_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00383_8a4fe2_p2.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 12,
+  "timestamp": "2026-02-10T12:58:51Z"
+}

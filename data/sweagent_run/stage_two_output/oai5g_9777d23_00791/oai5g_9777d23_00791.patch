@@ -1,0 +1,136 @@
+diff --git a/openair3/NAS/UE/API/USER/user_api.c b/openair3/NAS/UE/API/USER/user_api.c
+index 4d47a4c2b3..ff2b0564d3 100644
+--- a/openair3/NAS/UE/API/USER/user_api.c
++++ b/openair3/NAS/UE/API/USER/user_api.c
+@@ -50,6 +50,8 @@ Description     Implements the API used by the NAS layer running in the UE
+ #include "esm_ebr.h"
+ 
+ #include "user_indication.h"
++#include "commonDef.h"
++#include "networkDef.h"
+ 
+ #include <string.h> // strerror, memset
+ #include <netdb.h>  // gai_strerror
+@@ -72,6 +74,7 @@ static int _user_api_registration_handler(user_api_id_t *user_api_id, unsigned c
+ static int _user_api_location_handler(user_api_id_t *user_api_id, unsigned char id, const void* data, size_t size);
+ static int _user_api_network_handler(user_api_id_t *user_api_id, unsigned char id, const void* data, size_t size);
+ static int _user_api_pdn_connection_handler(user_api_id_t *user_api_id, unsigned char id, const void* data, size_t size);
++static int _user_api_connection_handler(user_api_id_t *user_api_id, unsigned char id, const void* data, size_t size);
+ 
+ static int _user_api_send(user_api_id_t *user_api_id, at_response_t* data);
+ 
+@@ -161,6 +164,9 @@ int user_api_initialize(user_api_id_t *user_api_id, const char* host, const char
+   } else if (user_ind_register(USER_IND_PDN, AT_CGACT, NULL) != RETURNok) {
+     LOG_TRACE(WARNING, "USR-API   - "
+               "Failed to enable PDN connection notification");
++  } else if (user_ind_register(USER_IND_CONN, 0, _user_api_connection_handler) != RETURNok) {
++    LOG_TRACE(WARNING, "USR-API   - "
++              "Failed to register connection status notification");
+   } else {
+     LOG_TRACE(INFO, "USR-API   - "
+               "Notification handlers successfully registered");
+@@ -350,6 +356,13 @@ void user_api_close(user_api_id_t *user_api_id)
+ {
+   LOG_FUNC_IN;
+ 
++  /* Send connection status notification indicating connection closed */
++  user_ind_conn_t conn_status = {0};
++  conn_status.status = NET_REG_STATE_OFF;  /* Indicate connection is closed */
++  
++  /* Notify user application about connection termination */
++  user_ind_notify(user_api_id, USER_IND_CONN, &conn_status, sizeof(conn_status));
++
+   /* Cleanup the connection endpoint */
+   user_api_id->close(user_api_id->endpoint) ;
+   user_api_id->endpoint = NULL;
+@@ -756,3 +769,55 @@ static int _user_api_pdn_connection_handler(user_api_id_t *user_api_id, unsigned
+   LOG_FUNC_RETURN (bytes);
+ }
+ 
++/****************************************************************************
++ **                                                                        **
++ ** Name:  _user_api_connection_handler()                            **
++ **                                                                        **
++ ** Description: Procedure executed upon receiving connection status       **
++ **    notification whenever the user API connection is established  **
++ **    or terminated.                                            **
++ **    The connection status data are then displayed to the user.  **
++ **                                                                        **
++ ** Inputs:  id:    Connection status AT command identifier        **
++ **    data:    Generic pointer to the connection status data  **
++ **    size:    Not used                                   **
++ **      Others:  None                                       **
++ **                                                                        **
++ ** Outputs:   None                                                      **
++ **    Return:  The number of bytes actually sent to the   **
++ **       user application                           **
++ **      Others:  None                                       **
++ **                                                                        **
++ ***************************************************************************/
++static int _user_api_connection_handler(user_api_id_t *user_api_id, unsigned char id, const void* data,
++    size_t size)
++{
++  LOG_FUNC_IN;
++
++  /* Get connection status notification data */
++  user_ind_conn_t* conn = (user_ind_conn_t*)data;
++
++  /* Setup AT command unsolicited result response message using CGEV for connection events */
++  at_response_t at_response;
++  at_response.id = AT_CGEV;
++  at_response.type = AT_COMMAND_GET;
++  at_response.mask = AT_RESPONSE_CGEV_MASK;
++  
++  /* Use CGEV response structure to indicate connection status */
++  /* Map connection status to a meaningful CGEV event */
++  if (conn->status == NET_REG_STATE_OFF) {
++    /* Connection closed - use deactivation event with special CID */
++    at_response.response.cgev.cid = 0; /* Special value to indicate connection termination */
++    at_response.response.cgev.code = NET_PDN_NW_DEFAULT_DEACT;
++  } else {
++    /* Connection opened - use activation event */
++    at_response.response.cgev.cid = 0; /* Special value to indicate connection establishment */
++    at_response.response.cgev.code = NET_PDN_MT_DEFAULT_ACT;
++  }
++
++  /* Encode and send the AT command response message to the user */
++  int bytes = _user_api_send(user_api_id, &at_response);
++
++  LOG_FUNC_RETURN (bytes);
++}
++
+diff --git a/openair3/NAS/UE/API/USER/user_indication.h b/openair3/NAS/UE/API/USER/user_indication.h
+index d86ab43dca..93567f55f8 100644
+--- a/openair3/NAS/UE/API/USER/user_indication.h
++++ b/openair3/NAS/UE/API/USER/user_indication.h
+@@ -57,6 +57,7 @@ typedef enum {
+   USER_IND_LOC, /* Location notification  */
+   USER_IND_PLMN,  /* Network notification   */
+   USER_IND_PDN, /* PDN connection notification  */
++  USER_IND_CONN, /* Connection status notification */
+   USER_IND_MAX
+ } user_ind_t;
+ 
+@@ -88,6 +89,14 @@ typedef struct {
+   network_pdn_state_t status; /* PDN connection status  */
+ } user_ind_pdn_t;
+ 
++/*
++ * Connection status notification are received whenever the user API connection
++ * is established or terminated
++ */
++typedef struct {
++  Stat_t status;  /* Connection status  */
++} user_ind_conn_t;
++
+ /*
+  * Structure of asynchronous notification received by the user
+  */
+@@ -96,6 +105,7 @@ typedef struct {
+     user_ind_reg_t reg; /* Registration notification  */
+     user_ind_loc_t loc; /* Location notification  */
+     user_ind_pdn_t pdn; /* PDN connection notification  */
++    user_ind_conn_t conn; /* Connection status notification */
+   } notification;
+ } user_indication_t;
+ 

@@ -1,0 +1,160 @@
+diff --git a/nfapi/oai_integration/nfapi_vnf.c b/nfapi/oai_integration/nfapi_vnf.c
+index dc9dd46b5c..782274dfa5 100644
+--- a/nfapi/oai_integration/nfapi_vnf.c
++++ b/nfapi/oai_integration/nfapi_vnf.c
+@@ -719,13 +719,21 @@ int phy_nr_rach_indication(nfapi_nr_rach_indication_t *ind)
+ {
+   if(NFAPI_MODE == NFAPI_MODE_VNF)
+   {
+-    nfapi_nr_rach_indication_t *rach_ind = CALLOC(1, sizeof(*rach_ind));
++    nfapi_nr_rach_indication_t *rach_ind = calloc(1, sizeof(*rach_ind));
++    if (!rach_ind) {
++      LOG_E(NR_MAC, "Failed to allocate memory for rach_ind in phy_nr_rach_indication\n");
++      return -1;
++    }
+     rach_ind->header.message_id = ind->header.message_id;
+     rach_ind->number_of_pdus = ind->number_of_pdus;
+     rach_ind->sfn = ind->sfn;
+     rach_ind->slot = ind->slot;
+-    rach_ind->pdu_list = CALLOC(rach_ind->number_of_pdus, sizeof(*rach_ind->pdu_list));
+-    AssertFatal(rach_ind->pdu_list != NULL, "Memory not allocated for rach_ind->pdu_list in phy_nr_rach_indication.");
++    rach_ind->pdu_list = calloc(rach_ind->number_of_pdus, sizeof(*rach_ind->pdu_list));
++    if (!rach_ind->pdu_list) {
++      LOG_E(NR_MAC, "Failed to allocate memory for rach_ind->pdu_list in phy_nr_rach_indication\n");
++      free(rach_ind);
++      return -1;
++    }
+     for (int i = 0; i < ind->number_of_pdus; i++)
+     {
+       rach_ind->pdu_list[i].num_preamble = ind->pdu_list[i].num_preamble;
+@@ -758,11 +766,20 @@ int phy_nr_uci_indication(nfapi_nr_uci_indication_t *ind)
+           __FUNCTION__,ind->sfn, ind->slot, ind->num_ucis);
+   if(NFAPI_MODE == NFAPI_MODE_VNF)
+   {
+-    nfapi_nr_uci_indication_t *uci_ind = CALLOC(1, sizeof(*uci_ind));
++    nfapi_nr_uci_indication_t *uci_ind = calloc(1, sizeof(*uci_ind));
++    if (!uci_ind) {
++      LOG_E(NR_MAC, "Failed to allocate memory for uci_ind in phy_nr_uci_indication\n");
++      return -1;
++    }
+     AssertFatal(uci_ind, "Memory not allocated for uci_ind in phy_nr_uci_indication.");
+     *uci_ind = *ind;
+ 
+-    uci_ind->uci_list = CALLOC(NFAPI_NR_UCI_IND_MAX_PDU, sizeof(nfapi_nr_uci_t));
++    uci_ind->uci_list = calloc(NFAPI_NR_UCI_IND_MAX_PDU, sizeof(nfapi_nr_uci_t));
++    if (!uci_ind->uci_list) {
++      LOG_E(NR_MAC, "Failed to allocate memory for uci_ind->uci_list in phy_nr_uci_indication\n");
++      free(uci_ind);
++      return -1;
++    }
+     AssertFatal(uci_ind->uci_list != NULL, "Memory not allocated for uci_ind->uci_list in phy_nr_uci_indication.");
+     for (int i = 0; i < ind->num_ucis; i++)
+     {
+@@ -785,22 +802,46 @@ int phy_nr_uci_indication(nfapi_nr_uci_indication_t *ind)
+           nfapi_nr_uci_pucch_pdu_format_2_3_4_t *ind_pdu = &ind->uci_list[i].pucch_pdu_format_2_3_4;
+           *uci_ind_pdu = *ind_pdu;
+           if (ind_pdu->harq.harq_payload) {
+-            uci_ind_pdu->harq.harq_payload = CALLOC(1, sizeof(*uci_ind_pdu->harq.harq_payload));
++            uci_ind_pdu->harq.harq_payload = calloc(1, sizeof(*uci_ind_pdu->harq.harq_payload));
++            if (!uci_ind_pdu->harq.harq_payload) {
++              LOG_E(NR_MAC, "Failed to allocate memory for harq_payload in phy_nr_uci_indication\n");
++              free(uci_ind->uci_list);
++              free(uci_ind);
++              return -1;
++            }
+             AssertFatal(uci_ind_pdu->harq.harq_payload != NULL, "Memory not allocated for uci_ind_pdu->harq.harq_payload in phy_nr_uci_indication.");
+             *uci_ind_pdu->harq.harq_payload = *ind_pdu->harq.harq_payload;
+           }
+           if (ind_pdu->sr.sr_payload) {
+-            uci_ind_pdu->sr.sr_payload = CALLOC(1, sizeof(*uci_ind_pdu->sr.sr_payload));
++            uci_ind_pdu->sr.sr_payload = calloc(1, sizeof(*uci_ind_pdu->sr.sr_payload));
++            if (!uci_ind_pdu->sr.sr_payload) {
++              LOG_E(NR_MAC, "Failed to allocate memory for sr_payload in phy_nr_uci_indication\n");
++              free(uci_ind->uci_list);
++              free(uci_ind);
++              return -1;
++            }
+             AssertFatal(uci_ind_pdu->sr.sr_payload != NULL, "Memor
+... [truncated] ...
+   free(uci_ind);
++              return -1;
++            }
+             AssertFatal(uci_ind_pdu->csi_part1.csi_part1_payload != NULL, "Memory not allocated for uci_ind_pdu->csi_part1.csi_part1_payload in phy_nr_uci_indication.");
+             *uci_ind_pdu->csi_part1.csi_part1_payload = *ind_pdu->csi_part1.csi_part1_payload;
+           }
+           if (ind_pdu->csi_part2.csi_part2_payload) {
+-            uci_ind_pdu->csi_part2.csi_part2_payload = CALLOC(1, sizeof(*uci_ind_pdu->csi_part2.csi_part2_payload));
++            uci_ind_pdu->csi_part2.csi_part2_payload = calloc(1, sizeof(*uci_ind_pdu->csi_part2.csi_part2_payload));
++            if (!uci_ind_pdu->csi_part2.csi_part2_payload) {
++              LOG_E(NR_MAC, "Failed to allocate memory for csi_part2_payload in phy_nr_uci_indication\n");
++              free(uci_ind->uci_list);
++              free(uci_ind);
++              return -1;
++            }
+             AssertFatal(uci_ind_pdu->csi_part2.csi_part2_payload != NULL, "Memory not allocated for uci_ind_pdu->csi_part2.csi_part2_payload in phy_nr_uci_indication.");
+             *uci_ind_pdu->csi_part2.csi_part2_payload = *ind_pdu->csi_part2.csi_part2_payload;
+           }
+@@ -928,13 +969,22 @@ int phy_nr_crc_indication(nfapi_nr_crc_indication_t *ind) {
+ 
+   if(NFAPI_MODE == NFAPI_MODE_VNF)
+   {
+-    nfapi_nr_crc_indication_t *crc_ind = CALLOC(1, sizeof(*crc_ind));
++    nfapi_nr_crc_indication_t *crc_ind = calloc(1, sizeof(*crc_ind));
++    if (!crc_ind) {
++      LOG_E(NR_MAC, "Failed to allocate memory for crc_ind in phy_nr_crc_indication\n");
++      return -1;
++    }
+     crc_ind->header.message_id = ind->header.message_id;
+     crc_ind->number_crcs = ind->number_crcs;
+     crc_ind->sfn = ind->sfn;
+     crc_ind->slot = ind->slot;
+     if (ind->number_crcs > 0) {
+-      crc_ind->crc_list = CALLOC(NFAPI_NR_CRC_IND_MAX_PDU, sizeof(nfapi_nr_crc_t));
++      crc_ind->crc_list = calloc(NFAPI_NR_CRC_IND_MAX_PDU, sizeof(nfapi_nr_crc_t));
++    if (!crc_ind->crc_list) {
++      LOG_E(NR_MAC, "Failed to allocate memory for crc_ind->crc_list\n");
++      free(crc_ind);
++      return -1;
++    }
+       AssertFatal(crc_ind->crc_list != NULL, "Memory not allocated for crc_ind->crc_list in phy_nr_crc_indication.");
+     }
+     for (int j = 0; j < ind->number_crcs; j++)
+@@ -1047,14 +1097,23 @@ int phy_nr_rx_data_indication(nfapi_nr_rx_data_indication_t *ind) {
+ 
+   if(NFAPI_MODE == NFAPI_MODE_VNF)
+   {
+-    nfapi_nr_rx_data_indication_t *rx_ind = CALLOC(1, sizeof(*rx_ind));
++    nfapi_nr_rx_data_indication_t *rx_ind = calloc(1, sizeof(*rx_ind));
++    if (!rx_ind) {
++      LOG_E(NR_MAC, "Failed to allocate memory for rx_ind\n");
++      return -1;
++    }
+     rx_ind->header.message_id = ind->header.message_id;
+     rx_ind->sfn = ind->sfn;
+     rx_ind->slot = ind->slot;
+     rx_ind->number_of_pdus = ind->number_of_pdus;
+ 
+     if (ind->number_of_pdus > 0) {
+-      rx_ind->pdu_list = CALLOC(NFAPI_NR_RX_DATA_IND_MAX_PDU, sizeof(nfapi_nr_rx_data_pdu_t));
++      rx_ind->pdu_list = calloc(NFAPI_NR_RX_DATA_IND_MAX_PDU, sizeof(nfapi_nr_rx_data_pdu_t));
++      if (!rx_ind->pdu_list) {
++        LOG_E(NR_MAC, "Failed to allocate memory for rx_ind->pdu_list\n");
++        free(rx_ind);
++        return -1;
++      }
+       AssertFatal(rx_ind->pdu_list != NULL, "Memory not allocated for rx_ind->pdu_list in phy_nr_rx_data_indication.");
+     }
+     for (int j = 0; j < ind->number_of_pdus; j++)
+@@ -1223,7 +1282,11 @@ int phy_nr_slot_indication(nfapi_nr_slot_indication_scf_t *ind) {
+   uint8_t vnf_slot = NFAPI_SFNSLOT2SLOT(vnf_sfn_slot);
+   LOG_D(MAC, "VNF SFN/Slot %d.%d \n", vnf_sfn, vnf_slot);
+ 
+-  nfapi_nr_slot_indication_scf_t *nr_slot_ind = CALLOC(1, sizeof(*nr_slot_ind));
++  nfapi_nr_slot_indication_scf_t *nr_slot_ind = calloc(1, sizeof(*nr_slot_ind));
++  if (!nr_slot_ind) {
++    LOG_E(NR_MAC, "Failed to allocate memory for nr_slot_ind\n");
++    return -1;
++  }
+   nr_slot_ind->header = ind->header;
+   nr_slot_ind->sfn = vnf_sfn;
+   nr_slot_ind->slot = vnf_slot;

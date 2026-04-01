@@ -1,0 +1,26 @@
+{
+  "run_id": "zephyr_00269_c39946",
+  "function": {
+    "name": "scan_recv",
+    "file": "tests/bsim/bluetooth/ll/advx/src/main.c",
+    "start_line": 1181,
+    "end_line": 1232,
+    "body_lines": 52,
+    "signature": "static void scan_recv(const struct bt_le_scan_recv_info *info, struct net_buf_simple *buf)",
+    "subsystem": "tests/bsim/bluetooth",
+    "token_estimate": 163
+  },
+  "bug": {
+    "bug_id": "c_off_by_one",
+    "description": "off-by-one error in array indexing or loop boundary",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a off-by-one error in array indexing or loop boundary downstream of function scan_recv in the tests/bsim/bluetooth subsystem.\nThe function is located at tests/bsim/bluetooth/ll/advx/src/main.c:1181.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 4,
+  "trajectory_steps": 11,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:32:18Z"
+}

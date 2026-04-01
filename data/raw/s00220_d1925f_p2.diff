@@ -1,0 +1,90 @@
+diff --git a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+index 50c46b16e1..fc57031aa7 100644
+--- a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
++++ b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+@@ -1568,23 +1568,61 @@ fill_nfapi_uci_acknak(module_id_t module_idP,
+                       uint8_t     cce_idxP)
+ //------------------------------------------------------------------------------
+ {
+-  eNB_MAC_INST                   *eNB           = RC.mac[module_idP];
+-  COMMON_channels_t              *cc            = &eNB->common_channels[CC_idP];
+-  int                            ackNAK_absSF   = get_pucch1_absSF(cc, absSFP);
+-  nfapi_ul_config_request_t      *ul_req        = &eNB->UL_req_tmp[CC_idP][ackNAK_absSF % 10];
+-  nfapi_ul_config_request_body_t *ul_req_body   = &ul_req->ul_config_request_body;
+-  nfapi_ul_config_request_pdu_t  *ul_config_pdu = &ul_req_body->ul_config_pdu_list[ul_req_body->number_of_pdus];
++  // Input validation at function entry
++  if (module_idP < 0 || module_idP >= NUMBER_OF_eNB_MAX) {
++    LOG_E(MAC, "fill_nfapi_uci_acknak: Invalid module_idP %d (rnti %x, cce_idxP %d, CC_idP %d)\n",
++              module_idP, rntiP, cce_idxP, CC_idP);
++    return 0;
++  }
++
++  eNB_MAC_INST *eNB = RC.mac[module_idP];
++  if (eNB == NULL) {
++    LOG_E(MAC, "fill_nfapi_uci_acknak: eNB instance is NULL for module_idP %d (rnti %x, cce_idxP %d, CC_idP %d)\n",
++              module_idP, rntiP, cce_idxP, CC_idP);
++    return 0;
++  }
++
++  if (CC_idP < 0 || CC_idP >= MAX_NUM_CCs) {
++    LOG_E(MAC, "fill_nfapi_uci_acknak: Invalid CC_idP %d (module_idP %d, rnti %x, cce_idxP %d)\n",
++              CC_idP, module_idP, rntiP, cce_idxP);
++    return 0;
++  }
++
++  COMMON_channels_t *cc = &eNB->common_channels[CC_idP];
++  if (cc == NULL) {
++    LOG_E(MAC, "fill_nfapi_uci_acknak: COMMON_channels is NULL for CC_idP %d (module_idP %d, rnti %x, cce_idxP %d)\n",
++              CC_idP, module_idP, rntiP, cce_idxP);
++    return 0;
++  }
++
++  int ackNAK_absSF = get_pucch1_absSF(cc, absSFP);
++  nfapi_ul_config_request_t *ul_req = &eNB->UL_req_tmp[CC_idP][ackNAK_absSF % 10];
++  nfapi_ul_config_request_body_t *ul_req_body = &ul_req->ul_config_request_body;
++  nfapi_ul_config_request_pdu_t *ul_config_pdu = &ul_req_body->ul_config_pdu_list[ul_req_body->number_of_pdus];
+   memset((void *) ul_config_pdu, 0, sizeof(nfapi_ul_config_request_pdu_t));
+-  ul_config_pdu->pdu_type                                               = NFAPI_UL_CONFIG_UCI_HARQ_PDU_TYPE;
+-  ul_config_pdu->pdu_size                                               = (uint8_t) (2 + sizeof(nfapi_ul_config_uci_harq_pdu));
++  ul_config_pdu->pdu_type = NFAPI_UL_CONFIG_UCI_HARQ_PDU_TYPE;
++  ul_config_pdu->pdu_size = (uint8_t) (2 + sizeof(nfapi_ul_config_uci_harq_pdu));
+   ul_config_pdu->uci_harq_pdu.ue_information.ue_information_rel8.tl.tag = NFAPI_UL_CONFIG_REQUEST_UE_INFORMATION_REL8_TAG;
+   ul_config_pdu->uci_harq_pdu.ue_information.ue_information_rel8.handle = 0;  // don't know how to use this
+-  ul_config_pdu->uci_harq_pdu.ue_information.ue_information_rel8.rnti   = rntiP;
++  ul_config_pdu->uci_harq_pdu.ue_information.ue_information_rel8.rnti = rntiP;
++
+   fill_nfapi_harq_information(module_idP,
+                               CC_idP,
+                               rntiP,
+                               &ul_config_pdu->uci_harq_pdu.harq_information,
+                               cce_idxP);
++
++  // Critical failure detection for invalid n_pucch_1_0 values
++  // Check both FDD and TDD HARQ information structures
++  int n_pucch_1_0_fdd = ul_config_pdu->uci_harq_pdu.harq_information.harq_information_rel9_fdd.n_pucch_1_0;
++  int n_pucch_1_0_tdd = ul_config_pdu->uci_harq_pdu.harq_information.harq_information_rel10_tdd.n_pucch_1_0;
++
++  if (n_pucch_1_0_fdd < 0 || n_pucch_1_0_tdd < 0) {
++    LOG_E(MAC, "fill_nfapi_uci_acknak: Invalid n_pucch_1_0 value (FDD: %d, TDD: %d) for rnti %x, cce_idxP %d, module_idP %d, CC_idP %d\n",
++              n_pucch_1_0_fdd, n_pucch_1_0_tdd, rntiP, cce_idxP, module_idP, CC_idP);
++    return 0;
++  }
++
+   LOG_D(MAC, "Filled in UCI HARQ request for rnti %x SF %d.%d acknakSF %d.%d, cce_idxP %d-> n1_pucch %d\n",
+         rntiP,
+         absSFP / 10,
+@@ -1593,10 +1631,12 @@ fill_nfapi_uci_acknak(module_id_t module_idP,
+         ackNAK_absSF % 10,
+         cce_idxP,
+         ul_config_pdu->uci_harq_pdu.harq_information.harq_information_rel9_fdd.n_pucch_1_0);
++
+   ul_req_body->number_of_pdus++;
+-  ul_req_body->tl.tag       = NFAPI_UL_CONFIG_REQUEST_BODY_TAG;
++  ul_req_body->tl.tag = NFAPI_UL_CONFIG_REQUEST_BODY_TAG;
+   ul_req->header.message_id = NFAPI_UL_CONFIG_REQUEST;
+-  ul_req->sfn_sf            = (ackNAK_absSF/10) << 4 | ackNAK_absSF%10;
++  ul_req->sfn_sf = (ackNAK_absSF/10) << 4 | ackNAK_absSF%10;
++
+   return (((ackNAK_absSF / 10) << 4) + (ackNAK_absSF % 10));
+ }
+ 

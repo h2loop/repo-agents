@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix segmentation fault in RLC AM entity when t_poll_retransmit expires with empty wait list\n\n### Summary\nThe `check_t_poll_retransmit` function in the NR RLC AM entity could cause a segmentation fault when the timer expires while the wait list is empty. The function attempted to access `cur->next` without first checking if `cur` (which points to `entity->wait_list`) was NULL.\n\nThis fix adds a proper NULL check before accessing the wait list elements.\n\n### Changes\n- `openair2/LAYER2/nr_rlc/nr_rlc_entity_am.c`: Added NULL check for wait list before accessing its elements in `check_t_poll_retransmit` function. Added warning log when timer expires with empty wait list.\n\n"
+}

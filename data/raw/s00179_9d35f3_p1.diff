@@ -1,0 +1,67 @@
+diff --git a/openair3/NAS/COMMON/EMM/MSG/SecurityModeCommand.c b/openair3/NAS/COMMON/EMM/MSG/SecurityModeCommand.c
+index 2e936e6a94..8662fc525e 100644
+--- a/openair3/NAS/COMMON/EMM/MSG/SecurityModeCommand.c
++++ b/openair3/NAS/COMMON/EMM/MSG/SecurityModeCommand.c
+@@ -138,7 +138,7 @@ int encode_security_mode_command(security_mode_command_msg *security_mode_comman
+   if ((security_mode_command->presencemask & SECURITY_MODE_COMMAND_IMEISV_REQUEST_PRESENT)
+       == SECURITY_MODE_COMMAND_IMEISV_REQUEST_PRESENT) {
+     if ((encode_result =
+-           encode_imeisv_request(&security_mode_command->imeisvrequest,
++           encode_imeisv_request(security_mode_command->imeisvrequest,
+                                  SECURITY_MODE_COMMAND_IMEISV_REQUEST_IEI, buffer + encoded, len -
+                                  encoded)) < 0)
+       // Return in case of error
+diff --git a/openair3/NAS/COMMON/IES/ImeisvRequest.c b/openair3/NAS/COMMON/IES/ImeisvRequest.c
+index 5c46b56f64..823b1a4aca 100644
+--- a/openair3/NAS/COMMON/IES/ImeisvRequest.c
++++ b/openair3/NAS/COMMON/IES/ImeisvRequest.c
+@@ -22,12 +22,15 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <stdint.h>
+-
++#include <pthread.h>
+ 
+ #include "TLVEncoder.h"
+ #include "TLVDecoder.h"
+ #include "ImeisvRequest.h"
+ 
++/* Mutex for thread-safe access to shared IMEISV request data */
++static pthread_mutex_t imeisv_request_mutex = PTHREAD_MUTEX_INITIALIZER;
++
+ int decode_imeisv_request(ImeisvRequest *imeisvrequest, uint8_t iei, uint8_t *buffer, uint32_t len)
+ {
+   int decoded = 0;
+@@ -57,16 +60,16 @@ int decode_u8_imeisv_request(ImeisvRequest *imeisvrequest, uint8_t iei, uint8_t
+   return decoded;
+ }
+ 
+-int encode_imeisv_request(ImeisvRequest *imeisvrequest, uint8_t iei, uint8_t *buffer, uint32_t len)
++int encode_imeisv_request(ImeisvRequest imeisvrequest, uint8_t iei, uint8_t *buffer, uint32_t len)
+ {
+   uint8_t encoded = 0;
+   /* Checking length and pointer */
+   CHECK_PDU_POINTER_AND_LENGTH_ENCODER(buffer, IMEISV_REQUEST_MINIMUM_LENGTH, len);
+ #if defined (NAS_DEBUG)
+-  dump_imeisv_request_xml(imeisvrequest, iei);
++  dump_imeisv_request_xml(&imeisvrequest, iei);
+ #endif
+   *(buffer + encoded) = 0x00 | (iei & 0xf0) |
+-                        (*imeisvrequest & 0x7);
++                        (imeisvrequest & 0x7);
+   encoded++;
+   return encoded;
+ }
+diff --git a/openair3/NAS/COMMON/IES/ImeisvRequest.h b/openair3/NAS/COMMON/IES/ImeisvRequest.h
+index e41beeb994..9c49e50da0 100644
+--- a/openair3/NAS/COMMON/IES/ImeisvRequest.h
++++ b/openair3/NAS/COMMON/IES/ImeisvRequest.h
+@@ -33,7 +33,7 @@
+ 
+ typedef uint8_t ImeisvRequest;
+ 
+-int encode_imeisv_request(ImeisvRequest *imeisvrequest, uint8_t iei, uint8_t *buffer, uint32_t len);
++int encode_imeisv_request(ImeisvRequest imeisvrequest, uint8_t iei, uint8_t *buffer, uint32_t len);
+ 
+ void dump_imeisv_request_xml(ImeisvRequest *imeisvrequest, uint8_t iei);
+ 

@@ -1,0 +1,145 @@
+'{"env":{"deployment":{"image":"oai5g-sera:ca119de","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_ca119de_00688","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix file descriptor leak in thread pool implementation\n\n### Summary\nFixed
+  a file descriptor leak in the thread pool implementation where file descriptors
+  opened for thread pool tracing were not properly closed when the thread pool was
+  destroyed or when initialization failed partially.\n\n### Changes\n- `common/utils/threadPool/thread-pool.c`:
+  Added proper error handling to close the first file descriptor if the second one
+  fails to open, and included `<unistd.h>` for the `close()` function.\n- `common/utils/threadPool/thread-pool.h`:
+  Added cleanup function `cleanupTpool()` to properly close file descriptors, updated
+  `abortTpool()` to use this cleanup function, added necessary includes for `fcntl.h`
+  and `errno.h`, and fixed initialization checks to use -1 instead of 0.\n\n### Reproduction\nTo
+  reproduce the issue:\n1. Enable thread pool tracing by setting the `OAI_THREADPOOLMEASUREMENTS`
+  environment variable to a FIFO path\n2. Initialize a thread pool with `initNamedTpool()`\n3.
+  Either let the initialization fail partially (second file descriptor fails to open)
+  or call `abortTpool()` to destroy the thread pool\n4. Observe that file descriptors
+  remain open using `lsof` or similar tools\n\nThe leak would be particularly noticeable
+  in long-running applications that repeatedly create and destroy thread pools, eventually
+  exhausting available file descriptors.\n\n","extra_fields":{"bug_description":"file
+  descriptor leak where an opened fd is not closed on error paths","bug_id":"c_fd_leak","stage_one_patch":"diff
+  --git a/common/utils/threadPool/thread-pool.c b/common/utils/threadPool/thread-pool.c\nindex
+  5b22f2895d..b127d07010 100644\n--- a/common/utils/threadPool/thread-pool.c\n+++
+  b/common/utils/threadPool/thread-pool.c\n@@ -25,6 +25,7 @@\n #define _GNU_SOURCE\n
+  #include <sys/stat.h>\n #include <fcntl.h>\n+#include <unistd.h>\n #include <string.h>\n
+  #include <ctype.h>\n #include <threadPool/thread-pool.h>\n@@ -98,12 +99,19 @@ void
+  initNamedTpool(char *params,tpool_t *pool, bool performanceMeas, char *name\n \n   if
+  (measr) {\n     mkfifo(measr,0666);\n-    AssertFatal(-1 != (pool->dummyKeepReadingTraceFd=\n-                         open(measr,
+  O_RDONLY| O_NONBLOCK)),\"\");\n-    AssertFatal(-1 != (pool->traceFd=\n-                         open(measr,
+  O_WRONLY|O_APPEND|O_NOATIME|O_NONBLOCK)),\"\");\n-  } else\n+    pool->dummyKeepReadingTraceFd
+  = open(measr, O_RDONLY| O_NONBLOCK);\n+    AssertFatal(-1 != pool->dummyKeepReadingTraceFd,
+  \"\");\n+    pool->traceFd = open(measr, O_WRONLY|O_APPEND|O_NOATIME|O_NONBLOCK);\n+    if
+  (-1 == pool->traceFd) {\n+      // Close the first fd if second one fails\n+      close(pool->dummyKeepReadingTraceFd);\n+      pool->dummyKeepReadingTraceFd
+  = -1;\n+      AssertFatal(0, \"\");\n+    }\n+  } else {\n     pool->traceFd=-1;\n+    pool->dummyKeepReadingTraceFd=-1;\n+  }\n
+  \n   pool->activated=true;\n   initNotifiedFIFO(&pool->incomingFifo);\ndiff --git
+  a/common/utils/threadPool/thread-pool.h b/common/utils/threadPool/thread-pool.h\nindex
+  b0e1b9e4e8..ef59aad12a 100644\n--- a/common/utils/threadPool/thread-pool.h\n+++
+  b/common/utils/threadPool/thread-pool.h\n@@ -30,6 +30,8 @@\n #include <stdalign.h>\n
+  #include <pthread.h>\n #include <unistd.h>\n+#include <fcntl.h>\n+#include <errno.h>\n
+  #include <sys/syscall.h>\n #include \"assertions.h\"\n #include \"common/utils/time_meas.h\"\n@@
+  -269,7 +271,7 @@ static inline notifiedFIFO_elt_t *pullTpool(notifiedFIFO_t *responseFifo,
+  tpool_\n   notifiedFIFO_elt_t *msg= pullNotifiedFIFO(responseFifo);\n   if (msg
+  == NULL)\n     return NULL;\n-  AssertFatal(t->traceFd != 0, \"Thread pool used
+  while not initialized\");\n+  AssertFatal(t->traceFd != -1, \"Thread pool used while
+  not initialized\");\n   if (t->measurePerf)\n     msg->returnTime=rdtsc_oai();\n
+  \n@@ -283,7 +285,7 @@ static inline notifiedFIFO_elt_t *pullTpool(notifiedFIFO_t
+  *responseFifo, tpool_\n \n static inline notifiedFIFO_elt_t *tryPullTpool(notifiedFIFO_t
+  *responseFifo, tpool_t *t) {\n   notifiedFIFO_elt_t *msg= pollNotifiedFIFO(responseFifo);\n-  AssertFatal(t->traceFd
+  != 0, \"Thread pool used while not initialized\");\n+  AssertFatal(t->traceFd !=
+  -1, \"Thread pool used while not initialized\");\n   if (msg == NULL)\n     return
+  NULL;\n \n@@ -341,8 +343,27 @@ static inline int abortTpool(tpool_t *t) {\n     thread
+  = next;\n   }\n \n+  /* Close file descriptors if they were opened */\n+  cleanupTpool(t);\n+\n   return
+  nbRemoved;\n }\n+\n+/**\n+ * Cleanup function to close file descriptors associated
+  with the thread pool\n+ * This should be called when the thread pool is no longer
+  needed\n+ */\n+static inline void cleanupTpool(tpool_t *t) {\n+  /* Close file descriptors
+  if they were opened */\n+  if (t->traceFd > 0) {\n+    close(t->traceFd);\n+    t->traceFd
+  = -1;\n+  }\n+  if (t->dummyKeepReadingTraceFd > 0) {\n+    close(t->dummyKeepReadingTraceFd);\n+    t->dummyKeepReadingTraceFd
+  = -1;\n+  }\n+}\n void initNamedTpool(char *params,tpool_t *pool, bool performanceMeas,
+  char *name);\n void initFloatingCoresTpool(int nbThreads,tpool_t *pool, bool performanceMeas,
+  char *name);\n #define  initTpool(PARAMPTR,TPOOLPTR, MEASURFLAG) initNamedTpool(PARAMPTR,TPOOLPTR,
+  MEASURFLAG, NULL)\n","start_fn":"push_back_seq_ring_task","start_fn_file":"common/utils/threadPool/bounded_notified_fifo.h","subsystem":"common/utils/threadPool"},"type":"text","id":"oai5g_ca119de_00688"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

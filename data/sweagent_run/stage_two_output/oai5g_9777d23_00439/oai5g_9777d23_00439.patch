@@ -1,0 +1,42 @@
+diff --git a/openair3/NAS/UE/API/USER/at_command.c b/openair3/NAS/UE/API/USER/at_command.c
+index a6591c6748..f164be747d 100644
+--- a/openair3/NAS/UE/API/USER/at_command.c
++++ b/openair3/NAS/UE/API/USER/at_command.c
+@@ -317,10 +317,17 @@ int at_command_get_list(const char** buffer, int n_max)
+ {
+   LOG_FUNC_IN;
+ 
++  /* Check for null pointer */
++  if (buffer == NULL) {
++    LOG_TRACE(ERROR, "USR-API   - Null pointer encountered in at_command_get_list");
++    LOG_FUNC_RETURN(0);
++  }
++
+   int handler_index = 0;
+ 
+-  while ( (strcmp(_at_command_handler[handler_index].command, "null") != 0) &&
+-          (handler_index < n_max) ) {
++  /* Fixed the condition order to prevent out-of-bounds access */
++  while ( (handler_index < n_max) &&
++          (strcmp(_at_command_handler[handler_index].command, "null") != 0) ) {
+     *buffer++ = _at_command_handler[handler_index++].command;
+   }
+ 
+diff --git a/openair3/NAS/UE/nas_user.c b/openair3/NAS/UE/nas_user.c
+index 57327802f3..34e9504c3f 100644
+--- a/openair3/NAS/UE/nas_user.c
++++ b/openair3/NAS/UE/nas_user.c
+@@ -2579,6 +2579,13 @@ static int _nas_user_proc_cnum(nas_user_t *user, const at_command_t *data)
+ static int _nas_user_proc_clac(nas_user_t *user, const at_command_t *data)
+ {
+   LOG_FUNC_IN;
++  
++  /* Check for null pointer */
++  if (user == NULL || user->at_response == NULL) {
++    LOG_TRACE(ERROR, "USR-MAIN  - Null pointer encountered in _nas_user_proc_clac");
++    LOG_FUNC_RETURN(RETURNerror);
++  }
++  
+   at_response_t *at_response = user->at_response;
+   int ret_code = RETURNok;
+   at_clac_resp_t *clac = &at_response->response.clac;

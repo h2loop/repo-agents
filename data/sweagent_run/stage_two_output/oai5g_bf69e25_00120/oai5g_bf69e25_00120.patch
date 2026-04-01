@@ -1,0 +1,192 @@
+diff --git a/openair2/F1AP/f1ap_common.h b/openair2/F1AP/f1ap_common.h
+index 13f1d8f53b..c093858d81 100644
+--- a/openair2/F1AP/f1ap_common.h
++++ b/openair2/F1AP/f1ap_common.h
+@@ -340,6 +340,7 @@
+ #include "F1AP_Cells-To-Be-Broadcast-Item.h"
+ #include "F1AP_QCI.h"
+ 
++#include "lib/f1ap_positioning.h"
+ #include "f1ap_default_values.h"
+ 
+ #include "conversions.h"
+diff --git a/openair2/F1AP/f1ap_handlers.c b/openair2/F1AP/f1ap_handlers.c
+index ecdda72000..e0729edb51 100644
+--- a/openair2/F1AP/f1ap_handlers.c
++++ b/openair2/F1AP/f1ap_handlers.c
+@@ -85,7 +85,7 @@ static F1AP_F1AP_PDU_t *f1ap_decode_pdu(const uint8_t *const buffer, uint32_t le
+   DevAssert(buffer != NULL);
+   asn_codec_ctx_t st = {.max_stack_size = 100 * 1000};
+   F1AP_F1AP_PDU_t *pdu = NULL;
+-  asn_dec_rval_t dec_ret = aper_decode(&st, &asn_DEF_F1AP_F1AP_PDU, (void **)&pdu, buffer, length, 0, 0);
++  asn_dec_rval_t dec_ret = aper_decode_complete(&st, &asn_DEF_F1AP_F1AP_PDU, (void **)&pdu, buffer, length);
+ 
+   if (LOG_DEBUGFLAG(DEBUG_ASN1)) {
+     LOG_E(F1AP, "----------------- ASN1 DECODER PRINT START----------------- \n");
+diff --git a/openair2/F1AP/lib/f1ap_positioning.c b/openair2/F1AP/lib/f1ap_positioning.c
+new file mode 100644
+index 0000000000..e81db08dcf
+--- /dev/null
++++ b/openair2/F1AP/lib/f1ap_positioning.c
+@@ -0,0 +1,98 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++/*! \file f1ap_positioning.c
++ * \brief F1AP positioning measurement functions implementation
++ * \author OpenAirInterface Software Alliance
++ * \date 2023
++ * \version 0.1
++ * \company OpenAirInterface Software Alliance
++ * \email: contact@openairinterface.org
++ */
++
++#include "f1ap_positioning.h"
++#include "f1ap_common.h"
++#include "f1ap_encoder.h"
++#include "f1ap_itti_messaging.h"
++#include "common/utils/LOG/log.h"
++
++int f1ap_handle_positioning_measurement_request(
++    instance_t instance,
++    sctp_assoc_t assoc_id,
++    uint32_t stream,
++    F1AP_F1AP_PDU_t *pdu)
++{
++  F1AP_PositioningMeasurementRequest_t *container;
++  F1AP_PositioningMeasurementRequestIEs_t *ie = NULL;
++
++  LOG_D(F1AP, "Received F1AP_POSITIONING_MEASUREMENT_REQUEST message\n");
++
++  container = &pdu->choice.initiatingMessage->value.choice.PositioningMeasurementRequest;
++
++  // Handle the positioning measurement request logic here
++  // This would typically involve parsing IEs and triggering appropriate actions
++  
++  /* TODO: Parse protocol IEs and implement positioning logic */
++  
++  return 0;
++}
++
++int f1ap_handle_positioning_measurement_response(
++    instance_t instance,
++    sctp_assoc_t assoc_id,
++    uint32_t stream,
++    F1AP_F1AP_PDU_t *pdu)
++{
++  F1AP_PositioningMeasurementResponse_t *container;
++  F1AP_PositioningMeasurementResponseIEs_t *ie = NULL;
++
++  LOG_D(F1AP, "Received F1AP_POSITIONING_MEASUREMENT_RESPONSE message\n");
++
++  container = &pdu->choice.successfulOutcome->value.choice.PositioningMeasurementResponse;
++
++  // Handle the positioning measurement response logic here
++  // This would typically involve parsing IEs and triggering appropriate actions
++  
++  /* TODO: Parse protocol IEs and implement positioning logic */
++  
++  return 0;
++}
++
++int f1ap_handle_positioning_measurement_failure(
++    instance_t instance,
++    sctp_assoc_t assoc_id,
++    uint32_t stream,
++    F1AP_F1AP_PDU_t *pdu)
++{
++  F1AP_PositioningMeasurementFailure_t *container;
++  F1AP_PositioningMeasurementFailureIEs_t *ie = NULL;
++
++  LOG_D(F1AP, "Received F1AP_POSITIONING_MEASUREMENT_FAILURE message\n");
++
++  container = &pdu->choice.unsuccessfulOutcome->value.choice.PositioningMeasurementFailure;
++
++  // Handle the positioning measurement failure logic here
++  // This would typically involve parsing IEs and triggering appropriate actions
++  
++  /* TODO: Parse protocol IEs and implement positioning logic */
++  
++  return 0;
++}
+\ No newline at end of file
+diff --git a/openair2/F1AP/lib/f1ap_positioning.h b/openair2/F1AP/lib/f1ap_positioning.h
+new file mode 100644
+index 0000000000..0ed71d44d1
+--- /dev/null
++++ b/openair2/F1AP/lib/f1ap_positioning.h
+@@ -0,0 +1,55 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++/*! \file f1ap_positioning.h
++ * \brief F1AP positioning measurement functions
++ * \author OpenAirInterface Software Alliance
++ * \date 2023
++ * \version 0.1
++ * \company OpenAirInterface Software Alliance
++ * \email: contact@openairinterface.org
++ */
++
++#ifndef F1AP_POSITIONING_H_
++#define F1AP_POSITIONING_H_
++
++#include "f1ap_common.h"
++
++// Function prototypes for positioning measurement handling
++int f1ap_handle_positioning_measurement_request(
++    instance_t instance,
++    sctp_assoc_t assoc_id,
++    uint32_t stream,
++    F1AP_F1AP_PDU_t *pdu);
++
++int f1ap_handle_positioning_measurement_response(
++    instance_t instance,
++    sctp_assoc_t assoc_id,
++    uint32_t stream,
++    F1AP_F1AP_PDU_t *pdu);
++
++int f1ap_handle_positioning_measurement_failure(
++    instance_t instance,
++    sctp_assoc_t assoc_id,
++    uint32_t stream,
++    F1AP_F1AP_PDU_t *pdu);
++
++#endif /* F1AP_POSITIONING_H_ */
+\ No newline at end of file

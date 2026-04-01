@@ -1,0 +1,28 @@
+{
+  "run_id": "s00259_79b4ae",
+  "function": {
+    "name": "_receive_thread",
+    "file": "openair3/NAS/TEST/USER/user_simulator.c",
+    "start_line": 294,
+    "end_line": 315,
+    "body_lines": 22,
+    "signature": "static void* _receive_thread(void* arg)",
+    "subsystem": "openair3/NAS/TEST",
+    "token_estimate": 58
+  },
+  "bug": {
+    "bug_id": "telecom_sched_priority_inversion",
+    "description": "scheduling priority inversion where lower-priority traffic is served before higher-priority",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a scheduling priority inversion where lower-priority traffic is served before higher-priority downstream of function _receive_thread in the openair3/NAS/TEST subsystem.\nThe function is located at openair3/NAS/TEST/USER/user_simulator.c:294.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00259_79b4ae_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00259_79b4ae_p1.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 46,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:12:33Z"
+}

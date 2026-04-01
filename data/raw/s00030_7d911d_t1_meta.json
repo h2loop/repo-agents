@@ -1,0 +1,33 @@
+{
+  "run_id": "s00030_7d911d",
+  "function": {
+    "name": "lte_dl_channel_estimation",
+    "file": "openair1/PHY/LTE_ESTIMATION/lte_dl_channel_estimation.c",
+    "start_line": 31,
+    "end_line": 427,
+    "body_lines": 397,
+    "signature": "int lte_dl_channel_estimation(PHY_VARS_UE *ue, module_id_t eNB_id, uint8_t eNB_offset, unsigned char Ns, unsigned char p, unsigned char l, unsigned char symbol)",
+    "subsystem": "openair1/PHY/LTE_ESTIMATION",
+    "token_estimate": 1686
+  },
+  "bug": {
+    "bug_id": "c_thread_unsafe_access",
+    "description": "thread-unsafe access to global or shared variable without proper synchronization",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a thread-unsafe access to global or shared variable without proper synchronization downstream of function lte_dl_channel_estimation in the openair1/PHY/LTE_ESTIMATION subsystem.\nThe function is located at openair1/PHY/LTE_ESTIMATION/lte_dl_channel_estimation.c:31.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00030_7d911d_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00030_7d911d_p1.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 35,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:43:57Z"
+}

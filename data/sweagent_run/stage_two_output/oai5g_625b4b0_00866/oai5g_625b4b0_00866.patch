@@ -1,0 +1,14 @@
+diff --git a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+index 50c46b16e1..ed59947a15 100644
+--- a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
++++ b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+@@ -654,8 +654,7 @@ is_S_sf(COMMON_channels_t *ccP,
+       return 1;
+ 
+     case 6:
+-      if (ccP->tdd_Config->subframeAssignment == 0 || ccP->tdd_Config->subframeAssignment == 1 ||
+-          ccP->tdd_Config->subframeAssignment == 2 || ccP->tdd_Config->subframeAssignment == 6)
++      if (ccP->tdd_Config->subframeAssignment >= 0 && ccP->tdd_Config->subframeAssignment <= 6)
+         return 1;
+ 
+       break;

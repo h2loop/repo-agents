@@ -1,0 +1,109 @@
+diff --git a/common/utils/load_module_shlib.c b/common/utils/load_module_shlib.c
+index a43594cb9a..6fac79247d 100644
+--- a/common/utils/load_module_shlib.c
++++ b/common/utils/load_module_shlib.c
+@@ -142,6 +142,11 @@ int load_module_version_shlib(char *modname, char *version, loader_shlibfunc_t *
+       printf("[LOADER] library %s has been loaded previously, reloading function pointers\n",
+              shlib_path);
+       lib_idx = i;
++      // Close the previous library handle if it exists
++      if (loader_data.shlibs[lib_idx].lib_handle) {
++        dlclose(loader_data.shlibs[lib_idx].lib_handle);
++        loader_data.shlibs[lib_idx].lib_handle = NULL;
++      }
+       break;
+     }
+   }
+@@ -249,7 +254,10 @@ int load_module_version_shlib(char *modname, char *version, loader_shlibfunc_t *
+ load_module_shlib_exit:
+   if (shlib_path) free(shlib_path);
+   if (afname)     free(afname);
+-  if (lib_handle) dlclose(lib_handle);
++  // Don't close the library handle as we need to keep the function pointers valid
++  // if (lib_handle) dlclose(lib_handle);
++  // Store the library handle for later use
++  loader_data.shlibs[lib_idx].lib_handle = lib_handle;
+   return ret;
+ }
+ 
+@@ -267,10 +275,45 @@ void * get_shlibmodule_fptr(char *modname, char *fname)
+     return NULL;
+ }
+ 
++void loader_cleanup(void)
++{
++    for (int i = 0; i < loader_data.numshlibs; i++) {
++        if (loader_data.shlibs[i].lib_handle) {
++            dlclose(loader_data.shlibs[i].lib_handle);
++            loader_data.shlibs[i].lib_handle = NULL;
++        }
++        // Free other allocated memory
++        if (loader_data.shlibs[i].name) {
++            free(loader_data.shlibs[i].name);
++            loader_data.shlibs[i].name = NULL;
++        }
++        if (loader_data.shlibs[i].thisshlib_path) {
++            free(loader_data.shlibs[i].thisshlib_path);
++            loader_data.shlibs[i].thisshlib_path = NULL;
++        }
++        if (loader_data.shlibs[i].funcarray) {
++            for (int j = 0; j < loader_data.shlibs[i].numfunc; j++) {
++                if (loader_data.shlibs[i].funcarray[j].fname) {
++                    free(loader_data.shlibs[i].funcarray[j].fname);
++                }
++            }
++            free(loader_data.shlibs[i].funcarray);
++            loader_data.shlibs[i].funcarray = NULL;
++        }
++    }
++    loader_data.numshlibs = 0;
++    loader_data.shlibs = NULL;
++}
++
+ void loader_reset()
+ {
+   for (int i = 0; i < loader_data.numshlibs && loader_data.shlibs[i].name != NULL; i++) {
+     loader_shlibdesc_t *shlib = &loader_data.shlibs[i];
++    // Close the library handle if it exists
++    if (shlib->lib_handle) {
++      dlclose(shlib->lib_handle);
++      shlib->lib_handle = NULL;
++    }
+     free(shlib->name);
+     free(shlib->thisshlib_path);
+     for (int j = 0; j < shlib->numfunc; ++j)
+@@ -284,4 +327,5 @@ void loader_reset()
+     loader_data.shlibpath=NULL;
+   }
+   free(loader_data.shlibs);
++  loader_data.shlibs = NULL;
+ }
+diff --git a/common/utils/load_module_shlib.h b/common/utils/load_module_shlib.h
+index 1609ef9ec5..0e674fbe16 100644
+--- a/common/utils/load_module_shlib.h
++++ b/common/utils/load_module_shlib.h
+@@ -48,6 +48,7 @@ typedef struct {
+    uint32_t           numfunc;
+    loader_shlibfunc_t *funcarray;
+    uint32_t           len_funcarray;
++   void               *lib_handle;       // Library handle for dlclose
+ }loader_shlibdesc_t;
+ 
+ typedef struct {
+@@ -76,7 +77,7 @@ loader_data_t loader_data;
+ 
+ /*----------------------------------------------------------------------------------------------------------------------------------------------------------*/
+ /*                                       LOADER parameters                                                                                                  */
+-/*   optname      helpstr   paramflags           XXXptr	                           defXXXval	              type       numelt   check func*/
++/*   optname      helpstr   paramflags           XXXptr                            defXXXval                  type       numelt   check func*/
+ /*----------------------------------------------------------------------------------------------------------------------------------------------------------*/
+ // clang-format off
+ #define LOADER_PARAMS_DESC {                                                                                                      \
+@@ -90,6 +91,7 @@ loader_data_t loader_data;
+ 
+ extern int load_module_version_shlib(char *modname, char *version, loader_shlibfunc_t *farray, int numf, void *initfunc_arg);
+ extern void * get_shlibmodule_fptr(char *modname, char *fname);
++extern void loader_cleanup(void);
+ extern loader_data_t loader_data;
+ #endif /* LOAD_MODULE_SHLIB_MAIN */
+ #define load_module_shlib(M, F, N, I) load_module_version_shlib(M, NULL, F, N, I)

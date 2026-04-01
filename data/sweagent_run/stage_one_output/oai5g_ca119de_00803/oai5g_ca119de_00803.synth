@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix VCD signal dumper thread not processing FIFO entries\n\n### Summary\nThe VCD signal dumper thread in the OAI logging system was not processing any FIFO entries due to an early return statement. This caused all VCD trace data to be silently discarded, resulting in empty or incomplete VCD files when tracing was enabled.\n\nThis issue was identified when users reported that VCD traces were not showing any function calls or variable changes despite having VCD tracing enabled. The root cause was a premature `return 0;` statement that prevented the processing loop from ever executing.\n\n### Changes\n- `common/utils/LOG/vcd_signal_dumper.c`: Removed erroneous early return statement in `vcd_dumper_thread_rt` function to allow proper FIFO processing.\n\nUsers should now see VCD traces properly populated with function entry/exit events and variable value changes when VCD tracing is enabled.\n"
+}

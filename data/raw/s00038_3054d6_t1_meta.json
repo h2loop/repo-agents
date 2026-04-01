@@ -1,0 +1,28 @@
+{
+  "run_id": "s00038_3054d6",
+  "function": {
+    "name": "cmac_256",
+    "file": "openair1/PHY/TOOLS/oai_dfts.c",
+    "start_line": 99,
+    "end_line": 143,
+    "body_lines": 45,
+    "signature": "__attribute__((always_inline)) static inline void cmac_256(simde__m256i a, simde__m256i b, simde__m256i *re32, simde__m256i *im32)",
+    "subsystem": "openair1/PHY/TOOLS",
+    "token_estimate": 73
+  },
+  "bug": {
+    "bug_id": "telecom_sched_missed_opportunity",
+    "description": "missed scheduling opportunity where a UE with pending data is not scheduled",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a missed scheduling opportunity where a UE with pending data is not scheduled downstream of function cmac_256 in the openair1/PHY/TOOLS subsystem.\nThe function is located at openair1/PHY/TOOLS/oai_dfts.c:99.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00038_3054d6_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00038_3054d6_p1.diff",
+  "patch_lines": 20,
+  "trajectory_steps": 39,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T09:20:55Z"
+}

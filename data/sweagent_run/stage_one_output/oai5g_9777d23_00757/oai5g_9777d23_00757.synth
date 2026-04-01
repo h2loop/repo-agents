@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect normalization in 64-point FFT implementation\n\n### Summary\nThe 64-point FFT implementation in the PHY layer produces incorrect amplitude scaling due to inconsistent normalization between forward and inverse transforms. When performing FFT followed by IFFT on a signal, the output amplitude differs from the input by a factor of 4 instead of matching exactly.\n\nThis fix corrects the scaling factors in both `dft64()` and `idft64()` functions to ensure proper energy conservation. The inverse FFT now applies the correct 1/32 scaling factor (shift by 5 bits) to complement the 1/2 scaling already applied by the forward FFT, resulting in a net 1/64 normalization as expected for a 64-point transform.\n\n### Changes\n- `openair1/PHY/TOOLS/oai_dfts.c`: Updated idft64 scaling from shift-by-3 to shift-by-5 and fixed misleading comments in permutation operations\n"
+}

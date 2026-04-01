@@ -1,0 +1,14 @@
+diff --git a/executables/nr-ue.c b/executables/nr-ue.c
+index 0e5a308259..dbcd2233c7 100644
+--- a/executables/nr-ue.c
++++ b/executables/nr-ue.c
+@@ -615,7 +615,8 @@ void processSlotTX(void *arg)
+   }
+ 
+   if (proc->tx_slot_type == NR_UPLINK_SLOT || proc->tx_slot_type == NR_MIXED_SLOT) {
+-    if (UE->sl_mode == 2 && proc->tx_slot_type == NR_SIDELINK_SLOT) {
++    if (UE->sl_mode == 2) {
++      // In sidelink mode, treat ALL uplink/mixed slots as sidelink slots
+       // trigger L2 to run ue_sidelink_scheduler thru IF module
+       if (UE->if_inst != NULL && UE->if_inst->sl_indication != NULL) {
+         start_meas(&UE->ue_ul_indication_stats);

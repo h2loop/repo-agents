@@ -1,0 +1,26 @@
+{
+  "run_id": "nuttx_00473_7c1d42",
+  "function": {
+    "name": "board_button_initialize",
+    "file": "boards/xtensa/esp32s3/esp32s3-devkit/src/esp32s3_buttons.c",
+    "start_line": 57,
+    "end_line": 61,
+    "body_lines": 5,
+    "signature": "uint32_t board_button_initialize(void)",
+    "subsystem": "boards/xtensa/esp32s3",
+    "token_estimate": 10
+  },
+  "bug": {
+    "bug_id": "c_fd_leak",
+    "description": "file descriptor leak where an opened fd is not closed on error paths",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a file descriptor leak where an opened fd is not closed on error paths downstream of function board_button_initialize in the boards/xtensa/esp32s3 subsystem.\nThe function is located at boards/xtensa/esp32s3/esp32s3-devkit/src/esp32s3_buttons.c:57.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 43,
+  "trajectory_steps": 70,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:19:00Z"
+}

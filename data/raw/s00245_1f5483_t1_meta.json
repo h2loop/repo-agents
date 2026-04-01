@@ -1,0 +1,34 @@
+{
+  "run_id": "s00245_1f5483",
+  "function": {
+    "name": "pack_nr_srs_beamforming_report",
+    "file": "nfapi/open-nFAPI/nfapi/src/nfapi_p7.c",
+    "start_line": 2572,
+    "end_line": 2598,
+    "body_lines": 27,
+    "signature": "int pack_nr_srs_beamforming_report(void *pMessageBuf, void *pPackedBuf, uint32_t packedBufLen)",
+    "subsystem": "nfapi/open-nFAPI/nfapi",
+    "token_estimate": 78
+  },
+  "bug": {
+    "bug_id": "c_heap_buffer_overflow",
+    "description": "heap buffer overflow due to incorrect size calculation",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a heap buffer overflow due to incorrect size calculation downstream of function pack_nr_srs_beamforming_report in the nfapi/open-nFAPI/nfapi subsystem.\nThe function is located at nfapi/open-nFAPI/nfapi/src/nfapi_p7.c:2572.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00245_1f5483_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00245_1f5483_p1.diff",
+  "patch_lines": 10,
+  "trajectory_steps": 37,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:06:48Z"
+}

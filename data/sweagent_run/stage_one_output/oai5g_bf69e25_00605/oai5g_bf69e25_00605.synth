@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix ASN.1 sequence initialization in NRPPA test application\n\n### Summary\nThe NRPPA test application (`test_nrppa.c`) contained a critical bug where a local stack variable was being added to an ASN.1 sequence using `ASN_SEQUENCE_ADD()`. This caused undefined behavior during DER encoding as the encoder would attempt to access invalid memory after the function returned.\n\nThe issue was triggered when running the test application with any valid output filename, leading to segmentation faults or corrupted output files.\n\n### Changes\n- `openair3/NRPPA/test_nrppa.c`: \n  - Added missing `#include <stdlib.h>` for `calloc()` and `exit()` \n  - Replaced improper `ASN_SEQUENCE_ADD()` call with proper initialization of the protocolIEs list structure\n  - Added memory cleanup to prevent leaks\n  - Fixed comment formatting\n\n"
+}

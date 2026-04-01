@@ -1,0 +1,29 @@
+{
+  "run_id": "s00032_05396d",
+  "function": {
+    "name": "time_sub",
+    "file": "common/utils/T/tracer/view/time.c",
+    "start_line": 49,
+    "end_line": 60,
+    "body_lines": 12,
+    "signature": "static struct timespec time_sub(struct timespec a, struct timespec b)",
+    "subsystem": "common/utils/T",
+    "token_estimate": 49
+  },
+  "bug": {
+    "bug_id": "telecom_interface_ngap_error",
+    "description": "NGAP interface handling error between gNB and AMF causing procedure failure",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair3/NGAP",
+      "openair2/RRC"
+    ]
+  },
+  "prompt": "There is a NGAP interface handling error between gNB and AMF causing procedure failure downstream of function time_sub in the common/utils/T subsystem.\nThe function is located at common/utils/T/tracer/view/time.c:49.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00032_05396d_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00032_05396d_p1.diff",
+  "patch_lines": 42,
+  "trajectory_steps": 28,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:44:40Z"
+}

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00294_299928",
+  "pr_text": "## Title: Fix thread-safety issue in DLSCH buffer management\n\n### Summary\nThe `nr_store_dlsch_buffer` function in the gNB MAC scheduler accesses shared scheduler state without proper synchronization, creating a race condition when multiple threads interact with UE scheduling control structures. The function iterates over the global UE list and modifies per-UE scheduling control fields (`num_total_bytes`, `dl_pdus_total`) without holding the scheduler lock, leading to potential data corruption un",
+  "trajectory_path": "data/raw/s00294_299928_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00294_299928_p2.diff",
+  "patch_lines": 5,
+  "trajectory_steps": 29,
+  "timestamp": "2026-02-11T14:10:03Z"
+}

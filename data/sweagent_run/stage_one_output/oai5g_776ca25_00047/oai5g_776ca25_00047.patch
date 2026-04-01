@@ -1,0 +1,64 @@
+diff --git a/nfapi/oai_integration/nfapi_vnf.c b/nfapi/oai_integration/nfapi_vnf.c
+index 777da7c319..bfc3b601ff 100644
+--- a/nfapi/oai_integration/nfapi_vnf.c
++++ b/nfapi/oai_integration/nfapi_vnf.c
+@@ -569,9 +569,19 @@ int phy_harq_indication(struct nfapi_vnf_p7_config *config, nfapi_harq_indicatio
+ 
+     UL_RCC_INFO.harq_ind[index] = *ind;
+ 
++    // Free previously allocated memory if it exists
++    if (UL_RCC_INFO.harq_ind[index].harq_indication_body.harq_pdu_list != NULL) {
++      free(UL_RCC_INFO.harq_ind[index].harq_indication_body.harq_pdu_list);
++      UL_RCC_INFO.harq_ind[index].harq_indication_body.harq_pdu_list = NULL;
++    }
+     assert(ind->harq_indication_body.number_of_harqs <= NFAPI_HARQ_IND_MAX_PDU);
+     if (ind->harq_indication_body.number_of_harqs > 0) {
+       UL_RCC_INFO.harq_ind[index].harq_indication_body.harq_pdu_list = malloc(sizeof(nfapi_harq_indication_pdu_t) * NFAPI_HARQ_IND_MAX_PDU);
++      if (UL_RCC_INFO.harq_ind[index].harq_indication_body.harq_pdu_list == NULL) {
++        LOG_E(MAC, "Failed to allocate memory for harq_pdu_list\n");
++        AssertFatal(pthread_mutex_unlock(&eNB->UL_INFO_mutex)==0, "Mutex unlock failed");
++        return 0;
++      }
+     }
+     for (int i=0; i<ind->harq_indication_body.number_of_harqs; i++) {
+         memcpy(&UL_RCC_INFO.harq_ind[index].harq_indication_body.harq_pdu_list[i], &ind->harq_indication_body.harq_pdu_list[i], sizeof(nfapi_harq_indication_pdu_t));
+@@ -601,9 +611,19 @@ int phy_crc_indication(struct nfapi_vnf_p7_config *config, nfapi_crc_indication_
+ 
+     UL_RCC_INFO.crc_ind[index] = *ind;
+ 
++    // Free previously allocated memory if it exists
++    if (UL_RCC_INFO.crc_ind[index].crc_indication_body.crc_pdu_list != NULL) {
++      free(UL_RCC_INFO.crc_ind[index].crc_indication_body.crc_pdu_list);
++      UL_RCC_INFO.crc_ind[index].crc_indication_body.crc_pdu_list = NULL;
++    }
+     assert(ind->crc_indication_body.number_of_crcs <= NFAPI_CRC_IND_MAX_PDU);
+     if (ind->crc_indication_body.number_of_crcs > 0) {
+       UL_RCC_INFO.crc_ind[index].crc_indication_body.crc_pdu_list = malloc(sizeof(nfapi_crc_indication_pdu_t) * NFAPI_CRC_IND_MAX_PDU);
++      if (UL_RCC_INFO.crc_ind[index].crc_indication_body.crc_pdu_list == NULL) {
++        LOG_E(MAC, "Failed to allocate memory for crc_pdu_list\n");
++        AssertFatal(pthread_mutex_unlock(&eNB->UL_INFO_mutex)==0, "Mutex unlock failed");
++        return 0;
++      }
+     }
+ 
+     assert(ind->crc_indication_body.number_of_crcs <= NFAPI_CRC_IND_MAX_PDU);
+@@ -779,9 +799,19 @@ int phy_sr_indication(struct nfapi_vnf_p7_config *config, nfapi_sr_indication_t
+ 
+     UL_RCC_INFO.sr_ind[index] = *ind;
+     LOG_D(MAC,"%s() UL_INFO[%d].sr_ind.sr_indication_body.number_of_srs:%d\n", __FUNCTION__, index, eNB->UL_INFO.sr_ind.sr_indication_body.number_of_srs);
++    // Free previously allocated memory if it exists
++    if (UL_RCC_INFO.sr_ind[index].sr_indication_body.sr_pdu_list != NULL) {
++      free(UL_RCC_INFO.sr_ind[index].sr_indication_body.sr_pdu_list);
++      UL_RCC_INFO.sr_ind[index].sr_indication_body.sr_pdu_list = NULL;
++    }
+     if (ind->sr_indication_body.number_of_srs > 0) {
+       assert(ind->sr_indication_body.number_of_srs <= NFAPI_SR_IND_MAX_PDU);
+       UL_RCC_INFO.sr_ind[index].sr_indication_body.sr_pdu_list = malloc(sizeof(nfapi_sr_indication_pdu_t) * NFAPI_SR_IND_MAX_PDU);
++      if (UL_RCC_INFO.sr_ind[index].sr_indication_body.sr_pdu_list == NULL) {
++        LOG_E(MAC, "Failed to allocate memory for sr_pdu_list\n");
++        AssertFatal(pthread_mutex_unlock(&eNB->UL_INFO_mutex)==0, "Mutex unlock failed");
++        return 0;
++      }
+     }
+ 
+     assert(ind->sr_indication_body.number_of_srs <= NFAPI_SR_IND_MAX_PDU);

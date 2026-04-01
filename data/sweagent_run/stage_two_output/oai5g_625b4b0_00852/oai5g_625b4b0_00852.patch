@@ -1,0 +1,28 @@
+diff --git a/openair1/SIMULATION/TOOLS/random_channel.c b/openair1/SIMULATION/TOOLS/random_channel.c
+index e9c26e9abd..0b239a2a72 100644
+--- a/openair1/SIMULATION/TOOLS/random_channel.c
++++ b/openair1/SIMULATION/TOOLS/random_channel.c
+@@ -2060,17 +2060,20 @@ int get_channel_params(char *buf, int debug, void *vdata, telnet_printfunc_t prn
+ 
+ static void display_channelmodel(channel_desc_t *cd,int debug, telnet_printfunc_t prnt) {
+   prnt("model owner: %s\n",(cd->module_id != 0)?module_id_str[cd->module_id]:"not set");
++  prnt("model name: %s\n", (cd->model_name != NULL)?cd->model_name:"not set");
+   prnt("nb_tx: %i    nb_rx: %i    taps: %i bandwidth: %lf    sampling: %lf\n",cd->nb_tx, cd->nb_rx, cd->nb_taps, cd->channel_bandwidth, cd->sampling_rate);
+   prnt("channel length: %i    Max path delay: %lf   ricean fact.: %lf    angle of arrival: %lf (randomized:%s)\n",
+        cd->channel_length, cd->Td, cd->ricean_factor, cd->aoa, (cd->random_aoa?"Yes":"No"));
+-  prnt("max Doppler: %lf    path loss: %lf  noise: %lf rchannel offset: %lu    forget factor; %lf\n",
++  prnt("max Doppler: %lf    path loss: %lf  noise: %lf channel offset: %lu    forget factor: %lf\n",
+        cd->max_Doppler,
+        cd->path_loss_dB,
+        cd->noise_power_dB,
+        cd->channel_offset,
+        cd->forgetting_factor);
+-  prnt("Initial phase: %lf   nb_path: %i \n",
+-       cd->ip, cd->nb_paths);
++  prnt("Initial phase: %lf   nb_path: %i    center frequency: %lu\n",
++       cd->ip, cd->nb_paths, cd->center_freq);
++  prnt("correlation level: %i    normalization factor: %lf\n",
++       cd->corr_level, cd->normalization_ch_factor);
+ 
+   for (int i=0; i<cd->nb_taps ; i++) {
+     prnt("taps: %i   lin. ampli. : %lf    delay: %lf \n",i,cd->amps[i], cd->delays[i]);

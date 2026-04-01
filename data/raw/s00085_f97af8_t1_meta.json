@@ -1,0 +1,32 @@
+{
+  "run_id": "s00085_f97af8",
+  "function": {
+    "name": "unpack_srs_indication_fdd_rel8_value",
+    "file": "nfapi/open-nFAPI/nfapi/src/nfapi_p7.c",
+    "start_line": 5065,
+    "end_line": 5076,
+    "body_lines": 12,
+    "signature": "static uint8_t unpack_srs_indication_fdd_rel8_value(void *tlv, uint8_t **ppReadPackedMsg, uint8_t *end)",
+    "subsystem": "nfapi/open-nFAPI/nfapi",
+    "token_estimate": 40
+  },
+  "bug": {
+    "bug_id": "c_string_buffer_overrun",
+    "description": "string buffer overrun from unbounded string copy or concatenation",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/NAS",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a string buffer overrun from unbounded string copy or concatenation downstream of function unpack_srs_indication_fdd_rel8_value in the nfapi/open-nFAPI/nfapi subsystem.\nThe function is located at nfapi/open-nFAPI/nfapi/src/nfapi_p7.c:5065.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00085_f97af8_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00085_f97af8_p1.diff",
+  "patch_lines": 11,
+  "trajectory_steps": 55,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:07:36Z"
+}

@@ -1,0 +1,51 @@
+diff --git a/openair2/LAYER2/rlc_v2/rlc_entity.c b/openair2/LAYER2/rlc_v2/rlc_entity.c
+index d774e2b7e1..52461be65a 100644
+--- a/openair2/LAYER2/rlc_v2/rlc_entity.c
++++ b/openair2/LAYER2/rlc_v2/rlc_entity.c
+@@ -102,6 +102,31 @@ rlc_entity_t *new_rlc_entity_um(
+ {
+   rlc_entity_um_t *ret;
+ 
++  /* Validate parameters */
++  if (sn_field_length != 5 && sn_field_length != 10) {
++    LOG_E(RLC, "%s:%d:%s: invalid sn_field_length %d (must be 5 or 10)\n",
++          __FILE__, __LINE__, __FUNCTION__, sn_field_length);
++    exit(1);
++  }
++
++  if (rx_maxsize < 0) {
++    LOG_E(RLC, "%s:%d:%s: invalid rx_maxsize %d (must be non-negative)\n",
++          __FILE__, __LINE__, __FUNCTION__, rx_maxsize);
++    exit(1);
++  }
++
++  if (tx_maxsize < 0) {
++    LOG_E(RLC, "%s:%d:%s: invalid tx_maxsize %d (must be non-negative)\n",
++          __FILE__, __LINE__, __FUNCTION__, tx_maxsize);
++    exit(1);
++  }
++
++  if (t_reordering < 0) {
++    LOG_E(RLC, "%s:%d:%s: invalid t_reordering %d (must be non-negative)\n",
++          __FILE__, __LINE__, __FUNCTION__, t_reordering);
++    exit(1);
++  }
++
+   ret = calloc(1, sizeof(rlc_entity_um_t));
+   if (ret == NULL) {
+     LOG_E(RLC, "%s:%d:%s: out of memory\n", __FILE__, __LINE__, __FUNCTION__);
+@@ -132,12 +157,9 @@ rlc_entity_t *new_rlc_entity_um(
+ 
+   if (sn_field_length == 5)
+     ret->sn_modulus = 32;
+-  else if (sn_field_length == 10)
++  else /* sn_field_length == 10 */
+     ret->sn_modulus = 1024;
+-  else {
+-    LOG_E(RLC, "%s:%d:%s: fatal\n", __FILE__, __LINE__, __FUNCTION__);
+-    exit(1);
+-  }
++    
+   ret->window_size = ret->sn_modulus / 2;
+ 
+   return (rlc_entity_t *)ret;

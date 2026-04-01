@@ -1,0 +1,29 @@
+{
+  "run_id": "s00242_699dd0",
+  "function": {
+    "name": "init_nr_bler_table",
+    "file": "openair2/NR_UE_PHY_INTERFACE/NR_Packet_Drop.c",
+    "start_line": 210,
+    "end_line": 261,
+    "body_lines": 52,
+    "signature": "void init_nr_bler_table(const char *env_string)",
+    "subsystem": "openair2/NR_UE_PHY_INTERFACE",
+    "token_estimate": 162
+  },
+  "bug": {
+    "bug_id": "telecom_harq_error",
+    "description": "HARQ process error such as incorrect retransmission or wrong redundancy version",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a HARQ process error such as incorrect retransmission or wrong redundancy version downstream of function init_nr_bler_table in the openair2/NR_UE_PHY_INTERFACE subsystem.\nThe function is located at openair2/NR_UE_PHY_INTERFACE/NR_Packet_Drop.c:210.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00242_699dd0_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00242_699dd0_p1.diff",
+  "patch_lines": 13,
+  "trajectory_steps": 31,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:39:59Z"
+}

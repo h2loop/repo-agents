@@ -1,0 +1,123 @@
+diff --git a/openair2/SDAP/nr_sdap/nr_sdap.c b/openair2/SDAP/nr_sdap/nr_sdap.c
+index 783ca5a914..453bfbde81 100644
+--- a/openair2/SDAP/nr_sdap/nr_sdap.c
++++ b/openair2/SDAP/nr_sdap/nr_sdap.c
+@@ -20,6 +20,16 @@
+  */
+ 
+ #include "nr_sdap.h"
++#include "common/platform_constants.h"
++#include <sys/socket.h>
++#include <linux/if.h>
++#include <linux/if_tun.h>
++#include <fcntl.h>
++#include <errno.h>
++#include <string.h>
++#include <unistd.h>
++
++extern int nas_sock_fd[];
+ 
+ uint8_t nas_qfi;
+ uint8_t nas_pduid;
+@@ -92,3 +102,86 @@ void set_qfi_pduid(uint8_t qfi, uint8_t pduid){
+   nas_pduid = pduid;
+   return;
+ }
++
++static int sdap_tun_alloc(char *dev) {
++  struct ifreq ifr;
++  int fd, err;
++
++  if ((fd = open("/dev/net/tun", O_RDWR)) < 0) {
++    LOG_E(SDAP, "Failed to open /dev/net/tun: %s\n", strerror(errno));
++    return -1;
++  }
++
++  memset(&ifr, 0, sizeof(ifr));
++  /* Flags: IFF_TUN   - TUN device (no Ethernet headers)
++   *        IFF_TAP   - TAP device
++   *
++   *        IFF_NO_PI - Do not provide packet information
++   */
++  ifr.ifr_flags = IFF_TUN | IFF_NO_PI;
++
++  if (*dev)
++    strncpy(ifr.ifr_name, dev, IFNAMSIZ - 1);
++
++  if ((err = ioctl(fd, TUNSETIFF, (void *)&ifr)) < 0) {
++    LOG_E(SDAP, "Failed to set TUN interface: %s\n", strerror(errno));
++    close(fd);
++    return err;
++  }
++
++  strcpy(dev, ifr.ifr_name);
++  return fd;
++}
++
++int create_ue_eth_if(ue_id_t ue_id, int pdusession_id, const char *interface_name) {
++  nr_sdap_entity_t *sdap_entity;
++  char ifname[IFNAMSIZ];
++  int tun_fd, ret;
++
++  // Validate inputs
++  if (interface_name == NULL) {
++    LOG_E(SDAP, "Invalid interface name provided\n");
++    return -1;
++  }
++
++  // Check if SDAP entity exists
++  sdap_entity = nr_sdap_get_entity(ue_id, pdusession_id);
++  if (sdap_entity == NULL) {
++    LOG_E(SDAP, "SDAP entity not found for UE ID: %"PRIx64" and PDU session ID: %d\n", ue_id, pdusession_id);
++    return -1;
++  }
++
++  // Copy interface name to local buffer
++  strncpy(ifname, interface_name, IFNAMSIZ - 1);
++  ifname[IFNAMSIZ - 1] = '\0';
++
++  // Create TUN interface
++  tun_fd = sdap_tun_alloc(ifname);
++  if (tun_fd == -1) {
++    LOG_E(SDAP, "Failed to create TUN interface %s for UE ID: %"PRIx64" and PDU session ID: %d\n", 
++          interface_name, ue_id, pdusession_id);
++    return -1;
++  }
++
++  // Set non-blocking mode
++  ret = fcntl(tun_fd, F_SETFL, O_NONBLOCK);
++  if (ret == -1) {
++    LOG_E(SDAP, "Failed to set non-blocking mode for TUN interface %s: %s\n", interface_name, strerror(errno));
++    close(tun_fd);
++    return -1;
++  }
++
++  // Store the file descriptor (using the PDU session ID as index)
++  // Note: This assumes that nas_sock_fd is large enough to hold all PDU sessions
++  // In practice, you might want to use a more sophisticated mapping
++  if (pdusession_id >= 0 && pdusession_id < MAX_MOBILES_PER_ENB * 2) {
++    nas_sock_fd[pdusession_id] = tun_fd;
++    LOG_I(SDAP, "Successfully created TUN interface %s with fd %d for UE ID: %"PRIx64" and PDU session ID: %d\n",
++          interface_name, tun_fd, ue_id, pdusession_id);
++    return 0;
++  } else {
++    LOG_E(SDAP, "PDU session ID %d is out of valid range\n", pdusession_id);
++    close(tun_fd);
++    return -1;
++  }
++}
+diff --git a/openair2/SDAP/nr_sdap/nr_sdap.h b/openair2/SDAP/nr_sdap/nr_sdap.h
+index 8fb313a340..7f0ff8412f 100644
+--- a/openair2/SDAP/nr_sdap/nr_sdap.h
++++ b/openair2/SDAP/nr_sdap/nr_sdap.h
+@@ -63,4 +63,10 @@ void sdap_data_ind(rb_id_t pdcp_entity,
+ 
+ void set_qfi_pduid(uint8_t qfi, uint8_t pduid);
+ 
++/*
++ * Create UE Ethernet interface (TUN interface) for the specified UE and PDU session
++ * Returns 0 on success, -1 on failure
++ */
++int create_ue_eth_if(ue_id_t ue_id, int pdusession_id, const char *interface_name);
++
+ #endif

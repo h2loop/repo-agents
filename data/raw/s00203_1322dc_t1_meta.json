@@ -1,0 +1,32 @@
+{
+  "run_id": "s00203_1322dc",
+  "function": {
+    "name": "send_update_rru",
+    "file": "executables/ru_control.c",
+    "start_line": 460,
+    "end_line": 479,
+    "body_lines": 20,
+    "signature": "static int send_update_rru(RU_t * ru, LTE_DL_FRAME_PARMS * fp)",
+    "subsystem": "executables",
+    "token_estimate": 67
+  },
+  "bug": {
+    "bug_id": "c_unreachable_code",
+    "description": "unreachable code path due to incorrect conditional logic",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/NAS",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a unreachable code path due to incorrect conditional logic downstream of function send_update_rru in the executables subsystem.\nThe function is located at executables/ru_control.c:460.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00203_1322dc_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00203_1322dc_p1.diff",
+  "patch_lines": 12,
+  "trajectory_steps": 12,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:15:00Z"
+}

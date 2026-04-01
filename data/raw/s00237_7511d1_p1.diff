@@ -1,0 +1,68 @@
+diff --git a/openair1/PHY/LTE_ESTIMATION/lte_ue_measurements.c b/openair1/PHY/LTE_ESTIMATION/lte_ue_measurements.c
+index 3dc55ef1f6..21a67a82f3 100644
+--- a/openair1/PHY/LTE_ESTIMATION/lte_ue_measurements.c
++++ b/openair1/PHY/LTE_ESTIMATION/lte_ue_measurements.c
+@@ -31,6 +31,9 @@
+ #define k1 ((long long int) 1000)
+ #define k2 ((long long int) (1024-k1))
+ 
++// Number of OFDM symbols used for channel estimation
++#define LTE_NUM_ESTIMATION_SYMBOLS 3
++
+ //#define DEBUG_MEAS_RRC
+ //#define DEBUG_MEAS_UE
+ //#define DEBUG_RANK_EST
+@@ -465,7 +468,7 @@ void conjch0_mult_ch1(int *ch0,
+ 
+   simde__m128i *ch0conj_ch1_128 = (simde__m128i *)ch0conj_ch1;
+ 
+-  for (unsigned short rb=0; rb<3*nb_rb; rb++) {
++  for (unsigned short rb=0; rb<LTE_NUM_ESTIMATION_SYMBOLS*nb_rb; rb++) {
+ 
+     ch0conj_ch1_128[rb] = oai_mm_cpx_mult_conj(dl_ch0_128[rb], dl_ch1_128[rb], output_shift0);
+ 
+@@ -511,7 +514,7 @@ void construct_HhH_elements(int *ch0conj_ch0, //00_00
+   after_mf_10_128 = (simde__m128i *)after_mf_10;
+   after_mf_11_128 = (simde__m128i *)after_mf_11;
+ 
+-  for (unsigned short rb=0; rb<3*nb_rb; rb++) {
++  for (unsigned short rb=0; rb<LTE_NUM_ESTIMATION_SYMBOLS*nb_rb; rb++) {
+     after_mf_00_128[0] = simde_mm_adds_epi16(ch0conj_ch0_128[0], ch3conj_ch3_128[0]); //00_00 + 10_10 simde_mm_adds_epi32(ch0conj_ch0_128[0], ch3conj_ch3_128[0]);
+     after_mf_11_128[0] = simde_mm_adds_epi16(ch1conj_ch1_128[0], ch2conj_ch2_128[0]); //01_01 + 11_11
+     after_mf_01_128[0] = simde_mm_adds_epi16(ch0conj_ch1_128[0], ch2conj_ch3_128[0]); //00_01 + 10_11
+@@ -560,7 +563,7 @@ void squared_matrix_element(int32_t *Hh_h_00,
+   Hh_h_00_128 = (simde__m128i *)Hh_h_00;
+   Hh_h_00_sq_128 = (simde__m128i *)Hh_h_00_sq;
+ 
+-  for (unsigned short rb=0; rb<3*nb_rb; rb++) {
++  for (unsigned short rb=0; rb<LTE_NUM_ESTIMATION_SYMBOLS*nb_rb; rb++) {
+ 
+     Hh_h_00_sq_128[0] = simde_mm_madd_epi16(Hh_h_00_128[0],Hh_h_00_128[0]);
+ 
+@@ -597,7 +600,7 @@ void det_HhH(int32_t *after_mf_00,
+ 
+   det_fin_128 = (simde__m128i *)det_fin;
+ 
+-  for (rb=0; rb<3*nb_rb; rb++) {
++  for (rb=0; rb<LTE_NUM_ESTIMATION_SYMBOLS*nb_rb; rb++) {
+ 
+     ad_re_128 = simde_mm_madd_epi16(after_mf_00_128[0],after_mf_11_128[0]);
+     bc_re_128 = simde_mm_madd_epi16(after_mf_01_128[0],after_mf_01_128[0]);
+@@ -642,7 +645,7 @@ void numer(int32_t *Hh_h_00_sq,
+ 
+   num_fin_128 = (simde__m128i *)num_fin;
+ 
+-  for (unsigned short rb=0; rb<3*nb_rb; rb++) {
++  for (unsigned short rb=0; rb<LTE_NUM_ESTIMATION_SYMBOLS*nb_rb; rb++) {
+ 
+     sq_a_plus_sq_d_128 = simde_mm_add_epi32(h_h_00_sq_128[0],h_h_11_sq_128[0]);
+     sq_b_plus_sq_c_128 = simde_mm_add_epi32(h_h_01_sq_128[0],h_h_10_sq_128[0]);
+@@ -696,7 +699,7 @@ void dlsch_channel_level_TM34_meas(int *ch00,
+   avg_0_row1_128D = simde_mm_setzero_si128();
+   avg_1_row1_128D = simde_mm_setzero_si128();
+ 
+-  for (short rb=0; rb<3*nb_rb; rb++) {
++  for (short rb=0; rb<LTE_NUM_ESTIMATION_SYMBOLS*nb_rb; rb++) {
+     ch00_128_tmp = simde_mm_load_si128(&ch00_128[0]);
+     ch01_128_tmp = simde_mm_load_si128(&ch01_128[0]);
+     ch10_128_tmp = simde_mm_load_si128(&ch10_128[0]);

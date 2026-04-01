@@ -1,0 +1,32 @@
+{
+  "run_id": "s00237_7511d1",
+  "function": {
+    "name": "det_HhH",
+    "file": "openair1/PHY/LTE_ESTIMATION/lte_ue_measurements.c",
+    "start_line": 580,
+    "end_line": 624,
+    "body_lines": 45,
+    "signature": "void det_HhH(int32_t *after_mf_00, int32_t *after_mf_01, int32_t *after_mf_10, int32_t *after_mf_11, int32_t *det_fin, unsigned short nb_rb)",
+    "subsystem": "openair1/PHY/LTE_ESTIMATION",
+    "token_estimate": 103
+  },
+  "bug": {
+    "bug_id": "c_magic_number",
+    "description": "magic number used without symbolic constant making intent unclear and maintenance error-prone",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a magic number used without symbolic constant making intent unclear and maintenance error-prone downstream of function det_HhH in the openair1/PHY/LTE_ESTIMATION subsystem.\nThe function is located at openair1/PHY/LTE_ESTIMATION/lte_ue_measurements.c:580.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00237_7511d1_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00237_7511d1_p1.diff",
+  "patch_lines": 9,
+  "trajectory_steps": 55,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:03:45Z"
+}

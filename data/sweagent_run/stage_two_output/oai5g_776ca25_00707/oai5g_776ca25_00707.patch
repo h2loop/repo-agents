@@ -1,0 +1,97 @@
+diff --git a/nfapi/open-nFAPI/vnf_sim/src/mac.cpp b/nfapi/open-nFAPI/vnf_sim/src/mac.cpp
+index 63bb877f1d..bd64715525 100644
+--- a/nfapi/open-nFAPI/vnf_sim/src/mac.cpp
++++ b/nfapi/open-nFAPI/vnf_sim/src/mac.cpp
+@@ -121,17 +121,52 @@ extern "C"
+     uint32_t tx_byte_count;
+ 
+     mac_private *mac;
++    
++    volatile int stop_thread;
++    pthread_t mac_rx_thread;
+ 
+   } mac_internal_t;
+ 
+   mac_t *mac_create(uint8_t wireshark_test_mode) {
+     mac_internal_t *instance = (mac_internal_t *)malloc(sizeof(mac_internal_t));
++    if (instance == NULL) {
++      return NULL;
++    }
++    
++    memset(instance, 0, sizeof(mac_internal_t));
+     instance->mac = new mac_private((wireshark_test_mode >= 1));
++    instance->stop_thread = 0;
++    instance->rx_sock = -1;
++    instance->tx_sock = -1;
+     return (mac_t *)instance;
+   }
+ 
+   void mac_destroy(mac_t *mac) {
++    if (mac == NULL) {
++      return;
++    }
++    
+     mac_internal_t *instance = (mac_internal_t *)mac;
++    
++    // Signal the rx thread to stop
++    instance->stop_thread = 1;
++    
++    // Close the rx socket to unblock the recvfrom call
++    if (instance->rx_sock >= 0) {
++      close(instance->rx_sock);
++    }
++    
++    // Wait for the rx thread to finish
++    if (instance->mac_rx_thread != 0) {  // Check if thread was actually created
++      pthread_join(instance->mac_rx_thread, NULL);
++    }
++    
++    // Close the tx socket
++    if (instance->tx_sock >= 0) {
++      close(instance->tx_sock);
++    }
++    
++    // Clean up the mac private data
+     delete instance->mac;
+     free(instance);
+   }
+@@ -139,7 +174,7 @@ extern "C"
+   void *mac_rx_thread_start(void *ptr) {
+     mac_internal_t *instance = (mac_internal_t *)ptr;
+ 
+-    while(1) {
++    while(instance->stop_thread == 0) {
+       mac_pdu *pdu = instance->mac->allocate_mac_pdu();
+       int len = recvfrom(instance->rx_sock, pdu->buffer, pdu->buffer_len, 0, 0, 0);
+ 
+@@ -178,12 +213,28 @@ extern "C"
+     if(bind(instance->rx_sock, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)) < 0) {
+       printf("[MAC] Failed to bind to %u\n", rx_port);
+       close(instance->rx_sock);
++      instance->rx_sock = -1;
+       return;
+     }
+ 
+-    pthread_t mac_rx_thread;
+-    pthread_create(&mac_rx_thread, NULL, &mac_rx_thread_start, instance);
++    if(pthread_create(&instance->mac_rx_thread, NULL, &mac_rx_thread_start, instance) != 0) {
++      printf("[MAC] Failed to create rx thread\n");
++      close(instance->rx_sock);
++      instance->rx_sock = -1;
++      return;
++    }
++    
+     instance->tx_sock = socket(AF_INET, SOCK_DGRAM, 0);
++    if(instance->tx_sock < 0) {
++      printf("[MAC] Failed to create tx socket\n");
++      // Set stop flag and wait for rx thread to terminate
++      instance->stop_thread = 1;
++      pthread_join(instance->mac_rx_thread, NULL);
++      close(instance->rx_sock);
++      instance->rx_sock = -1;
++      return;
++    }
++    
+     instance->tx_addr.sin_family = AF_INET;
+     instance->tx_addr.sin_port = htons(tx_port);
+     instance->tx_addr.sin_addr.s_addr = inet_addr(tx_address);

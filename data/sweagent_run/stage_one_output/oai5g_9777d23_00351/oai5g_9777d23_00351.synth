@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix buffer overflow in time server client management\n\n### Summary\nThe time server implementation in `time_manager` had incorrect memory management when handling client connections and disconnections. The `memmove` operations for both `socket_fds` and `polls` arrays were using wrong source/destination indices and incorrect size calculations, causing out-of-bounds memory accesses.\n\nThis issue could be triggered when clients connect and disconnect from the time server, leading to memory corruption and potential double-free errors during cleanup.\n\n### Changes\n- `common/utils/time_manager/time_server.c`: Fixed incorrect `memmove` operations in client removal logic\n- `common/utils/time_manager/time_server.c`: Corrected buffer size calculations for array element shifting\n- `common/utils/time_manager/time_server.c`: Fixed typo in error message (\"realloco\" -> \"realloc\")\n\n"
+}

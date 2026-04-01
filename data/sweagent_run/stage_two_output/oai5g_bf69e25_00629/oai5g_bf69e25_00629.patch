@@ -1,0 +1,39 @@
+diff --git a/openair2/COMMON/as_message.h b/openair2/COMMON/as_message.h
+index d82d1ce53f..321f969d20 100644
+--- a/openair2/COMMON/as_message.h
++++ b/openair2/COMMON/as_message.h
+@@ -302,6 +302,7 @@ typedef enum as_cause_s {
+ 
+ /* Type of the call associated to the RRC connection establishment */
+ typedef enum as_call_type_s {
++  AS_TYPE_UNKNOWN         = NET_ESTABLISH_TYPE_UNKNOWN,
+   AS_TYPE_ORIGINATING_SIGNAL  = NET_ESTABLISH_TYPE_ORIGINATING_SIGNAL,
+   AS_TYPE_EMERGENCY_CALLS     = NET_ESTABLISH_TYPE_EMERGENCY_CALLS,
+   AS_TYPE_ORIGINATING_CALLS   = NET_ESTABLISH_TYPE_ORIGINATING_CALLS,
+diff --git a/openair2/COMMON/networkDef.h b/openair2/COMMON/networkDef.h
+index 14e629b3bc..e63d01e468 100644
+--- a/openair2/COMMON/networkDef.h
++++ b/openair2/COMMON/networkDef.h
+@@ -129,6 +129,7 @@ Description Contains network's global definitions
+  * Network connection establishment type
+  * --------------------------------------
+  */
++#define NET_ESTABLISH_TYPE_UNKNOWN          0x00
+ #define NET_ESTABLISH_TYPE_ORIGINATING_SIGNAL   0x10
+ #define NET_ESTABLISH_TYPE_EMERGENCY_CALLS  0x20
+ #define NET_ESTABLISH_TYPE_ORIGINATING_CALLS    0x30
+diff --git a/openair3/NAS/TEST/AS_SIMULATOR/as_data.c b/openair3/NAS/TEST/AS_SIMULATOR/as_data.c
+index 56b00125a4..7b7a537b6d 100644
+--- a/openair3/NAS/TEST/AS_SIMULATOR/as_data.c
++++ b/openair3/NAS/TEST/AS_SIMULATOR/as_data.c
+@@ -107,7 +107,9 @@ const char* rrcCause(char cause)
+  */
+ const char* rrcType(char type)
+ {
+-  if (type == AS_TYPE_ORIGINATING_SIGNAL) {
++  if (type == AS_TYPE_UNKNOWN) {
++    return "UNKNOWN";
++  } else if (type == AS_TYPE_ORIGINATING_SIGNAL) {
+     return "ORIGINATING_SIGNAL";
+   } else if (type == AS_TYPE_EMERGENCY_CALLS) {
+     return "EMERGENCY_CALLS";

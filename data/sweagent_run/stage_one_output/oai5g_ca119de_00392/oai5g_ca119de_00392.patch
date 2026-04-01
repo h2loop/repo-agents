@@ -1,0 +1,34 @@
+diff --git a/openair2/LAYER2/MAC/eNB_scheduler_RA.c b/openair2/LAYER2/MAC/eNB_scheduler_RA.c
+index 375059f315..429d39b600 100644
+--- a/openair2/LAYER2/MAC/eNB_scheduler_RA.c
++++ b/openair2/LAYER2/MAC/eNB_scheduler_RA.c
+@@ -1260,6 +1260,9 @@ schedule_RA(module_id_t module_idP, frame_t frameP, sub_frame_t subframeP) {
+ 
+       if (ra->eRA_state == MSG2)
+         generate_Msg2(module_idP, CC_id, frameP, subframeP, ra);
++      else if (ra->eRA_state == WAITMSG3 && ra->Msg3_frame == frameP && ra->Msg3_subframe == subframeP)
++        LOG_D(MAC, "[eNB %d][RAPROC] Frame %d, Subframe %d : CC_id %d RA is active, Msg3 in (%d,%d)\n",
++              module_idP, frameP, subframeP, CC_id, ra->Msg3_frame, ra->Msg3_subframe);
+       else if (ra->eRA_state == MSG4 && ra->Msg4_frame == frameP && ra->Msg4_subframe == subframeP)
+         generate_Msg4(module_idP, CC_id, frameP, subframeP, ra);
+       else if (ra->eRA_state == WAITMSG4ACK)
+@@ -1341,8 +1344,8 @@ initiate_ra_proc(module_id_t module_idP,
+             abort();
+ 
+           case 1 :
+-	  case 3 :
+-	  case 4 :
++          case 3 :
++          case 4 :
+           case 5 :
+             offset = 6;
+             break;
+@@ -1382,7 +1385,7 @@ initiate_ra_proc(module_id_t module_idP,
+                                           0x4268,
+                                           0x6978};
+           for (int j=0; j<MAX_MOBILES_PER_ENB && j< (sizeof(drnti_def)/sizeof(int));j++)
+-          	  drnti[i]=drnti_def[i];
++                  drnti[i]=drnti_def[i];
+           
+           int nb_ue = 0;
+ 

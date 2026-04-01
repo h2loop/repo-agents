@@ -1,0 +1,49 @@
+diff --git a/openair3/NAS/COMMON/IES/DetachType.c b/openair3/NAS/COMMON/IES/DetachType.c
+index 8a925eb7b4..2548f33c8a 100644
+--- a/openair3/NAS/COMMON/IES/DetachType.c
++++ b/openair3/NAS/COMMON/IES/DetachType.c
+@@ -99,8 +99,42 @@ void dump_detach_type_xml(DetachType *detachtype, uint8_t iei)
+     /* Don't display IEI if = 0 */
+     printf("    <IEI>0x%X</IEI>\n", iei);
+ 
+-  printf("    <Switch off>%u</Switch off>\n", detachtype->switchoff);
+-  printf("    <Type of detach>%u</Type of detach>\n", detachtype->typeofdetach);
++  printf("    <Switch off>%u", detachtype->switchoff);
++  switch (detachtype->switchoff) {
++    case DETACH_TYPE_NORMAL_DETACH:
++      printf(" (Normal detach)");
++      break;
++    case DETACH_TYPE_SWITCH_OFF:
++      printf(" (Switch off)");
++      break;
++    default:
++      printf(" (Unknown)");
++      break;
++  }
++  printf("</Switch off>\n");
++
++  printf("    <Type of detach>%u", detachtype->typeofdetach);
++  switch (detachtype->typeofdetach) {
++    case DETACH_TYPE_EPS:
++      printf(" (EPS)");
++      break;
++    case DETACH_TYPE_IMSI:
++      printf(" (IMSI)");
++      break;
++    case DETACH_TYPE_EPS_IMSI:
++      printf(" (EPS/IMSI)");
++      break;
++    case DETACH_TYPE_RESERVED_1:
++      printf(" (Reserved 1)");
++      break;
++    case DETACH_TYPE_RESERVED_2:
++      printf(" (Reserved 2)");
++      break;
++    default:
++      printf(" (Unknown)");
++      break;
++  }
++  printf("</Type of detach>\n");
+   printf("</Detach Type>\n");
+ }
+ 

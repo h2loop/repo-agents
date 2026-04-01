@@ -1,0 +1,29 @@
+diff --git a/common/utils/T/tracer/gui/event.c b/common/utils/T/tracer/gui/event.c
+index 862f4d67dd..9570686fea 100644
+--- a/common/utils/T/tracer/gui/event.c
++++ b/common/utils/T/tracer/gui/event.c
+@@ -66,6 +66,7 @@ static event *new_event_repack(int id)
+   struct repack_event *ret;
+   ret = calloc(1, sizeof(struct repack_event));
+   if (ret == NULL) OOM;
++  ret->common.type = REPACK;
+   ret->id = id;
+   return ret;
+ }
+@@ -75,6 +76,7 @@ static event *new_event_dirty(int id)
+   struct dirty_event *ret;
+   ret = calloc(1, sizeof(struct dirty_event));
+   if (ret == NULL) OOM;
++  ret->common.type = DIRTY;
+   ret->id = id;
+   return ret;
+ }
+@@ -130,8 +132,6 @@ void send_event(gui *_gui, enum event_type type, ...)
+ 
+   va_end(ap);
+ 
+-  e->type = type;
+-
+   event_list_append(g, e);
+   compress_event_list(g);
+ 

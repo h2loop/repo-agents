@@ -1,0 +1,64 @@
+diff --git a/openair3/NAS/COMMON/EMM/MSG/emm_msg.c b/openair3/NAS/COMMON/EMM/MSG/emm_msg.c
+index cd55a3fffb..43d84549d2 100644
+--- a/openair3/NAS/COMMON/EMM/MSG/emm_msg.c
++++ b/openair3/NAS/COMMON/EMM/MSG/emm_msg.c
+@@ -494,7 +494,7 @@ static int _emm_msg_decode_header(emm_msg_header_t *header,
+ 
+   /* Check the protocol discriminator */
+   if (header->protocol_discriminator != EPS_MOBILITY_MANAGEMENT_MESSAGE) {
+-    LOG_TRACE(ERROR, "ESM-MSG   - Unexpected protocol discriminator: 0x%x",
++    LOG_TRACE(ERROR, "EMM-MSG   - Unexpected protocol discriminator: 0x%x",
+               header->protocol_discriminator);
+     return (TLV_DECODE_PROTOCOL_NOT_SUPPORTED);
+   }
+@@ -531,7 +531,7 @@ static int _emm_msg_encode_header(const emm_msg_header_t *header,
+ 
+   /* Check the protocol discriminator */
+   if (header->protocol_discriminator != EPS_MOBILITY_MANAGEMENT_MESSAGE) {
+-    LOG_TRACE(ERROR, "ESM-MSG   - Unexpected protocol discriminator: 0x%x",
++    LOG_TRACE(ERROR, "EMM-MSG   - Unexpected protocol discriminator: 0x%x",
+               header->protocol_discriminator);
+     return (TLV_ENCODE_PROTOCOL_NOT_SUPPORTED);
+   }
+diff --git a/openair3/NAS/COMMON/ESM/MSG/esm_msg.c b/openair3/NAS/COMMON/ESM/MSG/esm_msg.c
+index f4d3dd94dd..5217b5bfb5 100644
+--- a/openair3/NAS/COMMON/ESM/MSG/esm_msg.c
++++ b/openair3/NAS/COMMON/ESM/MSG/esm_msg.c
+@@ -407,6 +407,7 @@ static int _esm_msg_decode_header(esm_msg_header_t *header,
+                                   const uint8_t *buffer, uint32_t len)
+ {
+   int size = 0;
++  uint8_t first_byte;
+ 
+   /* Check the buffer length */
+   if (len < sizeof(esm_msg_header_t)) {
+@@ -414,7 +415,9 @@ static int _esm_msg_decode_header(esm_msg_header_t *header,
+   }
+ 
+   /* Decode the EPS bearer identity and the protocol discriminator */
+-  DECODE_U8(buffer + size, *(uint8_t*)(header), size);
++  DECODE_U8(buffer + size, first_byte, size);
++  header->eps_bearer_identity = (first_byte & 0xf0) >> 4;
++  header->protocol_discriminator = first_byte & 0x0f;
+   /* Decode the procedure transaction identity */
+   DECODE_U8(buffer + size, header->procedure_transaction_identity, size);
+   /* Decode the message type */
+@@ -452,6 +455,7 @@ static int _esm_msg_encode_header(const esm_msg_header_t *header,
+                                   uint8_t *buffer, uint32_t len)
+ {
+   int size = 0;
++  uint8_t first_byte;
+ 
+   /* Check the buffer length */
+   if (len < sizeof(esm_msg_header_t)) {
+@@ -466,7 +470,9 @@ static int _esm_msg_encode_header(const esm_msg_header_t *header,
+   }
+ 
+   /* Encode the EPS bearer identity and the protocol discriminator */
+-  ENCODE_U8(buffer + size, *(uint8_t*)(header), size);
++  first_byte = ((header->eps_bearer_identity & 0x0f) << 4) | 
++               (header->protocol_discriminator & 0x0f);
++  ENCODE_U8(buffer + size, first_byte, size);
+   /* Encode the procedure transaction identity */
+   ENCODE_U8(buffer + size, header->procedure_transaction_identity, size);
+   /* Encode the message type */

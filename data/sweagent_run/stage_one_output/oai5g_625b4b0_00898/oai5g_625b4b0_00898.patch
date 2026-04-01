@@ -1,0 +1,21 @@
+diff --git a/common/utils/ocp_itti/intertask_interface.cpp b/common/utils/ocp_itti/intertask_interface.cpp
+index 8ad5f63a50..bb8387a913 100644
+--- a/common/utils/ocp_itti/intertask_interface.cpp
++++ b/common/utils/ocp_itti/intertask_interface.cpp
+@@ -25,6 +25,8 @@
+ #include <map>
+ #include <sys/eventfd.h>
+ #include <semaphore.h>
++#include <errno.h>
++#include <string.h>
+ 
+ 
+ extern "C" {
+@@ -159,7 +161,6 @@ typedef struct timer_elm_s {
+     task_list_t *t=tasks[task_id];
+     t->nb_fd_epoll++;
+     event.events  = EPOLLIN | EPOLLERR;
+-    event.data.u64 = 0;
+     event.data.fd  = fd;
+     AssertFatal(epoll_ctl(t->epoll_fd, EPOLL_CTL_ADD, fd, &event) == 0,
+                 "epoll_ctl (EPOLL_CTL_ADD) failed for task %s, fd %d: %s!\n",

@@ -1,0 +1,313 @@
+"{\"env\":{\"deployment\":{\"image\":\"oai5g-sera:776ca25\",\"port\":null,\"docker_args\"\
+  :[],\"startup_timeout\":180.0,\"pull\":\"missing\",\"remove_images\":false,\"python_standalone_dir\"\
+  :\"/root\",\"platform\":null,\"remove_container\":true,\"container_runtime\":\"\
+  docker\",\"type\":\"docker\"},\"repo\":{\"repo_name\":\"repo\",\"base_commit\":\"\
+  HEAD\",\"type\":\"preexisting\",\"reset\":true},\"post_startup_commands\":[],\"\
+  post_startup_command_timeout\":500,\"name\":\"main\"},\"agent\":{\"name\":\"oai5g_776ca25_00850\"\
+  ,\"templates\":{\"system_template\":\"You are an expert C/C++ software engineer\
+  \ working on the OpenAirInterface 5G codebase.\\nYou can interact with the codebase\
+  \ using bash commands and a file editor to investigate and fix issues.\",\"instance_template\"\
+  :\"<uploaded_files>\\n{{working_dir}}\\n</uploaded_files>\\nI've uploaded the OpenAirInterface\
+  \ 5G codebase in {{working_dir}}. Consider the following PR description:\\n\\n<pr_description>\\\
+  n{{problem_statement}}\\n</pr_description>\\n\\nCan you help me implement the necessary\
+  \ changes to the repository so that the requirements specified in the <pr_description>\
+  \ are met?\\nYour task is to make the minimal changes to non-tests files in the\
+  \ {{working_dir}} directory to ensure the <pr_description> is satisfied.\\nFollow\
+  \ these steps to resolve the issue:\\n1. As a first step, find and read code relevant\
+  \ to the <pr_description>\\n2. Understand the issue and identify the root cause\\\
+  n3. Edit the source code to resolve the issue\\n4. Verify your changes make sense\\\
+  n5. Think about edge cases and make sure your fix handles them as well\\nYour thinking\
+  \ should be thorough and so it's fine if it's very long.\",\"next_step_template\"\
+  :\"OBSERVATION:\\n{{observation}}\",\"next_step_truncated_observation_template\"\
+  :\"Observation: {{observation[:max_observation_length]}}<response clipped><NOTE>Observations\
+  \ should not exceeded {{max_observation_length}} characters. {{elided_chars}} characters\
+  \ were elided. Please try a different command that produces less output or use head/tail/grep/redirect\
+  \ the output to a file. Do not use interactive pagers.</NOTE>\",\"max_observation_length\"\
+  :100000,\"next_step_no_output_template\":\"Your last command ran successfully and\
+  \ did not produce any output.\",\"strategy_template\":null,\"demonstration_template\"\
+  :null,\"demonstrations\":[],\"put_demos_in_history\":false,\"disable_image_processing\"\
+  :false,\"shell_check_error_template\":\"Your bash command contained syntax errors\
+  \ and was NOT executed. Please fix the syntax errors and try again. This can be\
+  \ the result of not adhering to the syntax for multi-line commands. Here is the\
+  \ output of `bash -n`:\\n{{bash_stdout}}\\n{{bash_stderr}}\",\"command_cancelled_timeout_template\"\
+  :\"The command '{{command}}' was cancelled because it took more than {{timeout}}\
+  \ seconds. Please try a different command that completes more quickly. Note: A common\
+  \ source of this error is if the command is interactive or requires user input (it\
+  \ is impossible to receive user input in the current environment, so the command\
+  \ will never complete).\"},\"tools\":{\"filter\":{\"blocklist_error_template\":\"\
+  Operation '{{action}}' is not supported by this environment.\",\"blocklist\":[\"\
+  vim\",\"vi\",\"emacs\",\"nano\",\"nohup\",\"gdb\",\"less\",\"tail -f\",\"python\
+  \ -m venv\",\"make\"],\"blocklist_standalone\":[\"python\",\"python3\",\"ipython\"\
+  ,\"bash\",\"sh\",\"/bin/bash\",\"/bin/sh\",\"nohup\",\"vi\",\"vim\",\"emacs\",\"\
+  nano\",\"su\"],\"block_unless_regex\":{\"radare2\":\"\\\\b(?:radare2)\\\\b.*\\\\\
+  s+-c\\\\s+.*\",\"r2\":\"\\\\b(?:radare2)\\\\b.*\\\\s+-c\\\\s+.*\"}},\"bundles\"\
+  :[{\"path\":\"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry\"\
+  ,\"hidden_tools\":[]},{\"path\":\"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic\"\
+  ,\"hidden_tools\":[]},{\"path\":\"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m\"\
+  ,\"hidden_tools\":[]},{\"path\":\"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state\"\
+  ,\"hidden_tools\":[]}],\"propagate_env_variables\":[],\"env_variables\":{\"PAGER\"\
+  :\"cat\",\"MANPAGER\":\"cat\",\"LESS\":\"-R\",\"PIP_PROGRESS_BAR\":\"off\",\"TQDM_DISABLE\"\
+  :\"1\",\"GIT_PAGER\":\"cat\"},\"registry_variables\":{\"USE_FILEMAP\":\"true\",\"\
+  SUBMIT_REVIEW_MESSAGES\":[\"Thank you for your work on this issue. Please review\
+  \ your changes:\\n\\n1. Make sure your fix is minimal and targeted\\n2. Verify you\
+  \ haven't introduced any new issues\\n3. Run the submit command again to confirm\\\
+  n\\nHere is a list of all of your changes:\\n\\n<diff>\\n{{diff}}\\n</diff>\\n\"\
+  ]},\"submit_command\":\"submit\",\"parse_function\":{\"error_message\":\"{%- if\
+  \ error_code == \\\"missing\\\" -%}\\nYour last output did not use any tool calls!\\\
+  nPlease make sure your output includes exactly _ONE_ function call!\\nYou must invoke\
+  \ the function directly using the function call format.\\nYou cannot invoke commands\
+  \ with ```, you have to use the function call format.\\nIf you think you have already\
+  \ resolved the issue, please submit your changes by running the `submit` command.\\\
+  nIf you think you cannot solve the problem, please run `exit_forfeit` (if available)\
+  \ or `submit`.\\nElse, please continue with a new tool call!\\n{%- elif error_code\
+  \ == \\\"multiple\\\" -%}\\nYour last output included multiple tool calls!\\nPlease\
+  \ make sure your output includes a thought and exactly _ONE_ function call.\\n{%-\
+  \ elif error_code == \\\"unexpected_arg\\\" -%}\\nYour action could not be parsed\
+  \ properly: {{exception_message}}.\\nMake sure your function call doesn't include\
+  \ any extra arguments that are not in the allowed arguments, and only use the allowed\
+  \ commands.\\n{%- else -%}\\nYour action could not be parsed properly: {{exception_message}}.\\\
+  n{% endif %}\\n\",\"type\":\"function_calling\"},\"enable_bash_tool\":true,\"format_error_template\"\
+  :\"{%- if error_code == \\\"missing\\\" -%}\\nYour last output did not use any tool\
+  \ calls!\\nPlease make sure your output includes exactly _ONE_ function call!\\\
+  nYou must invoke the function directly using the function call format.\\nYou cannot\
+  \ invoke commands with ```, you have to use the function call format.\\nIf you think\
+  \ you have already resolved the issue, please submit your changes by running the\
+  \ `submit` command.\\nIf you think you cannot solve the problem, please run `exit_forfeit`\
+  \ (if available) or `submit`.\\nElse, please continue with a new tool call!\\n{%-\
+  \ elif error_code == \\\"multiple\\\" -%}\\nYour last output included multiple tool\
+  \ calls!\\nPlease make sure your output includes a thought and exactly _ONE_ function\
+  \ call.\\n{%- elif error_code == \\\"unexpected_arg\\\" -%}\\nYour action could\
+  \ not be parsed properly: {{exception_message}}.\\nMake sure your function call\
+  \ doesn't include any extra arguments that are not in the allowed arguments, and\
+  \ only use the allowed commands.\\n{%- else -%}\\nYour action could not be parsed\
+  \ properly: {{exception_message}}.\\n{% endif %}\\n\",\"command_docs\":\"bash:\\\
+  n  docstring: runs the given command directly in bash\\n  signature: <command>\\\
+  n  arguments:\\n    - command (string) [required]: The bash command to execute.\\\
+  n\\nstr_replace_editor:\\n  docstring: Custom editing tool for viewing, creating\
+  \ and editing files * State is persistent across command calls and discussions with\
+  \ the user * If `path` is a file, `view` displays the result of applying `cat -n`.\
+  \ If `path` is a directory, `view` lists non-hidden files and directories up to\
+  \ 2 levels deep * The `create` command cannot be used if the specified `path` already\
+  \ exists as a file * If a `command` generates a long output, it will be truncated\
+  \ and marked with `<response clipped>` * The `undo_edit` command will revert the\
+  \ last edit made to the file at `path`\\nNotes for using the `str_replace` command:\
+  \ * The `old_str` parameter should match EXACTLY one or more consecutive lines from\
+  \ the original file. Be mindful of whitespaces! * If the `old_str` parameter is\
+  \ not unique in the file, the replacement will not be performed. Make sure to include\
+  \ enough context in `old_str` to make it unique * The `new_str` parameter should\
+  \ contain the edited lines that should replace the `old_str`\\n\\n  signature: str_replace_editor\
+  \ <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>] [<insert_line>]\\\
+  n\\n  arguments:\\n    - command (string) [required]: The commands to run. Allowed\
+  \ options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\\n    - path\
+  \ (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`\
+  \ or `/testbed`.\\n    - file_text (string) [optional]: Required parameter of `create`\
+  \ command, with the content of the file to be created.\\n    - old_str (string)\
+  \ [optional]: Required parameter of `str_replace` command containing the string\
+  \ in `path` to replace.\\n    - new_str (string) [optional]: Optional parameter\
+  \ of `str_replace` command containing the new string (if not given, no string will\
+  \ be added). Required parameter of `insert` command containing the string to insert.\\\
+  n    - insert_line (integer) [optional]: Required parameter of `insert` command.\
+  \ The `new_str` will be inserted AFTER the line `insert_line` of `path`.\\n    -\
+  \ view_range (array) [optional]: Optional parameter of `view` command when `path`\
+  \ points to a file. If none is given, the full file is shown. If provided, the file\
+  \ will be shown in the indicated line number range, e.g. [11, 12] will show lines\
+  \ 11 and 12. Indexing at 1 to start. Setting `[start_line, -1]` shows all lines\
+  \ from `start_line` to the end of the file.\\n\\nsubmit:\\n  docstring: submits\
+  \ the current file\\n  signature: submit\\n\\n\",\"multi_line_command_endings\"\
+  :{},\"submit_command_end_name\":null,\"reset_commands\":[],\"execution_timeout\"\
+  :300,\"install_timeout\":300,\"total_execution_timeout\":1800,\"max_consecutive_execution_timeouts\"\
+  :3},\"history_processors\":[],\"model\":{\"name\":\"bedrock/qwen.qwen3-coder-480b-a35b-v1:0\"\
+  ,\"per_instance_cost_limit\":0.0,\"total_cost_limit\":0.0,\"per_instance_call_limit\"\
+  :115,\"temperature\":0.7,\"top_p\":1.0,\"api_base\":null,\"api_version\":null,\"\
+  api_key\":\"**********\",\"stop\":[],\"completion_kwargs\":{},\"convert_system_to_user\"\
+  :false,\"retry\":{\"retries\":20,\"min_wait\":10.0,\"max_wait\":120.0},\"delay\"\
+  :0.0,\"fallbacks\":[],\"choose_api_key_by_thread\":true,\"max_input_tokens\":null,\"\
+  max_output_tokens\":null,\"litellm_model_registry\":\"/Users/metamyth/projects/sera/configs/litellm_model_registry.json\"\
+  ,\"custom_tokenizer\":null},\"max_requeries\":3,\"action_sampler\":null,\"type\"\
+  :\"default\"},\"problem_statement\":{\"text\":\"\\n## Title: Implement missing find_gscn_to_scan\
+  \ function for NR synchronization\\n\\n### Summary\\nThe `find_gscn_to_scan` function\
+  \ was referenced in the codebase but never implemented, causing undefined behavior\
+  \ when trying to determine GSCN (Global Synchronization Channel Number) values for\
+  \ NR cell search. This function is critical for UE synchronization as it provides\
+  \ the list of GSCN values that need to be scanned for a given frequency band and\
+  \ subcarrier spacing.\\n\\nWhen users attempted to call `find_gscn_to_scan()`, their\
+  \ application would either fail to link or crash at runtime due to the missing implementation.\
+  \ The function is now properly implemented in `nr_common.c` with a corresponding\
+  \ declaration in `nr_common.h`.\\n\\nThe implementation includes the complete synchronization\
+  \ raster table data from 3GPP TS 38.101-1/2 Table 5.4.3.3-1, supporting all defined\
+  \ NR bands and subcarrier spacing combinations. It correctly handles different step\
+  \ sizes for various band/SCS pairs and respects the maximum GSCN count parameter.\\\
+  n\\n### Changes\\n- `common/utils/nr/nr_common.h`: Added function declaration for\
+  \ `find_gscn_to_scan`\\n- `common/utils/nr/nr_common.c`: Implemented `find_gscn_to_scan`\
+  \ function with full sync raster table\\n- The function returns the number of GSCN\
+  \ values found or -1 for invalid band/SCS combinations\\n- Properly handles step\
+  \ sizes greater than 1 (e.g., Band 79 with SCS 1 uses step size 16)\\n- Respects\
+  \ the `max_gscn` parameter to limit returned values\\n\\n\",\"extra_fields\":{\"\
+  bug_description\":\"ASN.1 encoding error producing malformed protocol message\"\
+  ,\"bug_id\":\"telecom_asn1_encoding_error\",\"stage_one_patch\":\"diff --git a/common/utils/nr/nr_common.c\
+  \ b/common/utils/nr/nr_common.c\\nindex 860d31f605..8f09479d47 100644\\n--- a/common/utils/nr/nr_common.c\\\
+  n+++ b/common/utils/nr/nr_common.c\\n@@ -454,11 +454,11 @@ int get_nr_table_idx(int\
+  \ nr_bandP, uint8_t scs_index) {\\n int get_subband_size(int NPRB,int size) {\\\
+  n   // implements table  5.2.1.4-2 from 36.214\\n   //\\n-  //Bandwidth part (PRBs)\\\
+  tSubband size (PRBs)\\n-  // < 24\\t                   N/A\\n-  //24 \u2013 72\\\
+  t                   4, 8\\n-  //73 \u2013 144\\t                   8, 16\\n-  //145\
+  \ \u2013 275\\t                  16, 32\\n+  //Bandwidth part (PRBs)       Subband\
+  \ size (PRBs)\\n+  // < 24                          N/A\\n+  //24 \u2013 72    \
+  \                    4, 8\\n+  //73 \u2013 144                       8, 16\\n+ \
+  \ //145 \u2013 275                     16, 32\\n \\n   if (NPRB<24) return(1);\\\
+  n   if (NPRB<72) return (size==0 ? 4 : 8);\\n@@ -606,7 +606,7 @@ void get_samplerate_and_bw(int\
+  \ mu,\\n \\n     case 133 :\\n       if (threequarter_fs) {\\n-\\tAssertFatal(1==0,\\\
+  \"N_RB %d cannot use 3/4 sampling\\\\n\\\",n_rb);\\n+        AssertFatal(1==0,\\\
+  \"N_RB %d cannot use 3/4 sampling\\\\n\\\",n_rb);\\n       }\\n       else {\\n\
+  \         *sample_rate=61.44e6;\\n@@ -832,3 +832,84 @@ int get_NREsci2_2(const int\
+  \ sci2_alpha,\\n   uint8_t gamma = 12 - (min_val % 12);\\n   return min_val + (gamma\
+  \ % 12);\\n }\\n+\\n+// Function to find GSCN values to scan for a given band and\
+  \ SCS\\n+// Returns the number of GSCN values found, or -1 on error\\n+int find_gscn_to_scan(int\
+  \ band, int scs, int *gscn_list, int max_gscn) {\\n+  // synchronization raster\
+  \ per band tables (Rel.15)\\n+  // (38.101-1 Table 5.4.3.3-1 and 38.101-2 Table\
+  \ 5.4.3.3-1)\\n+  // band nb, sub-carrier spacing index, Range of gscn (First, Step\
+  \ size, Last)\\n+  const sync_raster_t sync_raster[] = {\\n+    {1, 0, 5279, 1,\
+  \ 5419},\\n+    {2, 0, 4829, 1, 4969},\\n+    {3, 0, 4517, 1, 4693},\\n+    {5,\
+  \ 0, 2177, 1, 2230},\\n+    {5, 1, 2183, 1, 2224},\\n+    {7, 0, 6554, 1, 6718},\\\
+  n+    {8, 0, 2318, 1, 2395},\\n+    {12, 0, 1828, 1, 1858},\\n+    {20, 0, 1982,\
+  \ 1, 2047},\\n+    {25, 0, 4829, 1, 4981},\\n+    {28, 0, 1901, 1, 2002},\\n+  \
+  \  {34, 0, 5030, 1, 5056},\\n+    {38, 0, 6431, 1, 6544},\\n+    {39, 0, 4706, 1,\
+  \ 4795},\\n+    {40, 1, 5762, 1, 5989},\\n+    {41, 0, 6246, 3, 6717},\\n+    {41,\
+  \ 1, 6252, 3, 6714},\\n+    {48, 1, 7884, 1, 7982},\\n+    {50, 0, 3584, 1, 3787},\\\
+  n+    {51, 0, 3572, 1, 3574},\\n+    {66, 0, 5279, 1, 5494},\\n+    {66, 1, 5285,\
+  \ 1, 5488},\\n+    {70, 0, 4993, 1, 5044},\\n+    {71, 0, 1547, 1, 1624},\\n+  \
+  \  {74, 0, 3692, 1, 3790},\\n+    {75, 0, 3584, 1, 3787},\\n+    {76, 0, 3572, 1,\
+  \ 3574},\\n+    {77, 1, 7711, 1, 8329},\\n+    {78, 1, 7711, 1, 8051},\\n+    {79,\
+  \ 1, 8480, 16, 8880},\\n+    {257, 3, 22388, 1, 22558},\\n+    {257, 4, 22390, 2,\
+  \ 22556},\\n+    {258, 3, 22257, 1, 22443},\\n+    {258, 4, 22258, 2, 22442},\\\
+  n+    {260, 3, 22995, 1, 23166},\\n+    {260, 4, 22996, 2, 23164},\\n+    {261,\
+  \ 3, 22446, 1, 22492},\\n+    {261, 4, 22446, 2, 22490},\\n+  };\\n+  \\n+  const\
+  \ int sizeof_sync_raster = sizeof(sync_raster) / sizeof(sync_raster_t);\\n+  \\\
+  n+  int start_gscn = 0, step_gscn = 0, end_gscn = 0;\\n+  int found = 0;\\n+  \\\
+  n+  // Find the GSCN range for the given band and SCS\\n+  for (int i = 0; i < sizeof_sync_raster;\
+  \ i++) {\\n+    if (sync_raster[i].band == band &&\\n+        sync_raster[i].scs_index\
+  \ == scs) {\\n+      start_gscn = sync_raster[i].first_gscn;\\n+      step_gscn\
+  \ = sync_raster[i].step_gscn;\\n+      end_gscn = sync_raster[i].last_gscn;\\n+\
+  \      found = 1;\\n+      break;\\n+    }\\n+  }\\n+  \\n+  // If we didn't find\
+  \ the band/SCS combination, return error\\n+  if (!found) {\\n+    return -1;\\\
+  n+  }\\n+  \\n+  // Generate the list of GSCN values to scan\\n+  int count = 0;\\\
+  n+  for (int gscn = start_gscn; gscn <= end_gscn; gscn += step_gscn) {\\n+    if\
+  \ (count >= max_gscn) {\\n+      break;\\n+    }\\n+    gscn_list[count++] = gscn;\\\
+  n+  }\\n+  \\n+  return count;\\n+}\\ndiff --git a/common/utils/nr/nr_common.h b/common/utils/nr/nr_common.h\\\
+  nindex b244a3f804..53e71e6084 100644\\n--- a/common/utils/nr/nr_common.h\\n+++ b/common/utils/nr/nr_common.h\\\
+  n@@ -129,6 +129,10 @@ int get_NREsci2(const int sci2_alpha,\\n int get_ssb_subcarrier_offset(uint32_t\
+  \ absoluteFrequencySSB, uint32_t absoluteFrequencyPointA);\\n \\n \\n+// Function\
+  \ to find GSCN values to scan for a given band and SCS\\n+int find_gscn_to_scan(int\
+  \ band, int scs, int *gscn_list, int max_gscn);\\n+\\n+\\n #define CEILIDIV(a,b)\
+  \ ((a+b-1)/b)\\n #define ROUNDIDIV(a,b) (((a<<1)+b)/(b<<1))\\n \\ndiff --git a/openair2/GNB_APP/gnb_config.c\
+  \ b/openair2/GNB_APP/gnb_config.c\\nindex d724785399..5e64e2bce6 100644\\n--- a/openair2/GNB_APP/gnb_config.c\\\
+  n+++ b/openair2/GNB_APP/gnb_config.c\\n@@ -173,7 +173,7 @@ void prepare_scc(NR_ServingCellConfigCommon_t\
+  \ *scc) {\\n   dl_scs_SpecificCarrierList        = CALLOC(1,sizeof(struct NR_SCS_SpecificCarrier));\\\
+  n \\n   asn1cSeqAdd(&scc->downlinkConfigCommon->frequencyInfoDL->frequencyBandList.list,dl_frequencyBandList);\
+  \  \\n-  asn1cSeqAdd(&scc->downlinkConfigCommon->frequencyInfoDL->scs_SpecificCarrierList.list,dl_scs_SpecificCarrierList);\\\
+  t\\t   \\t\\t   \\n+  asn1cSeqAdd(&scc->downlinkConfigCommon->frequencyInfoDL->scs_SpecificCarrierList.list,dl_scs_SpecificCarrierList);\
+  \                               \\n   //  scc->downlinkConfigCommon->initialDownlinkBWP->genericParameters.cyclicPrefix\
+  \    = CALLOC(1,sizeof(long));\\n   scc->downlinkConfigCommon->initialDownlinkBWP->pdcch_ConfigCommon\
+  \                = CALLOC(1,sizeof(struct NR_SetupRelease_PDCCH_ConfigCommon));\\\
+  n   scc->downlinkConfigCommon->initialDownlinkBWP->pdcch_ConfigCommon->present=NR_SetupRelease_PDCCH_ConfigCommon_PR_setup;\
+  \ \\n@@ -260,7 +260,7 @@ void prepare_scc(NR_ServingCellConfigCommon_t *scc) {\\\
+  n \\n void fill_scc_sim(NR_ServingCellConfigCommon_t *scc,uint64_t *ssb_bitmap,int\
+  \ N_RB_DL,int N_RB_UL,int mu_dl,int mu_ul) {\\n \\n-  *scc->physCellId=0;\\t\\t\\\
+  t\\t\\t\\t\\t\\\\\\n+  *scc->physCellId=0;                                     \
+  \              \\\\\\n   //  *scc->n_TimingAdvanceOffset=NR_ServingCellConfigCommon__n_TimingAdvanceOffset_n0;\\\
+  n   *scc->ssb_periodicityServingCell=NR_ServingCellConfigCommon__ssb_periodicityServingCell_ms20;\\\
+  n   scc->dmrs_TypeA_Position=NR_ServingCellConfigCommon__dmrs_TypeA_Position_pos2;\\\
+  n@@ -440,7 +440,7 @@ void fix_scc(NR_ServingCellConfigCommon_t *scc,uint64_t ssbmap)\
+  \ {\\n \\n   // check pucch_ResourceConfig\\n   AssertFatal(*scc->uplinkConfigCommon->initialUplinkBWP->pucch_ConfigCommon->choice.setup->pucch_ResourceCommon\
+  \ < 2,\\n-\\t      \\\"pucch_ResourceConfig should be 0 or 1 for now\\\\n\\\");\\\
+  n+              \\\"pucch_ResourceConfig should be 0 or 1 for now\\\\n\\\");\\n\
+  \ }\\n \\n /* Function to allocate dedicated serving cell config strutures */\\\
+  n@@ -670,7 +670,7 @@ void RCconfig_nr_prs(void)\\n         RC.gNB[j]           \
+  \            = (PHY_VARS_gNB *)malloc(sizeof(PHY_VARS_gNB));\\n         LOG_I(NR_PHY,\\\
+  \"RC.gNB[%d] = %p\\\\n\\\",j,RC.gNB[j]);\\n         memset(RC.gNB[j],0,sizeof(PHY_VARS_gNB));\\\
+  n-\\t      RC.gNB[j]->Mod_id  = j;\\n+              RC.gNB[j]->Mod_id  = j;\\n \
+  \      }\\n \\n       RC.gNB[j]->prs_vars.NumPRSResources = *(PRS_ParamList.paramarray[j][NUM_PRS_RESOURCES].uptr);\\\
+  n@@ -1225,12 +1225,12 @@ void RCconfig_NRRRC(MessageDef *msg_p, uint32_t i, gNB_RRC_INST\
+  \ *rrc)\\n       sprintf(aprefix, \\\"%s.[%i].%s.[%i]\\\", GNB_CONFIG_STRING_GNB_LIST,0,GNB_CONFIG_STRING_SERVINGCELLCONFIGCOMMON,\
+  \ 0);\\n       config_get(SCCsParams,sizeof(SCCsParams) / sizeof(paramdef_t), aprefix);\\\
+  n       LOG_I(RRC,\\\"Read in ServingCellConfigCommon (PhysCellId %d, ABSFREQSSB\
+  \ %d, DLBand %d, ABSFREQPOINTA %d, DLBW %d,RACH_TargetReceivedPower %d\\\\n\\\"\
+  ,\\n-\\t    (int)*scc->physCellId,\\n-\\t    (int)*scc->downlinkConfigCommon->frequencyInfoDL->absoluteFrequencySSB,\\\
+  n-\\t    (int)*scc->downlinkConfigCommon->frequencyInfoDL->frequencyBandList.list.array[0],\\\
+  n-\\t    (int)scc->downlinkConfigCommon->frequencyInfoDL->absoluteFrequencyPointA,\\\
+  n-\\t    (int)scc->downlinkConfigCommon->frequencyInfoDL->scs_SpecificCarrierList.list.array[0]->carrierBandwidth,\\\
+  n-\\t    (int)scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->rach_ConfigGeneric.preambleReceivedTargetPower);\\\
+  n+            (int)*scc->physCellId,\\n+            (int)*scc->downlinkConfigCommon->frequencyInfoDL->absoluteFrequencySSB,\\\
+  n+            (int)*scc->downlinkConfigCommon->frequencyInfoDL->frequencyBandList.list.array[0],\\\
+  n+            (int)scc->downlinkConfigCommon->frequencyInfoDL->absoluteFrequencyPointA,\\\
+  n+            (int)scc->downlinkConfigCommon->frequencyInfoDL->scs_SpecificCarrierList.list.array[0]->carrierBandwidth,\\\
+  n+            (int)scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->rach_ConfigGeneric.preambleReceivedTargetPower);\\\
+  n       // SSB of the PCell is always on the sync raster\\n       uint64_t ssb_freq\
+  \ = from_nrarfcn(*scc->downlinkConfigCommon->frequencyInfoDL->frequencyBandList.list.array[0],\\\
+  n                                        *scc->ssbSubcarrierSpacing,\\n@@ -1312,11\
+  \ +1312,11 @@ void RCconfig_NRRRC(MessageDef *msg_p, uint32_t i, gNB_RRC_INST *rrc)\\\
+  n     \\n     for (k=0; k <num_gnbs ; k++) {\\n       if (strcmp(GNBSParams[GNB_ACTIVE_GNBS_IDX].strlistptr[k],\
+  \ *(GNBParamList.paramarray[i][GNB_GNB_NAME_IDX].strptr) )== 0) {\\n-\\t\\n+   \
+  \     \\n         char gnbpath[MAX_OPTNAME_SIZE + 8];\\n         sprintf(gnbpath,\\\
+  \"%s.[%i]\\\",GNB_CONFIG_STRING_GNB_LIST,k);\\n \\n-\\t\\n+        \\n         paramdef_t\
+  \ PLMNParams[] = GNBPLMNPARAMS_DESC;\\n \\n         paramlist_def_t PLMNParamList\
+  \ = {GNB_CONFIG_STRING_PLMN_LIST, NULL, 0};\\n@@ -1346,14 +1346,14 @@ void RCconfig_NRRRC(MessageDef\
+  \ *msg_p, uint32_t i, gNB_RRC_INST *rrc)\\n         NRRRC_CONFIGURATION_REQ(msg_p).num_plmn\
+  \ = PLMNParamList.numelt;\\n \\n         for (int l = 0; l < PLMNParamList.numelt;\
+  \ ++l) {\\n-\\t\\n-\\t  NRRRC_CONFIGURATION_REQ (msg_p).mcc[l]               = *PLMNParamList.paramarray[l][GNB_MOBILE_COUNTRY_CODE_IDX].uptr;\\\
+  n-\\t  NRRRC_CONFIGURATION_REQ (msg_p).mnc[l]               = *PLMNParamList.paramarray[l][GNB_MOBILE_NETWORK_CODE_IDX].uptr;\\\
+  n-\\t  NRRRC_CONFIGURATION_REQ (msg_p).mnc_digit_length[l]  = *PLMNParamList.paramarray[l][GNB_MNC_DIGIT_LENGTH].u8ptr;\\\
+  n-\\t  AssertFatal((NRRRC_CONFIGURATION_REQ (msg_p).mnc_digit_length[l] == 2) ||\\\
+  n-\\t\\t      (NRRRC_CONFIGURATION_REQ (msg_p).mnc_digit_length[l] == 3),\\\"BAD\
+  \ MNC DIGIT LENGTH %d\\\",\\n-\\t\\t      NRRRC_CONFIGURATION_REQ (msg_p).mnc_digit_length[l]);\\\
+  n-\\t}\\n+        \\n+          NRRRC_CONFIGURATION_REQ (msg_p).mcc[l]         \
+  \      = *PLMNParamList.paramarray[l][GNB_MOBILE_COUNTRY_CODE_IDX].uptr;\\n+   \
+  \       NRRRC_CONFIGURATION_REQ (msg_p).mnc[l]               = *PLMNParamList.paramarray[l][GNB_MOBILE_NETWORK_CODE_IDX].uptr;\\\
+  n+          NRRRC_CONFIGURATION_REQ (msg_p).mnc_digit_length[l]  = *PLMNParamList.paramarray[l][GNB_MNC_DIGIT_LENGTH].u8ptr;\\\
+  n+          AssertFatal((NRRRC_CONFIGURATION_REQ (msg_p).mnc_digit_length[l] ==\
+  \ 2) ||\\n+                      (NRRRC_CONFIGURATION_REQ (msg_p).mnc_digit_length[l]\
+  \ == 3),\\\"BAD MNC DIGIT LENGTH %d\\\",\\n+                      NRRRC_CONFIGURATION_REQ\
+  \ (msg_p).mnc_digit_length[l]);\\n+        }\\n         LOG_I(GNB_APP,\\\"pdsch_AntennaPorts\
+  \ N1 %d\\\\n\\\",*GNBParamList.paramarray[i][GNB_PDSCH_ANTENNAPORTS_N1_IDX].iptr);\\\
+  n         NRRRC_CONFIGURATION_REQ (msg_p).pdsch_AntennaPorts.N1 = *GNBParamList.paramarray[i][GNB_PDSCH_ANTENNAPORTS_N1_IDX].iptr;\\\
+  n         LOG_I(GNB_APP,\\\"pdsch_AntennaPorts N2 %d\\\\n\\\",*GNBParamList.paramarray[i][GNB_PDSCH_ANTENNAPORTS_N2_IDX].iptr);\\\
+  n@@ -1730,10 +1730,10 @@ int RCconfig_NR_X2(MessageDef *msg_p, uint32_t i) {\\n\
+  \             paramdef_t X2Params[]  = X2PARAMS_DESC;\\n             paramlist_def_t\
+  \ X2ParamList = {ENB_CONFIG_STRING_TARGET_ENB_X2_IP_ADDRESS,NULL,0};\\n        \
+  \     paramdef_t SCTPParams[]  = GNBSCTPPARAMS_DESC;\\n-\\t    char*           \
+  \  gnb_ipv4_address_for_NGU      = NULL;\\n-\\t    uint32_t          gnb_port_for_NGU\
+  \              = 0;\\n-\\t    char*             gnb_ipv4_address_for_S1U      =\
+  \ NULL;\\n-\\t    uint32_t          gnb_port_for_S1U              = 0;\\n+     \
+  \       char*             gnb_ipv4_address_for_NGU      = NULL;\\n+            uint32_t\
+  \          gnb_port_for_NGU              = 0;\\n+            char*             gnb_ipv4_address_for_S1U\
+  \      = NULL;\\n+            uint32_t          gnb_port_for_S1U              =\
+  \ 0;\\n \\n             paramdef_t NETParams[]  =  GNBNETPARAMS_DESC;\\n       \
+  \      /* TODO: fix the size - if set lower we have a crash (MAX_OPTNAME_SIZE was\
+  \ 64 when this code was written) */\\n@@ -1941,14 +1941,14 @@ int RCconfig_NR_DU_F1(MessageDef\
+  \ *msg_p, uint32_t i) {\\n         strcpy(f1Setup->CU_f1_ip_address.ipv4_address,\
+  \ RC.nrmac[k]->eth_params_n.remote_addr);\\n         LOG_I(GNB_APP,\\\"F1AP: DU_ip4_address\
+  \ in DU %s\\\\n\\\",RC.nrmac[k]->eth_params_n.my_addr);\\n         LOG_I(GNB_APP,\\\
+  \"FIAP: DU_ip4_address in DU %p, strlen %ld\\\\n\\\",\\n-\\t      f1Setup->DU_f1_ip_address.ipv4_address,\\\
+  n-\\t      strlen(RC.nrmac[k]->eth_params_n.my_addr));\\n+              f1Setup->DU_f1_ip_address.ipv4_address,\\\
+  n+              strlen(RC.nrmac[k]->eth_params_n.my_addr));\\n         f1Setup->DU_f1_ip_address.ipv6\
+  \ = 0;\\n         f1Setup->DU_f1_ip_address.ipv4 = 1;\\n         //strcpy(f1Setup->DU_f1_ip_address.ipv6_address,\
+  \ \\\"\\\");\\n         strcpy(f1Setup->DU_f1_ip_address.ipv4_address, RC.nrmac[k]->eth_params_n.my_addr);\\\
+  n-\\tf1Setup->DUport= RC.nrmac[k]->eth_params_n.my_portd;\\n-\\tf1Setup->CUport=\
+  \ RC.nrmac[k]->eth_params_n.remote_portd;\\n+        f1Setup->DUport= RC.nrmac[k]->eth_params_n.my_portd;\\\
+  n+        f1Setup->CUport= RC.nrmac[k]->eth_params_n.remote_portd;\\n         //strcpy(f1Setup->CU_ip_address[l].ipv6_address,*(F1ParamList.paramarray[l][ENB_CU_IPV6_ADDRESS_IDX].strptr));\\\
+  n         sprintf(aprefix,\\\"%s.[%i].%s\\\",GNB_CONFIG_STRING_GNB_LIST,k,GNB_CONFIG_STRING_SCTP_CONFIG);\\\
+  n         config_get(SCTPParams,sizeof(SCTPParams)/sizeof(paramdef_t),aprefix);\\\
+  n@@ -2226,7 +2226,7 @@ int gNB_app_handle_f1ap_setup_resp(f1ap_setup_resp_t *resp)\
+  \ {\\n                                    resp->cells_to_activate[j].SI_container[si_ind],\\\
+  n                                    resp->cells_to_activate[j].SI_container_length[si_ind]);\\\
+  n         }\\n-\\tret++;\\n+        ret++;\\n       } else {\\n         LOG_E(GNB_APP,\
+  \ \\\"F1 Setup Response not matching\\\\n\\\");\\n       }\\n@@ -2258,7 +2258,7\
+  \ @@ int gNB_app_handle_f1ap_gnb_cu_configuration_update(f1ap_gnb_cu_configuration_up\\\
+  n                                    gnb_cu_cfg_update->cells_to_activate[j].SI_container[si_ind],\\\
+  n                                    gnb_cu_cfg_update->cells_to_activate[j].SI_container_length[si_ind]);\\\
+  n         }\\n-\\tret++;\\n+        ret++;\\n       } else {\\n         LOG_E(GNB_APP,\
+  \ \\\"GNB_CU_CONFIGURATION_UPDATE not matching\\\\n\\\");\\n       }\\n\",\"start_fn\"\
+  :\"find_gscn_to_scan\",\"start_fn_file\":\"common/utils/nr/nr_common.c\",\"subsystem\"\
+  :\"common/utils/nr\"},\"type\":\"text\",\"id\":\"oai5g_776ca25_00850\"},\"output_dir\"\
+  :\"DEFAULT\",\"actions\":{\"open_pr\":false,\"pr_config\":{\"skip_if_commits_reference_issue\"\
+  :true},\"apply_patch_locally\":false},\"env_var_path\":null}"

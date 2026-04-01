@@ -1,0 +1,18 @@
+diff --git a/common/utils/T/tracer/gui/timeline.c b/common/utils/T/tracer/gui/timeline.c
+index d2373ff60a..a324de7623 100644
+--- a/common/utils/T/tracer/gui/timeline.c
++++ b/common/utils/T/tracer/gui/timeline.c
+@@ -46,10 +46,12 @@ static void allocate(gui *_gui, widget *_this,
+   this->common.height = height;
+   LOGD("ALLOCATE timeline %p xywh %d %d %d %d\n", this, x, y, width, height);
+   for (i = 0; i < this->n; i++) {
++    int old_width = this->s[i].width;
+     this->s[i].width = width;
+     this->s[i].color = realloc(this->s[i].color, width * sizeof(int));
+     if (this->s[i].color == NULL) abort();
+-    for (j = 0; j < width; j++) this->s[i].color[j] = -1;
++    /* Initialize only the new elements to -1 if width increased */
++    for (j = old_width; j < width; j++) this->s[i].color[j] = -1;
+   }
+   gui_notify(_gui, "resize", _this, &width);
+ }

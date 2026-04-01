@@ -1,0 +1,93 @@
+diff --git a/common/utils/telnetsrv/telnetsrv.c b/common/utils/telnetsrv/telnetsrv.c
+index 1b25007978..bda22a734e 100644
+--- a/common/utils/telnetsrv/telnetsrv.c
++++ b/common/utils/telnetsrv/telnetsrv.c
+@@ -778,8 +778,8 @@ void run_telnetclt(void) {
+           memset(inbuf,0,sizeof(inbuf)); 
+           rv = recv(sock , inbuf , sizeof(inbuf)-1 , 0);
+           if (rv  > 0) {
+-				 printf("%s",inbuf);
+-			  }
++                                 printf("%s",inbuf);
++                          }
+           else if (rv == 0) {
+               printf("Connection closed by the remote end\n\r");
+               break;
+@@ -790,11 +790,11 @@ void run_telnetclt(void) {
+           }
+       }       
+       else if (FD_ISSET(STDIN_FILENO , &fds)) {
+-		char *inbuf=NULL;  
+-      	size_t inlen=0; 
++                char *inbuf=NULL;  
++        size_t inlen=0; 
+         inlen = getline( &inbuf,&inlen, stdin);
+         if ( inlen > 0 ) {
+-      	  if ( send(sock, inbuf,inlen, 0) < 0) 
++          if ( send(sock, inbuf,inlen, 0) < 0) 
+               break;
+           }
+         free(inbuf); 
+@@ -806,14 +806,14 @@ void run_telnetclt(void) {
+ } /* run_telnetclt */
+ 
+ void poll_telnetcmdq(void *qid, void *arg) {
+-	notifiedFIFO_elt_t *msg = pollNotifiedFIFO((notifiedFIFO_t *)qid);
+-	
+-	if (msg != NULL) {
+-	  telnetsrv_qmsg_t *msgdata=NotifiedFifoData(msg);
+-	  msgdata->cmdfunc(msgdata->cmdbuff,msgdata->debug,msgdata->prnt,arg);
+-	  free(msgdata->cmdbuff);
+-	  delNotifiedFIFO_elt(msg);
+-	}
++        notifiedFIFO_elt_t *msg = pollNotifiedFIFO((notifiedFIFO_t *)qid);
++        
++        if (msg != NULL) {
++          telnetsrv_qmsg_t *msgdata=NotifiedFifoData(msg);
++          msgdata->cmdfunc(msgdata->cmdbuff,msgdata->debug,msgdata->prnt,arg);
++          free(msgdata->cmdbuff);
++          delNotifiedFIFO_elt(msg);
++        }
+ }
+ /*------------------------------------------------------------------------------------------------*/
+ /* load the commands delivered with the telnet server
+@@ -943,16 +943,23 @@ int  telnetsrv_checkbuildver(char *mainexec_buildversion, char **shlib_buildvers
+ #endif
+   *shlib_buildversion = PACKAGE_VERSION;
+ 
++  // Handle NULL case gracefully
++  if (mainexec_buildversion == NULL) {
++    fprintf(stderr,"[TELNETSRV] NULL main executable version, cannot verify compatibility\n");
++    return -1; // Return -1 on error condition
++  }
++
+   if (strcmp(mainexec_buildversion, *shlib_buildversion) != 0) {
+     fprintf(stderr,"[TELNETSRV] shared lib version %s, doesn't match main version %s, compatibility should be checked\n",
+             mainexec_buildversion,*shlib_buildversion);
++    return -1; // Return -1 on version mismatch to abort loading
+   }
+ 
+   return 0;
+ }
+ 
+ int telnetsrv_getfarray(loader_shlibfunc_t  **farray) {
+-  int const num_func_tln_srv = 3;	
++  int const num_func_tln_srv = 3;       
+   *farray = malloc(sizeof(loader_shlibfunc_t) * num_func_tln_srv);
+   (*farray)[0].fname=TELNET_ADDCMD_FNAME;
+   (*farray)[0].fptr=(int (*)(void) )add_telnetcmd;
+diff --git a/common/utils/telnetsrv/telnetsrv.h b/common/utils/telnetsrv/telnetsrv.h
+index 6c1c20125e..26cd74ecdb 100644
+--- a/common/utils/telnetsrv/telnetsrv.h
++++ b/common/utils/telnetsrv/telnetsrv.h
+@@ -174,6 +174,10 @@ typedef struct {
+ 
+ typedef void(*settelnetmodule_t)(char *name, void *ptr); 
+ 
++typedef int(*checkverfunc_t)(char * mainexec_version, char ** shlib_version);
++
++int telnetsrv_checkbuildver(char *mainexec_buildversion, char **shlib_buildversion); 
++
+ /*-------------------------------------------------------------------------------------------*/
+ /* 
+ VT escape sequence definition, for smarter display....

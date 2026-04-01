@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix missing state validation in gNB tracer GUI click handler\n\n### Summary\nThe gNB tracer GUI click handler was missing validation of the connection state before processing button clicks. This could lead to inconsistent UI behavior when buttons are clicked while the tracer is disconnected from the gNB.\n\nThe issue occurred because the click handler directly modified UE state without checking if the underlying socket connection was still valid. Under network disconnect conditions, this could cause the UI to become unresponsive or display incorrect UE information.\n\n### Changes\n- `common/utils/T/tracer/gnb.c`: Added socket state validation in click handler before processing UE navigation buttons\n"
+}

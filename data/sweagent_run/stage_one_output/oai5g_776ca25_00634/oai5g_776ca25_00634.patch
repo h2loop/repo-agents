@@ -1,0 +1,17 @@
+diff --git a/openair3/NAS/COMMON/IES/GutiType.c b/openair3/NAS/COMMON/IES/GutiType.c
+index a9921eedd8..b1eb959ec6 100644
+--- a/openair3/NAS/COMMON/IES/GutiType.c
++++ b/openair3/NAS/COMMON/IES/GutiType.c
+@@ -77,6 +77,12 @@ uint8_t encode_u8_guti_type(GutiType *gutitype)
+   uint8_t *buffer = &bufferReturn;
+   uint8_t encoded = 0;
+   uint8_t iei = 0;
++  
++  /* Check for null pointer */
++  if (gutitype == NULL) {
++    return 0;
++  }
++  
+ #if defined (NAS_DEBUG)
+   dump_guti_type_xml(gutitype, 0);
+ #endif

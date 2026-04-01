@@ -1,0 +1,37 @@
+{
+  "run_id": "s00084_401d60",
+  "function": {
+    "name": "vnf_p7_connection_info_list_find",
+    "file": "nfapi/open-nFAPI/vnf/src/vnf_p7.c",
+    "start_line": 92,
+    "end_line": 103,
+    "body_lines": 12,
+    "signature": "nfapi_vnf_p7_connection_info_t* vnf_p7_connection_info_list_find(vnf_p7_t* vnf_p7, uint16_t phy_id)",
+    "subsystem": "nfapi/open-nFAPI/vnf",
+    "token_estimate": 40
+  },
+  "bug": {
+    "bug_id": "c_missing_null_check_after_alloc",
+    "description": "missing NULL check after memory allocation that can fail",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a missing NULL check after memory allocation that can fail downstream of function vnf_p7_connection_info_list_find in the nfapi/open-nFAPI/vnf subsystem.\nThe function is located at nfapi/open-nFAPI/vnf/src/vnf_p7.c:92.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00084_401d60_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00084_401d60_p1.diff",
+  "patch_lines": 10,
+  "trajectory_steps": 32,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:05:40Z"
+}

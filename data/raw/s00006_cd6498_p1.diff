@@ -1,0 +1,23 @@
+diff --git a/openair2/RRC/LTE/rrc_eNB_M2AP.c b/openair2/RRC/LTE/rrc_eNB_M2AP.c
+index 63760907fd..154bf81796 100644
+--- a/openair2/RRC/LTE/rrc_eNB_M2AP.c
++++ b/openair2/RRC/LTE/rrc_eNB_M2AP.c
+@@ -1009,11 +1009,16 @@ static uint8_t rrc_M2AP_do_SIB23_SIB13(
+     return(-1);
+   }
+ 
++  carrier->MBMS_flag = 1;
++
+   rrc_mac_config_req_eNB_t tmp = {0};
+   tmp.CC_id = CC_id;
+-  tmp.mbsfn_AreaInfoList = &carrier->sib13->mbsfn_AreaInfoList_r9;
++  tmp.rnti = 0xfffd;
++  tmp.mbsfn_SubframeConfigList = carrier->sib2->mbsfn_SubframeConfigList;
+   tmp.MBMS_Flag = carrier->MBMS_flag;
+-  rrc_mac_config_req_eNB(ctxt_pP->module_id, &tmp);
++  tmp.mbsfn_AreaInfoList = &carrier->sib13->mbsfn_AreaInfoList_r9;
++  tmp.FeMBMS_Flag = carrier->FeMBMS_flag;
++  rrc_mac_config_req_eNB(Mod_id, &tmp);
+ 
+   RC.rrc[ctxt_pP->module_id]->carrier[CC_id].sizeof_SIB23 = ((enc_rval.encoded+7)/8);
+  

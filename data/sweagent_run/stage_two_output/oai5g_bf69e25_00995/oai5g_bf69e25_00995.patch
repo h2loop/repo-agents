@@ -1,0 +1,26 @@
+diff --git a/openair1/PHY/NR_UE_ESTIMATION/nr_ue_measurements.c b/openair1/PHY/NR_UE_ESTIMATION/nr_ue_measurements.c
+index 8a59470cbf..9f4461d741 100644
+--- a/openair1/PHY/NR_UE_ESTIMATION/nr_ue_measurements.c
++++ b/openair1/PHY/NR_UE_ESTIMATION/nr_ue_measurements.c
+@@ -503,7 +503,21 @@ void do_neighboring_cell_measurements(UE_nr_rxtx_proc_t *proc, PHY_VARS_NR_UE *u
+ 
+ void nr_ue_meas_neighboring_cell(void *arg)
+ {
++  // Check if arg is NULL
++  if (arg == NULL) {
++    LOG_E(PHY, "NULL argument passed to nr_ue_meas_neighboring_cell\n");
++    return;
++  }
++
+   nr_meas_task_args_t *args = (nr_meas_task_args_t *)arg;
++
++  // Check if UE structure is NULL
++  if (args->ue == NULL) {
++    LOG_E(PHY, "NULL UE structure in nr_meas_task_args_t\n");
++    free(args);
++    return;
++  }
++
+   do_neighboring_cell_measurements(&args->proc, args->ue, args->rxdata, args->rxdata_size);
+ 
+   args->ue->measurements.meas_request_pending = false;

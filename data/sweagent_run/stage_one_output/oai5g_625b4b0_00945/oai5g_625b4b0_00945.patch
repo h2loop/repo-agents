@@ -1,0 +1,44 @@
+diff --git a/openair3/NAS/UE/API/USER/at_command.c b/openair3/NAS/UE/API/USER/at_command.c
+index a6591c6748..67e27da99e 100644
+--- a/openair3/NAS/UE/API/USER/at_command.c
++++ b/openair3/NAS/UE/API/USER/at_command.c
+@@ -766,6 +766,7 @@ static int parse_cgsn_test(const char* string, int position, at_command_t* at_co
+ {
+   /* CGSN test command - No parameter */
+   at_command->id = AT_CGSN;
++  at_command->mask = AT_COMMAND_CGSN_MASK;
+   return at_command->id;
+ }
+ 
+@@ -781,6 +782,7 @@ static int parse_cgmi_test(const char* string, int position, at_command_t* at_co
+ {
+   /* CGMI test command - No parameter */
+   at_command->id = AT_CGMI;
++  at_command->mask = AT_COMMAND_CGMI_MASK;
+   return at_command->id;
+ }
+ 
+@@ -796,6 +798,7 @@ static int parse_cgmm_test(const char* string, int position, at_command_t* at_co
+ {
+   /* CGMM test command - No parameter */
+   at_command->id = AT_CGMM;
++  at_command->mask = AT_COMMAND_CGMM_MASK;
+   return at_command->id;
+ }
+ 
+@@ -811,6 +814,7 @@ static int parse_cgmr_test(const char* string, int position, at_command_t* at_co
+ {
+   /* CGMR test command - No parameter */
+   at_command->id = AT_CGMR;
++  at_command->mask = AT_COMMAND_CGMR_MASK;
+   return at_command->id;
+ }
+ 
+@@ -826,6 +830,7 @@ static int parse_cimi_test(const char* string, int position, at_command_t* at_co
+ {
+   /* CIMI test command - No parameter */
+   at_command->id = AT_CIMI;
++  at_command->mask = AT_COMMAND_CIMI_MASK;
+   return at_command->id;
+ }
+ 

@@ -1,0 +1,32 @@
+{
+  "run_id": "s00095_40101f",
+  "function": {
+    "name": "init_transport",
+    "file": "executables/lte-enb.c",
+    "start_line": 1062,
+    "end_line": 1113,
+    "body_lines": 52,
+    "signature": "void init_transport(PHY_VARS_eNB *eNB)",
+    "subsystem": "executables",
+    "token_estimate": 154
+  },
+  "bug": {
+    "bug_id": "c_string_buffer_overrun",
+    "description": "string buffer overrun from unbounded string copy or concatenation",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/NAS",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a string buffer overrun from unbounded string copy or concatenation downstream of function init_transport in the executables subsystem.\nThe function is located at executables/lte-enb.c:1062.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00095_40101f_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00095_40101f_p1.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 38,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:08:08Z"
+}

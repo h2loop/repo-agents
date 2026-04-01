@@ -1,0 +1,9 @@
+{
+  "run_id": "s00494_601d86",
+  "pr_text": "## Title: Fix stack buffer overflow in X2AP eNB instance initialization\n\n### Summary\nThe X2AP eNB instance initialization code in `x2ap_eNB.c` lacked validation of the `num_cc` (number of component carriers) parameter received from the registration request. An unbounded value could exceed the `MAX_NUM_CCs` constant (defined as 8), leading to stack buffer overflows in downstream operations that use `num_cc` to index into fixed-size arrays. This fix adds an explicit bounds check before initializat",
+  "trajectory_path": "data/raw/s00494_601d86_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00494_601d86_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 15,
+  "timestamp": "2026-02-10T13:41:35Z"
+}

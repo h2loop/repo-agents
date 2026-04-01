@@ -1,0 +1,9 @@
+{
+  "run_id": "s00387_bd2334",
+  "pr_text": "## Title: Fix resource leak in get_prb_blacklist config parsing\n\n### Summary\nThe `get_prb_blacklist()` function in the gNB configuration module leaks resources when encountering early return conditions. The function initializes the configuration module via `config_get_if()` but fails to properly clean it up on error paths, leading to accumulated memory leaks and potential resource exhaustion during repeated configuration reloads.\n\nThe leak occurs specifically when the UL PRB blacklist configurat",
+  "trajectory_path": "data/raw/s00387_bd2334_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00387_bd2334_p2.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 14,
+  "timestamp": "2026-02-10T13:02:30Z"
+}

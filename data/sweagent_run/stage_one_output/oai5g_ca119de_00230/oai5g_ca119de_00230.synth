@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix redundant computation in LDPC encoder for Zc=176\n\n### Summary\nThe LDPC encoder function `ldpc_BG2_Zc176_byte` was performing the same set of parity check computations 11 times redundantly due to an unnecessary loop. This caused significant performance degradation in the channel coding path.\n\n### Changes\n- `openair1/PHY/CODING/nrLDPC_encoder/ldpc_BG2_Zc176_byte.c`: Removed the outer loop that was causing redundant computations and adjusted pointer assignments accordingly.\n\n### Reproduction\nUnder high throughput scenarios with NR LDPC encoding enabled, users may observe higher than expected CPU utilization and reduced MAC layer throughput. The issue manifests as the same XOR operations being computed multiple times unnecessarily for Zc=176 configurations.\n"
+}

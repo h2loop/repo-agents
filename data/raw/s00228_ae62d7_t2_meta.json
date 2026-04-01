@@ -1,0 +1,9 @@
+{
+  "run_id": "s00228_ae62d7",
+  "pr_text": "## Title: Add NULL check for pusch_Config before compute_precoding_information\n\n### Summary\nThe NR MAC gNB scheduler was missing a NULL pointer validation for `pusch_Config` before calling `compute_precoding_information()` in the uplink DCI configuration path. When `pusch_Config` is NULL (e.g., during initial configuration or reconfiguration phases), the code would dereference a NULL pointer, leading to undefined behavior and potential crashes.\n\nThis patch adds a defensive NULL check before invo",
+  "trajectory_path": "data/raw/s00228_ae62d7_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00228_ae62d7_p2.diff",
+  "patch_lines": 7,
+  "trajectory_steps": 17,
+  "timestamp": "2026-02-11T13:32:30Z"
+}

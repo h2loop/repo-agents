@@ -1,0 +1,13 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/config.c b/openair2/LAYER2/NR_MAC_gNB/config.c
+index 6dd3a073b7..1ccf83d42d 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/config.c
++++ b/openair2/LAYER2/NR_MAC_gNB/config.c
+@@ -104,7 +104,7 @@ void process_CellGroup(NR_CellGroupConfig_t *CellGroup, NR_UE_info_t *UE)
+   NR_SCHED_ENSURE_LOCKED(&RC.nrmac[0]->sched_lock);
+ 
+    AssertFatal(CellGroup, "CellGroup is null\n");
+-   NR_MAC_CellGroupConfig_t *mac_CellGroupConfig = CellGroup->mac_CellGroupConfig;
++   struct NR_MAC_CellGroupConfig *mac_CellGroupConfig = CellGroup->mac_CellGroupConfig;
+ 
+    if (mac_CellGroupConfig) {
+      //process_drx_Config(sched_ctrl,mac_CellGroupConfig->drx_Config);

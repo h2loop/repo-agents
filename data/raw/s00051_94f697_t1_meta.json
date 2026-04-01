@@ -1,0 +1,34 @@
+{
+  "run_id": "s00051_94f697",
+  "function": {
+    "name": "pack_ul_config_request_ulsch_rel8_value",
+    "file": "nfapi/open-nFAPI/nfapi/src/nfapi_p7.c",
+    "start_line": 680,
+    "end_line": 697,
+    "body_lines": 18,
+    "signature": "static uint8_t pack_ul_config_request_ulsch_rel8_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end)",
+    "subsystem": "nfapi/open-nFAPI/nfapi",
+    "token_estimate": 75
+  },
+  "bug": {
+    "bug_id": "c_incorrect_cast",
+    "description": "incorrect type cast causing data corruption or misinterpretation",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a incorrect type cast causing data corruption or misinterpretation downstream of function pack_ul_config_request_ulsch_rel8_value in the nfapi/open-nFAPI/nfapi subsystem.\nThe function is located at nfapi/open-nFAPI/nfapi/src/nfapi_p7.c:680.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00051_94f697_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00051_94f697_p1.diff",
+  "patch_lines": 18,
+  "trajectory_steps": 52,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:51:50Z"
+}

@@ -1,0 +1,243 @@
+diff --git a/openair2/M2AP/m2ap_MCE_generate_messages.c b/openair2/M2AP/m2ap_MCE_generate_messages.c
+index d513fcd3db..14bbbc2880 100644
+--- a/openair2/M2AP/m2ap_MCE_generate_messages.c
++++ b/openair2/M2AP/m2ap_MCE_generate_messages.c
+@@ -183,13 +183,13 @@ int m2ap_MCE_generate_m2_setup_response(m2ap_MCE_instance_t *instance_p, m2ap_MC
+   M2AP_M2AP_PDU_t                     pdu;
+   M2AP_M2SetupResponse_t              *out;
+   M2AP_M2SetupResponse_Ies_t          *ie;
+-  //M2AP_PLMN_Identity_t                *plmn;
+-  //ServedCells__Member                 *servedCellMember;
+-  //M2AP_GU_Group_ID_t                  *gu;
++  M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_ItemIEs_t *mcch_related_bcch_config_per_mbsfn_area_item_ies;
++  M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item_t *config_per_mbsfn_area_item;
+ 
+   uint8_t  *buffer;
+   uint32_t  len;
+   int       ret = 0;
++  int       i;
+ 
+   DevAssert(instance_p != NULL);
+   DevAssert(m2ap_MCE_data_p != NULL);
+@@ -202,103 +202,91 @@ int m2ap_MCE_generate_m2_setup_response(m2ap_MCE_instance_t *instance_p, m2ap_MC
+   pdu.choice.successfulOutcome.value.present = M2AP_SuccessfulOutcome__value_PR_M2SetupResponse;
+   out = &pdu.choice.successfulOutcome.value.choice.M2SetupResponse;
+ 
+-  /* mandatory */
++  /* mandatory - GlobalMCE_ID */
+   ie = (M2AP_M2SetupResponse_Ies_t *)calloc(1, sizeof(M2AP_M2SetupResponse_Ies_t));
+-  //ie->id = M2AP_ProtocolIE_ID_id_GlobalMCE_ID;
+-  //ie->criticality = M2AP_Criticality_reject;
+-  //ie->value.present = M2AP_M2SetupResponse_IEs__value_PR_GlobalMCE_ID;
+-  //MCC_MNC_TO_PLMNID(instance_p->mcc, instance_p->mnc, instance_p->mnc_digit_length,
+-  //                  &ie->value.choice.GlobalMCE_ID.pLMN_Identity);
+-  //ie->value.choice.GlobalMCE_ID.MCE_ID.present = M2AP_MCE_ID_PR_macro_MCE_ID;
+-  //MACRO_MCE_ID_TO_BIT_STRING(instance_p->MCE_id,
+-  //                           &ie->value.choice.GlobalMCE_ID.MCE_ID.choice.macro_MCE_ID);
+-  //M2AP_INFO("%d -> %02x%02x%02x\n", instance_p->MCE_id,
+-  //          ie->value.choice.GlobalMCE_ID.MCE_ID.choice.macro_MCE_ID.buf[0],
+-  //          ie->value.choice.GlobalMCE_ID.MCE_ID.choice.macro_MCE_ID.buf[1],
+-  //          ie->value.choice.GlobalMCE_ID.MCE_ID.choice.macro_MCE_ID.buf[2]);
++  ie->id = M2AP_ProtocolIE_ID_id_GlobalMCE_ID;
++  ie->criticality = M2AP_Criticality_reject;
++  ie->value.present = M2AP_M2SetupResponse_IEs__value_PR_GlobalMCE_ID;
++  MCC_MNC_TO_PLMNID(instance_p->mcc, instance_p->mnc, instance_p->mnc_digit_length,
++                    &ie->value.choice.GlobalMCE_ID.pLMN_Identity);
++  
++  MACRO_MCE_ID_TO_BIT_STRING(instance_p->MCE_id, &ie->value.choice.GlobalMCE_ID.mCE_ID);
++  
+   asn1cSeqAdd(&out->protocolIEs.list, ie);
+ 
+-  /* mandatory */
+-  ie = (M2AP_M2SetupResponse_Ies_t *)calloc(1, sizeof(M2AP_M2SetupResponse_Ies_t));
+-  //ie->id = M2AP_ProtocolIE_ID_id_ServedCells;
+-  //ie->criticality = M2AP_Criticality_reject;
+-  //ie->value.present = M2AP_M2SetupResponse_IEs__value_PR_ServedCells;
+-  //{
+-  //  for (int i = 0; i<instance_p->num_cc; i++){
+-  //    servedCellMember = (ServedCells__Member *)calloc(1,sizeof(ServedCells__Member));
+-  //    {
+-  //      servedCellMember->servedCellInfo.pCI = instance_p->Nid_cell[i];
+-
+-  //      MCC_MNC_TO_PLMNID(instance_p->mcc, instance_p->mnc, instance_p->mnc_digit_length,
+-  //                    &servedCellMember->servedCellInfo.cellId.pLMN_Identity);
+-  //      MACRO_MCE_ID_TO_CELL_IDENTITY(instance_p->MCE_id,0,
+-  //                                 &servedCellMember->servedCellInfo.cellId.eUTRANcellIdentifier);
+-
+-  //      INT16_TO_OCTET_STRING(instance_p->tac, &servedCellMember->servedCellInfo.tAC);
+-  //      plmn = (M2AP_PLMN_Identity_t *)calloc(1,sizeof(M2AP_PLMN_Identity_t));
+-  //      {
+-  //        MCC_MNC_TO_PLMNID(instance_p->mcc, instance_p->mnc, instance_p->mnc_digit_length, plmn);
+-  //        asn1cSeqAdd(&servedCellMember->servedCellInfo.broadcastPLMNs.list, plmn);
+-  //      }
+-
+-  //      if (instance_p->frame_type[i] == FDD) {
+-  //        servedCellMember->servedCellInfo.eUTRA_Mode_Info.present = M2AP_EUTRA_Mode_Info_PR_fDD;
+-  //        servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_EARFCN = instance_p->fdd_earfcn_DL[i];
+-  //        servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_EARFCN = instance_p->fdd_earfcn_UL[i];
+-  //        switch (instance_p->N_RB_DL[i]) {
+-  //          case 6:
+-  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_Transmission_Bandwidth = M2AP_Transmission_Bandwidth_bw6;
+-  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_Transmission_Bandwidth = M2AP_Transmission_Bandwidth_bw6;
+-  //            break;
+-  //          case 15:
+-  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_Transmission_Bandwidth = M2AP_Transmission_Bandwidth_bw15;
+-  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_Transmission_Bandwidth = M2AP_Transmission_Bandwidth_bw15;
+-  //            break;
+-  //          case 25:
+-  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_Transmission_Bandwidth = M2AP_Transmission_Bandwidth_bw25;
+-  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_Transmission_Bandwidth = M2AP_Transmission_Bandwidth_bw25;
+-  //            break;
+-  //          case 50:
+-  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_Transmission_Bandwidth = M2AP_Transmission_Bandwidth_bw50;
+-  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_Transmission_Bandwidth = M2AP_Transmission_Bandwidth_bw50;
+-  //            break;
+-  //          case 75:
+-  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_Transmission_Bandwidth = M2AP_Transmission_Bandwidth_bw75;
+-  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_Transmission_Bandwidth = M2AP_Transmission_Bandwidth_bw75;
+-  //            break;
+-  //          case 100:
+-  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_Transmission_Bandwidth = M2AP_Transmission_Bandwidth_bw100;
+-  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_Transmission_Bandwidth = M2AP_Transmission_Bandwidth_bw100;
+-  //            break;
+-  //          default:
+-  //            AssertFatal(0,"Failed: Check value for N_RB_DL/N_RB_UL");
+-  //            break;
+-  //        }
+-  //      }
+-  //      else {
+-  //        AssertFatal(0,"M2Setupresponse not supported for TDD!");
+-  //      }
+-  //    }
+-  //    asn1cSeqAdd(&ie->value.choice.ServedCells.list, servedCellMember);
+-  //  }
+-  //}
+-  asn1cSeqAdd(&out->protocolIEs.list, ie);
++  /* optional - MCEname */
++  if (instance_p->MCE_name != NULL) {
++    ie = (M2AP_M2SetupResponse_Ies_t *)calloc(1, sizeof(M2AP_M2SetupResponse_Ies_t));
++    ie->id = M2AP_ProtocolIE_ID_id_MCEname;
++    ie->criticality = M2AP_Criticality_ignore;
++    ie->value.present = M2AP_M2SetupResponse_IEs__value_PR_MCEname;
++    OCTET_STRING_fromBuf(&ie->value.choice.MCEname, instance_p->MCE_name,
++                         strlen(instance_p->MCE_name));
++    asn1cSeqAdd(&out->protocolIEs.list, ie);
++  }
+ 
+-  /* mandatory */
++  /* mandatory - MCCHrelatedBCCH_ConfigPerMBSFNArea */
+   ie = (M2AP_M2SetupResponse_Ies_t *)calloc(1, sizeof(M2AP_M2SetupResponse_Ies_t));
+-  //ie->id = M2AP_ProtocolIE_ID_id_GUGroupIDList;
+-  //ie->criticality = M2AP_Criticality_reject;
+-  //ie->value.present = M2AP_M2SetupResponse_IEs__value_PR_GUGroupIDList;
+-  //{
+-  //  gu = (M2AP_GU_Group_ID_t *)calloc(1, sizeof(M2AP_GU_Group_ID_t));
+-  //  {
+-  //    MCC_MNC_TO_PLMNID(instance_p->mcc, instance_p->mnc, instance_p->mnc_digit_length,
+-  //                  &gu->pLMN_Identity);
+-  //    //@TODO: consider to update this value
+-  //    INT16_TO_OCTET_STRING(0, &gu->mME_Group_ID);
+-  //  }
+-  //  asn1cSeqAdd(&ie->value.choice.GUGroupIDList.list, gu);
+-  //}
++  ie->id = M2AP_ProtocolIE_ID_id_MCCHrelatedBCCH_ConfigPerMBSFNArea;
++  ie->criticality = M2AP_Criticality_reject;
++  ie->value.present = M2AP_M2SetupResponse_IEs__value_PR_MCCHrelatedBCCH_ConfigPerMBSFNArea;
++
++  /* Add configuration items for each CC */
++  for (i = 0; i < instance_p->num_cc && i < 8; i++) {
++    mcch_related_bcch_config_per_mbsfn_area_item_ies = 
++      (M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_ItemIEs_t*)calloc(1, sizeof(M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_ItemIEs_t));
++    mcch_related_bcch_config_per_mbsfn_area_item_ies->id = M2AP_ProtocolIE_ID_id_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item;
++    mcch_related_bcch_config_per_mbsfn_area_item_ies->criticality = M2AP_Criticality_ignore;
++    mcch_related_bcch_config_per_mbsfn_area_item_ies->value.present = 
++      M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_ItemIEs__value_PR_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item;
++
++    config_per_mbsfn_area_item = &mcch_related_bcch_config_per_mbsfn_area_item_ies->value.choice.MCCHrelatedBCCH_ConfigPerMBSFNArea_Item;
++    
++    /* Set reasonable default values for MCCH configuration */
++    config_per_mbsfn_area_item->pdcchLength = M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item__pdcchLength_s1;
++    config_per_mbsfn_area_item->offset = 0;
++    config_per_mbsfn_area_item->repetitionPeriod = M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item__repetitionPeriod_rf32;
++    config_per_mbsfn_area_item->modificationPeriod = M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item__modificationPeriod_rf512;
++    
++    /* Default subframe allocation - all bits set to 0 except first bit */
++    config_per_mbsfn_area_item->subframeAllocationInfo.buf = calloc(1, sizeof(uint8_t));
++    config_per_mbsfn_area_item->subframeAllocationInfo.size = 1;
++    config_per_mbsfn_area_item->subframeAllocationInfo.buf[0] = 0x80; /* First bit set */
++    config_per_mbsfn_area_item->subframeAllocationInfo.bits_unused = 2;
++    
++    config_per_mbsfn_area_item->modulationAndCodingScheme = M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item__modulationAndCodingScheme_n2;
++    
++    asn1cSeqAdd(&ie->value.choice.MCCHrelatedBCCH_ConfigPerMBSFNArea.list, mcch_related_bcch_config_per_mbsfn_area_item_ies);
++  }
++  
++  /* If no CC configured, add at least one default item */
++  if (instance_p->num_cc == 0) {
++    mcch_related_bcch_config_per_mbsfn_area_item_ies = 
++      (M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_ItemIEs_t*)calloc(1, sizeof(M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_ItemIEs_t));
++    mcch_related_bcch_config_per_mbsfn_area_item_ies->id = M2AP_ProtocolIE_ID_id_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item;
++    mcch_related_bcch_config_per_mbsfn_area_item_ies->criticality = M2AP_Criticality_ignore;
++    mcch_related_bcch_config_per_mbsfn_area_item_ies->value.present = 
++      M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_ItemIEs__value_PR_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item;
++
++    config_per_mbsfn_area_item = &mcch_related_bcch_config_per_mbsfn_area_item_ies->value.choice.MCCHrelatedBCCH_ConfigPerMBSFNArea_Item;
++    
++    /* Set reasonable default values for MCCH configuration */
++    config_per_mbsfn_area_item->pdcchLength = M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item__pdcchLength_s1;
++    config_per_mbsfn_area_item->offset = 0;
++    config_per_mbsfn_area_item->repetitionPeriod = M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item__repetitionPeriod_rf32;
++    config_per_mbsfn_area_item->modificationPeriod = M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item__modificationPeriod_rf512;
++    
++    /* Default subframe allocation - all bits set to 0 except first bit */
++    config_per_mbsfn_area_item->subframeAllocationInfo.buf = calloc(1, sizeof(uint8_t));
++    config_per_mbsfn_area_item->subframeAllocationInfo.size = 1;
++    config_per_mbsfn_area_item->subframeAllocationInfo.buf[0] = 0x80; /* First bit set */
++    config_per_mbsfn_area_item->subframeAllocationInfo.bits_unused = 2;
++    
++    config_per_mbsfn_area_item->modulationAndCodingScheme = M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item__modulationAndCodingScheme_n2;
++    
++    asn1cSeqAdd(&ie->value.choice.MCCHrelatedBCCH_ConfigPerMBSFNArea.list, mcch_related_bcch_config_per_mbsfn_area_item_ies);
++  }
++
+   asn1cSeqAdd(&out->protocolIEs.list, ie);
+ 
+   if (m2ap_encode_pdu(&pdu, &buffer, &len) < 0) {
+diff --git a/openair3/UTILS/conversions.h b/openair3/UTILS/conversions.h
+index 588edb1461..4a30530406 100644
+--- a/openair3/UTILS/conversions.h
++++ b/openair3/UTILS/conversions.h
+@@ -462,7 +462,7 @@ do {                                                    \
+ /*
+ #define INT16_TO_3_BYTE_BUFFER(x, buf) \
+ do {                            \
+-	(buf)[0] = 0x00; \
++        (buf)[0] = 0x00; \
+     (buf)[1] = (x) >> 8;        \
+     (buf)[2] = (x);             \
+ } while(0)
+@@ -472,7 +472,7 @@ do {                            \
+ do {                                                    \
+     (aSN)->buf = calloc(3, sizeof(uint8_t));    \
+     (aSN)->size = 3;              \
+-    (aSN)->buf[0] = 0x00;		  \
++    (aSN)->buf[0] = 0x00;                 \
+     (aSN)->buf[1] = (x) >> 8;        \
+     (aSN)->buf[2] = (x);             \
+ } while(0)
+@@ -569,6 +569,15 @@ do {                                                    \
+     (bITsTRING)->bits_unused = 4;                       \
+ } while(0)
+ 
++#define MACRO_MCE_ID_TO_BIT_STRING(mACRO, bITsTRING)    \
++do {                                                    \
++    (bITsTRING)->buf = calloc(2, sizeof(uint8_t));      \
++    (bITsTRING)->buf[0] = ((mACRO) >> 8);               \
++    (bITsTRING)->buf[1] = (mACRO) & 0xff;               \
++    (bITsTRING)->size = 2;                              \
++    (bITsTRING)->bits_unused = 0;                       \
++} while(0)
++
+ #define UEIDENTITYINDEX_TO_BIT_STRING(mACRO, bITsTRING)          \
+ do {                                                    \
+     (bITsTRING)->buf = calloc(2, sizeof(uint8_t));      \

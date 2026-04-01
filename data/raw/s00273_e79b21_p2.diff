@@ -1,0 +1,146 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+index 51cd290632..f3af8af044 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+@@ -2279,7 +2279,12 @@ static uint8_t pack_crc_indication_body_value(void *tlv, uint8_t **ppWritePacked
+   uint16_t i = 0;
+   uint16_t total_number_of_pdus = value->number_of_crcs;
+ 
+-  assert(total_number_of_pdus <= NFAPI_CRC_IND_MAX_PDU);
++  // Replaced assert with graceful error handling
++  if(total_number_of_pdus > NFAPI_CRC_IND_MAX_PDU) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "Number of CRCs %d exceeds maximum allowed %d\n", total_number_of_pdus, NFAPI_CRC_IND_MAX_PDU);
++    return 0;
++  }
++
+   for(; i < total_number_of_pdus; ++i) {
+     nfapi_crc_indication_pdu_t *pdu = &(value->crc_pdu_list[i]);
+     uint8_t *instance_length_p = *ppWritePackedMsg;
+@@ -2292,9 +2297,16 @@ static uint8_t pack_crc_indication_body_value(void *tlv, uint8_t **ppWritePacked
+       return 0;
+ 
+     // calculate the instance length subtracting the size of the instance
+-    // length feild
++    // length field
++    // Added bounds checking to prevent pointer underflow
++    if(*ppWritePackedMsg < instance_length_p + 2) {
++      NFAPI_TRACE(NFAPI_TRACE_ERROR, "Instance length calculation underflow detected\n");
++      return 0;
++    }
+     uint16_t instance_length = *ppWritePackedMsg - instance_length_p - 2;
+-    push16(instance_length, &instance_length_p, end);
++    // Added return value validation for push16
++    if(!push16(instance_length, &instance_length_p, end))
++      return 0;
+   }
+ 
+   return 1;
+@@ -3062,13 +3074,16 @@ static uint8_t pack_nr_rx_data_indication(void *msg, uint8_t **ppWritePackedMsg,
+ 
+ static uint8_t pack_nr_crc_indication_body(nfapi_nr_crc_t* value, uint8_t **ppWritePackedMsg, uint8_t *end)
+ {
++	// Fixed cb_crc_array_size calculation using proper ceiling division: (num_cb + 7) / 8
++	uint16_t cb_crc_array_size = (value->num_cb + 7) / 8;
+ 
+ 	if(!(push32(value->handle, ppWritePackedMsg, end) &&
+ 	 	 push16(value->rnti, ppWritePackedMsg, end) &&
+ 		 push8(value->harq_id, ppWritePackedMsg, end) &&
+ 		 push8(value->tb_crc_status, ppWritePackedMsg, end) &&
+ 		 push16(value->num_cb, ppWritePackedMsg, end) &&
+-		 //pusharray8(value->cb_crc_status, (int)(value->num_cb / 8) + 1, (int)(value->num_cb / 8) + 1, ppWritePackedMsg, end) && //length is ceil(NumCb/8)
++		 // Re-enabled and corrected pusharray8() call for code block CRC status array
++		 pusharray8(value->cb_crc_status, cb_crc_array_size, cb_crc_array_size, ppWritePackedMsg, end) && //length is ceil(NumCb/8)
+ 		 push8(value->ul_cqi, ppWritePackedMsg, end) &&
+ 		 push16(value->timing_advance, ppWritePackedMsg, end) &&
+ 		 push16(value->rssi, ppWritePackedMsg, end)
+@@ -4309,7 +4324,7 @@ static uint8_t unpack_dl_config_request_body_value(void *tlv, uint8_t **ppReadPa
+     return 0;
+ 
+   if(value->number_pdu > NFAPI_DL_CONFIG_MAX_PDU) {
+-    NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s number of dl config pdu's exceed maxium (count:%d max:%d)\n", __FUNCTION__, value->number_pdu, NFAPI_DL_CONFIG_MAX_PDU);
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s number of dl config pdu's exceed maximum (count:%d max:%d)\n", __FUNCTION__, value->number_pdu, NFAPI_DL_CONFIG_MAX_PDU);
+     return 0;
+   }
+ 
+@@ -5120,7 +5135,7 @@ static uint8_t unpack_ul_config_request_body_value(void *tlv, uint8_t **ppReadPa
+     return 0;
+ 
+   if(value->number_of_pdus > NFAPI_UL_CONFIG_MAX_PDU) {
+-    NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s number of ul config pdus exceed maxium (count:%d max:%d)\n", __FUNCTION__, value->number_of_pdus, NFAPI_UL_CONFIG_MAX_PDU);
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s number of ul config pdus exceed maximum (count:%d max:%d)\n", __FUNCTION__, value->number_of_pdus, NFAPI_UL_CONFIG_MAX_PDU);
+     return 0;
+   }
+ 
+@@ -5462,7 +5477,7 @@ static uint8_t unpack_hi_dci0_request_body_value(void *tlv, uint8_t **ppReadPack
+   uint8_t totalNumPdus = value->number_of_hi + value->number_of_dci;
+ 
+   if(tot
+... [truncated] ...
+ON__, value->number_of_preambles, NFAPI_PREAMBLE_MAX_PDU);
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s number of preamble du's exceed maximum (count:%d max:%d)\n", __FUNCTION__, value->number_of_preambles, NFAPI_PREAMBLE_MAX_PDU);
+     return 0;
+   }
+ 
+@@ -6948,7 +6963,7 @@ static uint8_t unpack_srs_indication_body_value(void *tlv, uint8_t **ppReadPacke
+     return 0;
+ 
+   if(value->number_of_ues > NFAPI_SRS_IND_MAX_PDU) {
+-    NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s number of srs ind pdu's exceed maxium (count:%d max:%d)\n", __FUNCTION__, value->number_of_ues, NFAPI_SRS_IND_MAX_PDU);
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s number of srs ind pdu's exceed maximum (count:%d max:%d)\n", __FUNCTION__, value->number_of_ues, NFAPI_SRS_IND_MAX_PDU);
+     return 0;
+   }
+ 
+@@ -7009,7 +7024,7 @@ static uint8_t unpack_sr_indication_body_value(void *tlv, uint8_t **ppReadPacked
+     return 0;
+ 
+   if(value->number_of_srs > NFAPI_SR_IND_MAX_PDU) {
+-    NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s number of sr ind pdu's exceed maxium (count:%d max:%d)\n", __FUNCTION__, value->number_of_srs, NFAPI_SR_IND_MAX_PDU);
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s number of sr ind pdu's exceed maximum (count:%d max:%d)\n", __FUNCTION__, value->number_of_srs, NFAPI_SR_IND_MAX_PDU);
+     return 0;
+   }
+ 
+@@ -7099,7 +7114,7 @@ static uint8_t  unpack_cqi_indication_body_value(void *tlv, uint8_t **ppReadPack
+     return 0;
+ 
+   if(value->number_of_cqis > NFAPI_CQI_IND_MAX_PDU) {
+-    NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s number of cqi ind pdu's exceed maxium (count:%d max:%d)\n", __FUNCTION__, value->number_of_cqis, NFAPI_CQI_IND_MAX_PDU);
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s number of cqi ind pdu's exceed maximum (count:%d max:%d)\n", __FUNCTION__, value->number_of_cqis, NFAPI_CQI_IND_MAX_PDU);
+     return -1;
+   }
+ 
+@@ -7233,7 +7248,7 @@ static uint8_t unpack_lbt_config_request_body_value(void *tlv, uint8_t **ppReadP
+     return 0;
+ 
+   if(value->number_of_pdus > NFAPI_LBT_DL_CONFIG_REQ_MAX_PDU) {
+-    NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s number of lbt dl config pdu's exceed maxium (count:%d max:%d)\n", __FUNCTION__, value->number_of_pdus, NFAPI_LBT_DL_CONFIG_REQ_MAX_PDU);
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s number of lbt dl config pdu's exceed maximum (count:%d max:%d)\n", __FUNCTION__, value->number_of_pdus, NFAPI_LBT_DL_CONFIG_REQ_MAX_PDU);
+     return 0;
+   }
+ 
+@@ -7317,7 +7332,7 @@ static uint8_t unpack_lbt_indication_body_value(void *tlv, uint8_t **ppReadPacke
+     return 0;
+ 
+   if(value->number_of_pdus > NFAPI_LBT_IND_MAX_PDU) {
+-    NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s number of lbt dl ind pdu's exceed maxium (count:%d max:%d)\n", __FUNCTION__, value->number_of_pdus, NFAPI_LBT_IND_MAX_PDU);
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s number of lbt dl ind pdu's exceed maximum (count:%d max:%d)\n", __FUNCTION__, value->number_of_pdus, NFAPI_LBT_IND_MAX_PDU);
+     return 0;
+   }
+ 
+@@ -7398,7 +7413,7 @@ static uint8_t unpack_nb_harq_indication_body_value(void *tlv, uint8_t **ppReadP
+     return 0;
+ 
+   if(value->number_of_harqs > NFAPI_HARQ_IND_MAX_PDU) {
+-    NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s number of harq ind pdus exceed maxium (count:%d max:%d)\n", __FUNCTION__, value->number_of_harqs, NFAPI_HARQ_IND_MAX_PDU);
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s number of harq ind pdus exceed maximum (count:%d max:%d)\n", __FUNCTION__, value->number_of_harqs, NFAPI_HARQ_IND_MAX_PDU);
+     return 0;
+   }
+ 
+@@ -7471,7 +7486,7 @@ static uint8_t unpack_nrach_indication_body_value(void *tlv, uint8_t **ppReadPac
+     return 0;
+ 
+   if(value->number_of_initial_scs_detected > NFAPI_PREAMBLE_MAX_PDU) {
+-    NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s number of detected scs ind pdus exceed maxium (count:%d max:%d)\n", __FUNCTION__, value->number_of_initial_scs_detected, NFAPI_PREAMBLE_MAX_PDU);
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s number of detected scs ind pdus exceed maximum (count:%d max:%d)\n", __FUNCTION__, value->number_of_initial_scs_detected, NFAPI_PREAMBLE_MAX_PDU);
+     return 0;
+   }
+ 

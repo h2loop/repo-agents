@@ -1,0 +1,33 @@
+diff --git a/openair1/SCHED_NR/nr_ru_procedures.c b/openair1/SCHED_NR/nr_ru_procedures.c
+index 4cf05d5772..b0dbd949fe 100644
+--- a/openair1/SCHED_NR/nr_ru_procedures.c
++++ b/openair1/SCHED_NR/nr_ru_procedures.c
+@@ -298,17 +298,17 @@ void nr_feptx_tp(RU_t *ru, int frame_tx, int slot)
+       pushTpool(ru->threadPool, t);
+       nbfeptx++;
+       if (ru->half_slot_parallelization > 0) {
+-        feptx_cmd_t *feptx_cmd = &arr[nbfeptx];
+-        feptx_cmd->ans = &ans;
+-        feptx_cmd->beam = beam;
+-        feptx_cmd->aid = aid;
+-        feptx_cmd->ru = ru;
+-        feptx_cmd->slot = slot;
+-        feptx_cmd->startSymbol = ru->nr_frame_parms->symbols_per_slot >> 1;
+-        feptx_cmd->numSymbols = ru->nr_frame_parms->symbols_per_slot >> 1;
+-
+-        task_t t = {.func = nr_feptx, .args = feptx_cmd};
+-        pushTpool(ru->threadPool, t);
++        feptx_cmd_t *feptx_cmd2 = &arr[nbfeptx];
++        feptx_cmd2->ans = &ans;
++        feptx_cmd2->beam = beam;
++        feptx_cmd2->aid = aid;
++        feptx_cmd2->ru = ru;
++        feptx_cmd2->slot = slot;
++        feptx_cmd2->startSymbol = ru->nr_frame_parms->symbols_per_slot >> 1;
++        feptx_cmd2->numSymbols = ru->nr_frame_parms->symbols_per_slot >> 1;
++
++        task_t t2 = {.func = nr_feptx, .args = feptx_cmd2};
++        pushTpool(ru->threadPool, t2);
+         nbfeptx++;
+       }
+     }

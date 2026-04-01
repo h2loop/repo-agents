@@ -1,0 +1,24 @@
+diff --git a/openair1/SIMULATION/TOOLS/taus.c b/openair1/SIMULATION/TOOLS/taus.c
+index 5280cceafb..866e3fbc4b 100644
+--- a/openair1/SIMULATION/TOOLS/taus.c
++++ b/openair1/SIMULATION/TOOLS/taus.c
+@@ -47,7 +47,6 @@ unsigned int taus(void)
+ 
+ void set_taus_seed(unsigned int seed_init)
+ {
+-
+   struct drand48_data buffer;
+   unsigned long result = 0;
+ 
+@@ -56,6 +55,11 @@ void set_taus_seed(unsigned int seed_init)
+     fill_random(&s1, sizeof(s1));
+     fill_random(&s2, sizeof(s2));
+   } else {
++    /* Validate seed range to ensure it fits in long int */
++    if (seed_init > 2147483647U) {
++      /* Seed too large, use modulo to bring it into valid range */
++      seed_init = seed_init % 2147483648U;
++    }
+     /* Use reentrant version of rand48 to ensure that no conflicts with other generators occur */
+     srand48_r((long int)seed_init, &buffer);
+     mrand48_r(&buffer, (long int *)&result);

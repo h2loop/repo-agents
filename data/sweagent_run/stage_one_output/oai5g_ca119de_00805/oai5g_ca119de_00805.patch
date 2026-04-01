@@ -1,0 +1,13 @@
+diff --git a/openair3/NAS/COMMON/IES/AuthenticationParameterAutn.c b/openair3/NAS/COMMON/IES/AuthenticationParameterAutn.c
+index 7de70359f7..dd6fc0bf0e 100644
+--- a/openair3/NAS/COMMON/IES/AuthenticationParameterAutn.c
++++ b/openair3/NAS/COMMON/IES/AuthenticationParameterAutn.c
+@@ -77,7 +77,7 @@ int encode_authentication_parameter_autn(AuthenticationParameterAutn *authentica
+   else
+     encoded += encode_result;
+ 
+-  *lenPtr = encoded - 1 - ((iei > 0) ? 1 : 0);
++  *lenPtr = authenticationparameterautn->autn.length;
+   return encoded;
+ }
+ 

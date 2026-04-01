@@ -1,0 +1,15 @@
+diff --git a/openair2/RRC/NR/rrc_gNB_radio_bearers.c b/openair2/RRC/NR/rrc_gNB_radio_bearers.c
+index d91c866cd4..796c9dcb57 100644
+--- a/openair2/RRC/NR/rrc_gNB_radio_bearers.c
++++ b/openair2/RRC/NR/rrc_gNB_radio_bearers.c
+@@ -174,8 +174,8 @@ NR_DRB_ToAddMod_t *generateDRB_ASN1(const drb_t *drb_asn1)
+ 
+   /* SDAP Configuration */
+   SDAP_config->pdu_Session = drb_asn1->cnAssociation.sdap_config.pdusession_id;
+-  SDAP_config->sdap_HeaderDL = drb_asn1->cnAssociation.sdap_config.sdap_HeaderDL;
+-  SDAP_config->sdap_HeaderUL = drb_asn1->cnAssociation.sdap_config.sdap_HeaderUL;
++  SDAP_config->sdap_HeaderDL = (typeof(SDAP_config->sdap_HeaderDL))drb_asn1->cnAssociation.sdap_config.sdap_HeaderDL;
++  SDAP_config->sdap_HeaderUL = (typeof(SDAP_config->sdap_HeaderUL))drb_asn1->cnAssociation.sdap_config.sdap_HeaderUL;
+   SDAP_config->defaultDRB = drb_asn1->cnAssociation.sdap_config.defaultDRB;
+ 
+   for (int qos_flow_index = 0; qos_flow_index < QOSFLOW_MAX_VALUE; qos_flow_index++) {

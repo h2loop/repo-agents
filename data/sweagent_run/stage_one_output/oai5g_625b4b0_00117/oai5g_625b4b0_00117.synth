@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix buffer overrun in dump_harq_0_1 function\n\n### Summary\nThe `dump_harq_0_1` function in the NR FAPI P7 utilities was vulnerable to a buffer overrun when processing HARQ PDUs with `num_harq` values exceeding the fixed array size. This could lead to memory corruption and potential crashes during debugging or logging operations.\n\nThe issue occurred because the function iterated through the `harq_list` array based on the `num_harq` field without validating it against the array's maximum capacity of 2 elements. When `num_harq` was greater than 2, the function would access memory beyond the array bounds.\n\n### Changes\n- `nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c`: Added bounds checking in `dump_harq_0_1` to prevent array access beyond limits and added warning message when truncation occurs.\n"
+}

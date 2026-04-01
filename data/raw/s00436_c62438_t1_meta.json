@@ -1,0 +1,32 @@
+{
+  "run_id": "s00436_c62438",
+  "function": {
+    "name": "tarmaCalculateSample",
+    "file": "openair2/UTIL/OTG/otg_models.c",
+    "start_line": 53,
+    "end_line": 105,
+    "body_lines": 53,
+    "signature": "double tarmaCalculateSample( double inputSamples[], tarmaProcess_t *proc)",
+    "subsystem": "openair2/UTIL/OTG",
+    "token_estimate": 207
+  },
+  "bug": {
+    "bug_id": "c_string_buffer_overrun",
+    "description": "string buffer overrun from unbounded string copy or concatenation",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/NAS",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a string buffer overrun from unbounded string copy or concatenation downstream of function tarmaCalculateSample in the openair2/UTIL/OTG subsystem.\nThe function is located at openair2/UTIL/OTG/otg_models.c:53.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00436_c62438_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00436_c62438_p1.diff",
+  "patch_lines": 48,
+  "trajectory_steps": 37,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:19:08Z"
+}

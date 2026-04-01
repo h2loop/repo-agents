@@ -1,0 +1,79 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "bash",
+      "description": "Execute a bash command in the repository environment",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "command": {
+            "type": "string",
+            "description": "The bash command to execute"
+          }
+        },
+        "required": [
+          "command"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "str_replace_editor",
+      "description": "View, create, or edit files. Commands: view, str_replace, create, insert, undo_edit",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "command": {
+            "type": "string",
+            "description": "The editor command: view, str_replace, create, insert, undo_edit"
+          },
+          "path": {
+            "type": "string",
+            "description": "Absolute path to the file or directory"
+          },
+          "old_str": {
+            "type": "string",
+            "description": "String to replace (for str_replace command)"
+          },
+          "new_str": {
+            "type": "string",
+            "description": "Replacement string (for str_replace command)"
+          },
+          "file_text": {
+            "type": "string",
+            "description": "File content (for create command)"
+          },
+          "insert_line": {
+            "type": "integer",
+            "description": "Line number to insert at (for insert command)"
+          },
+          "view_range": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "Line range [start, end] (for view command)"
+          }
+        },
+        "required": [
+          "command",
+          "path"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "submit",
+      "description": "Submit the current changes as the final patch",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  }
+]

@@ -1,0 +1,139 @@
+diff --git a/openair2/RRC/LTE/MESSAGES/asn1_msg_NB_IoT.c b/openair2/RRC/LTE/MESSAGES/asn1_msg_NB_IoT.c
+index f9df7f3581..e508689d28 100644
+--- a/openair2/RRC/LTE/MESSAGES/asn1_msg_NB_IoT.c
++++ b/openair2/RRC/LTE/MESSAGES/asn1_msg_NB_IoT.c
+@@ -327,30 +327,38 @@ uint8_t do_SIB23_NB_IoT(uint8_t Mod_id,
+                         int CC_id,
+                         rrc_eNB_carrier_data_NB_IoT_t *carrier,//MP: this is already a carrier[CC_id]
+                         NbIoTRrcConfigurationReq *configuration ) { //openair2/COMMON/rrc_messages_types.h
+-  struct LTE_SystemInformation_NB_r13_IEs__sib_TypeAndInfo_r13__Member *sib2_NB_part;
+-  struct LTE_SystemInformation_NB_r13_IEs__sib_TypeAndInfo_r13__Member *sib3_NB_part;
++  struct LTE_SystemInformation_NB_r13_IEs__sib_TypeAndInfo_r13__Member *sib2_NB_part = NULL;
++  struct LTE_SystemInformation_NB_r13_IEs__sib_TypeAndInfo_r13__Member *sib3_NB_part = NULL;
+   LTE_BCCH_DL_SCH_Message_NB_t *bcch_message = &(carrier->systemInformation_NB_IoT); //is the systeminformation-->BCCH_DL_SCH_Message_NB
+   LTE_SystemInformationBlockType2_NB_r13_t *sib2_NB_IoT;
+   LTE_SystemInformationBlockType3_NB_r13_t *sib3_NB_IoT;
+   asn_enc_rval_t enc_rval;
+   LTE_RACH_Info_NB_r13_t rach_Info_NB_IoT;
+-  LTE_NPRACH_Parameters_NB_r13_t *nprach_parameters;
++  LTE_NPRACH_Parameters_NB_r13_t *nprach_parameters = NULL;
+   //optional
+   long *connEstFailOffset = NULL;
+-  connEstFailOffset = CALLOC(1, sizeof(long));
+-  //  RSRP_ThresholdsNPRACH_InfoList_NB_r13_t *rsrp_ThresholdsPrachInfoList;
+-  //  RSRP_Range_t rsrp_range;
+   LTE_ACK_NACK_NumRepetitions_NB_r13_t ack_nack_repetition;
+-  struct LTE_NPUSCH_ConfigCommon_NB_r13__dmrs_Config_r13 *dmrs_config;
+-  struct LTE_DL_GapConfig_NB_r13  *dl_Gap;
+-  long *srs_SubframeConfig;
+-  srs_SubframeConfig= CALLOC(1, sizeof(long));
++  struct LTE_NPUSCH_ConfigCommon_NB_r13__dmrs_Config_r13 *dmrs_config = NULL;
++  struct LTE_DL_GapConfig_NB_r13  *dl_Gap = NULL;
++  long *srs_SubframeConfig = NULL;
+ 
+-  if (bcch_message) {
+-    memset(bcch_message,0,sizeof(LTE_BCCH_DL_SCH_Message_NB_t));
+-  } else {
++  if (bcch_message == NULL) {
+     LOG_E(RRC,"[NB-IoT %d] BCCH_MESSAGE_NB is null, exiting\n", Mod_id);
+-    exit(-1);
++    return -1;
++  }
++  
++  memset(bcch_message,0,sizeof(LTE_BCCH_DL_SCH_Message_NB_t));
++  
++  connEstFailOffset = CALLOC(1, sizeof(long));
++  if (connEstFailOffset == NULL) {
++    LOG_E(RRC,"[NB-IoT %d] Failed to allocate memory for connEstFailOffset\n", Mod_id);
++    goto error;
++  }
++  
++  srs_SubframeConfig = CALLOC(1, sizeof(long));
++  if (srs_SubframeConfig == NULL) {
++    LOG_E(RRC,"[NB-IoT %d] Failed to allocate memory for srs_SubframeConfig\n", Mod_id);
++    goto error;
+   }
+ 
+   //before schould be allocated memory somewhere?
+@@ -365,7 +373,17 @@ uint8_t do_SIB23_NB_IoT(uint8_t Mod_id,
+   //  }
+   LOG_I(RRC,"[NB-IoT %d] Configuration SIB2/3\n", Mod_id);
+   sib2_NB_part = CALLOC(1,sizeof(struct LTE_SystemInformation_NB_r13_IEs__sib_TypeAndInfo_r13__Member));
++  if (sib2_NB_part == NULL) {
++    LOG_E(RRC,"[NB-IoT %d] Failed to allocate memory for sib2_NB_part\n", Mod_id);
++    goto error;
++  }
++  
+   sib3_NB_part = CALLOC(1,sizeof(struct LTE_SystemInformation_NB_r13_IEs__sib_TypeAndInfo_r13__Member));
++  if (sib3_NB_part == NULL) {
++    LOG_E(RRC,"[NB-IoT %d] Failed to allocate memory for sib3_NB_part\n", Mod_id);
++    goto error;
++  }
++  
+   memset(sib2_NB_part,0,sizeof(struct LTE_SystemInformation_NB_r13_IEs__sib_TypeAndInfo_r13__Member));
+   memset(sib3_NB_part,0,sizeof(struct LTE_SystemInformation_NB_r13_IEs__sib_TypeAndInfo_r13__Member));
+   sib2_NB_part->present = LTE_SystemInformation_NB_r13_IEs__sib_TypeAndInfo_r13__Member_PR_sib2_r13;
+@@ -376,6 +394,10 @@ uint8_t do_SIB23_NB_IoT(uint8_t Mod_id,
+   sib2_NB_IoT = carrier->sib2_NB_IoT;
+   sib3_NB_IoT = carrier->sib3_NB_IoT;
+   nprach_parameters = (LTE_NPRACH_Parameters_NB_r13_t *) malloc (3*sizeof(LTE_NPRACH_Parameters_NB_r13_t));
++  if (nprach_parameters == NULL) {
++    LOG_E(RRC,"[NB-IoT %d] Failed to allocate memory for nprach_parameters\n", Mod_id);
++    goto error;
++  }
+   memset(&nprach_parameters[0],0,sizeof(LTE_NPRACH_Parameters_NB_r13_t));
+   memset(&nprach_parameters[1],0,sizeof(LTE_NPRACH_Parameters_NB_r13_t));
+   memset(&nprach_parameters[2],0,sizeof(LTE_NPRACH_Parameters_NB_r13_t));
+@@ -456,6 +478,10 @@ uint8_t do_SIB23_NB_IoT(uint8_t Mod_id,
+   sib2_NB_IoT->radioResourceConfigCommon_r13.npusch_ConfigCommon_r13.srs_SubframeConfig_r13= srs_SubframeConfig; /*OPTIONAL*/
+   /*OPTIONAL*/
+   dmrs_config = CALLOC(1,sizeof(struct LTE_NPUSCH_ConfigCommon_NB_r13__dmrs_Config_r13));
++  if (dmrs_config == NULL) {
++    LOG_E(RRC,"[NB-IoT %d] Failed to allocate memory for dmrs_config\n", Mod_id);
++    goto error;
++  }
+   dmrs_config->threeTone_CyclicShift_r13 = configuration->npusch_threeTone_CyclicShift_r13;
+   dmrs_config->sixTone_CyclicShift_r13 = configuration->npusch_sixTone_CyclicShift_r13;
+   /*OPTIONAL
+@@ -475,6 +501,10 @@ uint8_t do_SIB23_NB_IoT(uint8_t Mod_id,
+   sib2_NB_IoT->radioResourceConfigCommon_r13.npusch_ConfigCommon_r13.ul_ReferenceSignalsNPUSCH_r13.groupAssignmentNPUSCH_r13 =configuration->npusch_groupAssignmentNPUSCH_r13;
+   //dl_GAP---------------------------------------------------------------------------------/*OPTIONAL*/
+   dl_Gap = CALLOC(1,sizeof(struct LTE_DL_GapConfig_NB_r13));
++  if (dl_Gap == NULL) {
++    LOG_E(RRC,"[NB-IoT %d] Failed to allocate memory for dl_Gap\n", Mod_id);
++    goto error;
++  }
+   dl_Gap->dl_GapDurationCoeff_r13= configuration-> dl_GapDurationCoeff_NB;
+   dl_Gap->dl_GapPeriodicity_r13= configuration->dl_GapPeriodicity_NB;
+   dl_Gap->dl_GapThreshold_r13= configuration->dl_GapThreshold_NB;
+@@ -543,6 +573,30 @@ uint8_t do_SIB23_NB_IoT(uint8_t Mod_id,
+   carrier->sib2_NB_IoT = sib2_NB_IoT;
+   carrier->sib3_NB_IoT = sib3_NB_IoT;
+   return((enc_rval.encoded+7)/8);
++
++error:
++  if (connEstFailOffset) {
++    free(connEstFailOffset);
++  }
++  if (srs_SubframeConfig) {
++    free(srs_SubframeConfig);
++  }
++  if (sib2_NB_part) {
++    free(sib2_NB_part);
++  }
++  if (sib3_NB_part) {
++    free(sib3_NB_part);
++  }
++  if (nprach_parameters) {
++    free(nprach_parameters);
++  }
++  if (dmrs_config) {
++    free(dmrs_config);
++  }
++  if (dl_Gap) {
++    free(dl_Gap);
++  }
++  return -1;
+ }
+ 
+ /*do_RRCConnectionSetup_NB_IoT--> the aim is to establish SRB1 and SRB1bis(implicitly)*/

@@ -1,0 +1,24 @@
+diff --git a/openair1/PHY/CODING/nrLDPC_encoder/ldpc_encode_parity_check.c b/openair1/PHY/CODING/nrLDPC_encoder/ldpc_encode_parity_check.c
+index 94eb0a4d92..fcc23e7ca3 100644
+--- a/openair1/PHY/CODING/nrLDPC_encoder/ldpc_encode_parity_check.c
++++ b/openair1/PHY/CODING/nrLDPC_encoder/ldpc_encode_parity_check.c
+@@ -52,7 +52,9 @@
+ #include "ldpc256_byte.c"
+ #include "ldpc256_byte_128.c"
+ #include "ldpc240_byte.c"
++#ifdef __AVX2__
+ #include "ldpc224_byte.c"
++#endif
+ #include "ldpc224_byte_128.c"
+ #include "ldpc208_byte.c"
+ #include "ldpc192_byte.c"
+@@ -69,7 +71,9 @@
+ #include "ldpc_BG2_Zc256_byte.c"
+ #include "ldpc_BG2_Zc256_byte_128.c"
+ #include "ldpc_BG2_Zc240_byte.c"
++#ifdef __AVX2__
+ #include "ldpc_BG2_Zc224_byte.c"
++#endif
+ #include "ldpc_BG2_Zc224_byte_128.c"
+ #include "ldpc_BG2_Zc208_byte.c"
+ #include "ldpc_BG2_Zc192_byte.c"

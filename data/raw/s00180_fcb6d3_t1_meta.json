@@ -1,0 +1,35 @@
+{
+  "run_id": "s00180_fcb6d3",
+  "function": {
+    "name": "setup_ra_response_window",
+    "file": "openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c",
+    "start_line": 778,
+    "end_line": 818,
+    "body_lines": 41,
+    "signature": "static void setup_ra_response_window(NR_UE_MAC_INST_t *mac, RA_config_t *ra, NR_RACH_ConfigGeneric_t *configGeneric, NR_RACH_ConfigGenericTwoStepRA_r16_t *twostep)",
+    "subsystem": "openair2/LAYER2/NR_MAC_UE",
+    "token_estimate": 186
+  },
+  "bug": {
+    "bug_id": "c_missing_mutex",
+    "description": "missing mutex lock around critical section accessing shared state",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a missing mutex lock around critical section accessing shared state downstream of function setup_ra_response_window in the openair2/LAYER2/NR_MAC_UE subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c:778.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00180_fcb6d3_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00180_fcb6d3_p1.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 60,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:42:39Z"
+}

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix nr_ulsch_det_HhH() shift parameter handling\n\n### Summary\nThe function `nr_ulsch_det_HhH()` was not properly using the `shift` parameter, causing incorrect scaling of determinant values in MIMO processing. This led to degraded performance in channel estimation and data demodulation.\n\n### Changes\n- `openair1/PHY/NR_TRANSPORT/nr_ulsch_demodulation.c`: Added shift parameter handling in `nr_ulsch_det_HhH()` function to properly scale output values.\n\n### Reproduction\nWhen running NR MIMO scenarios with 2x2 or 4x4 configurations, users may observe:\n- Increased BLER compared to expected performance\n- Channel estimation quality degradation\n- Incorrect LLR computation leading to higher than expected error rates\n\nThe issue is most noticeable in high SNR conditions where proper scaling is critical for maintaining numerical precision.\n"
+}

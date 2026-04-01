@@ -1,0 +1,34 @@
+{
+  "run_id": "s00249_f1c2db",
+  "function": {
+    "name": "decode_served_cell_info",
+    "file": "openair2/F1AP/lib/f1ap_interface_management.c",
+    "start_line": 520,
+    "end_line": 586,
+    "body_lines": 67,
+    "signature": "static bool decode_served_cell_info(const F1AP_Served_Cell_Information_t *in, f1ap_served_cell_info_t *info)",
+    "subsystem": "openair2/F1AP/lib",
+    "token_estimate": 361
+  },
+  "bug": {
+    "bug_id": "c_uninitialized_memory_read",
+    "description": "read of uninitialized memory leading to undefined behavior",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "common",
+      "radio",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a read of uninitialized memory leading to undefined behavior downstream of function decode_served_cell_info in the openair2/F1AP/lib subsystem.\nThe function is located at openair2/F1AP/lib/f1ap_interface_management.c:520.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00249_f1c2db_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00249_f1c2db_p1.diff",
+  "patch_lines": 5,
+  "trajectory_steps": 53,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:09:05Z"
+}

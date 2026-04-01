@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix OTG Clock Form Not Displaying\n\n### Summary\nThe `create_form_clock()` function was not displaying the clock form as expected. This fix enables the proper creation and display of the clock form in the OTG visualization.\n\n### Changes\n- `openair2/UTIL/OTG/otg_form.c`: Uncommented calls to create and show the clock form, and explicitly initialized the fclock variable to NULL.\n\n### Reproduction\nBefore this fix, when running OTG simulations with visualization enabled, the clock form window would not appear even though `create_form_clock()` was being called. Users would only see the main OTG forms for UL/DL metrics but miss the clock visualization that was intended to be displayed alongside them.\n\nAfter this fix, the clock form properly appears when OTG visualization is enabled, showing both digital and analog clocks along with the existing UL/DL metric forms.\n\n"
+}

@@ -1,0 +1,540 @@
+'{"env":{"deployment":{"image":"oai5g-sera:bf69e25","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_bf69e25_00010","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix M2SetupResponse generation in M3AP MCE handler\n\n### Summary\nThe `m2ap_MCE_generate_m2_setup_response`
+  function in the M3AP implementation was not generating complete M2SetupResponse
+  messages due to commented-out code sections. This caused the MCE to send malformed
+  responses during M2 setup procedures, leading to connection failures with peer nodes.\n\nThe
+  issue was traced to `/repo/openair3/M3AP/m3ap_MME_generate_messages.c` where all
+  the mandatory Information Elements (IEs) for the M2SetupResponse were commented
+  out. When called, the function would only generate an empty PDU without the required
+  GlobalMCE_ID, ServedCells, and GUGroupIDList IEs.\n\n### Changes\n- `openair3/M3AP/m3ap_MME_generate_messages.c`:
+  Uncommented and properly implemented all mandatory IEs in `m2ap_MCE_generate_m2_setup_response`\n-
+  `openair3/M3AP/m3ap_MCE_generate_messages.h`: Fixed function signature and header
+  file consistency\n- Removed the typo file `openair3/M3AP/m3ap_MCE_generate_messsages.c`
+  that contained a commented-out version\n- Fixed include references in `openair3/M3AP/m3ap_MME_generate_messages.c`
+  to point to correct header\n- Corrected naming inconsistencies in `openair3/M3AP/m3ap_MME_generate_messages.h`\n\n","extra_fields":{"bug_description":"integer
+  underflow producing an unexpectedly large unsigned value","bug_id":"c_integer_underflow","stage_one_patch":"diff
+  --git a/openair3/M3AP/m3ap_MCE_generate_messages.h b/openair3/M3AP/m3ap_MCE_generate_messages.h\nindex
+  1a5733acc3..379cb30c3d 100644\n--- a/openair3/M3AP/m3ap_MCE_generate_messages.h\n+++
+  b/openair3/M3AP/m3ap_MCE_generate_messages.h\n@@ -19,8 +19,8 @@\n  *      contact@openairinterface.org\n  */\n
+  \n-/*! \\file m2ap_eNB_generate_messages.h\n- * \\brief m2ap procedures for eNB\n+/*!
+  \\file m3ap_MCE_generate_messages.h\n+ * \\brief m3ap procedures for MCE\n  * \\author
+  Javier Morgade <javier.morgade@ieee.org>\n  * \\date 2019\n  * \\version 0.1\n@@
+  -29,16 +29,9 @@\n #ifndef __M3AP_MCE_GENERATE_MESSAGES__H__\n #define __M3AP_MCE_GENERATE_MESSAGES__H__\n
+  \n-#include \"m2ap_eNB_defs.h\"\n+#include \"m2ap_MCE_defs.h\"\n #include \"m2ap_common.h\"\n
+  \n-int m2ap_eNB_generate_m2_setup_request(m2ap_eNB_instance_t *instance_p,\n-\t\t\t\t       m2ap_eNB_data_t
+  *m2ap_eNB_data_p);\n-\n-int m2ap_MCE_generate_m2_setup_response(m2ap_eNB_instance_t
+  *instance_p, m2ap_eNB_data_t *m2ap_eNB_data_p);\n-\n-int m2ap_eNB_set_cause (M2AP_Cause_t
+  * cause_p,\n-                        M2AP_Cause_PR cause_type,\n-                        long
+  cause_value);\n+int m2ap_MCE_generate_m2_setup_response(m2ap_MCE_instance_t *instance_p,
+  m2ap_MCE_data_t *m2ap_MCE_data_p);\n \n #endif /*  __M3AP_MCE_GENERATE_MESSAGES__H__
+  */\ndiff --git a/openair3/M3AP/m3ap_MCE_generate_messsages.c b/openair3/M3AP/m3ap_MCE_generate_messsages.c\ndeleted
+  file mode 100644\nindex 490ba2fd4f..0000000000\n--- a/openair3/M3AP/m3ap_MCE_generate_messsages.c\n+++
+  /dev/null\n@@ -1,784 +0,0 @@\n-/*\n- * Licensed to the OpenAirInterface (OAI) Software
+  Alliance under one or more\n- * contributor license agreements.  See the NOTICE
+  file distributed with\n- * this work for additional information regarding copyright
+  ownership.\n- * The OpenAirInterface Software Alliance licenses this file to You
+  under\n- * the OAI Public License, Version 1.1  (the \"License\"); you may not use
+  this file\n- * except in compliance with the License.\n- * You may obtain a copy
+  of the License at\n- *\n- *      http://www.openairinterface.org/?page_id=698\n-
+  *\n- * Unless required by applicable law or agreed to in writing, software\n- *
+  distributed under the License is distributed on an \"AS IS\" BASIS,\n- * WITHOUT
+  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n- * See the License
+  for the specific language governing permissions and\n- * limitations under the License.\n-
+  *-------------------------------------------------------------------------------\n-
+  * For more information about the OpenAirInterface (OAI) Software Alliance:\n- *      contact@openairinterface.org\n-
+  */\n-\n-/*! \\file m2ap_eNB_generate_messages.c\n- * \\brief m2ap procedures for
+  eNB\n- * \\author Javier Morgade <javier.morgade@ieee.org>\n- * \\date 2019\n- *
+  \\version 0.1\n- */\n-\n-#include \"intertask_interface.h\"\n-\n-//#include \"M2AP_LastVisitedCell-Item.h\"\n-\n-#include
+  \"m2ap_common.h\"\n-#include \"m2ap_eNB.h\"\n-#include \"m2ap_eNB_generate_messages.h\"\n-#include
+  \"m2ap_encoder.h\"\n-#include \"m2ap_decoder.h\"\n-#include \"m2ap_ids.h\"\n-\n-#include
+  \"m2ap_itti_messaging.h\"\n-\n-#include \"assertions.h\"\n-#include \"conversions.h\"\n-\n-int
+  m2ap_eNB_generate_m2_setup_request(\n-  m2ap_eNB_instance_t *instance_p, m2ap_eNB_data_t
+  *m2ap_eNB_data_p)\n-{\n-  module_id_t enb_mod_idP=0;\n-  module_id_t du_mod_idP=0;\n-\n-  M2AP_M2AP_PDU_t          pdu;\n-  M2AP_M2SetupRequest_t    *out;\n-  M2AP_M2SetupRequest_Ies_t
+  *ie;\n-\n-  uint8_t  *buffer;\n-  uint32_t  len;\n-  int       i = 0;\n-  int       j
+  = 0;\n-\n-  /* Create */\n-  /* 0. pdu Type */\n-  memset(&pdu, 0, sizeof(pdu));\n-  pdu.present
+  = M2AP_M2AP_PDU_PR_initiatingMessage;\n-  //pdu.choice.initiatingMessage = (M2AP_InitiatingMessage_t
+  *)calloc(1, sizeof(M2AP_InitiatingMessage_t));\n-  pdu.choice.initiatingMessage.procedureCode
+  = M2AP_ProcedureCode_id_m2Setup;\n-  pdu.choice.initiatingMessage.criticality   =
+  M2AP_Criticality_reject;\n-  pdu.choice.initiatingMessage.value.present = M2AP_InitiatingMessage__value_PR_M2SetupRequest;\n-  out
+  = &pdu.choice.initiatingMessage.value.choice.M2SetupRequest;\n-\n-  /* mandatory
+  */\n-  /* c1. GlobalENB_ID (integer value) */\n-  ie = (M2AP_M2SetupRequest_Ies_t
+  *)calloc(1, sizeof(M2AP_M2SetupRequest_Ies_t));\n-  ie->id                        =
+  M2AP_ProtocolIE_ID_id_GlobalENB_ID;\n-  ie->criticality               = M2AP_Criticality_reject;\n-  ie->value.present             =
+  M2AP_M2SetupRequest_Ies__value_PR_GlobalENB_ID;\n-  //ie->value.choice.GlobalENB_ID.eNB_ID
+  = 1;//M2AP_get_next_transaction_identifier(enb_mod_idP, du_mod_idP);\n-  MCC_MNC_TO_PLMNID(instance_p->mcc,
+  instance_p->mnc, instance_p->mnc_digit_length,\n-                  &ie->value.choice.GlobalENB_ID.pLMN_Identity);\n-  ie->value.choice.GlobalENB_ID.eNB_ID.present
+  = M2AP_ENB_ID_PR_macro_eNB_ID;\n-  MACRO_ENB_ID_TO_BIT_STRING(instance_p->eNB_id,\n-                           &ie->value.choice.GlobalENB_ID.eNB_ID.choice.macro_eNB_ID);\n-  M2AP_INFO(\"%d
+  -> %02x%02x%02x\\n\", instance_p->eNB_id,\n-          ie->value.choice.GlobalENB_ID.eNB_ID.choice.macro_eNB_ID.buf[0],\n-          ie->value.choice.GlobalENB_ID.eNB_ID.choice.macro_eNB_ID.buf[1],\n-          ie->value.choice.GlobalENB_ID.eNB_ID.choice.macro_eNB_ID.buf[2]);\n-\n-  asn1cSeqAdd(&out->protocolIEs.list,
+  ie);\n-\n-  ///* mandatory */\n-  ///* c2. GNB_eNB_ID (integrer value) */\n-  //ie
+  = (M2AP_M2SetupRequest_Ies_t *)calloc(1, sizeof(M2AP_M2SetupRequest_Ies_t));\n-  //ie->id                        =
+  M2AP_ProtocolIE_ID_id_gNB_eNB_ID;\n-  //ie->criticality               = M2AP_Criticality_reject;\n-  //ie->value.present             =
+  M2AP_M2SetupRequestIEs__value_PR_GNB_eNB_ID;\n-  //asn_int642INTEGER(&ie->value.choice.GNB_eNB_ID,
+  0);\n-  //asn1cSeqAdd(&out->protocolIEs.list, ie);\n-\n-  /* optional */\n-  /*
+  c3. ENBname */\n-  if (m2ap_eNB_data_p->eNB_name != NULL) {\n-    ie = (M2AP_M2SetupRequest_Ies_t
+  *)calloc(1, sizeof(M2AP_M2SetupRequest_Ies_t));\n-    ie->id                        =
+  M2AP_ProtocolIE_ID_id_ENBname;\n-    ie->criticality               = M2AP_Criticality_ignore;\n-    ie->value.present             =
+  M2AP_M2SetupRequest_Ies__value_PR_ENBname;\n-    //OCTET_STRING_fromBuf(&ie->value.choice.ENB_Name,
+  m2ap_eNB_data_p->eNB_name,\n-                         //strlen(m2ap_eNB_data_p->eNB_name));\n-    asn1cSeqAdd(&out->protocolIEs.list,
+  ie);\n-  }\n-\n-  /* mandatory */\n-  /* c4. serverd cells list */\n-  ie = (M2AP_M2SetupRequest_Ies_t
+  *)calloc(1, sizeof(M2AP_M2SetupRequest_Ies_t));\n-  ie->id                        =
+  M2AP_ProtocolIE_ID_id_ENB_MBMS_Configuration_data_List;\n-  ie->criticality               =
+  M2AP_Criticality_reject;\n-  ie->value.present             = M2AP_M2SetupRequest_Ies__value_PR_ENB_MBMS_Configuration_data_List;\n-\n-  int
+  num_mbms_available = 1;//m2ap_du_data->num_mbms_available;\n-  LOG_D(M2AP, \"num_mbms_available
+  = %d \\n\", num_mbms_available);\n-\n- for (i=0;\n-       i<num_mbms_available;\n-       i++)
+  {\n-        /* mandatory */\n-        /* 4.1 serverd cells item */\n-\n-        M2AP_ENB_MBMS_Configuration_data_ItemIEs_t
+  *mbms_configuration_data_list_item_ies;\n-        mbms_configuration_data_list_item_ies
+  = (M2AP_ENB_MBMS_Configuration_data_ItemIEs_t *)calloc(1, sizeof(M2AP_ENB_MBMS_Configuration_data_ItemIEs_t));\n-        mbms_configuration_data_list_item_ies->id
+  = M2AP_ProtocolIE_ID_id_ENB_MBMS_Configuration_data_Item;\n-        mbms_configuration_data_list_item_ies->criticality
+  = M2AP_Criticality_reject;\n-        mbms_configuration_data_list_item_ies->value.present
+  = M2AP_ENB_MBMS_Configuration_data_ItemIEs__value_PR_ENB_MBMS_Configuration_data_Item;\n-\n-\tM2AP_ENB_MBMS_Configuration_data_Item_t
+  *mbms_configuration_data_item;\n-\tmbms_configuration_data_item = &mbms_configuration_data_list_item_ies->value.choice.ENB_MBMS_Configuration_data_Item;\n-\t{\n-\t\tMCC_MNC_TO_PLMNID(instance_p->mcc,
+  instance_p->mnc, instance_p->mnc_digit_length,\n-                  &mbms_configuration_data_item->eCGI.pLMN_Identity);\n-        \tMACRO_ENB_ID_TO_CELL_IDENTITY(instance_p->eNB_id,0,\n-                                   &mbms_configuration_data_item->eCGI.eUTRANcellIdentifier);\n-\t\tM2AP_MBMS_Service_Area_t
+  * mbms_service_area;\n-\t\tmbms_service_area = (M2AP_MBMS_Service_Area_t*)calloc(1,sizeof(M2AP_MBMS_Service_Area_t));\n-\t\tasn1cSeqAdd(&mbms_configuration_data_item->mbmsServiceAreaList.list,mbms_service_area);\n-\n-\n-\t}\n-\n-\n-        //M2AP_ENB_MBMS_Configuration_data_Item_t
+  mbms_configuration_data_item;\n-        //memset((void *)&mbms_configuration_data_item,
+  0, sizeof(M2AP_ENB_MBMS_Configuration_data_Item_t));\n-\t\n-\t//M2AP_ECGI_t      eCGI;\n-\t\t//M2AP_PLMN_Identity_t     pLMN_Identity;\n-\t\t//M2AP_EUTRANCellIdentifier_t      eUTRANcellIdentifier\n-\t//M2AP_MBSFN_SynchronisationArea_ID_t      mbsfnSynchronisationArea;\n-\t//M2AP_MBMS_Service_Area_ID_List_t         mbmsServiceAreaList;\n-\n-\n-\tasn1cSeqAdd(&ie->value.choice.ENB_MBMS_Configuration_data_List.list,mbms_configuration_data_list_item_ies);\n-\n-
+  }\n-  asn1cSeqAdd(&out->protocolIEs.list, ie);\n-\n-  LOG_W(M2AP,\"m2ap_eNB_data_p->assoc_id
+  %d\\n\",m2ap_eNB_data_p->assoc_id);\n-  /* encode */\n-  if (m2ap_encode_pdu(&pdu,
+  &buffer, &len) < 0) {\n-    LOG_E(M2AP, \"Failed to encode M2 setup request\\n\");\n-    return
+  -1;\n-  }\n-\n- \n-  LOG_W(M2AP,\"pdu.present %d\\n\",pdu.present);\n-\n-  m2ap_eNB_itti_send_sctp_data_req(instance_p,
+  m2ap_eNB_data_p->assoc_id, buffer, len, 0);\n-\n-  return 0;\n-\n-\n-}\n-\n-//int
+  m2ap_MCE_generate_m2_setup_response(m2ap_eNB_instance_t *instance_p, m2ap_eNB_data_t
+  *m2ap_eNB_data_p)\n-//{\n-//  M2AP_M2AP_PDU_t                     pdu;\n-//  M2AP_M2SetupResponse_t              *out;\n-//  M2AP_M2SetupResponse_Ies_t          *ie;\n-//  //M2AP_PLMN_Identity_t                *plmn;\n-//  //ServedCells__Member                 *servedCellMember;\n-//  //M2AP_GU_Group_ID_t                  *gu;\n-//\n-//  uint8_t  *buffer;\n-//  uint32_t  len;\n-//  int       ret
+  = 0;\n-//\n-//  DevAssert(instance_p != NULL);\n-//  DevAssert(m2ap_eNB_data_p !=
+  NULL);\n-//\n-//  /* Prepare the M2AP message to encode */\n-//  memset(&pdu, 0,
+  sizeof(pdu));\n-//  pdu.present = M2AP_M2AP_PDU_PR_successfulOutcome;\n-//  pdu.choice.successfulOutcome.procedureCode
+  = M2AP_ProcedureCode_id_m2Setup;\n-//  pdu.choice.successfulOutcome.criticality
+  = M2AP_Criticality_reject;\n-//  pdu.choice.successfulOutcome.value.present = M2AP_SuccessfulOutcome__value_PR_M2SetupResponse;\n-//  out
+  = &pdu.choice.successfulOutcome.value.choice.M2SetupResponse;\n-//\n-//  /* mandatory
+  */\n-//  ie = (M2AP_M2SetupResponse_Ies_t *)calloc(1, sizeof(M2AP_M2SetupResponse_Ies_t));\n-//  //ie->id
+  = M2AP_ProtocolIE_ID_id_GlobalENB_ID;\n-//  //ie->criticality = M2AP_Criticality_reject;\n-//  //ie->value.present
+  = M2AP_M2SetupResponse_IEs__value_PR_GlobalENB_ID;\n-//  //MCC_MNC_TO_PLMNID(instance_p->mcc,
+  instance_p->mnc, instance_p->mnc_digit_length,\n-//  //                  &ie->value.choice.GlobalENB_ID.pLMN_Identity);\n-//  //ie->value.choice.GlobalENB_ID.eNB_ID.present
+  = M2AP_ENB_ID_PR_macro_eNB_ID;\n-//  //MACRO_ENB_ID_TO_BIT_STRING(instance_p->eNB_id,\n-//  //                           &ie->value.choice.GlobalENB_ID.eNB_ID.choice.macro_eNB_ID);\n-//  //M2AP_INFO(\"%d
+  -> %02x%02x%02x\\n\", instance_p->eNB_id,\n-//  //          ie->value.choice.GlobalENB_ID.eNB_ID.choice.macro_eNB_ID.buf[0],\n-//  //          ie->value.choice.GlobalENB_ID.eNB_ID.choice.macro_eNB_ID.buf[1],\n-//  //          ie->value.choice.GlobalENB_ID.eNB_ID.choice.macro_eNB_ID.buf[2]);\n-//  asn1cSeqAdd(&out->protocolIEs.list,
+  ie);\n-//\n-//  /* mandatory */\n-//  ie = (M2AP_M2SetupResponse_Ies_t *)calloc(1,
+  sizeof(M2AP_M2SetupResponse_Ies_t));\n-//  //ie->id = M2AP_ProtocolIE_ID_id_ServedCells;\n-//  //ie->criticality
+  = M2AP_Criticality_reject;\n-//  //ie->value.present = M2AP_M2SetupResponse_IEs__value_PR_ServedCells;\n-//  //{\n-//  //  for
+  (int i = 0; i<instance_p->num_cc; i++){\n-//  //    servedCellMember = (ServedCells__Member
+  *)calloc(1,sizeof(ServedCells__Member));\n-//  //    {\n-//  //      servedCellMember->servedCellInfo.pCI
+  = instance_p->Nid_cell[i];\n-//\n-//  //      MCC_MNC_TO_PLMNID(instance_p->mcc,
+  instance_p->mnc, instance_p->mnc_digit_length,\n-//  //                    &servedCellMember->servedCellInfo.cellId.pLMN_Identity);\n-//  //      MACRO_ENB_ID_TO_CELL_IDENTITY(instance_p->eNB_id,0,\n-//  //                                 &servedCellMember->servedCellInfo.cellId.eUTRANcellIdentifier);\n-//\n-//  //      INT16_TO_OCTET_STRING(instance_p->tac,
+  &servedCellMember->servedCellInfo.tAC);\n-//  //      plmn = (M2AP_PLMN_Identity_t
+  *)calloc(1,sizeof(M2AP_PLMN_Identity_t));\n-//  //      {\n-//  //        MCC_MNC_TO_PLMNID(instance_p->mcc,
+  instance_p->mnc, instance_p->mnc_digit_length, plmn);\n-//  //        asn1cSeqAdd(&servedCellMember->servedCellInfo.broadcastPLMNs.list,
+  plmn);\n-//  //      }\n-//\n-//  //      if (instance_p->frame_type[i] == FDD)
+  {\n-//  //        servedCellMember->servedCellInfo.eUTRA_Mode_Info.present = M2AP_EUTRA_Mode_Info_PR_fDD;\n-//  //        servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_EARFCN
+  = instance_p->fdd_earfcn_DL[i];\n-//  //        servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_EARFCN
+  = instance_p->fdd_earfcn_UL[i];\n-//  //        switch (instance_p->N_RB_DL[i])
+  {\n-//  //          case 6:\n-//  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw6;\n-//  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw6;\n-//  //            break;\n-//  //          case
+  15:\n-//  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw15;\n-//  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw15;\n-//  //            break;\n-//  //          case
+  25:\n-//  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw25;\n-//  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw25;\n-//  //            break;\n-//  //          case
+  50:\n-//  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw50;\n-//  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw50;\n-//  //            break;\n-//  //          case
+  75:\n-//  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw75;\n-//  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw75;\n-//  //            break;\n-//  //          case
+  100:\n-//  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw100;\n-//  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw100;\n-//  //            break;\n-//  //          default:\n-//  //            AssertFatal(0,\"Failed:
+  Check value for N_RB_DL/N_RB_UL\");\n-//  //            break;\n-//  //        }\n-//  //      }\n-//  //      else
+  {\n-//  //        AssertFatal(0,\"M2Setupresponse not supported for TDD!\");\n-//  //      }\n-//  //    }\n-//  //    asn1cSeqAdd(&ie->value.choice.ServedCells.list,
+  servedCellMember);\n-//  //  }\n-//  //}\n-//  asn1cSeqAdd(&out->protocolIEs.list,
+  ie);\n-//\n-//  /* mandatory */\n-//  ie = (M2AP_M2SetupResponse_Ies_t *)calloc(1,
+  sizeof(M2AP_M2SetupResponse_Ies_t));\n-//  //ie->id = M2AP_ProtocolIE_ID_id_GUGroupIDList;\n-//  //ie->criticality
+  = M2AP_Criticality_reject;\n-//  //ie->value.present = M2AP_M2SetupResponse_IEs__value_PR_GUGroupIDList;\n-//  //{\n-//  //  gu
+  = (M2AP_GU_Group_ID_t *)calloc(1, sizeof(M2AP_GU_Group_ID_t));\n-//  //  {\n-//  //    MCC_MNC_TO_PLMNID(instance_p->mcc,
+  instance_p->mnc, instance_p->mnc_digit_length,\n-//  //                  &gu->pLMN_Identity);\n-//  //    //@TODO:
+  consider to update this value\n-//  //    INT16_TO_OCTET_STRING(0, &gu->mME_Group_ID);\n-//  //  }\n-//  //  asn1cSeqAdd(&ie->value.choice.GUGroupIDList.list,
+  gu);\n-//  //}\n-//  asn1cSeqAdd(&out->protocolIEs.list, ie);\n-//\n-//  if (m2ap_encode_pdu(&pdu,
+  &buffer, &len) < 0) {\n-//    M2AP_ERROR(\"Failed to encode M2 setup response\\n\");\n-//    return
+  -1;\n-//  }\n-//\n-//  m2ap_eNB_data_p->state = M2AP_ENB_STATE_READY;\n-//\n-//  m2ap_eNB_itti_send_sctp_data_req(instance_p->instance,
+  m2ap_eNB_data_p->assoc_id, buffer, len, 0);\n-//\n-//  return ret;\n-//}\n-\n-//int
+  m2ap_MCE_generate_m2_setup_failure(instance_t instance,\n-//                                       sctp_assoc_t
+  assoc_id,\n-//                                       M2AP_Cause_PR cause_type,\n-//                                       long
+  cause_value,\n-//                                       long time_to_wait)\n-//{\n-//  M2AP_M2AP_PDU_t                     pdu;\n-//  M2AP_M2SetupFailure_t              *out;\n-//  M2AP_M2SetupFailure_Ies_t          *ie;\n-//\n-//  uint8_t  *buffer;\n-//  uint32_t  len;\n-//  int       ret
+  = 0;\n-//\n-//  /* Prepare the M2AP message to encode */\n-//  memset(&pdu, 0, sizeof(pdu));\n-//  pdu.present
+  = M2AP_M2AP_PDU_PR_unsuccessfulOutcome;\n-//  pdu.choice.unsuccessfulOutcome.procedureCode
+  = M2AP_ProcedureCode_id_m2Setup;\n-//  pdu.choice.unsuccessfulOutcome.criticality
+  = M2AP_Criticality_reject;\n-//  pdu.choice.unsuccessfulOutcome.value.present =
+  M2AP_UnsuccessfulOutcome__value_PR_M2SetupFailure;\n-//  out = &pdu.choice.unsuccessfulOutcome.value.choice.M2SetupFailure;\n-//\n-//  /*
+  mandatory */\n-//  ie = (M2AP_M2SetupFailure_Ies_t *)calloc(1, sizeof(M2AP_M2SetupFailure_Ies_t));\n-//  //ie->id
+  = M2AP_ProtocolIE_ID_id_Cause;\n-//  //ie->criticality = M2AP_Criticality_ignore;\n-//  //ie->value.present
+  = M2AP_M2SetupFailure_IEs__value_PR_Cause;\n-//\n-//  //m2ap_eNB_set_cause (&ie->value.choice.Cause,
+  cause_type, cause_value);\n-//\n-//  asn1cSeqAdd(&out->protocolIEs.list, ie);\n-//\n-//  /*
+  optional: consider to handle this later */\n-//  ie = (M2AP_M2SetupFailure_Ies_t
+  *)calloc(1, sizeof(M2AP_M2SetupFailure_Ies_t));\n-//  //ie->id = M2AP_ProtocolIE_ID_id_TimeToWait;\n-//  //ie->criticality
+  = M2AP_Criticality_ignore;\n-//  //ie->value.present = M2AP_M2SetupFailure_IEs__value_PR_TimeToWait;\n-//\n-//  //if
+  (time_to_wait > -1) {\n-//  //  ie->value.choice.TimeToWait = time_to_wait;\n-//  //}\n-//\n-//  asn1cSeqAdd(&out->protocolIEs.list,
+  ie);\n-//\n-//  if (m2ap_encode_pdu(&pdu, &buffer, &len) < 0) {\n-//    M2AP_ERROR(\"Failed
+  to encode M2 setup failure\\n\");\n-//    return -1;\n-//  }\n-//\n-//  m2ap_eNB_itti_send_sctp_data_req(instance,
+  assoc_id, buffer, len, 0);\n-//\n-//  return ret;\n-//}\n-\n-int m2ap_eNB_set_cause
+  (M2AP_Cause_t * cause_p,\n-                        M2AP_Cause_PR cause_type,\n-                        long
+  cause_value)\n-{\n-\n-  DevAssert (cause_p != NULL);\n-  cause_p->present = cause_type;\n-\n-  switch
+  (cause_type) {\n-  case M2AP_Cause_PR_radioNetwork:\n-    cause_p->choice.misc =
+  cause_value;\n-    break;\n-\n-  case M2AP_Cause_PR_transport:\n-    cause_p->choice.misc
+  = cause_value;\n-    break;\n-\n-  case M2AP_Cause_PR_protocol:\n-    cause_p->choice.misc
+  = cause_value;\n-    break;\n-\n-  case M2AP_Cause_PR_misc:\n-    cause_p->choice.misc
+  = cause_value;\n-    break;\n-\n-  default:\n-    return -1;\n-  }\n-\n-  return
+  0;\n-}\n-\n-//int m2ap_eNB_generate_m2_handover_request (m2ap_eNB_instance_t *instance_p,
+  m2ap_eNB_data_t *m2ap_eNB_data_p,\n-//                                           m2ap_handover_req_t
+  *m2ap_handover_req, int ue_id)\n-//{\n-//\n-//  M2AP_M2AP_PDU_t                     pdu;\n-//  M2AP_HandoverRequest_t              *out;\n-//  M2AP_HandoverRequest_IEs_t          *ie;\n-//  M2AP_E_RABs_ToBeSetup_ItemIEs_t     *e_RABS_ToBeSetup_ItemIEs;\n-//  M2AP_E_RABs_ToBeSetup_Item_t        *e_RABs_ToBeSetup_Item;\n-//  M2AP_LastVisitedCell_Item_t         *lastVisitedCell_Item;\n-//\n-//  uint8_t  *buffer;\n-//  uint32_t  len;\n-//  int       ret
+  = 0;\n-//\n-//  DevAssert(instance_p != NULL);\n-//  DevAssert(m2ap_eNB_data_p !=
+  NULL);\n-//\n-//  /* Prepare the M2AP handover message to encode */\n-//  memset(&pdu,
+  0, sizeof(pdu));\n-//  pdu.present = M2AP_M2AP_PDU_PR_initiatingMessage;\n-//  pdu.choice.initiatingMessage.procedureCode
+  = M2AP_ProcedureCode_id_handoverPreparation;\n-//  pdu.choice.initiatingMessage.criticality
+  = M2AP_Criticality_reject;\n-//  pdu.choice.initiatingMessage.value.present = M2AP_InitiatingMessage__value_PR_HandoverRequest;\n-//  out
+  = &pdu.choice.initiatingMessage.value.choice.HandoverRequest;\n-//\n-//  /* mandatory
+  */\n-//  ie = (M2AP_HandoverRequest_IEs_t *)calloc(1, sizeof(M2AP_HandoverRequest_IEs_t));\n-//  ie->id
+  = M2AP_ProtocolIE_ID_id_Old_eNB_UE_M2AP_ID;\n-//  ie->criticality = M2AP_Criticality_reject;\n-//  ie->value.present
+  = M2AP_HandoverRequest_IEs__value_PR_UE_M2AP_ID;\n-//  ie->value.choice.UE_M2AP_ID
+  = m2ap_id_get_id_source(&instance_p->id_manager, ue_id);\n-//  asn1cSeqAdd(&out->protocolIEs.list,
+  ie);\n-//\n-//  /* mandatory */\n-//  ie = (M2AP_HandoverRequest_IEs_t *)calloc(1,
+  sizeof(M2AP_HandoverRequest_IEs_t));\n-//  ie->id = M2AP_ProtocolIE_ID_id_Cause;\n-//  ie->criticality
+  = M2AP_Criticality_ignore;\n-//  ie->value.present = M2AP_HandoverRequest_IEs__value_PR_Cause;\n-//  ie->value.choice.Cause.present
+  = M2AP_Cause_PR_radioNetwork;\n-//  ie->value.choice.Cause.choice.radioNetwork =
+  M2AP_CauseRadioNetwork_handover_desirable_for_radio_reasons;\n-//  asn1cSeqAdd(&out->protocolIEs.list,
+  ie);\n-//\n-//  /* mandatory */\n-//  ie = (M2AP_HandoverRequest_IEs_t *)calloc(1,
+  sizeof(M2AP_HandoverRequest_IEs_t));\n-//  ie->id = M2AP_ProtocolIE_ID_id_TargetCell_ID;\n-//  ie->criticality
+  = M2AP_Criticality_reject;\n-//  ie->value.present = M2AP_HandoverRequest_IEs__value_PR_ECGI;\n-//  MCC_MNC_TO_PLMNID(instance_p->mcc,
+  instance_p->mnc, instance_p->mnc_digit_length,\n-//                       &ie->value.choice.ECGI.pLMN_Identity);\n-//  MACRO_ENB_ID_TO_CELL_IDENTITY(m2ap_eNB_data_p->eNB_id,
+  0, &ie->value.choice.ECGI.eUTRANcellIdentifier);\n-//  asn1cSeqAdd(&out->protocolIEs.list,
+  ie);\n-//\n-//  /* mandatory */\n-//  ie = (M2AP_HandoverRequest_IEs_t *)calloc(1,
+  sizeof(M2AP_HandoverRequest_IEs_t));\n-//  ie->id = M2AP_ProtocolIE_ID_id_GUMMEI_ID;\n-//  ie->criticality
+  = M2AP_Criticality_reject;\n-//  ie->value.present = M2AP_HandoverRequest_IEs__value_PR_GUMMEI;\n-//  MCC_MNC_TO_PLMNID(instance_p->mcc,
+  instance_p->mnc, instance_p->mnc_digit_length,\n-//                       &ie->value.choice.GUMMEI.gU_Group_ID.pLMN_Identity);\n-//  //@TODO:
+  consider to update these values\n-//  INT16_TO_OCTET_STRING(m2ap_handover_req->ue_gummei.mme_group_id,
+  &ie->value.choice.GUMMEI.gU_Group_ID.mME_Group_ID);\n-//  MME_CODE_TO_OCTET_STRING(m2ap_handover_req->ue_gummei.mme_code,
+  &ie->value.choice.GUMMEI.mME_Code);\n-//  asn1cSeqAdd(&out->protocolIEs.list, ie);\n-//\n-//  /*
+  mandatory */\n-//  ie = (M2AP_HandoverRequest_IEs_t *)calloc(1, sizeof(M2AP_HandoverRequest_IEs_t));\n-//  ie->id
+  = M2AP_ProtocolIE_ID_id_UE_ContextInformation;\n-//  ie->criticality = M2AP_Criticality_reject;\n-//  ie->value.present
+  = M2AP_HandoverRequest_IEs__value_PR_UE_ContextInformation;\n-//  //@TODO: consider
+  to update this value\n-//  ie->value.choice.UE_ContextInformation.mME_UE_S1AP_ID
+  = m2ap_handover_req->mme_ue_s1ap_id;\n-//\n-//  KENB_STAR_TO_BIT_STRING(m2ap_handover_req->kenb,&ie->value.choice.UE_ContextInformation.aS_SecurityInformation.key_eNodeB_star);\n-//\n-//  if
+  (m2ap_handover_req->kenb_ncc >=0) { // Check this condition\n-//    ie->value.choice.UE_ContextInformation.aS_SecurityInformation.nextHopChainingCount
+  = m2ap_handover_req->kenb_ncc;\n-//  }\n-//  else {\n-//    ie->value.choice.UE_ContextInformation.aS_SecurityInformation.nextHopChainingCount
+  = 1;\n-//  }\n-//\n-//  ENCRALG_TO_BIT_STRING(m2ap_handover_req->security_capabilities.encryption_algorithms,\n-//              &ie->value.choice.UE_ContextInformation.uESecurityCapabilities.encryptionAlgorithms);\n-//\n-//  INTPROTALG_TO_BIT_STRING(m2ap_handover_req->security_capabilities.integrity_algorithms,\n-//              &ie->value.choice.UE_ContextInformation.uESecurityCapabilities.integrityProtectionAlgorithms);\n-//\n-//  //@TODO:
+  update with proper UEAMPR\n-//  UEAGMAXBITRTD_TO_ASN_PRIMITIVES(3L,&ie->value.choice.UE_ContextInformation.uEaggregateMaximumBitRate.uEaggregateMaximumBitRateDownlink);\n-//  UEAGMAXBITRTU_TO_ASN_PRIMITIVES(6L,&ie->value.choice.UE_ContextInformation.uEaggregateMaximumBitRate.uEaggregateMaximumBitRateUplink);\n-//  {\n-//    for
+  (int i=0;i<m2ap_handover_req->nb_e_rabs_tobesetup;i++) {\n-//      e_RABS_ToBeSetup_ItemIEs
+  = (M2AP_E_RABs_ToBeSetup_ItemIEs_t *)calloc(1,sizeof(M2AP_E_RABs_ToBeSetup_ItemIEs_t));\n-//      e_RABS_ToBeSetup_ItemIEs->id
+  = M2AP_ProtocolIE_ID_id_E_RABs_ToBeSetup_Item;\n-//      e_RABS_ToBeSetup_ItemIEs->criticality
+  = M2AP_Criticality_ignore;\n-//      e_RABS_ToBeSetup_ItemIEs->value.present = M2AP_E_RABs_ToBeSetup_ItemIEs__value_PR_E_RABs_ToBeSetup_Item;\n-//      e_RABs_ToBeSetup_Item
+  = &e_RABS_ToBeSetup_ItemIEs->value.choice.E_RABs_ToBeSetup_Item;\n-//      {\n-//        e_RABs_ToBeSetup_Item->e_RAB_ID
+  = m2ap_handover_req->e_rabs_tobesetup[i].e_rab_id;\n-//        e_RABs_ToBeSetup_Item->e_RAB_Level_QoS_Parameters.qCI
+  = m2ap_handover_req->e_rab_param[i].qos.qci;\n-//        e_RABs_ToBeSetup_Item->e_RAB_Level_QoS_Parameters.allocationAndRetentionPriority.priorityLevel
+  = m2ap_handover_req->e_rab_param[i].qos.allocation_retention_priority.priority_level;\n-//        e_RABs_ToBeSetup_Item->e_RAB_Level_QoS_Parameters.allocationAndRetentionPriority.pre_emptionCapability
+  = m2ap_handover_req->e_rab_param[i].qos.allocation_retention_priority.pre_emp_capability;\n-//        e_RABs_ToBeSetup_Item->e_RAB_Level_QoS_Parameters.allocationAndRetentionPriority.pre_emptionVulnerability
+  = m2ap_handover_req->e_rab_param[i].qos.allocation_retention_priority.pre_emp_vulnerability;\n-//        e_RABs_ToBeSetup_Item->uL_GTPtunnelEndpoint.transportLayerAddress.size
+  = (uint8_t)(m2ap_handover_req->e_rabs_tobesetup[i].eNB_addr.length/8);\n-//        e_RABs_ToBeSetup_Item->uL_GTPtunnelEndpoint.transportLayerAddress.bits_unused
+  = m2ap_handover_req->e_rabs_tobesetup[i].eNB_addr.length%8;\n-//        e_RABs_ToBeSetup_Item->uL_GTPtunnelEndpoint.transportLayerAddress.buf
+  =\n-//                        calloc(1,e_RABs_ToBeSetup_Item->uL_GTPtunnelEndpoint.transportLayerAddress.size);\n-//\n-//        memcpy
+  (e_RABs_ToBeSetup_Item->uL_GTPtunnelEndpoint.transportLayerAddress.buf,\n-//                        m2ap_handover_req->e_rabs_tobesetup[i].eNB_addr.buffer,\n-//                        e_RABs_ToBeSetup_Item->uL_GTPtunnelEndpoint.transportLayerAddress.size);\n-//\n-//        INT32_TO_OCTET_STRING(m2ap_handover_req->e_rabs_tobesetup[i].gtp_teid,&e_RABs_ToBeSetup_Item->uL_GTPtunnelEndpoint.gTP_TEID);\n-//      }\n-//      asn1cSeqAdd(&ie->value.choice.UE_ContextInformation.e_RABs_ToBeSetup_List.list,
+  e_RABS_ToBeSetup_ItemIEs);\n-//    }\n-//  }\n-//\n-//  OCTET_STRING_fromBuf(&ie->value.choice.UE_ContextInformation.rRC_Context,
+  (char*) m2ap_handover_req->rrc_buffer, m2ap_handover_req->rrc_buffer_size);\n-//\n-//  asn1cSeqAdd(&out->protocolIEs.list,
+  ie);\n-//\n-//  /* mandatory */\n-//  ie = (M2AP_HandoverRequest_IEs_t *)calloc(1,
+  sizeof(M2AP_HandoverRequest_IEs_t));\n-//  ie->id = M2AP_ProtocolIE_ID_id_UE_HistoryInformation;\n-//  ie->criticality
+  = M2AP_Criticality_ignore;\n-//  ie->value.present = M2AP_HandoverRequest_IEs__value_PR_UE_HistoryInformation;\n-//  //@TODO:
+  consider to update this value\n-//  {\n-//   lastVisitedCell_Item = (M2AP_LastVisitedCell_Item_t
+  *)calloc(1, sizeof(M2AP_LastVisitedCell_Item_t));\n-//   lastVisitedCell_Item->present
+  = M2AP_LastVisitedCell_Item_PR_e_UTRAN_Cell;\n-//   MCC_MNC_TO_PLMNID(instance_p->mcc,
+  instance_p->mnc, instance_p->mnc_digit_length,\n-//                       &lastVisitedCell_Item->choice.e_UTRAN_Cell.global_Cell_ID.pLMN_Identity);\n-//   MACRO_ENB_ID_TO_CELL_IDENTITY(0,
+  0, &lastVisitedCell_Item->choice.e_UTRAN_Cell.global_Cell_ID.eUTRANcellIdentifier);\n-//   lastVisitedCell_Item->choice.e_UTRAN_Cell.cellType.cell_Size
+  = M2AP_Cell_Size_small;\n-//   lastVisitedCell_Item->choice.e_UTRAN_Cell.time_UE_StayedInCell
+  = 2;\n-//   asn1cSeqAdd(&ie->value.choice.UE_HistoryInformation.list, lastVisitedCell_Item);\n-//  }\n-//\n-//  asn1cSeqAdd(&out->protocolIEs.list,
+  ie);\n-//\n-//  if (m2ap_eNB_encode_pdu(&pdu, &buffer, &len) < 0) {\n-//    M2AP_ERROR(\"Failed
+  to encode X2 handover request\\n\");\n-//    abort();\n-//    return -1;\n-//  }\n-//\n-//  m2ap_eNB_itti_send_sctp_data_req(instance_p->instance,
+  m2ap_eNB_data_p->assoc_id, buffer, len, 1);\n-//\n-//  return ret;\n-//}\n-//\n-//int
+  m2ap_eNB_generate_m2_handover_request_ack (m2ap_eNB_instance_t *instance_p, m2ap_eNB_data_t
+  *m2ap_eNB_data_p,\n-//                                               m2ap_handover_req_ack_t
+  *m2ap_handover_req_ack)\n-//{\n-//\n-//  M2AP_M2AP_PDU_t                        pdu;\n-//  M2AP_HandoverRequestAcknowledge_t      *out;\n-//  M2AP_HandoverRequestAcknowledge_IEs_t  *ie;\n-//  M2AP_E_RABs_Admitted_ItemIEs_t         *e_RABS_Admitted_ItemIEs;\n-//  M2AP_E_RABs_Admitted_Item_t            *e_RABs_Admitted_Item;\n-//  int                                    ue_id;\n-//  int                                    id_source;\n-//  int                                    id_target;\n-//\n-//  uint8_t  *buffer;\n-//  uint32_t  len;\n-//  int       ret
+  = 0;\n-//\n-//  DevAssert(instance_p != NULL);\n-//  DevAssert(m2ap_eNB_data_p !=
+  NULL);\n-//\n-//  ue_id     = m2ap_handover_req_ack->m2_id_target;\n-//  id_source
+  = m2ap_id_get_id_source(&instance_p->id_manager, ue_id);\n-//  id_target = ue_id;\n-//\n-//  /*
+  Prepare the M2AP handover message to encode */\n-//  memset(&pdu, 0, sizeof(pdu));\n-//  pdu.present
+  = M2AP_M2AP_PDU_PR_successfulOutcome;\n-//  pdu.choice.successfulOutcome.procedureCode
+  = M2AP_ProcedureCode_id_handoverPreparation;\n-//  pdu.choice.successfulOutcome.criticality
+  = M2AP_Criticality_reject;\n-//  pdu.choice.successfulOutcome.value.present = M2AP_SuccessfulOutcome__value_PR_HandoverRequestAcknowledge;\n-//  out
+  = &pdu.choice.successfulOutcome.value.choice.HandoverRequestAcknowledge;\n-//\n-//  /*
+  mandatory */\n-//  ie = (M2AP_HandoverRequestAcknowledge_IEs_t *)calloc(1, sizeof(M2AP_HandoverRequestAcknowledge_IEs_t));\n-//  ie->id
+  = M2AP_ProtocolIE_ID_id_Old_eNB_UE_M2AP_ID;\n-//  ie->criticality = M2AP_Criticality_ignore;\n-//  ie->value.present
+  = M2AP_HandoverRequestAcknowledge_IEs__value_PR_UE_M2AP_ID;\n-//  ie->value.choice.UE_M2AP_ID
+  = id_source;\n-//  asn1cSeqAdd(&out->protocolIEs.list, ie);\n-//\n-//  /* mandatory
+  */\n-//  ie = (M2AP_HandoverRequestAcknowledge_IEs_t *)calloc(1, sizeof(M2AP_HandoverRequestAcknowledge_IEs_t));\n-//  ie->id
+  = M2AP_ProtocolIE_ID_id_New_eNB_UE_M2AP_ID;\n-//  ie->criticality = M2AP_Criticality_ignore;\n-//  ie->value.present
+  = M2AP_HandoverRequestAcknowledge_IEs__value_PR_UE_M2AP_ID_1;\n-//  ie->value.choice.UE_M2AP_ID_1
+  = id_target;\n-//  asn1cSeqAdd(&out->protocolIEs.list, ie);\n-//\n-//  /* mandatory
+  */\n-//  ie = (M2AP_HandoverRequestAcknowledge_IEs_t *)calloc(1, sizeof(M2AP_HandoverRequestAcknowledge_IEs_t));\n-//  ie->id
+  = M2AP_ProtocolIE_ID_id_E_RABs_Admitted_List;\n-//  ie->criticality = M2AP_Criticality_ignore;\n-//  ie->value.present
+  = M2AP_HandoverRequestAcknowledge_IEs__value_PR_E_RABs_Admitted_List;\n-//\n-//  {\n-//      for
+  (int i=0;i<m2ap_handover_req_ack->nb_e_rabs_tobesetup;i++) {\n-//        e_RABS_Admitted_ItemIEs
+  = (M2AP_E_RABs_Admitted_ItemIEs_t *)calloc(1,sizeof(M2AP_E_RABs_Admitted_ItemIEs_t));\n-//        e_RABS_Admitted_ItemIEs->id
+  = M2AP_ProtocolIE_ID_id_E_RABs_Admitted_Item;\n-//        e_RABS_Admitted_ItemIEs->criticality
+  = M2AP_Criticality_ignore;\n-//        e_RABS_Admitted_ItemIEs->value.present =
+  M2AP_E_RABs_Admitted_ItemIEs__value_PR_E_RABs_Admitted_Item;\n-//        e_RABs_Admitted_Item
+  = &e_RABS_Admitted_ItemIEs->value.choice.E_RABs_Admitted_Item;\n-//        {\n-//          e_RABs_Admitted_Item->e_RAB_ID
+  = m2ap_handover_req_ack->e_rabs_tobesetup[i].e_rab_id;\n-//        }\n-//        asn1cSeqAdd(&ie->value.choice.E_RABs_Admitted_List.list,
+  e_RABS_Admitted_ItemIEs);\n-//      }\n-//  }\n-//\n-//  asn1cSeqAdd(&out->protocolIEs.list,
+  ie);\n-//\n-//  /* mandatory */\n-//  ie = (M2AP_HandoverRequestAcknowledge_IEs_t
+  *)calloc(1, sizeof(M2AP_HandoverRequestAcknowledge_IEs_t));\n-//  ie->id = M2AP_ProtocolIE_ID_id_TargeteNBtoSource_eNBTransparentContainer;\n-//  ie->criticality
+  = M2AP_Criticality_ignore;\n-//  ie->value.present = M2AP_HandoverRequestAcknowledge_IEs__value_PR_TargeteNBtoSource_eNBTransparentContainer;\n-//\n-//  OCTET_STRING_fromBuf(&ie->value.choice.TargeteNBtoSource_eNBTransparentContainer,
+  (char*) m2ap_handover_req_ack->rrc_buffer, m2ap_handover_req_ack->rrc_buffer_size);\n-//\n-//  asn1cSeqAdd(&out->protocolIEs.list,
+  ie);\n-//\n-//  if (m2ap_eNB_encode_pdu(&pdu, &buffer, &len) < 0) {\n-//    M2AP_ERROR(\"Failed
+  to encode X2 handover response\\n\");\n-//    abort();\n-//    return -1;\n-//  }\n-//\n-//  m2ap_eNB_itti_send_sctp_data_req(instance_p->instance,
+  m2ap_eNB_data_p->assoc_id, buffer, len, 1);\n-//\n-//  return ret;\n-//}\n-//\n-//int
+  m2ap_eNB_generate_m2_ue_context_release (m2ap_eNB_instance_t *instance_p, m2ap_eNB_data_t
+  *m2ap_eNB_data_p, m2ap_ue_context_release_t *m2ap_ue_context_release)\n-//{\n-//\n-//  M2AP_M2AP_PDU_t                pdu;\n-//  M2AP_UEContextRelease_t        *out;\n-//  M2AP_UEContextRelease_IEs_t    *ie;\n-//  int                            ue_id;\n-//  int                            id_source;\n-//  int                            id_target;\n-//\n-//  uint8_t  *buffer;\n-//  uint32_t  len;\n-//  int       ret
+  = 0;\n-//\n-//  DevAssert(instance_p != NULL);\n-//  DevAssert(m2ap_eNB_data_p !=
+  NULL);\n-//\n-//  ue_id = m2ap_find_id_from_rnti(&instance_p->id_manager, m2ap_ue_context_release->rnti);\n-//  if
+  (ue_id == -1) {\n-//    M2AP_ERROR(\"could not find UE %x\\n\", m2ap_ue_context_release->rnti);\n-//    exit(1);\n-//  }\n-//  id_source
+  = m2ap_id_get_id_source(&instance_p->id_manager, ue_id);\n-//  id_target = ue_id;\n-//\n-//  /*
+  Prepare the M2AP ue context relase message to encode */\n-//  memset(&pdu, 0, sizeof(pdu));\n-//  pdu.present
+  = M2AP_M2AP_PDU_PR_initiatingMessage;\n-//  pdu.choice.initiatingMessage.procedureCode
+  = M2AP_ProcedureCode_id_uEContextRelease;\n-//  pdu.choice.initiatingMessage.criticality
+  = M2AP_Criticality_ignore;\n-//  pdu.choice.initiatingMessage.value.present = M2AP_InitiatingMessage__value_PR_UEContextRelease;\n-//  out
+  = &pdu.choice.initiatingMessage.value.choice.UEContextRelease;\n-//\n-//  /* mandatory
+  */\n-//  ie = (M2AP_UEContextRelease_IEs_t *)calloc(1, sizeof(M2AP_UEContextRelease_IEs_t));\n-//  ie->id
+  = M2AP_ProtocolIE_ID_id_Old_eNB_UE_M2AP_ID;\n-//  ie->criticality = M2AP_Criticality_reject;\n-//  ie->value.present
+  = M2AP_UEContextRelease_IEs__value_PR_UE_M2AP_ID;\n-//  ie->value.choice.UE_M2AP_ID
+  = id_source;\n-//  asn1cSeqAdd(&out->protocolIEs.list, ie);\n-//\n-//  /* mandatory
+  */\n-//  ie = (M2AP_UEContextRelease_IEs_t *)calloc(1, sizeof(M2AP_UEContextRelease_IEs_t));\n-//  ie->id
+  = M2AP_ProtocolIE_ID_id_New_eNB_UE_M2AP_ID;\n-//  ie->criticality = M2AP_Criticality_reject;\n-//  ie->value.present
+  = M2AP_UEContextRelease_IEs__value_PR_UE_M2AP_ID_1;\n-//  ie->value.choice.UE_M2AP_ID_1
+  = id_target;\n-//  asn1cSeqAdd(&out->protocolIEs.list, ie);\n-//\n-//  if (m2ap_eNB_encode_pdu(&pdu,
+  &buffer, &len) < 0) {\n-//    M2AP_ERROR(\"Failed to encode X2 UE Context Release\\n\");\n-//    abort();\n-//    return
+  -1;\n-//  }\n-//\n-//  m2ap_eNB_itti_send_sctp_data_req(instance_p->instance, m2ap_eNB_data_p->assoc_id,
+  buffer, len, 1);\n-//\n-//  return ret;\n-//}\n-//\n-//int m2ap_eNB_generate_m2_handover_cancel
+  (m2ap_eNB_instance_t *instance_p, m2ap_eNB_data_t *m2ap_eNB_data_p,\n-//                                          int
+  m2_ue_id,\n-//                                          m2ap_handover_cancel_cause_t
+  cause)\n-//{\n-//  M2AP_M2AP_PDU_t              pdu;\n-//  M2AP_HandoverCancel_t        *out;\n-//  M2AP_HandoverCancel_IEs_t    *ie;\n-//  int                          ue_id;\n-//  int                          id_source;\n-//  int                          id_target;\n-//\n-//  uint8_t  *buffer;\n-//  uint32_t  len;\n-//  int       ret
+  = 0;\n-//\n-//  DevAssert(instance_p != NULL);\n-//  DevAssert(m2ap_eNB_data_p !=
+  NULL);\n-//\n-//  ue_id = m2_ue_id;\n-//  id_source = ue_id;\n-//  id_target = m2ap_id_get_id_target(&instance_p->id_manager,
+  ue_id);\n-//\n-//  /* Prepare the M2AP handover cancel message to encode */\n-//  memset(&pdu,
+  0, sizeof(pdu));\n-//  pdu.present = M2AP_M2AP_PDU_PR_initiatingMessage;\n-//  pdu.choice.initiatingMessage.procedureCode
+  = M2AP_ProcedureCode_id_handoverCancel;\n-//  pdu.choice.initiatingMessage.criticality
+  = M2AP_Criticality_ignore;\n-//  pdu.choice.initiatingMessage.value.present = M2AP_InitiatingMessage__value_PR_HandoverCancel;\n-//  out
+  = &pdu.choice.initiatingMessage.value.choice.HandoverCancel;\n-//\n-//  /* mandatory
+  */\n-//  ie = (M2AP_HandoverCancel_IEs_t *)calloc(1, sizeof(M2AP_HandoverCancel_IEs_t));\n-//  ie->id
+  = M2AP_ProtocolIE_ID_id_Old_eNB_UE_M2AP_ID;\n-//  ie->criticality = M2AP_Criticality_reject;\n-//  ie->value.present
+  = M2AP_HandoverCancel_IEs__value_PR_UE_M2AP_ID;\n-//  ie->value.choice.UE_M2AP_ID
+  = id_source;\n-//  asn1cSeqAdd(&out->protocolIEs.list, ie);\n-//\n-//  /* optional
+  */\n-//  if (id_target != -1) {\n-//    ie = (M2AP_HandoverCancel_IEs_t *)calloc(1,
+  sizeof(M2AP_HandoverCancel_IEs_t));\n-//    ie->id = M2AP_ProtocolIE_ID_id_New_eNB_UE_M2AP_ID;\n-//    ie->criticality
+  = M2AP_Criticality_ignore;\n-//    ie->value.present = M2AP_HandoverCancel_IEs__value_PR_UE_M2AP_ID_1;\n-//    ie->value.choice.UE_M2AP_ID_1
+  = id_target;\n-//    asn1cSeqAdd(&out->protocolIEs.list, ie);\n-//  }\n-//\n-//  /*
+  mandatory */\n-//  ie = (M2AP_HandoverCancel_IEs_t *)calloc(1, sizeof(M2AP_HandoverCancel_IEs_t));\n-//  ie->id
+  = M2AP_ProtocolIE_ID_id_Cause;\n-//  ie->criticality = M2AP_Criticality_ignore;\n-//  ie->value.present
+  = M2AP_HandoverCancel_IEs__value_PR_Cause;\n-//  switch (cause) {\n-//  case M2AP_T_RELOC_PREP_TIMEOUT:\n-//    ie->value.choice.Cause.present
+  = M2AP_Cause_PR_radioNetwork;\n-//    ie->value.choice.Cause.choice.radioNetwork
+  =\n-//      M2AP_CauseRadioNetwork_trelocprep_expiry;\n-//    break;\n-//  case
+  M2AP_TX2_RELOC_OVERALL_TIMEOUT:\n-//    ie->value.choice.Cause.present = M2AP_Cause_PR_radioNetwork;\n-//    ie->value.choice.Cause.choice.radioNetwork
+  =\n-//      M2AP_CauseRadioNetwork_tx2relocoverall_expiry;\n-//    break;\n-//  default:\n-//    /*
+  we can''t come here */\n-//    M2AP_ERROR(\"unhandled cancel cause\\n\");\n-//    exit(1);\n-//  }\n-//  asn1cSeqAdd(&out->protocolIEs.list,
+  ie);\n-//\n-//  if (m2ap_eNB_encode_pdu(&pdu, &buffer, &len) < 0) {\n-//    M2AP_ERROR(\"Failed
+  to encode X2 Handover Cancel\\n\");\n-//    abort();\n-//    return -1;\n-//  }\n-//\n-//  m2ap_eNB_itti_send_sctp_data_req(instance_p->instance,
+  m2ap_eNB_data_p->assoc_id, buffer, len, 1);\n-//\n-//  return ret;\n-//}\ndiff --git
+  a/openair3/M3AP/m3ap_MME_generate_messages.c b/openair3/M3AP/m3ap_MME_generate_messages.c\nindex
+  d513fcd3db..4b3bfb9ad0 100644\n--- a/openair3/M3AP/m3ap_MME_generate_messages.c\n+++
+  b/openair3/M3AP/m3ap_MME_generate_messages.c\n@@ -32,7 +32,7 @@\n \n #include \"m2ap_common.h\"\n
+  #include \"m2ap_MCE.h\"\n-#include \"m2ap_MCE_generate_messages.h\"\n+#include \"m3ap_MCE_generate_messages.h\"\n
+  #include \"m2ap_encoder.h\"\n #include \"m2ap_decoder.h\"\n #include \"m2ap_ids.h\"\n@@
+  -183,9 +183,9 @@ int m2ap_MCE_generate_m2_setup_response(m2ap_MCE_instance_t *instance_p,
+  m2ap_MC\n   M2AP_M2AP_PDU_t                     pdu;\n   M2AP_M2SetupResponse_t              *out;\n   M2AP_M2SetupResponse_Ies_t          *ie;\n-  //M2AP_PLMN_Identity_t                *plmn;\n-  //ServedCells__Member                 *servedCellMember;\n-  //M2AP_GU_Group_ID_t                  *gu;\n+  M2AP_PLMN_Identity_t                *plmn;\n+  ServedCells__Member                 *servedCellMember;\n+  M2AP_GU_Group_ID_t                  *gu;\n
+  \n   uint8_t  *buffer;\n   uint32_t  len;\n@@ -202,103 +202,103 @@ int m2ap_MCE_generate_m2_setup_response(m2ap_MCE_instance_t
+  *instance_p, m2ap_MC\n   pdu.choice.successfulOutcome.value.present = M2AP_SuccessfulOutcome__value_PR_M2SetupResponse;\n   out
+  = &pdu.choice.successfulOutcome.value.choice.M2SetupResponse;\n \n-  /* mandatory
+  */\n+  /* mandatory GlobalMCE_ID */\n   ie = (M2AP_M2SetupResponse_Ies_t *)calloc(1,
+  sizeof(M2AP_M2SetupResponse_Ies_t));\n-  //ie->id = M2AP_ProtocolIE_ID_id_GlobalMCE_ID;\n-  //ie->criticality
+  = M2AP_Criticality_reject;\n-  //ie->value.present = M2AP_M2SetupResponse_IEs__value_PR_GlobalMCE_ID;\n-  //MCC_MNC_TO_PLMNID(instance_p->mcc,
+  instance_p->mnc, instance_p->mnc_digit_length,\n-  //                  &ie->value.choice.GlobalMCE_ID.pLMN_Identity);\n-  //ie->value.choice.GlobalMCE_ID.MCE_ID.present
+  = M2AP_MCE_ID_PR_macro_MCE_ID;\n-  //MACRO_MCE_ID_TO_BIT_STRING(instance_p->MCE_id,\n-  //                           &ie->value.choice.GlobalMCE_ID.MCE_ID.choice.macro_MCE_ID);\n-  //M2AP_INFO(\"%d
+  -> %02x%02x%02x\\n\", instance_p->MCE_id,\n-  //          ie->value.choice.GlobalMCE_ID.MCE_ID.choice.macro_MCE_ID.buf[0],\n-  //          ie->value.choice.GlobalMCE_ID.MCE_ID.choice.macro_MCE_ID.buf[1],\n-  //          ie->value.choice.GlobalMCE_ID.MCE_ID.choice.macro_MCE_ID.buf[2]);\n+  ie->id
+  = M2AP_ProtocolIE_ID_id_GlobalMCE_ID;\n+  ie->criticality = M2AP_Criticality_reject;\n+  ie->value.present
+  = M2AP_M2SetupResponse_IEs__value_PR_GlobalMCE_ID;\n+  MCC_MNC_TO_PLMNID(instance_p->mcc,
+  instance_p->mnc, instance_p->mnc_digit_length,\n+                    &ie->value.choice.GlobalMCE_ID.pLMN_Identity);\n+  ie->value.choice.GlobalMCE_ID.MCE_ID.present
+  = M2AP_MCE_ID_PR_macro_MCE_ID;\n+  MACRO_MCE_ID_TO_BIT_STRING(instance_p->MCE_id,\n+                             &ie->value.choice.GlobalMCE_ID.MCE_ID.choice.macro_MCE_ID);\n+  M2AP_INFO(\"%d
+  -> %02x%02x%02x\\n\", instance_p->MCE_id,\n+            ie->value.choice.GlobalMCE_ID.MCE_ID.choice.macro_MCE_ID.buf[0],\n+            ie->value.choice.GlobalMCE_ID.MCE_ID.choice.macro_MCE_ID.buf[1],\n+            ie->value.choice.GlobalMCE_ID.MCE_ID.choice.macro_MCE_ID.buf[2]);\n   asn1cSeqAdd(&out->protocolIEs.list,
+  ie);\n \n-  /* mandatory */\n+  /* mandatory ServedCells */\n   ie = (M2AP_M2SetupResponse_Ies_t
+  *)calloc(1, sizeof(M2AP_M2SetupResponse_Ies_t));\n-  //ie->id = M2AP_ProtocolIE_ID_id_ServedCells;\n-  //ie->criticality
+  = M2AP_Criticality_reject;\n-  //ie->value.present = M2AP_M2SetupResponse_IEs__value_PR_ServedCells;\n-  //{\n-  //  for
+  (int i = 0; i<instance_p->num_cc; i++){\n-  //    servedCellMember = (ServedCells__Member
+  *)calloc(1,sizeof(ServedCells__Member));\n-  //    {\n-  //      servedCellMember->servedCellInfo.pCI
+  = instance_p->Nid_cell[i];\n-\n-  //      MCC_MNC_TO_PLMNID(instance_p->mcc, instance_p->mnc,
+  instance_p->mnc_digit_length,\n-  //                    &servedCellMember->servedCellInfo.cellId.pLMN_Identity);\n-  //      MACRO_MCE_ID_TO_CELL_IDENTITY(instance_p->MCE_id,0,\n-  //                                 &servedCellMember->servedCellInfo.cellId.eUTRANcellIdentifier);\n-\n-  //      INT16_TO_OCTET_STRING(instance_p->tac,
+  &servedCellMember->servedCellInfo.tAC);\n-  //      plmn = (M2AP_PLMN_Identity_t
+  *)calloc(1,sizeof(M2AP_PLMN_Identity_t));\n-  //      {\n-  //        MCC_MNC_TO_PLMNID(instance_p->mcc,
+  instance_p->mnc, instance_p->mnc_digit_length, plmn);\n-  //        asn1cSeqAdd(&servedCellMember->servedCellInfo.broadcastPLMNs.list,
+  plmn);\n-  //      }\n-\n-  //      if (instance_p->frame_type[i] == FDD) {\n-  //        servedCellMember->servedCellInfo.eUTRA_Mode_Info.present
+  = M2AP_EUTRA_Mode_Info_PR_fDD;\n-  //        servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_EARFCN
+  = instance_p->fdd_earfcn_DL[i];\n-  //        servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_EARFCN
+  = instance_p->fdd_earfcn_UL[i];\n-  //        switch (instance_p->N_RB_DL[i]) {\n-  //          case
+  6:\n-  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw6;\n-  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw6;\n-  //            break;\n-  //          case
+  15:\n-  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw15;\n-  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw15;\n-  //            break;\n-  //          case
+  25:\n-  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw25;\n-  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw25;\n-  //            break;\n-  //          case
+  50:\n-  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw50;\n-  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw50;\n-  //            break;\n-  //          case
+  75:\n-  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw75;\n-  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw75;\n-  //            break;\n-  //          case
+  100:\n-  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw100;\n-  //            servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw100;\n-  //            break;\n-  //          default:\n-  //            AssertFatal(0,\"Failed:
+  Check value for N_RB_DL/N_RB_UL\");\n-  //            break;\n-  //        }\n-  //      }\n-  //      else
+  {\n-  //        AssertFatal(0,\"M2Setupresponse not supported for TDD!\");\n-  //      }\n-  //    }\n-  //    asn1cSeqAdd(&ie->value.choice.ServedCells.list,
+  servedCellMember);\n-  //  }\n-  //}\n+  ie->id = M2AP_ProtocolIE_ID_id_ServedCells;\n+  ie->criticality
+  = M2AP_Criticality_reject;\n+  ie->value.present = M2AP_M2SetupResponse_IEs__value_PR_ServedCells;\n+  {\n+    for
+  (int i = 0; i < instance_p->num_cc; i++) {\n+      servedCellMember = (ServedCells__Member
+  *)calloc(1, sizeof(ServedCells__Member));\n+      {\n+        servedCellMember->servedCellInfo.pCI
+  = instance_p->Nid_cell[i];\n+\n+        MCC_MNC_TO_PLMNID(instance_p->mcc, instance_p->mnc,
+  instance_p->mnc_digit_length,\n+                      &servedCellMember->servedCellInfo.cellId.pLMN_Identity);\n+        MACRO_MCE_ID_TO_CELL_IDENTITY(instance_p->MCE_id,
+  0,\n+                                   &servedCellMember->servedCellInfo.cellId.eUTRANcellIdentifier);\n+\n+        INT16_TO_OCTET_STRING(instance_p->tac,
+  &servedCellMember->servedCellInfo.tAC);\n+        plmn = (M2AP_PLMN_Identity_t *)calloc(1,
+  sizeof(M2AP_PLMN_Identity_t));\n+        {\n+          MCC_MNC_TO_PLMNID(instance_p->mcc,
+  instance_p->mnc, instance_p->mnc_digit_length, plmn);\n+          asn1cSeqAdd(&servedCellMember->servedCellInfo.broadcastPLMNs.list,
+  plmn);\n+        }\n+\n+        if (instance_p->frame_type[i] == FDD) {\n+          servedCellMember->servedCellInfo.eUTRA_Mode_Info.present
+  = M2AP_EUTRA_Mode_Info_PR_fDD;\n+          servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_EARFCN
+  = instance_p->fdd_earfcn_DL[i];\n+          servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_EARFCN
+  = instance_p->fdd_earfcn_UL[i];\n+          switch (instance_p->N_RB_DL[i]) {\n+            case
+  6:\n+              servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw6;\n+              servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw6;\n+              break;\n+            case 15:\n+              servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw15;\n+              servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw15;\n+              break;\n+            case 25:\n+              servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw25;\n+              servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw25;\n+              break;\n+            case 50:\n+              servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw50;\n+              servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw50;\n+              break;\n+            case 75:\n+              servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw75;\n+              servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw75;\n+              break;\n+            case 100:\n+              servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.uL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw100;\n+              servedCellMember->servedCellInfo.eUTRA_Mode_Info.choice.fDD.dL_Transmission_Bandwidth
+  = M2AP_Transmission_Bandwidth_bw100;\n+              break;\n+            default:\n+              AssertFatal(0,
+  \"Failed: Check value for N_RB_DL/N_RB_UL\");\n+              break;\n+          }\n+        }\n+        else
+  {\n+          AssertFatal(0, \"M2SetupResponse not supported for TDD!\");\n+        }\n+      }\n+      asn1cSeqAdd(&ie->value.choice.ServedCells.list,
+  servedCellMember);\n+    }\n+  }\n   asn1cSeqAdd(&out->protocolIEs.list, ie);\n
+  \n-  /* mandatory */\n+  /* mandatory GUGroupIDList */\n   ie = (M2AP_M2SetupResponse_Ies_t
+  *)calloc(1, sizeof(M2AP_M2SetupResponse_Ies_t));\n-  //ie->id = M2AP_ProtocolIE_ID_id_GUGroupIDList;\n-  //ie->criticality
+  = M2AP_Criticality_reject;\n-  //ie->value.present = M2AP_M2SetupResponse_IEs__value_PR_GUGroupIDList;\n-  //{\n-  //  gu
+  = (M2AP_GU_Group_ID_t *)calloc(1, sizeof(M2AP_GU_Group_ID_t));\n-  //  {\n-  //    MCC_MNC_TO_PLMNID(instance_p->mcc,
+  instance_p->mnc, instance_p->mnc_digit_length,\n-  //                  &gu->pLMN_Identity);\n-  //    //@TODO:
+  consider to update this value\n-  //    INT16_TO_OCTET_STRING(0, &gu->mME_Group_ID);\n-  //  }\n-  //  asn1cSeqAdd(&ie->value.choice.GUGroupIDList.list,
+  gu);\n-  //}\n+  ie->id = M2AP_ProtocolIE_ID_id_GUGroupIDList;\n+  ie->criticality
+  = M2AP_Criticality_reject;\n+  ie->value.present = M2AP_M2SetupResponse_IEs__value_PR_GUGroupIDList;\n+  {\n+    gu
+  = (M2AP_GU_Group_ID_t *)calloc(1, sizeof(M2AP_GU_Group_ID_t));\n+    {\n+      MCC_MNC_TO_PLMNID(instance_p->mcc,
+  instance_p->mnc, instance_p->mnc_digit_length,\n+                    &gu->pLMN_Identity);\n+      //@TODO:
+  consider to update this value\n+      INT16_TO_OCTET_STRING(0, &gu->mME_Group_ID);\n+    }\n+    asn1cSeqAdd(&ie->value.choice.GUGroupIDList.list,
+  gu);\n+  }\n   asn1cSeqAdd(&out->protocolIEs.list, ie);\n \n   if (m2ap_encode_pdu(&pdu,
+  &buffer, &len) < 0) {\ndiff --git a/openair3/M3AP/m3ap_MME_generate_messages.h b/openair3/M3AP/m3ap_MME_generate_messages.h\nindex
+  a1dbe837c3..7354b98b67 100644\n--- a/openair3/M3AP/m3ap_MME_generate_messages.h\n+++
+  b/openair3/M3AP/m3ap_MME_generate_messages.h\n@@ -19,21 +19,21 @@\n  *      contact@openairinterface.org\n  */\n
+  \n-/*! \\file m3ap_MCE_generate_messages.h\n- * \\brief m3ap procedures for MCE\n+/*!
+  \\file m3ap_MME_generate_messages.h\n+ * \\brief m3ap procedures for MME\n  * \\author
+  Javier Morgade <javier.morgade@ieee.org>\n  * \\date 2019\n  * \\version 0.1\n  */\n
+  \n-#ifndef M3AP_MCE_GENERATE_MESSAGES_H_\n-#define M3AP_MCE_GENERATE_MESSAGES_H_\n+#ifndef
+  M3AP_MME_GENERATE_MESSAGES_H_\n+#define M3AP_MME_GENERATE_MESSAGES_H_\n \n #include
+  \"m2ap_MCE_defs.h\"\n #include \"m2ap_common.h\"\n \n int m2ap_MCE_generate_m2_setup_request(m2ap_MCE_instance_t
+  *instance_p,\n-\t\t\t\t       m2ap_MCE_data_t *m2ap_MCE_data_p);\n+                                       m2ap_MCE_data_t
+  *m2ap_MCE_data_p);\n \n int m2ap_MCE_generate_m2_setup_response(m2ap_MCE_instance_t
+  *instance_p, m2ap_MCE_data_t *m2ap_MCE_data_p);\n \n@@ -60,4 +60,4 @@ int m2ap_MCE_set_cause
+  (M2AP_Cause_t * cause_p,\n //                                          int m2_ue_id,\n
+  //                                          m2ap_handover_cancel_cause_t cause);\n
+  \n-#endif /*  M2AP_MCE_GENERATE_MESSAGES_H_ */\n+#endif /*  M3AP_MME_GENERATE_MESSAGES_H_
+  */\n","start_fn":"m2ap_MCE_generate_m2_setup_response","start_fn_file":"openair3/M3AP/m3ap_MME_generate_messages.c","subsystem":"openair3/M3AP"},"type":"text","id":"oai5g_bf69e25_00010"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

@@ -1,0 +1,65 @@
+diff --git a/drivers/coresight/coresight_tmc_etr.c b/drivers/coresight/coresight_tmc_etr.c
+index 460dddbb..5173587a 100644
+--- a/drivers/coresight/coresight_tmc_etr.c
++++ b/drivers/coresight/coresight_tmc_etr.c
+@@ -29,6 +29,7 @@
+ #include <stdbool.h>
+ #include <stdio.h>
+ #include <string.h>
++#include <inttypes.h>
+ #include <nuttx/fs/fs.h>
+ #include <nuttx/kmalloc.h>
+ #include <nuttx/cache.h>
+@@ -185,6 +186,8 @@ static void tmc_etr_hw_read(FAR struct coresight_tmc_dev_s *tmcdev)
+   uintptr_t rwp;
+   uint32_t status;
+   bool lost = false;
++  uintptr_t buf_start;
++  uintptr_t buf_end;
+ 
+   rrp = (uint64_t)coresight_get32(tmcdev->csdev.addr + TMC_RRPHI) << 32 |
+         coresight_get32(tmcdev->csdev.addr + TMC_RRP);
+@@ -201,6 +204,28 @@ static void tmc_etr_hw_read(FAR struct coresight_tmc_dev_s *tmcdev)
+       return;
+     }
+ 
++  /* Validate that pointers are within the allocated buffer bounds */
++  buf_start = (uintptr_t)tmcdev->buf;
++  buf_end = buf_start + tmcdev->size;
++
++  if (rrp < buf_start || rrp > buf_end)
++    {
++      cserr("tmc read pointer out of bounds: 0x%" PRIxPTR ", buffer range: 0x%" PRIxPTR "-0x%" PRIxPTR "\n",
++            rrp, buf_start, buf_end);
++      tmcdev->len = 0;
++      tmcdev->offset = 0;
++      return;
++    }
++
++  if (rwp < buf_start || rwp > buf_end)
++    {
++      cserr("tmc write pointer out of bounds: 0x%" PRIxPTR ", buffer range: 0x%" PRIxPTR "-0x%" PRIxPTR "\n",
++            rwp, buf_start, buf_end);
++      tmcdev->len = 0;
++      tmcdev->offset = 0;
++      return;
++    }
++
+   if ((status & TMC_STS_FULL) == 1)
+     {
+       lost = true;
+@@ -216,6 +241,14 @@ static void tmc_etr_hw_read(FAR struct coresight_tmc_dev_s *tmcdev)
+       tmcdev->len = (uint32_t)(rwp - rrp);
+     }
+ 
++  /* Additional bounds check for calculated length */
++  if (tmcdev->offset + tmcdev->len > tmcdev->size)
++    {
++      cserr("calculated buffer parameters exceed buffer size: offset=%" PRIu32 ", len=%" PRIu32 ", size=%" PRIu32 "\n",
++            tmcdev->offset, tmcdev->len, tmcdev->size);
++      tmcdev->len = tmcdev->size - tmcdev->offset;
++    }
++
+   if (tmcdev->offset + tmcdev->len > tmcdev->size)
+     {
+       up_invalidate_dcache((uintptr_t)tmcdev->buf, tmcdev->size);

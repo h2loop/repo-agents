@@ -1,0 +1,37 @@
+diff --git a/openair1/PHY/NR_UE_TRANSPORT/nr_transport_ue.h b/openair1/PHY/NR_UE_TRANSPORT/nr_transport_ue.h
+index cd24114323..b44b007718 100644
+--- a/openair1/PHY/NR_UE_TRANSPORT/nr_transport_ue.h
++++ b/openair1/PHY/NR_UE_TRANSPORT/nr_transport_ue.h
+@@ -84,6 +84,8 @@ typedef struct {
+   uint8_t BG;
+   // LDPC lifting size
+   uint32_t Z;
++  // Reference count to prevent use-after-free
++  int ref_count;
+ } NR_UL_UE_HARQ_t;
+ 
+ typedef struct {
+diff --git a/openair1/PHY/NR_UE_TRANSPORT/nr_ulsch_coding.c b/openair1/PHY/NR_UE_TRANSPORT/nr_ulsch_coding.c
+index d4cf69d8f4..6295f6e182 100644
+--- a/openair1/PHY/NR_UE_TRANSPORT/nr_ulsch_coding.c
++++ b/openair1/PHY/NR_UE_TRANSPORT/nr_ulsch_coding.c
+@@ -54,6 +54,10 @@ int nr_ulsch_encoding(PHY_VARS_NR_UE *ue,
+ 
+   unsigned int crc = 1;
+   NR_UL_UE_HARQ_t *harq_process = &ue->ul_harq_processes[harq_pid];
++  
++  // Increment reference count to prevent use-after-free during encoding
++  harq_process->ref_count++;
++  
+   uint16_t nb_rb = ulsch->pusch_pdu.rb_size;
+   uint32_t A = tb_size << 3;
+   uint32_t r_offset = 0;
+@@ -125,6 +129,8 @@ int nr_ulsch_encoding(PHY_VARS_NR_UE *ue,
+     impp.BG = harq_process->BG;
+     if (impp.n_segments > MAX_NUM_NR_DLSCH_SEGMENTS_PER_LAYER * ulsch->pusch_pdu.nrOfLayers) {
+       LOG_E(PHY, "nr_segmentation.c: too many segments %d, B %d\n", impp.n_segments, B);
++      // Decrement reference count before error return
++      harq_process->ref_count--;
+       return(-1);
+     }
+     VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_NR_SEGMENTATION, VCD_FUNCTION_OUT);

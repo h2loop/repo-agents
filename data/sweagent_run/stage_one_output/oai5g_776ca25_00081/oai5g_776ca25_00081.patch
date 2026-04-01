@@ -1,0 +1,15 @@
+diff --git a/openair2/NR_PHY_INTERFACE/NR_IF_Module.c b/openair2/NR_PHY_INTERFACE/NR_IF_Module.c
+index 869c0f9882..1e7c10a1ad 100644
+--- a/openair2/NR_PHY_INTERFACE/NR_IF_Module.c
++++ b/openair2/NR_PHY_INTERFACE/NR_IF_Module.c
+@@ -128,9 +128,9 @@ void handle_nr_uci(NR_UL_IND_t *UL_info)
+         case NFAPI_NR_UCI_FORMAT_2_3_4_PDU_TYPE: {
+           const nfapi_nr_uci_pucch_pdu_format_2_3_4_t *uci_pdu = &uci_list[i].pucch_pdu_format_2_3_4;
+           handle_nr_uci_pucch_2_3_4(mod_id, frame, slot, uci_pdu);
++          LOG_D(MAC, "UCI handled \n");
+           break;
+         }
+-      LOG_D(MAC, "UCI handled \n");
+     }
+   }
+ 

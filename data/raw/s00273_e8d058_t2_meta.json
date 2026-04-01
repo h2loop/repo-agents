@@ -1,0 +1,9 @@
+{
+  "run_id": "s00273_e8d058",
+  "pr_text": "## Title: Fix buffer overflow vulnerability in tracer XY view initialization\n\n### Summary\nThe `new_view_xy()` function in the tracer utility did not validate the `length` parameter before allocating internal coordinate buffers. When called with zero or negative length, `calloc(length, sizeof(float))` could produce undefined behavior or buffer overflow conditions. This vulnerability could be triggered by malformed configuration or invalid API usage, potentially causing memory corruption in gNB de",
+  "trajectory_path": "data/raw/s00273_e8d058_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00273_e8d058_p2.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 12,
+  "timestamp": "2026-02-10T12:17:26Z"
+}

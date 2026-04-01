@@ -1,0 +1,35 @@
+diff --git a/openair2/LAYER2/rlc_v2/asn1_utils.c b/openair2/LAYER2/rlc_v2/asn1_utils.c
+index ead96ae897..7d769691e5 100644
+--- a/openair2/LAYER2/rlc_v2/asn1_utils.c
++++ b/openair2/LAYER2/rlc_v2/asn1_utils.c
+@@ -24,7 +24,7 @@
+ int decode_t_reordering(int v)
+ {
+   static const int tab[32] = {0,  5,  10, 15, 20,  25,  30,  35,  40,  45,  50,  55,  60,  65,  70,  75,
+-                              80, 85, 90, 95, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 1600};
++                              80, 85, 90, 95, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 2000};
+ 
+   if (v < 0 || v > 31) {
+     LOG_E(RLC, "%s:%d:%s: fatal\n", __FILE__, __LINE__, __FUNCTION__);
+diff --git a/openair2/LAYER2/rlc_v2/rlc_entity_am.c b/openair2/LAYER2/rlc_v2/rlc_entity_am.c
+index 710f22855e..19d6902434 100644
+--- a/openair2/LAYER2/rlc_v2/rlc_entity_am.c
++++ b/openair2/LAYER2/rlc_v2/rlc_entity_am.c
+@@ -742,7 +742,7 @@ control:
+   /* 36.322 5.2.2.2 says to stop t_poll_retransmit if a ACK or NACK is
+    * received for the SN 'poll_sn'
+    */
+-  if (sn_compare_tx(entity, entity->poll_sn, ack_sn) < 0)
++  if (sn_compare_tx(entity, entity->poll_sn, ack_sn) == 0)
+     entity->t_poll_retransmit_start = 0;
+ 
+   /* at this point, accept the PDU even if the actual values
+@@ -775,7 +775,7 @@ control:
+     /* 36.322 5.2.2.2 says to stop t_poll_retransmit if a ACK or NACK is
+      * received for the SN 'poll_sn'
+      */
+-    if (entity->poll_sn == nack_sn)
++    if (sn_compare_tx(entity, entity->poll_sn, nack_sn) <= 0)
+       entity->t_poll_retransmit_start = 0;
+   }
+ 

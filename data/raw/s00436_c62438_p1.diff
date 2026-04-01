@@ -1,0 +1,132 @@
+diff --git a/openair2/UTIL/OTG/otg_models.c b/openair2/UTIL/OTG/otg_models.c
+index d866713ecb..5c1e727565 100644
+--- a/openair2/UTIL/OTG/otg_models.c
++++ b/openair2/UTIL/OTG/otg_models.c
+@@ -100,6 +100,16 @@ double tarmaCalculateSample( double inputSamples[], tarmaProcess_t *proc)
+   }
+ 
+   LOG_D(OTG,"TARMA_DEBUG: tarmaCalculateSamples called: Z=%f\n",Z);
++  
++  /* Clamp the output value to prevent buffer overruns in downstream string operations */
++  if (Z > 1000000.0) {
++    LOG_W(OTG, "TARMA: Clamping large value %f to 1000000.0 to prevent buffer overrun\n", Z);
++    Z = 1000000.0;
++  } else if (Z < -1000000.0) {
++    LOG_W(OTG, "TARMA: Clamping large negative value %f to -1000000.0 to prevent buffer overrun\n", Z);
++    Z = -1000000.0;
++  }
++  
+   //tarmaPrintProc(proc);
+   return Z;
+ }
+diff --git a/openair2/UTIL/OTG/otg_tx.c b/openair2/UTIL/OTG/otg_tx.c
+index a43160ccd8..fe1c07f27a 100644
+--- a/openair2/UTIL/OTG/otg_tx.c
++++ b/openair2/UTIL/OTG/otg_tx.c
+@@ -110,6 +110,14 @@ int time_dist(
+   case TARMA :
+     idt=ceil(tarmaCalculateSample(otg_info->tarma_stream[src_instance][dst_instance][application]->tarma_input_samples,
+                                   &(otg_info->tarma_stream[src_instance][dst_instance][application]->tarma_idt)));
++    /* Clamp IDT to reasonable range to prevent buffer overruns */
++    if (idt > 1000000) {
++      LOG_W(OTG, "IDT value %d exceeds maximum, clamping to 1000000\n", idt);
++      idt = 1000000;
++    } else if (idt < 0) {
++      LOG_W(OTG, "IDT value %d is negative, clamping to 0\n", idt);
++      idt = 0;
++    }
+     break;
+ 
+   case VIDEO :
+@@ -197,6 +205,14 @@ int size_dist(
+     case TARMA :
+       size_data=ceil(tarmaCalculateSample(otg_info->tarma_stream[src_instance][dst_instance][application]->tarma_input_samples,
+                                           &(otg_info->tarma_stream[src_instance][dst_instance][application]->tarma_size)));
++      /* Clamp size to reasonable range to prevent buffer overruns */
++      if (size_data > PAYLOAD_MAX) {
++        LOG_W(OTG, "TARMA size %d exceeds PAYLOAD_MAX %d, clamping\n", size_data, PAYLOAD_MAX);
++        size_data = PAYLOAD_MAX;
++      } else if (size_data < PAYLOAD_MIN) {
++        LOG_W(OTG, "TARMA size %d below PAYLOAD_MIN %d, clamping\n", size_data, PAYLOAD_MIN);
++        size_data = PAYLOAD_MIN;
++      }
+       break;
+ 
+     case VIDEO :
+@@ -760,11 +776,21 @@ char *random_string(
+ {
+   char *data=NULL;
+   int i=0,start=0;
++  int safe_size = size;
++  
++  /* Clamp size to prevent buffer overruns and excessive memory allocation */
++  if (size > PAYLOAD_MAX) {
++    LOG_W(OTG, "random_string: requested size %d exceeds PAYLOAD_MAX %d, clamping\n", size, PAYLOAD_MAX);
++    safe_size = PAYLOAD_MAX;
++  } else if (size < 0) {
++    LOG_W(OTG, "random_string: requested size %d is negative, setting to 0\n", size);
++    safe_size = 0;
++  }
+ 
+   switch (mode) {
+   case REPEAT_STRING:
+-    start = uniform_dist (0, abs(strlen(FIXED_STRING)- size - 1));
+-    return str_sub (FIXED_STRING, start, start + size -1);
++    start = uniform_dist (0, abs(strlen(FIXED_STRING)- safe_size - 1));
++    return str_sub (FIXED_STRING, start, start + safe_size -1);
+     break;
+ 
+   case SUBSTRACT_STRING:
+@@ -772,20 +798,20 @@ char *random_string(
+     //data=strndup(data_string + (strlen(data_string) - size), strlen(data_string));
+     //data=strndup(data_string + (strlen(data_string) - size), size);
+     if (data_type == HEADER_ALPHABET) {
+-      start = uniform_dist (0, abs(strlen(HEADER_STRING)- size - 1));
+-      return str_sub (HEADER_STRING, start, start + size -1);
++      start = uniform_dist (0, abs(strlen(HEADER_STRING)- safe_size - 1));
++      return str_sub (HEADER_STRING, start, start + safe_size -1);
+     } else if (data_type == PAYLOAD_ALPHABET) {
+-      start = uniform_dist (0, abs(strlen(PAYLOAD_STRING)- size - 1));
+-      return str_sub (PAYLOAD_STRING, start, start+size - 1 );
++      start = uniform_dist (0, abs(strlen(PAYLOAD_STRING)- safe_size - 1));
++      return str_sub (PAYLOAD_STRING, start, start+safe_size - 1 );
+     } else
+       LOG_E(OTG, "unsupported alphabet data type \n");
+ 
+     break;
+ 
+   case RANDOM_POSITION:
+-    data=(char*)malloc((size+1)*sizeof(char));
++    data=(char*)malloc((safe_size+1)*sizeof(char));
+ 
+-    for(i=0; i<=size; i++) {
++    for(i=0; i<=safe_size; i++) {
+       if (data_type == HEADER_ALPHABET)
+         data[i]=HEADER_STRING [(int)uniform_dist(0, 128)];
+       else if (data_type == PAYLOAD_ALPHABET)
+@@ -798,13 +824,13 @@ char *random_string(
+       //data[i]= taus(OTG) % (126 - 33 + 1) + 33;
+     }
+ 
+-    data[size] = '\0';
++    data[safe_size] = '\0';
+     break;
+ 
+   case RANDOM_STRING:
+-    data=(char*)malloc((size+1)*sizeof(char));
++    data=(char*)malloc((safe_size+1)*sizeof(char));
+ 
+-    for(i=0; i<=size; i++) {
++    for(i=0; i<=safe_size; i++) {
+       if (data_type == HEADER_ALPHABET)
+         data[i]= (char) uniform_dist(48,57); // take only the numbers
+       else if (data_type == PAYLOAD_ALPHABET)
+@@ -813,7 +839,7 @@ char *random_string(
+         LOG_E(OTG,"unsupported alphabet data type \n");
+     }
+ 
+-    data[size] = '\0';
++    data[safe_size] = '\0';
+     break;
+ 
+   default:

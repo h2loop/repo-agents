@@ -1,0 +1,24 @@
+diff --git a/openair1/PHY/NR_UE_TRANSPORT/dci_nr.c b/openair1/PHY/NR_UE_TRANSPORT/dci_nr.c
+index 5c3729f047..f6d987e88a 100644
+--- a/openair1/PHY/NR_UE_TRANSPORT/dci_nr.c
++++ b/openair1/PHY/NR_UE_TRANSPORT/dci_nr.c
+@@ -754,8 +754,8 @@ int32_t nr_rx_pdcch(PHY_VARS_NR_UE *ue,
+     LOG_D(PHY,"we enter nr_pdcch_channel_compensation(log2_maxh=%d)\n",log2_maxh);
+     LOG_D(PHY,"in nr_pdcch_channel_compensation(rxdataF_ext x dl_ch_estimates_ext -> rxdataF_comp)\n");
+     // compute LLRs for ofdm symbol 0 only
+-    nr_pdcch_channel_compensation(rx_size, rxdataF_ext,
+-                                  pdcch_dl_ch_estimates_ext,
++    nr_pdcch_channel_compensation(rx_size, pdcch_dl_ch_estimates_ext,
++                                  rxdataF_ext,
+                                   rxdataF_comp,
+                                   NULL,
+                                   frame_parms,
+@@ -952,7 +952,7 @@ uint8_t nr_dci_decoding_procedure(PHY_VARS_NR_UE *ue,
+ 
+             memcpy(sci_ind->sci_pdu[sci_ind->number_of_SCIs].sci_payloadBits,&dci_estimation,8);
+             sci_ind->number_of_SCIs++;
+-	    ue->SL_UE_PHY_PARAMS.pscch.rx_ok++;   
++            ue->SL_UE_PHY_PARAMS.pscch.rx_ok++;   
+           }
+           break;    // If DCI is found, no need to check for remaining DCI lengths
+         }

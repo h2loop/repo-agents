@@ -1,0 +1,112 @@
+synthetic_traj_prompt: |
+  <fix_steps>
+  {{agent_steps}}
+  </fix_steps>
+
+  <fix_steps> describes a sequence of edits applied to fix a bug in the OpenAirInterface 5G (OAI5G) C/C++ codebase. An example PR issue of a different bug is shown in <demonstration_issue>.
+  Your task is to create a realistic PR that follows the format of the example PR in <demonstration_issue>.
+
+  Guidelines:
+  - Mimic the style and structure of the demonstration issue. If the demonstration is
+  not well structured, your output should also be not well structured. If the demonstration
+  use improper or no markdown, your output should also use improper or no markdown. If
+  the demonstrations are short/long, your output should also be short/long (if possible). If
+  the demonstrations include human "flavor text" or "fluff", your output should also include
+  human "flavor text" or "fluff". Do this even if it conflicts with your default behavior of trying
+  to be extremely concise and helpful.
+  - DO NOT explain the fix/what caused the bug itself, focus on how to reproduce the issue it
+  introduces.
+  - Do not mention unit tests or CI pipelines or what exact test failed. Instead, generate a realistic issue.
+  - If possible, include information about how to reproduce the issue. An ideal reproduction
+  should describe observable symptoms (segfault, incorrect output, memory leak).
+  However, still include this information in a style very similar to the demonstration issue.
+  - Do not describe the bug as already fixed.
+  - Do not mention you are an AI assistant if the demonstration issue contains any identity information. Make up a random name.
+  - It is essential to NOT include any reproduction script or source code snippets if the demonstration issue does not. If it does, make sure to match the demonstration issue's code format.
+
+  <demonstration_issue>
+  {{demonstration_issue}}
+  </demonstration_issue>
+
+  Write your generated PR in <output> tags.
+
+check_synthetic_traj_prompt: |
+  <fix_steps>
+  {{agent_steps}}
+  </fix_steps>
+
+  <initial_prompt>
+  {{initial_prompt}}
+  </initial_prompt>
+
+  <fix_steps> describes the steps an AI agent took to fix a bug described by <initial_prompt>.
+  Your task is to judge if the final fix is a valid fix aligning with <initial_prompt>.
+  Write your final answer as a yes or no in <output> tags.
+
+rollout_one_prompts:
+  [
+    "<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI've uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following issue:\n\n<pr_description>\nThere is a {{bug_description}} downstream of function {{start_fn}} in {{start_fn_file}}.\nWhen calling {{start_fn}}() the behavior is not what is expected. The issue may be in {{start_fn}} or a function downstream/upstream of it.\n</pr_description>\n\nCan you help me implement the necessary changes to fix this issue?\nYour task is to make minimal changes to fix the bug described above.\nFollow these steps:\n1. Find and read the code around {{start_fn}} in {{start_fn_file}}\n2. Understand the issue and identify the root cause\n3. Make a targeted fix\n4. Verify your changes make sense\nYour thinking should be thorough and so it's fine if it's very long.\n",
+    "<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI've uploaded the OpenAirInterface 5G C/C++ codebase in the directory {{working_dir}}. Consider the following issue:\n\n<pr_description>\nPossible bug in the library related to {{start_fn}} in {{start_fn_file}}.\nWhen I call {{start_fn}}() my behavior is not what is expected.\n</pr_description>\n\nCan you help me implement the necessary changes to the codebase so that the issue described in the <pr_description> is fixed?\nYour task is to make the minimal changes to source files in the {{working_dir}} directory to ensure the <pr_description> is satisfied.\nFollow these steps to resolve the issue:\n1. Find and read code relevant to the <pr_description>\n2. Investigate the issue by exploring the relevant code paths\n3. Edit the source code to resolve the issue\n4. Verify your changes make sense\nYour thinking should be thorough and so it's fine if it's very long.\n"
+  ]
+
+swebench_prs:
+  oai5g_ngap_decode: |
+    ## Title: Fix GUAMI decoding in NG Setup Response handler
+
+    ### Summary
+    The NG Setup Response handler in the gNB NGAP module incorrectly parsed the optional GUAMI list IE returned by the AMF. When the AMF included a ServedGUAMIList with certain optional fields absent (e.g., missing GUAMIType), the decoder attempted to access uninitialized memory, leading to segmentation faults during the NG Setup procedure.
+
+    The root cause was a missing presence check before dereferencing the optional GUAMIType pointer within the ServedGUAMIItem. This fix adds a proper NULL check for optional IEs within the GUAMI decoding loop and initializes the local GUAMI structure to safe defaults before populating it.
+
+    ### Changes
+    - `openair3/NGAP/ngap_gNB_handlers.c`: Added NULL check for optional GUAMIType IE before dereferencing.
+    - `openair3/NGAP/ngap_gNB_management_procedures.c`: Updated comparison to handle unset GUAMIType.
+    - `openair3/NGAP/ngap_gNB_defs.h`: Added `guami_type_present` boolean flag.
+
+  oai5g_nas_security: |
+    ## Title: Fix security header processing order in NAS message handling
+
+    ### Summary
+    The NAS message decoder in the NR UE stack processed the security header length before validating the security header type. When the UE received a very short NAS message, this ordering allowed a buffer overread.
+
+    This fix reorders the processing logic so that the security header type is validated first. For protected messages, the total message length is now checked against the minimum required size before attempting to decode.
+
+    ### Changes
+    - `openair3/NAS/NR_UE/nr_nas_msg.c`: Reordered security header processing.
+    - `openair3/NAS/NR_UE/5GS/5GMM/MSG/fgmm_lib.c`: Updated error propagation.
+    - `openair3/NAS/COMMON/NR_NAS_defs.h`: Added `NAS_ERR_BUFFER_TOO_SHORT` error code.
+
+  oai5g_harq_offbyone: |
+    ## Title: Fix off-by-one in HARQ process buffer indexing in MAC scheduler
+
+    ### Summary
+    The NR gNB MAC scheduler contained an off-by-one error when indexing into the HARQ process buffer array during DLSCH retransmission scheduling. The bug manifested under high load conditions when all 16 HARQ processes were active simultaneously.
+
+    The off-by-one was introduced during a previous refactor that changed HARQ process numbering from 0-based to 1-based but did not update the buffer lookup.
+
+    ### Changes
+    - `openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_dlsch.c`: Fixed HARQ buffer index.
+    - `openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c`: Applied same correction in UL path.
+
+  oai5g_ldpc_memleak: |
+    ## Title: Fix memory leak in LDPC decoder on early return paths
+
+    ### Summary
+    The NR LDPC decoder allocated temporary mbuf structures but several early return paths exited without freeing these buffers. Over sustained operation this led to a steady memory leak.
+
+    This fix restructures the decoder to use a single cleanup label at the end of the function.
+
+    ### Changes
+    - `openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_decoder.c`: Replaced direct returns with goto cleanup.
+    - `openair1/PHY/CODING/nrLDPC_defs.h`: Added `is_allocated` flag.
+
+  oai5g_rrc_refactor: |
+    ## Title: Refactor RRC NGAP NAS first request handling
+
+    ### Summary
+    The function `rrc_gNB_process_initial_ul_rrc_message()` had grown to over 400 lines of inline processing. This refactor extracts the inline processing into focused helper functions.
+
+    ### Changes
+    - `openair2/RRC/NR/rrc_gNB_NGAP.c`: Extracted three helper functions.
+    - `openair2/RRC/NR/rrc_gNB_NGAP.h`: Added declarations.
+    - `openair2/RRC/NR/rrc_gNB_du.c`: Updated call site.

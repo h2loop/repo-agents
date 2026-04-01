@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix buffer overflow in trx_iris_write timestamp calculation\n\n### Summary\nThe Iris SDR radio interface has a critical buffer overflow issue in the `trx_iris_write` function. When processing transmit timestamps, the function incorrectly accesses `device->command_line_sample_advance` instead of `device->openair0_cfg[0].command_line_sample_advance`, causing a memory access violation.\n\nThis issue manifests as a segmentation fault when attempting to transmit samples with the Iris radio device. The problem occurs because the function tries to access memory at an invalid offset from the device structure.\n\n### Changes\n- `radio/IRIS/iris_lib.cpp`: Fixed incorrect member access in timestamp calculation on line 168\n- `radio/IRIS/iris_lib.cpp`: Corrected configuration structure access on line 141  \n- `radio/IRIS/iris_lib.cpp`: Updated parameter naming for clarity while maintaining functionality\n\n"
+}

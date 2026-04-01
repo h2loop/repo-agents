@@ -1,0 +1,30 @@
+{
+  "run_id": "s00206_8e3a14",
+  "function": {
+    "name": "cucp_cuup_bearer_context_modif_direct",
+    "file": "openair2/RRC/NR/cucp_cuup_direct.c",
+    "start_line": 36,
+    "end_line": 40,
+    "body_lines": 5,
+    "signature": "static void cucp_cuup_bearer_context_modif_direct(sctp_assoc_t assoc_id, const e1ap_bearer_mod_req_t *req)",
+    "subsystem": "openair2/RRC/NR",
+    "token_estimate": 21
+  },
+  "bug": {
+    "bug_id": "telecom_power_control_error",
+    "description": "power control error causing incorrect transmit power level",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "radio"
+    ]
+  },
+  "prompt": "There is a power control error causing incorrect transmit power level downstream of function cucp_cuup_bearer_context_modif_direct in the openair2/RRC/NR subsystem.\nThe function is located at openair2/RRC/NR/cucp_cuup_direct.c:36.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00206_8e3a14_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00206_8e3a14_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 21,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:15:43Z"
+}

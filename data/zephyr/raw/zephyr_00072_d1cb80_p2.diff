@@ -1,0 +1,44 @@
+diff --git a/drivers/wifi/nxp/nxp_wifi_drv.c b/drivers/wifi/nxp/nxp_wifi_drv.c
+index ae0900c5..9cf30c39 100644
+--- a/drivers/wifi/nxp/nxp_wifi_drv.c
++++ b/drivers/wifi/nxp/nxp_wifi_drv.c
+@@ -15,6 +15,8 @@
+ #include <soc.h>
+ #include <ethernet/eth_stats.h>
+ #include <zephyr/logging/log.h>
++#include <errno.h>
++#include <sys/util.h>
+ 
+ #include <zephyr/net/net_if.h>
+ #include <zephyr/net/wifi_mgmt.h>
+@@ -1865,6 +1867,12 @@ static int nxp_wifi_set_twt(const struct device *dev, struct wifi_twt_params *pa
+ 		params->negotiation_type = 3;
+ 	}
+ 
++	/* Validate flow_id parameter */
++	if (params->flow_id >= WIFI_MAX_TWT_FLOWS) {
++		LOG_ERR("Invalid TWT flow_id: %d, must be less than %d", params->flow_id, WIFI_MAX_TWT_FLOWS);
++		return -EINVAL;
++	}
++
+ 	if (params->operation == WIFI_TWT_SETUP) {
+ 		twt_setup_conf.implicit = params->setup.implicit;
+ 		twt_setup_conf.announced = params->setup.announce;
+@@ -1898,6 +1906,17 @@ static int nxp_wifi_set_btwt(const struct device *dev, struct wifi_twt_params *p
+ 	btwt_config.bcast_bet_sta_wait = params->btwt.btwt_sta_wait;
+ 	btwt_config.bcast_offset = params->btwt.btwt_offset;
+ 	btwt_config.bcast_twtli = params->btwt.btwt_li;
++	
++	/* Validate btwt_count parameter to prevent buffer overflow */
++	if (params->btwt.btwt_count > WIFI_BTWT_AGREEMENT_MAX ||
++	    params->btwt.btwt_count > ARRAY_SIZE(btwt_config.btwt_sets)) {
++		LOG_ERR("Invalid BTWT count: %d, must be <= %d and <= %zu",
++			params->btwt.btwt_count,
++			WIFI_BTWT_AGREEMENT_MAX,
++			ARRAY_SIZE(btwt_config.btwt_sets));
++		return -EINVAL;
++	}
++	
+ 	btwt_config.count = params->btwt.btwt_count;
+ 
+ 	for (int i = 0; i < btwt_config.count; i++) {

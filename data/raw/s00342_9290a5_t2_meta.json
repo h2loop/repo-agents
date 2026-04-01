@@ -1,0 +1,9 @@
+{
+  "run_id": "s00342_9290a5",
+  "pr_text": "## Title: Fix UL failure timer duration to comply with 3GPP specifications\n\n### Summary\nThe uplink failure timer in `nr_mac_trigger_ul_failure()` was incorrectly set to 30 seconds with subcarrier spacing scaling, violating 3GPP timing requirements. The specification mandates a 5-second timer that must not be scaled by subcarrier spacing. This fix corrects the timer value to ensure protocol compliance and proper UE release timing.\n\n### Changes\n- `openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitive",
+  "trajectory_path": "data/raw/s00342_9290a5_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00342_9290a5_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 7,
+  "timestamp": "2026-02-10T12:42:24Z"
+}

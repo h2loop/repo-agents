@@ -1,0 +1,36 @@
+{
+  "run_id": "s00303_7b109a",
+  "function": {
+    "name": "dump_esm_message_container_xml",
+    "file": "openair3/NAS/COMMON/IES/EsmMessageContainer.c",
+    "start_line": 92,
+    "end_line": 102,
+    "body_lines": 11,
+    "signature": "void dump_esm_message_container_xml(EsmMessageContainer *esmmessagecontainer, uint8_t iei)",
+    "subsystem": "openair3/NAS/COMMON",
+    "token_estimate": 30
+  },
+  "bug": {
+    "bug_id": "c_unchecked_return_value",
+    "description": "unchecked return value from a function that can indicate failure",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/NAS",
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a unchecked return value from a function that can indicate failure downstream of function dump_esm_message_container_xml in the openair3/NAS/COMMON subsystem.\nThe function is located at openair3/NAS/COMMON/IES/EsmMessageContainer.c:92.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00303_7b109a_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00303_7b109a_p1.diff",
+  "patch_lines": 37,
+  "trajectory_steps": 20,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T14:14:43Z"
+}

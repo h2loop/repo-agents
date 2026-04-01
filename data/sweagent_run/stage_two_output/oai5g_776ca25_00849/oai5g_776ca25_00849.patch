@@ -1,0 +1,24 @@
+diff --git a/openair2/LAYER2/nr_pdcp/nr_pdcp_entity.c b/openair2/LAYER2/nr_pdcp/nr_pdcp_entity.c
+index 712bbf6b0c..20101f006b 100644
+--- a/openair2/LAYER2/nr_pdcp/nr_pdcp_entity.c
++++ b/openair2/LAYER2/nr_pdcp/nr_pdcp_entity.c
+@@ -343,6 +343,19 @@ static void nr_pdcp_entity_set_security(nr_pdcp_entity_t *entity,
+   if (ciphering_key != NULL)
+     memcpy(entity->ciphering_key, ciphering_key, 16);
+ 
++  /* Validate security configuration parameters to prevent using uninitialized keys */
++  if ((integrity_algorithm != -1 && integrity_algorithm != 0) && integrity_key == NULL) {
++    LOG_E(PDCP, "Integrity algorithm %d enabled but no key provided for RB %d\n", 
++          integrity_algorithm, entity->rb_id);
++    integrity_algorithm = 0; /* Disable integrity */
++  }
++
++  if ((ciphering_algorithm != -1 && ciphering_algorithm != 0) && ciphering_key == NULL) {
++    LOG_E(PDCP, "Ciphering algorithm %d enabled but no key provided for RB %d\n", 
++          ciphering_algorithm, entity->rb_id);
++    ciphering_algorithm = 0; /* Disable ciphering */
++  }
++
+   if (integrity_algorithm == 0) {
+     entity->has_integrity = 0;
+     if (entity->free_integrity != NULL)

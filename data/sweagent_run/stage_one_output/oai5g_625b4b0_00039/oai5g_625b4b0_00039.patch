@@ -1,0 +1,16 @@
+diff --git a/common/utils/T/tracer/gui/widget.c b/common/utils/T/tracer/gui/widget.c
+index b8ccba6d54..8e69780df5 100644
+--- a/common/utils/T/tracer/gui/widget.c
++++ b/common/utils/T/tracer/gui/widget.c
+@@ -82,6 +82,11 @@ void widget_add_child_internal(
+   struct widget_list *prev, *cur;
+   int i;
+ 
++  /* If the child already has a parent, remove it from that parent first */
++  if (c->parent != NULL) {
++    widget_del_child_internal(_gui, c->parent, c);
++  }
++
+   new = calloc(1, sizeof(struct widget_list));
+   if (new == NULL) OOM;
+ 

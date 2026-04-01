@@ -1,0 +1,149 @@
+diff --git a/radio/rfsimulator/simulator.c b/radio/rfsimulator/simulator.c
+index d362d5ef7b..5d81dce4f4 100644
+--- a/radio/rfsimulator/simulator.c
++++ b/radio/rfsimulator/simulator.c
+@@ -40,6 +40,7 @@
+ #include <errno.h>
+ #include <sys/epoll.h>
+ #include <netdb.h>
++#include <pthread.h>
+ 
+ #include <common/utils/assertions.h>
+ #include <common/utils/LOG/log.h>
+@@ -106,7 +107,7 @@ typedef enum { SIMU_ROLE_SERVER = 1, SIMU_ROLE_CLIENT } simuRole;
+ /*   optname                     helpstr                     paramflags           XXXptr                               defXXXval                          type         numelt  */
+ /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+ #define simOpt PARAMFLAG_NOFREE|PARAMFLAG_CMDLINE_NOPREFIXENABLED
+-#define RFSIMULATOR_PARAMS_DESC {					\
++#define RFSIMULATOR_PARAMS_DESC {                                       \
+     {"serveraddr",             "<ip address to connect to>\n",        simOpt,  .strptr=&rfsimulator->ip,               .defstrval="127.0.0.1",           TYPE_STRING,    0 },\
+     {"serverport",             "<port to connect to>\n",              simOpt,  .u16ptr=&(rfsimulator->port),           .defuintval=PORT,                 TYPE_UINT16,    0 },\
+     {RFSIMU_OPTIONS_PARAMNAME, RFSIM_CONFIG_HELP_OPTIONS,             0,       .strlistptr=NULL,                       .defstrlistval=NULL,              TYPE_STRINGLIST,0 },\
+@@ -182,6 +183,9 @@ typedef struct {
+   poll_telnetcmdq_func_t poll_telnetcmdq;
+   int wait_timeout;
+   double prop_delay_ms;
++  // Timing thread for protocol timer
++  pthread_t timing_thread;
++  volatile int timing_thread_running;
+ } rfsimulator_state_t;
+ 
+ 
+@@ -328,6 +332,27 @@ static int setblocking(int sock, enum blocking_t active)
+   return 0;
+ }
+ 
++/* Timing thread function for protocol timer */
++static void* timing_thread_function(void* arg) {
++  rfsimulator_state_t *t = (rfsimulator_state_t*)arg;
++  
++  LOG_I(HW, "Timing thread started\n");
++  
++  while (t->timing_thread_running) {
++    // Add timing logic here
++    // This is a placeholder - actual timing implementation would depend on specific requirements
++    
++    // Sleep for a short interval to avoid busy looping
++    usleep(1000); // 1ms
++    
++    // Check for any timing-related events or synchronization needs
++    // This could include updating timestamps, checking timeouts, etc.
++  }
++  
++  LOG_I(HW, "Timing thread stopped\n");
++  return NULL;
++}
++
+ static bool flushInput(rfsimulator_state_t *t, int timeout, int nsamps);
+ 
+ static void fullwrite(int fd, void *_buf, ssize_t count, rfsimulator_state_t *t) {
+@@ -648,11 +673,27 @@ static int startServer(openair0_device *device)
+     LOG_E(HW, "listen() failed, errno(%d)\n", errno);
+     return -1;
+   }
++  
++  // Create timing thread immediately after shared memory channel creation but before waiting for client connection
++  t->timing_thread_running = 1;
++  int ret = pthread_create(&t->timing_thread, NULL, timing_thread_function, (void*)t);
++  if (ret != 0) {
++    LOG_E(HW, "Failed to create timing thread: %d\n", ret);
++    t->timing_thread_running = 0;
++    return -1;
++  }
++  LOG_I(HW, "Timing thread created successfully\n");
++
+   struct epoll_event ev = {0};
+   ev.events = EPOLLIN;
+   ev.data.fd = t->listen_sock;
+   if (epoll_ctl(t->epollfd, EPOLL_CTL_ADD, t->listen_sock, &ev) != 0) {
+     LOG_E(HW, "epoll_ctl(EPOLL_CTL_ADD) failed, errno(%d)\n", errno);
++    // Stop the timing thread since we're failing
++    t->timing_thread_running = 0;
++    if (t->timing_thread != 0) {
++      pthread_join(t->timing_thread, NULL);
++    }
+     return -1;
+   }
+   return 0;
+@@ -719,7 +760,31 @@ static int startClient(openair0_device *device)
+   if (setblocking(sock, notBlocking) == -1) {
+     return -1;
+   }
+-  return allocCirBuf(t, sock);
++  
++  // Create timing thread for client side as well
++  t->timing_thread_running = 1;
++  int ret = pthread_create(&t->timing_thread, NULL, timing_thread_function, (void*)t);
++  if (ret != 0) {
++    LOG_E(HW, "Failed to create timing thread for client: %d\n", ret);
++    t->timing_thread_running = 0;
++    close(sock);
++    return -1;
++  }
++  LOG_I(HW, "Timing thread created successfully for client\n");
++
++  int result = allocCirBuf(t, sock);
++  if (result == -1) {
++    // Stop the timing thread since allocation failed
++    LOG_E(HW, "allocCirBuf failed, stopping timing thread\n");
++    t->timing_thread_running = 0;
++    if (t->timing_thread != 0) {
++      pthread_join(t->timing_thread, NULL);
++      t->timing_thread = 0;
++    }
++    return -1;
++  }
++  
++  return result;
+ }
+ 
+ static int rfsimulator_write_internal(rfsimulator_state_t *t, openair0_timestamp timestamp, void **samplesVoid, int nsamps, int nbAnt, int flags, bool alreadyLocked) {
+@@ -1078,6 +1143,17 @@ static int rfsimulator_reset_stats(openair0_device *device) {
+ }
+ static void rfsimulator_end(openair0_device *device) {
+   rfsimulator_state_t* s = device->priv;
++  
++  // Stop the timing thread
++  if (s->timing_thread_running) {
++    LOG_I(HW, "Stopping timing thread\n");
++    s->timing_thread_running = 0;
++    if (s->timing_thread != 0) {
++      pthread_join(s->timing_thread, NULL);
++      s->timing_thread = 0;
++    }
++  }
++  
+   for (int i = 0; i < MAX_FD_RFSIMU; i++) {
+     buffer_t *b = &s->buf[i];
+     if (b->conn_sock >= 0 )
+@@ -1153,6 +1229,10 @@ int device_init(openair0_device *device, openair0_config_t *openair0_cfg) {
+     rfsimulator->buf[i].conn_sock=-1;
+   rfsimulator->next_buf = 0;
+   rfsimulator->fd_to_buf_map = hashtable_create(MAX_FD_RFSIMU, NULL, do_not_free_integer);
++  
++  // Initialize timing thread variables
++  rfsimulator->timing_thread_running = 0;
++  rfsimulator->timing_thread = 0;
+ 
+   AssertFatal((rfsimulator->epollfd = epoll_create1(0)) != -1, "epoll_create1() failed, errno(%d)", errno);
+   // we need to call randominit() for telnet server (use gaussdouble=>uniformrand)

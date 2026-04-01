@@ -1,0 +1,9 @@
+{
+  "run_id": "s00380_1b63f4",
+  "pr_text": "## Title: Fix stack buffer overflow in tracer GUI label widget\n\n### Summary\nThe `label_set_text()` function in the tracer GUI library passes user-provided text directly to `x_text_get_dimensions()`, which uses a fixed-size stack buffer that overflows with inputs exceeding ~1KB. This causes crashes when UE labels contain very long debug strings.\n\nThis fix introduces a 1023-character limit on text before X11 processing. Longer strings are truncated using `strndup()`, and NULL inputs are converted ",
+  "trajectory_path": "data/raw/s00380_1b63f4_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00380_1b63f4_p2.diff",
+  "patch_lines": 18,
+  "trajectory_steps": 18,
+  "timestamp": "2026-02-10T12:57:40Z"
+}

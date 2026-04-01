@@ -1,0 +1,9 @@
+{
+  "run_id": "s00426_e3b034",
+  "pr_text": "## Title: Fix DFT/IDFT buffer size miscalculation affecting power control\n\n### Summary\nCorrect buffer size calculation in DFT/IDFT implementations that caused incorrect transmit power levels in the PHY layer. The bug stemmed from using `sizeof tmp` (compile-time array size) instead of the actual data size `sz*2*sizeof(int16_t)` in memcpy operations. This miscalculation led to buffer overruns and corrupted frequency domain data, which propagated to power control calculations downstream of the mai",
+  "trajectory_path": "data/raw/s00426_e3b034_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00426_e3b034_p2.diff",
+  "patch_lines": 13,
+  "trajectory_steps": 48,
+  "timestamp": "2026-02-10T13:18:31Z"
+}

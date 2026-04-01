@@ -1,0 +1,37 @@
+diff --git a/openair1/PHY/CODING/nrLDPC_encoder/ldpc_BG2_Zc176_byte.c b/openair1/PHY/CODING/nrLDPC_encoder/ldpc_BG2_Zc176_byte.c
+index b7837aa6dc..01e186a6d0 100644
+--- a/openair1/PHY/CODING/nrLDPC_encoder/ldpc_BG2_Zc176_byte.c
++++ b/openair1/PHY/CODING/nrLDPC_encoder/ldpc_BG2_Zc176_byte.c
+@@ -10,14 +10,29 @@ static inline __attribute__ ((no_sanitize("address", "undefined"))) void ldpc_BG
+      c2=&csimd[i2];
+      d2=&dsimd[i2];
+ 
++// Precompute common XOR subexpressions that appear multiple times across rows
++// This eliminates redundant calculations of the same XOR operations
++     simde__m128i xor_1_226 = simde_mm_xor_si128(c2[1], c2[226]);
++     simde__m128i xor_1572_905 = simde_mm_xor_si128(c2[1572], c2[905]);
++     simde__m128i xor_2904_2914 = simde_mm_xor_si128(c2[2904], c2[2914]);
++     simde__m128i xor_506_70 = simde_mm_xor_si128(c2[506], c2[70]);
++     simde__m128i xor_2272_3171 = simde_mm_xor_si128(c2[2272], c2[3171]);
++     simde__m128i xor_313_2958 = simde_mm_xor_si128(c2[313], c2[2958]);
++     simde__m128i xor_110_3197 = simde_mm_xor_si128(c2[110], c2[3197]);
++     simde__m128i xor_1674_1455 = simde_mm_xor_si128(c2[1674], c2[1455]);
++     simde__m128i xor_133_1036 = simde_mm_xor_si128(c2[133], c2[1036]);
++     simde__m128i xor_1919_2386 = simde_mm_xor_si128(c2[1919], c2[2386]);
++     simde__m128i xor_3044_177 = simde_mm_xor_si128(c2[3044], c2[177]);
++     simde__m128i xor_2405_1086 = simde_mm_xor_si128(c2[2405], c2[1086]);
++
+ //row: 0
+-     d2[0]=simde_mm_xor_si128(c2[2429],simde_mm_xor_si128(c2[1],simde_mm_xor_si128(c2[226],simde_mm_xor_si128(c2[3110],simde_mm_xor_si128(c2[1572],simde_mm_xor_si128(c2[905],simde_mm_xor_si128(c2[2904],simde_mm_xor_si128(c2[2914],simde_mm_xor_si128(c2[506],simde_mm_xor_si128(c2[70],simde_mm_xor_si128(c2[2272],simde_mm_xor_si128(c2[3171],simde_mm_xor_si128(c2[313],simde_mm_xor_si128(c2[2958],simde_mm_xor_si128(c2[110],simde_mm_xor_si128(c2[3197],simde_mm_xor_si128(c2[1674],simde_mm_xor_si128(c2[1455],simde_mm_xor_si128(c2[133],simde_mm_xor_si128(c2[1036],simde_mm_xor_si128(c2[1919],simde_mm_xor_si128(c2[2386],simde_mm_xor_si128(c2[3044],simde_mm_xor_si128(c2[177],simde_mm_xor_si128(c2[2405],simde_mm_xor_si128(c2[1086],c2[1964]))))))))))))))))))))))))));
++     d2[0]=simde_mm_xor_si128(c2[2429],simde_mm_xor_si128(simde_mm_xor_si128(xor_1_226,c2[3110]),simde_mm_xor_si128(xor_1572_905,simde_mm_xor_si128(xor_2904_2914,simde_mm_xor_si128(xor_506_70,simde_mm_xor_si128(xor_2272_3171,simde_mm_xor_si128(xor_313_2958,simde_mm_xor_si128(xor_110_3197,simde_mm_xor_si128(xor_1674_1455,simde_mm_xor_si128(xor_133_1036,simde_mm_xor_si128(xor_1919_2386,simde_mm_xor_si128(xor_3044_177,simde_mm_xor_si128(xor_2405_1086,c2[1964])))))))))))))))))));
+ 
+ //row: 1
+-     d2[11]=simde_mm_xor_si128(c2[2649],simde_mm_xor_si128(c2[2429],simde_mm_xor_si128(c2[1],simde_mm_xor_si128(c2[226],simde_mm_xor_si128(c2[3330],simde_mm_xor_si128(c2[3110],simde_mm_xor_si128(c2[1572],simde_mm_xor_si128(c2[905],simde_mm_xor_si128(c2[3124],simde_mm_xor_si128(c2[2904],simde_mm_xor_si128(c2[2914],simde_mm_xor_si128(c2[726],simde_mm_xor_si128(c2[506],simde_mm_xor_si128(c2[70],simde_mm_xor_si128(c2[2272],simde_mm_xor_si128(c2[3171],simde_mm_xor_si128(c2[313],simde_mm_xor_si128(c2[2958],simde_mm_xor_si128(c2[110],simde_mm_xor_si128(c2[3197],simde_mm_xor_si128(c2[1894],simde_mm_xor_si128(c2[1674],simde_mm_xor_si128(c2[1455],simde_mm_xor_si128(c2[133],simde_mm_xor_si128(c2[1036],simde_mm_xor_si128(c2[1919],simde_mm_xor_si128(c2[2386],simde_mm_xor_si128(c2[3044],simde_mm_xor_si128(c2[177],simde_mm_xor_si128(c2[2625],simde_mm_xor_si128(c2[2405],simde_mm_xor_si128(c2[1086],c2[1964]))))))))))))))))))))))))))))))));
++     d2[11]=simde_mm_xor_si128(c2[2649],simde_mm_xor_si128(c2[2429],simde_mm_xor_si128(xor_1_226,simde_mm_xor_si128(c2[3330],simde_mm_xor_si128(c2[3110],simde_mm_xor_si128(xor_1572_905,simde_mm_xor_si128(c2[3124],simde_mm_xor_si128(xor_2904_2914,simde_mm_xor_si128(c2[726],simde_mm_xor_si128(xor_506_70,simde_mm_xor_si128(xor_2272_3171,simde_mm_xor_si128(xor_313_2958,simde_mm_xor_si128(xor_110_3197,simde_mm_xor_si128(c2[1894],simde_mm_xor_si128(xor_1674_1455,simde_mm_xor_si128(xor_133_1036,simde_mm_xor_si128(xor_1919_2386,simde_mm_xor_si128(xor_3044_177,simde_mm_xor_si128(c2[2625],simde_mm_xor_si128(xor_2405_1086,c2[1964]))))))))))))))))))))))))))));
+ 
+ //row: 2
+-     d2[22]=simde_mm_xor_si128(c2[2649],simde_mm_xor_si128(c2[2429],simde_mm_xor_si128(c2[221],simde_mm_xor_si128(c2[1],simde_mm_xor_si128(c2[226],simde_mm_xor_si128(c2[3330],simde_mm_xor_si128(c2[3110],simde_mm_xor_si128(c2[1572],simde_mm_xor_si128(c2[905],simde_mm_xor_si128(c2[3124],simde_mm_xor_si128(c2[2904],simde_mm_xor_si128(c2[2914],simde_mm_xor_si128(c2[726],simde_mm_xor_si128(c2[506],simde_mm_xor_si128(c2[290],simde_mm_xor_si128(c2[70],simde_mm_xor_si128(c2[2272],simde_mm_xor_si128(c2[3391],simde_mm_xor_si128(c2[3171],simde_mm_xor_si128(c2[313],simde_mm_xor_si128(c2[2958],simde_mm_xor_si128(c2[330],simde_mm_xor_si128(c2[110],simde_mm_xor_si128(c2[3197],simde_mm_xor_si128(c2[1894],simde_mm_xor_si128(c2[1674],simde_mm_xor_si128(c2[1675],simde_mm_xor_si128(c2[1455],simde_mm_xor_si128(c2[133],simde_mm_xor_si128(c2[1256],simde_mm_xor_si128(c2[1036],simde_mm_xor_si128(c2[1919],simde_mm_xor_si128(c2[2606],simde_mm_xor_si128(c2[2386],simde_mm_xor_si128(c2[3044],simde_mm_xor_si128(c2[177],simde_mm_xor_si128(c2[2625],simde_mm_xor_si128(c2[2405],simde_mm_xor_si128(c2[1306],simde_mm_xor_si128(c2[1086],c2[1964]))))))))))))))))))))))))))))))))))))))));
++     d2[22]=simde_mm_xor_si128(c2[2649],simde_mm_xor_si128(c2[2429],simde_mm_xor_si128(c2[221],simde_mm_xor_si128(xor_1_226,simde_mm_xor_si128(c2[3330],simde_mm_xor_si128(c2[3110],simde_mm_xor_si128(xor_1572_905,simde_mm_xor_si128(c2[3124],simde_mm_xor_si128(xor_2904_2914,simde_mm_xor_si128(c2[726],simde_mm_xor_si128(xor_506_70,simde_mm_xor_si128(c2[290],simde_mm_xor_si128(xor_2272_3171,simde_mm_xor_si128(c2[3391],simde_mm_xor_si128(xor_313_2958,simde_mm_xor_si128(c2[330],simde_mm_xor_si128(xor_110_3197,simde_mm_xor_si128(c2[1894],simde_mm_xor_si128(xor_1674_1455,simde_mm_xor_si128(c2[1675],simde_mm_xor_si128(xor_133_1036,simde_mm_xor_si128(c2[1256],simde_mm_xor_si128(xor_1919_2386,simde_mm_xor_si128(xor_3044_177,simde_mm_xor_si128(c2[2625],simde_mm_xor_si128(xor_2405_1086,c2[1964])))))))))))))))))))))))))))))))))))));
+ 
+ //row: 3
+      d2[33]=simde_mm_xor_si128(c2[2429],simde_mm_xor_si128(c2[1],simde_mm_xor_si128(c2[226],simde_mm_xor_si128(c2[3110],simde_mm_xor_si128(c2[1572],simde_mm_xor_si128(c2[1125],simde_mm_xor_si128(c2[905],simde_mm_xor_si128(c2[2904],simde_mm_xor_si128(c2[3134],simde_mm_xor_si128(c2[2914],simde_mm_xor_si128(c2[506],simde_mm_xor_si128(c2[70],simde_mm_xor_si128(c2[2272],simde_mm_xor_si128(c2[3171],simde_mm_xor_si128(c2[313],simde_mm_xor_si128(c2[3178],simde_mm_xor_si128(c2[2958],simde_mm_xor_si128(c2[110],simde_mm_xor_si128(c2[3417],simde_mm_xor_si128(c2[3197],simde_mm_xor_si128(c2[1674],simde_mm_xor_si128(c2[1455],simde_mm_xor_si128(c2[353],simde_mm_xor_si128(c2[133],simde_mm_xor_si128(c2[1036],simde_mm_xor_si128(c2[2139],simde_mm_xor_si128(c2[1919],simde_mm_xor_si128(c2[2386],simde_mm_xor_si128(c2[3044],simde_mm_xor_si128(c2[397],simde_mm_xor_si128(c2[177],simde_mm_xor_si128(c2[2405],simde_mm_xor_si128(c2[1086],simde_mm_xor_si128(c2[2184],c2[1964]))))))))))))))))))))))))))))))))));

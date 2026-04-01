@@ -1,0 +1,20 @@
+diff --git a/openair2/RRC/LTE/rrc_eNB_S1AP.c b/openair2/RRC/LTE/rrc_eNB_S1AP.c
+index 1124cc8dd9..e2beee5523 100644
+--- a/openair2/RRC/LTE/rrc_eNB_S1AP.c
++++ b/openair2/RRC/LTE/rrc_eNB_S1AP.c
+@@ -1098,7 +1098,14 @@ rrc_eNB_send_S1AP_UE_CONTEXT_RELEASE_REQ(
+   } else {
+     MessageDef *msg_context_release_req_p = NULL;
+     msg_context_release_req_p = itti_alloc_new_message(TASK_RRC_ENB, 0, S1AP_UE_CONTEXT_RELEASE_REQ);
+-    S1AP_UE_CONTEXT_RELEASE_REQ(msg_context_release_req_p).eNB_ue_s1ap_id = ue_context_pP->ue_context.eNB_ue_s1ap_id;
++    /* Ensure eNB_ue_s1ap_id fits in 24 bits to prevent buffer overflow downstream */
++    if (ue_context_pP->ue_context.eNB_ue_s1ap_id > 0xFFFFFF) {
++      LOG_E(RRC, "[eNB] In S1AP_UE_CONTEXT_RELEASE_REQ: eNB_ue_s1ap_id %u exceeds 24-bit limit\n",
++            ue_context_pP->ue_context.eNB_ue_s1ap_id);
++      S1AP_UE_CONTEXT_RELEASE_REQ(msg_context_release_req_p).eNB_ue_s1ap_id = 0xFFFFFF;
++    } else {
++      S1AP_UE_CONTEXT_RELEASE_REQ(msg_context_release_req_p).eNB_ue_s1ap_id = ue_context_pP->ue_context.eNB_ue_s1ap_id;
++    }
+     S1AP_UE_CONTEXT_RELEASE_REQ(msg_context_release_req_p).cause          = causeP;
+     S1AP_UE_CONTEXT_RELEASE_REQ(msg_context_release_req_p).cause_value    = cause_valueP;
+     itti_send_msg_to_task(TASK_S1AP, ENB_MODULE_ID_TO_INSTANCE(enb_mod_idP), msg_context_release_req_p);

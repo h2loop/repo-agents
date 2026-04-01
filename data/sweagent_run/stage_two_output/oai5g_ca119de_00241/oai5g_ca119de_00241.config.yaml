@@ -1,0 +1,195 @@
+'{"env":{"deployment":{"image":"oai5g-sera:ca119de","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_ca119de_00241","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix undefined behavior in KPM indication header generation\n\n### Summary\nThe
+  KPM RAN function in the E2 agent had undefined behavior when generating indication
+  headers due to missing function implementations and incomplete structure definitions.
+  This caused crashes during E2 indication message processing.\n\nThis fix addresses
+  the core issues by implementing the missing `get_ngran_name` function, adding a
+  local `time_now_us` implementation, and providing complete structure definitions
+  for all KPM data types.\n\n### Changes\n- `openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_kpm.c`:
+  Added `get_ngran_name` function implementation and local `time_now_us` function\n-
+  `openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_kpm.h`: Added complete structure and
+  enum definitions for all KPM data types\n- `common/ngran_types.h`: Extended `ngran_node_t`
+  enum with `END_NGRAN_NODE_TYPE` for array sizing\n\n","extra_fields":{"bug_description":"redundant
+  computation performing the same calculation multiple times unnecessarily","bug_id":"c_redundant_computation","stage_one_patch":"diff
+  --git a/common/ngran_types.h b/common/ngran_types.h\nindex ac5af71f23..4a9709960c
+  100644\n--- a/common/ngran_types.h\n+++ b/common/ngran_types.h\n@@ -44,7 +44,8 @@
+  typedef enum {\n   ngran_gNB_DU    = 7,\n   ngran_eNB_MBMS_STA  = 8,\n   ngran_gNB_CUCP  =
+  9,\n-  ngran_gNB_CUUP  = 10\n+  ngran_gNB_CUUP  = 10,\n+  END_NGRAN_NODE_TYPE\n
+  } ngran_node_t;\n \n typedef enum { CPtype = 0, UPtype } E1_t;\ndiff --git a/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_kpm.c
+  b/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_kpm.c\nindex 748b4f7d29..2fa881e957
+  100644\n--- a/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_kpm.c\n+++ b/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_kpm.c\n@@
+  -24,8 +24,19 @@\n #include \"ran_e2sm_ue_id.h\"\n \n #include \"openair2/E1AP/e1ap_common.h\"\n-#include
+  \"openair2/E2AP/flexric/src/util/time_now_us.h\"\n #include \"openair2/F1AP/f1ap_ids.h\"\n+#include
+  \"common/utils/ds/byte_array.h\"\n+\n+#include <time.h>\n+\n+static inline int64_t
+  time_now_us(void)\n+{\n+  struct timespec t;\n+  if (clock_gettime(CLOCK_REALTIME,
+  &t)) {\n+    return -1; // Error case\n+  }\n+  return (int64_t)t.tv_sec * 1000000LL
+  + t.tv_nsec / 1000LL;\n+}\n \n static pthread_once_t once_kpm_mutex = PTHREAD_ONCE_INIT;\n
+  \n@@ -47,6 +58,36 @@ static ngran_node_t get_e2_node_type(void)\n   return node_type;\n
+  }\n \n+static const char* get_ngran_name(ngran_node_t node_type)\n+{\n+  switch
+  (node_type) {\n+    case ngran_eNB:\n+      return \"eNB\";\n+    case ngran_ng_eNB:\n+      return
+  \"ng-eNB\";\n+    case ngran_gNB:\n+      return \"gNB\";\n+    case ngran_eNB_CU:\n+      return
+  \"eNB-CU\";\n+    case ngran_ng_eNB_CU:\n+      return \"ng-eNB-CU\";\n+    case
+  ngran_gNB_CU:\n+      return \"gNB-CU\";\n+    case ngran_eNB_DU:\n+      return
+  \"eNB-DU\";\n+    case ngran_gNB_DU:\n+      return \"gNB-DU\";\n+    case ngran_eNB_MBMS_STA:\n+      return
+  \"eNB-MBMS-STA\";\n+    case ngran_gNB_CUCP:\n+      return \"gNB-CUCP\";\n+    case
+  ngran_gNB_CUUP:\n+      return \"gNB-CUUP\";\n+    default:\n+      return \"Unknown\";\n+  }\n+}\n+\n
+  typedef struct {\n   size_t sz;\n   ue_id_e2sm_t* ue_id;\ndiff --git a/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_kpm.h
+  b/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_kpm.h\nindex 4883f9fe49..710a267238
+  100644\n--- a/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_kpm.h\n+++ b/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_kpm.h\n@@
+  -22,7 +22,237 @@\n #ifndef RAN_FUNC_SM_KPM_READ_WRITE_AGENT_H\n #define RAN_FUNC_SM_KPM_READ_WRITE_AGENT_H\n
+  \n-#include \"openair2/E2AP/flexric/src/agent/../sm/sm_io.h\"\n+#include \"common/utils/ds/byte_array.h\"\n+#include
+  \"common/openairinterface5g_limits.h\"\n+#include <stdint.h>\n+#include <stdlib.h>\n+\n+//
+  Forward declaration for sm_ag_if_ans_t\n+typedef struct {\n+  // Add fields as needed
+  based on usage\n+  int dummy; // Placeholder\n+} sm_ag_if_ans_t;\n+\n+// Forward
+  declarations for missing structures\n+typedef enum {\n+  NAME_MEAS_TYPE = 1,\n+  //
+  Add other measurement types as needed\n+} meas_type_e;\n+\n+typedef struct {\n+  meas_type_e
+  type;\n+  byte_array_t name;  // For NAME_MEAS_TYPE\n+  // Add other fields as needed
+  for other types\n+} meas_type_t;\n+\n+typedef struct {\n+  meas_type_t meas_type;\n+  //
+  Add other fields as needed\n+} meas_info_format_1_lst_t;\n+\n+typedef struct {\n+  int
+  type;\n+  // Add other fields as needed\n+} meas_record_lst_t;\n+\n+typedef struct
+  {\n+  int64_t collectStartTime;\n+  byte_array_t* fileformat_version;\n+  byte_array_t*
+  sender_name;\n+  // Add other fields as needed\n+} kpm_ric_ind_hdr_format_1_t;\n+\n+typedef
+  enum {\n+  FORMAT_1_INDICATION_HEADER = 1,\n+  // Add other formats as needed\n+}
+  kpm_ind_hdr_type_e;\n+\n+typedef enum {\n+  FORMAT_1_INDICATION_MESSAGE = 1,\n+  FORMAT_3_INDICATION_MESSAGE
+  = 3,\n+  // Add other formats as needed\n+} kpm_ind_msg_type_e;\n+\n+typedef enum
+  {\n+  GNB_UE_ID_E2SM = 1,\n+  GNB_CU_UP_UE_ID_E2SM = 2,\n+  GNB_DU_UE_ID_E2SM =
+  3,\n+  // Add other UE ID types as needed\n+} ue_id_type_e;\n+\n+typedef enum {\n+  EQUAL_TEST_COND
+  = 1,\n+  // Add other test conditions as needed\n+} test_cond_e;\n+\n+typedef enum
+  {\n+  TRUE_TEST_COND_TYPE = 1,\n+  // Add other test condition types as needed\n+}
+  test_cond_type_e;\n+\n+typedef enum {\n+  OCTET_STRING_TEST_COND_VALUE = 1,\n+  //
+  Add other test condition value types as needed\n+} test_cond_value_type_e;\n+\n+//
+  Forward declarations for UE ID structures\n+typedef struct {\n+  uint32_t* ran_ue_id;\n+  //
+  Add other fields as needed\n+} gnb_ue_id_t;\n+\n+typedef struct {\n+  uint32_t*
+  ran_ue_id;\n+  // Add other fields as needed\n+} gnb_cu_up_ue_id_t;\n+\n+typedef
+  struct {\n+  uint32_t* ran_ue_id;\n+  // Add other fields as needed\n+} gnb_du_ue_id_t;\n+\n+typedef
+  struct {\n+  ue_id_type_e type;\n+  union {\n+    gnb_ue_id_t gnb;\n+    gnb_cu_up_ue_id_t
+  gnb_cu_up;\n+    gnb_du_ue_id_t gnb_du;\n+  };\n+} ue_id_e2sm_t;\n+\n+typedef struct
+  {\n+  ue_id_e2sm_t ue_meas_report_lst;\n+  kpm_ind_msg_format_1_t ind_msg_format_1;\n+  //
+  Add other fields as needed\n+} meas_report_per_ue_t;\n+\n+typedef struct {\n+  kpm_ind_hdr_type_e
+  type;\n+  kpm_ric_ind_hdr_format_1_t kpm_ric_ind_hdr_format_1;\n+  // Add union
+  for other format types as needed\n+} kpm_ind_hdr_t;\n+\n+typedef struct {\n+  meas_info_format_1_lst_t*
+  meas_info_lst;\n+  size_t meas_info_lst_len;\n+  meas_record_lst_t* meas_record_lst;\n+  size_t
+  meas_record_len;\n+  // Add other fields as needed\n+} meas_data_lst_t;\n+\n+typedef
+  struct {\n+  meas_data_lst_t* meas_data_lst;\n+  size_t meas_data_lst_len;\n+  meas_info_format_1_lst_t*
+  meas_info_lst;\n+  size_t meas_info_lst_len;\n+  // Add other fields as needed\n+}
+  kpm_ind_msg_format_1_t;\n+\n+typedef struct {\n+  meas_report_per_ue_t* meas_report_per_ue;\n+  size_t
+  ue_meas_report_lst_len;\n+  // Add other fields as needed\n+} kpm_ind_msg_format_3_t;\n+\n+typedef
+  struct {\n+  // Add fields as needed based on usage\n+} kpm_act_def_format_1_t;\n+\n+typedef
+  struct {\n+  kpm_act_def_format_1_t action_def_format_1;\n+  // Add other fields
+  as needed\n+} kpm_act_def_format_4_t;\n+\n+typedef enum {\n+  EQUAL_TEST_COND =
+  1,\n+  // Add other test conditions as needed\n+} test_cond_type_e_enum;\n+\n+typedef
+  struct {\n+  test_cond_type_e_enum type;\n+  // Add other fields as needed\n+} test_cond_e;\n+\n+typedef
+  struct {\n+  test_cond_value_type_e type;\n+  byte_array_t* octet_string_value;\n+  //
+  Add other fields as needed\n+} test_cond_value_t;\n+\n+typedef struct {\n+  int
+  S_NSSAI;\n+  test_cond_e* test_cond;\n+  test_cond_value_t* test_cond_value;\n+  test_cond_type_e
+  test_cond_type;\n+  // Add other fields as needed\n+} test_info_lst_t;\n+\n+typedef
+  struct {\n+  test_info_lst_t test_info_lst;\n+  // Add other fields as needed\n+}
+  matching_cond_lst_t;\n+\n+typedef struct {\n+  matching_cond_lst_t* matching_cond_lst;\n+  size_t
+  matching_cond_lst_len;\n+  kpm_act_def_format_1_t action_def_format_1;\n+  // Add
+  other fields as needed\n+} kpm_act_def_format_4_t;\n+\n+typedef struct {\n+  int
+  type;\n+  kpm_act_def_format_4_t frm_4;\n+  // Add union for other format types
+  as needed\n+} kpm_act_def_t;\n+\n+typedef struct {\n+  kpm_ind_hdr_t hdr;\n+  struct
+  {\n+    kpm_ind_msg_type_e type;\n+    kpm_ind_msg_format_1_t frm_1;\n+    kpm_ind_msg_format_3_t
+  frm_3;\n+    // Add union for other format types as needed\n+  } msg;\n+  // Add
+  other fields as needed\n+} kpm_indication_t;\n+\n+typedef struct {\n+  kpm_act_def_t*
+  act_def;\n+  kpm_indication_t ind;\n+  // Add other fields as needed\n+} kpm_rd_ind_data_t;\n+\n+//
+  Structures for setup function\n+typedef struct {\n+  // Add fields as needed\n+  byte_array_t*
+  meas_info_for_action_lst;\n+  size_t meas_info_for_action_lst_len;\n+  // Add other
+  fields as needed\n+} meas_info_for_action_lst_t;\n+\n+typedef struct {\n+  // Add
+  fields as needed\n+  meas_info_for_action_lst_t* meas_info_for_action_lst;\n+  size_t
+  sz;\n+  // Add other fields as needed\n+} ric_report_style_item_t;\n+\n+typedef
+  struct {\n+  // Add fields as needed\n+  ric_report_style_item_t* ric_report_style_list;\n+  size_t
+  sz_report;\n+  // Add other fields as needed\n+} ran_func_def_t;\n+\n+typedef struct
+  {\n+  // Add fields as needed based on usage in read_kpm_setup_sm\n+  ran_func_def_t
+  ran_func_def;\n+  // Add other fields as needed\n+} kpm_e2_setup_t;\n+\n+// Function
+  declarations for missing functions\n+char* cp_ba_to_str(byte_array_t ba);\n+meas_info_format_1_lst_t
+  cp_meas_info_format_1_lst(const meas_info_format_1_lst_t* src);\n \n bool read_kpm_sm(void*);\n
+  \n@@ -30,5 +260,7 @@ void read_kpm_setup_sm(void*);\n \n sm_ag_if_ans_t write_ctrl_kpm_sm(void
+  const* src);\n \n+kpm_ind_hdr_t kpm_ind_hdr(void);\n+\n #endif\n \n","start_fn":"kpm_ind_hdr","start_fn_file":"openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_kpm.c","subsystem":"openair2/E2AP/RAN_FUNCTION"},"type":"text","id":"oai5g_ca119de_00241"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

@@ -1,0 +1,140 @@
+diff --git a/openair2/F1AP/lib/f1ap_interface_management.c b/openair2/F1AP/lib/f1ap_interface_management.c
+index fe079faa4c..7f71d9ff10 100644
+--- a/openair2/F1AP/lib/f1ap_interface_management.c
++++ b/openair2/F1AP/lib/f1ap_interface_management.c
+@@ -603,7 +603,6 @@ bool eq_f1ap_setup_request(const f1ap_setup_req_t *a, const f1ap_setup_req_t *b)
+     if (!eq_f1ap_sys_info(a->cell[i].sys_info, b->cell[i].sys_info))
+       return false;
+   }
+-  _F1_EQ_CHECK_LONG(sizeofArray(a->rrc_ver), sizeofArray(b->rrc_ver));
+   for (int i = 0; i < sizeofArray(a->rrc_ver); i++) {
+     _F1_EQ_CHECK_INT(a->rrc_ver[i], b->rrc_ver[i]);
+   }
+@@ -788,21 +787,22 @@ bool eq_f1ap_setup_response(const f1ap_setup_resp_t *a, const f1ap_setup_resp_t
+       _F1_EQ_CHECK_LONG(a_cell->nr_cellid, b_cell->nr_cellid);
+       _F1_EQ_CHECK_INT(a_cell->nrpci, b_cell->nrpci);
+       _F1_EQ_CHECK_INT(a_cell->num_SI, b_cell->num_SI);
+-      _F1_EQ_CHECK_LONG(a_cell->nr_cellid, b_cell->nr_cellid);
+       if (!eq_f1ap_plmn(&a_cell->plmn, &b_cell->plmn))
+         return false;
+-      if (sizeofArray(a->cells_to_activate[i].SI_msg) != sizeofArray(b->cells_to_activate[i].SI_msg))
+-        return false;
+-      for (int j = 0; j < b->cells_to_activate[i].num_SI; j++) {
+-        const f1ap_sib_msg_t *a_SI_msg = &a->cells_to_activate[i].SI_msg[j];
+-        const f1ap_sib_msg_t *b_SI_msg = &b->cells_to_activate[i].SI_msg[j];
+-        _F1_EQ_CHECK_INT(*a_SI_msg->SI_container, *b_SI_msg->SI_container);
++      for (int j = 0; j < a_cell->num_SI; j++) {
++        const f1ap_sib_msg_t *a_SI_msg = &a_cell->SI_msg[j];
++        const f1ap_sib_msg_t *b_SI_msg = &b_cell->SI_msg[j];
+         _F1_EQ_CHECK_INT(a_SI_msg->SI_container_length, b_SI_msg->SI_container_length);
+         _F1_EQ_CHECK_INT(a_SI_msg->SI_type, b_SI_msg->SI_type);
++        if (a_SI_msg->SI_container && b_SI_msg->SI_container) {
++          if (memcmp(a_SI_msg->SI_container, b_SI_msg->SI_container, a_SI_msg->SI_container_length) != 0)
++            return false;
++        } else if (a_SI_msg->SI_container || b_SI_msg->SI_container) {
++          return false;
++        }
+       }
+     }
+   }
+-  _F1_EQ_CHECK_LONG(sizeofArray(a->rrc_ver), sizeofArray(b->rrc_ver));
+   for (int i = 0; i < sizeofArray(a->rrc_ver); i++) {
+     _F1_EQ_CHECK_INT(a->rrc_ver[i], b->rrc_ver[i]);
+   }
+@@ -834,8 +834,12 @@ f1ap_setup_resp_t cp_f1ap_setup_response(const f1ap_setup_resp_t *msg)
+       f1ap_sib_msg_t *cp_SI_msg = &cp_cell->SI_msg[j];
+       const f1ap_sib_msg_t *b_SI_msg = &msg_cell->SI_msg[j];
+       cp_SI_msg->SI_container_length = b_SI_msg->SI_container_length;
+-      cp_SI_msg->SI_container = malloc_or_fail(cp_SI_msg->SI_container_length);
+-      *cp_SI_msg->SI_container = *b_SI_msg->SI_container;
++      if (b_SI_msg->SI_container && b_SI_msg->SI_container_length > 0) {
++        cp_SI_msg->SI_container = malloc_or_fail(cp_SI_msg->SI_container_length);
++        memcpy(cp_SI_msg->SI_container, b_SI_msg->SI_container, cp_SI_msg->SI_container_length);
++      } else {
++        cp_SI_msg->SI_container = NULL;
++      }
+       cp_SI_msg->SI_type = b_SI_msg->SI_type;
+     }
+   }
+@@ -1397,9 +1401,16 @@ bool eq_f1ap_cu_configuration_update(const f1ap_gnb_cu_configuration_update_t *a
+       return false;
+     _F1_EQ_CHECK_INT(a->cells_to_activate[i].num_SI, b->cells_to_activate[i].num_SI);
+     for (int s = 0; s < a->cells_to_activate[i].num_SI; s++) {
+-      _F1_EQ_CHECK_INT(*a->cells_to_activate[i].SI_msg[s].SI_container, *a->cells_to_activate[i].SI_msg[s].SI_container);
+-      _F1_EQ_CHECK_INT(a->cells_to_activate[i].SI_msg[s].SI_container_length, a->cells_to_activate[i].SI_msg[s].SI_container_length);
+-      _F1_EQ_CHECK_INT(a->cells_to_activate[i].SI_msg[s].SI_type, a->cells_to_activate[i].SI_msg[s].SI_type);
++      const f1ap_sib_msg_t *a_SI_msg = &a->cells_to_activate[i].SI_msg[s];
++      const f1ap_sib_msg_t *b_SI_msg = &b->cells_to_activate[i].SI_msg[s];
++      _F1_EQ_CHECK_INT(a_SI_msg->SI_container_length, b_SI_msg->SI_container_length);
++      _F1_EQ_CHECK_INT(a_SI_msg->SI_type, b_SI_msg->SI_type);
++      if (a_SI_msg->SI_container && b_SI_msg->SI_container) {
++        if (memcmp(a_SI_msg->SI_container, b_SI_msg->SI_container, a_SI_msg->SI_container_length) != 0)
++          return false;
++      } else if (a_SI_msg->SI_container || b_SI_msg->SI_container) {
++        return false;
++      }
+     }
+   }
+   return true;
+@@ -1417,11 +1428,16 @@ f1ap_gnb_cu_configuration_update_t cp_f1ap_cu_configuration_update(const f1ap_gn
+   for (int i = 0; i < cp.num_cells_to_activate; i++) {
+     cp.cells_to_activate[i] = msg->cells_to_activate[i];
+     for (int s = 0; s < cp.cells_to_activate[i].num_SI; s++) {
+-      cp.cells_to_activate[i].SI_msg[s] = msg->cells_to_activate[i].SI_msg[s];
+-      f1ap_sib_msg_t *SI_msg = &cp.cells_to_activate[i].SI_msg[s];
+-      SI_msg->SI_container = calloc_or_fail(SI_msg->SI_container_length, sizeof(*SI_msg->SI_container));
+-      for (int j = 0; j < SI_msg->SI_container_length; j++)
+-        SI_msg->SI_container[j] = msg->cells_to_activate[i].SI_msg[s].SI_container[j];
++      const f1ap_sib_msg_t *src_SI_msg = &msg->cells_to_activate[i].SI_msg[s];
++      f1ap_sib_msg_t *dst_SI_msg = &cp.cells_to_activate[i].SI_msg[s];
++      dst_SI_msg->SI_container_length = src_SI_msg->SI_container_length;
++      dst_SI_msg->SI_type = src_SI_msg->SI_type;
++      if (src_SI_msg->SI_container && src_SI_msg->SI_container_length > 0) {
++        dst_SI_msg->SI_container = malloc_or_fail(dst_SI_msg->SI_container_length);
++        memcpy(dst_SI_msg->SI_container, src_SI_msg->SI_container, dst_SI_msg->SI_container_length);
++      } else {
++        dst_SI_msg->SI_container = NULL;
++      }
+     }
+   }
+   return cp;
+@@ -1719,10 +1735,16 @@ bool eq_f1ap_du_configuration_update_acknowledge(const f1ap_gnb_du_configuration
+       return false;
+     _F1_EQ_CHECK_INT(a->cells_to_activate[i].num_SI, b->cells_to_activate[i].num_SI);
+     for (int s = 0; s < a->cells_to_activate[i].num_SI; s++) {
+-      _F1_EQ_CHECK_INT(*a->cells_to_activate[i].SI_msg[s].SI_container, *b->cells_to_activate[i].SI_msg[s].SI_container);
+-      _F1_EQ_CHECK_INT(a->cells_to_activate[i].SI_msg[s].SI_container_length,
+-                       b->cells_to_activate[i].SI_msg[s].SI_container_length);
+-      _F1_EQ_CHECK_INT(a->cells_to_activate[i].SI_msg[s].SI_type, b->cells_to_activate[i].SI_msg[s].SI_type);
++      const f1ap_sib_msg_t *a_SI_msg = &a->cells_to_activate[i].SI_msg[s];
++      const f1ap_sib_msg_t *b_SI_msg = &b->cells_to_activate[i].SI_msg[s];
++      _F1_EQ_CHECK_INT(a_SI_msg->SI_container_length, b_SI_msg->SI_container_length);
++      _F1_EQ_CHECK_INT(a_SI_msg->SI_type, b_SI_msg->SI_type);
++      if (a_SI_msg->SI_container && b_SI_msg->SI_container) {
++        if (memcmp(a_SI_msg->SI_container, b_SI_msg->SI_container, a_SI_msg->SI_container_length) != 0)
++          return false;
++      } else if (a_SI_msg->SI_container || b_SI_msg->SI_container) {
++        return false;
++      }
+     }
+   }
+   return true;
+@@ -1743,8 +1765,16 @@ f1ap_gnb_du_configuration_update_acknowledge_t cp_f1ap_du_configuration_update_a
+   for (int i = 0; i < cp.num_cells_to_activate; i++) {
+     cp.cells_to_activate[i] = msg->cells_to_activate[i];
+     for (int s = 0; s < cp.cells_to_activate[i].num_SI; s++) {
+-      cp.cells_to_activate[i].SI_msg[s].SI_container = calloc_or_fail(1, sizeof(*cp.cells_to_activate[i].SI_msg[s].SI_container));
+-      *cp.cells_to_activate[i].SI_msg[s].SI_container = *msg->cells_to_activate[i].SI_msg[s].SI_container;
++      const f1ap_sib_msg_t *src_SI_msg = &msg->cells_to_activate[i].SI_msg[s];
++      f1ap_sib_msg_t *dst_SI_msg = &cp.cells_to_activate[i].SI_msg[s];
++      dst_SI_msg->SI_container_length = src_SI_msg->SI_container_length;
++      if (src_SI_msg->SI_container && src_SI_msg->SI_container_length > 0) {
++        dst_SI_msg->SI_container = malloc_or_fail(dst_SI_msg->SI_container_length);
++        memcpy(dst_SI_msg->SI_container, src_SI_msg->SI_container, dst_SI_msg->SI_container_length);
++      } else {
++        dst_SI_msg->SI_container = NULL;
++      }
++      dst_SI_msg->SI_type = src_SI_msg->SI_type;
+     }
+   }
+   return cp;

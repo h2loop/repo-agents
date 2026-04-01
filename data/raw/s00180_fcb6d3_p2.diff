@@ -1,0 +1,22 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c b/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
+index 9820e60107..c2af3c7467 100644
+--- a/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
++++ b/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
+@@ -760,6 +760,8 @@ uint8_t nr_ue_get_rach(module_id_t mod_id,
+       }
+     } else if (ra->RA_window_cnt != -1) { // RACH is active
+ 
++      pthread_mutex_lock(&mac->mutex);
++
+       LOG_D(MAC, "In %s [%d.%d] RA is active: RA window count %d, RA backoff count %d\n", __FUNCTION__, frame, nr_slot_tx, ra->RA_window_cnt, ra->RA_backoff_cnt);
+ 
+       if (ra->RA_BI_found){
+@@ -800,6 +802,8 @@ uint8_t nr_ue_get_rach(module_id_t mod_id,
+           nr_get_prach_resources(mod_id, CC_id, gNB_id, prach_resources, rach_ConfigDedicated);
+         }
+       }
++
++      pthread_mutex_unlock(&mac->mutex);
+     }
+   }
+ 

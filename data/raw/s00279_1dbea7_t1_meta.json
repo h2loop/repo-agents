@@ -1,0 +1,28 @@
+{
+  "run_id": "s00279_1dbea7",
+  "function": {
+    "name": "nfapi_vnf_phy_info_list_find",
+    "file": "nfapi/open-nFAPI/vnf/src/vnf.c",
+    "start_line": 72,
+    "end_line": 84,
+    "body_lines": 13,
+    "signature": "nfapi_vnf_phy_info_t* nfapi_vnf_phy_info_list_find(nfapi_vnf_config_t* config, uint16_t phy_id)",
+    "subsystem": "nfapi/open-nFAPI/vnf",
+    "token_estimate": 26
+  },
+  "bug": {
+    "bug_id": "telecom_sched_priority_inversion",
+    "description": "scheduling priority inversion where lower-priority traffic is served before higher-priority",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a scheduling priority inversion where lower-priority traffic is served before higher-priority downstream of function nfapi_vnf_phy_info_list_find in the nfapi/open-nFAPI/vnf subsystem.\nThe function is located at nfapi/open-nFAPI/vnf/src/vnf.c:72.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00279_1dbea7_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00279_1dbea7_p1.diff",
+  "patch_lines": 15,
+  "trajectory_steps": 20,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T14:01:53Z"
+}

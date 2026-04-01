@@ -1,0 +1,49 @@
+diff --git a/subsys/fs/fcb/fcb_getnext.c b/subsys/fs/fcb/fcb_getnext.c
+index 875be86d..17e7b988 100644
+--- a/subsys/fs/fcb/fcb_getnext.c
++++ b/subsys/fs/fcb/fcb_getnext.c
+@@ -59,7 +59,7 @@ fcb_getnext_nolock(struct fcb *fcb, struct fcb_entry *loc)
+ 		rc = fcb_elem_info(fcb, loc);
+ 		switch (rc) {
+ 		case 0:
+-			return 0;
++			return rc;
+ 		case -EBADMSG:
+ 			break;
+ 		default:
+@@ -68,7 +68,7 @@ fcb_getnext_nolock(struct fcb *fcb, struct fcb_entry *loc)
+ 	} else {
+ 		rc = fcb_getnext_in_sector(fcb, loc);
+ 		if (rc == 0) {
+-			return 0;
++			return rc;
+ 		}
+ 		if (rc == -ENOTSUP) {
+ 			goto next_sector;
+@@ -77,7 +77,7 @@ fcb_getnext_nolock(struct fcb *fcb, struct fcb_entry *loc)
+ 	while (rc == -EBADMSG) {
+ 		rc = fcb_getnext_in_sector(fcb, loc);
+ 		if (rc == 0) {
+-			return 0;
++			return rc;
+ 		}
+ 
+ 		if (rc != -EBADMSG) {
+@@ -93,7 +93,7 @@ next_sector:
+ 			rc = fcb_elem_info(fcb, loc);
+ 			switch (rc) {
+ 			case 0:
+-				return 0;
++				return rc;
+ 			case -EBADMSG:
+ 				break;
+ 			default:
+@@ -102,7 +102,7 @@ next_sector:
+ 		}
+ 	}
+ 
+-	return 0;
++	return rc;
+ }
+ 
+ int

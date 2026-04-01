@@ -1,0 +1,13 @@
+diff --git a/openair1/PHY/CODING/ccoding_byte.c b/openair1/PHY/CODING/ccoding_byte.c
+index dc96f6e2ca..7798074cf5 100644
+--- a/openair1/PHY/CODING/ccoding_byte.c
++++ b/openair1/PHY/CODING/ccoding_byte.c
+@@ -210,7 +210,7 @@ void ccodedot11_init_inv(void) {
+       sum = 0;
+ 
+       for (k = 0; k < 7; k++)
+-        if ((i & gdot11_rev[j]) & (1 << k))
++        if ((i & gdot11[j]) & (1 << k))
+           sum++;
+ 
+       /* Write the sum modulo 2 in bit j */

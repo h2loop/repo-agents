@@ -1,0 +1,55 @@
+diff --git a/openair3/NAS/COMMON/IES/VoiceDomainPreferenceAndUeUsageSetting.c b/openair3/NAS/COMMON/IES/VoiceDomainPreferenceAndUeUsageSetting.c
+index 156c68d80f..46641c90df 100644
+--- a/openair3/NAS/COMMON/IES/VoiceDomainPreferenceAndUeUsageSetting.c
++++ b/openair3/NAS/COMMON/IES/VoiceDomainPreferenceAndUeUsageSetting.c
+@@ -44,7 +44,9 @@ int decode_voice_domain_preference_and_ue_usage_setting(VoiceDomainPreferenceAnd
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+ 
+-  voicedomainpreferenceandueusagesetting->ue_usage_setting        = (*(buffer + decoded) >> 2) & 0x1;
++  voicedomainpreferenceandueusagesetting->spare1 = (*(buffer + decoded) >> 6) & 0x3;
++  voicedomainpreferenceandueusagesetting->ue_usage_setting = (*(buffer + decoded) >> 5) & 0x1;
++  voicedomainpreferenceandueusagesetting->spare2 = (*(buffer + decoded) >> 2) & 0x7;
+   voicedomainpreferenceandueusagesetting->voice_domain_for_eutran = *(buffer + decoded) & 0x3;
+   decoded++;
+ 
+@@ -71,8 +73,10 @@ int encode_voice_domain_preference_and_ue_usage_setting(VoiceDomainPreferenceAnd
+   lenPtr  = (buffer + encoded);
+   encoded ++;
+   *(buffer + encoded) = 0x00 |
+-                        (voicedomainpreferenceandueusagesetting->ue_usage_setting << 2) |
+-                        voicedomainpreferenceandueusagesetting->voice_domain_for_eutran;
++                        ((voicedomainpreferenceandueusagesetting->spare1 & 0x3) << 6) |
++                        ((voicedomainpreferenceandueusagesetting->ue_usage_setting & 0x1) << 5) |
++                        ((voicedomainpreferenceandueusagesetting->spare2 & 0x7) << 2) |
++                        (voicedomainpreferenceandueusagesetting->voice_domain_for_eutran & 0x3);
+   encoded++;
+ 
+   *lenPtr = encoded - 1 - ((iei > 0) ? 1 : 0);
+@@ -87,7 +91,9 @@ void dump_voice_domain_preference_and_ue_usage_setting_xml(VoiceDomainPreference
+     /* Don't display IEI if = 0 */
+     printf("    <IEI>0x%X</IEI>\n", iei);
+ 
++  printf("    <SPARE1>%u</SPARE1>\n", voicedomainpreferenceandueusagesetting->spare1);
+   printf("    <UE_USAGE_SETTING>%u</UE_USAGE_SETTING>\n", voicedomainpreferenceandueusagesetting->ue_usage_setting);
++  printf("    <SPARE2>%u</SPARE2>\n", voicedomainpreferenceandueusagesetting->spare2);
+   printf("    <VOICE_DOMAIN_FOR_EUTRAN>%u</VOICE_DOMAIN_FOR_EUTRAN>\n", voicedomainpreferenceandueusagesetting->voice_domain_for_eutran);
+   printf("</Voice domain preference and UE usage setting>\n");
+ }
+diff --git a/openair3/NAS/COMMON/IES/VoiceDomainPreferenceAndUeUsageSetting.h b/openair3/NAS/COMMON/IES/VoiceDomainPreferenceAndUeUsageSetting.h
+index b7dbe35de4..5ceb6aa785 100644
+--- a/openair3/NAS/COMMON/IES/VoiceDomainPreferenceAndUeUsageSetting.h
++++ b/openair3/NAS/COMMON/IES/VoiceDomainPreferenceAndUeUsageSetting.h
+@@ -32,10 +32,11 @@
+ #define VOICE_DOMAIN_PREFERENCE_AND_UE_USAGE_SETTING_MAXIMUM_LENGTH 1
+ 
+ typedef struct VoiceDomainPreferenceAndUeUsageSetting_tag {
+-  uint8_t  spare:5;
++  uint8_t  spare1:2;
+ #define UE_USAGE_SETTING_VOICE_CENTRIC 0b0
+ #define UE_USAGE_SETTING_DATA_CENTRIC  0b1
+   uint8_t  ue_usage_setting:1;
++  uint8_t  spare2:3;
+ #define VOICE_DOMAIN_PREFERENCE_CS_VOICE_ONLY                                    0b00
+ #define VOICE_DOMAIN_PREFERENCE_IMS_PS_VOICE_ONLY                                0b01
+ #define VOICE_DOMAIN_PREFERENCE_CS_VOICE_PREFERRED_IMS_PS_VOICE_AS_SECONDARY     0b10

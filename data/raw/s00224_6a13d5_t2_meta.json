@@ -1,0 +1,9 @@
+{
+  "run_id": "s00224_6a13d5",
+  "pr_text": "## Title: Fix memory leak in UCI PUCCH format 2/3/4 unpacking\n\n### Summary\nThe `unpack_nr_uci_pucch_2_3_4()` function in the nFAPI P7 interface allocates dynamic memory for SR, HARQ, CSI-part1, and CSI-part2 payload fields. When `pullarray8()` fails to read these fields from the message buffer, the function returns early without deallocating the previously allocated memory, causing memory leaks during parsing errors.\n\nThis fix ensures proper cleanup by calling `nfapi_p7_deallocate()` and nullify",
+  "trajectory_path": "data/raw/s00224_6a13d5_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00224_6a13d5_p2.diff",
+  "patch_lines": 16,
+  "trajectory_steps": 16,
+  "timestamp": "2026-02-11T13:29:19Z"
+}

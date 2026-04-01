@@ -1,0 +1,9 @@
+{
+  "run_id": "s00084_401d60",
+  "pr_text": "## Title: Add NULL checks after connection info lookup in UL node sync handlers\n\n### Summary\nThe UL node sync handlers in the nFAPI VNF component dereference pointers returned by `vnf_p7_connection_info_list_find()` without checking for NULL, leading to potential segmentation faults when processing messages from unknown PHY instances. If a UL_NODE_SYNC message arrives with a phy_id that doesn't exist in the connection list, the function returns NULL, and subsequent accesses to `phy->sfn_sf` (LTE",
+  "trajectory_path": "data/raw/s00084_401d60_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00084_401d60_p2.diff",
+  "patch_lines": 10,
+  "trajectory_steps": 14,
+  "timestamp": "2026-02-10T11:06:27Z"
+}

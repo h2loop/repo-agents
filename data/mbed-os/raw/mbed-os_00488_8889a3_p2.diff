@@ -1,0 +1,56 @@
+diff --git a/targets/TARGET_STM/TARGET_STM32WL/STM32Cube_FW/STM32WLxx_HAL_Driver/stm32wlxx_hal_i2s.c b/targets/TARGET_STM/TARGET_STM32WL/STM32Cube_FW/STM32WLxx_HAL_Driver/stm32wlxx_hal_i2s.c
+index f8be035a..bac856f1 100644
+--- a/targets/TARGET_STM/TARGET_STM32WL/STM32Cube_FW/STM32WLxx_HAL_Driver/stm32wlxx_hal_i2s.c
++++ b/targets/TARGET_STM/TARGET_STM32WL/STM32Cube_FW/STM32WLxx_HAL_Driver/stm32wlxx_hal_i2s.c
+@@ -1139,6 +1139,9 @@ HAL_StatusTypeDef HAL_I2S_Transmit_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData,
+   /* Set the DMA error callback */
+   hi2s->hdmatx->XferErrorCallback = I2S_DMAError;
+ 
++  /* Release Lock before DMA transfer */
++  __HAL_UNLOCK(hi2s);
++
+   /* Enable the Tx DMA Stream/Channel */
+   if (HAL_OK != HAL_DMA_Start_IT(hi2s->hdmatx,
+                                  (uint32_t)hi2s->pTxBuffPtr,
+@@ -1149,7 +1152,6 @@ HAL_StatusTypeDef HAL_I2S_Transmit_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData,
+     SET_BIT(hi2s->ErrorCode, HAL_I2S_ERROR_DMA);
+     hi2s->State = HAL_I2S_STATE_READY;
+ 
+-    __HAL_UNLOCK(hi2s);
+     return HAL_ERROR;
+   }
+ 
+@@ -1167,7 +1169,6 @@ HAL_StatusTypeDef HAL_I2S_Transmit_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData,
+     SET_BIT(hi2s->Instance->CR2, SPI_CR2_TXDMAEN);
+   }
+ 
+-  __HAL_UNLOCK(hi2s);
+   return HAL_OK;
+ }
+ 
+@@ -1238,6 +1239,9 @@ HAL_StatusTypeDef HAL_I2S_Receive_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData,
+     __HAL_I2S_CLEAR_OVRFLAG(hi2s);
+   }
+ 
++  /* Release Lock before DMA transfer */
++  __HAL_UNLOCK(hi2s);
++
+   /* Enable the Rx DMA Stream/Channel */
+   if (HAL_OK != HAL_DMA_Start_IT(hi2s->hdmarx, (uint32_t)&hi2s->Instance->DR, (uint32_t)hi2s->pRxBuffPtr,
+                                  hi2s->RxXferSize))
+@@ -1246,7 +1250,6 @@ HAL_StatusTypeDef HAL_I2S_Receive_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData,
+     SET_BIT(hi2s->ErrorCode, HAL_I2S_ERROR_DMA);
+     hi2s->State = HAL_I2S_STATE_READY;
+ 
+-    __HAL_UNLOCK(hi2s);
+     return HAL_ERROR;
+   }
+ 
+@@ -1264,7 +1267,6 @@ HAL_StatusTypeDef HAL_I2S_Receive_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData,
+     SET_BIT(hi2s->Instance->CR2, SPI_CR2_RXDMAEN);
+   }
+ 
+-  __HAL_UNLOCK(hi2s);
+   return HAL_OK;
+ }
+ 

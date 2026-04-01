@@ -1,0 +1,252 @@
+diff --git a/common/utils/websrv/websrv.c b/common/utils/websrv/websrv.c
+index f6fb898104..8b3454d5a5 100644
+--- a/common/utils/websrv/websrv.c
++++ b/common/utils/websrv/websrv.c
+@@ -34,6 +34,7 @@
+ #include <ulfius.h>
+ #include <gnutls/gnutls.h>
+ #include <gnutls/x509.h>
++#include <stdbool.h>
+ #include "common/config/config_userapi.h"
+ #include "common/utils/LOG/log.h"
+ #include "common/utils/websrv/websrv.h"
+@@ -250,7 +251,7 @@ int websrv_callback_set_moduleparams(const struct _u_request *request, struct _u
+             }
+             break;
+           }
+-        } // for	*cmd
++        } // for        *cmd
+       } // json_unpack_ex(jsbody OK
+     } // user_data
+   } // jsbody not null
+@@ -354,10 +355,12 @@ int websrv_callback_okset_softmodem_cmdvar(const struct _u_request *request, str
+ int websrv_callback_set_softmodemvar(const struct _u_request *request, struct _u_response *response, void *user_data)
+ {
+   LOG_I(UTIL, "[websrv] : callback_set_softmodemvar received %s %s\n", request->http_verb, request->http_url);
+-  websrv_printf_start(response, 256, false);
++  websrv_printf_start(response, 1024, false); // Increased buffer size for better error reporting
+   json_error_t jserr;
+   json_t *jsbody = ulfius_get_json_body_request(request, &jserr);
+   int httpstatus = 404;
++  bool var_found = false;
++  
+   if (jsbody == NULL) {
+     websrv_printf("cannot find json body in %s %s\n", request->http_url, jserr.text);
+     httpstatus = 400;
+@@ -369,61 +372,85 @@ int websrv_callback_set_softmodemvar(const struct _u_request *request, struct _u
+     } else {
+       cmdparser_t *modulestruct = (cmdparser_t *)user_data;
+       json_t *J = json_object_get(jsbody, "name");
+-      const char *vname = json_string_value(J);
+-      for (telnetshell_vardef_t *var = modulestruct->var; var->varvalptr != NULL; var++) {
+-        if (strncmp(var->varname, vname, TELNET_CMD_MAXSIZE) == 0) {
+-          J = json_object_get(jsbody, "value");
+-          if (J != NULL) {
+-            if (json_is_string(J)) {
+-              const char *vval = json_string_value(J);
+-              websrv_printf("var %s set to ", var->varname);
+-              int st = telnet_setvarvalue(var, (char *)vval, websrv_printf);
+-              if (st >= 0) {
+-                httpstatus = 200;
+-              } else {
+-                httpstatus = 500;
+-              }
+-            } else if (json_is_integer(J)) {
+-              json_int_t i = json_integer_value(J);
+-              switch (var->vartype) {
+-                case TELNET_VARTYPE_INT64:
+-                  *(int64_t *)var->varvalptr = (int64_t)i;
+-                  break;
+-                case TELNET_VARTYPE_INT32:
+-                  *(int32_t *)var->varvalptr = (int32_t)i;
+-                  break;
+-                case TELNET_VARTYPE_INT16:
+-                  *(int16_t *)var->varvalptr = (int16_t)i;
+-                  break;
+-                case TELNET_VARTYPE_INT8:
+-                  *(int8_t *)var->varvalptr = (int8_t)i;
+-                  break;
+-                case TELNET_VARTYPE_UINT:
+-                  *(unsigned int *)var->varvalptr = (unsigned int)i;
+-                  break;
+-                default:
++      if (J == NULL || !json_is_string(J)) {
++        httpstatus = 400;
++        websrv_printf("Cannot find valid variable name in request\n");
++      } else {
++        const char *vname = json_string_value(J);
++        for (telnetshell_vardef_t *var = modulestruct->var; var->varvalptr != NULL; var++) {
++          if (strncmp(var->varname, vname, TELNET_CMD_MAXSIZE) == 0) {
++            var_found = true;
++            J = json_object_get(jsbody, "value");
++            if (J != NULL) {
++              if (json_is_string(J)) {
++                const char *vval = json_string_value(J);
++                websrv_printf("var %s set to ", var->varname);
++                int st = telnet_setvarvalue(var, (char *)vval, websrv_printf);
++                if (st >= 0) {
++                  httpstatus = 200;
++                } else {
+                   httpstatus = 500;
+-                  websrv_printf(" Cannot set var %s, integer type mismatch\n", vname);
+-                  break;
+-              }
+-            } else if (json_is_real(J)) {
+-              double lf = json_real_value(J);
+-              if (var->vartype == TELNET_VARTYPE_DOUBLE) {
+-                *(double *)var->varvalptr = lf;
+-                httpstatus = 200;
+-                websrv_printf(" Var %s, set to %g\n", vname, *(double *)var->varvalptr);
++                  websrv_printf("Failed to set variable %s\n", vname);
++                }
++              } else if (json_is_integer(J)) {
++                json_int_t i = json_integer_value(J);
++                switch (var->vartype) {
++                  case TELNET_VARTYPE_INT64:
++                    *(int64_t *)var->varvalptr = (int64_t)i;
++                    httpstatus = 200;
++                    websrv_printf(" Var %s, set to %ld\n", vname, (long)i);
++                    break;
++                  case TELNET_VARTYPE_INT32:
++                    *(int32_t *)var->varvalptr = (int32_t)i;
++                    httpstatus = 200;
++                    websrv_printf(" Var %s, set to %d\n", vname, (int)i);
++                    break;
++                  case TELNET_VARTYPE_INT16:
++                    *(int16_t *)var->varvalptr = (int16_t)i;
++                    httpstatus = 200;
++                    websrv_printf(" Var %s, set to %d\n", vname, (int)i);
++                    break;
++                  case TELNET_VARTYPE_INT8:
++                    *(int8_t *)var->varvalptr = (int8_t)i;
++                    httpstatus = 200;
++                    websrv_printf(" Var %s, set to %d\n", vname, (int)i);
++                    break;
++                  case TELNET_VARTYPE_UINT:
++                    *(unsigned int *)var->varvalptr = (unsigned int)i;
++                    httpstatus = 200;
++                    websrv_printf(" Var %s, set to %u\n", vname, (unsigned int)i);
++                    break;
++                  default:
++                    httpstatus = 500;
++                    websrv_printf(" Cannot set var %s, integer type mismatch (type: %d)\n", vname, var->vartype);
++                    break;
++                }
++              } else if (json_is_real(J)) {
++                double lf = json_real_value(J);
++                if (var->vartype == TELNET_VARTYPE_DOUBLE) {
++                  *(double *)var->varvalptr = lf;
++                  httpstatus = 200;
++                  websrv_printf(" Var %s, set to %g\n", vname, *(double *)var->varvalptr);
++                } else {
++                  httpstatus = 500;
++                  websrv_printf(" Cannot set var %s, real type mismatch (type: %d)\n", vname, var->vartype);
++                }
+               } else {
+                 httpstatus = 500;
+-                websrv_printf(" Cannot set var %s, real type mismatch\n", vname);
++                websrv_printf(" Cannot set var %s, unsupported value type\n", vname);
+               }
++            } else {
++              httpstatus = 500;
++              websrv_printf("Cannot set var %s, json object is NULL\n", vname);
+             }
+-          } else {
+-            httpstatus = 500;
+-            websrv_printf("Cannot set var %s, json object is NULL\n", vname);
++            break;
+           }
+-          break;
++        } // for
++        if (!var_found) {
++          httpstatus = 404;
++          websrv_printf("Variable %s not found\n", vname);
+         }
+-      } // for
++      }
+     } // user_data
+   } // sbody
+   websrv_printf_end(httpstatus, websrvparams.dbglvl);
+@@ -434,8 +461,8 @@ int websrv_processwebfunc(struct _u_response *response, cmdparser_t *modulestruc
+ {
+   LOG_I(UTIL, "[websrv] : executing command %s %s\n", modulestruct->module, cmd->cmdname);
+   if ((cmd->cmdflags & TELNETSRV_CMDFLAG_NEEDPARAM) && jparams == NULL) {
+-	  LOG_W(UTIL, "No parameters sent by frontend for %s %s\n", modulestruct->module, cmd->cmdname);
+-	  return 500;
++          LOG_W(UTIL, "No parameters sent by frontend for %s %s\n", modulestruct->module, cmd->cmdname);
++          return 500;
+   }
+   int http_status = 200;
+   char *pname[2], *pvalue[2];
+@@ -447,25 +474,25 @@ int websrv_processwebfunc(struct _u_response *response, cmdparser_t *modulestruc
+      np = json_array_size(jparams);
+      int jrt;
+      switch(np) {
+-	   case 1:
+-	     jrt=json_unpack_ex(jparams, &jerror, 0, "[{s:s,s:s,s:s,s,b}]", "name", &pname[0], "value", &pvalue[0], "type", &ptype[0], "modifiable", &b);
+-	   break;
+-	   case 2:
+-	     jrt=json_unpack_ex(jparams, &jerror, 0, "[{s:s,s:s,s:s,s,b},{s:s,s:s,s:s,s,b}]", 
+-	                                          "name", &pname[0], "value", &pvalue[0], "type", &ptype[0], "modifiable", &b[0],
+-	                                          "name", &pname[1], "value", &pvalue[1], "type", &ptype[1], "modifiable", &b[1]);	   
+-	   break;
+-	   default:
+-	     http_status=500;	   
+-	   break;
++           case 1:
++             jrt=json_unpack_ex(jparams, &jerror, 0, "[{s:s,s:s,s:s,s,b}]", "name", &pname[0], "value", &pvalue[0], "type", &ptype[0], "modifiable", &b);
++           break;
++           case 2:
++             jrt=json_unpack_ex(jparams, &jerror, 0, "[{s:s,s:s,s:s,s,b},{s:s,s:s,s:s,s,b}]", 
++                                                  "name", &pname[0], "value", &pvalue[0], "type", &ptype[0], "modifiable", &b[0],
++                                                  "name", &pname[1], "value", &pvalue[1], "type", &ptype[1], "modifiable", &b[1]);         
++           break;
++           default:
++             http_status=500;      
++           break;
+ //     json_unpack_ex(jparams, &jerror, 0, "[{s:s,s:s,s:s,s,b}]", "name", &pname, "value", &pvalue, "type", &ptype, "modifiable", &b);
+ 
+-	  }
++          }
+     if (jrt <0 || http_status != 200) {
+          LOG_I(UTIL, "[websrv], couldn't unpack jparams, module %s, command %s: %s\n", modulestruct->module, cmd->cmdname, jerror.text);
+          websrv_printjson((char *)__FUNCTION__, jparams, websrvparams.dbglvl);
+          return 500;  
+-    }	  
++    }     
+   }
+ 
+   if (cmd->cmdflags & TELNETSRV_CMDFLAG_GETWEBTBLDATA) {
+@@ -629,15 +656,15 @@ int websrv_callback_get_softmodemcmd(const struct _u_request *request, struct _u
+         helpcp = strdup(modulestruct->cmd[j].helpstr);
+         int ns=sscanf(helpcp,"<%m[^<>]> <%m[^<>]>",&question[0],&question[1]);
+         if (ns == 0) {
+-		  LOG_W(UTIL, "[websrv] Cannot find parameters for command %s %s\n", modulestruct->module, modulestruct->cmd[j].cmdname);
+-		  continue;		
+-		}  
++                  LOG_W(UTIL, "[websrv] Cannot find parameters for command %s %s\n", modulestruct->module, modulestruct->cmd[j].cmdname);
++                  continue;             
++                }  
+         jQ1=json_pack("{s:s,s:s,s:s}", "display",question[0], "pname", "P0", "type", "string");
+         json_array_append_new(jQs, jQ1);
+         if (ns >1) {
+             jQ2=json_pack("{s:s,s:s,s:s}","display", (question[1] == NULL) ? "" : question[1], "pname",  "P1" , "type", "string");
+             json_array_append_new(jQs, jQ2);
+-	    }
++            }
+       }
+       acmd = json_pack("{s:s,s:o}", "name", modulestruct->cmd[j].cmdname, "question", jQs);
+       free(helpcp);
+@@ -647,9 +674,9 @@ int websrv_callback_get_softmodemcmd(const struct _u_request *request, struct _u
+       acmd = json_pack("{s:s}", "name", modulestruct->cmd[j].cmdname);
+     }
+     if ( acmd == NULL) {
+-		LOG_W(UTIL, "[websrv] interface for command %s %s cannot be built\n", modulestruct->module, modulestruct->cmd[j].cmdname);
+-		continue;
+-	}
++                LOG_W(UTIL, "[websrv] interface for command %s %s cannot be built\n", modulestruct->module, modulestruct->cmd[j].cmdname);
++                continue;
++        }
+     json_t *jopts = json_array();
+     if (modulestruct->cmd[j].cmdflags & TELNETSRV_CMDFLAG_AUTOUPDATE) {
+       json_array_append_new(jopts, json_string("update"));

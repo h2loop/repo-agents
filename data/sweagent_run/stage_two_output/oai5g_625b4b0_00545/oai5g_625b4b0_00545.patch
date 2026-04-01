@@ -1,0 +1,36 @@
+diff --git a/openair3/NAS/COMMON/IES/EmmCause.c b/openair3/NAS/COMMON/IES/EmmCause.c
+index 965f1e0f13..8c80216e11 100644
+--- a/openair3/NAS/COMMON/IES/EmmCause.c
++++ b/openair3/NAS/COMMON/IES/EmmCause.c
+@@ -31,6 +31,7 @@
+ int decode_emm_cause(EmmCause *emmcause, uint8_t iei, uint8_t *buffer, uint32_t len)
+ {
+   int decoded = 0;
++  CHECK_PDU_POINTER_AND_LENGTH_DECODER(buffer, EMM_CAUSE_MINIMUM_LENGTH, len);
+ 
+   if (iei > 0) {
+     CHECK_IEI_DECODER(iei, *buffer);
+diff --git a/openair3/NAS/COMMON/IES/EsmCause.c b/openair3/NAS/COMMON/IES/EsmCause.c
+index e703438c17..dddf5f4b59 100644
+--- a/openair3/NAS/COMMON/IES/EsmCause.c
++++ b/openair3/NAS/COMMON/IES/EsmCause.c
+@@ -31,6 +31,7 @@
+ int decode_esm_cause(EsmCause *esmcause, uint8_t iei, uint8_t *buffer, uint32_t len)
+ {
+   int decoded = 0;
++  CHECK_PDU_POINTER_AND_LENGTH_DECODER(buffer, ESM_CAUSE_MINIMUM_LENGTH, len);
+ 
+   if (iei > 0) {
+     CHECK_IEI_DECODER(iei, *buffer);
+diff --git a/openair3/NAS/COMMON/IES/KsiAndSequenceNumber.c b/openair3/NAS/COMMON/IES/KsiAndSequenceNumber.c
+index 4a9ed5c247..b2f8b7d479 100644
+--- a/openair3/NAS/COMMON/IES/KsiAndSequenceNumber.c
++++ b/openair3/NAS/COMMON/IES/KsiAndSequenceNumber.c
+@@ -31,6 +31,7 @@
+ int decode_ksi_and_sequence_number(KsiAndSequenceNumber *ksiandsequencenumber, uint8_t iei, uint8_t *buffer, uint32_t len)
+ {
+   int decoded = 0;
++  CHECK_PDU_POINTER_AND_LENGTH_DECODER(buffer, KSI_AND_SEQUENCE_NUMBER_MINIMUM_LENGTH, len);
+ 
+   if (iei > 0) {
+     CHECK_IEI_DECODER(iei, *buffer);

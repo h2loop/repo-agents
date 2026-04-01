@@ -1,0 +1,27 @@
+diff --git a/openair3/NAS/UE/EMM/SAP/emm_fsm.c b/openair3/NAS/UE/EMM/SAP/emm_fsm.c
+index 5a715727ad..ed1313edee 100644
+--- a/openair3/NAS/UE/EMM/SAP/emm_fsm.c
++++ b/openair3/NAS/UE/EMM/SAP/emm_fsm.c
+@@ -94,6 +94,11 @@ static const char *_emm_fsm_event_str[] = {
+   "LOWERLAYER_FAILURE",
+   "LOWERLAYER_RELEASE",
+ };
++  static const int emm_fsm_event_num = sizeof(_emm_fsm_event_str)/sizeof(char*);
++  
++  if ((evt < 0) || (evt >= emm_fsm_event_num)) {
++    return "UNKNOWN";
++  }
+   return  _emm_fsm_event_str[evt];
+ }
+ 
+@@ -124,6 +129,10 @@ static const char *_emm_fsm_status_str[EMM_STATE_MAX] = {
+   "TRACKING-AREA-UPDATING-INITIATED",
+   "SERVICE-REQUEST-INITIATED",
+ };
++
++  if ((status < 0) || (status >= EMM_STATE_MAX)) {
++    return "UNKNOWN";
++  }
+   return _emm_fsm_status_str[status];
+ }
+ /*

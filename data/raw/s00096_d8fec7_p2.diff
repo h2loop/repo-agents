@@ -1,0 +1,69 @@
+diff --git a/openair2/RRC/LTE/rrc_eNB.c b/openair2/RRC/LTE/rrc_eNB.c
+index 90b2d3b86f..cf3262cdc1 100644
+--- a/openair2/RRC/LTE/rrc_eNB.c
++++ b/openair2/RRC/LTE/rrc_eNB.c
+@@ -834,7 +834,7 @@ rrc_eNB_free_UE(
+   }
+ 
+   if ((!IS_SOFTMODEM_NOS1)) {
+-    if ((ue_context_pP->ue_context.ul_failure_timer >= 20000) && (mac_eNB_get_rrc_status(enb_mod_idP, rnti) >= RRC_CONNECTED)) {
++    if ((ue_context_pP->ue_context.ul_failure_timer >= 1000) && (mac_eNB_get_rrc_status(enb_mod_idP, rnti) >= RRC_CONNECTED)) {
+       LOG_I(RRC, "[eNB %d] S1AP_UE_CONTEXT_RELEASE_REQ sent for RNTI %x, cause 21, radio connection with ue lost\n", enb_mod_idP, rnti);
+       rrc_eNB_send_S1AP_UE_CONTEXT_RELEASE_REQ(enb_mod_idP, ue_context_pP, S1AP_CAUSE_RADIO_NETWORK,
+                                                21); // send cause 21: radio connection with ue lost
+@@ -1431,7 +1431,7 @@ rrc_eNB_process_RRCConnectionReestablishmentComplete(
+       ue_context_pP->ue_context.ue_release_timer_thres_s1 = 100;
+       ue_context_pP->ue_context.ue_release_timer = 0;
+       ue_context_pP->ue_context.ue_reestablishment_timer = 0;
+-      ue_context_pP->ue_context.ul_failure_timer = 20000; // set ul_failure to 20000 for triggering rrc_eNB_send_S1AP_UE_CONTEXT_RELEASE_REQ
++      ue_context_pP->ue_context.ul_failure_timer = 1000; // set ul_failure to 1000 for triggering rrc_eNB_send_S1AP_UE_CONTEXT_RELEASE_REQ
+       rrc_eNB_free_UE(ctxt_pP->module_id,ue_context_pP);
+       ue_context_pP->ue_context.ul_failure_timer = 0;
+       put_UE_in_freelist(ctxt_pP->module_id, ctxt_pP->rntiMaybeUEid, 0);
+@@ -5851,7 +5851,7 @@ rrc_eNB_decode_ccch(
+                       ctxt_pP->rntiMaybeUEid,
+                       ue_context_p->ue_context.rnti,
+                       ue_context_p->ue_context.rnti);
+-                ue_context_p->ue_context.ul_failure_timer = 20000;
++                ue_context_p->ue_context.ul_failure_timer = 1000;
+               }
+ 
+               ue_context_p = rrc_eNB_get_next_free_ue_context(ctxt_pP, random_value);
+@@ -7236,8 +7236,8 @@ void rrc_subframe_process(protocol_ctxt_t *const ctxt_pP, const int CC_id) {
+     if (ue_context_p->ue_context.ul_failure_timer > 0) {
+       ue_context_p->ue_context.ul_failure_timer++;
+ 
+-      if (ue_context_p->ue_context.ul_failure_timer >= 20000) {
+-        // remove UE after 20 seconds after MAC (or else) has indicated UL failure
++      if (ue_context_p->ue_context.ul_failure_timer >= 1000) {
++        // remove UE after 1 second after MAC (or else) has indicated UL failure
+         LOG_I(RRC, "Removing UE %x instance, because of uplink failure timer timeout\n",
+               ue_context_p->ue_context.rnti);
+         removed_ue_count = add_ue_to_remove(ue_to_be_removed, removed_ue_count, ue_context_p);
+@@ -7364,7 +7364,7 @@ void rrc_subframe_process(protocol_ctxt_t *const ctxt_pP, const int CC_id) {
+       if (ue_context_p->ue_context.ue_reestablishment_timer >= ue_context_p->ue_context.ue_reestablishment_timer_thres) {
+         LOG_I(RRC, "Removing UE %x instance because of reestablishment_timer timeout\n",
+               ue_context_p->ue_context.rnti);
+-        ue_context_p->ue_context.ul_failure_timer = 20000; // lead to send S1 UE_CONTEXT_RELEASE_REQ
++        ue_context_p->ue_context.ul_failure_timer = 1000; // lead to send S1 UE_CONTEXT_RELEASE_REQ
+         removed_ue_count = add_ue_to_remove(ue_to_be_removed, removed_ue_count, ue_context_p);
+         ue_context_p->ue_context.ue_reestablishment_timer = 0;
+         break; // break RB_FOREACH
+@@ -7390,7 +7390,7 @@ void rrc_subframe_process(protocol_ctxt_t *const ctxt_pP, const int CC_id) {
+   } // end RB_FOREACH
+ 
+   for (cur_ue = 0; cur_ue < removed_ue_count; cur_ue++) {
+-    if ((ue_to_be_removed[cur_ue]->ue_context.ul_failure_timer >= 20000) ||
++    if ((ue_to_be_removed[cur_ue]->ue_context.ul_failure_timer >= 1000) ||
+         ((ue_to_be_removed[cur_ue]->ue_context.ue_rrc_inactivity_timer >= RC.rrc[ctxt_pP->module_id]->configuration.rrc_inactivity_timer_thres) &&
+          (RC.rrc[ctxt_pP->module_id]->configuration.rrc_inactivity_timer_thres > 0))) {
+       ue_to_be_removed[cur_ue]->ue_context.ue_release_timer_s1 = 1;
+@@ -7414,7 +7414,7 @@ void rrc_subframe_process(protocol_ctxt_t *const ctxt_pP, const int CC_id) {
+ 
+     rrc_eNB_free_UE(ctxt_pP->module_id, ue_to_be_removed[cur_ue]);
+ 
+-    if (ue_to_be_removed[cur_ue]->ue_context.ul_failure_timer >= 20000) {
++    if (ue_to_be_removed[cur_ue]->ue_context.ul_failure_timer >= 1000) {
+       ue_to_be_removed[cur_ue]->ue_context.ul_failure_timer = 0;
+     }
+ 

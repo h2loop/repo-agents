@@ -1,0 +1,46 @@
+diff --git a/openair2/X2AP/x2ap_eNB_handler.c b/openair2/X2AP/x2ap_eNB_handler.c
+index 09661149a4..baee60588a 100644
+--- a/openair2/X2AP/x2ap_eNB_handler.c
++++ b/openair2/X2AP/x2ap_eNB_handler.c
+@@ -1079,11 +1079,20 @@ static int x2ap_eNB_handle_ue_context_release(instance_t instance, sctp_assoc_t
+ 
+   id_target = ie->value.choice.UE_X2AP_ID_1;
+ 
++  /* Lock mutex to protect access to shared id_manager resource */
++  extern pthread_mutex_t mutex;
++  if (pthread_mutex_lock(&mutex)) {
++    X2AP_ERROR("Error locking mutex for UE context release\n");
++    itti_free(ITTI_MSG_ORIGIN_ID(msg), msg);
++    return -1;
++  }
++
+   ue_id = id_source;
+   if (ue_id != x2ap_find_id_from_id_source(&instance_p->id_manager, id_source)) {
+     X2AP_WARN("incorrect/unknown X2AP IDs for UE (old ID %d new ID %d), ignoring UE context release\n",
+               id_source, id_target);
+     itti_free(ITTI_MSG_ORIGIN_ID(msg), msg);
++    pthread_mutex_unlock(&mutex);
+     return 0;
+   }
+ 
+@@ -1094,6 +1103,7 @@ static int x2ap_eNB_handle_ue_context_release(instance_t instance, sctp_assoc_t
+                x2ap_id_get_id_target(&instance_p->id_manager, ue_id),
+                id_target);
+     itti_free(ITTI_MSG_ORIGIN_ID(msg), msg);
++    pthread_mutex_unlock(&mutex);
+     return 0;
+   }
+ 
+@@ -1103,6 +1113,12 @@ static int x2ap_eNB_handle_ue_context_release(instance_t instance, sctp_assoc_t
+ 
+   x2ap_release_id(&instance_p->id_manager, ue_id);
+ 
++  /* Unlock mutex after accessing shared resource */
++  if (pthread_mutex_unlock(&mutex)) {
++    X2AP_ERROR("Error unlocking mutex after UE context release\n");
++    return -1;
++  }
++
+   return 0;
+ }
+ 

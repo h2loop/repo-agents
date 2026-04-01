@@ -1,0 +1,15 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+index e75e418500..c5c4479678 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+@@ -4990,7 +4990,9 @@ static uint8_t unpack_rx_indication(uint8_t **ppReadPackedMsg, uint8_t *end, voi
+ 
+ static uint8_t unpack_preamble_pdu_rel8_value(void *tlv, uint8_t **ppReadPackedMsg, uint8_t *end) {
+   nfapi_preamble_pdu_rel8_t *preamble_pdu_rel8 = (nfapi_preamble_pdu_rel8_t *)tlv;
+-  return (pull16(ppReadPackedMsg, &preamble_pdu_rel8->rnti, end) &&
++  return (pull16(ppReadPackedMsg, &preamble_pdu_rel8->tl.tag, end) &&
++          pull16(ppReadPackedMsg, &preamble_pdu_rel8->tl.length, end) &&
++          pull16(ppReadPackedMsg, &preamble_pdu_rel8->rnti, end) &&
+           pull8(ppReadPackedMsg, &preamble_pdu_rel8->preamble, end) &&
+           pull16(ppReadPackedMsg, &preamble_pdu_rel8->timing_advance, end));
+ }

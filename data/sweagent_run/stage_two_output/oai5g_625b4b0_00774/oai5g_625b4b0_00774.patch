@@ -1,0 +1,30 @@
+diff --git a/openair3/NAS/UE/EMM/emm_main.c b/openair3/NAS/UE/EMM/emm_main.c
+index e934012e4c..e9ae729faf 100644
+--- a/openair3/NAS/UE/EMM/emm_main.c
++++ b/openair3/NAS/UE/EMM/emm_main.c
+@@ -832,21 +832,22 @@ AcT_t emm_main_get_plmn_rat(emm_data_t *emm_data)
+  ** Name:    emm_main_is_attached()                                    **
+  **                                                                        **
+  ** Description: Indicates whether the UE is currently attached to the     **
+- **      network for EPS services or emergency service only        **
++ **      network for normal EPS services                           **
+  **                                                                        **
+  ** Inputs:  None                                                      **
+  **      Others:    user->emm_data->                                 **
+  **                                                                        **
+  ** Outputs:     None                                                      **
+  **      Return:    true if the UE is currently attached to    **
+- **             the network; false otherwise.              **
++ **             the network for normal EPS services;       **
++ **             false otherwise.                           **
+  **      Others:    None                                       **
+  **                                                                        **
+  ***************************************************************************/
+ bool emm_main_is_attached(emm_data_t *emm_data)
+ {
+   LOG_FUNC_IN;
+-  LOG_FUNC_RETURN (emm_data->is_attached);
++  LOG_FUNC_RETURN (emm_data->is_attached && !emm_data->is_emergency);
+ }
+ 
+ /****************************************************************************

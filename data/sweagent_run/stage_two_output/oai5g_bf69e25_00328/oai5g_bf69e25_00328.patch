@@ -1,0 +1,24 @@
+diff --git a/openair3/NAS/COMMON/IES/EpsAttachType.c b/openair3/NAS/COMMON/IES/EpsAttachType.c
+index aa07d0ba89..d4551de948 100644
+--- a/openair3/NAS/COMMON/IES/EpsAttachType.c
++++ b/openair3/NAS/COMMON/IES/EpsAttachType.c
+@@ -73,18 +73,10 @@ int encode_eps_attach_type(EpsAttachType *epsattachtype, uint8_t iei, uint8_t *b
+ 
+ uint8_t encode_u8_eps_attach_type(EpsAttachType *epsattachtype)
+ {
+-  uint8_t bufferReturn;
+-  uint8_t *buffer = &bufferReturn;
+-  uint8_t encoded = 0;
+-  uint8_t iei = 0;
+ #if defined (NAS_DEBUG)
+   dump_eps_attach_type_xml(epsattachtype, 0);
+ #endif
+-  *(buffer + encoded) = 0x00 | (iei & 0xf0) |
+-                        (*epsattachtype & 0x7);
+-  encoded++;
+-
+-  return bufferReturn;
++  return (*epsattachtype & 0x7);
+ }
+ 
+ void dump_eps_attach_type_xml(EpsAttachType *epsattachtype, uint8_t iei)

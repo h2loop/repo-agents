@@ -1,0 +1,9 @@
+{
+  "run_id": "s00195_4e0f03",
+  "pr_text": "## Title: Fix stack buffer overflow in SSB bitmap parsing\n\n### Summary\nThe `get_ssb_bitmap()` function in the NR MAC gNB radio configuration module contains a stack buffer overflow when processing the long SSB bitmap format (case 3). The code unconditionally iterates over 8 bytes of the `longBitmap.buf` array without validating the actual buffer size, causing out-of-bounds reads when the buffer contains fewer than 8 bytes. This can lead to memory corruption, undefined behavior, or crashes when p",
+  "trajectory_path": "data/raw/s00195_4e0f03_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00195_4e0f03_p2.diff",
+  "patch_lines": 5,
+  "trajectory_steps": 37,
+  "timestamp": "2026-02-11T13:13:49Z"
+}

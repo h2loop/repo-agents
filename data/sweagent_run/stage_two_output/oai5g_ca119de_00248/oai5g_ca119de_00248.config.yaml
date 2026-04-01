@@ -1,0 +1,290 @@
+"{\"env\":{\"deployment\":{\"image\":\"oai5g-sera:ca119de\",\"port\":null,\"docker_args\"\
+  :[],\"startup_timeout\":180.0,\"pull\":\"missing\",\"remove_images\":false,\"python_standalone_dir\"\
+  :\"/root\",\"platform\":null,\"remove_container\":true,\"container_runtime\":\"\
+  docker\",\"type\":\"docker\"},\"repo\":{\"repo_name\":\"repo\",\"base_commit\":\"\
+  HEAD\",\"type\":\"preexisting\",\"reset\":true},\"post_startup_commands\":[],\"\
+  post_startup_command_timeout\":500,\"name\":\"main\"},\"agent\":{\"name\":\"oai5g_ca119de_00248\"\
+  ,\"templates\":{\"system_template\":\"You are an expert C/C++ software engineer\
+  \ working on the OpenAirInterface 5G codebase.\\nYou can interact with the codebase\
+  \ using bash commands and a file editor to investigate and fix issues.\",\"instance_template\"\
+  :\"<uploaded_files>\\n{{working_dir}}\\n</uploaded_files>\\nI've uploaded the OpenAirInterface\
+  \ 5G codebase in {{working_dir}}. Consider the following PR description:\\n\\n<pr_description>\\\
+  n{{problem_statement}}\\n</pr_description>\\n\\nCan you help me implement the necessary\
+  \ changes to the repository so that the requirements specified in the <pr_description>\
+  \ are met?\\nYour task is to make the minimal changes to non-tests files in the\
+  \ {{working_dir}} directory to ensure the <pr_description> is satisfied.\\nFollow\
+  \ these steps to resolve the issue:\\n1. As a first step, find and read code relevant\
+  \ to the <pr_description>\\n2. Understand the issue and identify the root cause\\\
+  n3. Edit the source code to resolve the issue\\n4. Verify your changes make sense\\\
+  n5. Think about edge cases and make sure your fix handles them as well\\nYour thinking\
+  \ should be thorough and so it's fine if it's very long.\",\"next_step_template\"\
+  :\"OBSERVATION:\\n{{observation}}\",\"next_step_truncated_observation_template\"\
+  :\"Observation: {{observation[:max_observation_length]}}<response clipped><NOTE>Observations\
+  \ should not exceeded {{max_observation_length}} characters. {{elided_chars}} characters\
+  \ were elided. Please try a different command that produces less output or use head/tail/grep/redirect\
+  \ the output to a file. Do not use interactive pagers.</NOTE>\",\"max_observation_length\"\
+  :100000,\"next_step_no_output_template\":\"Your last command ran successfully and\
+  \ did not produce any output.\",\"strategy_template\":null,\"demonstration_template\"\
+  :null,\"demonstrations\":[],\"put_demos_in_history\":false,\"disable_image_processing\"\
+  :false,\"shell_check_error_template\":\"Your bash command contained syntax errors\
+  \ and was NOT executed. Please fix the syntax errors and try again. This can be\
+  \ the result of not adhering to the syntax for multi-line commands. Here is the\
+  \ output of `bash -n`:\\n{{bash_stdout}}\\n{{bash_stderr}}\",\"command_cancelled_timeout_template\"\
+  :\"The command '{{command}}' was cancelled because it took more than {{timeout}}\
+  \ seconds. Please try a different command that completes more quickly. Note: A common\
+  \ source of this error is if the command is interactive or requires user input (it\
+  \ is impossible to receive user input in the current environment, so the command\
+  \ will never complete).\"},\"tools\":{\"filter\":{\"blocklist_error_template\":\"\
+  Operation '{{action}}' is not supported by this environment.\",\"blocklist\":[\"\
+  vim\",\"vi\",\"emacs\",\"nano\",\"nohup\",\"gdb\",\"less\",\"tail -f\",\"python\
+  \ -m venv\",\"make\"],\"blocklist_standalone\":[\"python\",\"python3\",\"ipython\"\
+  ,\"bash\",\"sh\",\"/bin/bash\",\"/bin/sh\",\"nohup\",\"vi\",\"vim\",\"emacs\",\"\
+  nano\",\"su\"],\"block_unless_regex\":{\"radare2\":\"\\\\b(?:radare2)\\\\b.*\\\\\
+  s+-c\\\\s+.*\",\"r2\":\"\\\\b(?:radare2)\\\\b.*\\\\s+-c\\\\s+.*\"}},\"bundles\"\
+  :[{\"path\":\"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry\"\
+  ,\"hidden_tools\":[]},{\"path\":\"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic\"\
+  ,\"hidden_tools\":[]},{\"path\":\"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m\"\
+  ,\"hidden_tools\":[]},{\"path\":\"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state\"\
+  ,\"hidden_tools\":[]}],\"propagate_env_variables\":[],\"env_variables\":{\"PAGER\"\
+  :\"cat\",\"MANPAGER\":\"cat\",\"LESS\":\"-R\",\"PIP_PROGRESS_BAR\":\"off\",\"TQDM_DISABLE\"\
+  :\"1\",\"GIT_PAGER\":\"cat\"},\"registry_variables\":{\"USE_FILEMAP\":\"true\",\"\
+  SUBMIT_REVIEW_MESSAGES\":[\"Thank you for your work on this issue. Please review\
+  \ your changes:\\n\\n1. Make sure your fix is minimal and targeted\\n2. Verify you\
+  \ haven't introduced any new issues\\n3. Run the submit command again to confirm\\\
+  n\\nHere is a list of all of your changes:\\n\\n<diff>\\n{{diff}}\\n</diff>\\n\"\
+  ]},\"submit_command\":\"submit\",\"parse_function\":{\"error_message\":\"{%- if\
+  \ error_code == \\\"missing\\\" -%}\\nYour last output did not use any tool calls!\\\
+  nPlease make sure your output includes exactly _ONE_ function call!\\nYou must invoke\
+  \ the function directly using the function call format.\\nYou cannot invoke commands\
+  \ with ```, you have to use the function call format.\\nIf you think you have already\
+  \ resolved the issue, please submit your changes by running the `submit` command.\\\
+  nIf you think you cannot solve the problem, please run `exit_forfeit` (if available)\
+  \ or `submit`.\\nElse, please continue with a new tool call!\\n{%- elif error_code\
+  \ == \\\"multiple\\\" -%}\\nYour last output included multiple tool calls!\\nPlease\
+  \ make sure your output includes a thought and exactly _ONE_ function call.\\n{%-\
+  \ elif error_code == \\\"unexpected_arg\\\" -%}\\nYour action could not be parsed\
+  \ properly: {{exception_message}}.\\nMake sure your function call doesn't include\
+  \ any extra arguments that are not in the allowed arguments, and only use the allowed\
+  \ commands.\\n{%- else -%}\\nYour action could not be parsed properly: {{exception_message}}.\\\
+  n{% endif %}\\n\",\"type\":\"function_calling\"},\"enable_bash_tool\":true,\"format_error_template\"\
+  :\"{%- if error_code == \\\"missing\\\" -%}\\nYour last output did not use any tool\
+  \ calls!\\nPlease make sure your output includes exactly _ONE_ function call!\\\
+  nYou must invoke the function directly using the function call format.\\nYou cannot\
+  \ invoke commands with ```, you have to use the function call format.\\nIf you think\
+  \ you have already resolved the issue, please submit your changes by running the\
+  \ `submit` command.\\nIf you think you cannot solve the problem, please run `exit_forfeit`\
+  \ (if available) or `submit`.\\nElse, please continue with a new tool call!\\n{%-\
+  \ elif error_code == \\\"multiple\\\" -%}\\nYour last output included multiple tool\
+  \ calls!\\nPlease make sure your output includes a thought and exactly _ONE_ function\
+  \ call.\\n{%- elif error_code == \\\"unexpected_arg\\\" -%}\\nYour action could\
+  \ not be parsed properly: {{exception_message}}.\\nMake sure your function call\
+  \ doesn't include any extra arguments that are not in the allowed arguments, and\
+  \ only use the allowed commands.\\n{%- else -%}\\nYour action could not be parsed\
+  \ properly: {{exception_message}}.\\n{% endif %}\\n\",\"command_docs\":\"bash:\\\
+  n  docstring: runs the given command directly in bash\\n  signature: <command>\\\
+  n  arguments:\\n    - command (string) [required]: The bash command to execute.\\\
+  n\\nstr_replace_editor:\\n  docstring: Custom editing tool for viewing, creating\
+  \ and editing files * State is persistent across command calls and discussions with\
+  \ the user * If `path` is a file, `view` displays the result of applying `cat -n`.\
+  \ If `path` is a directory, `view` lists non-hidden files and directories up to\
+  \ 2 levels deep * The `create` command cannot be used if the specified `path` already\
+  \ exists as a file * If a `command` generates a long output, it will be truncated\
+  \ and marked with `<response clipped>` * The `undo_edit` command will revert the\
+  \ last edit made to the file at `path`\\nNotes for using the `str_replace` command:\
+  \ * The `old_str` parameter should match EXACTLY one or more consecutive lines from\
+  \ the original file. Be mindful of whitespaces! * If the `old_str` parameter is\
+  \ not unique in the file, the replacement will not be performed. Make sure to include\
+  \ enough context in `old_str` to make it unique * The `new_str` parameter should\
+  \ contain the edited lines that should replace the `old_str`\\n\\n  signature: str_replace_editor\
+  \ <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>] [<insert_line>]\\\
+  n\\n  arguments:\\n    - command (string) [required]: The commands to run. Allowed\
+  \ options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\\n    - path\
+  \ (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`\
+  \ or `/testbed`.\\n    - file_text (string) [optional]: Required parameter of `create`\
+  \ command, with the content of the file to be created.\\n    - old_str (string)\
+  \ [optional]: Required parameter of `str_replace` command containing the string\
+  \ in `path` to replace.\\n    - new_str (string) [optional]: Optional parameter\
+  \ of `str_replace` command containing the new string (if not given, no string will\
+  \ be added). Required parameter of `insert` command containing the string to insert.\\\
+  n    - insert_line (integer) [optional]: Required parameter of `insert` command.\
+  \ The `new_str` will be inserted AFTER the line `insert_line` of `path`.\\n    -\
+  \ view_range (array) [optional]: Optional parameter of `view` command when `path`\
+  \ points to a file. If none is given, the full file is shown. If provided, the file\
+  \ will be shown in the indicated line number range, e.g. [11, 12] will show lines\
+  \ 11 and 12. Indexing at 1 to start. Setting `[start_line, -1]` shows all lines\
+  \ from `start_line` to the end of the file.\\n\\nsubmit:\\n  docstring: submits\
+  \ the current file\\n  signature: submit\\n\\n\",\"multi_line_command_endings\"\
+  :{},\"submit_command_end_name\":null,\"reset_commands\":[],\"execution_timeout\"\
+  :300,\"install_timeout\":300,\"total_execution_timeout\":1800,\"max_consecutive_execution_timeouts\"\
+  :3},\"history_processors\":[],\"model\":{\"name\":\"bedrock/qwen.qwen3-coder-480b-a35b-v1:0\"\
+  ,\"per_instance_cost_limit\":0.0,\"total_cost_limit\":0.0,\"per_instance_call_limit\"\
+  :115,\"temperature\":0.7,\"top_p\":1.0,\"api_base\":null,\"api_version\":null,\"\
+  api_key\":\"**********\",\"stop\":[],\"completion_kwargs\":{},\"convert_system_to_user\"\
+  :false,\"retry\":{\"retries\":20,\"min_wait\":10.0,\"max_wait\":120.0},\"delay\"\
+  :0.0,\"fallbacks\":[],\"choose_api_key_by_thread\":true,\"max_input_tokens\":null,\"\
+  max_output_tokens\":null,\"litellm_model_registry\":\"/Users/metamyth/projects/sera/configs/litellm_model_registry.json\"\
+  ,\"custom_tokenizer\":null},\"max_requeries\":3,\"action_sampler\":null,\"type\"\
+  :\"default\"},\"problem_statement\":{\"text\":\"\\n## Title: Implement missing time_source_iq_add\
+  \ function for IQ sample time management\\n\\n### Summary\\nThe `time_source_iq_add`\
+  \ function referenced in timing modules was not implemented in the codebase. When\
+  \ modules attempted to call this function for adding time-stamped IQ samples, the\
+  \ calls would fail or cause undefined behavior.\\n\\nThis fix implements the missing\
+  \ `time_source_iq_add` function along with related time source IQ management functions\
+  \ in a new time_manager module.\\n\\n### Changes\\n- `common/utils/time_manager/time_source.c`:\
+  \ New implementation of `time_source_iq_add`, `time_source_iq_get`, `time_source_iq_init`,\
+  \ and `time_source_iq_reset` functions\\n- `common/utils/time_manager/time_source.h`:\
+  \ Header file with function declarations and documentation\\n- `common/utils/CMakeLists.txt`:\
+  \ Added time_manager subdirectory and linked time_manager library to utils\\n- `common/utils/time_manager/CMakeLists.txt`:\
+  \ CMake configuration for the new time_manager library\\n- `common/utils/time_manager/test_time_source.c`:\
+  \ Test file demonstrating usage of the new functions\\n\\n### Reproduction Steps\\\
+  n1. Attempt to compile or link any module that references `time_source_iq_add`\\\
+  n2. Observe linker errors about undefined reference to `time_source_iq_add`\\n3.\
+  \ Alternatively, if forward declarations were used, observe runtime crashes when\
+  \ calling the function\\n\\nWith this fix, the function now properly performs complex\
+  \ addition of IQ samples while maintaining timing information, returning appropriate\
+  \ error codes for invalid inputs.\\n\",\"extra_fields\":{\"bug_description\":\"\
+  protocol timer configured with incorrect duration violating 3GPP timing requirements\"\
+  ,\"bug_id\":\"telecom_timer_incorrect_duration\",\"stage_one_patch\":\"diff --git\
+  \ a/common/utils/CMakeLists.txt b/common/utils/CMakeLists.txt\\nindex 7cf067dd14..066d1cb310\
+  \ 100644\\n--- a/common/utils/CMakeLists.txt\\n+++ b/common/utils/CMakeLists.txt\\\
+  n@@ -1,5 +1,6 @@\\n add_subdirectory(alg)\\n add_subdirectory(ds)\\n+add_subdirectory(time_manager)\\\
+  n add_boolean_option(ENABLE_TELNETSRV OFF \\\"Whether to build telnet support in\
+  \ modems\\\" OFF)\\n if(ENABLE_TELNETSRV)\\n   add_subdirectory(telnetsrv)\\n@@\
+  \ -15,7 +16,7 @@ add_subdirectory(LOG)\\n add_subdirectory(threadPool)\\n add_library(utils\
+  \ utils.c system.c time_meas.c time_stat.c tun_if.c)\\n target_include_directories(utils\
+  \ PUBLIC .)\\n-target_link_libraries(utils PRIVATE ${T_LIB})\\n+target_link_libraries(utils\
+  \ PRIVATE ${T_LIB} time_manager)\\n if (ENABLE_TESTS)\\n   add_subdirectory(hashtable/tests)\\\
+  n endif()\\ndiff --git a/common/utils/time_manager/CMakeLists.txt b/common/utils/time_manager/CMakeLists.txt\\\
+  nnew file mode 100644\\nindex 0000000000..a97f3f8b96\\n--- /dev/null\\n+++ b/common/utils/time_manager/CMakeLists.txt\\\
+  n@@ -0,0 +1,8 @@\\n+add_library(time_manager time_source.c)\\n+target_include_directories(time_manager\
+  \ PUBLIC .)\\n+target_link_libraries(time_manager PUBLIC utils)\\n+\\n+if(ENABLE_TESTS)\\\
+  n+  add_executable(test_time_source test_time_source.c)\\n+  target_link_libraries(test_time_source\
+  \ time_manager)\\n+endif()\\n\\\\ No newline at end of file\\ndiff --git a/common/utils/time_manager/test_time_source.c\
+  \ b/common/utils/time_manager/test_time_source.c\\nnew file mode 100644\\nindex\
+  \ 0000000000..d6c5fc8828\\n--- /dev/null\\n+++ b/common/utils/time_manager/test_time_source.c\\\
+  n@@ -0,0 +1,70 @@\\n+/*\\n+ * Test file for time_source_iq_add function\\n+ */\\\
+  n+\\n+#include <stdio.h>\\n+#include <stdlib.h>\\n+#include \\\"time_source.h\\\"\
+  \\n+\\n+int main() {\\n+    // Initialize the time source with capacity for 100\
+  \ samples\\n+    int ret = time_source_iq_init(100);\\n+    if (ret != 0) {\\n+\
+  \        printf(\\\"Failed to initialize time source: %d\\\\n\\\", ret);\\n+   \
+  \     return -1;\\n+    }\\n+\\n+    // Create some test IQ data\\n+    c16_t test_data1[10]\
+  \ = {\\n+        {100, 200}, {300, 400}, {500, 600}, {700, 800}, {900, 1000},\\\
+  n+        {1100, 1200}, {1300, 1400}, {1500, 1600}, {1700, 1800}, {1900, 2000}\\\
+  n+    };\\n+\\n+    c16_t test_data2[10] = {\\n+        {50, 100}, {150, 200}, {250,\
+  \ 300}, {350, 400}, {450, 500},\\n+        {550, 600}, {650, 700}, {750, 800}, {850,\
+  \ 900}, {950, 1000}\\n+    };\\n+\\n+    // Add first set of data\\n+    ret = time_source_iq_add(test_data1,\
+  \ 10, 1000);\\n+    if (ret != 0) {\\n+        printf(\\\"Failed to add first set\
+  \ of IQ data: %d\\\\n\\\", ret);\\n+        return -1;\\n+    }\\n+\\n+    // Add\
+  \ second set of data (should accumulate)\\n+    ret = time_source_iq_add(test_data2,\
+  \ 10, 2000);\\n+    if (ret != 0) {\\n+        printf(\\\"Failed to add second set\
+  \ of IQ data: %d\\\\n\\\", ret);\\n+        return -1;\\n+    }\\n+\\n+    // Retrieve\
+  \ the accumulated data\\n+    c16_t result_data[10];\\n+    uint64_t timestamp;\\\
+  n+    int samples_copied = time_source_iq_get(result_data, 10, \xD7tamp);\\n+  \
+  \  if (samples_copied < 0) {\\n+        printf(\\\"Failed to get IQ data: %d\\\\\
+  n\\\", samples_copied);\\n+        return -1;\\n+    }\\n+\\n+    printf(\\\"Retrieved\
+  \ %d samples with timestamp %lu\\\\n\\\", samples_copied, timestamp);\\n+    printf(\\\
+  \"First few results:\\\\n\\\");\\n+    for (int i = 0; i < 3 && i < samples_copied;\
+  \ i++) {\\n+        printf(\\\"  [%d] r=%d, i=%d\\\\n\\\", i, result_data[i].r,\
+  \ result_data[i].i);\\n+    }\\n+\\n+    // Expected results: sum of test_data1\
+  \ and test_data2\\n+    printf(\\\"Expected results:\\\\n\\\");\\n+    for (int\
+  \ i = 0; i < 3; i++) {\\n+        int expected_r = test_data1[i].r + test_data2[i].r;\\\
+  n+        int expected_i = test_data1[i].i + test_data2[i].i;\\n+        printf(\\\
+  \"  [%d] r=%d, i=%d\\\\n\\\", i, expected_r, expected_i);\\n+    }\\n+\\n+    //\
+  \ Reset and clean up\\n+    time_source_iq_reset();\\n+\\n+    printf(\\\"Test completed\
+  \ successfully!\\\\n\\\");\\n+    return 0;\\n+}\\n\\\\ No newline at end of file\\\
+  ndiff --git a/common/utils/time_manager/time_source.c b/common/utils/time_manager/time_source.c\\\
+  nnew file mode 100644\\nindex 0000000000..30f3bd6d23\\n--- /dev/null\\n+++ b/common/utils/time_manager/time_source.c\\\
+  n@@ -0,0 +1,120 @@\\n+/*\\n+ * Licensed to the OpenAirInterface (OAI) Software Alliance\
+  \ under one or more\\n+ * contributor license agreements.  See the NOTICE file distributed\
+  \ with\\n+ * this work for additional information regarding copyright ownership.\\\
+  n+ * The OpenAirInterface Software Alliance licenses this file to You under\\n+\
+  \ * the OAI Public License, Version 1.1  (the \\\"License\\\"); you may not use\
+  \ this file\\n+ * except in compliance with the License.\\n+ * You may obtain a\
+  \ copy of the License at\\n+ *\\n+ *      http://www.openairinterface.org/?page_id=698\\\
+  n+ *\\n+ * Unless required by applicable law or agreed to in writing, software\\\
+  n+ * distributed under the License is distributed on an \\\"AS IS\\\" BASIS,\\n+\
+  \ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\\n+\
+  \ * See the License for the specific language governing permissions and\\n+ * limitations\
+  \ under the License.\\n+ *-------------------------------------------------------------------------------\\\
+  n+ * For more information about the OpenAirInterface (OAI) Software Alliance:\\\
+  n+ *      contact@openairinterface.org\\n+ */\\n+\\n+#include <stdio.h>\\n+#include\
+  \ <stdlib.h>\\n+#include <string.h>\\n+#include <math.h>\\n+#include \\\"time_source.h\\\
+  \"\\n+\\n+// Structure to hold time source information with IQ data\\n+typedef struct\
+  \ {\\n+    uint64_t timestamp;\\n+    c16_t* iq_data;\\n+    int length;\\n+} time_source_iq_t;\\\
+  n+\\n+// Global time source IQ buffer\\n+static time_source_iq_t time_source_buffer\
+  \ = {0, NULL, 0};\\n+\\n+int time_source_iq_add(c16_t* iq_samples, int length, uint64_t\
+  \ timestamp)\\n+{\\n+    if (iq_samples == NULL || length <= 0) {\\n+        return\
+  \ -1; // Invalid input parameters\\n+    }\\n+\\n+    // If buffer is not allocated\
+  \ or size mismatch, reallocate\\n+    if (time_source_buffer.iq_data == NULL ||\
+  \ time_source_buffer.length < length) {\\n+        if (time_source_buffer.iq_data\
+  \ != NULL) {\\n+            free(time_source_buffer.iq_data);\\n+        }\\n+ \
+  \       time_source_buffer.iq_data = (c16_t*)malloc(length * sizeof(c16_t));\\n+\
+  \        if (time_source_buffer.iq_data == NULL) {\\n+            time_source_buffer.length\
+  \ = 0;\\n+            return -2; // Memory allocation failed\\n+        }\\n+  \
+  \      time_source_buffer.length = length;\\n+        memset(time_source_buffer.iq_data,\
+  \ 0, length * sizeof(c16_t));\\n+    }\\n+\\n+    // Add IQ samples (complex addition)\\\
+  n+    for (int i = 0; i < length; i++) {\\n+        time_source_buffer.iq_data[i]\
+  \ = c16add(time_source_buffer.iq_data[i], iq_samples[i]);\\n+    }\\n+\\n+    //\
+  \ Update timestamp\\n+    time_source_buffer.timestamp = timestamp;\\n+\\n+    return\
+  \ 0; // Success\\n+}\\n+\\n+int time_source_iq_get(c16_t* iq_samples, int length,\
+  \ uint64_t* timestamp)\\n+{\\n+    if (iq_samples == NULL || length <= 0 || timestamp\
+  \ == NULL) {\\n+        return -1; // Invalid input parameters\\n+    }\\n+\\n+\
+  \    if (time_source_buffer.iq_data == NULL || time_source_buffer.length == 0) {\\\
+  n+        return -3; // No data available\\n+    }\\n+\\n+    // Copy data up to\
+  \ the minimum of requested length and available length\\n+    int copy_length =\
+  \ (length < time_source_buffer.length) ? length : time_source_buffer.length;\\n+\
+  \    \\n+    for (int i = 0; i < copy_length; i++) {\\n+        iq_samples[i] =\
+  \ time_source_buffer.iq_data[i];\\n+    }\\n+\\n+    *timestamp = time_source_buffer.timestamp;\\\
+  n+\\n+    return copy_length; // Return number of samples copied\\n+}\\n+\\n+void\
+  \ time_source_iq_reset(void)\\n+{\\n+    if (time_source_buffer.iq_data != NULL)\
+  \ {\\n+        free(time_source_buffer.iq_data);\\n+        time_source_buffer.iq_data\
+  \ = NULL;\\n+    }\\n+    time_source_buffer.length = 0;\\n+    time_source_buffer.timestamp\
+  \ = 0;\\n+}\\n+\\n+int time_source_iq_init(int max_length)\\n+{\\n+    if (max_length\
+  \ <= 0) {\\n+        return -1; // Invalid parameter\\n+    }\\n+\\n+    // Reset\
+  \ any existing buffer\\n+    time_source_iq_reset();\\n+\\n+    // Allocate buffer\\\
+  n+    time_source_buffer.iq_data = (c16_t*)calloc(max_length, sizeof(c16_t));\\\
+  n+    if (time_source_buffer.iq_data == NULL) {\\n+        return -2; // Memory\
+  \ allocation failed\\n+    }\\n+\\n+    time_source_buffer.length = max_length;\\\
+  n+    time_source_buffer.timestamp = 0;\\n+\\n+    return 0; // Success\\n+}\\n\\\
+  \\ No newline at end of file\\ndiff --git a/common/utils/time_manager/time_source.h\
+  \ b/common/utils/time_manager/time_source.h\\nnew file mode 100644\\nindex 0000000000..34d6f38f9c\\\
+  n--- /dev/null\\n+++ b/common/utils/time_manager/time_source.h\\n@@ -0,0 +1,70 @@\\\
+  n+/*\\n+ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or\
+  \ more\\n+ * contributor license agreements.  See the NOTICE file distributed with\\\
+  n+ * this work for additional information regarding copyright ownership.\\n+ * The\
+  \ OpenAirInterface Software Alliance licenses this file to You under\\n+ * the OAI\
+  \ Public License, Version 1.1  (the \\\"License\\\"); you may not use this file\\\
+  n+ * except in compliance with the License.\\n+ * You may obtain a copy of the License\
+  \ at\\n+ *\\n+ *      http://www.openairinterface.org/?page_id=698\\n+ *\\n+ * Unless\
+  \ required by applicable law or agreed to in writing, software\\n+ * distributed\
+  \ under the License is distributed on an \\\"AS IS\\\" BASIS,\\n+ * WITHOUT WARRANTIES\
+  \ OR CONDITIONS OF ANY KIND, either express or implied.\\n+ * See the License for\
+  \ the specific language governing permissions and\\n+ * limitations under the License.\\\
+  n+ *-------------------------------------------------------------------------------\\\
+  n+ * For more information about the OpenAirInterface (OAI) Software Alliance:\\\
+  n+ *      contact@openairinterface.org\\n+ */\\n+\\n+#ifndef __TIME_SOURCE_H__\\\
+  n+#define __TIME_SOURCE_H__\\n+\\n+#include <stdint.h>\\n+#include \\\"PHY/TOOLS/tools_defs.h\\\
+  \"\\n+\\n+/**\\n+ * @brief Add IQ samples to the time source buffer\\n+ * \\n+ *\
+  \ This function adds IQ samples to an internal buffer, maintaining timing information.\\\
+  n+ * The addition is performed as complex addition (real and imaginary parts separately).\\\
+  n+ * \\n+ * @param iq_samples Pointer to the IQ samples to add\\n+ * @param length\
+  \ Number of IQ samples\\n+ * @param timestamp Timestamp associated with these samples\\\
+  n+ * @return 0 on success, negative value on error\\n+ *         -1: Invalid parameters\\\
+  n+ *         -2: Memory allocation failed\\n+ */\\n+int time_source_iq_add(c16_t*\
+  \ iq_samples, int length, uint64_t timestamp);\\n+\\n+/**\\n+ * @brief Get the current\
+  \ accumulated IQ samples from the time source\\n+ * \\n+ * @param iq_samples Pointer\
+  \ to buffer where IQ samples will be copied\\n+ * @param length Maximum number of\
+  \ samples to copy\\n+ * @param timestamp Pointer to store the timestamp of the data\\\
+  n+ * @return Number of samples copied on success, negative value on error\\n+ *\
+  \         -1: Invalid parameters\\n+ *         -3: No data available\\n+ */\\n+int\
+  \ time_source_iq_get(c16_t* iq_samples, int length, uint64_t* timestamp);\\n+\\\
+  n+/**\\n+ * @brief Initialize the time source IQ buffer\\n+ * \\n+ * @param max_length\
+  \ Maximum number of IQ samples the buffer can hold\\n+ * @return 0 on success, negative\
+  \ value on error\\n+ *         -1: Invalid parameter\\n+ *         -2: Memory allocation\
+  \ failed\\n+ */\\n+int time_source_iq_init(int max_length);\\n+\\n+/**\\n+ * @brief\
+  \ Reset and free the time source IQ buffer\\n+ */\\n+void time_source_iq_reset(void);\\\
+  n+\\n+#endif /* __TIME_SOURCE_H__ */\\n\\\\ No newline at end of file\\n\",\"start_fn\"\
+  :\"time_source_iq_add\",\"start_fn_file\":\"common/utils/time_manager/time_source.c\"\
+  ,\"subsystem\":\"common/utils/time_manager\"},\"type\":\"text\",\"id\":\"oai5g_ca119de_00248\"\
+  },\"output_dir\":\"DEFAULT\",\"actions\":{\"open_pr\":false,\"pr_config\":{\"skip_if_commits_reference_issue\"\
+  :true},\"apply_patch_locally\":false},\"env_var_path\":null}"

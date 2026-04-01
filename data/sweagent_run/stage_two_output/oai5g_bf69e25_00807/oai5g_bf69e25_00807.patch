@@ -1,0 +1,22 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c
+index 7d7388bad5..b2479e4829 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c
+@@ -1530,7 +1530,7 @@ static uint8_t unpack_pnf_phy_rel11_value(void *tlv, uint8_t **ppReadPackedMsg,
+            unpackarray(ppReadPackedMsg, value->phy, sizeof(nfapi_pnf_phy_rel11_info_t), NFAPI_MAX_PNF_PHY, value->number_of_phys, end, &unpack_pnf_phy_rel11_info));
+ }
+ 
+-static uint8_t unpack_phy_phy_rel12_info(void *elem, uint8_t **ppReadPackedMsg, uint8_t *end) {
++static uint8_t unpack_pnf_phy_rel12_info(void *elem, uint8_t **ppReadPackedMsg, uint8_t *end) {
+   nfapi_pnf_phy_rel12_info_t *phy = (nfapi_pnf_phy_rel12_info_t *)elem;
+   return( pull16(ppReadPackedMsg, &phy->phy_config_index, end) &&
+           pull16(ppReadPackedMsg, &phy->csi_subframe_set, end) &&
+@@ -1544,7 +1544,7 @@ static uint8_t unpack_phy_phy_rel12_info(void *elem, uint8_t **ppReadPackedMsg,
+ static uint8_t unpack_pnf_phy_rel12_value(void *tlv, uint8_t **ppReadPackedMsg, uint8_t *end) {
+   nfapi_pnf_phy_rel12_t *value = (nfapi_pnf_phy_rel12_t *)tlv;
+   return (pull16(ppReadPackedMsg, &value->number_of_phys, end) &&
+-          unpackarray(ppReadPackedMsg, value->phy, sizeof(nfapi_pnf_phy_rel12_t), NFAPI_MAX_PNF_PHY, value->number_of_phys, end, &unpack_phy_phy_rel12_info));
++          unpackarray(ppReadPackedMsg, value->phy, sizeof(nfapi_pnf_phy_rel12_info_t), NFAPI_MAX_PNF_PHY, value->number_of_phys, end, &unpack_pnf_phy_rel12_info));
+ }
+ 
+ static uint8_t unpack_pnf_phy_rel13_info(void *elem, uint8_t **ppReadPackedMsg, uint8_t *end) {

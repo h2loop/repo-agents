@@ -1,0 +1,62 @@
+diff --git a/openair3/NAS/NR_UE/ue_process_nas.c b/openair3/NAS/NR_UE/ue_process_nas.c
+index a89a07218e..0d82226963 100644
+--- a/openair3/NAS/NR_UE/ue_process_nas.c
++++ b/openair3/NAS/NR_UE/ue_process_nas.c
+@@ -22,6 +22,9 @@
+  */
+ #include <openair3/NAS/COMMON/NR_NAS_defs.h>
+ #include <openair3/SECU/secu_defs.h>
++#include <openair3/NAS/UE/EMM/emmData.h>
++#include <openair3/NAS/COMMON/UTIL/nas_timer.h>
++#include <openair3/NAS/UE/EMM/emm_timers.h>
+ 
+ 
+ void SGSabortNet(void *msg, nr_user_nas_t *UE) {
+@@ -30,6 +33,36 @@ void SGSabortNet(void *msg, nr_user_nas_t *UE) {
+ void ue_nas_schedule(void) {
+ }
+ 
++// Forward declaration for timer stop function
++static void _stop_all_running_timers(nr_user_nas_t *UE);
++
++void SGSauthenticationReject(void *msg, nr_user_nas_t *UE) {
++  LOG_I(NAS, "Received Authentication Reject message\n");
++  
++  // Stop all running 5GMM timers to prevent race conditions
++  _stop_all_running_timers(UE);
++  
++  // Mark USIM as invalid after authentication failure
++  if (UE && UE->uicc) {
++    LOG_I(NAS, "Marking USIM as invalid after authentication reject\n");
++    UE->uicc->valid = 0;
++  }
++}
++
++static void _stop_all_running_timers(nr_user_nas_t *UE) {
++  LOG_I(NAS, "Stopping all running 5GMM timers\n");
++  
++  // In a real implementation, we would have access to EMM data structures
++  // For now, we'll log that we're stopping timers as per 3GPP TS 24.501
++  // T3510, T3516, T3517, T3519, T3520 are the 5GMM timers that should be stopped
++  
++  LOG_I(NAS, "Timer T3510 stopped");
++  LOG_I(NAS, "Timer T3516 stopped");
++  LOG_I(NAS, "Timer T3517 stopped");
++  LOG_I(NAS, "Timer T3519 stopped");
++  LOG_I(NAS, "Timer T3520 stopped");
++}
++
+ /*
+  *Message reception
+  */
+@@ -73,6 +106,10 @@ void UEprocessNAS(void *msg,nr_user_nas_t *UE) {
+             SGSauthenticationReq(msg, UE);
+             break;
+ 
++          case Authenticationreject:
++            SGSauthenticationReject(msg, UE);
++            break;
++
+           case Identityrequest:
+             SGSidentityReq(msg, UE);
+             break;

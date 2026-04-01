@@ -1,0 +1,30 @@
+{
+  "run_id": "s00150_56fff0",
+  "function": {
+    "name": "b64",
+    "file": "common/utils/T/tracer/to_vcd.c",
+    "start_line": 107,
+    "end_line": 119,
+    "body_lines": 13,
+    "signature": "char *b64(uint64_t val)",
+    "subsystem": "common/utils/T",
+    "token_estimate": 44
+  },
+  "bug": {
+    "bug_id": "telecom_state_machine_invalid_transition",
+    "description": "incorrect protocol state machine transition that violates 3GPP specification",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a incorrect protocol state machine transition that violates 3GPP specification downstream of function b64 in the common/utils/T subsystem.\nThe function is located at common/utils/T/tracer/to_vcd.c:107.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00150_56fff0_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00150_56fff0_p1.diff",
+  "patch_lines": 5,
+  "trajectory_steps": 20,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:29:11Z"
+}

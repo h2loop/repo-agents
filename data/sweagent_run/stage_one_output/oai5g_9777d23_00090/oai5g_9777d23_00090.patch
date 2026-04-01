@@ -1,0 +1,68 @@
+diff --git a/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_bnProc/main.c b/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_bnProc/main.c
+index 9e5f9e2bb8..1f00242ae5 100644
+--- a/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_bnProc/main.c
++++ b/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_bnProc/main.c
+@@ -27,12 +27,6 @@ void nrLDPC_bnProc_BG2_generator_AVX2(const char*, int);
+ void nrLDPC_bnProcPc_BG1_generator_AVX2(const char*, int);
+ void nrLDPC_bnProcPc_BG2_generator_AVX2(const char*, int);
+ 
+-const char *__asan_default_options()
+-{
+-  /* don't do leak checking in nr_ulsim, creates problems in the CI */
+-  return "detect_leaks=0";
+-}
+-
+ int main(int argc, char *argv[])
+ {
+   if (argc != 2) {
+diff --git a/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_bnProc/main128.c b/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_bnProc/main128.c
+index 95541220a4..4025d36660 100644
+--- a/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_bnProc/main128.c
++++ b/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_bnProc/main128.c
+@@ -27,11 +27,7 @@ void nrLDPC_bnProc_BG2_generator_128(const char*, int);
+ void nrLDPC_bnProcPc_BG1_generator_128(const char*, int);
+ void nrLDPC_bnProcPc_BG2_generator_128(const char*, int);
+ 
+-const char *__asan_default_options()
+-{
+-  /* don't do leak checking in nr_ulsim, creates problems in the CI */
+-  return "detect_leaks=0";
+-}
++
+ 
+ int main(int argc, char *argv[])
+ {
+diff --git a/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_cnProc/main.c b/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_cnProc/main.c
+index 9d81417749..77625a549f 100644
+--- a/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_cnProc/main.c
++++ b/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_cnProc/main.c
+@@ -25,11 +25,7 @@
+ void nrLDPC_cnProc_BG1_generator_AVX2(const char*, int);
+ void nrLDPC_cnProc_BG2_generator_AVX2(const char*, int);
+ 
+-const char *__asan_default_options()
+-{
+-  /* don't do leak checking in nr_ulsim, creates problems in the CI */
+-  return "detect_leaks=0";
+-}
++
+ 
+ int main(int argc, char *argv[])
+ {
+diff --git a/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_cnProc/main128.c b/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_cnProc/main128.c
+index 1353ee20eb..69f5dcad62 100644
+--- a/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_cnProc/main128.c
++++ b/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_cnProc/main128.c
+@@ -25,11 +25,7 @@
+ void nrLDPC_cnProc_BG1_generator_128(const char*, int);
+ void nrLDPC_cnProc_BG2_generator_128(const char*, int);
+ 
+-const char *__asan_default_options()
+-{
+-  /* don't do leak checking in nr_ulsim, creates problems in the CI */
+-  return "detect_leaks=0";
+-}
++
+ 
+ int main(int argc, char *argv[])
+ {

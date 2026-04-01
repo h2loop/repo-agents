@@ -1,0 +1,92 @@
+diff --git a/radio/fhi_72/oran-config.c b/radio/fhi_72/oran-config.c
+index 2973fdc2b0..ad7cc302b4 100644
+--- a/radio/fhi_72/oran-config.c
++++ b/radio/fhi_72/oran-config.c
+@@ -519,6 +519,14 @@ static bool set_fh_io_cfg(struct xran_io_cfg *io_cfg, const paramdef_t *fhip, in
+ 
+ static bool set_fh_eaxcid_conf(struct xran_eaxcid_config *eaxcid_conf, enum xran_category cat)
+ {
++  // Validate input parameters
++  if (eaxcid_conf == NULL) {
++    return false;
++  }
++
++  // Initialize the structure to zero to ensure all fields are cleared
++  memset(eaxcid_conf, 0, sizeof(struct xran_eaxcid_config));
++
+   // values taken from sample app
+   switch (cat) {
+     case XRAN_CATEGORY_A:
+@@ -548,6 +556,34 @@ static bool set_fh_eaxcid_conf(struct xran_eaxcid_config *eaxcid_conf, enum xran
+   return true;
+ }
+ 
++// Extended version that allows custom eAxC ID configuration
++static bool set_fh_eaxcid_conf_custom(struct xran_eaxcid_config *eaxcid_conf,
++                                      uint16_t mask_cuPortId, uint8_t bit_cuPortId,
++                                      uint16_t mask_bandSectorId, uint8_t bit_bandSectorId,
++                                      uint16_t mask_ccId, uint8_t bit_ccId,
++                                      uint16_t mask_ruPortId, uint8_t bit_ruPortId)
++{
++  // Validate input parameters
++  if (eaxcid_conf == NULL) {
++    return false;
++  }
++
++  // Initialize the structure to zero to ensure all fields are cleared
++  memset(eaxcid_conf, 0, sizeof(struct xran_eaxcid_config));
++
++  // Set custom values
++  eaxcid_conf->mask_cuPortId = mask_cuPortId;
++  eaxcid_conf->mask_bandSectorId = mask_bandSectorId;
++  eaxcid_conf->mask_ccId = mask_ccId;
++  eaxcid_conf->mask_ruPortId = mask_ruPortId;
++  eaxcid_conf->bit_cuPortId = bit_cuPortId;
++  eaxcid_conf->bit_bandSectorId = bit_bandSectorId;
++  eaxcid_conf->bit_ccId = bit_ccId;
++  eaxcid_conf->bit_ruPortId = bit_ruPortId;
++
++  return true;
++}
++
+ uint8_t *get_ether_addr(const char *addr, struct rte_ether_addr *ether_addr)
+ {
+ #pragma GCC diagnostic push
+@@ -603,6 +639,8 @@ bool set_fh_init(struct xran_fh_init *fh_init)
+ 
+   if (!set_fh_io_cfg(&fh_init->io_cfg, fhip, nump))
+     return false;
++  // Use Category A for eAxC ID configuration by default for backward compatibility
++  // In the future, this could be made configurable if different categories are needed
+   if (!set_fh_eaxcid_conf(&fh_init->eAxCId_conf, XRAN_CATEGORY_A))
+     return false;
+ 
+@@ -732,7 +770,9 @@ static bool set_fh_frame_config(const openair0_config_t *oai0, struct xran_frame
+ static bool set_fh_ru_config(const paramdef_t *rup, uint16_t fftSize, int nru, struct xran_ru_config *ru_config)
+ {
+   ru_config->xranTech = XRAN_RAN_5GNR;
+-  ru_config->xranCat = XRAN_CATEGORY_A;
++  // Read category from configuration, default to Category A
++  int category = *gpd(rup, nru, ORAN_RU_CONFIG_CATEGORY)->iptr;
++  ru_config->xranCat = (category == 1) ? XRAN_CATEGORY_B : XRAN_CATEGORY_A;
+   ru_config->xranCompHdrType = XRAN_COMP_HDR_TYPE_STATIC;
+   ru_config->iqWidth = *gpd(rup, nru, ORAN_RU_CONFIG_IQWIDTH)->uptr;
+   AssertFatal(ru_config->iqWidth <= 16, "IQ Width cannot be > 16!\n");
+diff --git a/radio/fhi_72/oran-params.h b/radio/fhi_72/oran-params.h
+index ff8058f9ca..aa52468a01 100644
+--- a/radio/fhi_72/oran-params.h
++++ b/radio/fhi_72/oran-params.h
+@@ -93,11 +93,13 @@
+ 
+ #define ORAN_RU_CONFIG_IQWIDTH "iq_width"
+ #define ORAN_RU_CONFIG_IQWIDTH_PRACH "iq_width_prach"
++#define ORAN_RU_CONFIG_CATEGORY "category"
+ 
+ // clang-format off
+ #define ORAN_RU_DESC {\
+   {ORAN_RU_CONFIG_IQWIDTH,       "sample IQ width (16=uncompressed)\n",       PARAMFLAG_MANDATORY, .u8ptr=NULL, .defuintval=16, TYPE_UINT8, 0}, \
+   {ORAN_RU_CONFIG_IQWIDTH_PRACH, "PRACH sample IQ width (16=uncompressed)\n", PARAMFLAG_MANDATORY, .u8ptr=NULL, .defuintval=16, TYPE_UINT8, 0}, \
++  {ORAN_RU_CONFIG_CATEGORY,      "RU Category (0=Category A, 1=Category B)\n", 0,                   .iptr=NULL,  .defintval=0,   TYPE_INT,   0}, \
+ }
+ // clang-format on
+ 

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00042_bd28e0",
+  "pr_text": "## Title: Fix PTRS estimation memory access pattern in ptrs_estimate_from_slope\n\n### Summary\nFix incorrect memory access in PTRS (Phase Tracking Reference Signal) estimation that caused phase tracking errors due to type punning between int16_t array and complex struct pointer.\n\nThe `ptrs_estimate_from_slope` function performed linear interpolation of phase errors across OFDM symbols. It incorrectly cast the input `int16_t *error_est` array to a `c16_t *` (complex struct) pointer, then accessed e",
+  "trajectory_path": "data/raw/s00042_bd28e0_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00042_bd28e0_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 14,
+  "timestamp": "2026-02-11T09:23:43Z"
+}

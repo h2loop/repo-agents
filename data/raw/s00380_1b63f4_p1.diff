@@ -1,0 +1,32 @@
+diff --git a/common/utils/T/tracer/gui/label.c b/common/utils/T/tracer/gui/label.c
+index 02efabfaf3..30aaeaeb91 100644
+--- a/common/utils/T/tracer/gui/label.c
++++ b/common/utils/T/tracer/gui/label.c
+@@ -86,13 +86,24 @@ void label_set_text(gui *_g, widget *_this, char *text)
+ {
+   struct gui *g = _g;
+   struct label_widget *this = _this;
++  char *limited_text = NULL;
+ 
+   glock(g);
+ 
+   free(this->t);
+-  this->t = strdup(text); if (this->t == NULL) OOM;
+-
+-  x_text_get_dimensions(g->x, DEFAULT_FONT, text,
++  
++  /* Limit text length to prevent stack buffer overflow in downstream X11 calls */
++  if (text && strlen(text) > 1023) {
++    limited_text = strndup(text, 1023);
++    if (limited_text == NULL) OOM;
++    this->t = limited_text;
++  } else {
++    this->t = strdup(text ? text : "");
++    if (this->t == NULL) OOM;
++  }
++
++  /* Use the potentially truncated text for X11 calls */
++  x_text_get_dimensions(g->x, DEFAULT_FONT, this->t,
+       &this->width, &this->height, &this->baseline);
+ 
+   send_event(g, REPACK, this->common.id);

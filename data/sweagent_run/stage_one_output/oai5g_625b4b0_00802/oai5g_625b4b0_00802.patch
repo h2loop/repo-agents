@@ -1,0 +1,72 @@
+diff --git a/openair1/SIMULATION/NR_PHY/ulsim.c b/openair1/SIMULATION/NR_PHY/ulsim.c
+index b5dcea4a3f..20be687a97 100644
+--- a/openair1/SIMULATION/NR_PHY/ulsim.c
++++ b/openair1/SIMULATION/NR_PHY/ulsim.c
+@@ -71,8 +71,8 @@
+ 
+ const char *__asan_default_options()
+ {
+-  /* don't do leak checking in nr_ulsim, not finished yet */
+-  return "detect_leaks=0";
++  /* enable leak checking for 3GPP specification compliance in NR_PHY ulsim */
++  return "detect_leaks=1";
+ }
+ 
+ PHY_VARS_gNB *gNB;
+@@ -328,7 +328,7 @@ int main(int argc, char **argv)
+         i+=2;
+       } while (optarg[i-1] == ',');
+       break;
+-	
++        
+     case 'k':
+       printf("Setting threequarter_fs_flag\n");
+       openair0_cfg[0].threequarter_fs= 1;
+@@ -393,13 +393,13 @@ int main(int argc, char **argv)
+       break;
+ 
+       /*
+-	case 'r':
+-	ricean_factor = pow(10,-.1*atof(optarg));
+-	if (ricean_factor>1) {
+-	printf("Ricean factor must be between 0 and 1\n");
+-	exit(-1);
+-	}
+-	break;
++        case 'r':
++        ricean_factor = pow(10,-.1*atof(optarg));
++        if (ricean_factor>1) {
++        printf("Ricean factor must be between 0 and 1\n");
++        exit(-1);
++        }
++        break;
+       */
+       
+       /*case 'x':
+@@ -826,7 +826,7 @@ int main(int argc, char **argv)
+   unsigned int TBS             = nr_compute_tbs(mod_order, code_rate, nb_rb, nb_symb_sch, nb_re_dmrs * number_dmrs_symbols, 0, 0, precod_nbr_layers);
+ 
+   
+-  printf("[ULSIM]: length_dmrs: %u, l_prime_mask: %u	number_dmrs_symbols: %u, mapping_type: %u add_pos: %d \n", length_dmrs, l_prime_mask, number_dmrs_symbols, mapping_type, add_pos);
++  printf("[ULSIM]: length_dmrs: %u, l_prime_mask: %u    number_dmrs_symbols: %u, mapping_type: %u add_pos: %d \n", length_dmrs, l_prime_mask, number_dmrs_symbols, mapping_type, add_pos);
+   printf("[ULSIM]: CDM groups: %u, dmrs_config_type: %d, num_rbs: %u, nb_symb_sch: %u\n", num_dmrs_cdm_grps_no_data, dmrs_config_type, nb_rb, nb_symb_sch);
+   printf("[ULSIM]: MCS: %d, mod order: %u, code_rate: %u\n", Imcs, mod_order, code_rate);
+   printf("[ULSIM]: VALUE OF G: %u, TBS: %u\n", available_bits, TBS);
+@@ -881,7 +881,7 @@ int main(int argc, char **argv)
+   int slot_offset = frame_parms->get_samples_slot_timestamp(slot,frame_parms,0);
+   int slot_length = slot_offset - frame_parms->get_samples_slot_timestamp(slot-1,frame_parms,0);
+ 
+-  if (input_fd != NULL)	{
++  if (input_fd != NULL) {
+     // 800 samples is N_TA_OFFSET for FR1 @ 30.72 Ms/s,
+     AssertFatal(frame_parms->subcarrier_spacing==30000,"only 30 kHz for file input for now (%d)\n",frame_parms->subcarrier_spacing);
+   
+@@ -1534,7 +1534,7 @@ int main(int argc, char **argv)
+       if (errors_decoding > 0 && error_flag == 0) {
+         n_false_positive++;
+         if (n_trials==1)
+-	  printf("\x1B[31m""[frame %d][trial %d]\tnumber of errors in decoding     = %u\n" "\x1B[0m", frame, trial, errors_decoding);
++          printf("\x1B[31m""[frame %d][trial %d]\tnumber of errors in decoding     = %u\n" "\x1B[0m", frame, trial, errors_decoding);
+       } 
+       roundStats += ((float)round);
+       if (!crc_status)

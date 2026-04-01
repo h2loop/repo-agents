@@ -1,0 +1,112 @@
+diff --git a/radio/fhi_72/oran-config.c b/radio/fhi_72/oran-config.c
+index 2973fdc2b0..a41217de80 100644
+--- a/radio/fhi_72/oran-config.c
++++ b/radio/fhi_72/oran-config.c
+@@ -519,6 +519,14 @@ static bool set_fh_io_cfg(struct xran_io_cfg *io_cfg, const paramdef_t *fhip, in
+ 
+ static bool set_fh_eaxcid_conf(struct xran_eaxcid_config *eaxcid_conf, enum xran_category cat)
+ {
++  // Validate input parameters
++  if (eaxcid_conf == NULL) {
++    return false;
++  }
++
++  // Initialize structure to zero
++  memset(eaxcid_conf, 0, sizeof(struct xran_eaxcid_config));
++
+   // values taken from sample app
+   switch (cat) {
+     case XRAN_CATEGORY_A:
+@@ -548,6 +556,37 @@ static bool set_fh_eaxcid_conf(struct xran_eaxcid_config *eaxcid_conf, enum xran
+   return true;
+ }
+ 
++static bool set_fh_eaxcid_conf_custom(struct xran_eaxcid_config *eaxcid_conf,
++                                      uint16_t mask_cuPortId,
++                                      uint16_t mask_bandSectorId,
++                                      uint16_t mask_ccId,
++                                      uint16_t mask_ruPortId,
++                                      uint8_t bit_cuPortId,
++                                      uint8_t bit_bandSectorId,
++                                      uint8_t bit_ccId,
++                                      uint8_t bit_ruPortId)
++{
++  // Validate input parameters
++  if (eaxcid_conf == NULL) {
++    return false;
++  }
++
++  // Initialize structure to zero
++  memset(eaxcid_conf, 0, sizeof(struct xran_eaxcid_config));
++
++  // Set custom values
++  eaxcid_conf->mask_cuPortId = mask_cuPortId;
++  eaxcid_conf->mask_bandSectorId = mask_bandSectorId;
++  eaxcid_conf->mask_ccId = mask_ccId;
++  eaxcid_conf->mask_ruPortId = mask_ruPortId;
++  eaxcid_conf->bit_cuPortId = bit_cuPortId;
++  eaxcid_conf->bit_bandSectorId = bit_bandSectorId;
++  eaxcid_conf->bit_ccId = bit_ccId;
++  eaxcid_conf->bit_ruPortId = bit_ruPortId;
++
++  return true;
++}
++
+ uint8_t *get_ether_addr(const char *addr, struct rte_ether_addr *ether_addr)
+ {
+ #pragma GCC diagnostic push
+@@ -603,7 +642,24 @@ bool set_fh_init(struct xran_fh_init *fh_init)
+ 
+   if (!set_fh_io_cfg(&fh_init->io_cfg, fhip, nump))
+     return false;
+-  if (!set_fh_eaxcid_conf(&fh_init->eAxCId_conf, XRAN_CATEGORY_A))
++
++  // Get RU category from first RU configuration
++  enum xran_category category = XRAN_CATEGORY_A; // Default to Category A for backward compatibility
++  
++  if (FH_ConfigList.numelt > 0) {
++    // Process first RU to get category
++    paramdef_t rup[] = ORAN_RU_DESC;
++    int nru = sizeofArray(rup);
++    char ru_aprefix[MAX_OPTNAME_SIZE] = {0};
++    sprintf(ru_aprefix, "%s.%s.[%d].%s", CONFIG_STRING_ORAN, CONFIG_STRING_ORAN_FH, 0, CONFIG_STRING_ORAN_RU);
++    int ret = config_get(config_get_if(), rup, nru, ru_aprefix);
++    if (ret >= 0) {
++      uint32_t category_val = *gpd(rup, nru, ORAN_RU_CONFIG_CATEGORY)->uptr;
++      category = (category_val == 1) ? XRAN_CATEGORY_B : XRAN_CATEGORY_A;
++    }
++  }
++
++  if (!set_fh_eaxcid_conf(&fh_init->eAxCId_conf, category))
+     return false;
+ 
+   fh_init->xran_ports = num_rus;
+@@ -732,7 +788,9 @@ static bool set_fh_frame_config(const openair0_config_t *oai0, struct xran_frame
+ static bool set_fh_ru_config(const paramdef_t *rup, uint16_t fftSize, int nru, struct xran_ru_config *ru_config)
+ {
+   ru_config->xranTech = XRAN_RAN_5GNR;
+-  ru_config->xranCat = XRAN_CATEGORY_A;
++  // Use configurable category instead of hardcoded XRAN_CATEGORY_A
++  uint32_t category_val = *gpd(rup, nru, ORAN_RU_CONFIG_CATEGORY)->uptr;
++  ru_config->xranCat = (category_val == 1) ? XRAN_CATEGORY_B : XRAN_CATEGORY_A;
+   ru_config->xranCompHdrType = XRAN_COMP_HDR_TYPE_STATIC;
+   ru_config->iqWidth = *gpd(rup, nru, ORAN_RU_CONFIG_IQWIDTH)->uptr;
+   AssertFatal(ru_config->iqWidth <= 16, "IQ Width cannot be > 16!\n");
+diff --git a/radio/fhi_72/oran-params.h b/radio/fhi_72/oran-params.h
+index ff8058f9ca..d5a990ccf3 100644
+--- a/radio/fhi_72/oran-params.h
++++ b/radio/fhi_72/oran-params.h
+@@ -93,11 +93,13 @@
+ 
+ #define ORAN_RU_CONFIG_IQWIDTH "iq_width"
+ #define ORAN_RU_CONFIG_IQWIDTH_PRACH "iq_width_prach"
++#define ORAN_RU_CONFIG_CATEGORY "category"
+ 
+ // clang-format off
+ #define ORAN_RU_DESC {\
+   {ORAN_RU_CONFIG_IQWIDTH,       "sample IQ width (16=uncompressed)\n",       PARAMFLAG_MANDATORY, .u8ptr=NULL, .defuintval=16, TYPE_UINT8, 0}, \
+   {ORAN_RU_CONFIG_IQWIDTH_PRACH, "PRACH sample IQ width (16=uncompressed)\n", PARAMFLAG_MANDATORY, .u8ptr=NULL, .defuintval=16, TYPE_UINT8, 0}, \
++  {ORAN_RU_CONFIG_CATEGORY,      "RU category (0=Category A, 1=Category B)\n", 0,                   .uptr=NULL,  .defuintval=0,  TYPE_UINT,  0}, \
+ }
+ // clang-format on
+ 

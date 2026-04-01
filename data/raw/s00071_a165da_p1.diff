@@ -1,0 +1,100 @@
+diff --git a/openair3/ocp-gtpu/gtp_itf.cpp b/openair3/ocp-gtpu/gtp_itf.cpp
+index 9fb8f159fe..9d3e7ed75b 100644
+--- a/openair3/ocp-gtpu/gtp_itf.cpp
++++ b/openair3/ocp-gtpu/gtp_itf.cpp
+@@ -940,9 +940,92 @@ static int Gtpv1uHandleError(int h,
+                              uint32_t msgBufLen,
+                              uint16_t peerPort,
+                              uint32_t peerIp) {
+-  LOG_E(GTPU, "Received GTP error indication (error handling is missing/not implemented)\n");
+-  int rc = GTPNOK;
+-  return rc;
++  LOG_E(GTPU, "Received GTP error indication\n");
++  
++  if (msgBufLen < sizeof(Gtpv1uMsgHeaderT)) {
++    LOG_E(GTPU, "[%d] GTP error indication message too short: %d bytes\n", h, msgBufLen);
++    return GTPNOK;
++  }
++
++  Gtpv1uMsgHeaderT *msgHdr = (Gtpv1uMsgHeaderT *)msgBuf;
++  
++  if (msgHdr->version != 1 || msgHdr->PT != 1) {
++    LOG_E(GTPU, "[%d] Invalid GTP error indication header\n", h);
++    return GTPNOK;
++  }
++
++  teid_t error_teid = ntohl(msgHdr->teid);
++  LOG_W(GTPU, "[%d] GTP error indication for TEID 0x%x from %s:%d\n", 
++        h, error_teid, inet_ntoa(*(struct in_addr *)&peerIp), peerPort);
++
++  pthread_mutex_lock(&globGtp.gtp_lock);
++  
++  // Find the tunnel associated with this TEID
++  auto tunnel = globGtp.te2ue_mapping.find(error_teid);
++  
++  if (tunnel == globGtp.te2ue_mapping.end()) {
++    LOG_W(GTPU, "[%d] GTP error indication for unknown TEID 0x%x\n", h, error_teid);
++    pthread_mutex_unlock(&globGtp.gtp_lock);
++    return GTPNOK;
++  }
++
++  // Get the UE context and bearer information
++  ue_id_t ue_id = tunnel->second.ue_id;
++  ebi_t rb_id = tunnel->second.incoming_rb_id;
++  
++  LOG_W(GTPU, "[%d] GTP error indication for UE 0x%lx, RB %d\n", h, ue_id, rb_id);
++
++  // Create context for callback notification
++  protocol_ctxt_t ctxt;
++  ctxt.module_id = 0;
++  ctxt.enb_flag = 1;
++  ctxt.instance = 0; // Will be set from endpoint if available
++  ctxt.rntiMaybeUEid = ue_id;
++  ctxt.frame = 0;
++  ctxt.subframe = 0;
++  ctxt.eNB_index = 0;
++  ctxt.brOption = 0;
++
++  // Find the endpoint to get instance information
++  auto instChk = globGtp.instances.find(compatInst(h));
++  if (instChk != globGtp.instances.end()) {
++    gtpEndPoint *inst = &instChk->second;
++    ctxt.instance = inst->addr.originInstance;
++  }
++
++  // Notify upper layers about the GTP error using the registered callback
++  // This will allow NGAP and other layers to handle the error appropriately
++  if (tunnel->second.callBack) {
++    const srb_flag_t srb_flag = SRB_FLAG_NO;
++    const rb_id_t rb_id_param = rb_id;
++    const mui_t mui = RLC_MUI_UNDEFINED;
++    const confirm_t confirm = RLC_SDU_CONFIRM_NO;
++    const pdcp_transmission_mode_t mode = PDCP_TRANSMISSION_MODE_DATA;
++    const uint32_t sourceL2Id = 0;
++    const uint32_t destinationL2Id = 0;
++
++    // Send error notification with zero-length payload to indicate error condition
++    LOG_W(GTPU, "[%d] Notifying upper layers about GTP error for TEID 0x%x\n", h, error_teid);
++    
++    if (!tunnel->second.callBack(&ctxt,
++                                 srb_flag,
++                                 rb_id_param,
++                                 mui,
++                                 confirm,
++                                 0, // Zero length indicates error
++                                 NULL,
++                                 mode,
++                                 &sourceL2Id,
++                                 &destinationL2Id)) {
++      LOG_E(GTPU, "[%d] Upper layer error notification failed for TEID 0x%x\n", h, error_teid);
++    }
++  } else {
++    LOG_E(GTPU, "[%d] No callback registered for TEID 0x%x\n", h, error_teid);
++  }
++
++  pthread_mutex_unlock(&globGtp.gtp_lock);
++  
++  return GTPNOK; // Return error to indicate this was an error indication
+ }
+ 
+ static int Gtpv1uHandleSupportedExt(int h,

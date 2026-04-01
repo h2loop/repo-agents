@@ -1,0 +1,13 @@
+diff --git a/openair3/NAS/COMMON/EMM/MSG/AuthenticationFailure.c b/openair3/NAS/COMMON/EMM/MSG/AuthenticationFailure.c
+index 89368d7523..3ba7daaaed 100644
+--- a/openair3/NAS/COMMON/EMM/MSG/AuthenticationFailure.c
++++ b/openair3/NAS/COMMON/EMM/MSG/AuthenticationFailure.c
+@@ -47,7 +47,7 @@ int decode_authentication_failure(authentication_failure_msg *authentication_fai
+   while(len - decoded > 0) {
+     uint8_t ieiDecoded = *(buffer + decoded);
+ 
+-    /* Type | value iei are below 0x80 so just return the first 4 bits */
++    /* For IEIs >= 0x80, only the first 4 bits (type portion) are significant */
+     if (ieiDecoded >= 0x80)
+       ieiDecoded = ieiDecoded & 0xf0;
+ 

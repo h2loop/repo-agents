@@ -1,0 +1,29 @@
+diff --git a/executables/nr-softmodem.c b/executables/nr-softmodem.c
+index e449e6c33e..d43b053078 100644
+--- a/executables/nr-softmodem.c
++++ b/executables/nr-softmodem.c
+@@ -283,6 +283,7 @@ static int create_gNB_tasks(ngran_node_t node_type, configmodule_interface_t *cf
+     if (get_softmodem_params()->nsa) {
+       if(itti_create_task(TASK_X2AP, x2ap_task, NULL) < 0) {
+         LOG_E(X2AP, "Create task for X2AP failed\n");
++        return -1;
+       }
+     } else {
+       LOG_I(X2AP, "X2AP is disabled.\n");
+@@ -349,13 +350,14 @@ static int create_gNB_tasks(ngran_node_t node_type, configmodule_interface_t *cf
+   return 0;
+ }
+ 
+-static void get_options(configmodule_interface_t *cfg)
++static int get_options(configmodule_interface_t *cfg)
+ {
+   paramdef_t cmdline_params[] = CMDLINE_PARAMS_DESC_GNB ;
+   CONFIG_SETRTFLAG(CONFIG_NOEXITONHELP);
+   get_common_options(cfg, SOFTMODEM_GNB_BIT);
+-  config_process_cmdline(cfg, cmdline_params, sizeofArray(cmdline_params), NULL);
++  int ret = config_process_cmdline(cfg, cmdline_params, sizeofArray(cmdline_params), NULL);
+   CONFIG_CLEARRTFLAG(CONFIG_NOEXITONHELP);
++  return ret;
+ }
+ 
+ void wait_RUs(void) {

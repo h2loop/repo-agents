@@ -1,0 +1,29 @@
+{
+  "run_id": "s00088_43b102",
+  "function": {
+    "name": "dft_lte",
+    "file": "openair1/PHY/LTE_UE_TRANSPORT/ulsch_modulation.c",
+    "start_line": 46,
+    "end_line": 155,
+    "body_lines": 110,
+    "signature": "void dft_lte(int32_t *z,struct complex16 *input, int32_t Msc_PUSCH, uint8_t Nsymb)",
+    "subsystem": "openair1/PHY/LTE_UE_TRANSPORT",
+    "token_estimate": 330
+  },
+  "bug": {
+    "bug_id": "telecom_wrong_mcs",
+    "description": "incorrect MCS selection not matching channel quality or UE capability",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a incorrect MCS selection not matching channel quality or UE capability downstream of function dft_lte in the openair1/PHY/LTE_UE_TRANSPORT subsystem.\nThe function is located at openair1/PHY/LTE_UE_TRANSPORT/ulsch_modulation.c:46.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00088_43b102_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00088_43b102_p1.diff",
+  "patch_lines": 27,
+  "trajectory_steps": 36,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:06:26Z"
+}

@@ -1,0 +1,21 @@
+ARG REPO_URL
+ARG REPO_BRANCH=main
+
+FROM ubuntu:22.04
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git gcc g++ cmake make clang-format universal-ctags cscope \
+    python3 python3-pip \
+    ca-certificates curl wget \
+    && rm -rf /var/lib/apt/lists/*
+
+ARG REPO_URL
+ARG REPO_BRANCH
+
+RUN git clone --depth 1 --branch ${REPO_BRANCH} ${REPO_URL} /repo || \
+    git clone --depth 1 ${REPO_URL} /repo
+
+WORKDIR /repo
+RUN git config --global --add safe.directory /repo
+
+CMD ["sleep", "infinity"]

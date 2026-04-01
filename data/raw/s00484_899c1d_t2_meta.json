@@ -1,0 +1,9 @@
+{
+  "run_id": "s00484_899c1d",
+  "pr_text": "## Title: Fix RLC UM entity creation to return NULL on allocation failure\n\n### Summary\nThe `new_rlc_entity_um()` function in the RLC v2 layer currently calls `exit(1)` when memory allocation fails, which terminates the entire OAI process. This prevents upper layers from implementing graceful degradation or recovery strategies for out-of-memory conditions.\n\nThis patch modifies the error handling to return NULL instead, allowing callers to check the return value and handle allocation failures appr",
+  "trajectory_path": "data/raw/s00484_899c1d_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00484_899c1d_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 10,
+  "timestamp": "2026-02-10T13:36:09Z"
+}

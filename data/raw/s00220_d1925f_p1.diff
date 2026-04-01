@@ -1,0 +1,50 @@
+diff --git a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+index 50c46b16e1..8ba9f571c4 100644
+--- a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
++++ b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+@@ -1568,9 +1568,28 @@ fill_nfapi_uci_acknak(module_id_t module_idP,
+                       uint8_t     cce_idxP)
+ //------------------------------------------------------------------------------
+ {
+-  eNB_MAC_INST                   *eNB           = RC.mac[module_idP];
+-  COMMON_channels_t              *cc            = &eNB->common_channels[CC_idP];
+-  int                            ackNAK_absSF   = get_pucch1_absSF(cc, absSFP);
++  // Critical failure logging for input validation
++  if (module_idP >= NUMBER_OF_eNB_MAX) {
++    LOG_E(MAC, "Critical failure: fill_nfapi_uci_acknak - module_idP %d exceeds maximum %d for rnti %x\n",
++          module_idP, NUMBER_OF_eNB_MAX, rntiP);
++    return 0;
++  }
++  
++  eNB_MAC_INST *eNB = RC.mac[module_idP];
++  if (eNB == NULL) {
++    LOG_E(MAC, "Critical failure: fill_nfapi_uci_acknak - eNB is NULL for module_idP %d, rnti %x\n",
++          module_idP, rntiP);
++    return 0;
++  }
++  
++  if (CC_idP >= NFAPI_CC_MAX) {
++    LOG_E(MAC, "Critical failure: fill_nfapi_uci_acknak - CC_idP %d exceeds maximum %d for rnti %x\n",
++          CC_idP, NFAPI_CC_MAX, rntiP);
++    return 0;
++  }
++  
++  COMMON_channels_t *cc = &eNB->common_channels[CC_idP];
++  int ackNAK_absSF = get_pucch1_absSF(cc, absSFP);
+   nfapi_ul_config_request_t      *ul_req        = &eNB->UL_req_tmp[CC_idP][ackNAK_absSF % 10];
+   nfapi_ul_config_request_body_t *ul_req_body   = &ul_req->ul_config_request_body;
+   nfapi_ul_config_request_pdu_t  *ul_config_pdu = &ul_req_body->ul_config_pdu_list[ul_req_body->number_of_pdus];
+@@ -1593,6 +1612,13 @@ fill_nfapi_uci_acknak(module_id_t module_idP,
+         ackNAK_absSF % 10,
+         cce_idxP,
+         ul_config_pdu->uci_harq_pdu.harq_information.harq_information_rel9_fdd.n_pucch_1_0);
++  
++  // Check for critical failures in harq_information setup
++  if (ul_config_pdu->uci_harq_pdu.harq_information.harq_information_rel9_fdd.n_pucch_1_0 == 0 &&
++      ul_config_pdu->uci_harq_pdu.harq_information.harq_information_rel10_tdd.n_pucch_1_0 == 0) {
++    LOG_E(MAC, "Critical failure: fill_nfapi_uci_acknak - n_pucch_1_0 is 0 for both FDD and TDD for rnti %x, cce_idxP %d\n",
++          rntiP, cce_idxP);
++  }
+   ul_req_body->number_of_pdus++;
+   ul_req_body->tl.tag       = NFAPI_UL_CONFIG_REQUEST_BODY_TAG;
+   ul_req->header.message_id = NFAPI_UL_CONFIG_REQUEST;

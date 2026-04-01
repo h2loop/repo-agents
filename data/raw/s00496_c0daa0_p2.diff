@@ -1,0 +1,22 @@
+diff --git a/openair1/PHY/NR_TRANSPORT/nr_uci_tools_common.c b/openair1/PHY/NR_TRANSPORT/nr_uci_tools_common.c
+index b6b56ec79f..0c5d223fff 100644
+--- a/openair1/PHY/NR_TRANSPORT/nr_uci_tools_common.c
++++ b/openair1/PHY/NR_TRANSPORT/nr_uci_tools_common.c
+@@ -73,7 +73,7 @@ void nr_group_sequence_hopping(pucch_GroupHopping_t PUCCH_GroupHopping,
+   }
+ 
+   if (PUCCH_GroupHopping == enable) { // PUCCH_GroupHopping 'enabled'
+-    uint32_t c_init = floor(n_id / 30); // we initialize c_init to calculate u,v according to 6.3.2.2.1 of 38.211
++    uint32_t c_init = n_id / 30; // we initialize c_init to calculate u,v according to 6.3.2.2.1 of 38.211
+     int l = 32, minShift = (2 * nr_slot_tx + n_hop) << 3;
+     uint32_t *seq = gold_cache(c_init, (minShift + 31) / 32 + 8); // TS 38.211 Subclause 5.2.1
+     int goldIdx = 0;
+@@ -93,7 +93,7 @@ void nr_group_sequence_hopping(pucch_GroupHopping_t PUCCH_GroupHopping,
+   }
+ 
+   if (PUCCH_GroupHopping == disable) { // PUCCH_GroupHopping 'disabled'
+-    uint32_t c_init = (1 << 5) * floor(n_id / 30) + (n_id % 30); // we initialize c_init to calculate u,v
++    uint32_t c_init = (1 << 5) * (n_id / 30) + (n_id % 30); // we initialize c_init to calculate u,v
+     int goldIdx = 0;
+     f_ss = n_id%30;
+     int l = 32, minShift = (2 * nr_slot_tx + n_hop);

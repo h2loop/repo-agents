@@ -1,0 +1,121 @@
+diff --git a/openair2/RRC/NR/nr_rrc_config.c b/openair2/RRC/NR/nr_rrc_config.c
+index 9bbd4f38b7..2aa3ad62ca 100644
+--- a/openair2/RRC/NR/nr_rrc_config.c
++++ b/openair2/RRC/NR/nr_rrc_config.c
+@@ -513,7 +513,7 @@ static void config_csiim(int do_csirs,
+ void set_dl_maxmimolayers(NR_PDSCH_ServingCellConfig_t *pdsch_servingcellconfig,
+                           const NR_ServingCellConfigCommon_t *scc,
+                           const NR_UE_NR_Capability_t *uecap,
+-			  int maxMIMO_layers)
++                          int maxMIMO_layers)
+ {
+ 
+   if(!pdsch_servingcellconfig->ext1)
+@@ -1061,39 +1061,52 @@ static void set_SR_periodandoffset(NR_SchedulingRequestResourceConfig_t *schedul
+ 
+   schedulingRequestResourceConfig->periodicityAndOffset = calloc(1,sizeof(*schedulingRequestResourceConfig->periodicityAndOffset));
+ 
+-  if(sr_slot < 10 && scs < NR_SubcarrierSpacing_kHz60){
+-    schedulingRequestResourceConfig->periodicityAndOffset->present = NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl10;
+-    schedulingRequestResourceConfig->periodicityAndOffset->choice.sl10 = sr_slot;
+-    return;
++  // Map subcarrier spacing enum values to slotsperframe array indices
++  int scs_index = 0; // default to 15 kHz
++  switch (scs) {
++    case 0: // NR_SubcarrierSpacing_kHz15
++      scs_index = 0;
++      break;
++    case 1: // NR_SubcarrierSpacing_kHz30
++      scs_index = 1;
++      break;
++    case 2: // NR_SubcarrierSpacing_kHz60
++      scs_index = 2;
++      break;
++    case 3: // NR_SubcarrierSpacing_kHz120
++      scs_index = 3;
++      break;
++    case 4: // NR_SubcarrierSpacing_kHz240
++      scs_index = 4;
++      break;
++    default:
++      scs_index = 0; // default to 15 kHz
++      break;
+   }
+-  else if(sr_slot < 20 && scs < NR_SubcarrierSpacing_kHz120){
++  
++  int slots_per_frame = slotsperframe[scs_index];
++
++  // Select appropriate periodicity based on subcarrier spacing and ensure offset is valid
++  // The offset should be less than the periodicity
++  if (slots_per_frame == 10) {
++    schedulingRequestResourceConfig->periodicityAndOffset->present = NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl10;
++    schedulingRequestResourceConfig->periodicityAndOffset->choice.sl10 = sr_slot % 10;
++  } else if (slots_per_frame == 20) {
+     schedulingRequestResourceConfig->periodicityAndOffset->present = NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl20;
+-    schedulingRequestResourceConfig->periodicityAndOffset->choice.sl20 = sr_slot;
+-    return;
+-  }
+-  else if(sr_slot < 40){
++    schedulingRequestResourceConfig->periodicityAndOffset->choice.sl20 = sr_slot % 20;
++  } else if (slots_per_frame == 40) {
+     schedulingRequestResourceConfig->periodicityAndOffset->present = NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl40;
+-    schedulingRequestResourceConfig->periodicityAndOffset->choice.sl40 = sr_slot;
+-    return;
+-  }
+-  else if(sr_slot < 80 || scs == NR_SubcarrierSpacing_kHz15){
++    schedulingRequestResourceConfig->periodicityAndOffset->choice.sl40 = sr_slot % 40;
++  } else if (slots_per_frame == 80) {
+     schedulingRequestResourceConfig->periodicityAndOffset->present = NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl80;
+-    schedulingRequestResourceConfig->periodicityAndOffset->choice.sl80 = sr_slot;
+-    return;
+-  }
+-  else if(sr_slot < 160 || scs == NR_SubcarrierSpacing_kHz30){
++    schedulingRequestResourceConfig->periodicityAndOffset->choice.sl80 = sr_slot % 80;
++  } else if (slots_per_frame == 160) {
+     schedulingRequestResourceConfig->periodicityAndOffset->present = NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl160;
+-    schedulingRequestResourceConfig->periodicityAndOffset->choice.sl160 = sr_slot;
+-    return;
+-  }
+-  else if(sr_slot < 320 || scs == NR_SubcarrierSpacing_kHz60){
+-    schedulingRequestResourceConfig->periodicityAndOffset->present = NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl320;
+-    schedulingRequestResourceConfig->periodicityAndOffset->choice.sl320 = sr_slot;
+-    return;
+-  }
+-  else {
+-    schedulingRequestResourceConfig->periodicityAndOffset->present = NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl640;
+-    schedulingRequestResourceConfig->periodicityAndOffset->choice.sl640 = sr_slot;
++    schedulingRequestResourceConfig->periodicityAndOffset->choice.sl160 = sr_slot % 160;
++  } else {
++    // Fallback to a reasonable default
++    schedulingRequestResourceConfig->periodicityAndOffset->present = NR_SchedulingRequestResourceConfig__periodicityAndOffset_PR_sl10;
++    schedulingRequestResourceConfig->periodicityAndOffset->choice.sl10 = sr_slot % 10;
+   }
+ }
+ 
+@@ -1204,7 +1217,7 @@ static void set_dl_mcs_table(int scs,
+ }
+ 
+ static struct NR_SetupRelease_PUSCH_Config *config_pusch(NR_PUSCH_Config_t *pusch_Config,
+-							 const bool use_deltaMCS,
++                                                         const bool use_deltaMCS,
+                                                          const NR_ServingCellConfigCommon_t *scc,
+                                                          const NR_UE_NR_Capability_t *uecap)
+ {
+@@ -2258,7 +2271,7 @@ NR_BCCH_DL_SCH_Message_t *get_SIB1_NR(const NR_ServingCellConfigCommon_t *scc,
+                                frequency_range);
+ 
+   LOG_I(NR_RRC,
+-	"SIB1 freq: offsetToPointA %d\n",
++        "SIB1 freq: offsetToPointA %d\n",
+         (int)sib1->servingCellConfigCommon->downlinkConfigCommon.frequencyInfoDL.offsetToPointA);
+   
+   for (int i = 0; i < frequencyInfoDL->scs_SpecificCarrierList.list.count; i++) {
+@@ -2843,7 +2856,7 @@ NR_CellGroupConfig_t *get_initial_cellGroupConfig(int uid,
+   cellGroupConfig->cellGroupId = 0;
+ 
+   /* Rlc Bearer Config */
+-  /* TS38.331 9.2.1	Default SRB configurations */
++  /* TS38.331 9.2.1     Default SRB configurations */
+   cellGroupConfig->rlc_BearerToAddModList = calloc(1, sizeof(*cellGroupConfig->rlc_BearerToAddModList));
+   NR_RLC_BearerConfig_t *rlc_BearerConfig =
+       get_SRB_RLC_BearerConfig(1, 1, NR_LogicalChannelConfig__ul_SpecificParameters__bucketSizeDuration_ms1000);

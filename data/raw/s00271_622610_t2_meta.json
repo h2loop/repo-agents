@@ -1,0 +1,9 @@
+{
+  "run_id": "s00271_622610",
+  "pr_text": "## Title: Fix LDPC queue priority inversion in DPDK bbdev configuration\n\n### Summary\nCorrect a scheduling priority inversion in the DPDK baseband device (bbdev) queue configuration where LDPC encoding operations were incorrectly assigned higher priority than decoding operations. In 5G systems, LDPC decoding latency is critical for downlink throughput and should be prioritized over encoding. The original code configured encoding queues first with priority 0 (highest) and decoding queues second wi",
+  "trajectory_path": "data/raw/s00271_622610_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00271_622610_p2.diff",
+  "patch_lines": 9,
+  "trajectory_steps": 20,
+  "timestamp": "2026-02-11T14:01:17Z"
+}

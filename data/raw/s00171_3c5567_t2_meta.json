@@ -1,0 +1,9 @@
+{
+  "run_id": "s00171_3c5567",
+  "pr_text": "## Title: Add NULL checks to prevent crashes in MMSE processing core\n\n### Summary\nThe `mmse_processing_core` function in the LTE UE PHY layer performs multiple dynamic memory allocations without checking for allocation failures. When memory is exhausted, `malloc()` returns NULL, leading to null pointer dereferences that crash the UE. This fix adds comprehensive NULL checks after each allocation and implements proper cleanup to prevent memory leaks when failures occur.\n\n### Changes\n- `openair1/PH",
+  "trajectory_path": "data/raw/s00171_3c5567_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00171_3c5567_p2.diff",
+  "patch_lines": 116,
+  "trajectory_steps": 22,
+  "timestamp": "2026-02-10T11:40:28Z"
+}

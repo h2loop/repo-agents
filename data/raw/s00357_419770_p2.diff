@@ -1,0 +1,38 @@
+diff --git a/openair2/LAYER2/rlc_v2/rlc_entity_um.c b/openair2/LAYER2/rlc_v2/rlc_entity_um.c
+index 06cd8c8cc4..2c5d36f5ae 100644
+--- a/openair2/LAYER2/rlc_v2/rlc_entity_um.c
++++ b/openair2/LAYER2/rlc_v2/rlc_entity_um.c
+@@ -69,18 +69,21 @@ static int rlc_um_pdu_received(rlc_entity_um_t *entity, int sn)
+   return 0;
+ }
+ 
+-static int less_than_vr_ur(rlc_entity_um_t *entity, int sn)
++static int less_than_vr_ur(void *_entity, int sn)
+ {
++  rlc_entity_um_t *entity = (rlc_entity_um_t *)_entity;
+   return sn_compare_rx(entity, sn, entity->vr_ur) < 0;
+ }
+ 
+-static int outside_of_reordering_window(rlc_entity_um_t *entity, int sn)
++static int outside_of_reordering_window(void *_entity, int sn)
+ {
++  rlc_entity_um_t *entity = (rlc_entity_um_t *)_entity;
+   return !sn_in_recv_window(entity, sn);
+ }
+ 
+-static int less_than_vr_uh(rlc_entity_um_t *entity, int sn)
++static int less_than_vr_uh(void *_entity, int sn)
+ {
++  rlc_entity_um_t *entity = (rlc_entity_um_t *)_entity;
+   return sn_compare_rx(entity, sn, entity->vr_uh) < 0;
+ }
+ 
+@@ -179,7 +182,7 @@ static void rlc_um_reassemble_pdu(rlc_entity_um_t *entity,
+ }
+ 
+ static void rlc_um_reassemble(rlc_entity_um_t *entity,
+-    int (*check_sn)(rlc_entity_um_t *entity, int sn))
++    int (*check_sn)(void *entity, int sn))
+ {
+   rlc_rx_pdu_segment_t *cur;
+ 

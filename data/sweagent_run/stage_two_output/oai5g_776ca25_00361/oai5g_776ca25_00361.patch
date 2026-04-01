@@ -1,0 +1,44 @@
+diff --git a/openair3/M3AP/m3ap_MME_management_procedures.c b/openair3/M3AP/m3ap_MME_management_procedures.c
+index 1225db2213..9193f28152 100644
+--- a/openair3/M3AP/m3ap_MME_management_procedures.c
++++ b/openair3/M3AP/m3ap_MME_management_procedures.c
+@@ -234,7 +234,7 @@ m3ap_MME_data_t  * m3ap_is_MME_id_in_list (const uint32_t MME_id)
+   return NULL;
+ }
+ 
+-m3ap_MME_data_t  * m3ap_is_MME_assoc_id_in_list (const uint32_t sctp_assoc_id)
++m3ap_MME_data_t  * m3ap_is_MME_assoc_id_in_list (const sctp_assoc_t sctp_assoc_id)
+ {
+   m3ap_MME_instance_t    *inst;
+   struct m3ap_MME_data_s *found;
+@@ -247,7 +247,7 @@ m3ap_MME_data_t  * m3ap_is_MME_assoc_id_in_list (const uint32_t sctp_assoc_id)
+     found = RB_FIND(m3ap_mme_map, &inst->m3ap_mme_head, &temp);
+     if (found != NULL){
+       if (found->assoc_id == sctp_assoc_id) {
+-	return found;
++        return found;
+       }
+     }
+   }
+diff --git a/openair3/M3AP/m3ap_MME_management_procedures.h b/openair3/M3AP/m3ap_MME_management_procedures.h
+index f45c856cb8..bc41668462 100644
+--- a/openair3/M3AP/m3ap_MME_management_procedures.h
++++ b/openair3/M3AP/m3ap_MME_management_procedures.h
+@@ -26,6 +26,8 @@
+  * \version 0.1
+  */
+ 
++#include "m3ap_MME_defs.h"
++
+ #ifndef __M3AP_MME_MANAGEMENT_PROCEDURES__H__
+ #define __M3AP_MME_MANAGEMENT_PROCEDURES__H__
+ 
+@@ -43,7 +45,7 @@ void m3ap_MME_prepare_internal_data(void);
+ 
+ m3ap_MME_data_t* m3ap_is_MME_id_in_list(uint32_t MME_id);
+ 
+-m3ap_MME_data_t* m3ap_is_MME_assoc_id_in_list(uint32_t sctp_assoc_id);
++m3ap_MME_data_t* m3ap_is_MME_assoc_id_in_list(sctp_assoc_t sctp_assoc_id);
+ 
+ m3ap_MME_data_t* m3ap_is_MME_pci_in_list (const uint32_t pci);
+ 

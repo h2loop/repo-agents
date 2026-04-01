@@ -1,0 +1,79 @@
+diff --git a/openair3/NAS/COMMON/EMM/MSG/ServiceReject.c b/openair3/NAS/COMMON/EMM/MSG/ServiceReject.c
+index 0f703871ca..127a75536c 100644
+--- a/openair3/NAS/COMMON/EMM/MSG/ServiceReject.c
++++ b/openair3/NAS/COMMON/EMM/MSG/ServiceReject.c
+@@ -43,6 +43,33 @@ int decode_service_reject(service_reject_msg *service_reject, uint8_t *buffer, u
+   else
+     decoded += decoded_result;
+ 
++  /* Decoding optional fields */
++  while(len - decoded > 0) {
++    uint8_t ieiDecoded = *(buffer + decoded);
++
++    /* Type | value iei are below 0x80 so just return the first 4 bits */
++    if (ieiDecoded >= 0x80)
++      ieiDecoded = ieiDecoded & 0xf0;
++
++    switch(ieiDecoded) {
++    case SERVICE_REJECT_T3442_VALUE_IEI:
++      if ((decoded_result =
++             decode_gprs_timer(&service_reject->t3442value,
++                               SERVICE_REJECT_T3442_VALUE_IEI, buffer + decoded,
++                               len - decoded)) <= 0)
++        return decoded_result;
++
++      decoded += decoded_result;
++      /* Set corresponding mask to 1 in presencemask */
++      service_reject->presencemask |= SERVICE_REJECT_T3442_VALUE_PRESENT;
++      break;
++
++    default:
++      errorCodeDecoder = TLV_DECODE_UNEXPECTED_IEI;
++      return TLV_DECODE_UNEXPECTED_IEI;
++    }
++  }
++
+   return decoded;
+ }
+ 
+@@ -60,11 +87,14 @@ int encode_service_reject(service_reject_msg *service_reject, uint8_t *buffer, u
+   else
+     encoded += encode_result;
+ 
+-  if ((encode_result = encode_gprs_timer(&service_reject->t3442value, 0,
+-                                         buffer + encoded, len - encoded)) < 0)        //Return in case of error
+-    return encode_result;
+-  else
+-    encoded += encode_result;
++  if ((service_reject->presencemask & SERVICE_REJECT_T3442_VALUE_PRESENT)
++      == SERVICE_REJECT_T3442_VALUE_PRESENT) {
++    if ((encode_result = encode_gprs_timer(&service_reject->t3442value,
++                                           SERVICE_REJECT_T3442_VALUE_IEI, buffer + encoded, len - encoded)) < 0)        //Return in case of error
++      return encode_result;
++    else
++      encoded += encode_result;
++  }
+ 
+   return encoded;
+ }
+diff --git a/openair3/NAS/COMMON/EMM/MSG/ServiceReject.h b/openair3/NAS/COMMON/EMM/MSG/ServiceReject.h
+index 67a0317afd..45de715db5 100644
+--- a/openair3/NAS/COMMON/EMM/MSG/ServiceReject.h
++++ b/openair3/NAS/COMMON/EMM/MSG/ServiceReject.h
+@@ -42,6 +42,16 @@
+     GPRS_TIMER_MAXIMUM_LENGTH )
+ 
+ 
++/* If an optional value is present and should be encoded, the corresponding
++ * Bit mask should be set to 1.
++ */
++# define SERVICE_REJECT_T3442_VALUE_PRESENT (1<<0)
++
++typedef enum service_reject_iei_tag {
++  SERVICE_REJECT_T3442_VALUE_IEI  = 0x5F, /* 0x5F = 95 - T3442 timer value IEI */
++} service_reject_iei;
++
++
+ /*
+  * Message name: Service reject
+  * Description: This message is sent by the network to the UE in order to reject the service request procedure. See table 8.2.24.1.

@@ -1,0 +1,76 @@
+diff --git a/openair3/NAS/UE/nas_proc.c b/openair3/NAS/UE/nas_proc.c
+index 3fdef5ce73..65ea0eec93 100644
+--- a/openair3/NAS/UE/nas_proc.c
++++ b/openair3/NAS/UE/nas_proc.c
+@@ -135,6 +135,8 @@ void nas_proc_cleanup(nas_user_t *user)
+     LOG_TRACE(ERROR, "NAS-PROC  - Failed to detach from the network");
+   }
+ 
++  /* Reset signal quality to unknown state */
++  nas_proc_reset_signal_quality(user);
+ 
+   /* Perform the EPS Mobility Manager's clean up procedure */
+   emm_main_cleanup(user);
+@@ -361,6 +363,30 @@ int nas_proc_get_signal_quality(nas_user_t *user, int *rsrq, int *rsrp)
+   LOG_FUNC_RETURN (RETURNok);
+ }
+ 
++/****************************************************************************
++ **                                                                        **
++ ** Name:    nas_proc_reset_signal_quality()                               **
++ **                                                                        **
++ ** Description: Reset the signal strength/quality parameters to unknown   **
++ **                                                                        **
++ ** Inputs:  user:      Pointer to the NAS user context            **
++ **      Others:    None                                       **
++ **                                                                        **
++ ** Outputs:     None                                                      **
++ **      Return:    None                                       **
++ **      Others:    user->proc.rsrq, user->proc.rsrp           **
++ **                                                                        **
++ ***************************************************************************/
++void nas_proc_reset_signal_quality(nas_user_t *user)
++{
++  LOG_FUNC_IN;
++
++  user->proc.rsrq = NAS_PROC_RSRQ_UNKNOWN;
++  user->proc.rsrp = NAS_PROC_RSRP_UNKNOWN;
++
++  LOG_FUNC_OUT;
++}
++
+ /****************************************************************************
+  **                                                                        **
+  ** Name:    nas_proc_register()                                       **
+@@ -580,6 +606,9 @@ int nas_proc_detach(nas_user_t *user, bool switch_off)
+     rc = emm_sap_send(user, &emm_sap);
+   }
+ 
++  /* Reset signal quality to unknown state since we're detaching */
++  nas_proc_reset_signal_quality(user);
++
+   LOG_FUNC_RETURN (rc);
+ }
+ 
+@@ -604,6 +633,9 @@ int nas_proc_attach(nas_user_t *user)
+   emm_sap_t emm_sap;
+   int rc = RETURNok;
+ 
++  /* Reset signal quality to unknown state before attaching */
++  nas_proc_reset_signal_quality(user);
++
+   if ( !emm_main_is_attached(user->emm_data) ) {
+     /* Initiate an Attach procedure */
+     emm_sap.primitive = EMMREG_ATTACH_INIT;
+diff --git a/openair3/NAS/UE/nas_proc.h b/openair3/NAS/UE/nas_proc.h
+index ec2a2ce2d6..7c8d842d28 100644
+--- a/openair3/NAS/UE/nas_proc.h
++++ b/openair3/NAS/UE/nas_proc.h
+@@ -80,6 +80,7 @@ int nas_proc_get_imsi(emm_data_t *emm_data, char *imsi_str);
+ int nas_proc_get_msisdn(nas_user_t *user, char *msisdn_str, int *ton_npi);
+ 
+ int nas_proc_get_signal_quality(nas_user_t *user, int *rsrq, int *rsrp);
++void nas_proc_reset_signal_quality(nas_user_t *user);
+ 
+ int nas_proc_register(nas_user_t *user, int mode, int format, const network_plmn_t *oper, int AcT);
+ int nas_proc_deregister(nas_user_t *user);

@@ -1,0 +1,31 @@
+{
+  "run_id": "s00009_3d4789",
+  "function": {
+    "name": "pack_rx_ulsch_indication_body_value",
+    "file": "nfapi/open-nFAPI/nfapi/src/nfapi_p7.c",
+    "start_line": 1788,
+    "end_line": 1861,
+    "body_lines": 74,
+    "signature": "static uint8_t pack_rx_ulsch_indication_body_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end)",
+    "subsystem": "nfapi/open-nFAPI/nfapi",
+    "token_estimate": 233
+  },
+  "bug": {
+    "bug_id": "telecom_timer_incorrect_duration",
+    "description": "protocol timer configured with incorrect duration violating 3GPP timing requirements",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a protocol timer configured with incorrect duration violating 3GPP timing requirements downstream of function pack_rx_ulsch_indication_body_value in the nfapi/open-nFAPI/nfapi subsystem.\nThe function is located at nfapi/open-nFAPI/nfapi/src/nfapi_p7.c:1788.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00009_3d4789_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00009_3d4789_p1.diff",
+  "patch_lines": 5,
+  "trajectory_steps": 45,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:31:45Z"
+}

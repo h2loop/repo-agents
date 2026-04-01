@@ -1,0 +1,164 @@
+'{"env":{"deployment":{"image":"oai5g-sera:ca119de","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_ca119de_00846","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix CRC32 lookup table initialization and calculation in PHY coding\n\n###
+  Summary\nThe CRC32 functions in the PHY coding module had two critical issues that
+  prevented proper operation. First, the `crc32_init_lut` function was declared in
+  the header but never implemented, causing link-time errors when users attempted
+  to initialize CRC32 lookup tables. Second, the `crc32_calc_lut` inline function
+  used an inconsistent calculation pattern that didn''t match the established conventions
+  in the codebase.\n\nThis fix implements the missing `crc32_init_lut` function and
+  corrects the calculation pattern in `crc32_calc_lut` to align with other CRC implementations.
+  Additionally, a complete CRC32 processing function `crc32` was added to provide
+  a built-in table-driven implementation similar to the existing CRC16/CRC24 functions.\n\n###
+  Changes\n- `openair1/PHY/CODING/crc.h`: Fixed calculation pattern in `crc32_calc_lut`
+  and added declaration for `crc32` function.\n- `openair1/PHY/CODING/crc_byte.c`:
+  Implemented `crc32_init_lut` function, added `crc32` table-driven function, and
+  integrated CRC32 table initialization into `crcTableInit`.\n\nWhen calling `crc32_calc_lut()`
+  with an uninitialized lookup table, the behavior was undefined due to missing table
+  initialization. After this fix, users can properly initialize CRC32 lookup tables
+  using `crc32_init_lut(0x04C11DB7, lut)` before calling `crc32_calc_lut()`.\n\n","extra_fields":{"bug_description":"format
+  string vulnerability where user-controlled data is passed as format argument","bug_id":"c_format_string_vulnerability","stage_one_patch":"diff
+  --git a/openair1/PHY/CODING/crc.h b/openair1/PHY/CODING/crc.h\nindex b65eacf0bb..f15f68e6d2
+  100644\n--- a/openair1/PHY/CODING/crc.h\n+++ b/openair1/PHY/CODING/crc.h\n@@ -147,6
+  +147,16 @@ uint16_t crc16_calc_lut(const uint8_t *data,\n  */\n void crc32_init_lut(const
+  uint32_t poly, uint32_t *lut);\n \n+/**\n+ * @brief Calculates 32 bit CRC.\n+ *\n+
+  * @param data pointer to data block to calculate CRC for\n+ * @param bitlen size
+  of data block in bits\n+ *\n+ * @return CRC value\n+ */\n+uint32_t crc32(unsigned
+  char* data, int bitlen);\n+\n /**\n  * @brief Calculates 32 bit CRC using LUT method.\n  *\n@@
+  -167,7 +177,7 @@ uint32_t crc32_calc_lut(const uint8_t *data,\n                 return
+  crc;\n \n         while (data_len--)\n-                crc = lut[(crc >> 24) ^ *data++]
+  ^ (crc << 8);\n+                crc = (crc << 8) ^ lut[(*data++) ^ (crc >> 24)];\n
+  \n         return crc;\n }\n@@ -310,7 +320,7 @@ simde__m128i crc32_folding_round(const
+  simde__m128i data_block,\n   simde__m128i tmp = _mm_clmulepi64_si128(fold, k1_k2,
+  0x11);\n \n   return simde_mm_xor_si128(_mm_clmulepi64_si128(fold, k1_k2, 0x00),
+  simde_mm_xor_si128(data_block, tmp));\n-#else\t\n+#else   \n         simde__m128i
+  tmp = simde_mm_clmulepi64_si128(fold, k1_k2, 0x11);\n \n         return simde_mm_xor_si128(simde_mm_clmulepi64_si128(fold,
+  k1_k2, 0x00),\n@@ -371,7 +381,7 @@ crc32_reduce_64_to_32(simde__m128i fold, const
+  simde__m128i k3_q, const simde__m\n                                     k3_q, 0x10
+  /* Q */);\n         temp = simde_mm_srli_si128(simde_mm_xor_si128(temp, fold), 4);\n         temp
+  = simde_mm_clmulepi64_si128(temp, p_res, 0 /* P */);\n-#endif\t\n+#endif  \n         return
+  simde_mm_extract_epi32(simde_mm_xor_si128(temp, fold), 0);\n }\n \ndiff --git a/openair1/PHY/CODING/crc_byte.c
+  b/openair1/PHY/CODING/crc_byte.c\nindex dd5712519a..00488e91b9 100644\n--- a/openair1/PHY/CODING/crc_byte.c\n+++
+  b/openair1/PHY/CODING/crc_byte.c\n@@ -43,6 +43,15 @@\n /* the highest degree is
+  set by default */\n \n \n+void crc32_init_lut(const uint32_t poly, uint32_t *lut)\n+{\n+  unsigned
+  char c = 0;\n+\n+  do {\n+    lut[c] = crcbit(&c, 1, poly);\n+  } while (++c);\n+}\n+\n
+  static const uint32_t poly24a =\n     0x864cfb00; // 1000 0110 0100 1100 1111 1011\n                 //
+  D^24 + D^23 + D^18 + D^17 + D^14 + D^11 + D^10 + D^7 + D^6 + D^5 + D^4 + D^3 + D
+  + 1\n@@ -98,6 +107,25 @@ static uint32_t crc12Table[256];\n static uint32_t crc11Table[256];\n
+  static uint32_t crc8Table[256];\n static uint32_t crc6Table[256];\n+static uint32_t
+  crc32Table[256];\n+\n+uint32_t crc32(unsigned char* inptr, int bitlen)\n+{\n+  int
+  octetlen, resbit;\n+  uint32_t crc = 0;\n+  octetlen = bitlen / 8;        /* Change
+  in octets */\n+  resbit = (bitlen % 8);\n+\n+  while (octetlen-- > 0) {\n+    crc
+  = (crc << 8) ^ crc32Table[(*inptr++) ^ (crc >> 24)];\n+  }\n+\n+  if (resbit > 0)
+  {\n+    crc = (crc << resbit) ^ crc32Table[((*inptr) >> (8 - resbit)) ^ (crc >>
+  (32 - resbit))];\n+  }\n+\n+  return crc;\n+}\n \n #if USE_INTEL_CRC\n static const
+  struct crc_pclmulqdq_ctx lte_crc24a_pclmulqdq __attribute__((aligned(16))) = {\n@@
+  -120,6 +148,7 @@ const uint8_t crc_xmm_shift_tab[48]\n void crcTableInit (void)\n
+  {\n   unsigned char c = 0;\n+  uint32_t poly32 = 0x04C11DB7; // Standard CRC32 polynomial\n
+  \n   do {\n     crc24aTable[c] = crcbit (&c, 1, poly24a);\n@@ -130,10 +159,11 @@
+  void crcTableInit (void)\n     crc11Table[c] = crcbit(&c, 1, poly11) >> 16;\n     crc8Table[c]
+  = crcbit(&c, 1, poly8) >> 24;\n     crc6Table[c] = crcbit(&c, 1, poly6) >> 24;\n+    crc32Table[c]
+  = crcbit(&c, 1, poly32);\n   } while (++c);\n #if defined(__SSE4_1__) || defined(__aarch64__)
+  \n     crc_xmm_be_le_swap128 = simde_mm_setr_epi32(0x0c0d0e0f, 0x08090a0b,\n-\t\t\t\t    \t        0x04050607,
+  0x00010203);\n+                                                0x04050607, 0x00010203);\n
+  \n #endif\n }\n@@ -342,7 +372,7 @@ int check_crc(uint8_t* decoded_bytes, uint32_t
+  n, uint8_t crc_type)\n   case CRC24_A:\n     oldcrc&=0x00ffffff;\n     crc = crc24a(decoded_bytes,\n-\t\t
+  n-24)>>8;\n+                 n-24)>>8;\n     \n     break;\n     \n@@ -390,11 +420,21
+  @@ int check_crc(uint8_t* decoded_bytes, uint32_t n, uint8_t crc_type)\n main()\n
+  {\n   unsigned char test[] = \"Thebigredfox\";\n+  uint32_t crc32_lut[256];\n+  \n   crcTableInit();\n-  printf(\"%x\\n\",
+  crcbit(test, sizeof(test) - 1, poly24a));\n-  printf(\"%x\\n\", crc24(test, (sizeof(test)
+  - 1)*8));\n-  printf(\"%x\\n\", crcbit(test, sizeof(test) - 1, poly8));\n-  printf(\"%x\\n\",
+  crc8(test, (sizeof(test) - 1)*8));\n+  \n+  // Test existing functions\n+  printf(\"CRC24A
+  bit: %x\\n\", crcbit(test, sizeof(test) - 1, poly24a));\n+  printf(\"CRC24A lut:
+  %x\\n\", crc24a(test, (sizeof(test) - 1)*8));\n+  printf(\"CRC8 bit: %x\\n\", crcbit(test,
+  sizeof(test) - 1, poly8));\n+  printf(\"CRC8 lut: %x\\n\", crc8(test, (sizeof(test)
+  - 1)*8));\n+  \n+  // Test CRC32\n+  crc32_init_lut(0x04C11DB7, crc32_lut);\n+  printf(\"CRC32
+  lut generic: %x\\n\", crc32_calc_lut(test, sizeof(test) - 1, 0, crc32_lut));\n+  printf(\"CRC32
+  lut built-in: %x\\n\", crc32(test, (sizeof(test) - 1)*8));\n+  printf(\"CRC32 bit:
+  %x\\n\", crcbit(test, sizeof(test) - 1, 0x04C11DB7));\n }\n #endif\n \n","start_fn":"crc32_calc_lut","start_fn_file":"openair1/PHY/CODING/crc.h","subsystem":"openair1/PHY/CODING"},"type":"text","id":"oai5g_ca119de_00846"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

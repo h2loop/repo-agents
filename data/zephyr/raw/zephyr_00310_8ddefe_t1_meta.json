@@ -1,0 +1,26 @@
+{
+  "run_id": "zephyr_00310_8ddefe",
+  "function": {
+    "name": "unicast_client_stop_cb",
+    "file": "tests/bluetooth/tester/src/audio/btp_bap_unicast.c",
+    "start_line": 934,
+    "end_line": 945,
+    "body_lines": 12,
+    "signature": "static void unicast_client_stop_cb(struct bt_bap_stream *stream, enum bt_bap_ascs_rsp_code rsp_code, enum bt_bap_ascs_reason reason)",
+    "subsystem": "tests/bluetooth/tester",
+    "token_estimate": 39
+  },
+  "bug": {
+    "bug_id": "c_race_condition",
+    "description": "race condition on shared data accessed from multiple threads without synchronization",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a race condition on shared data accessed from multiple threads without synchronization downstream of function unicast_client_stop_cb in the tests/bluetooth/tester subsystem.\nThe function is located at tests/bluetooth/tester/src/audio/btp_bap_unicast.c:934.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 61,
+  "trajectory_steps": 70,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T15:57:46Z"
+}

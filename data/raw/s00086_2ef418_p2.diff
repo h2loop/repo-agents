@@ -1,0 +1,56 @@
+diff --git a/openair3/NAS/TEST/AS_SIMULATOR/as_data.c b/openair3/NAS/TEST/AS_SIMULATOR/as_data.c
+index 56b00125a4..486a3ccf38 100644
+--- a/openair3/NAS/TEST/AS_SIMULATOR/as_data.c
++++ b/openair3/NAS/TEST/AS_SIMULATOR/as_data.c
+@@ -66,12 +66,15 @@ Description Defines constants and functions used by the AS simulator
+  */
+ const char* getTime(void)
+ {
+-#define TIME_BUFFER_SIZE  16
++#define TIME_BUFFER_SIZE  32
+   static char time_buffer[TIME_BUFFER_SIZE];
+   struct timespec ts;
+ 
+-  clock_gettime (CLOCK_REALTIME, &ts);
+-  snprintf(time_buffer, TIME_BUFFER_SIZE, "%.6ld:%.6ld",
++  if (clock_gettime (CLOCK_REALTIME, &ts) != 0) {
++    snprintf(time_buffer, TIME_BUFFER_SIZE, "0:000000");
++    return (time_buffer);
++  }
++  snprintf(time_buffer, TIME_BUFFER_SIZE, "%ld:%06ld",
+            ts.tv_sec % 3600, ts.tv_nsec / 1000);
+   return (time_buffer);
+ }
+diff --git a/openair3/NAS/TEST/AS_SIMULATOR/as_process.c b/openair3/NAS/TEST/AS_SIMULATOR/as_process.c
+index 740c67b1e0..c217b58d0e 100644
+--- a/openair3/NAS/TEST/AS_SIMULATOR/as_process.c
++++ b/openair3/NAS/TEST/AS_SIMULATOR/as_process.c
+@@ -166,6 +166,9 @@ int process_nas_establish_req(int msg_id, const nas_establish_req_t* req,
+   /* Setup NAS signalling connection establishment indication message */
+   ind->UEid = 1;  // Valid UEid starts at index 1
+   ind->tac = DEFAULT_TAC;
++  ind->asCause = req->cause;
++  ind->initialNasMsg.length = 0;
++  ind->initialNasMsg.data = NULL;
+ 
+   if (req->initialNasMsg.length > 0) {
+     ind->initialNasMsg.data = malloc(req->initialNasMsg.length);
+@@ -234,6 +237,8 @@ int process_ul_info_transfer_req(int msg_id, const ul_info_transfer_req_t* req,
+ 
+   /* Setup uplink information indication message */
+   ind->UEid = 1;  // Valid UEid starts at index 1
++  ind->nasMsg.length = 0;
++  ind->nasMsg.data = NULL;
+ 
+   if (req->nasMsg.length > 0) {
+     ind->nasMsg.data = malloc(req->nasMsg.length);
+@@ -377,6 +382,9 @@ int process_dl_info_transfer_req(int msg_id, const dl_info_transfer_req_t* req,
+   }
+ 
+   /* Setup downlink information indication message */
++  ind->nasMsg.length = 0;
++  ind->nasMsg.data = NULL;
++  
+   if (req->nasMsg.length > 0) {
+     ind->nasMsg.data = malloc(req->nasMsg.length);
+ 

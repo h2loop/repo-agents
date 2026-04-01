@@ -1,0 +1,9 @@
+{
+  "run_id": "s00496_c0daa0",
+  "pr_text": "## Title: Fix implicit double-to-uint32_t cast in PUCCH group sequence hopping\n\n### Summary\nRemove unnecessary `floor()` calls in `nr_group_sequence_hopping()` that caused implicit type casting from double to uint32_t. The function calculates initialization values for PUCCH group hopping using integer division on a uint32_t parameter, but was wrapping the division with `floor()`, which returns a double. Since integer division of unsigned integers already truncates toward zero, the `floor()` call",
+  "trajectory_path": "data/raw/s00496_c0daa0_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00496_c0daa0_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 24,
+  "timestamp": "2026-02-10T13:40:12Z"
+}

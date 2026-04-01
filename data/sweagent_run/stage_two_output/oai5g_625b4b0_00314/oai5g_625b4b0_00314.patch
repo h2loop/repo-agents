@@ -1,0 +1,44 @@
+diff --git a/openair1/PHY/NR_TRANSPORT/nr_ulsch.c b/openair1/PHY/NR_TRANSPORT/nr_ulsch.c
+index 352967c7f5..f9dd021f42 100644
+--- a/openair1/PHY/NR_TRANSPORT/nr_ulsch.c
++++ b/openair1/PHY/NR_TRANSPORT/nr_ulsch.c
+@@ -31,6 +31,7 @@
+ */
+ 
+ #include <stdint.h>
++#include "common/utils/LOG/log.h"
+ #include "PHY/NR_TRANSPORT/nr_transport_common_proto.h"
+ #include "PHY/NR_TRANSPORT/nr_ulsch.h"
+ 
+@@ -110,6 +111,22 @@ void nr_ulsch_unscrambling(int16_t* llr, uint32_t size, uint32_t Nid, uint32_t n
+ 
+ void nr_ulsch_layer_demapping(int16_t *llr_cw, uint8_t Nl, uint8_t mod_order, uint32_t length, int16_t **llr_layers)
+ {
++  // Safety checks for invalid parameters that could cause division by zero
++  if (Nl == 0) {
++    LOG_W(NR_PHY, "Invalid number of layers (Nl=0), skipping layer demapping\n");
++    return;
++  }
++  
++  if (mod_order == 0) {
++    LOG_W(NR_PHY, "Invalid modulation order (mod_order=0), skipping layer demapping\n");
++    return;
++  }
++
++  // Check for length divisibility issues that could cause data corruption
++  uint32_t divisor = (uint32_t)Nl * mod_order;
++  if (length % divisor != 0) {
++    LOG_W(NR_PHY, "Length (%u) is not divisible by Nl*mod_order (%u), potential data corruption\n", length, divisor);
++  }
+ 
+   switch (Nl) {
+     case 1:
+@@ -118,6 +135,8 @@ void nr_ulsch_layer_demapping(int16_t *llr_cw, uint8_t Nl, uint8_t mod_order, ui
+     case 2:
+     case 3:
+     case 4:
++      // Layer demapping for multiple layers
++      // Each layer contributes mod_order bits to form a codeword of length bits
+       for (int i=0; i<(length/Nl/mod_order); i++) {
+         for (int l=0; l<Nl; l++) {
+           for (int m=0; m<mod_order; m++) {

@@ -1,0 +1,98 @@
+diff --git a/openair2/X2AP/x2ap_eNB_handler.c b/openair2/X2AP/x2ap_eNB_handler.c
+index 09661149a4..f0a9131897 100644
+--- a/openair2/X2AP/x2ap_eNB_handler.c
++++ b/openair2/X2AP/x2ap_eNB_handler.c
+@@ -27,6 +27,7 @@
+  */
+ 
+ #include <stdint.h>
++#include <pthread.h>
+ 
+ #include "intertask_interface.h"
+ 
+@@ -43,6 +44,9 @@
+ #include "conversions.h"
+ #include "X2AP_FreqBandNrItem.h"
+ 
++/* External mutex for thread-safe access to id_manager */
++extern pthread_mutex_t mutex;
++
+ static int x2ap_eNB_handle_x2_setup_request(instance_t instance, sctp_assoc_t assoc_id, uint32_t stream, X2AP_X2AP_PDU_t *pdu);
+ static int x2ap_eNB_handle_x2_setup_response(instance_t instance, sctp_assoc_t assoc_id, uint32_t stream, X2AP_X2AP_PDU_t *pdu);
+ static int x2ap_eNB_handle_x2_reset_request(instance_t instance, sctp_assoc_t assoc_id, uint32_t stream, X2AP_X2AP_PDU_t *pdu);
+@@ -1037,6 +1041,7 @@ static int x2ap_eNB_handle_ue_context_release(instance_t instance, sctp_assoc_t
+   int                                 ue_id;
+   int                                 id_source;
+   int                                 id_target;
++  int                                 mutex_unlock_needed = 0;
+ 
+   DevAssert (pdu != NULL);
+   x2UEContextRelease = &pdu->choice.initiatingMessage.value.choice.UEContextRelease;
+@@ -1055,6 +1060,13 @@ static int x2ap_eNB_handle_ue_context_release(instance_t instance, sctp_assoc_t
+   instance_p = x2ap_eNB_get_instance(instance);
+   DevAssert(instance_p != NULL);
+ 
++  /* Acquire mutex before accessing id_manager */
++  if (pthread_mutex_lock(&mutex)) {
++    X2AP_ERROR("Failed to acquire mutex for id_manager access\n");
++    return -1;
++  }
++  mutex_unlock_needed = 1;
++
+   msg = itti_alloc_new_message(TASK_X2AP, 0, X2AP_UE_CONTEXT_RELEASE);
+ 
+   X2AP_FIND_PROTOCOLIE_BY_ID(X2AP_UEContextRelease_IEs_t, ie, x2UEContextRelease,
+@@ -1063,6 +1075,9 @@ static int x2ap_eNB_handle_ue_context_release(instance_t instance, sctp_assoc_t
+   if (ie == NULL ) {
+     X2AP_ERROR("%s %d: ie is a NULL pointer \n",__FILE__,__LINE__);
+     itti_free(ITTI_MSG_ORIGIN_ID(msg), msg);
++    if (pthread_mutex_unlock(&mutex)) {
++      X2AP_ERROR("Failed to release mutex\n");
++    }
+     return -1;
+   }
+ 
+@@ -1074,6 +1089,9 @@ static int x2ap_eNB_handle_ue_context_release(instance_t instance, sctp_assoc_t
+   if (ie == NULL ) {
+     X2AP_ERROR("%s %d: ie is a NULL pointer \n",__FILE__,__LINE__);
+     itti_free(ITTI_MSG_ORIGIN_ID(msg), msg);
++    if (pthread_mutex_unlock(&mutex)) {
++      X2AP_ERROR("Failed to release mutex\n");
++    }
+     return -1;
+   }
+ 
+@@ -1084,6 +1102,9 @@ static int x2ap_eNB_handle_ue_context_release(instance_t instance, sctp_assoc_t
+     X2AP_WARN("incorrect/unknown X2AP IDs for UE (old ID %d new ID %d), ignoring UE context release\n",
+               id_source, id_target);
+     itti_free(ITTI_MSG_ORIGIN_ID(msg), msg);
++    if (pthread_mutex_unlock(&mutex)) {
++      X2AP_ERROR("Failed to release mutex\n");
++    }
+     return 0;
+   }
+ 
+@@ -1094,6 +1115,9 @@ static int x2ap_eNB_handle_ue_context_release(instance_t instance, sctp_assoc_t
+                x2ap_id_get_id_target(&instance_p->id_manager, ue_id),
+                id_target);
+     itti_free(ITTI_MSG_ORIGIN_ID(msg), msg);
++    if (pthread_mutex_unlock(&mutex)) {
++      X2AP_ERROR("Failed to release mutex\n");
++    }
+     return 0;
+   }
+ 
+@@ -1103,6 +1127,13 @@ static int x2ap_eNB_handle_ue_context_release(instance_t instance, sctp_assoc_t
+ 
+   x2ap_release_id(&instance_p->id_manager, ue_id);
+ 
++  /* Release mutex */
++  if (pthread_mutex_unlock(&mutex)) {
++    X2AP_ERROR("Failed to release mutex\n");
++    return -1;
++  }
++  mutex_unlock_needed = 0;
++
+   return 0;
+ }
+ 

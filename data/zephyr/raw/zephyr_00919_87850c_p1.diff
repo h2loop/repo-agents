@@ -1,0 +1,32 @@
+diff --git a/subsys/bluetooth/mesh/blob_cli.c b/subsys/bluetooth/mesh/blob_cli.c
+index f5aae195..bed3c8ea 100644
+--- a/subsys/bluetooth/mesh/blob_cli.c
++++ b/subsys/bluetooth/mesh/blob_cli.c
+@@ -1291,6 +1291,13 @@ static int handle_block_report(const struct bt_mesh_model *mod, struct bt_mesh_m
+ 		return -EINVAL;
+ 	}
+ 
++	if (cli->state != BT_MESH_BLOB_CLI_STATE_BLOCK_START &&
++	    cli->state != BT_MESH_BLOB_CLI_STATE_BLOCK_SEND &&
++	    cli->state != BT_MESH_BLOB_CLI_STATE_BLOCK_CHECK) {
++		LOG_WRN("Invalid state for block report: %d", cli->state);
++		return -EBUSY;
++	}
++
+ 	if (cli->xfer->mode == BT_MESH_BLOB_XFER_MODE_PUSH) {
+ 		LOG_WRN("Unexpected encoded block report in push mode");
+ 		return -EINVAL;
+@@ -1340,6 +1347,13 @@ static int handle_block_status(const struct bt_mesh_model *mod, struct bt_mesh_m
+ 	size_t len;
+ 	int idx;
+ 
++	if (cli->state != BT_MESH_BLOB_CLI_STATE_BLOCK_START &&
++	    cli->state != BT_MESH_BLOB_CLI_STATE_BLOCK_SEND &&
++	    cli->state != BT_MESH_BLOB_CLI_STATE_BLOCK_CHECK) {
++		LOG_WRN("Invalid state for block status: %d", cli->state);
++		return -EBUSY;
++	}
++
+ 	target = target_get(cli, ctx->addr);
+ 	if (!target) {
+ 		return -ENOENT;

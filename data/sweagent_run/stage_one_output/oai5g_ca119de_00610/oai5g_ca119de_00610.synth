@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix missing null terminator in UL config string conversion functions\n\n### Summary\nThe NR UE MAC layer contained a potential null terminator issue in string conversion functions that could lead to out-of-bounds reads when processing UL configuration requests. The bug manifested during debugging sessions when string representations of config requests were generated for logging purposes.\n\nThe issue was caused by string buffers allocated with malloc() not being explicitly null-terminated in all code paths, particularly when the buffer was completely filled during string concatenation operations.\n\n### Changes\n- `openair2/PHY_INTERFACE/phy_stub_UE.c`: Added explicit null termination and NULL checks in nfapi_ul_config_req_to_string() and nfapi_dl_config_req_to_string() functions.\n\n"
+}

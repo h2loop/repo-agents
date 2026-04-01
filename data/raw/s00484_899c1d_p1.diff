@@ -1,0 +1,13 @@
+diff --git a/openair2/LAYER2/rlc_v2/rlc_entity.c b/openair2/LAYER2/rlc_v2/rlc_entity.c
+index d774e2b7e1..cbcda02e6f 100644
+--- a/openair2/LAYER2/rlc_v2/rlc_entity.c
++++ b/openair2/LAYER2/rlc_v2/rlc_entity.c
+@@ -105,7 +105,7 @@ rlc_entity_t *new_rlc_entity_um(
+   ret = calloc(1, sizeof(rlc_entity_um_t));
+   if (ret == NULL) {
+     LOG_E(RLC, "%s:%d:%s: out of memory\n", __FILE__, __LINE__, __FUNCTION__);
+-    exit(1);
++    return NULL;
+   }
+ 
+   ret->common.recv_pdu      = rlc_entity_um_recv_pdu;

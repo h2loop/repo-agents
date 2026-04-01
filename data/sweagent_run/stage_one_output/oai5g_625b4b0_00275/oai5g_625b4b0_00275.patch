@@ -1,0 +1,70 @@
+diff --git a/openair2/RRC/NR/nr_rrc_config.c b/openair2/RRC/NR/nr_rrc_config.c
+index 9bbd4f38b7..15e068f2b9 100644
+--- a/openair2/RRC/NR/nr_rrc_config.c
++++ b/openair2/RRC/NR/nr_rrc_config.c
+@@ -33,6 +33,7 @@
+ #include "common/utils/nr/nr_common.h"
+ #include "openair2/LAYER2/NR_MAC_gNB/nr_mac_gNB.h"
+ #include "executables/softmodem-common.h"
++#include "common/utils/LOG/log.h"
+ #include "oai_asn1.h"
+ #include "SIMULATION/TOOLS/sim.h" // for taus();
+ 
+@@ -513,7 +514,7 @@ static void config_csiim(int do_csirs,
+ void set_dl_maxmimolayers(NR_PDSCH_ServingCellConfig_t *pdsch_servingcellconfig,
+                           const NR_ServingCellConfigCommon_t *scc,
+                           const NR_UE_NR_Capability_t *uecap,
+-			  int maxMIMO_layers)
++                          int maxMIMO_layers)
+ {
+ 
+   if(!pdsch_servingcellconfig->ext1)
+@@ -536,7 +537,20 @@ void set_dl_maxmimolayers(NR_PDSCH_ServingCellConfig_t *pdsch_servingcellconfig,
+       if (scs == dl_fs->supportedSubcarrierSpacingDL &&
+           supported_bw_comparison(bw_mhz, &dl_fs->supportedBandwidthDL, dl_fs->channelBW_90mhz) &&
+           dl_fs->maxNumberMIMO_LayersPDSCH) {
+-        long ue_supported_layers = (2 << *dl_fs->maxNumberMIMO_LayersPDSCH);
++        // MIMO-LayersDL ::= ENUMERATED {twoLayers, fourLayers, eightLayers}
++        // twoLayers=0 (2 layers), fourLayers=1 (4 layers), eightLayers=2 (8 layers)
++        long ue_supported_layers_enum = *dl_fs->maxNumberMIMO_LayersPDSCH;
++        if (ue_supported_layers_enum < 0 || ue_supported_layers_enum > 2) {
++          LOG_E(NR_RRC, "Invalid maxNumberMIMO_LayersPDSCH value: %ld\n", ue_supported_layers_enum);
++          *pdsch_servingcellconfig->ext1->maxMIMO_Layers = 2;
++          return;
++        }
++        long ue_supported_layers = (2 << ue_supported_layers_enum);
++        // Add bounds checking for maxMIMO_layers parameter as well
++        if (maxMIMO_layers != -1 && (maxMIMO_layers < 1 || maxMIMO_layers > 8)) {
++          LOG_E(NR_RRC, "Invalid maxMIMO_layers parameter: %d\n", maxMIMO_layers);
++          maxMIMO_layers = -1; // Fall back to using UE supported layers only
++        }
+         if (maxMIMO_layers == -1) 
+           *pdsch_servingcellconfig->ext1->maxMIMO_Layers = NR_MAX_SUPPORTED_DL_LAYERS < ue_supported_layers ? NR_MAX_SUPPORTED_DL_LAYERS : ue_supported_layers;
+         else 
+@@ -1204,7 +1218,7 @@ static void set_dl_mcs_table(int scs,
+ }
+ 
+ static struct NR_SetupRelease_PUSCH_Config *config_pusch(NR_PUSCH_Config_t *pusch_Config,
+-							 const bool use_deltaMCS,
++                                                         const bool use_deltaMCS,
+                                                          const NR_ServingCellConfigCommon_t *scc,
+                                                          const NR_UE_NR_Capability_t *uecap)
+ {
+@@ -2258,7 +2272,7 @@ NR_BCCH_DL_SCH_Message_t *get_SIB1_NR(const NR_ServingCellConfigCommon_t *scc,
+                                frequency_range);
+ 
+   LOG_I(NR_RRC,
+-	"SIB1 freq: offsetToPointA %d\n",
++        "SIB1 freq: offsetToPointA %d\n",
+         (int)sib1->servingCellConfigCommon->downlinkConfigCommon.frequencyInfoDL.offsetToPointA);
+   
+   for (int i = 0; i < frequencyInfoDL->scs_SpecificCarrierList.list.count; i++) {
+@@ -2843,7 +2857,7 @@ NR_CellGroupConfig_t *get_initial_cellGroupConfig(int uid,
+   cellGroupConfig->cellGroupId = 0;
+ 
+   /* Rlc Bearer Config */
+-  /* TS38.331 9.2.1	Default SRB configurations */
++  /* TS38.331 9.2.1     Default SRB configurations */
+   cellGroupConfig->rlc_BearerToAddModList = calloc(1, sizeof(*cellGroupConfig->rlc_BearerToAddModList));
+   NR_RLC_BearerConfig_t *rlc_BearerConfig =
+       get_SRB_RLC_BearerConfig(1, 1, NR_LogicalChannelConfig__ul_SpecificParameters__bucketSizeDuration_ms1000);

@@ -1,0 +1,57 @@
+diff --git a/openair2/E1AP/e1ap.c b/openair2/E1AP/e1ap.c
+index 6c33ddf973..292193aaf0 100644
+--- a/openair2/E1AP/e1ap.c
++++ b/openair2/E1AP/e1ap.c
+@@ -33,6 +33,7 @@
+ #include "openair2/F1AP/f1ap_common.h"
+ #include "e1ap_default_values.h"
+ #include "gtp_itf.h"
++#include "common/utils/ocp_itti/intertask_interface.h"
+ 
+ #define E1AP_NUM_MSG_HANDLERS 14
+ typedef int (*e1ap_message_processing_t)(e1ap_upcp_inst_t *inst, const E1AP_E1AP_PDU_t *message_p);
+@@ -107,7 +108,7 @@ void e1_task_handle_sctp_data_ind(instance_t instance, sctp_data_ind_t *sctp_dat
+ }
+ 
+ void e1ap_itti_send_sctp_close_association(bool isCu, instance_t instance) {
+-  MessageDef *message = itti_alloc_new_message(TASK_S1AP, 0, SCTP_CLOSE_ASSOCIATION);
++  MessageDef *message = itti_alloc_new_message(TASK_S1AP, INSTANCE_DEFAULT, SCTP_CLOSE_ASSOCIATION);
+   sctp_close_association_t *sctp_close_association = &message->ittiMsg.sctp_close_association;
+   sctp_close_association->assoc_id      = e1ap_assoc_id(isCu,instance);
+   itti_send_msg_to_task(TASK_SCTP, instance, message);
+@@ -322,7 +323,7 @@ int e1apCUCP_handle_SETUP_REQUEST(e1ap_upcp_inst_t *inst, const E1AP_E1AP_PDU_t
+   DevAssert(pdu != NULL);
+   extract_SETUP_REQUEST(pdu, &inst->setupReq);
+   /* Create ITTI message and send to queue */
+-  MessageDef *msg_p = itti_alloc_new_message(TASK_CUCP_E1, 0 /*unused by callee*/, E1AP_SETUP_REQ);
++  MessageDef *msg_p = itti_alloc_new_message(TASK_CUCP_E1, INSTANCE_DEFAULT /*unused by callee*/, E1AP_SETUP_REQ);
+   memcpy(&E1AP_SETUP_REQ(msg_p), &inst->setupReq, sizeof(e1ap_setup_req_t));
+ 
+   if (inst->setupReq.supported_plmns > 0) {
+@@ -1054,7 +1055,7 @@ int e1apCUCP_handle_BEARER_CONTEXT_SETUP_RESPONSE(e1ap_upcp_inst_t *inst, const
+   DevAssert(pdu->choice.successfulOutcome->criticality == E1AP_Criticality_reject);
+   DevAssert(pdu->choice.successfulOutcome->value.present == E1AP_SuccessfulOutcome__value_PR_BearerContextSetupResponse);
+ 
+-  MessageDef *msg = itti_alloc_new_message(TASK_CUCP_E1, 0, E1AP_BEARER_CONTEXT_SETUP_RESP);
++  MessageDef *msg = itti_alloc_new_message(TASK_CUCP_E1, INSTANCE_DEFAULT, E1AP_BEARER_CONTEXT_SETUP_RESP);
+   e1ap_bearer_setup_resp_t *bearerCxt = &E1AP_BEARER_CONTEXT_SETUP_RESP(msg);
+   extract_BEARER_CONTEXT_SETUP_RESPONSE(pdu, bearerCxt);
+   // Fixme: instance is the NGAP instance, no good way to set it here
+@@ -1525,7 +1526,7 @@ static void e1_task_send_sctp_association_req(long task_id, instance_t instance,
+ {
+   DevAssert(e1ap_setup_req != NULL);
+   getCxtE1(instance)->sockState = SCTP_STATE_CLOSED;
+-  MessageDef *message_p = itti_alloc_new_message(task_id, 0, SCTP_NEW_ASSOCIATION_REQ);
++  MessageDef *message_p = itti_alloc_new_message(task_id, INSTANCE_DEFAULT, SCTP_NEW_ASSOCIATION_REQ);
+   sctp_new_association_req_t *sctp_new_req = &message_p->ittiMsg.sctp_new_association_req;
+   sctp_new_req->ulp_cnx_id = instance;
+   sctp_new_req->port = E1AP_PORT_NUMBER;
+@@ -1604,7 +1605,7 @@ void cuup_init_n3(instance_t instance)
+ void cucp_task_send_sctp_init_req(instance_t instance, char *my_addr) {
+   LOG_I(E1AP, "E1AP_CUCP_SCTP_REQ(create socket)\n");
+   MessageDef  *message_p = NULL;
+-  message_p = itti_alloc_new_message (TASK_CUCP_E1, 0, SCTP_INIT_MSG);
++  message_p = itti_alloc_new_message (TASK_CUCP_E1, INSTANCE_DEFAULT, SCTP_INIT_MSG);
+   message_p->ittiMsg.sctp_init.port = E1AP_PORT_NUMBER;
+   message_p->ittiMsg.sctp_init.ppid = E1AP_SCTP_PPID;
+   message_p->ittiMsg.sctp_init.ipv4 = 1;

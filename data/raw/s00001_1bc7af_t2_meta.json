@@ -1,0 +1,9 @@
+{
+  "run_id": "s00001_1bc7af",
+  "pr_text": "## Title: Fix unreachable code in LDPC encoder due to incorrect conditional include logic\n\n### Summary\nThe NR LDPC encoder contained unreachable code in the Zc=224 codepath due to incorrect conditional compilation logic. Both `ldpc224_byte.c` (AVX2 implementation) and `ldpc224_byte_128.c` (SSE implementation) were unconditionally included in `ldpc_encode_parity_check.c`, but each file contains preprocessor guards that prevent compilation under opposing build configurations. This resulted in one ",
+  "trajectory_path": "data/raw/s00001_1bc7af_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00001_1bc7af_p2.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 26,
+  "timestamp": "2026-02-10T10:17:18Z"
+}

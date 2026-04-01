@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect SIMD indexing in LDPC encoder for 128-bit builds\n\n### Summary\nThe LDPC encoder for BG2 Zc=160 was producing incorrect parity bits when compiled for 128-bit SIMD targets. This caused CRC errors in downlink transmission at low code rates where LDPC coding gain is most critical.\n\nThe root cause was incorrect memory indexing in the 128-bit version of the encoder function. Due to the difference in SIMD register width (128-bit vs 256-bit), the indexing calculations needed to be scaled accordingly but were not.\n\n### Changes\n- `openair1/PHY/CODING/nrLDPC_encoder/ldpc_BG2_Zc160_byte_128.c`: Corrected all c2[] array indices to properly map to the same logical memory locations as the 256-bit version.\n\n"
+}

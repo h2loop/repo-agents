@@ -1,0 +1,29 @@
+{
+  "run_id": "s00223_51e885",
+  "function": {
+    "name": "_process_establish_req",
+    "file": "openair3/NAS/TEST/NETWORK/network_simulator.c",
+    "start_line": 471,
+    "end_line": 573,
+    "body_lines": 103,
+    "signature": "static int _process_establish_req(const nas_establish_req_t* req, nas_establish_cnf_t* rsp)",
+    "subsystem": "openair3/NAS/TEST",
+    "token_estimate": 326
+  },
+  "bug": {
+    "bug_id": "telecom_crc_error",
+    "description": "CRC computation or checking error causing false positive or missed error detection",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a CRC computation or checking error causing false positive or missed error detection downstream of function _process_establish_req in the openair3/NAS/TEST subsystem.\nThe function is located at openair3/NAS/TEST/NETWORK/network_simulator.c:471.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00223_51e885_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00223_51e885_p1.diff",
+  "patch_lines": 32,
+  "trajectory_steps": 29,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:27:03Z"
+}

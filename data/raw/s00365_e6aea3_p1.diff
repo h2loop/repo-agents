@@ -1,0 +1,141 @@
+diff --git a/openair3/NAS/NR_UE/ue_process_nas.c b/openair3/NAS/NR_UE/ue_process_nas.c
+index a89a07218e..1d9ae24ce8 100644
+--- a/openair3/NAS/NR_UE/ue_process_nas.c
++++ b/openair3/NAS/NR_UE/ue_process_nas.c
+@@ -22,6 +22,9 @@
+  */
+ #include <openair3/NAS/COMMON/NR_NAS_defs.h>
+ #include <openair3/SECU/secu_defs.h>
++#include <openair3/NAS/UE/EMM/emmData.h>
++#include <openair3/NAS/COMMON/UTIL/nas_timer.h>
++#include <openair3/NAS/UE/EMM/emm_timers.h>
+ 
+ 
+ void SGSabortNet(void *msg, nr_user_nas_t *UE) {
+@@ -30,6 +33,44 @@ void SGSabortNet(void *msg, nr_user_nas_t *UE) {
+ void ue_nas_schedule(void) {
+ }
+ 
++/*
++ * Stop all running 5GMM timers as per 3GPP TS 24.501 protocol requirements
++ * This function should be called when authentication is rejected
++ */
++static void _stop_all_running_timers(nr_user_nas_t *UE) {
++  LOG_I(NAS, "Stopping all running 5GMM timers due to authentication reject\n");
++  
++  /* Stop T3510 - Registration timer */
++  if (UE->emm_data && UE->emm_data->T3510.id != NAS_TIMER_INACTIVE_ID) {
++    LOG_I(NAS, "Stopping timer T3510 (%d)\n", UE->emm_data->T3510.id);
++    UE->emm_data->T3510.id = nas_timer_stop(UE->emm_data->T3510.id);
++  }
++  
++  /* Stop T3516 - Authentication timer */
++  if (UE->emm_data && UE->emm_data->T3516.id != NAS_TIMER_INACTIVE_ID) {
++    LOG_I(NAS, "Stopping timer T3516 (%d)\n", UE->emm_data->T3516.id);
++    UE->emm_data->T3516.id = nas_timer_stop(UE->emm_data->T3516.id);
++  }
++  
++  /* Stop T3517 - Service request timer */
++  if (UE->emm_data && UE->emm_data->T3517.id != NAS_TIMER_INACTIVE_ID) {
++    LOG_I(NAS, "Stopping timer T3517 (%d)\n", UE->emm_data->T3517.id);
++    UE->emm_data->T3517.id = nas_timer_stop(UE->emm_data->T3517.id);
++  }
++  
++  /* Stop T3519 - De-registration timer */
++  if (UE->emm_data && UE->emm_data->T3519.id != NAS_TIMER_INACTIVE_ID) {
++    LOG_I(NAS, "Stopping timer T3519 (%d)\n", UE->emm_data->T3519.id);
++    UE->emm_data->T3519.id = nas_timer_stop(UE->emm_data->T3519.id);
++  }
++  
++  /* Stop T3520 - Configuration update timer */
++  if (UE->emm_data && UE->emm_data->T3520.id != NAS_TIMER_INACTIVE_ID) {
++    LOG_I(NAS, "Stopping timer T3520 (%d)\n", UE->emm_data->T3520.id);
++    UE->emm_data->T3520.id = nas_timer_stop(UE->emm_data->T3520.id);
++  }
++}
++
+ /*
+  *Message reception
+  */
+@@ -57,6 +98,70 @@ void SGSidentityReq(void *msg, nr_user_nas_t *UE) {
+ void SGSsecurityModeCommand(void *msg, nr_user_nas_t *UE) {
+ }
+ 
++void SGSauthenticationReject(void *msg, nr_user_nas_t *UE) {
++  LOG_I(NAS, "Received Authentication Reject message\n");
++  
++  /* Stop all running 5GMM timers as per 3GPP TS 24.501 */
++  _stop_all_running_timers(UE);
++  
++  /* Clear security context */
++  if (UE->security) {
++    memset(UE->security, 0, sizeof(*UE->security));
++  }
++  
++  /* Consider the USIM invalid */
++  if (UE->uicc) {
++    UE->uicc->usim_is_valid = false;
++  }
++  
++  /* Abort any ongoing 5GMM procedures */
++  LOG_W(NAS, "Authentication rejected by network - entering appropriate state\n");
++  
++  /* Trigger NAS state change to handle authentication failure */
++  ue_nas_schedule();
++}
++
++void SGSauthenticationReject(void *msg, nr_user_nas_t *UE) {
++  LOG_W(NAS, "Received Authentication Reject message - network rejected authentication\n");
++  
++  /* Stop all running timers as per 3GPP TS 24.501 section 5.4.2.5.2 */
++  _stop_all_running_timers(UE);
++  
++  /* Clean up security context */
++  if (UE->emm_data && UE->emm_data->security) {
++    UE->emm_data->security->ng_ksi = 0;
++    UE->emm_data->security->key_set = 0;
++  }
++  
++  /* Set UE state to 5GMM-DEREGISTERED */
++  if (UE->emm_data) {
++    UE->emm_data->state = GMM_DEREGISTERED;
++  }
++  
++  /* Abort any ongoing NAS signalling procedures */
++  SGSabortNet(msg, UE);
++}
++
++void SGSauthenticationReject(void *msg, nr_user_nas_t *UE) {
++  LOG_I(NAS, "Received Authentication Reject message\n");
++  
++  /* Stop all running 5GMM timers as required by 3GPP TS 24.501 */
++  _stop_all_running_timers(UE);
++  
++  /* Abort any ongoing 5GMM procedures */
++  if (UE->emm_data) {
++    UE->emm_data->procedure_in_progress = 0;
++    UE->emm_data->auth_failed = true;
++  }
++  
++  /* Set the 5GMM state to 5GMM-DEREGISTERED */
++  if (UE->emm_data) {
++    UE->emm_data->state = GMM_DEREGISTERED;
++  }
++  
++  LOG_W(NAS, "Authentication rejected by network, entering deregistered state\n");
++}
++
+ 
+ void UEprocessNAS(void *msg,nr_user_nas_t *UE) {
+   SGScommonHeader_t *header=(SGScommonHeader_t *) msg;
+@@ -81,6 +186,10 @@ void UEprocessNAS(void *msg,nr_user_nas_t *UE) {
+             SGSsecurityModeCommand(msg, UE);
+             break;
+ 
++          case Authenticationreject:
++            SGSauthenticationReject(msg, UE);
++            break;
++
+           default:
+             SGSabortNet(msg, UE);
+         }

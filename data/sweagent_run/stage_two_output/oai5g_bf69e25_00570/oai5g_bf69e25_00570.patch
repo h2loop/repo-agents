@@ -1,0 +1,70 @@
+diff --git a/openair2/RRC/NR_UE/rrc_proto.h b/openair2/RRC/NR_UE/rrc_proto.h
+index bc7f7001af..da134d9fd8 100644
+--- a/openair2/RRC/NR_UE/rrc_proto.h
++++ b/openair2/RRC/NR_UE/rrc_proto.h
+@@ -63,6 +63,7 @@ void *rrc_nrue_task(void *args_p);
+ void *rrc_nrue(void *args_p);
+ 
+ void nr_rrc_handle_timers(NR_UE_RRC_INST_t *rrc);
++void handle_meas_timers(NR_UE_RRC_INST_t *rrc);
+ void handle_rlf_detection(NR_UE_RRC_INST_t *rrc);
+ void handle_302_expired_stopped(NR_UE_RRC_INST_t *rrc);
+ 
+diff --git a/openair2/RRC/NR_UE/rrc_timers_and_constants.c b/openair2/RRC/NR_UE/rrc_timers_and_constants.c
+index 57f6be2eb6..e026cc0a83 100644
+--- a/openair2/RRC/NR_UE/rrc_timers_and_constants.c
++++ b/openair2/RRC/NR_UE/rrc_timers_and_constants.c
+@@ -185,6 +185,9 @@ void nr_rrc_handle_timers(NR_UE_RRC_INST_t *rrc)
+     // Spec 38.331 Section 5.2.2.6
+     handle_t430_expiry(rrc);
+   }
++
++  // Handle measurement timers
++  handle_meas_timers(rrc);
+ }
+ 
+ int nr_rrc_get_T304(long t304)
+@@ -630,3 +633,43 @@ void reset_rlf_timers_and_constants(NR_UE_Timers_Constants_t *tac)
+   tac->N310_cnt = 0;
+   tac->N311_cnt = 0;
+ }
++
++void handle_meas_timers(NR_UE_RRC_INST_t *rrc)
++{
++  NR_UE_Timers_Constants_t *timers = &rrc->timers_and_constants;
++
++  // Handle T320 timer expiry
++  bool t320_expired = nr_timer_tick(&timers->T320);
++  if (t320_expired) {
++    LOG_W(NR_RRC, "Timer T320 expired! Stored measurement configuration is discarded.\n");
++    // TODO: Discard stored measurement configuration as per 38.331 specification
++  }
++
++  // Handle T321 timer expiry
++  bool t321_expired = nr_timer_tick(&timers->T321);
++  if (t321_expired) {
++    LOG_W(NR_RRC, "Timer T321 expired! Periodical measurement reporting timeout.\n");
++    // TODO: Take actions for periodical measurement reporting timeout
++  }
++
++  // Handle T325 timer expiry
++  bool t325_expired = nr_timer_tick(&timers->T325);
++  if (t325_expired) {
++    LOG_W(NR_RRC, "Timer T325 expired! Timeout for measurement reporting.\n");
++    // TODO: Take actions for measurement reporting timeout
++  }
++
++  // Handle T380 timer expiry
++  bool t380_expired = nr_timer_tick(&timers->T380);
++  if (t380_expired) {
++    LOG_W(NR_RRC, "Timer T380 expired! Measurement modification period ended.\n");
++    // TODO: Take actions for measurement modification period ending
++  }
++
++  // Handle T390 timer expiry
++  bool t390_expired = nr_timer_tick(&timers->T390);
++  if (t390_expired) {
++    LOG_W(NR_RRC, "Timer T390 expired! Random access barring alleviated.\n");
++    // TODO: Alleviate random access barring as per 5.3.14.4
++  }
++}

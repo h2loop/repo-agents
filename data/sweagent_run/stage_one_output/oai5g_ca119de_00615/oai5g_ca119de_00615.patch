@@ -1,0 +1,37 @@
+diff --git a/openair3/NAS/TEST/AS_SIMULATOR/nas_data.c b/openair3/NAS/TEST/AS_SIMULATOR/nas_data.c
+index ff5421c892..f3261b78b6 100644
+--- a/openair3/NAS/TEST/AS_SIMULATOR/nas_data.c
++++ b/openair3/NAS/TEST/AS_SIMULATOR/nas_data.c
+@@ -670,21 +670,24 @@ const char* nasCipheringAlgorithm(const NasSecurityAlgorithms* algo)
+  */
+ const char* nasIntegrityAlgorithm(const NasSecurityAlgorithms* algo)
+ {
+-  if (algo->typeofintegrityalgorithm == NAS_SECURITY_ALGORITHMS_EIA0) {
++  // Make a local copy to avoid potential thread-safety issues with bit field access
++  uint8_t integrity_algo = algo->typeofintegrityalgorithm;
++  
++  if (integrity_algo == NAS_SECURITY_ALGORITHMS_EIA0) {
+     return "EIA0";
+-  } else if (algo->typeofintegrityalgorithm == NAS_SECURITY_ALGORITHMS_EIA1) {
++  } else if (integrity_algo == NAS_SECURITY_ALGORITHMS_EIA1) {
+     return "128-EIA1";
+-  } else if (algo->typeofintegrityalgorithm == NAS_SECURITY_ALGORITHMS_EIA2) {
++  } else if (integrity_algo == NAS_SECURITY_ALGORITHMS_EIA2) {
+     return "128-EIA2";
+-  } else if (algo->typeofintegrityalgorithm == NAS_SECURITY_ALGORITHMS_EIA3) {
++  } else if (integrity_algo == NAS_SECURITY_ALGORITHMS_EIA3) {
+     return "EIA3";
+-  } else if (algo->typeofintegrityalgorithm == NAS_SECURITY_ALGORITHMS_EIA4) {
++  } else if (integrity_algo == NAS_SECURITY_ALGORITHMS_EIA4) {
+     return "EIA4";
+-  } else if (algo->typeofintegrityalgorithm == NAS_SECURITY_ALGORITHMS_EIA5) {
++  } else if (integrity_algo == NAS_SECURITY_ALGORITHMS_EIA5) {
+     return "EIA5";
+-  } else if (algo->typeofintegrityalgorithm == NAS_SECURITY_ALGORITHMS_EIA6) {
++  } else if (integrity_algo == NAS_SECURITY_ALGORITHMS_EIA6) {
+     return "EIA6";
+-  } else if (algo->typeofintegrityalgorithm == NAS_SECURITY_ALGORITHMS_EIA7) {
++  } else if (integrity_algo == NAS_SECURITY_ALGORITHMS_EIA7) {
+     return "EIA7";
+   } else {
+     return "Unknown";

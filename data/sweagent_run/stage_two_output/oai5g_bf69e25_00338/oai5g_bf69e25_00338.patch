@@ -1,0 +1,102 @@
+diff --git a/openair3/NAS/UE/API/USER/at_command.c b/openair3/NAS/UE/API/USER/at_command.c
+index a6591c6748..add8e1f1db 100644
+--- a/openair3/NAS/UE/API/USER/at_command.c
++++ b/openair3/NAS/UE/API/USER/at_command.c
+@@ -54,11 +54,6 @@ Description Defines the ATtention (AT) command set supported by the NAS
+ /****************  E X T E R N A L    D E F I N I T I O N S  ****************/
+ /****************************************************************************/
+ 
+-// FIXME Put this in .h
+-extern int at_response_format_v1;
+-extern int at_error_code_suppression_q1;
+-extern at_error_format_t at_error_format;
+-
+ /****************************************************************************/
+ /*******************  L O C A L    D E F I N I T I O N S  *******************/
+ /****************************************************************************/
+diff --git a/openair3/NAS/UE/API/USER/at_error.c b/openair3/NAS/UE/API/USER/at_error.c
+index 78a3c407e9..7fdf08dfb3 100644
+--- a/openair3/NAS/UE/API/USER/at_error.c
++++ b/openair3/NAS/UE/API/USER/at_error.c
+@@ -49,9 +49,6 @@ Description Defines error codes returned when execution of AT command
+ /****************  E X T E R N A L    D E F I N I T I O N S  ****************/
+ /****************************************************************************/
+ 
+-// FIXME put this in .h
+-extern int at_response_format_v1;
+-
+ /*
+  * Result code suppression indicator (set by ATQ0 and ATQ1)
+  * -------------------------------------------------------
+@@ -244,11 +241,11 @@ void at_error_set_format(at_error_format_t format)
+  **                                                                        **
+  ** Description: Gets the format of the error code                         **
+  **                                                                        **
+- ** Inputs:  format:  Format of the error code                   **
++ ** Inputs:  None                                                      **
+  **      Others:  None                                       **
+  **                                                                        **
+- ** Outputs:   Return:  None                                       **
+- **      Others:  at_error_format                            **
++ ** Outputs:   Return:  The format of the error code               **
++ **      Others:  None                                       **
+  **                                                                        **
+  ***************************************************************************/
+ at_error_format_t at_error_get_format(void)
+diff --git a/openair3/NAS/UE/API/USER/at_error.h b/openair3/NAS/UE/API/USER/at_error.h
+index a84875a43c..81e6bc8e07 100644
+--- a/openair3/NAS/UE/API/USER/at_error.h
++++ b/openair3/NAS/UE/API/USER/at_error.h
+@@ -40,6 +40,8 @@ Description Defines error codes returned when execution of AT command
+ #ifndef __AT_ERROR_H__
+ #define __AT_ERROR_H__
+ 
++#include "commonDef.h" // for bool type
++
+ /****************************************************************************/
+ /*********************  G L O B A L    C O N S T A N T S  *******************/
+ /****************************************************************************/
+@@ -182,6 +184,20 @@ typedef enum {
+ /********************  G L O B A L    V A R I A B L E S  ********************/
+ /****************************************************************************/
+ 
++/* 
++ * Result code suppression indicator (set by ATQ0 and ATQ1)
++ * -------------------------------------------------------
++ *  false - Result codes are transmitted to the user application
++ *  true  - Result codes are suppressed and not transmitted
++ */
++extern bool at_error_code_suppression_q1;
++
++/*
++ * Verbose mode indicator (set by ATV0, ATV1 and AT+CMEE)
++ * ------------------------------------------------------
++ */
++extern at_error_format_t at_error_format;
++
+ /****************************************************************************/
+ /******************  E X P O R T E D    F U N C T I O N S  ******************/
+ /****************************************************************************/
+diff --git a/openair3/NAS/UE/API/USER/at_response.h b/openair3/NAS/UE/API/USER/at_response.h
+index b0303c5875..909aa98f16 100644
+--- a/openair3/NAS/UE/API/USER/at_response.h
++++ b/openair3/NAS/UE/API/USER/at_response.h
+@@ -44,6 +44,18 @@ Description Defines structure of the AT command response returned after
+ #include "commonDef.h"
+ #include "networkDef.h"
+ 
++/****************************************************************************/
++/********************  G L O B A L    V A R I A B L E S  ********************/
++/****************************************************************************/
++
++/*
++ * Response format indicator (set by ATV0 and ATV1)
++ * ------------------------------------------------
++ *  true  - <CR><LF><text><CR><LF>, <CR><LF><verbose code><CR><LF>
++ *  false - <text><CR><LF>, <numeric code><CR><LF>
++ */
++extern bool at_response_format_v1;
++
+ /****************************************************************************/
+ /*********************  G L O B A L    C O N S T A N T S  *******************/
+ /****************************************************************************/

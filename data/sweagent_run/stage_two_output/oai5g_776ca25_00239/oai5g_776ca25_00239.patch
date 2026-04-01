@@ -1,0 +1,89 @@
+diff --git a/openair2/UTIL/OMG/rwp.c b/openair2/UTIL/OMG/rwp.c
+index 8e5ab43081..8cac95adc5 100644
+--- a/openair2/UTIL/OMG/rwp.c
++++ b/openair2/UTIL/OMG/rwp.c
+@@ -322,12 +322,22 @@ update_rwp_nodes (double cur_time)
+ 
+       my_node = tmp->pair->b;
+ 
+-      while (cur_time >= tmp->pair->next_event_t) {
++      // Process overdue events but prevent infinite loop
++      int max_overdue_events = 100;  // Safety mechanism to prevent infinite loops
++      int overdue_count = 0;
++      
++      while (overdue_count < max_overdue_events && cur_time >= tmp->pair->next_event_t) {
+         if (my_node->mobile == 1)
+-          sleep_rwp_node (tmp->pair, cur_time);
++          sleep_rwp_node (tmp->pair, tmp->pair->next_event_t);  // Use event time, not cur_time
+         else
+-          move_rwp_node (tmp->pair, cur_time);
+-
++          move_rwp_node (tmp->pair, tmp->pair->next_event_t);   // Use event time, not cur_time
++        
++        overdue_count++;
++      }
++      
++      // If we hit the safety limit, log a warning
++      if (overdue_count >= max_overdue_events) {
++        LOG_W(OMG, "[RWP] Node %d hit overdue event limit, possible timing issue\n", my_node->id);
+       }
+     }
+     //case3: current time less than the time to next event
+@@ -364,23 +374,41 @@ get_rwp_positions_updated (double cur_time)
+         len =
+           tmp->pair->b->mob->speed * (cur_time -
+                                       tmp->pair->b->mob->start_journey);
+-        dx = fabs (tmp->pair->b->mob->x_from - tmp->pair->b->mob->x_to);
+-
+-        if (dx < len) {
+-          tmp->pair->b->x_pos = tmp->pair->b->mob->x_to;
+-          tmp->pair->b->y_pos =
+-            tmp->pair->b->mob->y_from + (len -
+-                                         dx) *
+-            ((tmp->pair->b->mob->y_to -
+-              tmp->pair->b->mob->y_from) /
+-             fabs (tmp->pair->b->mob->y_to -
+-                   tmp->pair->b->mob->y_from));
++        
++        // Calculate Manhattan distance components
++        double dx_total = fabs(tmp->pair->b->mob->x_to - tmp->pair->b->mob->x_from);
++        double dy_total = fabs(tmp->pair->b->mob->y_to - tmp->pair->b->mob->y_from);
++        double total_distance = dx_total + dy_total;
++        
++        // Avoid division by zero
++        if (total_distance > 0.0) {
++          // Calculate how much of the journey is completed
++          double progress_ratio = len / total_distance;
++          
++          if (progress_ratio >= 1.0) {
++            // Journey is complete
++            tmp->pair->b->x_pos = tmp->pair->b->mob->x_to;
++            tmp->pair->b->y_pos = tmp->pair->b->mob->y_to;
++          } else {
++            // Journey is in progress
++            double x_sign = (tmp->pair->b->mob->x_to - tmp->pair->b->mob->x_from) >= 0 ? 1.0 : -1.0;
++            double y_sign = (tmp->pair->b->mob->y_to - tmp->pair->b->mob->y_from) >= 0 ? 1.0 : -1.0;
++            
++            // First move along x-axis, then y-axis (Manhattan movement)
++            if (len <= dx_total) {
++              // Still moving along x-axis
++              tmp->pair->b->x_pos = tmp->pair->b->mob->x_from + x_sign * len;
++              tmp->pair->b->y_pos = tmp->pair->b->mob->y_from;
++            } else {
++              // Finished x-axis movement, now moving along y-axis
++              tmp->pair->b->x_pos = tmp->pair->b->mob->x_to;
++              tmp->pair->b->y_pos = tmp->pair->b->mob->y_from + y_sign * (len - dx_total);
++            }
++          }
+         } else {
+-          tmp->pair->b->y_pos = tmp->pair->b->mob->y_from;
+-          tmp->pair->b->x_pos = tmp->pair->b->mob->x_from + len *
+-                                ((tmp->pair->b->mob->x_to - tmp->pair->b->mob->x_from)
+-                                 / fabs (tmp->pair->b->mob->x_to -
+-                                         tmp->pair->b->mob->x_from));
++          // No movement needed
++          tmp->pair->b->x_pos = tmp->pair->b->mob->x_to;
++          tmp->pair->b->y_pos = tmp->pair->b->mob->y_to;
+         }
+ 
+       }

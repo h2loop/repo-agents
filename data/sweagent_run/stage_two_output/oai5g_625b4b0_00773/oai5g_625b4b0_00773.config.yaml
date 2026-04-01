@@ -1,0 +1,202 @@
+'{"env":{"deployment":{"image":"oai5g-sera:625b4b0","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_625b4b0_00773","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix missing TRP positioning encoder function in F1AP library\n\n### Summary\nThe
+  F1AP positioning functionality was missing a critical encoder function for TRP (Transmit
+  Receive Point) information type response items. When applications attempted to call
+  `encode_trp_info_type_response_item()`, the function was not found, causing undefined
+  behavior or build failures.\n\nThis fix implements the missing `encode_trp_info_type_response_item()`
+  function in a newly created file, following the existing F1AP library patterns and
+  ASN.1 specifications.\n\n### Changes\n- `openair2/F1AP/lib/f1ap_positioning.c`:
+  New file implementing the missing encoder function\n- `openair2/F1AP/lib/f1ap_positioning.h`:
+  New header file with type definitions for TRP positioning\n- `openair2/F1AP/lib/f1ap_lib_includes.h`:
+  Added include for the new positioning header\n\n","extra_fields":{"bug_description":"missed
+  scheduling opportunity where a UE with pending data is not scheduled","bug_id":"telecom_sched_missed_opportunity","stage_one_patch":"diff
+  --git a/openair2/F1AP/lib/f1ap_lib_includes.h b/openair2/F1AP/lib/f1ap_lib_includes.h\nindex
+  3f039bf6f0..1ac988ac00 100644\n--- a/openair2/F1AP/lib/f1ap_lib_includes.h\n+++
+  b/openair2/F1AP/lib/f1ap_lib_includes.h\n@@ -47,5 +47,6 @@\n #include \"F1AP_NonDynamic5QIDescriptor.h\"\n
+  #include \"F1AP_Dynamic5QIDescriptor.h\"\n #include \"F1AP_DLUPTNLInformation-ToBeSetup-Item.h\"\n+#include
+  \"f1ap_positioning.h\"\n \n #endif /* F1AP_LIB_INCLUDES_H_ */\ndiff --git a/openair2/F1AP/lib/f1ap_positioning.c
+  b/openair2/F1AP/lib/f1ap_positioning.c\nnew file mode 100644\nindex 0000000000..0d4ba8b55f\n---
+  /dev/null\n+++ b/openair2/F1AP/lib/f1ap_positioning.c\n@@ -0,0 +1,133 @@\n+/*\n+
+  * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more\n+
+  * contributor license agreements.  See the NOTICE file distributed with\n+ * this
+  work for additional information regarding copyright ownership.\n+ * The OpenAirInterface
+  Software Alliance licenses this file to You under\n+ * the OAI Public License, Version
+  1.1  (the \"License\"); you may not use this file\n+ * except in compliance with
+  the License.\n+ * You may obtain a copy of the License at\n+ *\n+ *      http://www.openairinterface.org/?page_id=698\n+
+  *\n+ * Unless required by applicable law or agreed to in writing, software\n+ *
+  distributed under the License is distributed on an \"AS IS\" BASIS,\n+ * WITHOUT
+  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n+ * See the License
+  for the specific language governing permissions and\n+ * limitations under the License.\n+
+  *-------------------------------------------------------------------------------\n+
+  * For more information about the OpenAirInterface (OAI) Software Alliance:\n+ *      contact@openairinterface.org\n+
+  */\n+\n+/*! \\file f1ap_positioning.c\n+ * \\brief F1AP positioning procedures for
+  TRP information\n+ * \\author Javier Morgade\n+ * \\date 2024\n+ * \\version 1.0\n+
+  * \\company CTT Group\n+ * \\email: javier.morgade@ieee.org\n+ */\n+\n+#include
+  \"f1ap_positioning.h\"\n+#include \"f1ap_lib_common.h\"\n+#include \"f1ap_messages_types.h\"\n+#include
+  \"common/utils/LOG/log.h\"\n+#include <string.h>\n+\n+// Include ASN.1 generated
+  TRP-related headers\n+#include \"F1AP_TRPInformationTypeResponseItem.h\"\n+#include
+  \"F1AP_NRPCI.h\"\n+#include \"F1AP_NRCGI.h\"\n+#include \"F1AP_PRSConfiguration.h\"\n+#include
+  \"F1AP_SSBInformation.h\"\n+#include \"F1AP_SFNInitialisationTime.h\"\n+#include
+  \"F1AP_SpatialDirectionInformation.h\"\n+#include \"F1AP_GeographicalCoordinates.h\"\n+#include
+  \"F1AP_ProtocolIE-SingleContainer.h\"\n+\n+// Helper function to copy ASN.1 structures
+  (following the pattern from existing code)\n+static void copy_nrcgi(F1AP_NRCGI_t
+  *dest, const F1AP_NRCGI_t *src)\n+{\n+  if (dest && src) {\n+    // Copy PLMN Identity\n+    memcpy(&dest->pLMN_Identity,
+  &src->pLMN_Identity, sizeof(dest->pLMN_Identity));\n+    // Copy NR Cell Identity\n+    memcpy(&dest->nRCellIdentity,
+  &src->nRCellIdentity, sizeof(dest->nRCellIdentity));\n+    // Copy extensions if
+  present\n+    if (src->iE_Extensions) {\n+      dest->iE_Extensions = src->iE_Extensions;
+  // Shallow copy for now\n+    }\n+  }\n+}\n+\n+F1AP_TRPInformationTypeResponseItem_t
+  encode_trp_info_type_response_item(\n+    const f1ap_trp_info_type_response_item_t
+  *trp_info_item)\n+{\n+  F1AP_TRPInformationTypeResponseItem_t enc = {0};\n+\n+  if
+  (!trp_info_item) {\n+    LOG_E(F1AP, \"NULL TRP information type response item provided\\n\");\n+    return
+  enc;\n+  }\n+\n+  switch (trp_info_item->present) {\n+    case F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_pCI_NR:\n+      enc.present
+  = F1AP_TRPInformationTypeResponseItem_PR_pCI_NR;\n+      enc.choice.pCI_NR = trp_info_item->choice.pCI_NR;\n+      break;\n+\n+    case
+  F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_nG_RAN_CGI:\n+      enc.present = F1AP_TRPInformationTypeResponseItem_PR_nG_RAN_CGI;\n+      //
+  For now, do a shallow copy - in a real implementation this would need proper ASN.1
+  structure handling\n+      enc.choice.nG_RAN_CGI = trp_info_item->choice.nG_RAN_CGI;\n+      break;\n+\n+    case
+  F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_nRARFCN:\n+      enc.present = F1AP_TRPInformationTypeResponseItem_PR_nRARFCN;\n+      enc.choice.nRARFCN
+  = trp_info_item->choice.nRARFCN;\n+      break;\n+\n+    case F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_pRSConfiguration:\n+      enc.present
+  = F1AP_TRPInformationTypeResponseItem_PR_pRSConfiguration;\n+      // Shallow copy
+  for now - would need proper ASN.1 structure handling in real implementation\n+      enc.choice.pRSConfiguration
+  = trp_info_item->choice.pRSConfiguration;\n+      break;\n+\n+    case F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_sSBinformation:\n+      enc.present
+  = F1AP_TRPInformationTypeResponseItem_PR_sSBinformation;\n+      // Shallow copy
+  for now - would need proper ASN.1 structure handling in real implementation\n+      enc.choice.sSBinformation
+  = trp_info_item->choice.sSBinformation;\n+      break;\n+\n+    case F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_sFNInitialisationTime:\n+      enc.present
+  = F1AP_TRPInformationTypeResponseItem_PR_sFNInitialisationTime;\n+      enc.choice.sFNInitialisationTime
+  = trp_info_item->choice.sFNInitialisationTime;\n+      break;\n+\n+    case F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_spatialDirectionInformation:\n+      enc.present
+  = F1AP_TRPInformationTypeResponseItem_PR_spatialDirectionInformation;\n+      //
+  Shallow copy for now - would need proper ASN.1 structure handling in real implementation\n+      enc.choice.spatialDirectionInformation
+  = trp_info_item->choice.spatialDirectionInformation;\n+      break;\n+\n+    case
+  F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_geographicalCoordinates:\n+      enc.present
+  = F1AP_TRPInformationTypeResponseItem_PR_geographicalCoordinates;\n+      // Shallow
+  copy for now - would need proper ASN.1 structure handling in real implementation\n+      enc.choice.geographicalCoordinates
+  = trp_info_item->choice.geographicalCoordinates;\n+      break;\n+\n+    case F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_choice_extension:\n+      enc.present
+  = F1AP_TRPInformationTypeResponseItem_PR_choice_extension;\n+      // Shallow copy
+  for now - would need proper ASN.1 structure handling in real implementation\n+      enc.choice.choice_extension
+  = trp_info_item->choice.choice_extension;\n+      break;\n+\n+    case F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_NOTHING:\n+    default:\n+      LOG_W(F1AP,
+  \"Unknown or unspecified TRP information type response item %d\\n\", trp_info_item->present);\n+      enc.present
+  = F1AP_TRPInformationTypeResponseItem_PR_NOTHING;\n+      break;\n+  }\n+\n+  return
+  enc;\n+}\n\\ No newline at end of file\ndiff --git a/openair2/F1AP/lib/f1ap_positioning.h
+  b/openair2/F1AP/lib/f1ap_positioning.h\nnew file mode 100644\nindex 0000000000..836206528f\n---
+  /dev/null\n+++ b/openair2/F1AP/lib/f1ap_positioning.h\n@@ -0,0 +1,85 @@\n+/*\n+
+  * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more\n+
+  * contributor license agreements.  See the NOTICE file distributed with\n+ * this
+  work for additional information regarding copyright ownership.\n+ * The OpenAirInterface
+  Software Alliance licenses this file to You under\n+ * the OAI Public License, Version
+  1.1  (the \"License\"); you may not use this file\n+ * except in compliance with
+  the License.\n+ * You may obtain a copy of the License at\n+ *\n+ *      http://www.openairinterface.org/?page_id=698\n+
+  *\n+ * Unless required by applicable law or agreed to in writing, software\n+ *
+  distributed under the License is distributed on an \"AS IS\" BASIS,\n+ * WITHOUT
+  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n+ * See the License
+  for the specific language governing permissions and\n+ * limitations under the License.\n+
+  *-------------------------------------------------------------------------------\n+
+  * For more information about the OpenAirInterface (OAI) Software Alliance:\n+ *      contact@openairinterface.org\n+
+  */\n+\n+#ifndef F1AP_POSITIONING_H_\n+#define F1AP_POSITIONING_H_\n+\n+#include
+  <stdint.h>\n+#include <stdbool.h>\n+\n+// Forward declarations for ASN.1 types\n+typedef
+  struct F1AP_TRPInformationTypeResponseItem F1AP_TRPInformationTypeResponseItem_t;\n+typedef
+  long F1AP_NRPCI_t;\n+typedef struct F1AP_NRCGI F1AP_NRCGI_t;\n+typedef struct F1AP_PRSConfiguration
+  F1AP_PRSConfiguration_t;\n+typedef struct F1AP_SSBInformation F1AP_SSBInformation_t;\n+typedef
+  long F1AP_SFNInitialisationTime_t;\n+typedef struct F1AP_SpatialDirectionInformation
+  F1AP_SpatialDirectionInformation_t;\n+typedef struct F1AP_GeographicalCoordinates
+  F1AP_GeographicalCoordinates_t;\n+typedef struct F1AP_ProtocolIE_SingleContainer
+  F1AP_ProtocolIE_SingleContainer_t;\n+\n+// Enum to represent the present field in
+  the choice based on ASN.1 definition\n+typedef enum {\n+  F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_NOTHING,\n+  F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_pCI_NR,\n+  F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_nG_RAN_CGI,\n+  F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_nRARFCN,\n+  F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_pRSConfiguration,\n+  F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_sSBinformation,\n+  F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_sFNInitialisationTime,\n+  F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_spatialDirectionInformation,\n+  F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_geographicalCoordinates,\n+  F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_choice_extension\n+}
+  f1ap_trp_info_type_response_item_present_t;\n+\n+// Structure to represent TRP information
+  type response item\n+// Based on ASN.1 definition:\n+// TRPInformationTypeResponseItem
+  ::= CHOICE {\n+//   pCI-NR                              NRPCI,\n+//   nG-RAN-CGI                          NRCGI,\n+//   nRARFCN                             INTEGER
+  (0..maxNRARFCN),\n+//   pRSConfiguration                    PRSConfiguration,\n+//   sSBinformation                      SSBInformation,\n+//   sFNInitialisationTime               SFNInitialisationTime,\n+//   spatialDirectionInformation         SpatialDirectionInformation,\n+//   geographicalCoordinates             GeographicalCoordinates,\n+//   choice-extension                    ProtocolIE-SingleContainer
+  { { TRPInformationTypeResponseItem-ExtIEs} }\n+// }\n+typedef struct {\n+  f1ap_trp_info_type_response_item_present_t
+  present;\n+  union {\n+    F1AP_NRPCI_t pCI_NR;  // NRPCI type\n+    F1AP_NRCGI_t
+  nG_RAN_CGI;\n+    long nRARFCN;\n+    F1AP_PRSConfiguration_t pRSConfiguration;\n+    F1AP_SSBInformation_t
+  sSBinformation;\n+    F1AP_SFNInitialisationTime_t sFNInitialisationTime;\n+    F1AP_SpatialDirectionInformation_t
+  spatialDirectionInformation;\n+    F1AP_GeographicalCoordinates_t geographicalCoordinates;\n+    F1AP_ProtocolIE_SingleContainer_t
+  choice_extension;\n+  } choice;\n+} f1ap_trp_info_type_response_item_t;\n+\n+//
+  Function declarations\n+F1AP_TRPInformationTypeResponseItem_t encode_trp_info_type_response_item(\n+    const
+  f1ap_trp_info_type_response_item_t *trp_info_item);\n+\n+#endif /* F1AP_POSITIONING_H_
+  */\n\\ No newline at end of file\n","start_fn":"encode_trp_info_type_response_item","start_fn_file":"openair2/F1AP/lib/f1ap_positioning.c","subsystem":"openair2/F1AP/lib"},"type":"text","id":"oai5g_625b4b0_00773"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

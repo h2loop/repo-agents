@@ -1,0 +1,26 @@
+{
+  "run_id": "zephyr_00612_7f9a5f",
+  "function": {
+    "name": "lp_comm_terminate_invalid_pdu",
+    "file": "subsys/bluetooth/controller/ll_sw/ull_llcp_common.c",
+    "start_line": 441,
+    "end_line": 448,
+    "body_lines": 8,
+    "signature": "static void lp_comm_terminate_invalid_pdu(struct ll_conn *conn, struct proc_ctx *ctx)",
+    "subsystem": "subsys/bluetooth/controller",
+    "token_estimate": 29
+  },
+  "bug": {
+    "bug_id": "protocol_state_machine_error",
+    "description": "incorrect protocol state machine transition violating specification",
+    "domain": "protocol",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a incorrect protocol state machine transition violating specification downstream of function lp_comm_terminate_invalid_pdu in the subsys/bluetooth/controller subsystem.\nThe function is located at subsys/bluetooth/controller/ll_sw/ull_llcp_common.c:441.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 3,
+  "trajectory_steps": 35,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T15:57:45Z"
+}

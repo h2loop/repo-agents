@@ -1,0 +1,98 @@
+diff --git a/openair3/NAS/NR_UE/nr_nas_msg_sim.c b/openair3/NAS/NR_UE/nr_nas_msg_sim.c
+index aa6080f564..7b30cc8fc6 100644
+--- a/openair3/NAS/NR_UE/nr_nas_msg_sim.c
++++ b/openair3/NAS/NR_UE/nr_nas_msg_sim.c
+@@ -192,7 +192,7 @@ int mm_msg_encode(MM_msg *mm_msg, uint8_t *buffer, uint32_t len) {
+       break;
+     default:
+       LOG_TRACE(ERROR, "EMM-MSG   - Unexpected message type: 0x%x",
+-    		  mm_msg->header.message_type);
++                  mm_msg->header.message_type);
+       encode_result = TLV_ENCODE_WRONG_MESSAGE_TYPE;
+       break;
+       /* TODO: Handle not standard layer 3 messages: SERVICE_REQUEST */
+@@ -743,7 +743,7 @@ static void generateDeregistrationRequest(nr_ue_nas_t *nas, as_nas_info_t *initi
+   fgs_deregistration_request_ue_originating_msg *dereg_req = &sp_msg->plain.mm_msg.fgs_deregistration_request_ue_originating;
+   dereg_req->protocoldiscriminator = FGS_MOBILITY_MANAGEMENT_MESSAGE;
+   size += 1;
+-  dereg_req->securityheadertype = INTEGRITY_PROTECTED_AND_CIPHERED_WITH_NEW_SECU_CTX;
++  dereg_req->securityheadertype = PLAIN_5GS_MSG;
+   size += 1;
+   dereg_req->messagetype = FGS_DEREGISTRATION_REQUEST_UE_ORIGINATING;
+   size += 1;
+@@ -1051,7 +1051,7 @@ void *nas_nrue_task(void *args_p)
+             generateIdentityResponse(&initialNasMsg, *(pdu_buffer + 3), nas->uicc);
+               break;
+           case FGS_AUTHENTICATION_REQUEST:
+-	            generateAuthenticationResp(nas, &initialNasMsg, pdu_buffer);
++                    generateAuthenticationResp(nas, &initialNasMsg, pdu_buffer);
+               break;
+           case FGS_SECURITY_MODE_COMMAND:
+             nas_itti_kgnb_refresh_req(nas->security.kgnb);
+@@ -1063,36 +1063,36 @@ void *nas_nrue_task(void *args_p)
+           case FGS_DEREGISTRATION_ACCEPT:
+             LOG_I(NAS, "received deregistration accept\n");
+             break;
+-	case FGS_PDU_SESSION_ESTABLISHMENT_ACC:
+-	  {
+-	    uint8_t offset = 0;
+-	    uint8_t *payload_container = pdu_buffer;
+-	    offset += SECURITY_PROTECTED_5GS_NAS_MESSAGE_HEADER_LENGTH;
+-	    uint32_t payload_container_length = htons(((dl_nas_transport_t *)(pdu_buffer + offset))->payload_container_length);
+-	    if ((payload_container_length >= PAYLOAD_CONTAINER_LENGTH_MIN) &&
+-		(payload_container_length <= PAYLOAD_CONTAINER_LENGTH_MAX))
+-	      offset += (PLAIN_5GS_NAS_MESSAGE_HEADER_LENGTH + 3);
+-	    if (offset < NAS_CONN_ESTABLI_CNF(msg_p).nasMsg.length) 
+-	      payload_container = pdu_buffer + offset;
+-	    
+-	    while(offset < payload_container_length) {
+-	      if (*(payload_container + offset) == 0x29) { // PDU address IEI
+-		if ((*(payload_container+offset+1) == 0x05) && (*(payload_container +offset+2) == 0x01)) { // IPV4
+-		  nas_getparams();
+-		  sprintf(baseNetAddress, "%d.%d", *(payload_container+offset+3), *(payload_container+offset+4));
+-		  int third_octet = *(payload_container+offset+5);
+-		  int fourth_octet = *(payload_container+offset+6);
+-		  LOG_I(NAS, "Received PDU Session Establishment Accept, UE IP: %d.%d.%d.%d\n",
+-			*(payload_container+offset+3), *(payload_container+offset+4),
+-			*(payload_container+offset+5), *(payload_container+offset+6));
+-		  nas_config(1,third_octet,fourth_octet,"oaitun_ue");
+-		  break;
+-		}
+-	      }
+-	      offset++;
+-	    }
+-	  }
+-	  break;
++        case FGS_PDU_SESSION_ESTABLISHMENT_ACC:
++          {
++            uint8_t offset = 0;
++            uint8_t *payload_container = pdu_buffer;
++            offset += SECURITY_PROTECTED_5GS_NAS_MESSAGE_HEADER_LENGTH;
++            uint32_t payload_container_length = htons(((dl_nas_transport_t *)(pdu_buffer + offset))->payload_container_length);
++            if ((payload_container_length >= PAYLOAD_CONTAINER_LENGTH_MIN) &&
++                (payload_container_length <= PAYLOAD_CONTAINER_LENGTH_MAX))
++              offset += (PLAIN_5GS_NAS_MESSAGE_HEADER_LENGTH + 3);
++            if (offset < NAS_CONN_ESTABLI_CNF(msg_p).nasMsg.length) 
++              payload_container = pdu_buffer + offset;
++            
++            while(offset < payload_container_length) {
++              if (*(payload_container + offset) == 0x29) { // PDU address IEI
++                if ((*(payload_container+offset+1) == 0x05) && (*(payload_container +offset+2) == 0x01)) { // IPV4
++                  nas_getparams();
++                  sprintf(baseNetAddress, "%d.%d", *(payload_container+offset+3), *(payload_container+offset+4));
++                  int third_octet = *(payload_container+offset+5);
++                  int fourth_octet = *(payload_container+offset+6);
++                  LOG_I(NAS, "Received PDU Session Establishment Accept, UE IP: %d.%d.%d.%d\n",
++                        *(payload_container+offset+3), *(payload_container+offset+4),
++                        *(payload_container+offset+5), *(payload_container+offset+6));
++                  nas_config(1,third_octet,fourth_octet,"oaitun_ue");
++                  break;
++                }
++              }
++              offset++;
++            }
++          }
++          break;
+           default:
+               LOG_W(NR_RRC,"unknown message type %d\n",msg_type);
+               break;

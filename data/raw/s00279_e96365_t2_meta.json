@@ -1,0 +1,9 @@
+{
+  "run_id": "s00279_e96365",
+  "pr_text": "## Title: Fix uninitialized memory reads in user API notification handlers\n\n### Summary\nFix three instances where incorrect pointer values were passed to `user_ind_notify()`, causing the notification handlers to read beyond the bounds of valid data and access uninitialized memory. The `user_api_emm_callback()` and `user_api_esm_callback()` functions were passing pointers to the entire `user_ind_t` structure instead of pointers to the specific union members (`reg`, `loc`, or `pdn`) expected by th",
+  "trajectory_path": "data/raw/s00279_e96365_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00279_e96365_p2.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 28,
+  "timestamp": "2026-02-10T12:21:43Z"
+}

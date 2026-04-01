@@ -1,0 +1,9 @@
+{
+  "run_id": "s00280_2ac2a5",
+  "pr_text": "## Title: Optimize LDPC encoder by eliminating redundant XOR computations\n\n### Summary\nThe LDPC BG2 Zc=176 byte encoder function recomputed identical XOR subexpressions multiple times across different rows, causing unnecessary CPU overhead in the critical PHY encoding path. The generated code performed the same XOR operations from scratch for each row instead of reusing intermediate results.\n\nThis optimization identifies common XOR subexpressions and precomputes them once per loop iteration. Eac",
+  "trajectory_path": "data/raw/s00280_2ac2a5_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00280_2ac2a5_p2.diff",
+  "patch_lines": 14,
+  "trajectory_steps": 75,
+  "timestamp": "2026-02-10T12:33:51Z"
+}

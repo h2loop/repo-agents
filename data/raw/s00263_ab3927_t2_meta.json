@@ -1,0 +1,9 @@
+{
+  "run_id": "s00263_ab3927",
+  "pr_text": "## Title: Fix copy-paste error in PUCCH format 4 configuration\n\n### Summary\nThe PUCCH format 4 configuration block in `nr_ue_configure_pucch()` incorrectly references `pucch_Config->format3` instead of `pucch_Config->format4` due to a copy-paste error. When the format 4 handling code was duplicated from format 3, the struct member references were not updated, causing the UE to apply format 3 parameters (pi/2-BPSK and additional DMRS flags) to format 4 resources. This leads to incorrect PUCCH tra",
+  "trajectory_path": "data/raw/s00263_ab3927_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00263_ab3927_p2.diff",
+  "patch_lines": 0,
+  "trajectory_steps": 5,
+  "timestamp": "2026-02-10T12:13:18Z"
+}

@@ -1,0 +1,31 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c b/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c
+index 783ae0489f..673923ad4a 100644
+--- a/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c
++++ b/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c
+@@ -3291,12 +3291,12 @@ static void extract_10_tc_rnti(dci_pdu_rel15_t *dci_pdu_rel15, const uint8_t *dc
+   EXTRACT_DCI_ITEM(dci_pdu_rel15->pdsch_to_harq_feedback_timing_indicator.val, 3);
+ }
+ 
+-static void extract_00_tc_rnti(dci_pdu_rel15_t *dci_pdu_rel15, const uint8_t *dci_pdu, int pos)
++static void extract_00_tc_rnti(dci_pdu_rel15_t *dci_pdu_rel15, const uint8_t *dci_pdu, int pos, const int N_RB)
+ {
+   LOG_D(NR_MAC_DCI, "Received dci 0_0 TC rnti\n");
+ 
+   // Frequency domain assignment
+-  EXTRACT_DCI_ITEM(dci_pdu_rel15->frequency_domain_assignment.val, dci_pdu_rel15->frequency_domain_assignment.nbits);
++  EXTRACT_DCI_ITEM(dci_pdu_rel15->frequency_domain_assignment.val, (int)ceil(log2((N_RB * (N_RB + 1)) >> 1)));
+   // Time domain assignment 4bit
+   EXTRACT_DCI_ITEM(dci_pdu_rel15->time_domain_assignment.val, 4);
+   // Frequency hopping flag  E1 bit
+@@ -3523,7 +3523,10 @@ static nr_dci_format_t nr_extract_dci_00_10(NR_UE_MAC_INST_t *mac,
+       else {
+         format = NR_UL_DCI_FORMAT_0_0;
+         dci_pdu_rel15 = &mac->def_dci_pdu_rel15[slot][format];
+-        extract_00_tc_rnti(dci_pdu_rel15, dci_pdu, pos);
++        n_RB = get_nrb_for_dci(mac, format, ss_type);
++        if (n_RB == 0)
++          return NR_DCI_NONE;
++        extract_00_tc_rnti(dci_pdu_rel15, dci_pdu, pos, n_RB);
+       }
+       dci_pdu_rel15->format_indicator = format_indicator;
+       break;

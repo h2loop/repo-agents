@@ -1,0 +1,14 @@
+diff --git a/openair2/LAYER2/MAC/pre_processor.c b/openair2/LAYER2/MAC/pre_processor.c
+index f9f6269f43..d99ed3a950 100644
+--- a/openair2/LAYER2/MAC/pre_processor.c
++++ b/openair2/LAYER2/MAC/pre_processor.c
+@@ -152,8 +152,8 @@ bool try_allocate_harq_retransmission(module_id_t Mod_id,
+ 
+ void *rr_dl_setup(void) {
+   void *data = malloc(sizeof(int));
+-  *(int *) data = 0;
+   AssertFatal(data, "could not allocate data in %s()\n", __func__);
++  *(int *) data = 0;
+   return data;
+ }
+ void rr_dl_unset(void **data) {

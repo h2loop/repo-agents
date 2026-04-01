@@ -1,0 +1,31 @@
+{
+  "run_id": "s00437_c80747",
+  "function": {
+    "name": "UE_thread",
+    "file": "executables/nr-ue.c",
+    "start_line": 719,
+    "end_line": 1071,
+    "body_lines": 353,
+    "signature": "void *UE_thread(void *arg)",
+    "subsystem": "executables",
+    "token_estimate": 1509
+  },
+  "bug": {
+    "bug_id": "c_integer_underflow",
+    "description": "integer underflow producing an unexpectedly large unsigned value",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "common"
+    ]
+  },
+  "prompt": "There is a integer underflow producing an unexpectedly large unsigned value downstream of function UE_thread in the executables subsystem.\nThe function is located at executables/nr-ue.c:719.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00437_c80747_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00437_c80747_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 22,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:18:19Z"
+}

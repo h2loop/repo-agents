@@ -1,0 +1,9 @@
+{
+  "run_id": "s00206_3f5974",
+  "pr_text": "## Title: Fix missing transform precoding IE in PUSCH signaling messages\n\n### Summary\nThe transform precoding parameter calculated by `get_transformPrecoding()` was not being persisted in the UL_BWP structure, causing a missing mandatory Information Element (IE) in downstream PUSCH signaling messages. The function computed the value for immediate DCI encoding use, but downstream message preparation functions could not access this critical parameter when constructing PUSCH PDUs.\n\nThis fix stores ",
+  "trajectory_path": "data/raw/s00206_3f5974_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00206_3f5974_p2.diff",
+  "patch_lines": 10,
+  "trajectory_steps": 30,
+  "timestamp": "2026-02-10T11:54:56Z"
+}

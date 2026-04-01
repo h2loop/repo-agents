@@ -1,0 +1,9 @@
+{
+  "run_id": "s00045_7134bf",
+  "pr_text": "## Title: Fix race condition in LTE UL SCH gold unscrambling\n\n### Summary\nFix a race condition in the LTE uplink shared channel (UL-SCH) decoding path where the `lte_gold_unscram` function was modifying shared state through a pointer parameter without synchronization. Multiple threads calling this function concurrently could corrupt the `x2` LFSR state variable, leading to incorrect descrambling and potential decoding failures.\n\nThe root cause was that `lte_gold_unscram` accepted a pointer to `x",
+  "trajectory_path": "data/raw/s00045_7134bf_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00045_7134bf_p2.diff",
+  "patch_lines": 11,
+  "trajectory_steps": 25,
+  "timestamp": "2026-02-10T10:51:29Z"
+}

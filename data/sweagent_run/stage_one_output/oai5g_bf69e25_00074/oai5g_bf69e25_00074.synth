@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix missing command line option parsing in gNB tracer\n\n### Summary\nThe gNB tracer utility was not properly parsing the `-ip` and `-p` command line options that were documented in its usage output. When users attempted to specify a custom IP address or port for the tracer to connect to, the program would incorrectly display the usage message and exit.\n\nThis occurred because the argument parsing loop in `main()` was missing the handlers for these options, even though they were advertised in the `usage()` function.\n\n### Changes\n- `common/utils/T/tracer/gnb.c`: Added parsing for `-ip` and `-p` command line options in the main argument processing loop.\n"
+}

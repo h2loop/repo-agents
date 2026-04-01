@@ -1,0 +1,9 @@
+{
+  "run_id": "s00222_b4eb49",
+  "pr_text": "## Title: Fix ASN.1 encoding error by initializing EMM-SAP structure in emm_proc_attach_release\n\n### Summary\nThe `emm_proc_attach_release` function in the NAS UE EMM Attach module passes a stack-allocated `emm_sap_t` structure to `_emm_attach_abnormal_cases_bcd()` for abnormal case handling. However, the structure was not explicitly initialized, causing ASN.1 encoding logic to read uninitialized memory fields when constructing protocol messages. This resulted in malformed encoded messages being ",
+  "trajectory_path": "data/raw/s00222_b4eb49_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00222_b4eb49_p2.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 30,
+  "timestamp": "2026-02-11T13:27:54Z"
+}

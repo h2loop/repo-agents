@@ -1,0 +1,110 @@
+diff --git a/openair3/NAS/COMMON/UTIL/nas_timer.c b/openair3/NAS/COMMON/UTIL/nas_timer.c
+index b67a3bc232..4478c81705 100644
+--- a/openair3/NAS/COMMON/UTIL/nas_timer.c
++++ b/openair3/NAS/COMMON/UTIL/nas_timer.c
+@@ -132,6 +132,9 @@ static int _nas_timer_db_insert(timer_queue_t *entry);
+ static nas_timer_entry_t *_nas_timer_db_remove_entry(int id);
+ static bool _nas_timer_db_remove(timer_queue_t *entry);
+ 
++/* Helper function to find timer entry by ITTI timer_id */
++static nas_timer_entry_t *_nas_timer_db_find_by_timer_id(long timer_id);
++
+ /*
+  * -----------------------------------------------------------------------------
+  *      Operator functions for timeval structures
+@@ -321,10 +324,14 @@ int nas_timer_restart(int id)
+ 
+ void nas_timer_handle_signal_expiry(long timer_id, void *arg_p)
+ {
+-  /* Get the timer entry for which the system timer expired */
+-  nas_timer_entry_t *te = _nas_timer_db.head->entry;
+-
+-  te->cb(te->args);
++  /* Find the timer entry that corresponds to the expired ITTI timer_id */
++  nas_timer_entry_t *te = _nas_timer_db_find_by_timer_id(timer_id);
++  
++  if (te != NULL) {
++    /* Execute the callback for the specific timer that expired */
++    te->cb(te->args);
++  }
++  /* Note: If the timer entry is not found, it might have been stopped or already processed */
+ }
+ 
+ 
+@@ -652,6 +659,35 @@ static bool _nas_timer_db_remove(timer_queue_t *entry)
+   return false;
+ }
+ 
++/****************************************************************************
++ **                                                                        **
++ ** Name:    _nas_timer_db_find_by_timer_id()                          **
++ **                                                                        **
++ ** Description: Finds a timer entry based on its ITTI timer_id            **
++ **                                                                        **
++ ** Inputs:  timer_id:  The ITTI timer identifier                      **
++ **      Others:    _nas_timer_db                              **
++ **                                                                        **
++ ** Outputs:     None                                                      **
++ **      Return:    A pointer to the timer entry if found;     **
++ **             NULL otherwise                             **
++ **      Others:    None                                       **
++ **                                                                        **
++ ***************************************************************************/
++static nas_timer_entry_t *_nas_timer_db_find_by_timer_id(long timer_id)
++{
++  timer_queue_t *current;
++  
++  /* Iterate through the timer queue starting from the head */
++  for (current = _nas_timer_db.head; current != NULL; current = current->next) {
++    if (current->entry != NULL && current->entry->timer_id == timer_id) {
++      return current->entry;
++    }
++  }
++  
++  return NULL;
++}
++
+ /*
+  * -----------------------------------------------------------------------------
+  *      Operator functions for timeval structures
+diff --git a/openair3/NAS/COMMON/UTIL/nas_timer.h b/openair3/NAS/COMMON/UTIL/nas_timer.h
+index b1149f21c0..01959002cb 100644
+--- a/openair3/NAS/COMMON/UTIL/nas_timer.h
++++ b/openair3/NAS/COMMON/UTIL/nas_timer.h
+@@ -73,9 +73,6 @@ int nas_timer_init(void);
+ int nas_timer_start(long sec, nas_timer_callback_t cb, void *args);
+ int nas_timer_stop(int id);
+ int nas_timer_restart(int id);
+-
+-#if defined(NAS_BUILT_IN_EPC)
+ void nas_timer_handle_signal_expiry(long timer_id, void *arg_p);
+-#endif
+ 
+ #endif /* __NAS_TIMER_H__ */
+diff --git a/openair3/NAS/UE/nas_ue_task.c b/openair3/NAS/UE/nas_ue_task.c
+index 308d5b1f7f..aad38d04cd 100644
+--- a/openair3/NAS/UE/nas_ue_task.c
++++ b/openair3/NAS/UE/nas_ue_task.c
+@@ -30,6 +30,7 @@
+ # include "nas_parser.h"
+ # include "nas_proc.h"
+ # include "memory.h"
++# include "nas_timer.h"
+ 
+ #include "nas_user.h"
+ #include "common/ran_context.h"
+@@ -296,6 +297,14 @@ void *nas_ue_task(void *args_p)
+ 
+         break;
+ 
++      case TIMER_HAS_EXPIRED:
++        LOG_D(NAS, "[UE %d] Received %s: timer_id %ld\n", Mod_id, ITTI_MSG_NAME (msg_p),
++              TIMER_HAS_EXPIRED (msg_p).timer_id);
++
++        /* Handle the timer expiry by calling the NAS timer handler */
++        nas_timer_handle_signal_expiry(TIMER_HAS_EXPIRED (msg_p).timer_id, TIMER_HAS_EXPIRED (msg_p).arg);
++        break;
++
+       default:
+         LOG_E(NAS, "[UE %d] Received unexpected message %s\n", Mod_id,  ITTI_MSG_NAME (msg_p));
+         break;

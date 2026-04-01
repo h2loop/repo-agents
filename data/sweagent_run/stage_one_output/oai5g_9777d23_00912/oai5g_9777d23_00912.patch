@@ -1,0 +1,191 @@
+diff --git a/openair2/LAYER2/MAC/eNB_scheduler_RA.c b/openair2/LAYER2/MAC/eNB_scheduler_RA.c
+index 375059f315..673df17f2d 100644
+--- a/openair2/LAYER2/MAC/eNB_scheduler_RA.c
++++ b/openair2/LAYER2/MAC/eNB_scheduler_RA.c
+@@ -1250,6 +1250,9 @@ schedule_RA(module_id_t module_idP, frame_t frameP, sub_frame_t subframeP) {
+   uint8_t i;
+   start_meas(&mac->schedule_ra);
+ 
++  // Lock the mutex to protect access to RA processes
++  pthread_mutex_lock(&mac->ra_mutex);
++
+   for (CC_id = 0; CC_id < MAX_NUM_CCs; CC_id++) {
+     // skip UL component carriers if TDD
+     if (is_UL_sf(&cc[CC_id], subframeP) == 1)
+@@ -1268,6 +1271,8 @@ schedule_RA(module_id_t module_idP, frame_t frameP, sub_frame_t subframeP) {
+     }     // for i=0 .. N_RA_PROC-1
+   }       // CC_id
+ 
++  pthread_mutex_unlock(&mac->ra_mutex);
++  
+   stop_meas(&mac->schedule_ra);
+ }
+ 
+@@ -1284,11 +1289,15 @@ initiate_ra_proc(module_id_t module_idP,
+                  uint8_t rach_resource_type
+                 ) {
+   uint8_t i;
+-  COMMON_channels_t *cc = &RC.mac[module_idP]->common_channels[CC_id];
++  eNB_MAC_INST *mac = RC.mac[module_idP];
++  COMMON_channels_t *cc = &mac->common_channels[CC_id];
+   RA_t *ra = cc->ra;
+   struct LTE_PRACH_ConfigSIB_v1310 *ext4_prach = NULL;
+   LTE_PRACH_ParametersListCE_r13_t *prach_ParametersListCE_r13 = NULL;
+ 
++  // Lock the mutex to protect access to RA processes
++  pthread_mutex_lock(&mac->ra_mutex);
++
+   if (cc->mib->message.schedulingInfoSIB1_BR_r13>0) {
+     AssertFatal(cc->radioResourceConfigCommon_BR != NULL,"radioResourceConfigCommon_BR is null\n");
+     AssertFatal(cc->radioResourceConfigCommon_BR->ext4 != NULL, "radioResourceConfigCommon_BR->ext4 is null\n");
+@@ -1314,6 +1323,7 @@ initiate_ra_proc(module_id_t module_idP,
+           "[eNB %d][RAPROC] CC_id %d Received impossible PRACH resource type %d, only %d CE levels configured\n",
+           module_idP, CC_id, rach_resource_type,
+           (int) prach_ParametersListCE_r13->list.count);
++    pthread_mutex_unlock(&mac->ra_mutex);
+     return;
+   }
+ 
+@@ -1341,8 +1351,8 @@ initiate_ra_proc(module_id_t module_idP,
+             abort();
+ 
+           case 1 :
+-	  case 3 :
+-	  case 4 :
++          case 3 :
++          case 4 :
+           case 5 :
+             offset = 6;
+             break;
+@@ -1382,7 +1392,7 @@ initiate_ra_proc(module_id_t module_idP,
+                                           0x4268,
+                                           0x6978};
+           for (int j=0; j<MAX_MOBILES_PER_ENB && j< (sizeof(drnti_def)/sizeof(int));j++)
+-          	  drnti[i]=drnti_def[i];
++                  drnti[i]=drnti_def[i];
+           
+           int nb_ue = 0;
+ 
+@@ -1432,6 +1442,7 @@ initiate_ra_proc(module_id_t module_idP,
+             i,
+             ra[i].rnti,
+             ra[i].eRA_state);
++      pthread_mutex_unlock(&mac->ra_mutex);
+       return;
+     }
+   }
+@@ -1445,17 +1456,23 @@ initiate_ra_proc(module_id_t module_idP,
+     LOG_E(MAC,"[eNB %d][RAPROC] CC_id %d Frame %d Clear Random access information\n", module_idP, CC_id, frameP);
+     clear_ra_proc(module_idP, CC_id, frameP);
+   }
++  
++  pthread_mutex_unlock(&mac->ra_mutex);
+ }
+ 
+ void
+ cancel_ra_proc(module_id_t module_idP, int CC_id, frame_t frameP,
+                rnti_t rnti) {
+   unsigned char i;
+-  RA_t *ra = (RA_t *) & RC.mac[module_idP]->common_channels[CC_id].ra[0];
++  eNB_MAC_INST *mac = RC.mac[module_idP];
++  RA_t *ra = (RA_t *) & mac->common_channels[CC_id].ra[0];
+   LOG_I(MAC,
+         "[eNB %d][RAPROC] CC_id %d Frame %d Cancelling RA procedure for UE rnti %x\n",
+         module_idP, CC_id, frameP, rnti);
+ 
++  // Lock the mutex to protect access to RA processes
++  pthread_mutex_lock(&mac->ra_mutex);
++
+   for (i = 0; i < NB_RA_PROC_MAX; i++) {
+     if (rnti == ra[i].rnti) {
+       ra[i].eRA_state = IDLE;
+@@ -1466,11 +1483,17 @@ cancel_ra_proc(module_id_t module_idP, int CC_id, frame_t frameP,
+       LOG_D(MAC,"[eNB %d][RAPROC] CC_id %d Frame %d Canceled RA procedure for UE rnti %x\n", module_idP, CC_id, frameP, rnti);
+     }
+   }
++  
++  pthread_mutex_unlock(&mac->ra_mutex);
+ }
+ 
+ void clear_ra_proc(module_id_t module_idP, int CC_id, frame_t frameP) {
+   unsigned char i;
+-  RA_t *ra = (RA_t *) & RC.mac[module_idP]->common_channels[CC_id].ra[0];
++  eNB_MAC_INST *mac = RC.mac[module_idP];
++  RA_t *ra = (RA_t *) & mac->common_channels[CC_id].ra[0];
++
++  // Lock the mutex to protect access to RA processes
++  pthread_mutex_lock(&mac->ra_mutex);
+ 
+   for (i = 0; i < NB_RA_PROC_MAX; i++) {
+     LOG_I(MAC,"[eNB %d][RAPROC] CC_id %d Frame %d Clear Random access information rnti %x\n", module_idP, CC_id, frameP, ra[i].rnti);
+@@ -1480,4 +1503,6 @@ void clear_ra_proc(module_id_t module_idP, int CC_id, frame_t frameP) {
+     ra[i].rnti = 0;
+     ra[i].msg3_round = 0;
+   }
++  
++  pthread_mutex_unlock(&mac->ra_mutex);
+ }
+diff --git a/openair2/LAYER2/MAC/mac.h b/openair2/LAYER2/MAC/mac.h
+index f10941c3ab..d535014ad4 100644
+--- a/openair2/LAYER2/MAC/mac.h
++++ b/openair2/LAYER2/MAC/mac.h
+@@ -42,6 +42,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include <pthread.h>
+ 
+ #include "common/platform_constants.h"
+ #include "LTE_BCCH-BCH-Message.h"
+@@ -1650,6 +1651,8 @@ typedef struct {
+   time_stats_t rx_p;
+   /// Mutex for nfapi UL_INFO
+   pthread_mutex_t      UL_INFO_mutex;
++  /// Mutex for RA processes
++  pthread_mutex_t      ra_mutex;
+   /// UE_Mode variable should be used in the case of Phy_stub operation since we won't have access to PHY_VARS_UE
+   /// where the UE_mode originally is for the full stack operation mode. The transitions between the states of the UE_Mode
+   /// will be triggered within phy_stub_ue.c in this case
+diff --git a/openair2/LAYER2/MAC/main.c b/openair2/LAYER2/MAC/main.c
+index 48fb32de8d..bc031c0559 100644
+--- a/openair2/LAYER2/MAC/main.c
++++ b/openair2/LAYER2/MAC/main.c
+@@ -202,6 +202,10 @@ void mac_top_init_eNB(void)
+     mac[i]->pre_processor_ul.ul_algo.data = mac[i]->pre_processor_ul.ul_algo.setup();
+ 
+     init_UE_info(&mac[i]->UE_info);
++
++    // Initialize mutexes
++    pthread_mutex_init(&mac[i]->UL_INFO_mutex, NULL);
++    pthread_mutex_init(&mac[i]->ra_mutex, NULL);
+   }
+ 
+   RC.mac = mac;
+@@ -228,13 +232,13 @@ void mac_init_cell_params(int Mod_idP, int CC_idP)
+ 
+     memset(&RC.mac[Mod_idP]->eNB_stats, 0, sizeof(eNB_STATS));
+     UE_template =
+-	(UE_TEMPLATE *) & RC.mac[Mod_idP]->UE_info.UE_template[CC_idP][0];
++        (UE_TEMPLATE *) & RC.mac[Mod_idP]->UE_info.UE_template[CC_idP][0];
+ 
+     for (j = 0; j < MAX_MOBILES_PER_ENB; j++) {
+-	UE_template[j].rnti = 0;
+-	// initiallize the eNB to UE statistics
+-	memset(&RC.mac[Mod_idP]->UE_info.eNB_UE_stats[CC_idP][j], 0,
+-	       sizeof(eNB_UE_STATS));
++        UE_template[j].rnti = 0;
++        // initiallize the eNB to UE statistics
++        memset(&RC.mac[Mod_idP]->UE_info.eNB_UE_stats[CC_idP][j], 0,
++               sizeof(eNB_UE_STATS));
+     }
+ 
+ }
+@@ -247,7 +251,7 @@ int rlcmac_init_global_param(void)
+     LOG_I(MAC, "[MAIN] CALLING RLC_MODULE_INIT...\n");
+ 
+     if (rlc_module_init(1) != 0) {
+-	return (-1);
++        return (-1);
+     }
+ 
+     pdcp_layer_init();

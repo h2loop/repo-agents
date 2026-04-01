@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix scheduling priority inversion in get_supported_bw_mhz function\n\n### Summary\nThere is a scheduling priority inversion where lower-priority traffic is served before higher-priority downstream of function get_supported_bw_mhz. When calling get_supported_bw_mhz() the behavior is not what is expected. The issue may be in get_supported_bw_mhz or a function downstream/upstream of it.\n\nThe root cause was an off-by-one error in the bounds checking assertion that allowed array index out of bounds access. This could cause the function to return garbage values that were interpreted as valid bandwidths, leading to incorrect scheduling priorities.\n\n### Changes\n- `common/utils/nr/nr_common.c`: Fixed bounds checking in get_supported_bw_mhz function by changing <= to < in AssertFatal conditions for both FR1 and FR2 cases to prevent out-of-bounds array access\n"
+}

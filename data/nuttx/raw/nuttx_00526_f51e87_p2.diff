@@ -1,0 +1,84 @@
+diff --git a/drivers/coresight/coresight_tmc_etr.c b/drivers/coresight/coresight_tmc_etr.c
+index 460dddbb..05481286 100644
+--- a/drivers/coresight/coresight_tmc_etr.c
++++ b/drivers/coresight/coresight_tmc_etr.c
+@@ -29,6 +29,7 @@
+ #include <stdbool.h>
+ #include <stdio.h>
+ #include <string.h>
++#include <inttypes.h>
+ #include <nuttx/fs/fs.h>
+ #include <nuttx/kmalloc.h>
+ #include <nuttx/cache.h>
+@@ -185,6 +186,8 @@ static void tmc_etr_hw_read(FAR struct coresight_tmc_dev_s *tmcdev)
+   uintptr_t rwp;
+   uint32_t status;
+   bool lost = false;
++  uintptr_t buf_start;
++  uintptr_t buf_end;
+ 
+   rrp = (uint64_t)coresight_get32(tmcdev->csdev.addr + TMC_RRPHI) << 32 |
+         coresight_get32(tmcdev->csdev.addr + TMC_RRP);
+@@ -201,19 +204,61 @@ static void tmc_etr_hw_read(FAR struct coresight_tmc_dev_s *tmcdev)
+       return;
+     }
+ 
++  /* Validate that rrp and rwp pointers are within buffer bounds */
++  buf_start = (uintptr_t)tmcdev->buf;
++  buf_end = buf_start + tmcdev->size;
++
++  if (rrp < buf_start || rrp > buf_end)
++    {
++      cserr("RRP pointer (0x%" PRIxPTR ") out of buffer bounds [0x%" PRIxPTR "-0x%" PRIxPTR "]\n",
++            rrp, buf_start, buf_end);
++      tmcdev->len = 0;
++      tmcdev->offset = 0;
++      return;
++    }
++
++  if (rwp < buf_start || rwp > buf_end)
++    {
++      cserr("RWP pointer (0x%" PRIxPTR ") out of buffer bounds [0x%" PRIxPTR "-0x%" PRIxPTR "]\n",
++            rwp, buf_start, buf_end);
++      tmcdev->len = 0;
++      tmcdev->offset = 0;
++      return;
++    }
++
+   if ((status & TMC_STS_FULL) == 1)
+     {
+       lost = true;
+     }
+ 
+   tmcdev->offset = rrp - (uintptr_t)tmcdev->buf;
++  
+   if (lost == true)
+     {
+       tmcdev->len = tmcdev->size;
+     }
+   else
+     {
+-      tmcdev->len = (uint32_t)(rwp - rrp);
++      /* Ensure length doesn't exceed buffer size */
++      uint32_t calculated_len = (uint32_t)(rwp - rrp);
++      if (calculated_len > tmcdev->size)
++        {
++          cserr("Calculated buffer length (%" PRIu32 ") exceeds buffer size (%" PRIu32 ")\n",
++                calculated_len, tmcdev->size);
++          tmcdev->len = tmcdev->size;
++        }
++      else
++        {
++          tmcdev->len = calculated_len;
++        }
++    }
++
++  /* Additional bounds check for offset + len */
++  if (tmcdev->offset + tmcdev->len > tmcdev->size)
++    {
++      cserr("Buffer parameters exceed allocated size: offset=%" PRIu32 ", len=%" PRIu32 ", size=%" PRIu32 "\n",
++            tmcdev->offset, tmcdev->len, tmcdev->size);
++      tmcdev->len = tmcdev->size - tmcdev->offset;
+     }
+ 
+   if (tmcdev->offset + tmcdev->len > tmcdev->size)

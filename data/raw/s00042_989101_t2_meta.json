@@ -1,0 +1,9 @@
+{
+  "run_id": "s00042_989101",
+  "pr_text": "## Title: Fix ITTI scheduling priority inversion\n\n### Summary\nThe ITTI (Inter-Task Interface) message handling suffers from a priority inversion issue where non-message file descriptor events can be processed before higher-priority message queue events. The root cause is in `itti_receive_msg()`, which uses a legacy loop condition that exits when multiple file descriptors are present, even if the message queue is empty. This allows lower-priority subscribed FD events to be serviced before message",
+  "trajectory_path": "data/raw/s00042_989101_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00042_989101_p2.diff",
+  "patch_lines": 38,
+  "trajectory_steps": 68,
+  "timestamp": "2026-02-10T10:53:37Z"
+}

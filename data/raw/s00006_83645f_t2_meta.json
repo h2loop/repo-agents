@@ -1,0 +1,9 @@
+{
+  "run_id": "s00006_83645f",
+  "pr_text": "## Title: Add job list cleanup to prevent stale protocol state in OMG subsystem\n\n### Summary\nThe OMG (OpenAirInterface Mobility Generator) subsystem was not properly cleaning up job lists after procedure completion or failure, leading to stale protocol state and memory leaks. The `nodes_avgspeed()` function in `job.c` accessed job list entries without proper validation, risking division by zero and NULL pointer dereferences when the list contained invalid entries.\n\nThis patch introduces a `clear",
+  "trajectory_path": "data/raw/s00006_83645f_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00006_83645f_p2.diff",
+  "patch_lines": 74,
+  "trajectory_steps": 31,
+  "timestamp": "2026-02-10T10:31:32Z"
+}

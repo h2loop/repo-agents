@@ -1,0 +1,9 @@
+{
+  "run_id": "s00158_567771",
+  "pr_text": "## Title: Add UE state validation before protocol message processing in LTE UE sync thread\n\n### Summary\nThe LTE UE synchronization thread previously proceeded to process protocol messages without validating the UE's L2 connection state. When operating in `no_L2_connect` mode, this unnecessary downstream processing could consume resources and potentially trigger undefined behavior. This patch adds an explicit state validation check immediately after thread initialization to short-circuit the thre",
+  "trajectory_path": "data/raw/s00158_567771_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00158_567771_p2.diff",
+  "patch_lines": 7,
+  "trajectory_steps": 25,
+  "timestamp": "2026-02-10T11:36:24Z"
+}

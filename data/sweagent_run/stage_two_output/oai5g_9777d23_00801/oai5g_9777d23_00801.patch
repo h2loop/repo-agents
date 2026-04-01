@@ -1,0 +1,70 @@
+diff --git a/openair2/F1AP/f1ap_du_ue_context_management.c b/openair2/F1AP/f1ap_du_ue_context_management.c
+index e09f038864..f4f8b63ff5 100644
+--- a/openair2/F1AP/f1ap_du_ue_context_management.c
++++ b/openair2/F1AP/f1ap_du_ue_context_management.c
+@@ -83,7 +83,7 @@ int DU_send_UE_CONTEXT_RELEASE_REQUEST(sctp_assoc_t assoc_id, f1ap_ue_context_re
+   uint8_t *buffer = NULL;
+   uint32_t len = 0;
+   if (f1ap_encode_pdu(pdu, &buffer, &len) < 0) {
+-    LOG_E(F1AP, "Failed to encode F1 context release request\n");
++    LOG_E(F1AP, "Failed to encode F1 UE Context Release Request\n");
+     return -1;
+   }
+ 
+@@ -113,7 +113,7 @@ int DU_send_UE_CONTEXT_RELEASE_COMPLETE(sctp_assoc_t assoc_id, f1ap_ue_context_r
+   uint8_t  *buffer;
+   uint32_t  len;
+   if (f1ap_encode_pdu(pdu, &buffer, &len) < 0) {
+-    LOG_E(F1AP, "Failed to encode F1 context release complete\n");
++    LOG_E(F1AP, "Failed to encode F1 UE Context Release Complete\n");
+     return -1;
+   }
+ 
+@@ -144,7 +144,7 @@ int DU_send_UE_CONTEXT_MODIFICATION_RESPONSE(sctp_assoc_t assoc_id, f1ap_ue_cont
+   uint8_t *buffer = NULL;
+   uint32_t len = 0;
+   if (f1ap_encode_pdu(pdu, &buffer, &len) < 0) {
+-    LOG_E(F1AP, "Failed to encode F1 UE CONTEXT SETUP RESPONSE\n");
++    LOG_E(F1AP, "Failed to encode F1 UE Context Modification Response\n");
+     return -1;
+   }
+   f1ap_itti_send_sctp_data_req(assoc_id, buffer, len);
+@@ -192,12 +192,15 @@ int DU_send_UE_CONTEXT_MODIFICATION_REQUIRED(sctp_assoc_t assoc_id, f1ap_ue_cont
+     ie3->value.present = F1AP_UEContextModificationRequiredIEs__value_PR_DUtoCURRCInformation;
+ 
+     const du_to_cu_rrc_information_t *du2cu = required->du_to_cu_rrc_information;
+-    AssertFatal(du2cu->cellGroupConfig != NULL, "du2cu cellGroupConfig is mandatory!\n");
+-
+-    /* mandatorycellGroupConfig */
+-    OCTET_STRING_fromBuf(&ie3->value.choice.DUtoCURRCInformation.cellGroupConfig,
+-                         (const char *)du2cu->cellGroupConfig,
+-                         du2cu->cellGroupConfig_length);
++    /* Handle cellGroupConfig gracefully instead of asserting */
++    if (du2cu->cellGroupConfig != NULL) {
++      /* mandatorycellGroupConfig */
++      OCTET_STRING_fromBuf(&ie3->value.choice.DUtoCURRCInformation.cellGroupConfig,
++                           (const char *)du2cu->cellGroupConfig,
++                           du2cu->cellGroupConfig_length);
++    } else {
++      LOG_W(F1AP, "du2cu cellGroupConfig is NULL, skipping mandatory field\n");
++    }
+ 
+     /* optional: measGapConfig */
+     if (du2cu->measGapConfig != NULL) {
+@@ -208,6 +211,7 @@ int DU_send_UE_CONTEXT_MODIFICATION_REQUIRED(sctp_assoc_t assoc_id, f1ap_ue_cont
+ 
+     /* optional: requestedP_MaxFR1 */
+     if (du2cu->requestedP_MaxFR1 != NULL) {
++      LOG_W(F1AP, "requestedP_MaxFR1 is not fully implemented yet\n");
+       OCTET_STRING_fromBuf(ie3->value.choice.DUtoCURRCInformation.requestedP_MaxFR1,
+                            (const char *)du2cu->requestedP_MaxFR1,
+                            du2cu->requestedP_MaxFR1_length);
+@@ -268,7 +272,7 @@ int DU_send_UE_CONTEXT_MODIFICATION_REQUIRED(sctp_assoc_t assoc_id, f1ap_ue_cont
+   uint8_t *buffer = NULL;
+   uint32_t len = 0;
+   if (f1ap_encode_pdu(&pdu, &buffer, &len) < 0) {
+-    LOG_E(F1AP, "Failed to encode F1 context release request\n");
++    LOG_E(F1AP, "Failed to encode F1 UE Context Modification Required\n");
+     return -1;
+   }
+ 

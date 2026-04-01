@@ -1,0 +1,27 @@
+diff --git a/openair1/PHY/NR_UE_TRANSPORT/nr_ulsch_ue.c b/openair1/PHY/NR_UE_TRANSPORT/nr_ulsch_ue.c
+index bef7724e5d..6f3d590f3c 100644
+--- a/openair1/PHY/NR_UE_TRANSPORT/nr_ulsch_ue.c
++++ b/openair1/PHY/NR_UE_TRANSPORT/nr_ulsch_ue.c
+@@ -770,7 +770,7 @@ void nr_ue_ulsch_procedures(PHY_VARS_NR_UE *UE,
+                      &tx_precoding[ap][l * frame_parms->ofdm_symbol_size + k],
+                      NR_NB_SC_PER_RB * sizeof(c16_t));
+             else
+-              memset(&txdataF[ap][l * frame_parms->ofdm_symbol_size + k], 0, NR_NB_SC_PER_RB * sizeof(int32_t));
++              memset(&txdataF[ap][l * frame_parms->ofdm_symbol_size + k], 0, NR_NB_SC_PER_RB * sizeof(c16_t));
+           } else { // RB does cross DC
+             int neg_length = frame_parms->ofdm_symbol_size - k;
+             int pos_length = NR_NB_SC_PER_RB - neg_length;
+@@ -780,10 +780,10 @@ void nr_ue_ulsch_procedures(PHY_VARS_NR_UE *UE,
+                      neg_length * sizeof(c16_t));
+               memcpy(&txdataF[ap][l * frame_parms->ofdm_symbol_size],
+                      &tx_precoding[ap][l * frame_parms->ofdm_symbol_size],
+-                     pos_length * sizeof(int32_t));
++                     pos_length * sizeof(c16_t));
+             } else {
+-              memset(&txdataF[ap][l * frame_parms->ofdm_symbol_size + k], 0, neg_length * sizeof(int32_t));
+-              memset(&txdataF[ap][l * frame_parms->ofdm_symbol_size], 0, pos_length * sizeof(int32_t));
++              memset(&txdataF[ap][l * frame_parms->ofdm_symbol_size + k], 0, neg_length * sizeof(c16_t));
++              memset(&txdataF[ap][l * frame_parms->ofdm_symbol_size], 0, pos_length * sizeof(c16_t));
+             }
+           }
+           k += NR_NB_SC_PER_RB;

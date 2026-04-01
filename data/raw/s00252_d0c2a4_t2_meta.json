@@ -1,0 +1,9 @@
+{
+  "run_id": "s00252_d0c2a4",
+  "pr_text": "## Title: Fix mutex deadlock in WLS memory allocation error path\n\n### Summary\nFix a concurrency bug in the WLS (Wireline Simulation) integration layer that could cause F1AP interface message loss or corruption. In `wls_mac_alloc_buffer()`, when memory allocation fails, the function was calling `wls_mac_print_stats()` while still holding the `lock_alloc` mutex. This violates proper lock discipline and can lead to deadlocks when other threads attempt to acquire the same lock during stats printing ",
+  "trajectory_path": "data/raw/s00252_d0c2a4_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00252_d0c2a4_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 17,
+  "timestamp": "2026-02-10T12:09:10Z"
+}

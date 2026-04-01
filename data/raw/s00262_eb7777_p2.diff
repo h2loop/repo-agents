@@ -1,0 +1,14 @@
+diff --git a/openair2/RRC/NR_UE/rrc_sl_preconfig.c b/openair2/RRC/NR_UE/rrc_sl_preconfig.c
+index b5ae64b96e..d897a714e4 100644
+--- a/openair2/RRC/NR_UE/rrc_sl_preconfig.c
++++ b/openair2/RRC/NR_UE/rrc_sl_preconfig.c
+@@ -186,7 +186,8 @@ static void prepare_NR_SL_ResourcePool(NR_SL_ResourcePool_r16_t *sl_res_pool,
+   }
+ 
+   // mask out unused bits
+-  sl_res_pool->ext1->sl_TimeResource_r16->buf[sl_res_pool->ext1->sl_TimeResource_r16->size - 1] &= (0 - (1 << (sl_res_pool->ext1->sl_TimeResource_r16->bits_unused)));
++  uint8_t mask = ~((1 << (sl_res_pool->ext1->sl_TimeResource_r16->bits_unused)) - 1);
++  sl_res_pool->ext1->sl_TimeResource_r16->buf[sl_res_pool->ext1->sl_TimeResource_r16->size - 1] &= mask;
+ 
+   char aprefix[MAX_OPTNAME_SIZE*2 + 8];
+   paramdef_t SL_POOLPARAMS[] = SL_RESPOOLPARAMS_DESC(sl_res_pool);

@@ -1,0 +1,32 @@
+{
+  "run_id": "s00158_567771",
+  "function": {
+    "name": "init_thread",
+    "file": "executables/lte-ue.c",
+    "start_line": 178,
+    "end_line": 209,
+    "body_lines": 32,
+    "signature": "void init_thread(int sched_runtime, int sched_deadline, int sched_fifo, cpu_set_t *cpuset, char *name)",
+    "subsystem": "executables",
+    "token_estimate": 97
+  },
+  "bug": {
+    "bug_id": "telecom_state_machine_missing_validation",
+    "description": "missing state validation before processing a protocol message",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a missing state validation before processing a protocol message downstream of function init_thread in the executables subsystem.\nThe function is located at executables/lte-ue.c:178.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00158_567771_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00158_567771_p1.diff",
+  "patch_lines": 7,
+  "trajectory_steps": 50,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:35:04Z"
+}

@@ -1,0 +1,76 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c b/openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c
+index 71547f85e7..0fd53fbef0 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c
++++ b/openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c
+@@ -119,6 +119,8 @@ static NR_SetupRelease_RACH_ConfigCommon_t *clone_rach_configcommon(const NR_Set
+   clone->present = rcc->present;
+   if (clone->present == NR_SetupRelease_RACH_ConfigCommon_PR_release)
+     return clone;
++  if (rcc->choice.setup == NULL)
++    return clone;
+ 
+   uint8_t buf[1024];
+   asn_enc_rval_t enc_rval = uper_encode_to_buffer(&asn_DEF_NR_RACH_ConfigCommon, NULL, rcc->choice.setup, buf, sizeof(buf));
+@@ -136,6 +138,8 @@ static NR_SetupRelease_MsgA_ConfigCommon_r16_t *clone_msga_configcommon(const NR
+   clone->present = mcc->present;
+   if (clone->present == NR_SetupRelease_MsgA_ConfigCommon_r16_PR_release)
+     return clone;
++  if (mcc->choice.setup == NULL)
++    return clone;
+   uint8_t buf[1024];
+   asn_enc_rval_t enc_rval = uper_encode_to_buffer(&asn_DEF_NR_MsgA_ConfigCommon_r16, NULL, mcc->choice.setup, buf, sizeof(buf));
+   AssertFatal(enc_rval.encoded > 0 && enc_rval.encoded < sizeof(buf),
+@@ -155,6 +159,8 @@ static NR_SetupRelease_PUSCH_ConfigCommon_t *clone_pusch_configcommon(const NR_S
+   clone->present = pcc->present;
+   if (clone->present == NR_SetupRelease_PUSCH_ConfigCommon_PR_release)
+     return clone;
++  if (pcc->choice.setup == NULL)
++    return clone;
+ 
+   uint8_t buf[1024];
+   asn_enc_rval_t enc_rval = uper_encode_to_buffer(&asn_DEF_NR_PUSCH_ConfigCommon, NULL, pcc->choice.setup, buf, sizeof(buf));
+@@ -172,6 +178,8 @@ static NR_SetupRelease_PUCCH_ConfigCommon_t *clone_pucch_configcommon(const NR_S
+   clone->present = pcc->present;
+   if (clone->present == NR_SetupRelease_PUCCH_ConfigCommon_PR_release)
+     return clone;
++  if (pcc->choice.setup == NULL)
++    return clone;
+ 
+   uint8_t buf[1024];
+   asn_enc_rval_t enc_rval = uper_encode_to_buffer(&asn_DEF_NR_PUCCH_ConfigCommon, NULL, pcc->choice.setup, buf, sizeof(buf));
+@@ -189,6 +197,8 @@ static NR_SetupRelease_PDCCH_ConfigCommon_t *clone_pdcch_configcommon(const NR_S
+   clone->present = pcc->present;
+   if (clone->present == NR_SetupRelease_PDCCH_ConfigCommon_PR_release)
+     return clone;
++  if (pcc->choice.setup == NULL)
++    return clone;
+ 
+   uint8_t buf[1024];
+   asn_enc_rval_t enc_rval = uper_encode_to_buffer(&asn_DEF_NR_PDCCH_ConfigCommon, NULL, pcc->choice.setup, buf, sizeof(buf));
+@@ -206,6 +216,8 @@ static NR_SetupRelease_PDSCH_ConfigCommon_t *clone_pdsch_configcommon(const NR_S
+   clone->present = pcc->present;
+   if (clone->present == NR_SetupRelease_PDSCH_ConfigCommon_PR_release)
+     return clone;
++  if (pcc->choice.setup == NULL)
++    return clone;
+ 
+   uint8_t buf[1024];
+   asn_enc_rval_t enc_rval = uper_encode_to_buffer(&asn_DEF_NR_PDSCH_ConfigCommon, NULL, pcc->choice.setup, buf, sizeof(buf));
+@@ -2842,7 +2854,7 @@ NR_BCCH_DL_SCH_Message_t *get_SIB1_NR(const NR_ServingCellConfigCommon_t *scc,
+                                frequency_range);
+ 
+   LOG_I(NR_RRC,
+-	"SIB1 freq: offsetToPointA %d\n",
++        "SIB1 freq: offsetToPointA %d\n",
+         (int)sib1->servingCellConfigCommon->downlinkConfigCommon.frequencyInfoDL.offsetToPointA);
+   
+   for (int i = 0; i < frequencyInfoDL->scs_SpecificCarrierList.list.count; i++) {
+@@ -3785,7 +3797,7 @@ NR_CellGroupConfig_t *get_initial_cellGroupConfig(int uid,
+   cellGroupConfig->cellGroupId = 0;
+ 
+   /* Rlc Bearer Config */
+-  /* TS38.331 9.2.1	Default SRB configurations */
++  /* TS38.331 9.2.1     Default SRB configurations */
+   cellGroupConfig->rlc_BearerToAddModList = calloc(1, sizeof(*cellGroupConfig->rlc_BearerToAddModList));
+   NR_RLC_BearerConfig_t *rlc_BearerConfig =
+       get_SRB_RLC_BearerConfig(1, 1, NR_LogicalChannelConfig__ul_SpecificParameters__bucketSizeDuration_ms1000, default_rlc_config);

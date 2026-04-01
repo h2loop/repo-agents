@@ -1,0 +1,4 @@
+{
+    "is_good_patch": false,
+    "synth_pr": "\n## Title: Fix file descriptor leak in CSI-RS measurement bitmap calculation\n\n### Summary\nThe CSI-RS measurement bitmap calculation function had incorrect bitwise operations that could cause unexpected behavior when multiple report configurations were processed. This led to downstream functions not working as expected, potentially causing resource allocation issues.\n\nThe fix changes the bitmap accumulation from addition to bitwise OR operations, ensuring correct bit setting behavior.\n\n### Changes\n- `openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c`: Fixed bitwise operations in `set_csirs_measurement_bitmap` function to use `|=` instead of `+=` for proper bitmap construction.\n\n"
+}

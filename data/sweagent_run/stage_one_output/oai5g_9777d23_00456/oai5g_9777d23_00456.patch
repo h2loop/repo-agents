@@ -1,0 +1,27 @@
+diff --git a/openair2/F1AP/lib/f1ap_interface_management.c b/openair2/F1AP/lib/f1ap_interface_management.c
+index fe079faa4c..085b52d34b 100644
+--- a/openair2/F1AP/lib/f1ap_interface_management.c
++++ b/openair2/F1AP/lib/f1ap_interface_management.c
+@@ -20,6 +20,7 @@
+  */
+ 
+ #include <string.h>
++#include <stdint.h>
+ 
+ #include "common/utils/assertions.h"
+ #include "openair3/UTILS/conversions.h"
+@@ -35,12 +36,13 @@
+ static const int nrb_lut[29] = {11,  18,  24,  25,  31,  32,  38,  51,  52,  65,  66,  78,  79,  93, 106,
+                                 107, 121, 132, 133, 135, 160, 162, 189, 216, 217, 245, 264, 270, 273};
+ 
+-static int to_NRNRB(int nrb)
++static uint8_t to_NRNRB(int nrb)
+ {
+   for (int i = 0; i < sizeofArray(nrb_lut); i++)
+     if (nrb_lut[i] == nrb)
+       return i;
+   AssertFatal(1 == 0, "nrb %d is not in the list of possible NRNRB\n", nrb);
++  return 0; // Should never reach here due to AssertFatal, but needed for compiler
+ }
+ 
+ static int read_slice_info(const F1AP_ServedPLMNs_Item_t *plmn, nssai_t *nssai, int max_nssai)

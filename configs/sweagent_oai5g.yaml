@@ -1,0 +1,204 @@
+# =============================================================================
+# SWE-agent Configuration for SERA/SVG Pipeline — OpenAirInterface5G
+# =============================================================================
+#
+# This config drives SWE-agent rollouts against OAI5G Docker containers using
+# Qwen3-Coder-480B as the teacher model via a LiteLLM proxy.
+#
+# Usage:
+#   sweagent run \
+#     --config configs/sweagent_oai5g.yaml \
+#     --env.deployment.image "oai5g-sera:<commit>" \
+#     --problem_statement.text "<prompt>"
+#
+# Required environment variables (set at runtime, never baked in):
+#   LLM_BASE_URL  - LiteLLM proxy URL (e.g., https://litellm-prod-....run.app)
+#   LLM_API_KEY   - API key for the LiteLLM proxy
+#
+# Reference: SERA paper, Section 3 (SVG pipeline), Section 5.2 (filtering)
+# SWE-agent docs: https://swe-agent.com/latest/
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# Agent configuration
+# ---------------------------------------------------------------------------
+agent:
+  type: default
+
+  # --- Model ---
+  # Qwen3-Coder-480B served through a LiteLLM-compatible OpenAI proxy on GCP.
+  # SWE-agent uses litellm under the hood, so any OpenAI-compatible endpoint
+  # works by setting api_base and api_key.
+  model:
+    name: "qwen/qwen3-coder-480b-a35b-instruct-maas"
+    api_base: "${LLM_BASE_URL}/v1"
+    api_key: "${LLM_API_KEY}"
+
+    # Sampling parameters
+    temperature: 0.7
+    top_p: 1.0
+
+    # Max tokens per model response. Qwen3-Coder supports large outputs;
+    # 4096 balances detail with cost per step.
+    max_output_tokens: 4096
+
+    # Step budget: 115 steps per rollout, per SERA paper Section 3.
+    # SWE-agent enforces this via per_instance_call_limit (max API calls
+    # the model can make for a single problem instance).
+    per_instance_call_limit: 115
+
+    # Cost controls. Set high to avoid premature termination; actual cost
+    # governance happens at the LiteLLM proxy / orchestrator level.
+    per_instance_cost_limit: 50.0
+    total_cost_limit: 0.0        # 0 = unlimited across instances
+
+    # Retry configuration for transient API errors
+    retry:
+      retries: 6
+      min_wait: 2
+      max_wait: 60
+
+    # No artificial delay between API calls (rate limiting handled by proxy)
+    delay: 0.0
+
+  # --- Prompt templates ---
+  # Adapted for C/C++ telecom codebase (OAI5G) rather than the default
+  # Python-focused prompts. The instance_template is intentionally generic
+  # so that rollout1.py and rollout2.py can inject their own task prompts
+  # via the problem_statement field.
+  templates:
+    system_template: |-
+      You are an expert C/C++ software engineer specializing in telecommunications
+      and 5G protocol stacks. You can interact with a computer to solve tasks in
+      the OpenAirInterface5G codebase.
+
+      The repository implements the full 4G/5G protocol stack including PHY, MAC,
+      RLC, PDCP, RRC, NAS, and related components. The code is primarily C with
+      some C++ and uses standard Linux build tooling (gcc, cmake, make).
+
+      You have access to a bash shell and a file editor. Use them to explore the
+      codebase, understand the code, make changes, and verify your work.
+
+      Important guidelines:
+      - Always explain your reasoning before taking action.
+      - Use bash commands for navigation, searching, and compilation checks.
+      - Use the str_replace_editor tool for precise file edits.
+      - You can use `gcc -fsyntax-only <file>` for lightweight syntax validation.
+      - Do NOT attempt a full OAI5G build (it requires hardware SDKs not present).
+      - Focus on correctness, clarity, and minimal diffs.
+
+    instance_template: |-
+      <uploaded_files>
+      {{working_dir}}
+      </uploaded_files>
+
+      The OpenAirInterface5G repository has been mounted at {{working_dir}}.
+
+      <task_description>
+      {{problem_statement}}
+      </task_description>
+
+      Please investigate the issue described above and implement the necessary
+      changes. Follow these steps:
+      1. Explore the relevant code to understand the current behavior.
+      2. Identify the root cause or the area that needs modification.
+      3. Make precise, minimal edits to address the issue.
+      4. Verify your changes with syntax checks where possible.
+      5. Consider edge cases and ensure your fix is robust.
+
+    next_step_template: |-
+      OBSERVATION:
+      {{observation}}
+
+    next_step_no_output_template: |-
+      Your command ran successfully and did not produce any output.
+
+    # No context window truncation during generation. Set a very large
+    # observation limit so the agent sees full tool output without clipping.
+    # This aligns with the SERA requirement of no truncation during generation.
+    max_observation_length: 100000
+
+    next_step_truncated_observation_template: |-
+      OBSERVATION (truncated — output exceeded {{max_observation_length}} characters):
+      {{observation}}
+
+    command_cancelled_timeout_template: |-
+      The command '{{command}}' was cancelled because it exceeded the
+      {{timeout}} second timeout. It may have been waiting for input or
+      is otherwise blocked. Please try a different approach.
+
+  # --- Tools ---
+  # Standard SWE-agent tool set: str_replace_editor via the edit_anthropic
+  # bundle, bash via enable_bash_tool, and submit for patch extraction.
+  tools:
+    # Per-command execution timeout (seconds). C codebases can have slow
+    # grep/find operations, so allow generous time.
+    execution_timeout: 120
+
+    # Environment variables injected into the container shell.
+    # Disable interactive pagers and progress bars that would block the agent.
+    env_variables:
+      PAGER: "cat"
+      MANPAGER: "cat"
+      LESS: "-R"
+      GIT_PAGER: "cat"
+
+    # Tool bundles loaded into the agent's environment:
+    #   - edit_anthropic: provides the str_replace_editor tool (file editing)
+    #   - submit: provides the submit command for finalizing patches
+    #   - registry: provides file listing and navigation utilities
+    bundles:
+      - path: tools/registry
+      - path: tools/edit_anthropic
+      - path: tools/submit
+
+    registry_variables:
+      USE_FILEMAP: "true"
+
+    # Enable the bash tool so the agent can run shell commands.
+    enable_bash_tool: true
+
+    # Parse model output as function calls (tool use).
+    parse_function:
+      type: function_calling
+
+  # --- History processors ---
+  # Cache control for prompt-caching-capable models. Qwen3-Coder may or
+  # may not support this; it is harmless if unsupported.
+  history_processors:
+    - type: cache_control
+      last_n_messages: 2
+
+# ---------------------------------------------------------------------------
+# Environment configuration
+# ---------------------------------------------------------------------------
+# The Docker image and repo are specified at runtime via CLI overrides:
+#   --env.deployment.image "oai5g-sera:<commit_sha>"
+# This section provides sensible defaults.
+env:
+  deployment:
+    # Default Docker image. In practice, each rollout overrides this with
+    # the commit-specific image tag: oai5g-sera:{commit_sha}
+    #
+    # The image is built by docker/build_sera_container.sh and contains:
+    #   - Ubuntu 22.04 base
+    #   - gcc, g++, cmake, make, clang-format, ctags, cscope
+    #   - OAI5G source at /repo
+    #   - No full build (no UHD/DPDK hardware SDK dependencies)
+    image: "oai5g-sera:latest"
+
+  # Repository configuration is not needed here because the OAI5G source
+  # is already baked into the Docker image at /repo. SWE-agent will detect
+  # the git repo inside the container automatically.
+  # repo: null
+
+  # Commands to run inside the container after startup but before the
+  # agent begins. Ensure git is configured and the working directory
+  # is correct.
+  post_startup_commands:
+    - "cd /repo"
+    - "git config --global --add safe.directory /repo"
+    - "git status --short"
+
+  # Timeout for each post-startup command (seconds)
+  post_startup_command_timeout: 120

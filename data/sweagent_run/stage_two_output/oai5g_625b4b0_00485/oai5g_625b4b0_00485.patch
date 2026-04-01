@@ -1,0 +1,91 @@
+diff --git a/openair2/RRC/NR/rrc_gNB_NGAP.c b/openair2/RRC/NR/rrc_gNB_NGAP.c
+index 6a35f61b3f..ea27473c6b 100644
+--- a/openair2/RRC/NR/rrc_gNB_NGAP.c
++++ b/openair2/RRC/NR/rrc_gNB_NGAP.c
+@@ -899,11 +899,15 @@ int rrc_gNB_process_NGAP_PDUSESSION_MODIFY_REQ(MessageDef *msg_p, instance_t ins
+         break;
+     if (sess == UE->pduSession + UE->nb_of_pdusessions) {
+       LOG_W(NR_RRC, "Requested modification of non-existing PDU session, refusing modification\n");
+-      UE->nb_of_pdusessions++;
+-      sess->status = PDU_SESSION_STATUS_FAILED;
+-      sess->param.pdusession_id = sessMod->pdusession_id;
+-      sess->cause = NGAP_CAUSE_RADIO_NETWORK;
+-      UE->pduSession[i].cause_value = NGAP_CauseRadioNetwork_unknown_PDU_session_ID;
++      if (UE->nb_of_pdusessions < NGAP_MAX_PDU_SESSION) {
++        sess = &UE->pduSession[UE->nb_of_pdusessions++];
++        sess->status = PDU_SESSION_STATUS_FAILED;
++        sess->param.pdusession_id = sessMod->pdusession_id;
++        sess->cause = NGAP_CAUSE_RADIO_NETWORK;
++        sess->cause_value = NGAP_CauseRadioNetwork_unknown_PDU_session_ID;
++      } else {
++        LOG_E(NR_RRC, "Cannot add PDU session, maximum number of sessions (%d) reached\n", NGAP_MAX_PDU_SESSION);
++      }
+     } else {
+       all_failed = false;
+       sess->status = PDU_SESSION_STATUS_NEW;
+@@ -914,10 +918,10 @@ int rrc_gNB_process_NGAP_PDUSESSION_MODIFY_REQ(MessageDef *msg_p, instance_t ins
+       sess->param.pdusession_id = sessMod->pdusession_id;
+       sess->cause = NGAP_CAUSE_NOTHING;
+       if (sessMod->nas_pdu.buffer != NULL) {
+-        UE->pduSession[i].param.nas_pdu = sessMod->nas_pdu;
++        sess->param.nas_pdu = sessMod->nas_pdu;
+       }
+       // Save new pdu session parameters, qos, upf addr, teid
+-      decodePDUSessionResourceModify(&sess->param, UE->pduSession[i].param.pdusessionTransfer);
++      decodePDUSessionResourceModify(&sess->param, sess->param.pdusessionTransfer);
+       sess->param.UPF_addr_N3 = sessMod->upf_addr;
+       sess->param.UPF_teid_N3 = sessMod->gtp_teid;
+     }
+@@ -1241,11 +1245,15 @@ int rrc_gNB_process_NGAP_PDUSESSION_RELEASE_COMMAND(MessageDef *msg_p, instance_
+     rrc_pdu_session_param_t *pduSession = find_pduSession(UE, cmd->pdusession_release_params[pdusession].pdusession_id, false);
+     if (!pduSession) {
+       LOG_I(NR_RRC, "no pdusession_id, AMF requested to close it id=%d\n", cmd->pdusession_release_params[pdusession].pdusession_id);
+-      int j=UE->nb_of_pdusessions++;
+-      UE->pduSession[j].status = PDU_SESSION_STATUS_FAILED;
+-      UE->pduSession[j].param.pdusession_id = cmd->pdusession_release_params[pdusession].pdusession_id;
+-      UE->pduSession[j].cause = NGAP_CAUSE_RADIO_NETWORK;
+-      UE->pduSession[j].cause_value = 30;
++      if (UE->nb_of_pdusessions < NGAP_MAX_PDU_SESSION) {
++        int j = UE->nb_of_pdusessions++;
++        UE->pduSession[j].status = PDU_SESSION_STATUS_FAILED;
++        UE->pduSession[j].param.pdusession_id = cmd->pdusession_release_params[pdusession].pdusession_id;
++        UE->pduSession[j].cause = NGAP_CAUSE_RADIO_NETWORK;
++        UE->pduSession[j].cause_value = 30;
++      } else {
++        LOG_E(NR_RRC, "Cannot add PDU session, maximum number of sessions (%d) reached\n", NGAP_MAX_PDU_SESSION);
++      }
+       continue;
+     }
+     if (pduSession->status == PDU_SESSION_STATUS_FAILED) {
+diff --git a/openair2/RRC/NR/rrc_gNB_radio_bearers.c b/openair2/RRC/NR/rrc_gNB_radio_bearers.c
+index aec7865a1c..ed818d5e6e 100644
+--- a/openair2/RRC/NR/rrc_gNB_radio_bearers.c
++++ b/openair2/RRC/NR/rrc_gNB_radio_bearers.c
+@@ -22,6 +22,7 @@
+ #include "rrc_gNB_radio_bearers.h"
+ #include "oai_asn1.h"
+ #include "openair2/E1AP/e1ap.h"
++#include "LOG/vcd_signal_dumper.h"
+ 
+ rrc_pdu_session_param_t *find_pduSession(gNB_RRC_UE_t *ue, int id, bool create)
+ {
+@@ -30,10 +31,16 @@ rrc_pdu_session_param_t *find_pduSession(gNB_RRC_UE_t *ue, int id, bool create)
+     if (id == ue->pduSession[j].param.pdusession_id)
+       break;
+   if (j == ue->nb_of_pdusessions) {
+-    if (create)
+-      ue->nb_of_pdusessions++;
+-    else
++    if (create) {
++      if (ue->nb_of_pdusessions < NGAP_MAX_PDU_SESSION) {
++        j = ue->nb_of_pdusessions++;
++      } else {
++        LOG_E(NR_RRC, "Cannot add PDU session, maximum number of sessions (%d) reached\n", NGAP_MAX_PDU_SESSION);
++        return NULL;
++      }
++    } else {
+       return NULL;
++    }
+   }
+   return ue->pduSession + j;
+ }

@@ -1,0 +1,28 @@
+diff --git a/openair3/NAS/NR_UE/nr_nas_msg.c b/openair3/NAS/NR_UE/nr_nas_msg.c
+index 8f4f9bd280..9d5a2bb7ed 100644
+--- a/openair3/NAS/NR_UE/nr_nas_msg.c
++++ b/openair3/NAS/NR_UE/nr_nas_msg.c
+@@ -916,8 +916,14 @@ void generateServiceRequest(as_nas_info_t *initialNasMsg, nr_ue_nas_t *nas)
+   // 5G-S-TMSI
+   size += fill_fgstmsi(&mm_msg->fiveg_s_tmsi, nas->guti);
+ 
+-  /* message encoding */
++  if (security_protected) {
++    // Add security header size to total size
++    size += sizeof(fgs_nas_message_security_header_t);
++  }
++
++  /* message encoding - moved allocation after size calculation */
+   initialNasMsg->nas_data = malloc_or_fail(size * sizeof(*initialNasMsg->nas_data));
++  
+   if (security_protected) {
+     fgmm_nas_msg_security_protected_t sp = {0};
+ 
+@@ -925,7 +931,6 @@ void generateServiceRequest(as_nas_info_t *initialNasMsg, nr_ue_nas_t *nas)
+     sp.header.protocol_discriminator = FGS_MOBILITY_MANAGEMENT_MESSAGE;
+     sp.header.security_header_type = INTEGRITY_PROTECTED;
+     sp.header.sequence_number = nas->security.nas_count_ul & 0xff;
+-    size += sizeof(sp.header);
+ 
+     // Payload: plain message
+     sp.plain = plain;

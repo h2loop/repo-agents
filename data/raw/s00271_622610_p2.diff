@@ -1,0 +1,43 @@
+diff --git a/openair1/PHY/CODING/nrLDPC_coding/nrLDPC_coding_aal/nrLDPC_coding_aal.c b/openair1/PHY/CODING/nrLDPC_coding/nrLDPC_coding_aal/nrLDPC_coding_aal.c
+index 815ec9ce26..a13f0b6db5 100644
+--- a/openair1/PHY/CODING/nrLDPC_coding/nrLDPC_coding_aal/nrLDPC_coding_aal.c
++++ b/openair1/PHY/CODING/nrLDPC_coding/nrLDPC_coding_aal/nrLDPC_coding_aal.c
+@@ -394,29 +394,29 @@ static int add_dev(uint8_t dev_id, bool is_t2, uint32_t num_harq_codeblock)
+       .queue_size = active_dev.info.drv.default_queue_conf.queue_size,
+   };
+ 
+-  // Search a queue linked to HW capability ldpc decoding
+-  qconf.op_type = RTE_BBDEV_OP_LDPC_ENC;
++  // Search a queue linked to HW capability ldpc decoding (higher priority)
++  qconf.op_type = RTE_BBDEV_OP_LDPC_DEC;
+   int queue_id;
+   for (queue_id = 0; queue_id < nb_queues; ++queue_id) {
+     ret = rte_bbdev_queue_configure(dev_id, queue_id, &qconf);
+     if (ret == 0) {
+-      LOG_I(NR_PHY, "Found LDPC encoding queue (id=%u) at prio%u on dev%u\n", queue_id, qconf.priority, dev_id);
++      LOG_I(NR_PHY, "Found LDPC decoding queue (id=%u) at prio%u on dev%u\n", queue_id, qconf.priority, dev_id);
+       qconf.priority++;
+-      active_dev.enc_queue = queue_id;
++      active_dev.dec_queue = queue_id;
+       active_dev.queue_ids[queue_id] = queue_id;
+       break;
+     }
+   }
+-  AssertFatal(queue_id != nb_queues, "ERROR Failed to configure encoding queues on dev %u", dev_id);
++  AssertFatal(queue_id != nb_queues, "ERROR Failed to configure decoding queues on dev %u", dev_id);
+ 
+-  // Search a queue linked to HW capability ldpc encoding
+-  qconf.op_type = RTE_BBDEV_OP_LDPC_DEC;
++  // Search a queue linked to HW capability ldpc encoding (lower priority)
++  qconf.op_type = RTE_BBDEV_OP_LDPC_ENC;
+   for (queue_id++; queue_id < nb_queues; ++queue_id) {
+     ret = rte_bbdev_queue_configure(dev_id, queue_id, &qconf);
+     if (ret == 0) {
+-      LOG_I(NR_PHY, "Found LDPC decoding queue (id=%u) at prio%u on dev%u\n", queue_id, qconf.priority, dev_id);
++      LOG_I(NR_PHY, "Found LDPC encoding queue (id=%u) at prio%u on dev%u\n", queue_id, qconf.priority, dev_id);
+       qconf.priority++;
+-      active_dev.dec_queue = queue_id;
++      active_dev.enc_queue = queue_id;
+       active_dev.queue_ids[queue_id] = queue_id;
+       break;
+     }

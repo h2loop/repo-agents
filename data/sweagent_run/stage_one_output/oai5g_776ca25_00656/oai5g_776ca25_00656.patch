@@ -1,0 +1,43 @@
+diff --git a/openair3/NAS/COMMON/UTIL/socket.c b/openair3/NAS/COMMON/UTIL/socket.c
+index 20c071203d..f098818694 100644
+--- a/openair3/NAS/COMMON/UTIL/socket.c
++++ b/openair3/NAS/COMMON/UTIL/socket.c
+@@ -288,12 +288,14 @@ ssize_t socket_recv(void* id, char* buffer, size_t length)
+     sid->addr = addr;
+   }
+ 
+-  if (errno == EINTR) {
+-    /* A signal was caught */
+-    return 0;
+-  } else if (rbytes < 0) {
+-    /* Receive failed */
+-    return RETURNerror;
++  if (rbytes < 0) {
++    if (errno == EINTR) {
++      /* A signal was caught */
++      return 0;
++    } else {
++      /* Receive failed */
++      return RETURNerror;
++    }
+   }
+ 
+   return rbytes;
+@@ -330,9 +332,14 @@ ssize_t socket_send(const void* id, const char* buffer, size_t length)
+     sbytes = sendto (sid->fd, buffer, length, 0, (struct sockaddr *) &sid->addr, (socklen_t) sizeof(sid->addr));
+   }
+ 
+-  if (errno == EINTR) {
+-    /* A signal was caught */
+-    return 0;
++  if (sbytes < 0) {
++    if (errno == EINTR) {
++      /* A signal was caught */
++      return 0;
++    } else {
++      /* Send failed */
++      return RETURNerror;
++    }
+   } else if (sbytes != length) {
+     /* Send failed */
+     return RETURNerror;

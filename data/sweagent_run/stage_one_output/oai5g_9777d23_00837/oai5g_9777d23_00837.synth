@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix infinite loop in map_int_to_str function causing segmentation fault\n\n### Summary\nThe `map_int_to_str` function in the OMV communication thread contained a critical bug that caused an infinite loop when searching for non-existent values in the mapping arrays. This led to segmentation faults during simulation visualization when mobility types or state values didn't match expected mappings.\n\nThe bug was particularly evident when running simulations with custom mobility models or when UE states contained unexpected values. Users would observe crashes in the visualization thread with stack traces pointing to the `map_int_to_str` function.\n\n### Changes\n- `openair2/UTIL/OMV/communicationthread.cpp`: Fixed infinite loop condition in `map_int_to_str` function by changing `while(1)` to `while(map->name != NULL)` and ensuring proper termination with NULL return when no match found.\n\n"
+}

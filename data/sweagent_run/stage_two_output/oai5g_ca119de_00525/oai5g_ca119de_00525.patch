@@ -1,0 +1,314 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b6ed9b1ba0..3e806eb875 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1915,8 +1915,9 @@ include_directories("${NFAPI_DIR}/sim_common/inc")
+ include_directories("${NFAPI_DIR}/pnf_sim/inc")
+ 
+ add_library(oai_iqplayer MODULE
+-	${OPENAIR_DIR}/radio/iqplayer/iqplayer_lib.c
+-	)
++        ${OPENAIR_DIR}/radio/iqplayer/iqplayer_lib.c
++        )
++target_link_libraries(oai_iqplayer PUBLIC time_manager)
+ set(CMAKE_MODULE_PATH "${OPENAIR_DIR}/cmake_targets/tools/MODULES" "${CMAKE_MODULE_PATH}")
+ 
+ #################################
+@@ -2022,7 +2023,7 @@ add_executable(lte-uesoftmodem
+   )
+ 
+ if (NOT ${NOS1})
+-	target_compile_definitions(lte-uesoftmodem PRIVATE -DPDCP_USE_NETLINK)
++        target_compile_definitions(lte-uesoftmodem PRIVATE -DPDCP_USE_NETLINK)
+ endif()
+ target_link_libraries(lte-uesoftmodem PRIVATE
+   -Wl,--start-group
+@@ -2364,7 +2365,7 @@ if (${T_TRACER})
+         nr_ulschsim ldpctest polartest smallblocktest cu_test du_test
+         #all "add_library" definitions
+         ITTI lte_rrc nr_rrc s1ap x2ap m2ap m3ap f1ap
+-        params_libconfig oai_usrpdevif oai_bladerfdevif oai_lmssdrdevif oai_iqplayer
++        params_libconfig oai_usrpdevif oai_bladerfdevif oai_lmssdrdevif oai_iqplayer time_manager
+         oai_eth_transpro oai_mobipass coding HASHTABLE UTIL OMG_SUMO
+         SECURITY SCHED_LIB SCHED_NR_LIB SCHED_RU_LIB SCHED_UE_LIB SCHED_NR_UE_LIB default_sched remote_sched RAL
+         NFAPI_COMMON_LIB NFAPI_LIB NFAPI_PNF_LIB NFAPI_VNF_LIB NFAPI_USER_LIB
+diff --git a/common/utils/CMakeLists.txt b/common/utils/CMakeLists.txt
+index 932f458a77..8822f55342 100644
+--- a/common/utils/CMakeLists.txt
++++ b/common/utils/CMakeLists.txt
+@@ -13,6 +13,7 @@ add_subdirectory(T)
+ add_subdirectory(nr)
+ add_subdirectory(LOG)
+ add_subdirectory(threadPool)
++add_subdirectory(time_manager)
+ add_library(utils utils.c system.c time_meas.c time_stat.c)
+ target_include_directories(utils PUBLIC .)
+ target_link_libraries(utils PRIVATE ${T_LIB})
+diff --git a/common/utils/time_manager/CMakeLists.txt b/common/utils/time_manager/CMakeLists.txt
+new file mode 100644
+index 0000000000..eafb516ba9
+--- /dev/null
++++ b/common/utils/time_manager/CMakeLists.txt
+@@ -0,0 +1,3 @@
++add_library(time_manager time_manager.c)
++target_include_directories(time_manager PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../..)
++target_link_libraries(time_manager PUBLIC utils LOG)
+\ No newline at end of file
+diff --git a/common/utils/time_manager/time_manager.c b/common/utils/time_manager/time_manager.c
+new file mode 100644
+index 0000000000..500497731b
+--- /dev/null
++++ b/common/utils/time_manager/time_manager.c
+@@ -0,0 +1,127 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++/** time_manager.c
++ *
++ * \brief Time management for IQ samples
++ * \author: OpenAirInterface Software Alliance
++ */
++
++#include "time_manager.h"
++#include <stdlib.h>
++#include <string.h>
++#include <sys/time.h>
++#include <time.h>
++#include "common/utils/LOG/log.h"
++
++// Static variables for the time manager
++static bool time_manager_initialized = false;
++static struct timespec start_time;
++static openair0_timestamp start_timestamp;
++static time_manager_stats_t stats;
++static double sample_rate = 30.72e6; // Default sample rate for LTE/NR
++
++int time_manager_init(void) {
++  if (time_manager_initialized) {
++    return 0; // Already initialized
++  }
++
++  // Get the current time as the start time
++  if (clock_gettime(CLOCK_MONOTONIC, &start_time) != 0) {
++    LOG_E(HW, "Failed to get current time for time manager\n");
++    return -1;
++  }
++
++  start_timestamp = 0;
++  memset(&stats, 0, sizeof(stats));
++  time_manager_initialized = true;
++  
++  LOG_I(HW, "Time manager initialized\n");
++  return 0;
++}
++
++void time_manager_cleanup(void) {
++  if (!time_manager_initialized) {
++    return;
++  }
++
++  time_manager_initialized = false;
++  LOG_I(HW, "Time manager cleaned up\n");
++}
++
++int time_manager_iq_samples(openair0_timestamp *ptimestamp, int nsamps) {
++  if (!time_manager_initialized) {
++    LOG_E(HW, "Time manager not initialized\n");
++    return -1;
++  }
++
++  if (ptimestamp == NULL || nsamps <= 0) {
++    LOG_E(HW, "Invalid parameters for time_manager_iq_samples\n");
++    return -1;
++  }
++
++  struct timespec current_time;
++  if (clock_gettime(CLOCK_MONOTONIC, &current_time) != 0) {
++    LOG_E(HW, "Failed to get current time\n");
++    return -1;
++  }
++
++  // Calculate expected timestamp based on elapsed time
++  double elapsed_secs = (current_time.tv_sec - start_time.tv_sec) +
++                        (current_time.tv_nsec - start_time.tv_nsec) / 1e9;
++  
++  openair0_timestamp expected_timestamp = start_timestamp + (openair0_timestamp)(elapsed_secs * sample_rate);
++
++  // Compare with requested timestamp
++  openair0_timestamp diff = *ptimestamp - expected_timestamp;
++  
++  if (diff > 0) {
++    // Samples are early, we might need to wait
++    stats.early_samples++;
++    // In a real implementation, we might sleep here
++    // For now, we just log it
++    LOG_D(HW, "IQ samples early by %ld samples\n", diff);
++  } else if (diff < 0) {
++    // Samples are late
++    stats.late_samples++;
++    LOG_D(HW, "IQ samples late by %ld samples\n", -diff);
++  } else {
++    // Samples are on time
++    stats.on_time_samples++;
++    LOG_D(HW, "IQ samples on time\n");
++  }
++
++  stats.total_samples_processed += nsamps;
++  
++  // Adjust our reference timestamp for next call
++  start_timestamp = *ptimestamp;
++  start_time = current_time;
++  
++  return 0;
++}
++
++const time_manager_stats_t* time_manager_get_stats(void) {
++  if (!time_manager_initialized) {
++    return NULL;
++  }
++  
++  return &stats;
++}
+\ No newline at end of file
+diff --git a/common/utils/time_manager/time_manager.h b/common/utils/time_manager/time_manager.h
+new file mode 100644
+index 0000000000..888993627c
+--- /dev/null
++++ b/common/utils/time_manager/time_manager.h
+@@ -0,0 +1,65 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++/** time_manager.h
++ *
++ * \brief Time management for IQ samples
++ * \author: OpenAirInterface Software Alliance
++ */
++
++
++#ifndef __TIME_MANAGER_H__
++#define __TIME_MANAGER_H__
++
++#include <stdint.h>
++#include <stdbool.h>
++#include "radio/COMMON/common_lib.h"
++
++#ifdef __cplusplus
++extern "C"
++{
++#endif
++
++// Time manager statistics structure
++typedef struct {
++  uint64_t total_samples_processed;
++  uint64_t late_samples;
++  uint64_t early_samples;
++  uint64_t on_time_samples;
++} time_manager_stats_t;
++
++// Initialize the time manager
++int time_manager_init(void);
++
++// Cleanup the time manager resources
++void time_manager_cleanup(void);
++
++// Main function to manage timing for IQ samples
++int time_manager_iq_samples(openair0_timestamp *ptimestamp, int nsamps);
++
++// Get time manager statistics
++const time_manager_stats_t* time_manager_get_stats(void);
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif // __TIME_MANAGER_H__
+\ No newline at end of file
+diff --git a/radio/COMMON/common_lib.h b/radio/COMMON/common_lib.h
+index aa2d9e3189..b73113d77f 100644
+--- a/radio/COMMON/common_lib.h
++++ b/radio/COMMON/common_lib.h
+@@ -38,6 +38,7 @@
+ #include <openair1/PHY/TOOLS/tools_defs.h>
+ #include "record_player.h"
+ #include <common/utils/threadPool/thread-pool.h>
++#include <common/utils/time_manager/time_manager.h>
+ 
+ /* default name of shared library implementing the radio front end */
+ #define OAI_RF_LIBNAME        "oai_device"
+diff --git a/radio/iqplayer/iqplayer_lib.c b/radio/iqplayer/iqplayer_lib.c
+index 2df57c9202..31ace121fb 100644
+--- a/radio/iqplayer/iqplayer_lib.c
++++ b/radio/iqplayer/iqplayer_lib.c
+@@ -218,7 +218,9 @@ static void trx_iqplayer_end(openair0_device *device) {
+     close(device->recplay_state->fd);
+     device->recplay_state->fd = -1;
+   }
+-
++  
++  // Cleanup time manager resources
++  time_manager_cleanup();
+ }
+ /*! \brief Write iqs function when in replay mode, just introduce a delay, as configured at init time,
+       @param device pointer to the device structure specific to the RF hardware target
+@@ -321,6 +323,10 @@ static int trx_iqplayer_read(openair0_device *device, openair0_timestamp *ptimes
+ 
+   read_count++;
+   LOG_D(HW, "returning %d samples at ts %lu read_count %d\n", nsamps, *ptimestamp, read_count);
++  
++  // Call time manager to handle IQ sample timing
++  time_manager_iq_samples(ptimestamp, nsamps);
++  
+   return nsamps;
+ }
+ 
+@@ -339,6 +345,13 @@ int device_init(openair0_device *device, openair0_config_t *openair0_cfg) {
+   device->trx_write_func = trx_iqplayer_write;
+   device->trx_read_func  = trx_iqplayer_read;
+   iqplayer_loadfile(device, openair0_cfg);
++  
++  // Initialize time manager for IQ sample timing
++  if (time_manager_init() != 0) {
++    LOG_E(HW, "Failed to initialize time manager\n");
++    return -1;
++  }
++  
+   LOG_UI(HW,"iqplayer device initialized, replay %s for %i iteration(s)\n",openair0_cfg->recplay_conf->u_sf_filename,openair0_cfg->recplay_conf->u_sf_loops);
+   return 0;
+ }

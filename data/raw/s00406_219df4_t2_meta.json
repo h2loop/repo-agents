@@ -1,0 +1,9 @@
+{
+  "run_id": "s00406_219df4",
+  "pr_text": "## Title: Fix missing error propagation in E1AP SCTP data handling\n\n### Summary\nThe E1AP task was silently ignoring return values from `e1ap_handle_message()`, masking failures in downstream message handlers including `e1apCUCP_handle_BEARER_CONTEXT_RELEASE_REQUEST`. This made debugging difficult as protocol processing errors went unnoticed, potentially leaving bearer contexts in inconsistent states.\n\nThis patch ensures errors from message processing are properly logged. The return value from `e",
+  "trajectory_path": "data/raw/s00406_219df4_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00406_219df4_p2.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 10,
+  "timestamp": "2026-02-10T13:07:12Z"
+}

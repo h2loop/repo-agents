@@ -1,0 +1,35 @@
+{
+  "run_id": "s00121_45e6de",
+  "function": {
+    "name": "main",
+    "file": "openair1/PHY/CODING/TESTBENCH/pdcch_test.c",
+    "start_line": 224,
+    "end_line": 315,
+    "body_lines": 92,
+    "signature": "int main(int argc, char *argv[])",
+    "subsystem": "openair1/PHY/CODING",
+    "token_estimate": 153
+  },
+  "bug": {
+    "bug_id": "c_missing_cleanup",
+    "description": "missing cleanup of allocated resources on early return or error path",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a missing cleanup of allocated resources on early return or error path downstream of function main in the openair1/PHY/CODING subsystem.\nThe function is located at openair1/PHY/CODING/TESTBENCH/pdcch_test.c:224.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00121_45e6de_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00121_45e6de_p1.diff",
+  "patch_lines": 14,
+  "trajectory_steps": 22,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T12:05:33Z"
+}

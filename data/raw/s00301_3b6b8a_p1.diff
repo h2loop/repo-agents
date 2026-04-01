@@ -1,0 +1,22 @@
+diff --git a/openair1/PHY/NR_UE_TRANSPORT/nr_ulsch_ue.c b/openair1/PHY/NR_UE_TRANSPORT/nr_ulsch_ue.c
+index ebfd6f6352..21ab551872 100644
+--- a/openair1/PHY/NR_UE_TRANSPORT/nr_ulsch_ue.c
++++ b/openair1/PHY/NR_UE_TRANSPORT/nr_ulsch_ue.c
+@@ -442,7 +442,7 @@ static void map_symbols(const nr_phy_pxsch_params_t p,
+     if (dmrs_symbol) {
+       c16_t mod_dmrs[ALNARS_16_4(n_dmrs)] __attribute((aligned(16)));
+       if (p.transform_precoding == transformPrecoder_disabled) {
+-        nr_modulation(gold, n_dmrs * 2, DMRS_MOD_ORDER, (int16_t *)mod_dmrs);
++        nr_modulation(gold, n_dmrs * 2, DMRS_MOD_ORDER, &mod_dmrs[0].r);
+         dmrs_amp_mult(p.dmrs_port, p.Wt, p.Wf, mod_dmrs, mod_dmrs_amp, n_dmrs, p.dmrs_type, p.num_cdm_no_data);
+       } else {
+         dmrs_amp_mult(p.dmrs_port, p.Wt, p.Wf, dmrs_seq, mod_dmrs_amp, n_dmrs, p.dmrs_type, p.num_cdm_no_data);
+@@ -450,7 +450,7 @@ static void map_symbols(const nr_phy_pxsch_params_t p,
+     } else if ((p.pdu_bit_map & PUSCH_PDU_BITMAP_PUSCH_PTRS) && ptrs_symbol) {
+       AssertFatal(p.transform_precoding == transformPrecoder_disabled, "PTRS NOT SUPPORTED IF TRANSFORM PRECODING IS ENABLED\n");
+       c16_t mod_ptrs[ALNARS_16_4(p.nb_rb)] __attribute((aligned(16)));
+-      nr_modulation(gold, p.nb_rb, DMRS_MOD_ORDER, (int16_t *)mod_ptrs);
++      nr_modulation(gold, p.nb_rb, DMRS_MOD_ORDER, &mod_ptrs[0].r);
+       const unsigned int beta_ptrs = 1; // temp value until power control is implemented
+       mult_complex_vector_real_scalar(mod_ptrs, beta_ptrs * AMP, mod_ptrs_amp, p.nb_rb);
+     }

@@ -1,0 +1,205 @@
+diff --git a/openair3/NAS/UE/EMM/SAP/emm_as.c b/openair3/NAS/UE/EMM/SAP/emm_as.c
+index 1c7ba03f70..6e871938ed 100644
+--- a/openair3/NAS/UE/EMM/SAP/emm_as.c
++++ b/openair3/NAS/UE/EMM/SAP/emm_as.c
+@@ -1082,23 +1082,27 @@ static int _emm_as_data_req(const emm_data_t *emm_data, const emm_as_data_t *msg
+   EMM_msg *emm_msg = _emm_as_set_header(&nas_msg, &msg->sctx);
+ 
+   /* Setup the NAS information message */
+-  if (emm_msg != NULL) switch (msg->NASinfo) {
+-
+-    case EMM_AS_NAS_DATA_ATTACH:
+-      size = emm_send_attach_complete(msg, &emm_msg->attach_complete);
+-      break;
+-
+-    case EMM_AS_NAS_DATA_DETACH:
+-      size = emm_send_detach_request(msg, &emm_msg->detach_request);
+-      break;
++  if (emm_msg != NULL) {
++    switch (msg->NASinfo) {
++      case EMM_AS_NAS_DATA_ATTACH:
++        size = emm_send_attach_complete(msg, &emm_msg->attach_complete);
++        break;
+ 
++      case EMM_AS_NAS_DATA_DETACH:
++        size = emm_send_detach_request(msg, &emm_msg->detach_request);
++        break;
+ 
+-    default:
+-      /* Send other NAS messages as already encoded ESM messages */
+-      size = msg->NASmsg.length;
+-      is_encoded = true;
+-      break;
++      default:
++        /* Send other NAS messages as already encoded ESM messages */
++        size = msg->NASmsg.length;
++        is_encoded = true;
++        break;
+     }
++  } else {
++    /* _emm_as_set_header failed - security context exists but integrity key not available */
++    LOG_TRACE(ERROR, "EMMAS-SAP - Failed to set NAS security header");
++    LOG_FUNC_RETURN (RETURNerror);
++  }
+ 
+   if (size > 0) {
+     int bytes;
+@@ -1176,6 +1180,10 @@ static int _emm_as_status_ind(const emm_data_t *emm_data, const emm_as_status_t
+   /* Setup the NAS information message */
+   if (emm_msg != NULL) {
+     size = emm_send_status(msg, &emm_msg->emm_status);
++  } else {
++    /* _emm_as_set_header failed - security context exists but integrity key not available */
++    LOG_TRACE(ERROR, "EMMAS-SAP - Failed to set NAS security header");
++    LOG_FUNC_RETURN (RETURNerror);
+   }
+ 
+   if (size > 0) {
+@@ -1279,43 +1287,48 @@ static int _emm_as_security_res(const emm_data_t *emm_data, const emm_as_securit
+   EMM_msg *emm_msg = _emm_as_set_header(&nas_msg, &msg->sctx);
+ 
+   /* Setup the NAS security message */
+-  if (emm_msg != NULL) switch (msg->msgType) {
+-    case EMM_AS_MSG_TYPE_IDENT:
+-      size = emm_send_identity_response(
+-               msg,
+-               &emm_msg->identity_response);
+-      break;
+-
+-    case EMM_AS_MSG_TYPE_AUTH:
+-      if (msg->emm_cause != EMM_CAUSE_SUCCESS) {
+-        size = emm_send_authentication_failure(
+-                 msg,
+-                 &emm_msg->authentication_failure);
+-      } else {
+-        size = emm_send_authentication_response(
++  if (emm_msg != NULL) {
++    switch (msg->msgType) {
++      case EMM_AS_MSG_TYPE_IDENT:
++        size = emm_send_identity_response(
+                  msg,
+-                 &emm_msg->authentication_response);
+-      }
+-
+-      break;
++                 &emm_msg->identity_response);
++        break;
+ 
+-    case EMM_AS_MSG_TYPE_SMC:
+-      if (msg->emm_cause != EMM_CAUSE_SUCCESS) {
+-        size = emm_send_security_mode_reject(
+-                 msg,
+-                 &emm_msg->security_mode_reject);
+-      } else {
+-        size = emm_send_security_mode_complete(
+-                 msg,
+-                 &emm_msg->security_mode_complete);
+-      }
++      case EMM_AS_MSG_TYPE_AUTH:
++        if (msg->emm_cause != EMM_CAUSE_SUCCESS) {
++          size = emm_send_authentication_failure(
++                   msg,
++                   &emm_msg->authentication_failure);
++        } else {
++          size = emm_send_authentication_response(
++                   msg,
++                   &emm_msg->authentication_response);
++        }
++        break;
+ 
+-      break;
++      case EMM_AS_MSG_TYPE_SMC:
++        if (msg->emm_cause != EMM_CAUSE_SUCCESS) {
++          size = emm_send_security_mode_reject(
++                   msg,
++                   &emm_msg->security_mode_reject);
++        } else {
++          size = emm_send_security_mode_complete(
++                   msg,
++                   &emm_msg->security_mode_complete);
++        }
++        break;
+ 
+-    default:
+-      LOG_TRACE(WARNING, "EMMAS-SAP - Type of NAS security "
+-                "message 0x%.2x is not valid", msg->msgType);
++      default:
++        LOG_TRACE(WARNING, "EMMAS-SAP - Type of NAS security "
++                  "message 0x%.2x is not valid", msg->msgType);
++        break;
+     }
++  } else {
++    /* _emm_as_set_header failed - security context exists but integrity key not available */
++    LOG_TRACE(ERROR, "EMMAS-SAP - Failed to set NAS security header");
++    LOG_FUNC_RETURN (RETURNerror);
++  }
+ 
+   if (size > 0) {
+     /* Encode the NAS security message */
+@@ -1374,36 +1387,42 @@ static int _emm_as_establish_req(const emm_data_t *emm_data, const emm_as_establ
+   EMM_msg *emm_msg = _emm_as_set_header(&nas_msg, &msg->sctx);
+ 
+   /* Setup the initial NAS information message */
+-  if (emm_msg != NULL) switch (msg->NASinfo) {
+-    case EMM_AS_NAS_INFO_ATTACH:
+-      size = emm_send_attach_request(msg, &emm_msg->attach_request);
+-      break;
++  if (emm_msg != NULL) {
++    switch (msg->NASinfo) {
++      case EMM_AS_NAS_INFO_ATTACH:
++        size = emm_send_attach_request(msg, &emm_msg->attach_request);
++        break;
+ 
+-    case EMM_AS_NAS_INFO_DETACH:
+-      size = emm_send_initial_detach_request(msg,
+-                                             &emm_msg->detach_request);
+-      break;
++      case EMM_AS_NAS_INFO_DETACH:
++        size = emm_send_initial_detach_request(msg,
++                                               &emm_msg->detach_request);
++        break;
+ 
+-    case EMM_AS_NAS_INFO_TAU:
+-      size = emm_send_initial_tau_request(msg,
+-                                          &emm_msg->tracking_area_update_request);
+-      break;
++      case EMM_AS_NAS_INFO_TAU:
++        size = emm_send_initial_tau_request(msg,
++                                            &emm_msg->tracking_area_update_request);
++        break;
+ 
+-    case EMM_AS_NAS_INFO_SR:
+-      size = emm_send_initial_sr_request(msg,
+-                                         &emm_msg->service_request);
+-      break;
++      case EMM_AS_NAS_INFO_SR:
++        size = emm_send_initial_sr_request(msg,
++                                           &emm_msg->service_request);
++        break;
+ 
+-    case EMM_AS_NAS_INFO_EXTSR:
+-      size = emm_send_initial_extsr_request(msg,
+-                                            &emm_msg->extended_service_request);
+-      break;
++      case EMM_AS_NAS_INFO_EXTSR:
++        size = emm_send_initial_extsr_request(msg,
++                                              &emm_msg->extended_service_request);
++        break;
+ 
+-    default:
+-      LOG_TRACE(WARNING, "EMMAS-SAP - Type of initial NAS "
+-                "message 0x%.2x is not valid", msg->NASinfo);
+-      break;
++      default:
++        LOG_TRACE(WARNING, "EMMAS-SAP - Type of initial NAS "
++                  "message 0x%.2x is not valid", msg->NASinfo);
++        break;
+     }
++  } else {
++    /* _emm_as_set_header failed - security context exists but integrity key not available */
++    LOG_TRACE(ERROR, "EMMAS-SAP - Failed to set NAS security header");
++    LOG_FUNC_RETURN (RETURNerror);
++  }
+ 
+   if (size > 0) {
+     /* Encode the initial NAS information message */

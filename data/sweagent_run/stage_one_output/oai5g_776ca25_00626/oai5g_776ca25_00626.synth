@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix integer underflow in SR indication unpacking\n\n### Summary\nThe nfapi SR indication unpacking function contained an integer underflow when calculating the end of the message buffer. The bug occurred when the TLV length field contained garbage data, causing the buffer end calculation to wrap around to a very large value.\n\nThis issue was triggered during high traffic scenarios when processing SR indications from multiple UEs.\n\n### Changes\n- `nfapi/open-nFAPI/nfapi/src/nfapi_p7.c`: Removed premature length validation that used uninitialized TLV length field\n- `nfapi/open-nFAPI/nfapi/src/nfapi_p7.c`: Applied same fix to all similar unpacking functions (SRS, CRC, HARQ, RACH, CQI, NB-HARQ, NRACH, RX)\n\n"
+}

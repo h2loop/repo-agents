@@ -1,0 +1,41 @@
+diff --git a/openair1/PHY/NR_REFSIG/dmrs_nr.c b/openair1/PHY/NR_REFSIG/dmrs_nr.c
+index 4d5ed0fe63..3f01ce70aa 100644
+--- a/openair1/PHY/NR_REFSIG/dmrs_nr.c
++++ b/openair1/PHY/NR_REFSIG/dmrs_nr.c
+@@ -170,7 +170,6 @@ void pseudo_random_sequence_optimised(unsigned int size, uint32_t *c, uint32_t c
+     c[n] = x1^x2;
+   }
+ }
+-
+ /*******************************************************************
+ *
+ * NAME :         lte_gold_new
+@@ -199,7 +198,7 @@ void lte_gold_new(LTE_DL_FRAME_PARMS *frame_parms, uint32_t lte_gold_table[20][2
+   uint32_t *dmrs_sequence =  calloc(CELL_DMRS_LENGTH, sizeof(uint32_t));
+   if (dmrs_sequence == NULL) {
+     msg("Fatal error: memory allocation problem \n");
+-  	assert(0);
++        assert(0);
+   }
+   else
+   {
+@@ -230,8 +229,8 @@ void lte_gold_new(LTE_DL_FRAME_PARMS *frame_parms, uint32_t lte_gold_table[20][2
+       /* format for getting bitmap from uint32_t */
+       for (int i=0; i<14; i++) {
+         dmrs_bitmap[ns][l][i] = 0;
+-        for (; j < k + 32; j++) {
+-          dmrs_bitmap[ns][l][i] |= (dmrs_sequence[j]<<j);
++        for (; j < k + 32 && j < CELL_DMRS_LENGTH; j++) {
++          dmrs_bitmap[ns][l][i] |= (dmrs_sequence[j] << (j-k));
+         }
+         k = j;
+       }
+@@ -253,6 +252,8 @@ void lte_gold_new(LTE_DL_FRAME_PARMS *frame_parms, uint32_t lte_gold_table[20][2
+ #endif
+ }
+ 
++
++
+ /*******************************************************************
+ *
+ * NAME :         get_dmrs_freq_idx_ul

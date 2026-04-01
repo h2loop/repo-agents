@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix DRB modification list allocation in E1AP bearer context management\n\n### Summary\nIn the E1AP bearer context modification request handling, only the last DRB was being properly included in the message due to incorrect list allocation. This fix ensures all DRBs are properly added to the modification list.\n\n### Changes\n- `openair2/E1AP/e1ap.c`: Moved DRB modification list allocation outside the DRB loop to prevent overwriting previous allocations\n\n### Reproduction\nWhen sending a bearer context modification request with multiple DRBs to modify, only the last DRB would be processed by the receiving end. Other DRBs would be missing from the E1AP message due to the list being reallocated for each DRB instead of accumulating all DRBs in a single list.\n\n"
+}

@@ -1,0 +1,28 @@
+{
+  "run_id": "s00232_466136",
+  "function": {
+    "name": "esm_recv_status",
+    "file": "openair3/NAS/UE/ESM/SAP/esm_recv.c",
+    "start_line": 89,
+    "end_line": 114,
+    "body_lines": 26,
+    "signature": "int esm_recv_status(int pti, int ebi, const esm_status_msg *msg)",
+    "subsystem": "openair3/NAS/UE",
+    "token_estimate": 70
+  },
+  "bug": {
+    "bug_id": "telecom_sched_missed_opportunity",
+    "description": "missed scheduling opportunity where a UE with pending data is not scheduled",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a missed scheduling opportunity where a UE with pending data is not scheduled downstream of function esm_recv_status in the openair3/NAS/UE subsystem.\nThe function is located at openair3/NAS/UE/ESM/SAP/esm_recv.c:89.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00232_466136_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00232_466136_p1.diff",
+  "patch_lines": 30,
+  "trajectory_steps": 52,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:35:24Z"
+}

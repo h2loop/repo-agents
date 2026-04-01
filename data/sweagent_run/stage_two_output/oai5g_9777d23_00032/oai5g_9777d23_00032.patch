@@ -1,0 +1,21 @@
+diff --git a/openair3/NAS/UE/EMM/SAP/EmmDeregistered.c b/openair3/NAS/UE/EMM/SAP/EmmDeregistered.c
+index 71e2c4a49c..e7a6cee577 100644
+--- a/openair3/NAS/UE/EMM/SAP/EmmDeregistered.c
++++ b/openair3/NAS/UE/EMM/SAP/EmmDeregistered.c
+@@ -159,14 +159,14 @@ int EmmDeregistered(nas_user_t *user, const emm_reg_t *evt)
+     /*
+      * Data successfully delivered to the network
+      */
+-    rc = RETURNok;
++    rc = emm_proc_lowerlayer_success(user->lowerlayer_data);
+     break;
+ 
+   case _EMMREG_LOWERLAYER_FAILURE:
+     /*
+      * Data failed to be delivered to the network
+      */
+-    rc = RETURNok;
++    rc = emm_proc_lowerlayer_failure(user->lowerlayer_data, false);
+     break;
+ 
+   default:

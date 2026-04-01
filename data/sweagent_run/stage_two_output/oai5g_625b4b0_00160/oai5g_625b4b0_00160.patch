@@ -1,0 +1,93 @@
+diff --git a/executables/lte-ue.c b/executables/lte-ue.c
+index 60ca068d64..ca9d6f403e 100644
+--- a/executables/lte-ue.c
++++ b/executables/lte-ue.c
+@@ -2205,26 +2205,78 @@ void init_UE_threads_stub(int inst) {
+ 
+ 
+ void fill_ue_band_info(void) {
++  // Check if UE_rrc_inst is initialized
++  if (UE_rrc_inst == NULL) {
++    printf("Error: UE_rrc_inst is NULL\n");
++    bands_to_scan.nbands = 0;
++    return;
++  }
++
++  // Check if UECap is initialized
++  if (UE_rrc_inst[0].UECap == NULL) {
++    printf("Error: UE_rrc_inst[0].UECap is NULL\n");
++    bands_to_scan.nbands = 0;
++    return;
++  }
++
++  // Check if UE_EUTRA_Capability is initialized
+   LTE_UE_EUTRA_Capability_t *UE_EUTRA_Capability = UE_rrc_inst[0].UECap->UE_EUTRA_Capability;
++  if (UE_EUTRA_Capability == NULL) {
++    printf("Error: UE_rrc_inst[0].UECap->UE_EUTRA_Capability is NULL\n");
++    bands_to_scan.nbands = 0;
++    return;
++  }
++
+   int i,j;
+-  bands_to_scan.nbands = UE_EUTRA_Capability->rf_Parameters.supportedBandListEUTRA.list.count;
++  int supported_bands_count = UE_EUTRA_Capability->rf_Parameters.supportedBandListEUTRA.list.count;
++
++  // Bounds check for supported_bands_count
++  if (supported_bands_count < 0) {
++    printf("Warning: Number of supported bands (%d) is negative. Setting to 0.\n", supported_bands_count);
++    bands_to_scan.nbands = 0;
++    return;
++  }
++  
++  if (supported_bands_count > 100) {
++    printf("Warning: Number of supported bands (%d) exceeds maximum allowed (100). Limiting to 100.\n", supported_bands_count);
++    supported_bands_count = 100;
++  }
++
++  // Check if eutra_bands array is empty
++  int eutra_bands_count = sizeof(eutra_bands) / sizeof(eutra_bands[0]);
++  if (eutra_bands_count == 0) {
++    printf("Error: eutra_bands array is empty\n");
++    bands_to_scan.nbands = 0;
++    return;
++  }
+ 
+-  for (i=0; i<bands_to_scan.nbands; i++) {
+-    for (j=0; j<sizeof (eutra_bands) / sizeof (eutra_bands[0]); j++)
++  // Process each supported band
++  bands_to_scan.nbands = 0;
++  for (i=0; i<supported_bands_count; i++) {
++    // Check if the array element exists
++    if (UE_EUTRA_Capability->rf_Parameters.supportedBandListEUTRA.list.array[i] == NULL) {
++      printf("Warning: Band entry %d is NULL, skipping.\n", i);
++      continue;
++    }
++    
++    for (j=0; j<eutra_bands_count; j++) {
+       if (eutra_bands[j].band == UE_EUTRA_Capability->rf_Parameters.supportedBandListEUTRA.list.array[i]->bandEUTRA) {
+-        memcpy(&bands_to_scan.band_info[i],
++        memcpy(&bands_to_scan.band_info[bands_to_scan.nbands],
+                &eutra_bands[j],
+                sizeof(eutra_band_t));
+         printf("Band %d (%lu) : DL %u..%u Hz, UL %u..%u Hz, Duplex %s \n",
+-               bands_to_scan.band_info[i].band,
++               bands_to_scan.band_info[bands_to_scan.nbands].band,
+                UE_EUTRA_Capability->rf_Parameters.supportedBandListEUTRA.list.array[i]->bandEUTRA,
+-               bands_to_scan.band_info[i].dl_min,
+-               bands_to_scan.band_info[i].dl_max,
+-               bands_to_scan.band_info[i].ul_min,
+-               bands_to_scan.band_info[i].ul_max,
+-               (bands_to_scan.band_info[i].frame_type==FDD) ? "FDD" : "TDD");
++               bands_to_scan.band_info[bands_to_scan.nbands].dl_min,
++               bands_to_scan.band_info[bands_to_scan.nbands].dl_max,
++               bands_to_scan.band_info[bands_to_scan.nbands].ul_min,
++               bands_to_scan.band_info[bands_to_scan.nbands].ul_max,
++               (bands_to_scan.band_info[bands_to_scan.nbands].frame_type==FDD) ? "FDD" : "TDD");
++        
++        bands_to_scan.nbands++;
+         break;
+       }
++    }
+   }
+ }
+ 

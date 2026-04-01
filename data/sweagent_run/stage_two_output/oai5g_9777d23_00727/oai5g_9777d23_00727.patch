@@ -1,0 +1,48 @@
+diff --git a/openair1/SIMULATION/LTE_PHY/dlsim_tm4.c b/openair1/SIMULATION/LTE_PHY/dlsim_tm4.c
+index 2f26be3d84..6d6b1b29e1 100644
+--- a/openair1/SIMULATION/LTE_PHY/dlsim_tm4.c
++++ b/openair1/SIMULATION/LTE_PHY/dlsim_tm4.c
+@@ -4746,7 +4746,7 @@ int main(int argc, char **argv)
+                UE->frame_parms.ofdm_symbol_size*nsymb,1,1);
+             }
+             //pdsch_vars
+-            dump_dlsch2(UE,eNB_id,subframe,coded_bits_per_codeword,round, UE->dlsch[UE->current_thread_id[subframe]][0][0]->current_harq_pid);
++            dump_dlsch2(UE,eNB_id,subframe,&coded_bits_per_codeword[0],round, UE->dlsch[UE->current_thread_id[subframe]][0][0]->current_harq_pid);
+             /*
+               LOG_M("dlsch_e.m","e",eNB->dlsch[0][0]->harq_processes[0]->e,coded_bits_per_codeword,1,4);
+               LOG_M("dlsch_ber_bit.m","ber_bit",uncoded_ber_bit,coded_bits_per_codeword,1,0);
+diff --git a/openair1/SIMULATION/LTE_PHY/dlsim_tm7.c b/openair1/SIMULATION/LTE_PHY/dlsim_tm7.c
+index 84480dfdde..3cd822334c 100644
+--- a/openair1/SIMULATION/LTE_PHY/dlsim_tm7.c
++++ b/openair1/SIMULATION/LTE_PHY/dlsim_tm7.c
+@@ -3391,7 +3391,7 @@ PMI_FEEDBACK:
+                             UE->frame_parms.ofdm_symbol_size*nsymb/2,1,1);
+ 
+                     //pdsch_vars
+-                    dump_dlsch2(UE,eNB_id,subframe,&coded_bits_per_codeword,round);
++                    dump_dlsch2(UE,eNB_id,subframe,&coded_bits_per_codeword,round,0);
+                     //dump_dlsch2(UE,eNB_id_i,coded_bits_per_codeword);
+                     LOG_M("dlsch_e.m","e",eNB->dlsch[0][0]->harq_processes[0]->e,coded_bits_per_codeword,1,4);
+                     //pdcch_vars
+@@ -3596,7 +3596,7 @@ PMI_FEEDBACK:
+               }
+ 
+               //pdsch_vars
+-              dump_dlsch2(UE,eNB_id,subframe,&coded_bits_per_codeword,round);
++              dump_dlsch2(UE,eNB_id,subframe,&coded_bits_per_codeword,round,0);
+               /*
+               LOG_M("dlsch_e.m","e",eNB->dlsch[0][0]->harq_processes[0]->e,coded_bits_per_codeword,1,4);
+               LOG_M("dlsch_ber_bit.m","ber_bit",uncoded_ber_bit,coded_bits_per_codeword,1,0);
+diff --git a/openair1/SIMULATION/LTE_PHY/syncsim.c b/openair1/SIMULATION/LTE_PHY/syncsim.c
+index e8976ea898..288e927994 100644
+--- a/openair1/SIMULATION/LTE_PHY/syncsim.c
++++ b/openair1/SIMULATION/LTE_PHY/syncsim.c
+@@ -1562,7 +1562,7 @@ int main(int argc, char **argv) {
+                                       get_Qm(PHY_vars_UE[0]->dlsch_ue[0][0]->harq_processes[0]->mcs),
+                                       PHY_vars_UE[0]->lte_ue_pdcch_vars[0]->num_pdcch_symbols,
+                                       0);
+-      dump_dlsch2(PHY_vars_UE[0],0,0,&coded_bits_per_codeword);
++      dump_dlsch2(PHY_vars_UE[0],0,0,&coded_bits_per_codeword,0,0);
+     }
+   } else {
+     printf("Sending frame to OAI HW\n");

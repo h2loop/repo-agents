@@ -1,0 +1,38 @@
+diff --git a/common/utils/T/tracer/gui/x.c b/common/utils/T/tracer/gui/x.c
+index 71bd805455..d0ae82a006 100644
+--- a/common/utils/T/tracer/gui/x.c
++++ b/common/utils/T/tracer/gui/x.c
+@@ -382,6 +382,33 @@ void x_draw_clipped_string(x_connection *_c, x_window *_w, int font,
+                            int color, int x, int y, const char *t,
+                            int clipx, int clipy, int clipwidth, int clipheight) {
+   struct x_window *w = _w;
++  
++  /* Check for empty string */
++  if (t == NULL || *t == '\0') {
++    return;
++  }
++  
++  /* Validate clipping rectangle parameters */
++  if (clipwidth <= 0 || clipheight <= 0) {
++    /* If clipping rectangle is invalid, don't draw anything */
++    return;
++  }
++  
++  /* Also validate that the clipping rectangle is within reasonable bounds */
++  if (clipx < 0) {
++    /* Adjust clipx and clipwidth if clipx is negative */
++    clipwidth += clipx;
++    clipx = 0;
++    if (clipwidth <= 0) return;
++  }
++  
++  if (clipy < 0) {
++    /* Adjust clipy and clipheight if clipy is negative */
++    clipheight += clipy;
++    clipy = 0;
++    if (clipheight <= 0) return;
++  }
++  
+   XRectangle clip = { clipx, clipy, clipwidth, clipheight };
+ 
+   if (XftDrawSetClipRectangles(w->xft, 0, 0, &clip, 1) == False) abort();

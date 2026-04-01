@@ -1,0 +1,18 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/config_ue_sl.c b/openair2/LAYER2/NR_MAC_UE/config_ue_sl.c
+index 58db78ea83..b4107be8af 100644
+--- a/openair2/LAYER2/NR_MAC_UE/config_ue_sl.c
++++ b/openair2/LAYER2/NR_MAC_UE/config_ue_sl.c
+@@ -73,6 +73,13 @@ void sl_set_tdd_config_nr_ue(fapi_nr_tdd_table_t *tdd_table,
+   LOG_I(PHY,"UL slots:%d, symbols:%d, slots_per_period:%d\n",
+                           nrofUplinkSlots, nrofUplinkSymbols, nb_slots_per_period);
+ 
++  // Free existing memory if already allocated to prevent memory leak
++  if (tdd_table->max_tdd_periodicity_list) {
++    for(int memory_alloc = 0 ; memory_alloc < tdd_table->tdd_period_in_slots; memory_alloc++)
++      free_and_zero(tdd_table->max_tdd_periodicity_list[memory_alloc].max_num_of_symbol_per_slot_list);
++    free_and_zero(tdd_table->max_tdd_periodicity_list);
++  }
++
+   tdd_table->max_tdd_periodicity_list = (fapi_nr_max_tdd_periodicity_t *) malloc(nb_slots_per_period * sizeof(fapi_nr_max_tdd_periodicity_t));
+ 
+   for(int memory_alloc = 0 ; memory_alloc < nb_slots_per_period; memory_alloc++)

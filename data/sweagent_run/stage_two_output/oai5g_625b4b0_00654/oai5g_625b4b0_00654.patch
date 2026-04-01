@@ -1,0 +1,22 @@
+diff --git a/openair3/NGAP/ngap_gNB_management_procedures.h b/openair3/NGAP/ngap_gNB_management_procedures.h
+index fa62f53382..54d720b3b4 100644
+--- a/openair3/NGAP/ngap_gNB_management_procedures.h
++++ b/openair3/NGAP/ngap_gNB_management_procedures.h
+@@ -28,6 +28,8 @@
+  * @ingroup _ngap
+  */
+ 
++#include "common/platform_types.h"
++
+ #ifndef NGAP_GNB_MANAGEMENT_PROCEDURES_H_
+ #define NGAP_GNB_MANAGEMENT_PROCEDURES_H_
+ 
+@@ -39,7 +41,7 @@ void ngap_gNB_remove_amf_desc(ngap_gNB_instance_t * instance);
+ 
+ void ngap_gNB_insert_new_instance(ngap_gNB_instance_t *new_instance_p);
+ 
+-ngap_gNB_instance_t *ngap_gNB_get_instance(uint8_t mod_id);
++ngap_gNB_instance_t *ngap_gNB_get_instance(instance_t instance);
+ 
+ uint16_t ngap_gNB_fetch_add_global_cnx_id(void);
+ 

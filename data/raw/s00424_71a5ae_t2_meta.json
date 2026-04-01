@@ -1,0 +1,9 @@
+{
+  "run_id": "s00424_71a5ae",
+  "pr_text": "## Title: Fix buffer overflow in CLI argument tokenization\n\n### Summary\nThe CLI command parser in `token_argument()` was susceptible to a buffer overflow when processing overly long command strings. The function tokenizes input arguments into a fixed-size array (`optv`) without checking array bounds, allowing writes beyond the allocated memory when more than 20 tokens are present.\n\nThis fix adds a bounds check to the tokenization loop, ensuring we stop parsing once the maximum number of tokens (",
+  "trajectory_path": "data/raw/s00424_71a5ae_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00424_71a5ae_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 11,
+  "timestamp": "2026-02-10T13:12:23Z"
+}

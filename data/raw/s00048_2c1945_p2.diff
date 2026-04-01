@@ -1,0 +1,121 @@
+diff --git a/openair2/RRC/NR/cucp_cuup_e1ap.c b/openair2/RRC/NR/cucp_cuup_e1ap.c
+index b567fd76d4..d2e4d0cb3f 100644
+--- a/openair2/RRC/NR/cucp_cuup_e1ap.c
++++ b/openair2/RRC/NR/cucp_cuup_e1ap.c
+@@ -32,7 +32,104 @@ static void cucp_cuup_bearer_context_setup_e1ap(sctp_assoc_t assoc_id, const e1a
+   MessageDef *msg_p = itti_alloc_new_message(TASK_CUCP_E1, 0, E1AP_BEARER_CONTEXT_SETUP_REQ);
+   msg_p->ittiMsgHeader.originInstance = assoc_id;
+   e1ap_bearer_setup_req_t *bearer_req = &E1AP_BEARER_CONTEXT_SETUP_REQ(msg_p);
+-  memcpy(bearer_req, req, sizeof(e1ap_bearer_setup_req_t));
++
++  /* Deep copy: Copy primitive fields individually */
++  bearer_req->gNB_cu_cp_ue_id = req->gNB_cu_cp_ue_id;
++  bearer_req->gNB_cu_up_ue_id = req->gNB_cu_up_ue_id;
++  bearer_req->cipheringAlgorithm = req->cipheringAlgorithm;
++  bearer_req->integrityProtectionAlgorithm = req->integrityProtectionAlgorithm;
++  bearer_req->ueDlAggMaxBitRate = req->ueDlAggMaxBitRate;
++  bearer_req->bearerContextStatus = req->bearerContextStatus;
++  bearer_req->activityNotificationLevel = req->activityNotificationLevel;
++  bearer_req->numPDUSessions = req->numPDUSessions;
++  bearer_req->numPDUSessionsMod = req->numPDUSessionsMod;
++
++  /* Deep copy: Copy fixed-size arrays with explicit sizes */
++  memcpy(bearer_req->encryptionKey, req->encryptionKey, sizeof(bearer_req->encryptionKey));
++  memcpy(bearer_req->integrityProtectionKey, req->integrityProtectionKey, sizeof(bearer_req->integrityProtectionKey));
++
++  /* Deep copy: Copy nested structure fields individually */
++  bearer_req->servingPLMNid.mcc = req->servingPLMNid.mcc;
++  bearer_req->servingPLMNid.mnc = req->servingPLMNid.mnc;
++  bearer_req->servingPLMNid.mnc_digit_length = req->servingPLMNid.mnc_digit_length;
++
++  /* Deep copy: Copy PDU session arrays element-by-element */
++  for (int i = 0; i < req->numPDUSessions && i < E1AP_MAX_NUM_PDU_SESSIONS; i++) {
++    bearer_req->pduSession[i].sessionId = req->pduSession[i].sessionId;
++    bearer_req->pduSession[i].sessionType = req->pduSession[i].sessionType;
++    bearer_req->pduSession[i].nssai = req->pduSession[i].nssai;
++    bearer_req->pduSession[i].integrityProtectionIndication = req->pduSession[i].integrityProtectionIndication;
++    bearer_req->pduSession[i].confidentialityProtectionIndication = req->pduSession[i].confidentialityProtectionIndication;
++    bearer_req->pduSession[i].tlAddress = req->pduSession[i].tlAddress;
++    bearer_req->pduSession[i].tlAddress_dl = req->pduSession[i].tlAddress_dl;
++    bearer_req->pduSession[i].teId = req->pduSession[i].teId;
++    bearer_req->pduSession[i].teId_dl = req->pduSession[i].teId_dl;
++    bearer_req->pduSession[i].tl_port = req->pduSession[i].tl_port;
++    bearer_req->pduSession[i].tl_port_dl = req->pduSession[i].tl_port_dl;
++    bearer_req->pduSession[i].numDRB2Setup = req->pduSession[i].numDRB2Setup;
++    bearer_req->pduSession[i].numDRB2Modify = req->pduSession[i].numDRB2Modify;
++
++    /* Copy DRB setup list for this PDU session */
++    for (int j = 0; j < req->pduSession[i].numDRB2Setup && j < E1AP_MAX_NUM_NGRAN_DRB; j++) {
++      bearer_req->pduSession[i].DRBnGRanList[j].id = req->pduSession[i].DRBnGRanList[j].id;
++      bearer_req->pduSession[i].DRBnGRanList[j].sdap_config = req->pduSession[i].DRBnGRanList[j].sdap_config;
++      bearer_req->pduSession[i].DRBnGRanList[j].pdcp_config = req->pduSession[i].DRBnGRanList[j].pdcp_config;
++      bearer_req->pduSession[i].DRBnGRanList[j].tlAddress = req->pduSession[i].DRBnGRanList[j].tlAddress;
++      bearer_req->pduSession[i].DRBnGRanList[j].teId = req->pduSession[i].DRBnGRanList[j].teId;
++      bearer_req->pduSession[i].DRBnGRanList[j].numCellGroups = req->pduSession[i].DRBnGRanList[j].numCellGroups;
++      bearer_req->pduSession[i].DRBnGRanList[j].qci = req->pduSession[i].DRBnGRanList[j].qci;
++      bearer_req->pduSession[i].DRBnGRanList[j].qosPriorityLevel = req->pduSession[i].DRBnGRanList[j].qosPriorityLevel;
++      bearer_req->pduSession[i].DRBnGRanList[j].pre_emptionCapab
+... [truncated] ...
+ = req->pduSession[i].DRBnGRanList[j].id;
++      req_msg->pduSession[i].DRBnGRanList[j].sdap_config = req->pduSession[i].DRBnGRanList[j].sdap_config;
++      req_msg->pduSession[i].DRBnGRanList[j].pdcp_config = req->pduSession[i].DRBnGRanList[j].pdcp_config;
++      req_msg->pduSession[i].DRBnGRanList[j].tlAddress = req->pduSession[i].DRBnGRanList[j].tlAddress;
++      req_msg->pduSession[i].DRBnGRanList[j].teId = req->pduSession[i].DRBnGRanList[j].teId;
++      req_msg->pduSession[i].DRBnGRanList[j].numCellGroups = req->pduSession[i].DRBnGRanList[j].numCellGroups;
++      req_msg->pduSession[i].DRBnGRanList[j].qci = req->pduSession[i].DRBnGRanList[j].qci;
++      req_msg->pduSession[i].DRBnGRanList[j].qosPriorityLevel = req->pduSession[i].DRBnGRanList[j].qosPriorityLevel;
++      req_msg->pduSession[i].DRBnGRanList[j].pre_emptionCapability = req->pduSession[i].DRBnGRanList[j].pre_emptionCapability;
++      req_msg->pduSession[i].DRBnGRanList[j].pre_emptionVulnerability = req->pduSession[i].DRBnGRanList[j].pre_emptionVulnerability;
++
++      /* Copy cell group list for this DRB */
++      for (int k = 0; k < req->pduSession[i].DRBnGRanList[j].numCellGroups && k < E1AP_MAX_NUM_CELL_GROUPS; k++) {
++        req_msg->pduSession[i].DRBnGRanList[j].cellGroupList[k] = req->pduSession[i].DRBnGRanList[j].cellGroupList[k];
++      }
++
++      /* Copy DL UP parameters for this DRB */
++      for (int k = 0; k < req->pduSession[i].DRBnGRanList[j].numDlUpParam && k < E1AP_MAX_NUM_UP_PARAM; k++) {
++        req_msg->pduSession[i].DRBnGRanList[j].DlUpParamList[k] = req->pduSession[i].DRBnGRanList[j].DlUpParamList[k];
++      }
++
++      /* Copy QoS flows for this DRB */
++      for (int k = 0; k < req->pduSession[i].DRBnGRanList[j].numQosFlow2Setup && k < E1AP_MAX_NUM_QOS_FLOWS; k++) {
++        req_msg->pduSession[i].DRBnGRanList[j].qosFlows[k] = req->pduSession[i].DRBnGRanList[j].qosFlows[k];
++      }
++    }
++
++    /* Copy DRB modify list for this PDU session */
++    for (int j = 0; j < req->pduSession[i].numDRB2Modify && j < E1AP_MAX_NUM_NGRAN_DRB; j++) {
++      req_msg->pduSession[i].DRBnGRanModList[j] = req->pduSession[i].DRBnGRanModList[j];
++    }
++  }
++
++  /* Deep copy: Copy PDU session modification array element-by-element */
++  for (int i = 0; i < req->numPDUSessionsMod && i < E1AP_MAX_NUM_PDU_SESSIONS; i++) {
++    req_msg->pduSessionMod[i].sessionId = req->pduSessionMod[i].sessionId;
++    req_msg->pduSessionMod[i].sessionType = req->pduSessionMod[i].sessionType;
++    req_msg->pduSessionMod[i].nssai = req->pduSessionMod[i].nssai;
++    req_msg->pduSessionMod[i].integrityProtectionIndication = req->pduSessionMod[i].integrityProtectionIndication;
++    req_msg->pduSessionMod[i].confidentialityProtectionIndication = req->pduSessionMod[i].confidentialityProtectionIndication;
++    req_msg->pduSessionMod[i].tlAddress = req->pduSessionMod[i].tlAddress;
++    req_msg->pduSessionMod[i].tlAddress_dl = req->pduSessionMod[i].tlAddress_dl;
++    req_msg->pduSessionMod[i].teId = req->pduSessionMod[i].teId;
++    req_msg->pduSessionMod[i].teId_dl = req->pduSessionMod[i].teId_dl;
++    req_msg->pduSessionMod[i].tl_port = req->pduSessionMod[i].tl_port;
++    req_msg->pduSessionMod[i].tl_port_dl = req->pduSessionMod[i].tl_port_dl;
++    req_msg->pduSessionMod[i].numDRB2Setup = req->pduSessionMod[i].numDRB2Setup;
++    req_msg->pduSessionMod[i].numDRB2Modify = req->pduSessionMod[i].numDRB2Modify;
++
++    /* Copy DRB setup list for this PDU session modification */
++    for (int j = 0; j < req->pduSessionMod[i].numDRB2Setup && j < E1AP_MAX_NUM_NGRAN_DRB; j++) {
++      req_msg->pduSessionMod[i].DRBnGRanList[j] = req->pduSessionMod[i].DRBnGRanList[j];
++    }
++
++    /* Copy DRB modify list for this PDU session modification */
++    for (int j = 0; j < req->pduSessionMod[i].numDRB2Modify && j < E1AP_MAX_NUM_NGRAN_DRB; j++) {
++      req_msg->pduSessionMod[i].DRBnGRanModList[j] = req->pduSessionMod[i].DRBnGRanModList[j];
++    }
++  }
++
+   itti_send_msg_to_task(TASK_CUCP_E1, 0, msg);
+ }
+ 

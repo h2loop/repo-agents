@@ -1,0 +1,322 @@
+diff --git a/openair2/F1AP/CMakeLists.txt b/openair2/F1AP/CMakeLists.txt
+index e6490b96b0..b7f80c5415 100644
+--- a/openair2/F1AP/CMakeLists.txt
++++ b/openair2/F1AP/CMakeLists.txt
+@@ -1,5 +1,21 @@
+ add_subdirectory(MESSAGES)
+ 
++set(F1AP_SRC
++  f1ap_common.c
++  f1ap_cu_interface_management.c
++  f1ap_du_interface_management.c
++  f1ap_cu_rrc_message_transfer.c
++  f1ap_du_rrc_message_transfer.c
++  f1ap_cu_ue_context_management.c
++  f1ap_du_ue_context_management.c
++  f1ap_du_paging.c
++  f1ap_encoder.c
++  f1ap_handlers.c
++  f1ap_ids.c
++  f1ap_itti_messaging.c
++  f1ap_positioning.c
++)
++
+ if(ENABLE_TESTS)
+   add_executable(f1ap_ids_test f1ap_ids_test.c f1ap_ids.c)
+   target_link_libraries(f1ap_ids_test UTIL HASHTABLE minimal_lib)
+diff --git a/openair2/F1AP/f1ap_common.h b/openair2/F1AP/f1ap_common.h
+index 13f1d8f53b..b152b07d33 100644
+--- a/openair2/F1AP/f1ap_common.h
++++ b/openair2/F1AP/f1ap_common.h
+@@ -88,6 +88,7 @@
+ #include "F1AP_DUtoCURRCContainer.h"
+ #include "F1AP_GNBDUResourceCoordinationRequest.h"
+ #include "F1AP_DRBs-FailedToBeSetup-List.h"
++#include "f1ap_positioning.h"
+ #include "F1AP_UPTransportLayerInformation.h"
+ #include "F1AP_RRCContainer.h"
+ #include "F1AP_Notification-Cause.h"
+diff --git a/openair2/F1AP/f1ap_handlers.c b/openair2/F1AP/f1ap_handlers.c
+index ecdda72000..91fbe73f32 100644
+--- a/openair2/F1AP/f1ap_handlers.c
++++ b/openair2/F1AP/f1ap_handlers.c
+@@ -38,6 +38,7 @@
+ #include "f1ap_cu_ue_context_management.h"
+ #include "f1ap_du_ue_context_management.h"
+ #include "f1ap_du_paging.h"
++#include "f1ap_positioning.h"
+ 
+ /* Handlers matrix. Only f1 related procedure present here */
+ static const f1ap_message_processing_t f1ap_messages_processing[][3] = {
+@@ -68,6 +69,30 @@ static const f1ap_message_processing_t f1ap_messages_processing[][3] = {
+     {0, 0, 0}, /* PWSCancel */
+     {0, 0, 0}, /* PWSRestartIndication */
+     {0, 0, 0}, /* PWSFailureIndication */
++    {0, 0, 0}, /* Unused procedure code 24 */
++    {0, 0, 0}, /* Unused procedure code 25 */
++    {0, 0, 0}, /* Unused procedure code 26 */
++    {0, 0, 0}, /* Unused procedure code 27 */
++    {0, 0, 0}, /* Unused procedure code 28 */
++    {0, 0, 0}, /* Unused procedure code 29 */
++    {0, 0, 0}, /* Unused procedure code 30 */
++    {0, 0, 0}, /* Unused procedure code 31 */
++    {0, 0, 0}, /* Unused procedure code 32 */
++    {0, 0, 0}, /* Unused procedure code 33 */
++    {0, 0, 0}, /* Unused procedure code 34 */
++    {0, 0, 0}, /* Unused procedure code 35 */
++    {0, 0, 0}, /* Unused procedure code 36 */
++    {0, 0, 0}, /* Unused procedure code 37 */
++    {0, 0, 0}, /* Unused procedure code 38 */
++    {0, 0, 0}, /* Unused procedure code 39 */
++    {0, 0, 0}, /* Unused procedure code 40 */
++    {0, 0, 0}, /* PositioningMeasurementExchange */
++    {0, 0, 0}, /* PositioningAssistanceInformationControl */
++    {0, 0, 0}, /* PositioningAssistanceInformationFeedback */
++    {0, 0, 0}, /* PositioningMeasurementReport */
++    {0, 0, 0}, /* PositioningMeasurementAbort */
++    {0, 0, 0}, /* PositioningMeasurementFailureIndication */
++    {CU_handle_PositioningMeasurementUpdate, DU_handle_PositioningMeasurementUpdate, 0}, /* PositioningMeasurementUpdate */
+ };
+ 
+ const char *f1ap_direction2String(int f1ap_dir) {
+diff --git a/openair2/F1AP/f1ap_positioning.c b/openair2/F1AP/f1ap_positioning.c
+new file mode 100644
+index 0000000000..fda9c2c9d1
+--- /dev/null
++++ b/openair2/F1AP/f1ap_positioning.c
+@@ -0,0 +1,184 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++/*! \file f1ap_positioning.c
++ * \brief F1AP positioning procedures for both CU and DU
++ * \author OpenAirInterface Software Alliance
++ * \date 2024
++ * \version 0.1
++ * \company OpenAirInterface Software Alliance
++ * \email: contact@openairinterface.org
++ */
++
++#include "f1ap_positioning.h"
++#include "f1ap_common.h"
++#include "F1AP_PositioningMeasurementUpdate.h"
++#include "F1AP_IE-Extensions.h"
++#include "oai_asn1.h"
++
++int CU_handle_PositioningMeasurementUpdate(instance_t instance, sctp_assoc_t assoc_id, uint32_t stream, F1AP_F1AP_PDU_t *pdu) {
++    LOG_D(F1AP, "CU_handle_PositioningMeasurementUpdate\n");
++
++    if (pdu == NULL) {
++        LOG_E(F1AP, "Error: NULL PDU received\n");
++        return -1;
++    }
++
++    if (pdu->present != F1AP_F1AP_PDU_PR_initiatingMessage) {
++        LOG_E(F1AP, "Error: Not an initiating message\n");
++        return -1;
++    }
++
++    F1AP_PositioningMeasurementUpdate_t *positioning_measurement_update_p = 
++        &pdu->choice.initiatingMessage->value.choice.PositioningMeasurementUpdate;
++
++    // Check if the protocolIEs list exists
++    if (positioning_measurement_update_p->protocolIEs.list.array == NULL) {
++        LOG_W(F1AP, "Warning: NULL protocolIEs array in PositioningMeasurementUpdate\n");
++        // This may be valid if there are no IEs, continue processing
++    }
++
++    F1AP_PositioningMeasurementUpdateIEs_t *ie = NULL;
++    int i = 0;
++
++    // Process each IE in the container
++    for (i = 0; i < positioning_measurement_update_p->protocolIEs.list.count; i++) {
++        if (positioning_measurement_update_p->protocolIEs.list.array == NULL) {
++            LOG_E(F1AP, "Error: NULL protocolIEs array but count > 0\n");
++            return -1;
++        }
++        
++        ie = positioning_measurement_update_p->protocolIEs.list.array[i];
++        
++        if (ie == NULL) {
++            LOG_W(F1AP, "Warning: NULL IE at index %d\n", i);
++            continue;
++        }
++        
++        switch (ie->id) {
++            case F1AP_ProtocolIE_ID_id_TransactionID:
++                // Handle transaction ID
++                LOG_D(F1AP, "Processing TransactionID IE\n");
++                break;
++            case F1AP_ProtocolIE_ID_id_LMF_MeasurementID:
++                // Handle LMF Measurement ID
++                LOG_D(F1AP, "Processing LMF Measurement ID IE\n");
++                break;
++            case F1AP_ProtocolIE_ID_id_RAN_MeasurementID:
++                // Handle RAN Measurement ID
++                LOG_D(F1AP, "Processing RAN Measurement ID IE\n");
++                break;
++            case F1AP_ProtocolIE_ID_id_SRSConfiguration:
++                // Handle SRS Configuration (optional)
++                LOG_D(F1AP, "Processing SRS Configuration IE\n");
++                break;
++            default:
++                LOG_W(F1AP, "Unknown IE id %ld\n", ie->id);
++                break;
++        }
++    }
++
++    // Note: The positioning measurement update structure is freed by the caller
++    // in f1ap_handle_message() using ASN_STRUCT_FREE
++
++    return 0;
++}
++
++int DU_handle_PositioningMeasurementUpdate(instance_t instance, sctp_assoc_t assoc_id, uint32_t stream, F1AP_F1AP_PDU_t *pdu) {
++    LOG_D(F1AP, "DU_handle_PositioningMeasurementUpdate\n");
++
++    if (pdu == NULL) {
++        LOG_E(F1AP, "Error: NULL PDU received\n");
++        return -1;
++    }
++
++    if (pdu->present != F1AP_F1AP_PDU_PR_initiatingMessage) {
++        LOG_E(F1AP, "Error: Not an initiating message\n");
++        return -1;
++    }
++
++    F1AP_PositioningMeasurementUpdate_t *positioning_measurement_update_p = 
++        &pdu->choice.initiatingMessage->value.choice.PositioningMeasurementUpdate;
++
++    // Check if the protocolIEs list exists
++    if (positioning_measurement_update_p->protocolIEs.list.array == NULL) {
++        LOG_W(F1AP, "Warning: NULL protocolIEs array in PositioningMeasurementUpdate\n");
++        // This may be valid if there are no IEs, continue processing
++    }
++
++    F1AP_PositioningMeasurementUpdateIEs_t *ie = NULL;
++    int i = 0;
++
++    // Process each IE in the container
++    for (i = 0; i < positioning_measurement_update_p->protocolIEs.list.count; i++) {
++        if (positioning_measurement_update_p->protocolIEs.list.array == NULL) {
++            LOG_E(F1AP, "Error: NULL protocolIEs array but count > 0\n");
++            return -1;
++        }
++        
++        ie = positioning_measurement_update_p->protocolIEs.list.array[i];
++        
++        if (ie == NULL) {
++            LOG_W(F1AP, "Warning: NULL IE at index %d\n", i);
++            continue;
++        }
++        
++        switch (ie->id) {
++            case F1AP_ProtocolIE_ID_id_TransactionID:
++                // Handle transaction ID
++                LOG_D(F1AP, "Processing TransactionID IE\n");
++                break;
++            case F1AP_ProtocolIE_ID_id_LMF_MeasurementID:
++                // Handle LMF Measurement ID
++                LOG_D(F1AP, "Processing LMF Measurement ID IE\n");
++                break;
++            case F1AP_ProtocolIE_ID_id_RAN_MeasurementID:
++                // Handle RAN Measurement ID
++                LOG_D(F1AP, "Processing RAN Measurement ID IE\n");
++                break;
++            case F1AP_ProtocolIE_ID_id_SRSConfiguration:
++                // Handle SRS Configuration (optional)
++                LOG_D(F1AP, "Processing SRS Configuration IE\n");
++                break;
++            default:
++                LOG_W(F1AP, "Unknown IE id %ld\n", ie->id);
++                break;
++        }
++    }
++
++    // Note: The positioning measurement update structure is freed by the caller
++    // in f1ap_handle_message() using ASN_STRUCT_FREE
++
++    return 0;
++}
++
++void free_positioning_measurement_update(F1AP_PositioningMeasurementUpdate_t *positioning_measurement_update) {
++    // This function provides a way to free positioning measurement update structures
++    // if needed outside of the normal message handling flow
++    
++    if (positioning_measurement_update == NULL) {
++        return;
++    }
++    
++    // Use the ASN1 library function to free the structure completely
++    // This prevents segmentation faults when the function is called externally
++    ASN_STRUCT_FREE(asn_DEF_F1AP_PositioningMeasurementUpdate, positioning_measurement_update);
++}
+\ No newline at end of file
+diff --git a/openair2/F1AP/f1ap_positioning.h b/openair2/F1AP/f1ap_positioning.h
+new file mode 100644
+index 0000000000..847d78c25e
+--- /dev/null
++++ b/openair2/F1AP/f1ap_positioning.h
+@@ -0,0 +1,43 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++/*! \file f1ap_positioning.h
++ * \brief F1AP positioning procedures for both CU and DU
++ * \author OpenAirInterface Software Alliance
++ * \date 2024
++ * \version 0.1
++ * \company OpenAirInterface Software Alliance
++ * \email: contact@openairinterface.org
++ */
++
++#ifndef F1AP_POSITIONING_H_
++#define F1AP_POSITIONING_H_
++
++#include "f1ap_common.h"
++
++// Handler for PositioningMeasurementUpdate (procedure code 47)
++int CU_handle_PositioningMeasurementUpdate(instance_t instance, sctp_assoc_t assoc_id, uint32_t stream, F1AP_F1AP_PDU_t *pdu);
++int DU_handle_PositioningMeasurementUpdate(instance_t instance, sctp_assoc_t assoc_id, uint32_t stream, F1AP_F1AP_PDU_t *pdu);
++
++// Memory management function
++void free_positioning_measurement_update(F1AP_PositioningMeasurementUpdate_t *positioning_measurement_update);
++
++#endif /* F1AP_POSITIONING_H_ */
+\ No newline at end of file

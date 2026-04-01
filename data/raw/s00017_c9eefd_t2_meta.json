@@ -1,0 +1,9 @@
+{
+  "run_id": "s00017_c9eefd",
+  "pr_text": "## Title: Fix buffer overflow and operator precedence in EPS QoS decoder\n\n### Summary\nThe EPS QoS decoder suffers from two critical issues that can lead to out-of-bounds memory access and incorrect parsing:\n\n1. **Buffer overflow vulnerability**: The internal `decode_eps_qos_bit_rates()` function reads 4 bytes from the buffer without verifying sufficient space remains, causing potential out-of-bounds reads.\n\n2. **Operator precedence bug**: Length validation uses `ielen > 2 + (iei > 0) ? 1 : 0` wh",
+  "trajectory_path": "data/raw/s00017_c9eefd_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00017_c9eefd_p2.diff",
+  "patch_lines": 21,
+  "trajectory_steps": 35,
+  "timestamp": "2026-02-10T10:42:44Z"
+}

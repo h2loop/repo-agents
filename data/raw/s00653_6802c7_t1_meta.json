@@ -1,0 +1,29 @@
+{
+  "run_id": "s00653_6802c7",
+  "function": {
+    "name": "measurcmd_display_macstats_ue",
+    "file": "common/utils/telnetsrv/telnetsrv_enb_measurements.c",
+    "start_line": 114,
+    "end_line": 126,
+    "body_lines": 13,
+    "signature": "void measurcmd_display_macstats_ue(telnet_printfunc_t prnt)",
+    "subsystem": "common/utils/telnetsrv",
+    "token_estimate": 44
+  },
+  "bug": {
+    "bug_id": "telecom_harq_error",
+    "description": "HARQ process error such as incorrect retransmission or wrong redundancy version",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a HARQ process error such as incorrect retransmission or wrong redundancy version downstream of function measurcmd_display_macstats_ue in the common/utils/telnetsrv subsystem.\nThe function is located at common/utils/telnetsrv/telnetsrv_enb_measurements.c:114.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00653_6802c7_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00653_6802c7_p1.diff",
+  "patch_lines": 8,
+  "trajectory_steps": 52,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T22:15:09Z"
+}

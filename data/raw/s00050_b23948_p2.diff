@@ -1,0 +1,43 @@
+diff --git a/openair2/RRC/LTE/rrc_eNB.c b/openair2/RRC/LTE/rrc_eNB.c
+index c26a57cd44..18293cc2fa 100644
+--- a/openair2/RRC/LTE/rrc_eNB.c
++++ b/openair2/RRC/LTE/rrc_eNB.c
+@@ -7568,23 +7568,24 @@ void rrc_eNB_process_AdditionResponseInformation(const module_id_t enb_mod_idP,
+   rrc_data_req(&ctxt, DCCH, rrc_eNB_mui++, SDU_CONFIRM_NO, size, buffer, PDCP_TRANSMISSION_MODE_CONTROL);
+ }
+ 
+-void rrc_eNB_process_ENDC_DC_prep_timeout(module_id_t module_id, x2ap_ENDC_dc_prep_timeout_t *m)
++int rrc_eNB_process_ENDC_DC_prep_timeout(module_id_t module_id, x2ap_ENDC_dc_prep_timeout_t *m)
+ {
+   rrc_eNB_ue_context_t *ue_context;
+ 
+   ue_context = rrc_eNB_get_ue_context(RC.rrc[module_id], m->rnti);
+   if (ue_context == NULL) {
+     LOG_E(RRC, "receiving DC prep timeout for unknown UE rnti %x\n", m->rnti);
+-    return;
++    return -1;
+   }
+ 
+   if (ue_context->ue_context.StatusRrc != RRC_NR_NSA) {
+     LOG_E(RRC, "receiving DC prep timeout for UE rnti %x not in state RRC_NR_NSA\n", m->rnti);
+-    return;
++    return -1;
+   }
+ 
+   LOG_I(RRC, "DC prep timeout for UE rnti %x, put back to RRC_RECONFIGURED mode\n", m->rnti);
+   ue_context->ue_context.StatusRrc = RRC_RECONFIGURED;
++  return 0;
+ }
+ 
+ void rrc_eNB_process_ENDC_sgNB_release_required(module_id_t module_id, x2ap_ENDC_sgnb_release_required_t *m)
+@@ -7859,7 +7860,9 @@ void *rrc_enb_process_itti_msg(void *notUsed) {
+     }
+ 
+     case X2AP_ENDC_DC_PREP_TIMEOUT: {
+-      rrc_eNB_process_ENDC_DC_prep_timeout(ENB_INSTANCE_TO_MODULE_ID(instance), &X2AP_ENDC_DC_PREP_TIMEOUT(msg_p));
++      if (rrc_eNB_process_ENDC_DC_prep_timeout(ENB_INSTANCE_TO_MODULE_ID(instance), &X2AP_ENDC_DC_PREP_TIMEOUT(msg_p)) != 0) {
++        LOG_E(RRC, "Failed to process ENDC DC prep timeout message\n");
++      }
+       break;
+     }
+ 

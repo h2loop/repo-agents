@@ -1,0 +1,139 @@
+diff --git a/nfapi/open-nFAPI/fapi/src/nr_fapi_p5_utils.c b/nfapi/open-nFAPI/fapi/src/nr_fapi_p5_utils.c
+index abcbc3e971..79a17c4da4 100644
+--- a/nfapi/open-nFAPI/fapi/src/nr_fapi_p5_utils.c
++++ b/nfapi/open-nFAPI/fapi/src/nr_fapi_p5_utils.c
+@@ -517,10 +517,12 @@ void copy_param_request(const nfapi_nr_param_request_scf_t *src, nfapi_nr_param_
+   dst->header.message_id = src->header.message_id;
+   dst->header.message_length = src->header.message_length;
+   if (src->vendor_extension) {
+-    dst->vendor_extension = calloc(1, sizeof(nfapi_vendor_extension_tlv_t));
++    // Allocate memory for the actual TLV structure, not just the pointer
++    dst->vendor_extension = calloc(1, sizeof(nfapi_tl_t) + src->vendor_extension->length);
+     dst->vendor_extension->tag = src->vendor_extension->tag;
+     dst->vendor_extension->length = src->vendor_extension->length;
+-    copy_vendor_extension_value(&dst->vendor_extension, &src->vendor_extension);
++    // Pass the pointer values directly, not their addresses
++    copy_vendor_extension_value(dst->vendor_extension, src->vendor_extension);
+   }
+ }
+ 
+@@ -529,10 +531,12 @@ void copy_param_response(const nfapi_nr_param_response_scf_t *src, nfapi_nr_para
+   dst->header.message_id = src->header.message_id;
+   dst->header.message_length = src->header.message_length;
+   if (src->vendor_extension) {
+-    dst->vendor_extension = calloc(1, sizeof(nfapi_vendor_extension_tlv_t));
++    // Allocate memory for the actual TLV structure, not just the pointer
++    dst->vendor_extension = calloc(1, sizeof(nfapi_tl_t) + src->vendor_extension->length);
+     dst->vendor_extension->tag = src->vendor_extension->tag;
+     dst->vendor_extension->length = src->vendor_extension->length;
+-    copy_vendor_extension_value(&dst->vendor_extension, &src->vendor_extension);
++    // Pass the pointer values directly, not their addresses
++    copy_vendor_extension_value(dst->vendor_extension, src->vendor_extension);
+   }
+ 
+   dst->error_code = src->error_code;
+@@ -699,10 +703,12 @@ void copy_config_request(const nfapi_nr_config_request_scf_t *src, nfapi_nr_conf
+   dst->header.message_id = src->header.message_id;
+   dst->header.message_length = src->header.message_length;
+   if (src->vendor_extension) {
+-    dst->vendor_extension = calloc(1, sizeof(nfapi_vendor_extension_tlv_t));
++    // Allocate memory for the actual TLV structure, not just the pointer
++    dst->vendor_extension = calloc(1, sizeof(nfapi_tl_t) + src->vendor_extension->length);
+     dst->vendor_extension->tag = src->vendor_extension->tag;
+     dst->vendor_extension->length = src->vendor_extension->length;
+-    copy_vendor_extension_value(&dst->vendor_extension, &src->vendor_extension);
++    // Pass the pointer values directly, not their addresses
++    copy_vendor_extension_value(dst->vendor_extension, src->vendor_extension);
+   }
+ 
+   dst->num_tlv = src->num_tlv;
+@@ -868,10 +874,12 @@ void copy_config_response(const nfapi_nr_config_response_scf_t *src, nfapi_nr_co
+   dst->header.message_id = src->header.message_id;
+   dst->header.message_length = src->header.message_length;
+   if (src->vendor_extension) {
+-    dst->vendor_extension = calloc(1, sizeof(nfapi_vendor_extension_tlv_t));
++    // Allocate memory for the actual TLV structure, not just the pointer
++    dst->vendor_extension = calloc(1, sizeof(nfapi_tl_t) + src->vendor_extension->length);
+     dst->vendor_extension->tag = src->vendor_extension->tag;
+     dst->vendor_extension->length = src->vendor_extension->length;
+-    copy_vendor_extension_value(&dst->vendor_extension, &src->vendor_extension);
++    // Pass the pointer values directly, not their addresses
++    copy_vendor_extension_value(dst->vendor_extension, src->vendor_extension);
+   }
+ 
+   dst->error_code = src->error_code;
+@@ -909,10 +917,12 @@ void copy_start_request(const nfapi_nr_start_request_scf_t *src, nfapi_nr_start_
+   dst->header.message_id = src->header.message_id;
+   dst->header.message_length = src->header.message_length;
+   if (src->vendor_extension) {
+-    dst->vendor_extension = calloc(1, sizeof(nfapi_vendor_extension_tlv_t));
++    // Allocate memory for the actual TLV structure, not just the pointer
++    dst->vendor_extension = calloc(1, sizeof(nfapi_tl_t) + src->vendor_extension->length);
+     dst->vendor_extension->tag = src->vendor_extension->tag;
+     dst->vendor_extension->length = src->vendor_extension->length;
+-    copy_vendor_extension_value(&dst->vendor_extension, &src->vendor_extension);
++    // Pass the pointer values directly, not their addresses
++    copy_vendor_extension_value(dst->vendor_extension, src->vendor_extension);
+   }
+ }
+ 
+@@ -921,10 +931,12 @@ void copy_start_response(const nfapi_nr_start_response_scf_t *src, nfapi_nr_star
+   dst->header.message_id = src->header.message_id;
+   dst->header.message_length = src->header.message_length;
+   if (src->vendor_extension) {
+-    dst->vendor_extension = calloc(1, sizeof(nfapi_vendor_extension_tlv_t));
++    // Allocate memory for the actual TLV structure, not just the pointer
++    dst->vendor_extension = calloc(1, sizeof(nfapi_tl_t) + src->vendor_extension->length);
+     dst->vendor_extension->tag = src->vendor_extension->tag;
+     dst->vendor_extension->length = src->vendor_extension->length;
+-    copy_vendor_extension_value(&dst->vendor_extension, &src->vendor_extension);
++    // Pass the pointer values directly, not their addresses
++    copy_vendor_extension_value(dst->vendor_extension, src->vendor_extension);
+   }
+   dst->error_code = src->error_code;
+ }
+@@ -934,10 +946,12 @@ void copy_stop_request(const nfapi_nr_stop_request_scf_t *src, nfapi_nr_stop_req
+   dst->header.message_id = src->header.message_id;
+   dst->header.message_length = src->header.message_length;
+   if (src->vendor_extension) {
+-    dst->vendor_extension = calloc(1, sizeof(nfapi_vendor_extension_tlv_t));
++    // Allocate memory for the actual TLV structure, not just the pointer
++    dst->vendor_extension = calloc(1, sizeof(nfapi_tl_t) + src->vendor_extension->length);
+     dst->vendor_extension->tag = src->vendor_extension->tag;
+     dst->vendor_extension->length = src->vendor_extension->length;
+-    copy_vendor_extension_value(&dst->vendor_extension, &src->vendor_extension);
++    // Pass the pointer values directly, not their addresses
++    copy_vendor_extension_value(dst->vendor_extension, src->vendor_extension);
+   }
+ }
+ 
+@@ -946,10 +960,12 @@ void copy_stop_indication(const nfapi_nr_stop_indication_scf_t *src, nfapi_nr_st
+   dst->header.message_id = src->header.message_id;
+   dst->header.message_length = src->header.message_length;
+   if (src->vendor_extension) {
+-    dst->vendor_extension = calloc(1, sizeof(nfapi_vendor_extension_tlv_t));
++    // Allocate memory for the actual TLV structure, not just the pointer
++    dst->vendor_extension = calloc(1, sizeof(nfapi_tl_t) + src->vendor_extension->length);
+     dst->vendor_extension->tag = src->vendor_extension->tag;
+     dst->vendor_extension->length = src->vendor_extension->length;
+-    copy_vendor_extension_value(&dst->vendor_extension, &src->vendor_extension);
++    // Pass the pointer values directly, not their addresses
++    copy_vendor_extension_value(dst->vendor_extension, src->vendor_extension);
+   }
+ }
+ 
+@@ -958,10 +974,12 @@ void copy_error_indication(const nfapi_nr_error_indication_scf_t *src, nfapi_nr_
+   dst->header.message_id = src->header.message_id;
+   dst->header.message_length = src->header.message_length;
+   if (src->vendor_extension) {
+-    dst->vendor_extension = calloc(1, sizeof(nfapi_vendor_extension_tlv_t));
++    // Allocate memory for the actual TLV structure, not just the pointer
++    dst->vendor_extension = calloc(1, sizeof(nfapi_tl_t) + src->vendor_extension->length);
+     dst->vendor_extension->tag = src->vendor_extension->tag;
+     dst->vendor_extension->length = src->vendor_extension->length;
+-    copy_vendor_extension_value(&dst->vendor_extension, &src->vendor_extension);
++    // Pass the pointer values directly, not their addresses
++    copy_vendor_extension_value(dst->vendor_extension, src->vendor_extension);
+   }
+ 
+   dst->sfn = src->sfn;

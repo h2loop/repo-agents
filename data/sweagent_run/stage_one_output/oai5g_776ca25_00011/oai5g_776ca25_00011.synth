@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect bit rate decoding in EPS QoS due to operator precedence\n\n### Summary\nThe EPS Quality of Service decoder in the NAS layer had incorrect operator precedence in conditional expressions that determine when bit rate fields are present. This caused the decoder to incorrectly skip decoding of bitRates and bitRatesExt fields, leading to incomplete QoS information being processed.\n\nThe issue manifests when receiving EPS QoS IEs with extended bit rate information, where the additional bit rate fields are silently ignored. This can result in incorrect QoS handling during bearer establishment procedures.\n\n### Changes\n- `openair3/NAS/COMMON/IES/EpsQualityOfService.c`: Fixed operator precedence in length check conditions for bitRates and bitRatesExt presence detection.\n- `openair3/NAS/COMMON/IES/UeNetworkCapability.c`: Fixed similar operator precedence issue for consistency.\n\n"
+}

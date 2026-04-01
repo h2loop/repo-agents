@@ -1,0 +1,133 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
+index ec16d8e39c..f78193a8dd 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
+@@ -771,8 +771,9 @@ static uint8_t unpack_rssi_request(uint8_t **ppReadPackedMsg, uint8_t *end, void
+ 
+ static uint8_t unpack_rssi_response(uint8_t **ppReadPackedMsg, uint8_t *end, void *msg, nfapi_p4_p5_codec_config_t *config) {
+   nfapi_rssi_response_t *pNfapiMsg = (nfapi_rssi_response_t *)msg;
+-  return (pull32(ppReadPackedMsg, &pNfapiMsg->error_code, end) &&
+-          unpack_tlv_list(NULL, 0, ppReadPackedMsg, end, config, &(pNfapiMsg->vendor_extension)));
++  uint8_t pull_result = pull32(ppReadPackedMsg, &pNfapiMsg->error_code, end);
++  int unpack_result = unpack_tlv_list(NULL, 0, ppReadPackedMsg, end, config, &(pNfapiMsg->vendor_extension));
++  return (pull_result && (unpack_result != 0)) ? 1 : 0;
+ }
+ 
+ static uint8_t unpack_rssi_indication_value(void *tlv, uint8_t **ppReadPackedMsg, uint8_t *end) {
+@@ -797,8 +798,9 @@ static uint8_t unpack_rssi_indication(uint8_t **ppReadPackedMsg, uint8_t *end, v
+   unpack_tlv_t unpack_fns[] = {
+     { NFAPI_RSSI_INDICATION_TAG, &pNfapiMsg->rssi_indication_body, &unpack_rssi_indication_value},
+   };
+-  return (pull32(ppReadPackedMsg, &pNfapiMsg->error_code, end) &&
+-          unpack_tlv_list(unpack_fns, sizeof(unpack_fns)/sizeof(unpack_tlv_t), ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension));
++  uint8_t pull_result = pull32(ppReadPackedMsg, &pNfapiMsg->error_code, end);
++  int unpack_result = unpack_tlv_list(unpack_fns, sizeof(unpack_fns)/sizeof(unpack_tlv_t), ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension);
++  return (pull_result && (unpack_result != 0)) ? 1 : 0;
+ }
+ 
+ static uint8_t unpack_lte_cell_search_request_value(void *tlv, uint8_t **ppReadPackedMsg, uint8_t *end) {
+@@ -907,8 +909,9 @@ static uint8_t unpack_cell_search_request(uint8_t **ppReadPackedMsg, uint8_t *en
+ 
+ static uint8_t unpack_cell_search_response(uint8_t **ppReadPackedMsg, uint8_t *end, void *msg, nfapi_p4_p5_codec_config_t *config) {
+   nfapi_cell_search_response_t *pNfapiMsg = (nfapi_cell_search_response_t *)msg;
+-  return (pull32(ppReadPackedMsg, &pNfapiMsg->error_code, end) &&
+-          unpack_tlv_list(NULL, 0, ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension));
++  uint8_t pull_result = pull32(ppReadPackedMsg, &pNfapiMsg->error_code, end);
++  int unpack_result = unpack_tlv_list(NULL, 0, ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension);
++  return (pull_result && (unpack_result != 0)) ? 1 : 0;
+ }
+ 
+ static uint8_t unpack_lte_cell_search_indication_value(void *tlv, uint8_t **ppReadPackedMsg, uint8_t *end) {
+@@ -1048,14 +1051,16 @@ static uint8_t unpack_broadcast_detect_request(uint8_t **ppReadPackedMsg, uint8_
+     { NFAPI_PNF_CELL_SEARCH_STATE_TAG, &pNfapiMsg->pnf_cell_search_state, &unpack_opaque_data_value},
+     { NFAPI_NB_IOT_BROADCAST_DETECT_REQUEST_TAG, &pNfapiMsg->nb_iot_broadcast_detect_request, &unpack_nb_iot_broadcast_detect_request_value}
+   };
+-  return (pull8(ppReadPackedMsg, &pNfapiMsg->rat_type, end) &&
+-          unpack_tlv_list(unpack_fns, sizeof(unpack_fns)/sizeof(unpack_tlv_t), ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension));
++  uint8_t pull_result = pull8(ppReadPackedMsg, &pNfapiMsg->rat_type, end);
++  int unpack_result = unpack_tlv_list(unpack_fns, sizeof(unpack_fns)/sizeof(unpack_tlv_t), ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension);
++  return (pull_result && (unpack_result != 0)) ? 1 : 0;
+ }
+ 
+ static uint8_t unpack_broadcast_detect_response(uint8_t **ppReadPackedMsg, uint8_t *end, void *msg, nfapi_p4_p5_codec_config_t *config) {
+   nfapi_broadcast_detect_response_t *pNfapiMsg = (nfapi_broadcast_detect_response_t *)msg;
+-  return (pull32(ppReadPackedMsg, &pNfapiMsg->error_code, end) &&
+-          unpack_tlv_list(NULL, 0, ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension));
++  uint8_t pull_result = pull32(ppReadPackedMsg, &pNfapiMsg->error_code, end);
++  int unpack_result = unpack_tlv_list(NULL, 0, ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension);
++  return (pull_result && (unpack_result != 0)) ? 1 : 0;
+ }
+ 
+ static uint8_t unpack_lte_broadcast_detect_indication_value(void *tlv, uint8_t **ppReadPackedMsg, uint8_t *end) {
+@@ -1144,14 +1149,16 @@ static uint8_t unpack_system_information_schedule_request(uint8_t **ppReadPacked
+     { NFAPI_NB_IOT_SYSTEM_INFORMATION_SCHEDULE_REQUEST_TAG, &pNfapiMsg->nb_iot_system_information_schedule_request, &unpack_nb_iot_system_information_schedule_request_value},
+     { NFAPI_PNF_CELL_BROADCAST_STATE_TAG, &pNfapiMsg->pnf_cell_broadcast_state, &unpack_opaque_data_value}
+   };
+-  return (pull8(ppReadPackedMsg, &pNfapiMsg->rat_type, end) &&
+-          unpack_tlv_list(unpack_fns, sizeof(unpack_fns)/sizeof(unpack_tlv_t), ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension));
++  uint8_t pull_result = pull8(ppReadPackedMsg, &pNfapiMsg->rat_type, end);
++  int unpack_result = unpack_tlv_list(unpack_fns, sizeof(unpack_fns)/sizeof(unpack_tlv_t), ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension);
++  return (pull_result && (unpack_result != 0)) ? 1 : 0;
+ }
+ 
+ static uint8_t unpack_system_information_schedule_response(uint8_t **ppReadPackedMsg, uint8_t *end, void *msg, nfapi_p4_p5_codec_config_t *config) {
+   nfapi_system_information_schedule_response_t *pNfapiMsg = (nfapi_system_information_schedule_response_t *)msg;
+-  return (pull32(ppReadPackedMsg, &pNfapiMsg->error_code, end) &&
+-          unpack_tlv_list(NULL, 0, ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension));
++  uint8_t pull_result = pull32(ppReadPackedMsg, &pNfapiMsg->error_code, end);
++  int unpack_result = unpack_tlv_list(NULL, 0, ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension);
++  return (pull_result && (unpack_result != 0)) ? 1 : 0;
+ }
+ 
+ static uint8_t unpack_lte_system_information_indication_value(void *tlv, uint8_t **ppReadPackedMsg, uint8_t *end) {
+@@ -1290,14 +1297,16 @@ static uint8_t unpack_system_information_request(uint8_t **ppReadPackedMsg, uint
+     { NFAPI_NB_IOT_SYSTEM_INFORMATION_REQUEST_TAG, &pNfapiMsg->nb_iot_system_information_request, &unpack_nb_iot_system_information_request_value},
+     { NFAPI_PNF_CELL_BROADCAST_STATE_TAG, &pNfapiMsg->pnf_cell_broadcast_state, &unpack_opaque_data_value}
+   };
+-  int result = (pull8(ppReadPackedMsg, &pNfapiMsg->rat_type, end) &&
+-                unpack_tlv_list(unpack_fns, sizeof(unpack_fns)/sizeof(unpack_tlv_t), ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension));
++  uint8_t pull_result = pull8(ppReadPackedMsg, &pNfapiMsg->rat_type, end);
++  int unpack_result = unpack_tlv_list(unpack_fns, sizeof(unpack_fns)/sizeof(unpack_tlv_t), ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension);
++  int result = (pull_result && (unpack_result != 0)) ? 1 : 0;
+ 
+   // Verify that the rat type and the tlv match
+   if(result == 1 &&
+       !((pNfapiMsg->rat_type == NFAPI_RAT_TYPE_LTE && pNfapiMsg->lte_system_information_request.tl.tag == NFAPI_LTE_SYSTEM_INFORMATION_REQUEST_TAG) ||
+         (pNfapiMsg->rat_type == NFAPI_RAT_TYPE_UTRAN && pNfapiMsg->utran_system_information_request.tl.tag == NFAPI_UTRAN_SYSTEM_INFORMATION_REQUEST_TAG) ||
+-        (pNfapiMsg->rat_type == NFAPI_RAT_TYPE_GERAN && pNfapiMsg->geran_system_information_request.tl.tag == NFAPI_GERAN_SYSTEM_INFORMATION_REQUEST_TAG))) {
++        (pNfapiMsg->rat_type == NFAPI_RAT_TYPE_GERAN && pNfapiMsg->geran_system_information_request.tl.tag == NFAPI_GERAN_SYSTEM_INFORMATION_REQUEST_TAG) ||
++        (pNfapiMsg->rat_type == NFAPI_RAT_TYPE_NB_IOT && pNfapiMsg->nb_iot_system_information_request.tl.tag == NFAPI_NB_IOT_SYSTEM_INFORMATION_REQUEST_TAG))) {
+     NFAPI_TRACE(NFAPI_TRACE_ERROR, "Mismatch RAT Type: %d and TAG value: 0x%04x \n", pNfapiMsg->rat_type, pNfapiMsg->lte_system_information_request.tl.tag);
+     result = 0;
+   }
+@@ -1307,8 +1316,9 @@ static uint8_t unpack_system_information_request(uint8_t **ppReadPackedMsg, uint
+ 
+ static uint8_t unpack_system_information_response(uint8_t **ppReadPackedMsg, uint8_t *end, void *msg, nfapi_p4_p5_codec_config_t *config) {
+   nfapi_system_information_response_t *pNfapiMsg = (nfapi_system_information_response_t *)msg;
+-  return (pull32(ppReadPackedMsg, &pNfapiMsg->error_code, end) &&
+-          unpack_tlv_list(NULL, 0, ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension));
++  uint8_t pull_result = pull32(ppReadPackedMsg, &pNfapiMsg->error_code, end);
++  int unpack_result = unpack_tlv_list(NULL, 0, ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension);
++  return (pull_result && (unpack_result != 0)) ? 1 : 0;
+ }
+ 
+ static uint8_t unpack_utran_system_information_indication_value(void *tlv, uint8_t **ppReadPackedMsg, uint8_t *end) {
+@@ -1359,13 +1369,15 @@ static uint8_t unpack_system_information_indication(uint8_t **ppReadPackedMsg, u
+ 
+ static uint8_t unpack_nmm_stop_request(uint8_t **ppReadPackedMsg, uint8_t *end, void *msg, nfapi_p4_p5_codec_config_t *config) {
+   nfapi_nmm_stop_request_t *pNfapiMsg = (nfapi_nmm_stop_request_t *)msg;
+-  return unpack_tlv_list(NULL, 0, ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension);
++  int unpack_result = unpack_tlv_list(NULL, 0, ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension);
++  return (unpack_result != 0) ? 1 : 0;
+ }
+ 
+ static uint8_t unpack_nmm_stop_response(uint8_t **ppReadPackedMsg, uint8_t *end, void *msg, nfapi_p4_p5_codec_config_t *config) {
+   nfapi_nmm_stop_response_t *pNfapiMsg = (nfapi_nmm_stop_response_t *)msg;
+-  return (pull32(ppReadPackedMsg, &pNfapiMsg->error_code, end) &&
+-          unpack_tlv_list(NULL, 0, ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension));
++  uint8_t pull_result = pull32(ppReadPackedMsg, &pNfapiMsg->error_code, end);
++  int unpack_result = unpack_tlv_list(NULL, 0, ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension);
++  return (pull_result && (unpack_result != 0)) ? 1 : 0;
+ }
+ 
+ 

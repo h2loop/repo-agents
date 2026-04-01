@@ -1,0 +1,9 @@
+{
+  "run_id": "s00005_46affc",
+  "pr_text": "## Title: Fix out-of-bounds memory read in small block encoder\n\n### Summary\nThe `encodeSmallBlock()` function reads beyond the bounds of the `nrSmallBlockBasis` array when the `len` parameter exceeds 11, causing undefined behavior and potential crashes. The statically defined `nrSmallBlockBasis` array contains only 11 elements (indices 0-10), but the function iterates from 0 to `len-1` without validating the input parameter. Call sites in the PHY layer (e.g., `pucch_nr.c`) pass the number of UCI",
+  "trajectory_path": "data/raw/s00005_46affc_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00005_46affc_p2.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 15,
+  "timestamp": "2026-02-11T07:33:29Z"
+}

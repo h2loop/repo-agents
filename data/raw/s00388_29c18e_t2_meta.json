@@ -1,0 +1,9 @@
+{
+  "run_id": "s00388_29c18e",
+  "pr_text": "## Title: Fix race condition in UE BLER stats initialization\n\n### Summary\nMove initialization of UE BLER statistics before adding UE to connected list to eliminate a race condition between timer expiry handlers and message processing threads. Previously, `init_bler_stats()` was called after `add_UE_to_list()`, making the UE visible to other threads before its `bler_stats` structure was initialized. If a timer expired or message arrived for the UE during this window, concurrent access to uninitia",
+  "trajectory_path": "data/raw/s00388_29c18e_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00388_29c18e_p2.diff",
+  "patch_lines": 0,
+  "trajectory_steps": 36,
+  "timestamp": "2026-02-10T13:04:00Z"
+}

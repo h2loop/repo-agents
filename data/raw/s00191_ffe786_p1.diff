@@ -1,0 +1,40 @@
+diff --git a/nfapi/oai_integration/nfapi_pnf.c b/nfapi/oai_integration/nfapi_pnf.c
+index a933aba614..7368354bca 100644
+--- a/nfapi/oai_integration/nfapi_pnf.c
++++ b/nfapi/oai_integration/nfapi_pnf.c
+@@ -2115,29 +2115,23 @@ void *pnf_start_thread(void *ptr) {
+   sp.sched_priority = 20;
+   pthread_setschedparam(pthread_self(),SCHED_FIFO,&sp);
+   nfapi_pnf_start(config);
++  // Clean up config after PNF stops to prevent stale protocol state
++  nfapi_pnf_config_destroy(config);
+   return (void *)0;
+ }
+ 
+ void *pnf_nr_start_thread(void *ptr) {
+-  NFAPI_TRACE(NFAPI_TRACE_INFO, "[PNF] IN PNF NFAPI start thread %s\n", __FUNCTION__);
++  NFAPI_TRACE(NFAPI_TRACE_INFO, "[PNF] IN PNF NFAPI start thread %s
++", __FUNCTION__);
+   nfapi_pnf_config_t *config = (nfapi_pnf_config_t *)ptr;
+   struct sched_param sp;
+   sp.sched_priority = 20;
+   pthread_setschedparam(pthread_self(),SCHED_FIFO,&sp);
+   nfapi_nr_pnf_start(config);
++  // Clean up config after PNF stops to prevent stale protocol state
++  nfapi_pnf_config_destroy(config);
+   return (void *)0;
+ }
+-
+-void configure_nr_nfapi_pnf(char *vnf_ip_addr, int vnf_p5_port, char *pnf_ip_addr, int pnf_p7_port, int vnf_p7_port) {
+-  printf("%s() PNF\n\n\n\n\n\n", __FUNCTION__);
+-    nfapi_setmode(NFAPI_MODE_PNF);  // PNF!
+-
+-  nfapi_pnf_config_t *config = nfapi_pnf_config_create();
+-  config->vnf_ip_addr = vnf_ip_addr;
+-  config->vnf_p5_port = vnf_p5_port;
+-  pnf.phys[0].udp.enabled = 1;
+-  pnf.phys[0].udp.rx_port = pnf_p7_port;
+-  pnf.phys[0].udp.tx_port = vnf_p7_port;
+   strcpy(pnf.phys[0].udp.tx_addr, vnf_ip_addr);
+   strcpy(pnf.phys[0].local_addr, pnf_ip_addr);
+   printf("%s() VNF:%s:%d PNF_PHY[addr:%s UDP:tx_addr:%s:%u rx:%u]\n",

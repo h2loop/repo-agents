@@ -1,0 +1,36 @@
+{
+  "run_id": "s00003_d55125",
+  "function": {
+    "name": "s1ap_eNB_decode_unsuccessful_outcome",
+    "file": "openair3/S1AP/s1ap_eNB_decoder.c",
+    "start_line": 128,
+    "end_line": 149,
+    "body_lines": 22,
+    "signature": "static int s1ap_eNB_decode_unsuccessful_outcome(S1AP_S1AP_PDU_t *pdu)",
+    "subsystem": "openair3/S1AP",
+    "token_estimate": 55
+  },
+  "bug": {
+    "bug_id": "c_unchecked_return_value",
+    "description": "unchecked return value from a function that can indicate failure",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/NAS",
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a unchecked return value from a function that can indicate failure downstream of function s1ap_eNB_decode_unsuccessful_outcome in the openair3/S1AP subsystem.\nThe function is located at openair3/S1AP/s1ap_eNB_decoder.c:128.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00003_d55125_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00003_d55125_p1.diff",
+  "patch_lines": 83,
+  "trajectory_steps": 41,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:26:32Z"
+}

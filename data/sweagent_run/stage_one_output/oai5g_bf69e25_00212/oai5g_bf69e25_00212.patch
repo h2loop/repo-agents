@@ -1,0 +1,37 @@
+diff --git a/openair3/NAS/UE/EMM/Detach.c b/openair3/NAS/UE/EMM/Detach.c
+index 654486226e..3a8e71483b 100644
+--- a/openair3/NAS/UE/EMM/Detach.c
++++ b/openair3/NAS/UE/EMM/Detach.c
+@@ -425,7 +425,7 @@ void *emm_detach_t3421_handler(void *args)
+     rc = _emm_detach_abort(user, emm_detach_data->type);
+   }
+ 
+-  LOG_FUNC_RETURN(NULL);
++  LOG_FUNC_RETURN(rc);
+ }
+ 
+ /*
+@@ -453,7 +453,8 @@ static int _emm_detach_abort(nas_user_t *user, emm_proc_detach_type_t type)
+ 
+   emm_timers_t *emm_timers = user->emm_data->emm_timers;
+   emm_sap_t emm_sap;
+-  int rc ;
++  esm_sap_t esm_sap;
++  int rc;
+ 
+   LOG_TRACE(WARNING, "EMM-PROC  - Abort the detach procedure");
+ 
+@@ -463,6 +464,13 @@ static int _emm_detach_abort(nas_user_t *user, emm_proc_detach_type_t type)
+   /* Stop timer T3421 */
+   emm_timers->T3421.id = nas_timer_stop(emm_timers->T3421.id);
+ 
++  /*
++   * Notify ESM that all EPS bearer contexts have to be locally deactivated
++   */
++  esm_sap.primitive = ESM_EPS_BEARER_CONTEXT_DEACTIVATE_REQ;
++  esm_sap.data.eps_bearer_context_deactivate.ebi = ESM_SAP_ALL_EBI;
++  (void) esm_sap_send(user, &esm_sap);
++
+   /*
+    * Notify EMM that detach procedure failed
+    */

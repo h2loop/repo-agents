@@ -1,0 +1,32 @@
+{
+  "run_id": "s00495_b36ae6",
+  "function": {
+    "name": "_pdn_disconnect_request",
+    "file": "openair3/NAS/TEST/AS_SIMULATOR/nas_process.c",
+    "start_line": 853,
+    "end_line": 866,
+    "body_lines": 14,
+    "signature": "static int _pdn_disconnect_request( char* buffer, int length, const pdn_disconnect_request_msg* msg)",
+    "subsystem": "openair3/NAS/TEST",
+    "token_estimate": 38
+  },
+  "bug": {
+    "bug_id": "telecom_config_layer_mismatch",
+    "description": "configuration mismatch between protocol layers causing inconsistent behavior",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC"
+    ]
+  },
+  "prompt": "There is a configuration mismatch between protocol layers causing inconsistent behavior downstream of function _pdn_disconnect_request in the openair3/NAS/TEST subsystem.\nThe function is located at openair3/NAS/TEST/AS_SIMULATOR/nas_process.c:853.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00495_b36ae6_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00495_b36ae6_p1.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 76,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:40:51Z"
+}

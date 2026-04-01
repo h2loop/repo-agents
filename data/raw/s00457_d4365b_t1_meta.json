@@ -1,0 +1,36 @@
+{
+  "run_id": "s00457_d4365b",
+  "function": {
+    "name": "pnf_start_thread",
+    "file": "nfapi/oai_integration/nfapi_pnf.c",
+    "start_line": 2127,
+    "end_line": 2135,
+    "body_lines": 9,
+    "signature": "void *pnf_start_thread(void *ptr)",
+    "subsystem": "nfapi/oai_integration",
+    "token_estimate": 30
+  },
+  "bug": {
+    "bug_id": "c_unchecked_return_value",
+    "description": "unchecked return value from a function that can indicate failure",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/NAS",
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a unchecked return value from a function that can indicate failure downstream of function pnf_start_thread in the nfapi/oai_integration subsystem.\nThe function is located at nfapi/oai_integration/nfapi_pnf.c:2127.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00457_d4365b_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00457_d4365b_p1.diff",
+  "patch_lines": 13,
+  "trajectory_steps": 39,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:27:16Z"
+}

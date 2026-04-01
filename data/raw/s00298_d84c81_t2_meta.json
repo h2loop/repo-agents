@@ -1,0 +1,9 @@
+{
+  "run_id": "s00298_d84c81",
+  "pr_text": "## Title: Fix missing null terminator in UCI stats dump buffer\n\n### Summary\nThe `dump_uci_stats()` function in the PUCCH module builds a formatted statistics report using `sprintf()` into a fixed-size character buffer, but fails to null-terminate the string before passing it to printing functions. This causes out-of-bounds memory reads when `fprintf()` or `printf()` attempts to determine the string length, leading to potential segmentation faults, buffer overreads, or garbage output in logs. The",
+  "trajectory_path": "data/raw/s00298_d84c81_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00298_d84c81_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 11,
+  "timestamp": "2026-02-11T14:12:46Z"
+}

@@ -1,0 +1,30 @@
+{
+  "run_id": "s00326_5936bb",
+  "function": {
+    "name": "emm_fsm_process",
+    "file": "openair3/NAS/UE/EMM/SAP/emm_fsm.c",
+    "start_line": 270,
+    "end_line": 289,
+    "body_lines": 20,
+    "signature": "int emm_fsm_process(nas_user_t *user, const emm_reg_t *evt)",
+    "subsystem": "openair3/NAS/UE",
+    "token_estimate": 46
+  },
+  "bug": {
+    "bug_id": "telecom_cross_layer_mismatch",
+    "description": "cross-layer parameter mismatch between PHY, MAC, and RRC causing inconsistent operation",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC"
+    ]
+  },
+  "prompt": "There is a cross-layer parameter mismatch between PHY, MAC, and RRC causing inconsistent operation downstream of function emm_fsm_process in the openair3/NAS/UE subsystem.\nThe function is located at openair3/NAS/UE/EMM/SAP/emm_fsm.c:270.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00326_5936bb_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00326_5936bb_p1.diff",
+  "patch_lines": 11,
+  "trajectory_steps": 28,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T14:28:34Z"
+}

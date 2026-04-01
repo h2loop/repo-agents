@@ -1,0 +1,115 @@
+diff --git a/openair2/LAYER2/PDCP_v10.1.0/pdcp.c b/openair2/LAYER2/PDCP_v10.1.0/pdcp.c
+index 03b8ecc2d3..4df1fe1e28 100644
+--- a/openair2/LAYER2/PDCP_v10.1.0/pdcp.c
++++ b/openair2/LAYER2/PDCP_v10.1.0/pdcp.c
+@@ -167,8 +167,8 @@ void *pdcp_stats_thread(void *param) {
+    int old_byte_cnt[MAX_MOBILES_PER_ENB][NB_RB_MAX],old_byte_cnt_rx[MAX_MOBILES_PER_ENB][NB_RB_MAX];
+    for (int i=0;i<MAX_MOBILES_PER_ENB;i++)
+      for (int j=0;j<NB_RB_MAX;j++) {
+-	old_byte_cnt[i][j]=0;
+-	old_byte_cnt_rx[i][j]=0;
++        old_byte_cnt[i][j]=0;
++        old_byte_cnt_rx[i][j]=0;
+      }
+    while (!oai_exit) {
+      sleep(1);
+@@ -1075,8 +1075,8 @@ bool pdcp_data_ind(const protocol_ctxt_t *const ctxt_pP,
+ 
+       memcpy(pdcpHead + 1, &sdu_buffer_pP[payload_offset], sdu_buffer_sizeP - payload_offset);
+       if( LOG_DEBUGFLAG(DEBUG_PDCP) )
+-	log_dump(PDCP, pdcpHead+1, min(sdu_buffer_sizeP - payload_offset,30) , LOG_DUMP_CHAR,
+-	         "Printing first bytes of PDCP SDU before adding it to the list: \n");
++        log_dump(PDCP, pdcpHead+1, min(sdu_buffer_sizeP - payload_offset,30) , LOG_DUMP_CHAR,
++                 "Printing first bytes of PDCP SDU before adding it to the list: \n");
+       pushNotifiedFIFO(&pdcp_sdu_list, new_sdu_p); 
+ 
+     /* Print octets of incoming data in hexadecimal form */
+@@ -2313,6 +2313,11 @@ void pdcp_layer_init(void)
+ void pdcp_layer_cleanup (void)
+ //-----------------------------------------------------------------------------
+ {
++  module_id_t       instance;
++  int i,j;
++  mbms_session_id_t session_id;
++  mbms_service_id_t service_id;
++  
+   //list_free (&pdcp_sdu_list);
+   while(pollNotifiedFIFO(&pdcp_sdu_list)) {};
+   hashtable_destroy(&pdcp_coll_p);
+@@ -2324,4 +2329,76 @@ void pdcp_layer_cleanup (void)
+   }
+ 
+ #endif
++  
++  /*
++   * Reinitialize SDU list
++   */
++  initNotifiedFIFO(&pdcp_sdu_list);
++  pdcp_coll_p = hashtable_create ((LTE_maxDRB + 2) * NUMBER_OF_UE_MAX, NULL, pdcp_free);
++  AssertFatal(pdcp_coll_p != NULL, "UNRECOVERABLE error, PDCP hashtable_create failed");
++
++  for (instance = 0; instance < MAX_MOBILES_PER_ENB; instance++) {
++    for (service_id = 0; service_id < LTE_maxServiceCount; service_id++) {
++      for (session_id = 0; session_id < LTE_maxSessionPerPMCH; session_id++) {
++        memset(&pdcp_mbms_array_ue[instance][service_id][session_id], 0, sizeof(pdcp_mbms_t));
++      }
++    }
++
++    pdcp_eNB_UE_instance_to_rnti[instance] = NOT_A_RNTI;
++  }
++
++  pdcp_eNB_UE_instance_to_rnti_index = 0;
++
++  for (instance = 0; instance < NUMBER_OF_eNB_MAX; instance++) {
++    for (service_id = 0; service_id < LTE_maxServiceCount; service_id++) {
++      for (session_id = 0; session_id < LTE_maxSessionPerPMCH; session_id++) {
++        memset(&pdcp_mbms_array_eNB[instance][service_id][session_id], 0, sizeof(pdcp_mbms_t));
++      }
++    }
++  }
++
++#ifdef MBMS_MULTICAST_OUT
++  mbms_socket = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
++
++  if (mbms_socket == -1)
++    LOG_W(PDCP, "Could not create RAW socket, MBMS packets will not be put to the network\n");
++
++#endif
++  pdcp_output_sdu_bytes_to_write=0;
++  pdcp_output_header_bytes_to_write=0;
++  pdcp_input_sdu_remaining_size_to_read=0;
++  memset(pdcp_enb, 0, sizeof(pdcp_enb_t));
++  memset(Pdcp_stats_tx_window_ms, 0, sizeof(Pdcp_stats_tx_window_ms));
++  memset(Pdcp_stats_rx_window_ms, 0, sizeof(Pdcp_stats_rx_window_ms));
++
++  for (i = 0; i < MAX_eNB; i++) {
++    for (j = 0; j < MAX_MOBILES_PER_ENB; j++) {
++      Pdcp_stats_tx_window_ms[i][j]=100;
++      Pdcp_stats_rx_window_ms[i][j]=100;
++    }
++  }
++
++  memset(Pdcp_stats_tx, 0, sizeof(Pdcp_stats_tx));
++  memset(Pdcp_stats_tx_w, 0, sizeof(Pdcp_stats_tx_w));
++  memset(Pdcp_stats_tx_tmp_w, 0, sizeof(Pdcp_stats_tx_tmp_w));
++  memset(Pdcp_stats_tx_bytes, 0, sizeof(Pdcp_stats_tx_bytes));
++  memset(Pdcp_stats_tx_bytes_w, 0, sizeof(Pdcp_stats_tx_bytes_w));
++  memset(Pdcp_stats_tx_bytes_tmp_w, 0, sizeof(Pdcp_stats_tx_bytes_tmp_w));
++  memset(Pdcp_stats_tx_sn, 0, sizeof(Pdcp_stats_tx_sn));
++  memset(Pdcp_stats_tx_throughput_w, 0, sizeof(Pdcp_stats_tx_throughput_w));
++  memset(Pdcp_stats_tx_aiat, 0, sizeof(Pdcp_stats_tx_aiat));
++  memset(Pdcp_stats_tx_iat, 0, sizeof(Pdcp_stats_tx_iat));
++  memset(Pdcp_stats_rx, 0, sizeof(Pdcp_stats_rx));
++  memset(Pdcp_stats_rx_w, 0, sizeof(Pdcp_stats_rx_w));
++  memset(Pdcp_stats_rx_tmp_w, 0, sizeof(Pdcp_stats_rx_tmp_w));
++  memset(Pdcp_stats_rx_bytes, 0, sizeof(Pdcp_stats_rx_bytes));
++  memset(Pdcp_stats_rx_bytes_w, 0, sizeof(Pdcp_stats_rx_bytes_w));
++  memset(Pdcp_stats_rx_bytes_tmp_w, 0, sizeof(Pdcp_stats_rx_bytes_tmp_w));
++  memset(Pdcp_stats_rx_sn, 0, sizeof(Pdcp_stats_rx_sn));
++  memset(Pdcp_stats_rx_goodput_w, 0, sizeof(Pdcp_stats_rx_goodput_w));
++  memset(Pdcp_stats_rx_aiat, 0, sizeof(Pdcp_stats_rx_aiat));
++  memset(Pdcp_stats_rx_iat, 0, sizeof(Pdcp_stats_rx_iat));
++  memset(Pdcp_stats_rx_outoforder, 0, sizeof(Pdcp_stats_rx_outoforder));
++  
++  LOG_I(PDCP, "PDCP layer has been reinitialized\n");
+ }

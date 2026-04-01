@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix NULL pointer dereference in M3AP tree dumping functions\n\n### Summary\nThe `dump_trees_m3()` function in the M3AP management procedures was dereferencing NULL pointers when attempting to print MCE names that were not set. Additionally, the tree traversal was not properly iterating through all nodes due to an incomplete recursive implementation.\n\nThis issue caused segmentation faults when debugging M3AP connections with MCEs that had not provided names during the association setup.\n\n### Changes\n- `openair3/M3AP/m3ap_MCE_management_procedures.c`: Fixed NULL pointer checks and improved tree traversal using RB_FOREACH macro.\n- `openair3/M3AP/m3ap_MME_management_procedures.c`: Applied same fixes for consistency.\n- `openair2/M2AP/m2ap_MCE_management_procedures.c`: Applied same fixes for consistency.\n- `openair2/M2AP/m2ap_eNB_management_procedures.c`: Applied same fixes for consistency.\n\n"
+}

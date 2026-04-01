@@ -1,0 +1,32 @@
+{
+  "run_id": "s00206_3f5974",
+  "function": {
+    "name": "get_transformPrecoding",
+    "file": "openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c",
+    "start_line": 2403,
+    "end_line": 2422,
+    "body_lines": 20,
+    "signature": "long get_transformPrecoding(const NR_UE_UL_BWP_t *current_UL_BWP, nr_dci_format_t dci_format, uint8_t configuredGrant)",
+    "subsystem": "openair2/LAYER2/NR_MAC_COMMON",
+    "token_estimate": 47
+  },
+  "bug": {
+    "bug_id": "telecom_missing_mandatory_ie",
+    "description": "missing mandatory information element in outgoing signaling message",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a missing mandatory information element in outgoing signaling message downstream of function get_transformPrecoding in the openair2/LAYER2/NR_MAC_COMMON subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c:2403.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00206_3f5974_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00206_3f5974_p1.diff",
+  "patch_lines": 10,
+  "trajectory_steps": 60,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:53:39Z"
+}

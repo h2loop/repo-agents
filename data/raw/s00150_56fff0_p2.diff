@@ -1,0 +1,20 @@
+diff --git a/common/utils/T/tracer/to_vcd.c b/common/utils/T/tracer/to_vcd.c
+index 6458443394..ceade8cd23 100644
+--- a/common/utils/T/tracer/to_vcd.c
++++ b/common/utils/T/tracer/to_vcd.c
+@@ -108,12 +108,11 @@ char *b64(uint64_t val)
+ {
+   static char v[65];
+   char *s = &v[64];
++  int i;
+   *s = 0;
+-  if (val == 0) { s--; *s = '0'; return s; }
+-  while (val) {
++  for (i = 63; i >= 0; i--) {
+     s--;
+-    *s = val&1 ? '1' : '0';
+-    val >>= 1;
++    *s = (val >> i) & 1 ? '1' : '0';
+   }
+   return s;
+ }

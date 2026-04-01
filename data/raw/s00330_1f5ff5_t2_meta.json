@@ -1,0 +1,9 @@
+{
+  "run_id": "s00330_1f5ff5",
+  "pr_text": "## Title: Fix missing return statement in esm_msg_encode error path\n\n### Summary\nThe `esm_msg_encode()` function in the NAS ESM message encoder had a missing return statement in its error handling path. When message encoding failed (`encode_result < 0`), the function would log the error but continue execution instead of immediately returning the error code. This caused fall-through to the success path, leading to undefined behavior and silent failures in the NAS layer where encoding errors were ",
+  "trajectory_path": "data/raw/s00330_1f5ff5_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00330_1f5ff5_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 17,
+  "timestamp": "2026-02-10T12:42:21Z"
+}

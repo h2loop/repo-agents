@@ -1,0 +1,33 @@
+{
+  "run_id": "s00122_e17ee2",
+  "function": {
+    "name": "send_mac_subframe_indications",
+    "file": "nfapi/open-nFAPI/vnf/src/vnf_p7.c",
+    "start_line": 446,
+    "end_line": 465,
+    "body_lines": 20,
+    "signature": "int send_mac_subframe_indications(vnf_p7_t* vnf_p7)",
+    "subsystem": "nfapi/open-nFAPI/vnf",
+    "token_estimate": 48
+  },
+  "bug": {
+    "bug_id": "c_signed_unsigned_mismatch",
+    "description": "signed/unsigned integer comparison mismatch leading to incorrect branch",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a signed/unsigned integer comparison mismatch leading to incorrect branch downstream of function send_mac_subframe_indications in the nfapi/open-nFAPI/vnf subsystem.\nThe function is located at nfapi/open-nFAPI/vnf/src/vnf_p7.c:446.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00122_e17ee2_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00122_e17ee2_p1.diff",
+  "patch_lines": 15,
+  "trajectory_steps": 82,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:22:02Z"
+}

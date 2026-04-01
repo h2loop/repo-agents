@@ -1,0 +1,17 @@
+diff --git a/openair3/S1AP/s1ap_eNB_encoder.c b/openair3/S1AP/s1ap_eNB_encoder.c
+index 8317f02731..2efaeb6e65 100644
+--- a/openair3/S1AP/s1ap_eNB_encoder.c
++++ b/openair3/S1AP/s1ap_eNB_encoder.c
+@@ -177,6 +177,12 @@ int s1ap_eNB_encode_successfull_outcome(S1AP_S1AP_PDU_t *pdu,
+       S1AP_INFO("E_RAB Release successful message\n");
+       break;
+ 
++    case S1AP_ProcedureCode_id_E_RABModificationIndication:
++      res = asn_encode_to_new_buffer(NULL, ATS_CANONICAL_XER, &asn_DEF_S1AP_S1AP_PDU, pdu);
++      free(res.buffer);
++      S1AP_INFO("E_RABModificationConfirm successful message\n");
++      break;
++
+     default:
+       S1AP_WARN("Unknown procedure ID (%d) for successfull outcome message\n",
+                 (int)pdu->choice.successfulOutcome.procedureCode);

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00236_e01cc7",
+  "pr_text": "## Title: Fix missing mask initialization in AT+CLAC test command parser\n\n### Summary\nThe `parse_clac_test()` function in the NAS UE AT command parser fails to initialize the `mask` field of the `at_command` structure. This omission can lead to undefined behavior when the command is processed downstream, as the mask is used to determine command parameter requirements and validation logic. While the action command variant `parse_clac()` correctly sets both `id` and `mask`, the test command parser",
+  "trajectory_path": "data/raw/s00236_e01cc7_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00236_e01cc7_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 11,
+  "timestamp": "2026-02-10T12:01:36Z"
+}

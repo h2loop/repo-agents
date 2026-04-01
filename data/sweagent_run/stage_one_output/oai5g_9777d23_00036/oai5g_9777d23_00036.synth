@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix buffer length validation in TAI encoding function\n\n### Summary\nThe `encode_tracking_area_identity()` function in the NAS layer was incorrectly validating the buffer length requirement. It always required 6 bytes regardless of whether an IEI was present, causing legitimate calls with 5-byte buffers to fail with `TLV_ENCODE_BUFFER_TOO_SHORT`.\n\nThe issue occurred because the function used a fixed minimum length check instead of dynamically adjusting based on IEI presence. Under normal operation when encoding standalone TAI values without IEI, this caused unexpected failures.\n\n### Changes\n- `openair3/NAS/COMMON/IES/TrackingAreaIdentity.c`: Modified buffer length validation to require 5 bytes when IEI=0 and 6 bytes when IEI>0\n"
+}

@@ -1,0 +1,64 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
+index 9615d3b934..e59349820b 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
+@@ -1152,6 +1152,14 @@ static uint8_t unpack_lte_system_information_indication_value(void *tlv, uint8_t
+        pull16(ppReadPackedMsg, &value->sib_length, end)))
+     return 0;
+ 
++  // Validate that the TLV length matches expected data size
++  // Expected: 1 byte (sib_type) + 2 bytes (sib_length) + sib_length bytes (sib data) = 3 + sib_length
++  if(value->tl.length != (3 + value->sib_length)) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "TLV length mismatch: expected %d, got %d\n", 
++                3 + value->sib_length, value->tl.length);
++    return 0;
++  }
++
+   if(value->sib_length > NFAPI_MAX_SIB_LENGTH) {
+     NFAPI_TRACE(NFAPI_TRACE_ERROR, "SIB too long %d \n", value->sib_length);
+     return 0;
+@@ -1170,6 +1178,14 @@ static uint8_t unpack_nb_iot_system_information_indication_value(void *tlv, uint
+        pull16(ppReadPackedMsg, &value->sib_length, end)))
+     return 0;
+ 
++  // Validate that the TLV length matches expected data size
++  // Expected: 1 byte (sib_type) + 2 bytes (sib_length) + sib_length bytes (sib data) = 3 + sib_length
++  if(value->tl.length != (3 + value->sib_length)) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "TLV length mismatch: expected %d, got %d\n", 
++                3 + value->sib_length, value->tl.length);
++    return 0;
++  }
++
+   if(value->sib_length > NFAPI_MAX_SIB_LENGTH) {
+     NFAPI_TRACE(NFAPI_TRACE_ERROR, "SIB too long %d \n", value->sib_length);
+     return 0;
+@@ -1308,6 +1324,14 @@ static uint8_t unpack_utran_system_information_indication_value(void *tlv, uint8
+   if(pull16(ppReadPackedMsg, &value->sib_length, end) == 0)
+     return 0;
+ 
++  // Validate that the TLV length matches expected data size
++  // Expected: 2 bytes (sib_length) + sib_length bytes (sib data) = 2 + sib_length
++  if(value->tl.length != (2 + value->sib_length)) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "TLV length mismatch: expected %d, got %d\n", 
++                2 + value->sib_length, value->tl.length);
++    return 0;
++  }
++
+   if(value->sib_length > NFAPI_MAX_SIB_LENGTH) {
+     NFAPI_TRACE(NFAPI_TRACE_ERROR, "SIB too long %d \n", value->sib_length);
+     return 0;
+@@ -1325,6 +1349,14 @@ static uint8_t unpack_geran_system_information_indication_value(void *tlv, uint8
+   if(pull16(ppReadPackedMsg, &value->si_length, end) == 0)
+     return 0;
+ 
++  // Validate that the TLV length matches expected data size
++  // Expected: 2 bytes (si_length) + si_length bytes (si data) = 2 + si_length
++  if(value->tl.length != (2 + value->si_length)) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "TLV length mismatch: expected %d, got %d\n", 
++                2 + value->si_length, value->tl.length);
++    return 0;
++  }
++
+   if(value->si_length > NFAPI_MAX_SI_LENGTH) {
+     NFAPI_TRACE(NFAPI_TRACE_ERROR, "SIB too long %d \n", value->si_length);
+     return 0;

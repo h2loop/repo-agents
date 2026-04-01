@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix missing channel estimate component in dlsch_channel_aver_band function\n\n### Summary\nThe `dlsch_channel_aver_band` function in the LTE UE downlink demodulation chain was missing a critical channel estimate component (`dl_ch128[0]`) during the averaging calculation. This resulted in incorrect channel averaging, leading to degraded demodulation performance and CRC check failures, especially under poor channel conditions.\n\nThe bug was caused by commented-out code that was never properly implemented, where only `dl_ch128[1]` and `dl_ch128[2]` were being included in the average calculation instead of all three components.\n\n### Changes\n- `openair1/PHY/LTE_UE_TRANSPORT/dlsch_demodulation.c`: Uncommented and restored the missing `dl_ch128[0]` addition in the averaging loop of `dlsch_channel_aver_band` function.\n\n"
+}

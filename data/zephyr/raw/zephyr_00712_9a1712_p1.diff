@@ -1,0 +1,27 @@
+diff --git a/drivers/clock_control/clock_control_litex.c b/drivers/clock_control/clock_control_litex.c
+index f1a4bdaf..4a7c2c51 100644
+--- a/drivers/clock_control/clock_control_litex.c
++++ b/drivers/clock_control/clock_control_litex.c
+@@ -1037,6 +1037,8 @@ static int litex_clk_calc_phase_normal(struct litex_clk_clkout *lcko)
+ 	if (lcko->ts_config.phase != 0) {
+ 		int synth_phase, delta_p, min_p, p_o;
+ 		uint8_t delay, p_m;
++		uint32_t iterations = 0;
++		const uint32_t max_iterations = (DELAY_TIME_MAX + 1) * (PHASE_MUX_MAX + 1);
+ 
+ 		*period_off = litex_round(clkout_period * (*period_off), 10000);
+ 
+@@ -1061,6 +1063,13 @@ static int litex_clk_calc_phase_normal(struct litex_clk_clkout *lcko)
+ 					lcko->phase.delay_time = delay;
+ 					lcko->config.period_off = synth_phase;
+ 				}
++				
++				/* Timeout handling to prevent indefinite hang */
++				iterations++;
++				if (iterations > max_iterations) {
++					LOG_ERR("Phase calculation timeout exceeded");
++					return -ETIME;
++				}
+ 			}
+ 		}
+ 	} else {

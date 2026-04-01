@@ -1,0 +1,9 @@
+{
+  "run_id": "s00239_03a0ea",
+  "pr_text": "## Title: Fix incorrect timestamp calculation in ethernet IF4p5 interface\n\n### Summary\nFix a critical timestamp calculation bug in the ethernet IF4p5 interface that was causing incorrect transmit power levels downstream. The `trx_eth_read_raw_IF4p5` function was incorrectly assigning `test_header->sub_type` to the timestamp pointer, resulting in invalid timing information being propagated to upper layers. This caused the power control algorithm to make decisions based on corrupted frame/subframe",
+  "trajectory_path": "data/raw/s00239_03a0ea_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00239_03a0ea_p2.diff",
+  "patch_lines": 16,
+  "trajectory_steps": 42,
+  "timestamp": "2026-02-10T12:06:51Z"
+}

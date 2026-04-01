@@ -1,0 +1,22 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+index 51cd290632..9e6206979e 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+@@ -3782,7 +3782,7 @@ static uint8_t unpack_dl_tti_pdcch_pdu_rel15_value(void* tlv, uint8_t **ppReadPa
+ 		pull8(ppReadPackedMsg, &value->dci_pdu[i].powerControlOffsetSS, end) &&
+ 		pull16(ppReadPackedMsg, &value->dci_pdu[i].PayloadSizeBits, end) &&
+ 
+-		pullarray8(ppReadPackedMsg, value->dci_pdu[i].Payload, value->dci_pdu[i].PayloadSizeBits, value->dci_pdu[i].PayloadSizeBits, end)))
++		pullarray8(ppReadPackedMsg, value->dci_pdu[i].Payload, DCI_PAYLOAD_BYTE_LEN, value->dci_pdu[i].PayloadSizeBits, end)))
+ 
+ 		return 0;
+ 	}
+@@ -5567,7 +5567,7 @@ static uint8_t unpack_ul_dci_pdu_list_value(uint8_t **ppReadPackedMsg, uint8_t *
+ 		pull8(ppReadPackedMsg, &value->pdcch_pdu.pdcch_pdu_rel15.dci_pdu[i].powerControlOffsetSS, end) &&
+ 		pull16(ppReadPackedMsg, &value->pdcch_pdu.pdcch_pdu_rel15.dci_pdu[i].PayloadSizeBits, end) &&
+ 
+-		pullarray8(ppReadPackedMsg, value->pdcch_pdu.pdcch_pdu_rel15.dci_pdu[i].Payload, value->pdcch_pdu.pdcch_pdu_rel15.dci_pdu[i].PayloadSizeBits, value->pdcch_pdu.pdcch_pdu_rel15.dci_pdu[i].PayloadSizeBits, end)))
++		pullarray8(ppReadPackedMsg, value->pdcch_pdu.pdcch_pdu_rel15.dci_pdu[i].Payload, DCI_PAYLOAD_BYTE_LEN, value->pdcch_pdu.pdcch_pdu_rel15.dci_pdu[i].PayloadSizeBits, end)))
+ 
+ 		return 0;
+ 	}

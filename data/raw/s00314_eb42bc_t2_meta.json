@@ -1,0 +1,9 @@
+{
+  "run_id": "s00314_eb42bc",
+  "pr_text": "## Title: Fix null pointer dereference in nr_fill_du PRACH function\n\n### Summary\nThe `nr_fill_du()` function in `nr_prach_common.c` dereferences the `prach_root_sequence_map` pointer parameter without validating it, creating a potential null pointer dereference vulnerability at line 75. This function is shared between UE and gNB PRACH processing code paths, making the issue affect both sides.\n\nThis change adds a defensive NULL pointer check at the function entry. If `prach_root_sequence_map` is ",
+  "trajectory_path": "data/raw/s00314_eb42bc_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00314_eb42bc_p2.diff",
+  "patch_lines": 5,
+  "trajectory_steps": 14,
+  "timestamp": "2026-02-11T14:22:45Z"
+}

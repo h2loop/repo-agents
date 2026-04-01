@@ -1,0 +1,26 @@
+diff --git a/nfapi/oai_integration/nfapi_pnf.c b/nfapi/oai_integration/nfapi_pnf.c
+index 3de11d8003..1c11ba8ae8 100644
+--- a/nfapi/oai_integration/nfapi_pnf.c
++++ b/nfapi/oai_integration/nfapi_pnf.c
+@@ -2154,8 +2154,19 @@ void *pnf_start_thread(void *ptr) {
+   nfapi_pnf_config_t *config = (nfapi_pnf_config_t *)ptr;
+   struct sched_param sp;
+   sp.sched_priority = 20;
+-  pthread_setschedparam(pthread_self(),SCHED_FIFO,&sp);
+-  nfapi_pnf_start(config);
++  
++  int ret = pthread_setschedparam(pthread_self(), SCHED_FIFO, &sp);
++  if (ret != 0) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "[PNF] Failed to set SCHED_FIFO scheduling parameters: %s (errno=%d)\n", strerror(ret), ret);
++    return (void *)(intptr_t)ret;
++  }
++  
++  ret = nfapi_pnf_start(config);
++  if (ret != 0) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "[PNF] nfapi_pnf_start() failed with error code: %d\n", ret);
++    return (void *)(intptr_t)ret;
++  }
++  
+   return (void *)0;
+ }
+ 

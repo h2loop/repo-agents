@@ -1,0 +1,35 @@
+{
+  "run_id": "s00241_77a06b",
+  "function": {
+    "name": "initiate_ra_proc",
+    "file": "openair2/LAYER2/MAC/eNB_scheduler_RA.c",
+    "start_line": 1276,
+    "end_line": 1448,
+    "body_lines": 173,
+    "signature": "void initiate_ra_proc(module_id_t module_idP, int CC_id, frame_t frameP, sub_frame_t subframeP, uint16_t preamble_index, int16_t timing_offset, uint16_t ra_rnti, uint8_t rach_resource_type )",
+    "subsystem": "openair2/LAYER2/MAC",
+    "token_estimate": 558
+  },
+  "bug": {
+    "bug_id": "c_missing_mutex",
+    "description": "missing mutex lock around critical section accessing shared state",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a missing mutex lock around critical section accessing shared state downstream of function initiate_ra_proc in the openair2/LAYER2/MAC subsystem.\nThe function is located at openair2/LAYER2/MAC/eNB_scheduler_RA.c:1276.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00241_77a06b_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00241_77a06b_p1.diff",
+  "patch_lines": 12,
+  "trajectory_steps": 115,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:08:08Z"
+}

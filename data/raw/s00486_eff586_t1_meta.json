@@ -1,0 +1,32 @@
+{
+  "run_id": "s00486_eff586",
+  "function": {
+    "name": "ue_supported_ul_layers",
+    "file": "openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c",
+    "start_line": 1534,
+    "end_line": 1556,
+    "body_lines": 23,
+    "signature": "long ue_supported_ul_layers(const NR_UE_NR_Capability_t *uecap)",
+    "subsystem": "openair2/LAYER2/NR_MAC_gNB",
+    "token_estimate": 52
+  },
+  "bug": {
+    "bug_id": "telecom_config_layer_mismatch",
+    "description": "configuration mismatch between protocol layers causing inconsistent behavior",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC"
+    ]
+  },
+  "prompt": "There is a configuration mismatch between protocol layers causing inconsistent behavior downstream of function ue_supported_ul_layers in the openair2/LAYER2/NR_MAC_gNB subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c:1534.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00486_eff586_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00486_eff586_p1.diff",
+  "patch_lines": 35,
+  "trajectory_steps": 65,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:39:07Z"
+}

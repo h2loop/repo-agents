@@ -1,0 +1,9 @@
+{
+  "run_id": "s00151_5f7fd6",
+  "pr_text": "## Title: Fix stale QoS flow mappings in DRB generation\n\n### Summary\nThe `generateDRB()` function in the gNB RRC radio bearers module fails to clear the `mappedQoS_FlowsToAdd` array before populating it with QoS flow identifiers. This can cause stale mappings from previous PDU session configurations to persist, violating 3GPP TS 38.331 procedures for QoS flow to DRB mapping. The fix zero-initializes the array before adding current QoS flows, ensuring clean state for each DRB establishment.\n\n### ",
+  "trajectory_path": "data/raw/s00151_5f7fd6_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00151_5f7fd6_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 18,
+  "timestamp": "2026-02-10T11:35:57Z"
+}

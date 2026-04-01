@@ -1,0 +1,22 @@
+diff --git a/executables/lte-enb.c b/executables/lte-enb.c
+index 259154004c..b72d0d2182 100644
+--- a/executables/lte-enb.c
++++ b/executables/lte-enb.c
+@@ -638,7 +638,7 @@ void wakeup_prach_eNB(PHY_VARS_eNB *eNB,
+   if (is_prach_subframe(fp,frame,subframe)>0) {
+     LOG_D(PHY,"Triggering prach processing, frame %d, subframe %d\n",frame,subframe);
+ 
+-    if (proc->instance_cnt_prach == 0) {
++    if (proc->instance_cnt_prach > 0) {
+       LOG_W(PHY,"[eNB] Frame %d Subframe %d, dropping PRACH\n", frame,subframe);
+       return;
+     }
+@@ -699,7 +699,7 @@ void wakeup_prach_eNB_br(PHY_VARS_eNB *eNB,
+   if (is_prach_subframe(fp,frame,subframe)>0) {
+     LOG_D(PHY,"Triggering prach br processing, frame %d, subframe %d\n",frame,subframe);
+ 
+-    if (proc->instance_cnt_prach_br == 0) {
++    if (proc->instance_cnt_prach_br > 0) {
+       LOG_W(PHY,"[eNB] Frame %d Subframe %d, dropping PRACH BR\n", frame,subframe);
+       return;
+     }

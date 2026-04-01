@@ -1,0 +1,35 @@
+{
+  "run_id": "s00322_7e32ba",
+  "function": {
+    "name": "calibration",
+    "file": "openair1/SIMULATION/LTE_PHY/LTE_Configuration.c",
+    "start_line": 56,
+    "end_line": 236,
+    "body_lines": 181,
+    "signature": "void calibration(unsigned int gpib_card,unsigned int gpib_device,unsigned int freqband,LTE_DL_FRAME_PARMS *frame_parms,DCI_ALLOC_t *dci_alloc)",
+    "subsystem": "openair1/SIMULATION/LTE_PHY",
+    "token_estimate": 604
+  },
+  "bug": {
+    "bug_id": "c_missing_error_propagation",
+    "description": "missing error propagation where a failure is silently ignored",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a missing error propagation where a failure is silently ignored downstream of function calibration in the openair1/SIMULATION/LTE_PHY subsystem.\nThe function is located at openair1/SIMULATION/LTE_PHY/LTE_Configuration.c:56.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00322_7e32ba_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00322_7e32ba_p1.diff",
+  "patch_lines": 67,
+  "trajectory_steps": 46,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T14:28:10Z"
+}

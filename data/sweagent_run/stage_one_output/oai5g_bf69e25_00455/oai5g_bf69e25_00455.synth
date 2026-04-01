@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix inconsistent power control calculations between UE and eNB\n\n### Summary\nThe UE and eNB implementations of PUSCH power control were using different logarithmic functions (`dB_fixed_times10` vs `dB_fixed_x10`) to compute the same delta_TF parameter, causing inconsistent transmit power calculations. This led to UL power control loops that never converged and frequent RRC connection drops during data transmission.\n\nThe issue manifested as UEs transmitting at incorrect power levels, causing either excessive interference (when transmitting too high) or poor link quality (when transmitting too low). In simulations, this resulted in significantly reduced throughput and increased BLER.\n\n### Changes\n- `openair1/SCHED_UE/pusch_pc.c`: Changed `dB_fixed_times10` to `dB_fixed_x10` in `get_hundred_times_delta_IF` to match eNB implementation\n"
+}

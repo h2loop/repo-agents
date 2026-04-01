@@ -1,0 +1,26 @@
+{
+  "run_id": "zephyr_00439_5f754c",
+  "function": {
+    "name": "find_completion_candidates",
+    "file": "subsys/shell/shell.c",
+    "start_line": 328,
+    "end_line": 357,
+    "body_lines": 30,
+    "signature": "static void find_completion_candidates(const struct shell *sh, const struct shell_static_entry *cmd, const char *incompl_cmd, size_t *first_idx, size_t *cnt, uint16_t *longest)",
+    "subsystem": "subsys/shell",
+    "token_estimate": 79
+  },
+  "bug": {
+    "bug_id": "rtos_task_stack_overflow",
+    "description": "RTOS task stack size too small causing stack overflow into adjacent memory",
+    "domain": "rtos",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a RTOS task stack size too small causing stack overflow into adjacent memory downstream of function find_completion_candidates in the subsys/shell subsystem.\nThe function is located at subsys/shell/shell.c:328.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 15,
+  "trajectory_steps": 37,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:35:01Z"
+}

@@ -1,0 +1,41 @@
+diff --git a/openair2/LAYER2/nr_rlc/nr_rlc_pdu.c b/openair2/LAYER2/nr_rlc/nr_rlc_pdu.c
+index c5b1eb04e7..7a3fb4ad9e 100644
+--- a/openair2/LAYER2/nr_rlc/nr_rlc_pdu.c
++++ b/openair2/LAYER2/nr_rlc/nr_rlc_pdu.c
+@@ -99,8 +99,8 @@ void nr_rlc_pdu_decoder_init(nr_rlc_pdu_decoder_t *decoder,
+   decoder->error = 0;
+   decoder->byte = 0;
+   decoder->bit = 0;
+-  decoder->buffer = buffer;
+-  decoder->size = size;
++  decoder->buffer = buffer ? buffer : (char *)"";
++  decoder->size = (buffer && size > 0) ? size : 0;
+ }
+ 
+ static int get_bit(nr_rlc_pdu_decoder_t *decoder)
+@@ -151,17 +151,22 @@ void nr_rlc_pdu_encoder_init(nr_rlc_pdu_encoder_t *encoder,
+ {
+   encoder->byte = 0;
+   encoder->bit = 0;
+-  encoder->buffer = (unsigned char *)buffer;
+-  encoder->size = size;
++  encoder->buffer = (unsigned char *)(buffer ? buffer : "");
++  encoder->size = (buffer && size > 0) ? size : 0;
+ }
+ 
+ static void put_bit(nr_rlc_pdu_encoder_t *encoder, int bit)
+ {
+-  if (encoder->byte == encoder->size) {
++  if (encoder->byte >= encoder->size) {
+     LOG_E(RLC, "%s:%d:%s: fatal, buffer full\n", __FILE__, __LINE__, __FUNCTION__);
+     exit(1);
+   }
+ 
++  /* Initialize byte to 0 if we're starting a new byte */
++  if (encoder->bit == 0) {
++    encoder->buffer[encoder->byte] = 0;
++  }
++
+   encoder->buffer[encoder->byte] <<= 1;
+   if (bit)
+     encoder->buffer[encoder->byte] |= 1;

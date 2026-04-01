@@ -1,0 +1,13 @@
+diff --git a/openair2/LAYER2/MAC/eNB_scheduler_ulsch.c b/openair2/LAYER2/MAC/eNB_scheduler_ulsch.c
+index 216ab788d3..280b11cd98 100644
+--- a/openair2/LAYER2/MAC/eNB_scheduler_ulsch.c
++++ b/openair2/LAYER2/MAC/eNB_scheduler_ulsch.c
+@@ -332,7 +332,7 @@ rx_sdu(const module_id_t enb_mod_idP,
+       if (ra->msg3_round >= mac->common_channels[CC_idP].radioResourceConfigCommon->rach_ConfigCommon.maxHARQ_Msg3Tx - 1) {
+ 
+         // Release RNTI of LTE PHY when RA does not succeed
+-	put_UE_in_freelist(enb_mod_idP, current_rnti, true);
++	put_UE_in_freelist(enb_mod_idP, current_rnti, 1);
+ 
+         cancel_ra_proc(enb_mod_idP, CC_idP, frameP, current_rnti);
+         nfapi_hi_dci0_request_t *hi_dci0_req = NULL;

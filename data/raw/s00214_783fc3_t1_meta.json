@@ -1,0 +1,35 @@
+{
+  "run_id": "s00214_783fc3",
+  "function": {
+    "name": "nr_ue_meas_reset",
+    "file": "openair2/RRC/NR_UE/rrc_UE.c",
+    "start_line": 924,
+    "end_line": 930,
+    "body_lines": 7,
+    "signature": "static void nr_ue_meas_reset(meas_t *meas_cell, bool csi_meas)",
+    "subsystem": "openair2/RRC/NR_UE",
+    "token_estimate": 17
+  },
+  "bug": {
+    "bug_id": "c_double_free",
+    "description": "double free where the same memory allocation is freed twice",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a double free where the same memory allocation is freed twice downstream of function nr_ue_meas_reset in the openair2/RRC/NR_UE subsystem.\nThe function is located at openair2/RRC/NR_UE/rrc_UE.c:924.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00214_783fc3_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00214_783fc3_p1.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 27,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:20:29Z"
+}

@@ -1,0 +1,66 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi.c b/nfapi/open-nFAPI/nfapi/src/nfapi.c
+index b4b078cbed..bc66ec17f7 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi.c
+@@ -733,6 +733,12 @@ int unpack_tlv_list(unpack_tlv_t unpack_fns[], uint16_t size, uint8_t **ppReadPa
+           NFAPI_TRACE(NFAPI_TRACE_ERROR, "Warning tlv tag 0x%x length %d not equal to unpack %ld\n", tl->tag, tl->length, (*ppReadPackedMsg - pStartOfValue));
+           on_error();
+         }
++        
++        // Remove padding that ensures multiple of 4 bytes (SCF specification section 2.3.2.1)
++        int padding = get_tlv_padding(tl->length);
++        if (padding != 0) {
++          (*ppReadPackedMsg) += padding;
++        }
+       }
+     }
+ 
+@@ -756,7 +762,7 @@ int unpack_tlv_list(unpack_tlv_t unpack_fns[], uint16_t size, uint8_t **ppReadPa
+ 
+           if((end - *ppReadPackedMsg) >= generic_tl.length) {
+             // Advance past the unknown TLV
+-            (*ppReadPackedMsg) += generic_tl.length;
++            (*ppReadPackedMsg) += generic_tl.length + get_tlv_padding(generic_tl.length);
+           } else {
+             // go to the end
+             return 0;
+@@ -774,7 +780,7 @@ int unpack_tlv_list(unpack_tlv_t unpack_fns[], uint16_t size, uint8_t **ppReadPa
+ 
+         if((end - *ppReadPackedMsg) >= generic_tl.length) {
+           // Advance past the unknown TLV
+-          (*ppReadPackedMsg) += generic_tl.length;
++          (*ppReadPackedMsg) += generic_tl.length + get_tlv_padding(generic_tl.length);
+         } else {
+           // go to the end
+           return 0;
+@@ -912,6 +918,12 @@ int unpack_p7_tlv_list(unpack_p7_tlv_t unpack_fns[], uint16_t size, uint8_t **pp
+           NFAPI_TRACE(NFAPI_TRACE_ERROR, "Warning tlv tag 0x%x length %d not equal to unpack %ld\n", tl->tag, tl->length, (*ppReadPackedMsg - pStartOfValue));
+           on_error();
+         }
++        
++        // Remove padding that ensures multiple of 4 bytes (SCF specification section 2.3.2.1)
++        int padding = get_tlv_padding(tl->length);
++        if (padding != 0) {
++          (*ppReadPackedMsg) += padding;
++        }
+       }
+     }
+ 
+@@ -935,7 +947,7 @@ int unpack_p7_tlv_list(unpack_p7_tlv_t unpack_fns[], uint16_t size, uint8_t **pp
+ 
+           if((end - *ppReadPackedMsg) >= generic_tl.length) {
+             // Advance past the unknown TLV
+-            (*ppReadPackedMsg) += generic_tl.length;
++            (*ppReadPackedMsg) += generic_tl.length + get_tlv_padding(generic_tl.length);
+           } else {
+             // got ot the dn
+             return 0;
+@@ -953,7 +965,7 @@ int unpack_p7_tlv_list(unpack_p7_tlv_t unpack_fns[], uint16_t size, uint8_t **pp
+ 
+         if((end - *ppReadPackedMsg) >= generic_tl.length) {
+           // Advance past the unknown TLV
+-          (*ppReadPackedMsg) += generic_tl.length;
++          (*ppReadPackedMsg) += generic_tl.length + get_tlv_padding(generic_tl.length);
+         } else {
+           // got ot the dn
+           return 0;

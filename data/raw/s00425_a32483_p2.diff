@@ -1,0 +1,98 @@
+diff --git a/openair2/LAYER2/MAC/pre_processor.c b/openair2/LAYER2/MAC/pre_processor.c
+index f9f6269f43..16c7bfa6b6 100644
+--- a/openair2/LAYER2/MAC/pre_processor.c
++++ b/openair2/LAYER2/MAC/pre_processor.c
+@@ -877,50 +877,50 @@ int rr_ul_run(module_id_t Mod_id,
+       if (max_num_ue == 0) /* in this case, cannot allocate any other UE anymore */
+         return rbs[0].length + (num_contig_rb > 1 ? rbs[1].length : 0);
+       continue;
+-    }
+-
+-    const int B = cmax(UE_template->estimated_ul_buffer - UE_template->scheduled_ul_bytes, 0);
+-    const int UE_to_be_scheduled = UE_is_to_be_scheduled(Mod_id, CC_id, UE_id);
+-    if (B == 0 && !UE_to_be_scheduled)
+-      continue;
++    } else {
++      /* Not a retransmission, proceed with normal scheduling */
++      const int B = cmax(UE_template->estimated_ul_buffer - UE_template->scheduled_ul_bytes, 0);
++      const int UE_to_be_scheduled = UE_is_to_be_scheduled(Mod_id, CC_id, UE_id);
++      if (B == 0 && !UE_to_be_scheduled)
++        continue;
+ 
+-    num_ue_req++;
++      num_ue_req++;
+ 
+-    /* if UE has pending scheduling request then pre-allocate 3 RBs */
+-    if (B == 0 && UE_to_be_scheduled) {
+-      UE_template->pre_assigned_mcs_ul = 10; /* use QPSK mcs only */
+-      rb_idx_required[UE_id] = 2;
+-      //UE_template->pre_allocated_nb_rb_ul = 3;
+-      continue;
+-    }
++      /* if UE has pending scheduling request then pre-allocate 3 RBs */
++      if (B == 0 && UE_to_be_scheduled) {
++        UE_template->pre_assigned_mcs_ul = 10; /* use QPSK mcs only */
++        rb_idx_required[UE_id] = 2;
++        //UE_template->pre_allocated_nb_rb_ul = 3;
++        continue;
++      }
+ 
+-    int mcs;
+-    int rb_table_index;
+-    int tx_power;
+-    calculate_max_mcs_min_rb(
++      int mcs;
++      int rb_table_index;
++      int tx_power;
++      calculate_max_mcs_min_rb(
+         Mod_id,
+         CC_id,
+         B,
+         UE_template->phr_info,
+         UE_info->UE_sched_ctrl[UE_id].phr_received == 1 ? 20 : 10,
+         &mcs,
+-        max_rb,
+-        &rb_table_index,
+-        &tx_power);
+-
+-    UE_template->pre_assigned_mcs_ul = mcs;
+-    /* rb_idx_given >= MAX index: limit RBs to value in configuration file 
+-     * RBs in the uplink.  */
+-    rb_idx_required[UE_id] = min(mac->max_ul_rb_index, rb_table_index);
+-    //UE_template->pre_allocated_nb_rb_ul = rb_table[rb_table_index];
+-    /* only print log when PHR changed */
+-    static int phr = 0;
+-    if (phr != UE_template->phr_info) {
+-      phr = UE_template->phr_info;
+-      LOG_D(MAC, "%d.%d UE %d CC %d: pre mcs %d, pre rb_table[%d]=%d RBs (phr %d, tx power %d, bytes %d)\n",
+-            frame,
+-            subframe,
+-            UE_id,
++          max_rb,
++          &rb_table_index,
++          &tx_power);
++
++      UE_template->pre_assigned_mcs_ul = mcs;
++      /* rb_idx_given >= MAX index: limit RBs to value in configuration file 
++       * RBs in the uplink.  */
++      rb_idx_required[UE_id] = min(mac->max_ul_rb_index, rb_table_index);
++      //UE_template->pre_allocated_nb_rb_ul = rb_table[rb_table_index];
++      /* only print log when PHR changed */
++      static int phr = 0;
++      if (phr != UE_template->phr_info) {
++        phr = UE_template->phr_info;
++        LOG_D(MAC, "%d.%d UE %d CC %d: pre mcs %d, pre rb_table[%d]=%d RBs (phr %d, tx power %d, bytes %d)\n",
++                frame,
++                subframe,
++                UE_id,
+             CC_id,
+             UE_template->pre_assigned_mcs_ul,
+             UE_template->pre_allocated_rb_table_index_ul,
+@@ -929,6 +929,7 @@ int rr_ul_run(module_id_t Mod_id,
+             tx_power,
+             B);
+     }
++    } // end else (not retransmission)
+   }
+ 
+   if (num_ue_req == 0)

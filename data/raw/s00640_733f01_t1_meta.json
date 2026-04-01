@@ -1,0 +1,36 @@
+{
+  "run_id": "s00640_733f01",
+  "function": {
+    "name": "e1_send_bearer_modification_request",
+    "file": "openair2/RRC/NR/rrc_gNB.c",
+    "start_line": 2390,
+    "end_line": 2403,
+    "body_lines": 14,
+    "signature": "static void e1_send_bearer_modification_request(gNB_RRC_INST *rrc, gNB_RRC_UE_t *UE, e1ap_bearer_mod_req_t *req)",
+    "subsystem": "openair2/RRC/NR",
+    "token_estimate": 46
+  },
+  "bug": {
+    "bug_id": "c_unchecked_return_value",
+    "description": "unchecked return value from a function that can indicate failure",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/NAS",
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a unchecked return value from a function that can indicate failure downstream of function e1_send_bearer_modification_request in the openair2/RRC/NR subsystem.\nThe function is located at openair2/RRC/NR/rrc_gNB.c:2390.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00640_733f01_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00640_733f01_p1.diff",
+  "patch_lines": 16,
+  "trajectory_steps": 108,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T22:15:08Z"
+}

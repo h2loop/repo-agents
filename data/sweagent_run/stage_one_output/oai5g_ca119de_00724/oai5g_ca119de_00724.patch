@@ -1,0 +1,27 @@
+diff --git a/openair3/NAS/UE/EMM/emm_main.c b/openair3/NAS/UE/EMM/emm_main.c
+index 3deabbe9be..45d990c5d1 100644
+--- a/openair3/NAS/UE/EMM/emm_main.c
++++ b/openair3/NAS/UE/EMM/emm_main.c
+@@ -313,6 +313,22 @@ void emm_main_initialize(nas_user_t *user, emm_indication_callback_t cb, const c
+     }
+ 
+     user->emm_data->status = user->usim_data.epsloci.status;
++    
++    /* Map EPS update status to network registration status */
++    switch (user->emm_data->status) {
++      case EU1_UPDATED:
++        user->emm_data->stat = NET_REG_STATE_HN;  /* Assume home network when updated */
++        break;
++      case EU2_NOT_UPDATED:
++        user->emm_data->stat = NET_REG_STATE_OFF;
++        break;
++      case EU3_ROAMING_NOT_ALLOWED:
++        user->emm_data->stat = NET_REG_STATE_DENIED;
++        break;
++      default:
++        user->emm_data->stat = NET_REG_STATE_OFF;
++        break;
++    }
+ 
+     /* Get NAS configuration parameters */
+     user->emm_data->NAS_SignallingPriority =

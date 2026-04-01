@@ -1,0 +1,47 @@
+diff --git a/openair2/E1AP/e1ap.c b/openair2/E1AP/e1ap.c
+index 1eff4ea529..710650d0e7 100644
+--- a/openair2/E1AP/e1ap.c
++++ b/openair2/E1AP/e1ap.c
+@@ -481,13 +481,17 @@ int e1apCUCP_handle_BEARER_CONTEXT_MODIFICATION_RESPONSE(sctp_assoc_t assoc_id,
+                                                          e1ap_upcp_inst_t *e1_inst,
+                                                          const E1AP_E1AP_PDU_t *pdu)
+ {
+-  MessageDef *msg = itti_alloc_new_message(TASK_CUUP_E1, 0, E1AP_BEARER_CONTEXT_MODIFICATION_RESP);
++  MessageDef *msg = itti_alloc_new_message(TASK_CUCP_E1, 0, E1AP_BEARER_CONTEXT_MODIFICATION_RESP);
+   e1ap_bearer_modif_resp_t *modif = &E1AP_BEARER_CONTEXT_MODIFICATION_RESP(msg);
+   if(!decode_E1_bearer_context_mod_response(modif, pdu)) {
++    LOG_E(E1AP, "Failed to decode Bearer Context Modification Response\n");
+     free_e1ap_context_mod_response(modif);
+     return -1;
+   }
+-  itti_send_msg_to_task(TASK_RRC_GNB, 0, msg);
++  msg->ittiMsgHeader.originInstance = assoc_id;
++  // Fixme: instance is the NGAP instance, no good way to set it here
++  instance_t instance = 0;
++  itti_send_msg_to_task(TASK_RRC_GNB, instance, msg);
+   return 0;
+ }
+ 
+@@ -495,6 +499,7 @@ int e1apCUCP_handle_BEARER_CONTEXT_MODIFICATION_FAILURE(sctp_assoc_t assoc_id, e
+ {
+   e1ap_bearer_context_mod_failure_t failure = {0};
+   if (!decode_E1_bearer_context_mod_failure(&failure, pdu)) {
++    LOG_E(E1AP, "Failed to decode Bearer Context Modification Failure\n");
+     free_E1_bearer_context_mod_failure(&failure);
+     return -1;
+   }
+@@ -502,9 +507,12 @@ int e1apCUCP_handle_BEARER_CONTEXT_MODIFICATION_FAILURE(sctp_assoc_t assoc_id, e
+         "Received Bearer Context Modification Failure from CU-UP %d with cause value %d \n",
+         failure.gNB_cu_up_ue_id,
+         failure.cause.value);
+-  MessageDef *msg = itti_alloc_new_message(TASK_CUUP_E1, 0, E1AP_BEARER_CONTEXT_MODIFICATION_FAIL);
++  MessageDef *msg = itti_alloc_new_message(TASK_CUCP_E1, 0, E1AP_BEARER_CONTEXT_MODIFICATION_FAIL);
+   E1AP_BEARER_CONTEXT_MODIFICATION_FAIL(msg) = cp_E1_bearer_context_mod_failure(&failure);
+-  itti_send_msg_to_task(TASK_RRC_GNB, 0, msg);
++  msg->ittiMsgHeader.originInstance = assoc_id;
++  // Fixme: instance is the NGAP instance, no good way to set it here
++  instance_t instance = 0;
++  itti_send_msg_to_task(TASK_RRC_GNB, instance, msg);
+   return 0;
+ }
+ 

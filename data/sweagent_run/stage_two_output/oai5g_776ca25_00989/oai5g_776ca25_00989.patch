@@ -1,0 +1,17 @@
+diff --git a/common/utils/ocp_itti/intertask_interface.cpp b/common/utils/ocp_itti/intertask_interface.cpp
+index b59de2e0fc..8cbe00a7ef 100644
+--- a/common/utils/ocp_itti/intertask_interface.cpp
++++ b/common/utils/ocp_itti/intertask_interface.cpp
+@@ -141,8 +141,10 @@ typedef struct timer_elm_s {
+     pthread_mutex_lock (&t->queue_cond_lock);
+     int ret=itti_send_msg_to_task_locked(destination_task_id, destinationInstance, message);
+ 
+-    while (t->message_queue.size() > 0 && t->task_parms.shortcut_func != NULL) {
+-      if (t->message_queue.size()>1)
++    if (get_softmodem_params()->no_itti && t->task_parms.shortcut_func != NULL) {
++      // In no_itti mode, process messages immediately with a single call to shortcut function
++      // to avoid infinite loops that occur with the while loop approach
++      if (t->message_queue.size() > 1)
+         LOG_W(ITTI,"queue in no thread mode is %ld\n", t->message_queue.size());
+ 
+       pthread_mutex_unlock (&t->queue_cond_lock);

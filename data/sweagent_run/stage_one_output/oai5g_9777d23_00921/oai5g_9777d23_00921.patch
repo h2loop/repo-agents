@@ -1,0 +1,16 @@
+diff --git a/openair2/F1AP/lib/f1ap_ue_context.c b/openair2/F1AP/lib/f1ap_ue_context.c
+index 728849d8e5..17e750a3c3 100644
+--- a/openair2/F1AP/lib/f1ap_ue_context.c
++++ b/openair2/F1AP/lib/f1ap_ue_context.c
+@@ -2322,6 +2322,11 @@ bool decode_ue_context_rel_cmd(const struct F1AP_F1AP_PDU *pdu, f1ap_ue_context_
+   F1AP_LIB_FIND_IE(F1AP_UEContextReleaseCommandIEs_t, ie, &in->protocolIEs.list, F1AP_ProtocolIE_ID_id_gNB_DU_UE_F1AP_ID, true);
+   F1AP_LIB_FIND_IE(F1AP_UEContextReleaseCommandIEs_t, ie, &in->protocolIEs.list, F1AP_ProtocolIE_ID_id_Cause, true);
+ 
++  /* Check for potential integer overflow in count */
++  if (in->protocolIEs.list.count < 0 || in->protocolIEs.list.count > 65536) {
++    AssertError(false, return false, "Invalid protocolIEs list count: %d\n", in->protocolIEs.list.count);
++  }
++
+   for (int i = 0; i < in->protocolIEs.list.count; ++i) {
+     ie = in->protocolIEs.list.array[i];
+     AssertError(ie != NULL, return false, "in->protocolIEs.list.array[i] is NULL");

@@ -1,0 +1,122 @@
+diff --git a/openair1/PHY/LTE_UE_TRANSPORT/dlsch_demodulation.c b/openair1/PHY/LTE_UE_TRANSPORT/dlsch_demodulation.c
+index ac045480da..f876debf3e 100644
+--- a/openair1/PHY/LTE_UE_TRANSPORT/dlsch_demodulation.c
++++ b/openair1/PHY/LTE_UE_TRANSPORT/dlsch_demodulation.c
+@@ -2536,24 +2536,117 @@ void mmse_processing_core(int32_t **rxdataF_ext,
+   int aatx, aarx, re;
+   float imag;
+   float real;
++
++  /* Check for NULL pointers */
++  if (rxdataF_ext == NULL || dl_ch_estimates_ext == NULL) {
++    return;
++  }
++
+   float complex **W_MMSE= malloc(n_tx*n_rx*sizeof(float complex *));
+ 
++  if (W_MMSE == NULL) {
++    return;
++  }
++
+   for (int j=0; j<n_tx*n_rx; j++) {
+     W_MMSE[j] = malloc(sizeof(float complex)*length);
++    if (W_MMSE[j] == NULL) {
++      // Clean up previously allocated memory
++      for (int k=0; k<j; k++) {
++        free(W_MMSE[k]);
++      }
++      free(W_MMSE);
++      return;
++    }
+   }
+ 
+   float complex *H=  malloc(n_tx*n_rx*sizeof(float complex));
++  if (H == NULL) {
++    // Clean up W_MMSE
++    for (int j=0; j<n_tx*n_rx; j++) {
++      free(W_MMSE[j]);
++    }
++    free(W_MMSE);
++    return;
++  }
++
+   float complex *W_MMSE_re=  malloc(n_tx*n_rx*sizeof(float complex));
++  if (W_MMSE_re == NULL) {
++    // Clean up W_MMSE and H
++    free(H);
++    for (int j=0; j<n_tx*n_rx; j++) {
++      free(W_MMSE[j]);
++    }
++    free(W_MMSE);
++    return;
++  }
++
+   float complex **dl_ch_estimates_ext_flcpx = malloc(n_tx*n_rx*sizeof(float complex *));
++  if (dl_ch_estimates_ext_flcpx == NULL) {
++    // Clean up W_MMSE, H, and W_MMSE_re
++    free(W_MMSE_re);
++    free(H);
++    for (int j=0; j<n_tx*n_rx; j++) {
++      free(W_MMSE[j]);
++    }
++    free(W_MMSE);
++    return;
++  }
+ 
+   for (int j=0; j<n_tx*n_rx; j++) {
+     dl_ch_estimates_ext_flcpx[j] = malloc(sizeof(float complex)*length);
++    if (dl_ch_estimates_ext_flcpx[j] == NULL) {
++      // Clean up previously allocated memory
++      for (int k=0; k<j; k++) {
++        free(dl_ch_estimates_ext_flcpx[k]);
++      }
++      free(dl_ch_estimates_ext_flcpx);
++      free(W_MMSE_re);
++      free(H);
++      for (int j=0; j<n_tx*n_rx; j++) {
++        free(W_MMSE[j]);
++      }
++      free(W_MMSE);
++      return;
++    }
+   }
+ 
+   float complex **rxdataF_ext_flcpx = malloc(n_rx*sizeof(float complex *));
++  if (rxdataF_ext_flcpx == NULL) {
++    // Clean up all previously allocated memory
++    for (int j=0; j<n_tx*n_rx; j++) {
++      free(dl_ch_estimates_ext_flcpx[j]);
++    }
++    free(dl_ch_estimates_ext_flcpx);
++    free(W_MMSE_re);
++    free(H);
++    for (int j=0; j<n_tx*n_rx; j++) {
++      free(W_MMSE[j]);
++    }
++    free(W_MMSE);
++    return;
++  }
+ 
+   for (int j=0; j<n_rx; j++) {
+     rxdataF_ext_flcpx[j] = malloc(sizeof(float complex)*length);
++    if (rxdataF_ext_flcpx[j] == NULL) {
++      // Clean up previously allocated memory
++      for (int k=0; k<j; k++) {
++        free(rxdataF_ext_flcpx[k]);
++      }
++      free(rxdataF_ext_flcpx);
++      for (int k=0; k<n_tx*n_rx; k++) {
++        free(dl_ch_estimates_ext_flcpx[k]);
++      }
++      free(dl_ch_estimates_ext_flcpx);
++      free(W_MMSE_re);
++      free(H);
++      for (int k=0; k<n_tx*n_rx; k++) {
++        free(W_MMSE[k]);
++      }
++      free(W_MMSE);
++      return;
++    }
+   }
+ 
+   chan_est_to_float(dl_ch_estimates_ext,

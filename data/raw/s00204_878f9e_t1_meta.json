@@ -1,0 +1,32 @@
+{
+  "run_id": "s00204_878f9e",
+  "function": {
+    "name": "encode_tmgi_mobile_identity",
+    "file": "openair3/NAS/COMMON/IES/MobileIdentity.c",
+    "start_line": 631,
+    "end_line": 653,
+    "body_lines": 23,
+    "signature": "static int encode_tmgi_mobile_identity(TmgiMobileIdentity_t *tmgi, uint8_t *buffer)",
+    "subsystem": "openair3/NAS/COMMON",
+    "token_estimate": 99
+  },
+  "bug": {
+    "bug_id": "c_type_confusion",
+    "description": "type confusion where a pointer is cast to an incompatible struct type",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a type confusion where a pointer is cast to an incompatible struct type downstream of function encode_tmgi_mobile_identity in the openair3/NAS/COMMON subsystem.\nThe function is located at openair3/NAS/COMMON/IES/MobileIdentity.c:631.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00204_878f9e_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00204_878f9e_p1.diff",
+  "patch_lines": 5,
+  "trajectory_steps": 20,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:51:25Z"
+}

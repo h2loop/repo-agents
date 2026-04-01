@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix potential null pointer dereference in _nas_user_proc_clac() function\n\n### Summary\nThe NR UE NAS layer contained a potential null pointer dereference when processing the AT+CLAC command under certain conditions. The bug manifested when the AT command handler array was corrupted or when memory allocation failed during command processing.\n\nThe issue was introduced during a previous refactor that changed how AT command responses are handled but did not properly validate pointer assignments.\n\n### Changes\n- `openair3/NAS/UE/nas_user.c`: Added null pointer checks and improved error handling in _nas_user_proc_clac function.\n- `openair3/NAS/UE/API/USER/at_command.c`: Enhanced bounds checking in at_command_get_list function.\n\n"
+}

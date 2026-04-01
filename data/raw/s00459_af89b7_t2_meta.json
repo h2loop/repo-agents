@@ -1,0 +1,9 @@
+{
+  "run_id": "s00459_af89b7",
+  "pr_text": "## Title: Fix HARQ process error by resetting timestamp in cache clear\n\n### Summary\nThe `clear_cache()` function in the multi-RRU cleaning utility was not resetting the timestamp field when clearing cache entries. This caused stale timestamp data to persist across cache clear operations, which downstream HARQ processing logic could misinterpret as valid timing information. This led to incorrect redundancy version selection and retransmission errors, particularly in multi-RRU configurations where",
+  "trajectory_path": "data/raw/s00459_af89b7_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00459_af89b7_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 5,
+  "timestamp": "2026-02-10T13:29:34Z"
+}

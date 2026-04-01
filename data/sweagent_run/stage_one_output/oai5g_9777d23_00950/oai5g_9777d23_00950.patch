@@ -1,0 +1,59 @@
+diff --git a/openair3/NAS/COMMON/IES/DaylightSavingTime.c b/openair3/NAS/COMMON/IES/DaylightSavingTime.c
+index b5c242414d..862a912f8c 100644
+--- a/openair3/NAS/COMMON/IES/DaylightSavingTime.c
++++ b/openair3/NAS/COMMON/IES/DaylightSavingTime.c
+@@ -31,17 +31,13 @@
+ int decode_daylight_saving_time(DaylightSavingTime *daylightsavingtime, uint8_t iei, uint8_t *buffer, uint32_t len)
+ {
+   int decoded = 0;
+-  uint8_t ielen = 0;
+ 
+   if (iei > 0) {
+     CHECK_IEI_DECODER(iei, *buffer);
+     decoded++;
+   }
+ 
+-  ielen = *(buffer + decoded);
+-  decoded++;
+-  CHECK_LENGTH_DECODER(len - decoded, ielen);
+-  *daylightsavingtime = *buffer & 0x3;
++  *daylightsavingtime = *(buffer + decoded) & 0x3;
+   decoded++;
+ #if defined (NAS_DEBUG)
+   dump_daylight_saving_time_xml(daylightsavingtime, iei);
+@@ -50,7 +46,6 @@ int decode_daylight_saving_time(DaylightSavingTime *daylightsavingtime, uint8_t
+ }
+ int encode_daylight_saving_time(DaylightSavingTime *daylightsavingtime, uint8_t iei, uint8_t *buffer, uint32_t len)
+ {
+-  uint8_t *lenPtr;
+   uint32_t encoded = 0;
+   /* Checking IEI and pointer */
+   CHECK_PDU_POINTER_AND_LENGTH_ENCODER(buffer, DAYLIGHT_SAVING_TIME_MINIMUM_LENGTH, len);
+@@ -63,12 +58,9 @@ int encode_daylight_saving_time(DaylightSavingTime *daylightsavingtime, uint8_t
+     encoded++;
+   }
+ 
+-  lenPtr  = (buffer + encoded);
+-  encoded ++;
+   *(buffer + encoded) = 0x00 |
+                         (*daylightsavingtime & 0x3);
+   encoded++;
+-  *lenPtr = encoded - 1 - ((iei > 0) ? 1 : 0);
+   return encoded;
+ }
+ 
+diff --git a/openair3/NAS/COMMON/IES/DaylightSavingTime.h b/openair3/NAS/COMMON/IES/DaylightSavingTime.h
+index 993065c958..dc83ec4515 100644
+--- a/openair3/NAS/COMMON/IES/DaylightSavingTime.h
++++ b/openair3/NAS/COMMON/IES/DaylightSavingTime.h
+@@ -28,8 +28,8 @@
+ #ifndef DAYLIGHT_SAVING_TIME_H_
+ #define DAYLIGHT_SAVING_TIME_H_
+ 
+-#define DAYLIGHT_SAVING_TIME_MINIMUM_LENGTH 3
+-#define DAYLIGHT_SAVING_TIME_MAXIMUM_LENGTH 3
++#define DAYLIGHT_SAVING_TIME_MINIMUM_LENGTH 1
++#define DAYLIGHT_SAVING_TIME_MAXIMUM_LENGTH 2
+ 
+ typedef uint8_t DaylightSavingTime;
+ 

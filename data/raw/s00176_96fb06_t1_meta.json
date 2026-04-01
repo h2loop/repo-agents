@@ -1,0 +1,30 @@
+{
+  "run_id": "s00176_96fb06",
+  "function": {
+    "name": "decode_ul_mac_sub_pdu_header",
+    "file": "openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c",
+    "start_line": 281,
+    "end_line": 326,
+    "body_lines": 46,
+    "signature": "uint8_t decode_ul_mac_sub_pdu_header(uint8_t *pduP, uint8_t *lcid, uint16_t *length)",
+    "subsystem": "openair2/LAYER2/NR_MAC_gNB",
+    "token_estimate": 130
+  },
+  "bug": {
+    "bug_id": "c_redundant_computation",
+    "description": "redundant computation performing the same calculation multiple times unnecessarily",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "common"
+    ]
+  },
+  "prompt": "There is a redundant computation performing the same calculation multiple times unnecessarily downstream of function decode_ul_mac_sub_pdu_header in the openair2/LAYER2/NR_MAC_gNB subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c:281.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00176_96fb06_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00176_96fb06_p1.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 11,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:38:01Z"
+}

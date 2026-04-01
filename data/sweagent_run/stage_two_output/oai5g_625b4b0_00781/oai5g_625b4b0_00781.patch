@@ -1,0 +1,63 @@
+diff --git a/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c b/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c
+index 0a858e0be9..6d69b6062a 100644
+--- a/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c
++++ b/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c
+@@ -793,9 +793,27 @@ static bool eq_srs_indication_report_tlv(const nfapi_srs_report_tlv_t *a, const
+ {
+   EQ(a->tag, b->tag);
+   EQ(a->length, b->length);
+-  for (int i = 0; i < (a->length + 3) / 4; ++i) {
++  
++  // Calculate number of complete 32-bit words and remaining bytes
++  // For example, if length=5: complete_words=1 (4 bytes), remaining_bytes=1 (1 byte)
++  uint32_t complete_words = a->length / 4;
++  uint32_t remaining_bytes = a->length % 4;
++  
++  // Compare complete 32-bit words (all bytes in these words are valid)
++  for (uint32_t i = 0; i < complete_words; ++i) {
+     EQ(a->value[i], b->value[i]);
+   }
++  
++  // Handle partial word with bitmask to ignore padding bytes
++  // Only compare the valid bytes in the final partial word
++  if (remaining_bytes > 0) {
++    // Create mask to keep only valid bytes
++    // For remaining_bytes=n, we keep the n least significant bytes
++    // Example: remaining_bytes=1 => mask=0x000000FF (keep LSB)
++    uint32_t mask = (1ULL << (8 * remaining_bytes)) - 1;
++    EQ((a->value[complete_words] & mask), (b->value[complete_words] & mask));
++  }
++  
+   return true;
+ }
+ 
+@@ -1882,9 +1900,28 @@ void copy_srs_indication_report_tlv(const nfapi_srs_report_tlv_t *src, nfapi_srs
+ {
+   dst->tag = src->tag;
+   dst->length = src->length;
+-  for (int i = 0; i < (dst->length + 3) / 4; ++i) {
++  
++  // Calculate number of complete 32-bit words and remaining bytes
++  // For example, if length=5: complete_words=1 (4 bytes), remaining_bytes=1 (1 byte)
++  uint32_t complete_words = src->length / 4;
++  uint32_t remaining_bytes = src->length % 4;
++  
++  // Copy complete 32-bit words (all bytes in these words are valid)
++  for (uint32_t i = 0; i < complete_words; ++i) {
+     dst->value[i] = src->value[i];
+   }
++  
++  // Handle partial word - copy only valid bytes and zero-pad the rest
++  // This ensures padding bytes don't contain garbage values
++  if (remaining_bytes > 0) {
++    // Create mask to keep only valid bytes
++    // For remaining_bytes=n, we keep the n least significant bytes
++    // Example: remaining_bytes=1 => mask=0x000000FF (keep LSB)
++    uint32_t mask = (1ULL << (8 * remaining_bytes)) - 1;
++    
++    // Copy only the valid bytes and zero-pad the padding bytes
++    dst->value[complete_words] = src->value[complete_words] & mask;
++  }
+ }
+ 
+ void copy_srs_indication_PDU(const nfapi_nr_srs_indication_pdu_t *src, nfapi_nr_srs_indication_pdu_t *dst)

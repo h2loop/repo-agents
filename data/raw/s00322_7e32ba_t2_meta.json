@@ -1,0 +1,9 @@
+{
+  "run_id": "s00322_7e32ba",
+  "pr_text": "## Title: Fix missing error propagation in LTE PHY GPIB calibration functions\n\n### Summary\nThe LTE PHY simulation calibration code was silently ignoring GPIB communication failures. The `gpib_send()` function detected errors but only printed messages without returning status codes. The `calibration()` function had a void return type and continued execution even after GPIB command failures, leading to invalid test configurations being used silently downstream.\n\nThis patch implements proper error ",
+  "trajectory_path": "data/raw/s00322_7e32ba_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00322_7e32ba_p2.diff",
+  "patch_lines": 35,
+  "trajectory_steps": 38,
+  "timestamp": "2026-02-11T14:29:51Z"
+}

@@ -1,0 +1,64 @@
+diff --git a/openair2/LAYER2/PDCP_v10.1.0/pdcp.c b/openair2/LAYER2/PDCP_v10.1.0/pdcp.c
+index 03b8ecc2d3..4ca58ee076 100644
+--- a/openair2/LAYER2/PDCP_v10.1.0/pdcp.c
++++ b/openair2/LAYER2/PDCP_v10.1.0/pdcp.c
+@@ -167,8 +167,8 @@ void *pdcp_stats_thread(void *param) {
+    int old_byte_cnt[MAX_MOBILES_PER_ENB][NB_RB_MAX],old_byte_cnt_rx[MAX_MOBILES_PER_ENB][NB_RB_MAX];
+    for (int i=0;i<MAX_MOBILES_PER_ENB;i++)
+      for (int j=0;j<NB_RB_MAX;j++) {
+-	old_byte_cnt[i][j]=0;
+-	old_byte_cnt_rx[i][j]=0;
++        old_byte_cnt[i][j]=0;
++        old_byte_cnt_rx[i][j]=0;
+      }
+    while (!oai_exit) {
+      sleep(1);
+@@ -1075,8 +1075,8 @@ bool pdcp_data_ind(const protocol_ctxt_t *const ctxt_pP,
+ 
+       memcpy(pdcpHead + 1, &sdu_buffer_pP[payload_offset], sdu_buffer_sizeP - payload_offset);
+       if( LOG_DEBUGFLAG(DEBUG_PDCP) )
+-	log_dump(PDCP, pdcpHead+1, min(sdu_buffer_sizeP - payload_offset,30) , LOG_DUMP_CHAR,
+-	         "Printing first bytes of PDCP SDU before adding it to the list: \n");
++        log_dump(PDCP, pdcpHead+1, min(sdu_buffer_sizeP - payload_offset,30) , LOG_DUMP_CHAR,
++                 "Printing first bytes of PDCP SDU before adding it to the list: \n");
+       pushNotifiedFIFO(&pdcp_sdu_list, new_sdu_p); 
+ 
+     /* Print octets of incoming data in hexadecimal form */
+@@ -2313,9 +2313,37 @@ void pdcp_layer_init(void)
+ void pdcp_layer_cleanup (void)
+ //-----------------------------------------------------------------------------
+ {
++  module_id_t       instance;
++  int i,j;
++  mbms_session_id_t session_id;
++  mbms_service_id_t service_id;
++  
+   //list_free (&pdcp_sdu_list);
+   while(pollNotifiedFIFO(&pdcp_sdu_list)) {};
++  initNotifiedFIFO_nothreadSafe(&pdcp_sdu_list);
+   hashtable_destroy(&pdcp_coll_p);
++  
++  // Reinitialize global arrays
++  for (instance = 0; instance < MAX_MOBILES_PER_ENB; instance++) {
++    for (service_id = 0; service_id < LTE_maxServiceCount; service_id++) {
++      for (session_id = 0; session_id < LTE_maxSessionPerPMCH; session_id++) {
++        memset(&pdcp_mbms_array_ue[instance][service_id][session_id], 0, sizeof(pdcp_mbms_t));
++      }
++    }
++  }
++  
++  for (instance = 0; instance < NUMBER_OF_eNB_MAX; instance++) {
++    for (service_id = 0; service_id < LTE_maxServiceCount; service_id++) {
++      for (session_id = 0; session_id < LTE_maxSessionPerPMCH; session_id++) {
++        memset(&pdcp_mbms_array_eNB[instance][service_id][session_id], 0, sizeof(pdcp_mbms_t));
++      }
++    }
++  }
++  
++  memset(pdcp_UE_UE_module_id_to_rnti, 0, sizeof(pdcp_UE_UE_module_id_to_rnti));
++  memset(pdcp_eNB_UE_instance_to_rnti, 0, sizeof(pdcp_eNB_UE_instance_to_rnti));
++  pdcp_eNB_UE_instance_to_rnti_index = 0;
++
+ #ifdef MBMS_MULTICAST_OUT
+ 
+   if(mbms_socket != -1) {

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00249_f1c2db",
+  "pr_text": "## Title: Fix uninitialized memory read in F1AP served cell info decoder\n\n### Summary\nThe `decode_served_cell_info()` function reads uninitialized memory when decoding F1AP Served Cell Information elements. The output structure is not zero-initialized before parsing, causing undefined behavior when optional Information Elements (IEs) are absent from the message. Fields corresponding to missing IEs retain whatever garbage values were present in the uninitialized memory, which can lead to crashes ",
+  "trajectory_path": "data/raw/s00249_f1c2db_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00249_f1c2db_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 27,
+  "timestamp": "2026-02-10T12:10:38Z"
+}

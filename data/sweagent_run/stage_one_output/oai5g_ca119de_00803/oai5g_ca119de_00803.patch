@@ -1,0 +1,79 @@
+diff --git a/openair1/PHY/LTE_TRANSPORT/pucch.c b/openair1/PHY/LTE_TRANSPORT/pucch.c
+index c777313df0..b7ad8ed393 100644
+--- a/openair1/PHY/LTE_TRANSPORT/pucch.c
++++ b/openair1/PHY/LTE_TRANSPORT/pucch.c
+@@ -68,9 +68,9 @@ void dump_uci_stats(FILE *fd,PHY_VARS_eNB *eNB,int frame) {
+     if (eNB->uci_stats[i].rnti>0) {
+       eNB_UCI_STATS_t *uci_stats = &eNB->uci_stats[i];
+       strpos+=sprintf(output+strpos,"UCI %d RNTI %x: pucch1_trials %d, pucch1_n0 %d dB, pucch1_thres %d dB, current pucch1_stat_pos %d dB, current pucch1_stat_neg %d dB, positive SR count %d\n",
+-	i,uci_stats->rnti,uci_stats->pucch1_trials,eNB->measurements.n0_pucch_dB/*max(eNB->measurements.n0_subband_power_tot_dB[0], eNB->measurements.n0_subband_power_tot_dB[eNB->frame_parms.N_RB_UL-1])*/,uci_stats->pucch1_thres,dB_fixed(uci_stats->current_pucch1_stat_pos),dB_fixed(uci_stats->current_pucch1_stat_neg),uci_stats->pucch1_positive_SR);
++        i,uci_stats->rnti,uci_stats->pucch1_trials,eNB->measurements.n0_pucch_dB/*max(eNB->measurements.n0_subband_power_tot_dB[0], eNB->measurements.n0_subband_power_tot_dB[eNB->frame_parms.N_RB_UL-1])*/,uci_stats->pucch1_thres,dB_fixed(uci_stats->current_pucch1_stat_pos),dB_fixed(uci_stats->current_pucch1_stat_neg),uci_stats->pucch1_positive_SR);
+       strpos+=sprintf(output+strpos,"UCI %d RNTI %x: pucch1_low (%d,%d)dB pucch1_high (%d,%d)dB\n",
+-	    i,uci_stats->rnti,
++            i,uci_stats->rnti,
+             dB_fixed(uci_stats->pucch1_low_stat[0]),
+             dB_fixed(uci_stats->pucch1_low_stat[1]),
+             dB_fixed(uci_stats->pucch1_high_stat[0]),
+@@ -82,8 +82,8 @@ void dump_uci_stats(FILE *fd,PHY_VARS_eNB *eNB,int frame) {
+             uci_stats->current_pucch1a_stat_re,
+             uci_stats->current_pucch1a_stat_im,
+             uci_stats->pucch1b_trials,
+-	    uci_stats->current_pucch1b_stat_re,
+-	    uci_stats->current_pucch1b_stat_im,
++            uci_stats->current_pucch1b_stat_re,
++            uci_stats->current_pucch1b_stat_im,
+             uci_stats->pucch1ab_DTX);
+     }
+   }
+@@ -746,12 +746,13 @@ int16_t pucchfmt3_Decode( int16_t b[48],
+ 
+ 
+ uint32_t calc_pucch_1x_interference(PHY_VARS_eNB *eNB,
+-		  int     frame,
+-		  uint8_t subframe,
+-		  uint8_t shortened_format
++                  int     frame,
++                  uint8_t subframe,
++                  uint8_t shortened_format
+ )
+ //-----------------------------------------------------------------------------
+ {
++  VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_PHY_PROCEDURES_ENB_RX_UESPEC,VCD_FUNCTION_IN);
+   LTE_eNB_COMMON *common_vars = &eNB->common_vars;
+   LTE_DL_FRAME_PARMS *frame_parms = &eNB->frame_parms;
+ 
+@@ -871,6 +872,7 @@ uint32_t calc_pucch_1x_interference(PHY_VARS_eNB *eNB,
+   interference_power /= calc_cnt;
+   eNB->measurements.n0_pucch_dB = dB_fixed_x10((int)interference_power)/10;
+   LOG_D(PHY,"estimate pucch noise %lf %d %d\n",interference_power,calc_cnt,eNB->measurements.n0_pucch_dB);
++  VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_PHY_PROCEDURES_ENB_RX_UESPEC,VCD_FUNCTION_OUT);
+   return 0;
+ }
+ 
+@@ -1199,12 +1201,12 @@ uint32_t rx_pucch(PHY_VARS_eNB *eNB,
+       for (phase=0; phase<7; phase++) {
+         int stat=0;
+         for (aa=0; aa<frame_parms->nb_antennas_rx; aa++) {
+-	  stat0[aa]=0;stat1[aa]=0;
++          stat0[aa]=0;stat1[aa]=0;
+           for (re=0; re<12; re++) {
+-	    stat0_re[aa]=0;
+-	    stat0_im[aa]=0;
+-	    stat1_re[aa]=0;
+-	    stat1_im[aa]=0;
++            stat0_re[aa]=0;
++            stat0_im[aa]=0;
++            stat1_re[aa]=0;
++            stat1_im[aa]=0;
+             off=re<<1;
+             const int16_t *cfo = (frame_parms->Ncp == 0) ? &cfo_pucch_np[14 * phase] : &cfo_pucch_ep[12 * phase];
+ 
+@@ -1233,7 +1235,7 @@ uint32_t rx_pucch(PHY_VARS_eNB *eNB,
+             }
+            
+             stat0[aa] += ((stat0_re[aa]*stat0_re[aa]) + (stat0_im[aa]*stat0_im[aa]));
+-	    stat1[aa] += ((stat1_re[aa]*stat1_re[aa]) + (stat1_im[aa]*stat1_im[aa]));
++            stat1[aa] += ((stat1_re[aa]*stat1_re[aa]) + (stat1_im[aa]*stat1_im[aa]));
+           } //re
+           stat+=(stat0[aa]+stat1[aa]);
+         } // aa

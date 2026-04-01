@@ -1,0 +1,9 @@
+{
+  "run_id": "s00356_ff7aae",
+  "pr_text": "## Title: Fix integer truncation in setup_ue_ipv4_route parameter\n\n### Summary\nThe `setup_ue_ipv4_route()` function in `common/utils/tun_if.c` uses a generic `int` type for the `instance_id` parameter, which risks integer truncation when the actual UE identifier type (`ue_id_t`) differs in width. This change updates the parameter to use `ue_id_t` for type safety and consistency with the OAI codebase.\n\n### Changes\n- `common/utils/tun_if.c`: Updated `instance_id` parameter type from `int` to `ue_i",
+  "trajectory_path": "data/raw/s00356_ff7aae_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00356_ff7aae_p2.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 20,
+  "timestamp": "2026-02-10T12:48:19Z"
+}

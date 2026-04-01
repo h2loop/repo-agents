@@ -1,0 +1,14 @@
+diff --git a/openair1/PHY/CODING/nrSmallBlock/encodeSmallBlock.c b/openair1/PHY/CODING/nrSmallBlock/encodeSmallBlock.c
+index 3078243c8f..be5ca609f4 100644
+--- a/openair1/PHY/CODING/nrSmallBlock/encodeSmallBlock.c
++++ b/openair1/PHY/CODING/nrSmallBlock/encodeSmallBlock.c
+@@ -37,7 +37,8 @@
+ uint32_t encodeSmallBlock(int in, int len)
+ {
+   uint32_t out = 0;
+-  for (int i = 0; i < len; i++)
++  const int max_len = 11; // nrSmallBlockBasis array size
++  for (int i = 0; i < len && i < max_len; i++)
+     if ((in & (1 << i)) > 0)
+       out ^= nrSmallBlockBasis[i];
+ 

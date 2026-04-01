@@ -1,0 +1,76 @@
+diff --git a/openair3/NAS/NR_UE/5GS/5GMM/MSG/fgs_service_request.c b/openair3/NAS/NR_UE/5GS/5GMM/MSG/fgs_service_request.c
+index 4603db55c5..5a6aee70b6 100644
+--- a/openair3/NAS/NR_UE/5GS/5GMM/MSG/fgs_service_request.c
++++ b/openair3/NAS/NR_UE/5GS/5GMM/MSG/fgs_service_request.c
+@@ -50,16 +50,22 @@ int encode_fgs_service_request(uint8_t *buffer, const fgs_service_request_msg_t
+   *buffer = ((encode_nas_key_set_identifier(&service_request->naskeysetidentifier, IEI_NULL) & 0x0f) << 4)
+             | (service_request->serviceType & 0x0f);
+   encoded++;
+-  len -= encoded;
+-
+-  // 5GS Mobile Identity (M) type 5G-S-TMSI (9 octets)
+-  encoded += LEN_FGS_MOBILE_ID_CONTENTS_SIZE; // skip "Length of 5GS mobile identity contents" IE
+-  len -= encoded;
+-  encoded += encode_stmsi_5gs_mobile_identity(buffer + encoded, &service_request->fiveg_s_tmsi, len);
++  
++  // Reserve space for length field
++  if (len < encoded + LEN_FGS_MOBILE_ID_CONTENTS_SIZE)
++    return -1;
++  encoded += LEN_FGS_MOBILE_ID_CONTENTS_SIZE;
++  
++  // Encode 5GS Mobile Identity (M) type 5G-S-TMSI
++  int mobile_id_len = encode_stmsi_5gs_mobile_identity(buffer + encoded, &service_request->fiveg_s_tmsi, len - encoded);
++  if (mobile_id_len < 0)
++    return -1;
++  
+   // encode length of 5GS mobile identity contents
+-  uint16_t tmp = htons(encoded - LEN_FGS_MOBILE_ID_CONTENTS_SIZE - 1);
++  uint16_t tmp = htons(mobile_id_len);
+   memcpy(buffer + 1, &tmp, sizeof(tmp));
+-
++  
++  encoded += mobile_id_len;
+   return encoded;
+ }
+ 
+@@ -71,6 +77,10 @@ int decode_fgs_service_request(fgs_service_request_msg_t *sr, const uint8_t *buf
+   uint32_t decoded = 0;
+   int decoded_rc = 0;
+ 
++  // Check minimum length
++  if (len < MIN_LEN_FGS_SERVICE_REQUEST)
++    return -1;
++
+   // Service type (1/2 octet) (M)
+   sr->serviceType = *buffer & 0x0f;
+   // KSI (1/2 octet) (M)
+@@ -78,10 +88,27 @@ int decode_fgs_service_request(fgs_service_request_msg_t *sr, const uint8_t *buf
+     return decoded_rc;
+   }
+   decoded++;
++  len--;
++
++  // Check that we have at least 2 bytes for the length field
++  if (len < 2) {
++    return -1;
++  }
++
++  // Read the length of 5GS mobile identity contents
++  uint16_t mobile_id_len;
++  memcpy(&mobile_id_len, buffer + decoded, sizeof(mobile_id_len));
++  mobile_id_len = ntohs(mobile_id_len);
++  decoded += 2;
++  len -= 2;
++
++  // Check that we have enough data for the mobile identity
++  if (len < mobile_id_len) {
++    return -1;
++  }
+ 
+   // 5GS Mobile Identity (M) type 5G-S-TMSI (9 octets) (M)
+-  decoded += LEN_FGS_MOBILE_ID_CONTENTS_SIZE; // skip "Length of 5GS mobile identity contents" IE
+-  if ((decoded_rc = decode_stmsi_5gs_mobile_identity(&sr->fiveg_s_tmsi, buffer + decoded, len - decoded)) < 0) {
++  if ((decoded_rc = decode_stmsi_5gs_mobile_identity(&sr->fiveg_s_tmsi, buffer + decoded, mobile_id_len)) < 0) {
+     return decoded_rc;
+   }
+   decoded += decoded_rc;

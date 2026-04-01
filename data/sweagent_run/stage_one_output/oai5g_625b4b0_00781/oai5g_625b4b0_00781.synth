@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix M2AP eNB registration task destination\n\n### Summary\nThe function `eNB_app_register_m2()` was sending registration requests to the wrong task. This caused M2AP registration to fail because the messages were being sent to `TASK_M2AP_ENB` instead of `TASK_M2AP_MCE`.\n\n### Changes\n- `openair2/ENB_APP/enb_app.c`: Changed message destination from `TASK_M2AP_ENB` to `TASK_M2AP_MCE` in `eNB_app_register_m2()` function.\n\n### Reproduction\nWhen running an eNB with M2AP enabled, the registration process would fail silently. Users would observe that M2AP setup procedures were not completing successfully, and the eNB would not properly register with the MCE. The issue can be reproduced by enabling M2AP in the configuration and checking the logs for M2AP registration failures.\n\n"
+}

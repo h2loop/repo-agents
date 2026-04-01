@@ -1,0 +1,20 @@
+diff --git a/openair2/LAYER2/MAC/mac.h b/openair2/LAYER2/MAC/mac.h
+index 635155b5a2..46438c703d 100644
+--- a/openair2/LAYER2/MAC/mac.h
++++ b/openair2/LAYER2/MAC/mac.h
+@@ -42,6 +42,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include <pthread.h>
+ 
+ #include "common/platform_constants.h"
+ #include "LTE_BCCH-BCH-Message.h"
+@@ -1102,6 +1103,7 @@ typedef struct {
+ typedef struct {
+   int head;
+   int next[MAX_MOBILES_PER_ENB];
++  pthread_mutex_t mutex;
+ } UE_list_t;
+ 
+ /*! \brief UE info used by eNB to order UEs/CC for scheduling*/

@@ -1,0 +1,26 @@
+{
+  "run_id": "zephyr_00729_946d72",
+  "function": {
+    "name": "ethosu_zephyr_init",
+    "file": "drivers/misc/ethos_u/ethos_u_arm.c",
+    "start_line": 38,
+    "end_line": 64,
+    "body_lines": 27,
+    "signature": "static int ethosu_zephyr_init(const struct device *dev)",
+    "subsystem": "drivers/misc/ethos_u",
+    "token_estimate": 69
+  },
+  "bug": {
+    "bug_id": "embedded_peripheral_init_order",
+    "description": "peripheral initialization in wrong order causing dependent hardware to malfunction",
+    "domain": "embedded",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a peripheral initialization in wrong order causing dependent hardware to malfunction downstream of function ethosu_zephyr_init in the drivers/misc/ethos_u subsystem.\nThe function is located at drivers/misc/ethos_u/ethos_u_arm.c:38.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 2,
+  "trajectory_steps": 27,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-17T01:46:07Z"
+}

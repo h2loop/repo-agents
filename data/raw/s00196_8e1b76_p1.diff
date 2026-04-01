@@ -1,0 +1,25 @@
+diff --git a/openair3/SCTP/sctp_eNB_task.c b/openair3/SCTP/sctp_eNB_task.c
+index ffd4bba3f5..a13e6da212 100644
+--- a/openair3/SCTP/sctp_eNB_task.c
++++ b/openair3/SCTP/sctp_eNB_task.c
+@@ -100,10 +100,20 @@ struct sctp_cnx_list_elm_s *sctp_get_cnx(sctp_assoc_t assoc_id, int sd)
+     STAILQ_FOREACH(elm, &sctp_cnx_list, entries) {
+         if (assoc_id != -1) {
+             if (elm->assoc_id == assoc_id) {
++                /* Validate that out_streams is properly initialized */
++                if (elm->out_streams == 0) {
++                    SCTP_ERROR("sctp_get_cnx: Found connection with assoc_id %d but out_streams is 0 (uninitialized)\n", assoc_id);
++                    return NULL;
++                }
+                 return elm;
+             }
+         } else {
+             if (elm->sd == sd) {
++                /* Validate that out_streams is properly initialized */
++                if (elm->out_streams == 0) {
++                    SCTP_ERROR("sctp_get_cnx: Found connection with sd %d but out_streams is 0 (uninitialized)\n", sd);
++                    return NULL;
++                }
+                 return elm;
+             }
+         }

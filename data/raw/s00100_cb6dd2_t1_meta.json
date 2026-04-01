@@ -1,0 +1,32 @@
+{
+  "run_id": "s00100_cb6dd2",
+  "function": {
+    "name": "get_sa",
+    "file": "openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.c",
+    "start_line": 818,
+    "end_line": 843,
+    "body_lines": 26,
+    "signature": "static seq_arr_t *get_sa(const e2sm_rc_event_trigger_t *ev_tr, const uint32_t ran_param_id)",
+    "subsystem": "openair2/E2AP/RAN_FUNCTION",
+    "token_estimate": 68
+  },
+  "bug": {
+    "bug_id": "telecom_config_layer_mismatch",
+    "description": "configuration mismatch between protocol layers causing inconsistent behavior",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC"
+    ]
+  },
+  "prompt": "There is a configuration mismatch between protocol layers causing inconsistent behavior downstream of function get_sa in the openair2/E2AP/RAN_FUNCTION subsystem.\nThe function is located at openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.c:818.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00100_cb6dd2_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00100_cb6dd2_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 74,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:13:29Z"
+}

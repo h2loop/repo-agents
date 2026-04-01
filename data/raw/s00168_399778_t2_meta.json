@@ -1,0 +1,9 @@
+{
+  "run_id": "s00168_399778",
+  "pr_text": "## Title: Fix PUCCH resource configuration arrays causing HARQ process errors\n\n### Summary\nThe NR MAC gNB scheduler contains configuration arrays for default PUCCH resources indexed by `pucch_ResourceCommon` (valid range 0-15). Two critical issues were identified that caused HARQ process failures and incorrect redundancy version selection during retransmissions:\n\n1. **Array bounds error**: `default_pucch_numbsymb` contained 17 elements instead of 16, creating an off-by-one overflow when indexed ",
+  "trajectory_path": "data/raw/s00168_399778_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00168_399778_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 18,
+  "timestamp": "2026-02-10T11:46:16Z"
+}

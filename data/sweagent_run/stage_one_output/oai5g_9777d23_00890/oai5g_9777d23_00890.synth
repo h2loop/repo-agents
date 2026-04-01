@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix memory leak in VNF P7 thread management\n\n### Summary\nThe VNF simulator contained a memory leak due to improper pthread resource management. Threads created for P7 processing were not being properly detached or joined, causing pthread resources to accumulate over time.\n\nThe leak was particularly noticeable during PNF connection/disconnection cycles where new threads were spawned but never cleaned up.\n\n### Changes\n- `nfapi/open-nFAPI/vnf_sim/src/main.cpp`: Added pthread detachment for P7 threads\n- `nfapi/open-nFAPI/vnf_sim/src/main.cpp`: Added proper thread handle storage in vnf_p7_info class\n\n"
+}

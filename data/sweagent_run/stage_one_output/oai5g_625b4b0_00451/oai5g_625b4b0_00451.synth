@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix inconsistent PDN connection count in ESM main module\n\n### Summary\nThe ESM main module had an inconsistency between the maximum number of PDN connections reported by `esm_main_get_nb_pdns_max()` and the actual array size used for PDN connection management. This caused confusion in upper layer modules that relied on this function to determine resource allocation.\n\nThe issue manifested when trying to establish the 5th PDN connection, where the system would incorrectly reject it despite having allocated space for it, leading to unexpected connection failures.\n\n### Changes\n- `openair3/NAS/UE/ESM/esmData.h`: Changed `pdn[ESM_DATA_PDN_MAX+1]` to `pdn[ESM_DATA_PDN_MAX]` to match the defined maximum.\n- `openair3/NAS/UE/ESM/esm_main.c`: Updated initialization loop to iterate only `ESM_DATA_PDN_MAX` times to match array bounds.\n\n"
+}

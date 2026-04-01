@@ -1,0 +1,9 @@
+{
+  "run_id": "s00018_c8c170",
+  "pr_text": "## Title: Fix HARQ state machine compliance after DL HARQ list resizing\n\n### Summary\nWhen the gNB scheduler resizes downlink HARQ process lists during UE serving cell configuration, the HARQ process state machine transitions are not properly reset. This violates 3GPP TS 38.321 state machine requirements for HARQ entity initialization. The missing state reset can lead to undefined behavior when HARQ processes retain stale state from previous configurations.\n\nThis fix adds an explicit call to rese",
+  "trajectory_path": "data/raw/s00018_c8c170_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00018_c8c170_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 27,
+  "timestamp": "2026-02-10T10:41:47Z"
+}

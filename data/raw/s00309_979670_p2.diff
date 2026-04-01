@@ -1,0 +1,22 @@
+diff --git a/nfapi/open-nFAPI/common/src/nfapi.c b/nfapi/open-nFAPI/common/src/nfapi.c
+index f997552c1e..27f9a9d728 100644
+--- a/nfapi/open-nFAPI/common/src/nfapi.c
++++ b/nfapi/open-nFAPI/common/src/nfapi.c
+@@ -1438,7 +1438,7 @@ uint8_t pack_pnf_param_general_value(void *tlv, uint8_t **ppWritePackedMsg, uint
+          && push16(value->maximum_total_bandwidth, ppWritePackedMsg, end)
+          && push8(value->maximum_total_number_dl_layers, ppWritePackedMsg, end)
+          && push8(value->maximum_total_number_ul_layers, ppWritePackedMsg, end) && push8(value->shared_bands, ppWritePackedMsg, end)
+-         && push8(value->shared_pa, ppWritePackedMsg, end) && pushs16(value->maximum_total_power, ppWritePackedMsg, end)
++         && pushs8(value->shared_pa, ppWritePackedMsg, end) && pushs16(value->maximum_total_power, ppWritePackedMsg, end)
+          && pusharray8(value->oui, NFAPI_PNF_PARAM_GENERAL_OUI_LENGTH, NFAPI_PNF_PARAM_GENERAL_OUI_LENGTH, ppWritePackedMsg, end);
+ }
+ 
+@@ -1458,7 +1458,7 @@ uint8_t unpack_pnf_param_general_value(void *tlv, uint8_t **ppReadPackedMsg, uin
+          && pull16(ppReadPackedMsg, &value->maximum_total_bandwidth, end)
+          && pull8(ppReadPackedMsg, &value->maximum_total_number_dl_layers, end)
+          && pull8(ppReadPackedMsg, &value->maximum_total_number_ul_layers, end) && pull8(ppReadPackedMsg, &value->shared_bands, end)
+-         && pull8(ppReadPackedMsg, &value->shared_pa, end) && pulls16(ppReadPackedMsg, &value->maximum_total_power, end)
++         && pulls8(ppReadPackedMsg, &value->shared_pa, end) && pulls16(ppReadPackedMsg, &value->maximum_total_power, end)
+          && pullarray8(ppReadPackedMsg, value->oui, NFAPI_PNF_PARAM_GENERAL_OUI_LENGTH, NFAPI_PNF_PARAM_GENERAL_OUI_LENGTH, end);
+ }
+ 

@@ -1,0 +1,31 @@
+diff --git a/openair3/NAS/UE/API/USER/user_api.c b/openair3/NAS/UE/API/USER/user_api.c
+index 4d47a4c2b3..5fb7f7d6e6 100644
+--- a/openair3/NAS/UE/API/USER/user_api.c
++++ b/openair3/NAS/UE/API/USER/user_api.c
+@@ -501,7 +501,7 @@ int user_api_emm_callback(user_api_id_t *user_api_id, Stat_t stat, tac_t tac, ci
+ 
+     if (size > 0) {
+       /* The UE's network registration status has changed */
+-      rc = user_ind_notify(user_api_id, USER_IND_REG, (void*)&ind, 0);
++      rc = user_ind_notify(user_api_id, USER_IND_REG, (void*)&ind.notification.reg, 0);
+     }
+ 
+     if (rc != RETURNerror) {
+@@ -511,7 +511,7 @@ int user_api_emm_callback(user_api_id_t *user_api_id, Stat_t stat, tac_t tac, ci
+       ind.notification.loc.tac = tac;
+       ind.notification.loc.ci  = ci;
+       ind.notification.loc.AcT = AcT;
+-      rc = user_ind_notify(user_api_id, USER_IND_LOC, (void*)&ind, 0);
++      rc = user_ind_notify(user_api_id, USER_IND_LOC, (void*)&ind.notification.loc, 0);
+     }
+   }
+ 
+@@ -549,7 +549,7 @@ int user_api_esm_callback(user_api_id_t *user_api_id, int cid, network_pdn_state
+   ind.notification.pdn.cid = cid;
+   ind.notification.pdn.status = state;
+   /* The status of the specified PDN connection has changed */
+-  rc = user_ind_notify(user_api_id, USER_IND_PDN, (void*)&ind, 0);
++  rc = user_ind_notify(user_api_id, USER_IND_PDN, (void*)&ind.notification.pdn, 0);
+ 
+   LOG_FUNC_RETURN (rc);
+ }

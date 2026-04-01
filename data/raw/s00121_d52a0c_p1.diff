@@ -1,0 +1,15 @@
+diff --git a/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_cnProc/main.c b/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_cnProc/main.c
+index 9d81417749..ef737c2c44 100644
+--- a/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_cnProc/main.c
++++ b/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_cnProc/main.c
+@@ -33,8 +33,8 @@ const char *__asan_default_options()
+ 
+ int main(int argc, char *argv[])
+ {
+-  if (argc != 2) {
+-    fprintf(stderr, "usage: %s <output-dir>\n", argv[0]);
++  if (argc != 2 || argv == NULL || argv[0] == NULL) {
++    fprintf(stderr, "usage: <prog> <output-dir>\n");
+     return 1;
+   }
+   const char *dir = argv[1];

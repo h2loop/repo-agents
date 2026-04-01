@@ -1,0 +1,148 @@
+diff --git a/openair2/GNB_APP/gnb_config.c b/openair2/GNB_APP/gnb_config.c
+index b732a88879..a12890aacd 100644
+--- a/openair2/GNB_APP/gnb_config.c
++++ b/openair2/GNB_APP/gnb_config.c
+@@ -46,6 +46,7 @@
+ #include "sctp_default_values.h"
+ #include "F1AP_CauseRadioNetwork.h"
+ #include "f1ap_common.h"
++#include "f1ap_messages_types.h"
+ // #include "SystemInformationBlockType2.h"
+ // #include "LAYER2/MAC/extern.h"
+ // #include "LAYER2/MAC/proto.h"
+@@ -133,7 +134,7 @@ void prepare_scc(NR_ServingCellConfigCommon_t *scc) {
+   dl_scs_SpecificCarrierList        = CALLOC(1,sizeof(struct NR_SCS_SpecificCarrier));
+ 
+   asn1cSeqAdd(&scc->downlinkConfigCommon->frequencyInfoDL->frequencyBandList.list,dl_frequencyBandList);  
+-  asn1cSeqAdd(&scc->downlinkConfigCommon->frequencyInfoDL->scs_SpecificCarrierList.list,dl_scs_SpecificCarrierList);		   		   
++  asn1cSeqAdd(&scc->downlinkConfigCommon->frequencyInfoDL->scs_SpecificCarrierList.list,dl_scs_SpecificCarrierList);                               
+   //  scc->downlinkConfigCommon->initialDownlinkBWP->genericParameters.cyclicPrefix    = CALLOC(1,sizeof(long));
+   scc->downlinkConfigCommon->initialDownlinkBWP->pdcch_ConfigCommon                = CALLOC(1,sizeof(struct NR_SetupRelease_PDCCH_ConfigCommon));
+   scc->downlinkConfigCommon->initialDownlinkBWP->pdcch_ConfigCommon->present=NR_SetupRelease_PDCCH_ConfigCommon_PR_setup; 
+@@ -223,7 +224,7 @@ void prepare_scc(NR_ServingCellConfigCommon_t *scc) {
+ 
+ void fill_scc_sim(NR_ServingCellConfigCommon_t *scc,uint64_t *ssb_bitmap,int N_RB_DL,int N_RB_UL,int mu_dl,int mu_ul) {
+ 
+-  *scc->physCellId=0;							\
++  *scc->physCellId=0;                                                   \
+   //  *scc->n_TimingAdvanceOffset=NR_ServingCellConfigCommon__n_TimingAdvanceOffset_n0;
+   *scc->ssb_periodicityServingCell=NR_ServingCellConfigCommon__ssb_periodicityServingCell_ms20;
+   scc->dmrs_TypeA_Position=NR_ServingCellConfigCommon__dmrs_TypeA_Position_pos2;
+@@ -409,7 +410,7 @@ void fix_scc(NR_ServingCellConfigCommon_t *scc,uint64_t ssbmap) {
+ 
+   // check pucch_ResourceConfig
+   AssertFatal(*scc->uplinkConfigCommon->initialUplinkBWP->pucch_ConfigCommon->choice.setup->pucch_ResourceCommon < 2,
+-	      "pucch_ResourceConfig should be 0 or 1 for now\n");
++              "pucch_ResourceConfig should be 0 or 1 for now\n");
+ 
+   if(*scc->ext2->ntn_Config_r17->cellSpecificKoffset_r17 == 0) {
+     free(scc->ext2->ntn_Config_r17->cellSpecificKoffset_r17);
+@@ -705,7 +706,7 @@ void RCconfig_nr_prs(void)
+         RC.gNB[j]                       = (PHY_VARS_gNB *)malloc(sizeof(PHY_VARS_gNB));
+         LOG_I(NR_PHY,"RC.gNB[%d] = %p\n",j,RC.gNB[j]);
+         memset(RC.gNB[j],0,sizeof(PHY_VARS_gNB));
+-	      RC.gNB[j]->Mod_id  = j;
++              RC.gNB[j]->Mod_id  = j;
+       }
+ 
+       RC.gNB[j]->prs_vars.NumPRSResources = *(PRS_ParamList.paramarray[j][NUM_PRS_RESOURCES].uptr);
+@@ -1750,7 +1751,7 @@ void RCconfig_NRRRC(gNB_RRC_INST *rrc)
+     gNB_RrcConfigurationReq nrrrc_config = {0};
+     for (k=0; k <num_gnbs ; k++) {
+       if (strcmp(GNBSParams[GNB_ACTIVE_GNBS_IDX].strlistptr[k], *(GNBParamList.paramarray[i][GNB_GNB_NAME_IDX].strptr) )== 0) {
+-	
++        
+         char gnbpath[MAX_OPTNAME_SIZE + 8];
+         sprintf(gnbpath,"%s.[%i]",GNB_CONFIG_STRING_GNB_LIST,k);
+ 
+@@ -1786,13 +1787,13 @@ void RCconfig_NRRRC(gNB_RRC_INST *rrc)
+         nrrrc_config.num_plmn = PLMNParamList.numelt;
+ 
+         for (int l = 0; l < PLMNParamList.numelt; ++l) {
+-	
+-	  nrrrc_config.mcc[l]               = *PLMNParamList.paramarray[l][GNB_MOBILE_COUNTRY_CODE_IDX].uptr;
+-	  nrrrc_config.mnc[l]               = *PLMNParamList.paramarray[l][GNB_MOBILE_NETWORK_CODE_IDX].uptr;
+-	  nrrrc_config.mnc_digit_length[l]  = *PLMNParamList.paramarray[l][GNB_MNC_DIGIT_LENGTH].u8ptr;
+-	  AssertFatal((nrrrc_config.mnc_digit_length[l] == 2) ||
+-		      (nrrrc_config.mnc_digit_length[l] == 3),"BAD MNC DIGIT LENGTH %d",
+-		      nrrrc_config.mnc_digit_length[l]);
++        
++          nrrrc_config.mcc[l]               = *PLMNParamList.paramarray[l][GNB_MOBILE_COUNTRY_CODE_IDX].uptr;
++          nrrrc_config.mnc[l]               = *PLMNParamList.paramarray[l][GNB_MOBILE_NETWORK_CODE_IDX].uptr;
++          nrrrc_config.mnc_digit_length[l]  = *PLMNParamList.paramarray[l][GNB_MNC_DIGIT_LENGTH].u8ptr;
++          AssertFatal((nrrrc_config.mnc_digit_length[l] == 2) ||
++                      (nrrrc_config.mnc_digit_length[l] == 3),"BAD MNC DIGIT LENGTH %d",
++                      nrrrc_config.mnc_digit_length[l]);
+         }
+         nrrrc_config.enable_sdap = *GNBParamList.paramarray[i][GNB_ENABLE_SDAP_IDX].iptr;
+         LOG_I(GNB_APP, "SDAP layer is %s\n", nrrrc_config.enable_sdap ? "enabled" : "disabled");
+@@ -2136,10 +2137,10 @@ int RCconfig_NR_X2(MessageDef *msg_p, uint32_t i) {
+             paramdef_t X2Params[]  = X2PARAMS_DESC;
+             paramlist_def_t X2ParamList = {ENB_CONFIG_STRING_TARGET_ENB_X2_IP_ADDRESS,NULL,0};
+             paramdef_t SCTPParams[]  = GNBSCTPPARAMS_DESC;
+-	    char*             gnb_ipv4_address_for_NGU      = NULL;
+-	    uint32_t          gnb_port_for_NGU              = 0;
+-	    char*             gnb_ipv4_address_for_S1U      = NULL;
+-	    uint32_t          gnb_port_for_S1U              = 0;
++            char*             gnb_ipv4_address_for_NGU      = NULL;
++            uint32_t          gnb_port_for_NGU              = 0;
++            char*             gnb_ipv4_address_for_S1U      = NULL;
++            uint32_t          gnb_port_for_S1U              = 0;
+ 
+             paramdef_t NETParams[]  =  GNBNETPARAMS_DESC;
+             /* TODO: fix the size - if set lower we have a crash (MAX_OPTNAME_SIZE was 64 when this code was written) */
+@@ -2400,3 +2401,33 @@ ngran_node_t get_node_type(void)
+     return ngran_gNB;
+   }
+ }
++
++/*------------------------------------------------------------------------------*/
++int set_plmn_config(f1ap_plmn_t *plmn, uint16_t mcc, uint16_t mnc, uint8_t mnc_digit_length) {
++  // Validate inputs
++  if (plmn == NULL) {
++    return -1;
++  }
++  
++  // Validate MCC range (0-999)
++  if (mcc > 999) {
++    return -1;
++  }
++  
++  // Validate MNC range (0-999)
++  if (mnc > 999) {
++    return -1;
++  }
++  
++  // Validate MNC digit length (must be 2 or 3)
++  if (mnc_digit_length != 2 && mnc_digit_length != 3) {
++    return -1;
++  }
++  
++  // Set the PLMN fields
++  plmn->mcc = mcc;
++  plmn->mnc = mnc;
++  plmn->mnc_digit_length = mnc_digit_length;
++  
++  return 0;
++}
+diff --git a/openair2/GNB_APP/gnb_config.h b/openair2/GNB_APP/gnb_config.h
+index e406a1ad7f..bb1c566e1d 100644
+--- a/openair2/GNB_APP/gnb_config.h
++++ b/openair2/GNB_APP/gnb_config.h
+@@ -109,6 +109,16 @@ int gNB_app_handle_f1ap_gnb_cu_configuration_update(f1ap_gnb_cu_configuration_up
+ MessageDef *RCconfig_NR_CU_E1(const E1_t *entity);
+ ngran_node_t get_node_type(void);
+ 
++/**
++ * Set PLMN configuration with validation
++ * @param plmn pointer to PLMN structure to configure
++ * @param mcc Mobile Country Code (0-999)
++ * @param mnc Mobile Network Code (0-999)
++ * @param mnc_digit_length Length of MNC (2 or 3)
++ * @return 0 on success, -1 on failure
++ */
++int set_plmn_config(f1ap_plmn_t *plmn, uint16_t mcc, uint16_t mnc, uint8_t mnc_digit_length);
++
+ #ifdef E2_AGENT
+ #include "openair2/E2AP/e2_agent_arg.h"
+ e2_agent_args_t RCconfig_NR_E2agent(void);

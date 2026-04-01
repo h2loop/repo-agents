@@ -1,0 +1,33 @@
+{
+  "run_id": "s00196_0d2a52",
+  "function": {
+    "name": "init_scrambling_lut",
+    "file": "openair1/PHY/LTE_TRANSPORT/dlsch_scrambling.c",
+    "start_line": 166,
+    "end_line": 176,
+    "body_lines": 11,
+    "signature": "__attribute__((aligned(32))); void init_scrambling_lut(void)",
+    "subsystem": "openair1/PHY/LTE_TRANSPORT",
+    "token_estimate": 24
+  },
+  "bug": {
+    "bug_id": "c_deadlock",
+    "description": "deadlock caused by inconsistent lock acquisition ordering",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a deadlock caused by inconsistent lock acquisition ordering downstream of function init_scrambling_lut in the openair1/PHY/LTE_TRANSPORT subsystem.\nThe function is located at openair1/PHY/LTE_TRANSPORT/dlsch_scrambling.c:166.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00196_0d2a52_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00196_0d2a52_p1.diff",
+  "patch_lines": 47,
+  "trajectory_steps": 50,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:49:50Z"
+}

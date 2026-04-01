@@ -1,0 +1,13 @@
+diff --git a/common/utils/T/tracer/logger/textlog.c b/common/utils/T/tracer/logger/textlog.c
+index 2003ff4233..180753f275 100644
+--- a/common/utils/T/tracer/logger/textlog.c
++++ b/common/utils/T/tracer/logger/textlog.c
+@@ -173,6 +173,8 @@ logger *new_textlog(event_handler *h, void *database,
+   if (ret->common.event_name == NULL) abort();
+   ret->format = strdup(format); if (ret->format == NULL) abort();
+   ret->database = database;
++  ret->dump_buffer = 0;  /* Explicitly initialize to default value */
++  ret->raw_time = 0;     /* Explicitly initialize to default value */
+ 
+   event_id = event_id_from_name(database, event_name);
+ 

@@ -1,0 +1,48 @@
+diff --git a/nfapi/open-nFAPI/common/src/nfapi.c b/nfapi/open-nFAPI/common/src/nfapi.c
+index f997552c1e..722ad7910b 100644
+--- a/nfapi/open-nFAPI/common/src/nfapi.c
++++ b/nfapi/open-nFAPI/common/src/nfapi.c
+@@ -854,6 +854,10 @@ int unpack_tlv_list(unpack_tlv_t unpack_fns[],
+             // go to the end
+             return 0;
+           }
++        } else {
++          // Vendor extension was handled successfully (result > 0)
++          // Advance the pointer past the TLV value
++          (*ppReadPackedMsg) += generic_tl.length;
+         }
+       } else {
+         NFAPI_TRACE(NFAPI_TRACE_ERROR, "Unknown TAG value: 0x%04x\n", generic_tl.tag);
+@@ -964,6 +968,10 @@ int unpack_nr_tlv_list(unpack_tlv_t unpack_fns[],
+             // go to the end
+             return 0;
+           }
++        } else {
++          // Vendor extension was handled successfully (result > 0)
++          // Advance the pointer past the TLV value with padding
++          (*ppReadPackedMsg) += generic_tl.length + get_tlv_padding(generic_tl.length);
+         }
+       } else {
+         NFAPI_TRACE(NFAPI_TRACE_ERROR, "Unknown TAG value: 0x%04x\n", generic_tl.tag);
+@@ -1055,6 +1063,10 @@ int unpack_p7_tlv_list(unpack_p7_tlv_t unpack_fns[],
+             // got ot the dn
+             return 0;
+           }
++        } else {
++          // Vendor extension was handled successfully (result > 0)
++          // Advance the pointer past the TLV value
++          (*ppReadPackedMsg) += generic_tl.length;
+         }
+       } else {
+         NFAPI_TRACE(NFAPI_TRACE_ERROR, "Unknown TAG value: 0x%04x\n", generic_tl.tag);
+@@ -1152,6 +1164,10 @@ int unpack_nr_p7_tlv_list(unpack_p7_tlv_t unpack_fns[],
+             // got ot the dn
+             return 0;
+           }
++        } else {
++          // Vendor extension was handled successfully (result > 0)
++          // Advance the pointer past the TLV value with padding
++          (*ppReadPackedMsg) += generic_tl.length + get_tlv_padding(generic_tl.length);
+         }
+       } else {
+         NFAPI_TRACE(NFAPI_TRACE_ERROR, "Unknown TAG value: 0x%04x\n", generic_tl.tag);

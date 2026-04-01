@@ -1,0 +1,9 @@
+{
+  "run_id": "s00409_d2e721",
+  "pr_text": "## Title: Fix integer overflow in TLV length calculation\n\n### Summary\nFix integer overflow vulnerability in the TLV (Type-Length-Value) packing functions used throughout the nFAPI interface. The `pack_tlv()` and `pack_nr_tlv()` functions calculate length by subtracting pointers (`(*ppWritePackedMsg) - pStartOfValue`) and directly assign the result to a `uint16_t` field. When the packed data exceeds 65,535 bytes, this causes silent integer truncation, producing incorrect length headers that can l",
+  "trajectory_path": "data/raw/s00409_d2e721_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00409_d2e721_p2.diff",
+  "patch_lines": 13,
+  "trajectory_steps": 40,
+  "timestamp": "2026-02-10T13:14:44Z"
+}

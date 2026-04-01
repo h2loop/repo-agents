@@ -1,0 +1,27 @@
+diff --git a/common/utils/hashtable/obj_hashtable.c b/common/utils/hashtable/obj_hashtable.c
+index 643dcce552..a64ad8158b 100644
+--- a/common/utils/hashtable/obj_hashtable.c
++++ b/common/utils/hashtable/obj_hashtable.c
+@@ -178,6 +178,22 @@ hashtable_rc_t obj_hashtable_remove(obj_hash_table_t *hashtblP, const void *keyP
+     return HASH_TABLE_BAD_PARAMETER_HASHTABLE;
+   }
+ 
++  if (keyP == NULL) {
++    return HASH_TABLE_BAD_PARAMETER_HASHTABLE;
++  }
++
++  if (key_sizeP <= 0) {
++    return HASH_TABLE_BAD_PARAMETER_HASHTABLE;
++  }
++
++  if (hashtblP->nodes == NULL) {
++    return HASH_TABLE_BAD_PARAMETER_HASHTABLE;
++  }
++
++  if (hashtblP->hashfunc == NULL) {
++    return HASH_TABLE_BAD_PARAMETER_HASHTABLE;
++  }
++
+   hash=hashtblP->hashfunc(keyP, key_sizeP)%hashtblP->size;
+   node=hashtblP->nodes[hash];
+ 

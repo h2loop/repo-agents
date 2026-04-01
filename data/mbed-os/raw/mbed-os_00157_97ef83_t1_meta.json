@@ -1,0 +1,26 @@
+{
+  "run_id": "mbed-os_00157_97ef83",
+  "function": {
+    "name": "nrf_egu_int_enable",
+    "file": "targets/TARGET_NORDIC/TARGET_NRF5x/TARGET_SDK_15_0/modules/nrfx/hal/nrf_egu.h",
+    "start_line": 356,
+    "end_line": 360,
+    "body_lines": 5,
+    "signature": "__STATIC_INLINE void nrf_egu_int_enable(NRF_EGU_Type * NRF_EGUx, uint32_t egu_int_mask)",
+    "subsystem": "targets/TARGET_NORDIC/TARGET_NRF5x",
+    "token_estimate": 13
+  },
+  "bug": {
+    "bug_id": "c_missing_null_check_after_alloc",
+    "description": "missing NULL check after memory allocation that can fail",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a missing NULL check after memory allocation that can fail downstream of function nrf_egu_int_enable in the targets/TARGET_NORDIC/TARGET_NRF5x subsystem.\nThe function is located at targets/TARGET_NORDIC/TARGET_NRF5x/TARGET_SDK_15_0/modules/nrfx/hal/nrf_egu.h:356.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 19,
+  "trajectory_steps": 23,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:27:38Z"
+}

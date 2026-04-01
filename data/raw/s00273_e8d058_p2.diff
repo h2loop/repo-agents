@@ -1,0 +1,17 @@
+diff --git a/common/utils/T/tracer/view/xy.c b/common/utils/T/tracer/view/xy.c
+index 96a44cf512..acaaf97118 100644
+--- a/common/utils/T/tracer/view/xy.c
++++ b/common/utils/T/tracer/view/xy.c
+@@ -114,6 +114,12 @@ view *new_view_xy(int length, float refresh_rate, gui *g, widget *w,
+   struct xy *ret = calloc(1, sizeof(struct xy));
+   if (ret == NULL) abort();
+ 
++  if (length <= 0) {
++    printf("%s:%d:%s: invalid length (%d), must be positive\n",
++        __FILE__, __LINE__, __FUNCTION__, length);
++    abort();
++  }
++
+   ret->common.clear = clear;
+ 
+   switch (mode) {

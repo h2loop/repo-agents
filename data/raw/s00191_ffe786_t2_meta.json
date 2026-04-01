@@ -1,0 +1,9 @@
+{
+  "run_id": "s00191_ffe786",
+  "pr_text": "## Title: Fix stale protocol state in NFAPI PNF threads\n\n### Summary\nThe NFAPI PNF start threads did not clean up protocol state after procedure completion or failure. When `pnf_start_thread` or `pnf_nr_start_thread` finished executing, the dynamically allocated `nfapi_pnf_config_t` configuration object was never destroyed, leaving stale protocol state in memory. This caused memory leaks and potential state contamination during subsequent PNF initializations, particularly problematic in scenario",
+  "trajectory_path": "data/raw/s00191_ffe786_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00191_ffe786_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 50,
+  "timestamp": "2026-02-11T13:11:19Z"
+}

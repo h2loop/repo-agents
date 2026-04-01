@@ -1,0 +1,35 @@
+{
+  "run_id": "s00025_330ae3",
+  "function": {
+    "name": "itti_wait_tasks_end",
+    "file": "common/utils/ocp_itti/intertask_interface.cpp",
+    "start_line": 451,
+    "end_line": 463,
+    "body_lines": 13,
+    "signature": "void itti_wait_tasks_end(void (*handler)(int))",
+    "subsystem": "common/utils/ocp_itti",
+    "token_estimate": 52
+  },
+  "bug": {
+    "bug_id": "c_missing_mutex",
+    "description": "missing mutex lock around critical section accessing shared state",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a missing mutex lock around critical section accessing shared state downstream of function itti_wait_tasks_end in the common/utils/ocp_itti subsystem.\nThe function is located at common/utils/ocp_itti/intertask_interface.cpp:451.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00025_330ae3_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00025_330ae3_p1.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 36,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T09:17:56Z"
+}

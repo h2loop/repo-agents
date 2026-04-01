@@ -1,0 +1,16 @@
+diff --git a/openair1/PHY/NR_TRANSPORT/nr_prach_common.c b/openair1/PHY/NR_TRANSPORT/nr_prach_common.c
+index b680d826fa..d9ec5fd60d 100644
+--- a/openair1/PHY/NR_TRANSPORT/nr_prach_common.c
++++ b/openair1/PHY/NR_TRANSPORT/nr_prach_common.c
+@@ -70,6 +70,11 @@ void nr_fill_du(uint16_t N_ZC, const uint16_t* prach_root_sequence_map, uint16_t
+ 
+   uint16_t iu,u,p;
+ 
++  if (prach_root_sequence_map == NULL) {
++    LOG_E(PHY, "nr_fill_du: prach_root_sequence_map is NULL\n");
++    return;
++  }
++
+   for (iu=0; iu<(N_ZC-1); iu++) {
+ 
+     u=prach_root_sequence_map[iu];

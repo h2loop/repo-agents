@@ -1,0 +1,9 @@
+{
+  "run_id": "s00100_cb6dd2",
+  "pr_text": "## Title: Fix RC subscription array bounds causing configuration mismatch\n\n### Summary\nThe `rc_subs_data_t` structure manages RAN Parameter ID to RIC Request ID mappings using a fixed-size array of red-black trees. The array was incorrectly dimensioned using `END_E2SM_RC_RAN_PARAM_ID`, which didn't reflect the actual maximum parameter ID value used by the system. This mismatch caused inconsistent downstream behavior when accessing subscription data, as valid parameter IDs could fall outside the ",
+  "trajectory_path": "data/raw/s00100_cb6dd2_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00100_cb6dd2_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 17,
+  "timestamp": "2026-02-10T11:14:33Z"
+}

@@ -1,0 +1,265 @@
+diff --git a/openair2/RRC/NR/nr_rrc_config.c b/openair2/RRC/NR/nr_rrc_config.c
+index 6966394667..35e6cbfdb6 100644
+--- a/openair2/RRC/NR/nr_rrc_config.c
++++ b/openair2/RRC/NR/nr_rrc_config.c
+@@ -532,7 +532,7 @@ static void config_csiim(int do_csirs,
+ void set_dl_maxmimolayers(NR_PDSCH_ServingCellConfig_t *pdsch_servingcellconfig,
+                           const NR_ServingCellConfigCommon_t *scc,
+                           const NR_UE_NR_Capability_t *uecap,
+-			  int maxMIMO_layers)
++                          int maxMIMO_layers)
+ {
+ 
+   if(!pdsch_servingcellconfig->ext1)
+@@ -1224,7 +1224,7 @@ static void set_dl_mcs_table(int scs,
+ }
+ 
+ static struct NR_SetupRelease_PUSCH_Config *config_pusch(NR_PUSCH_Config_t *pusch_Config,
+-							 const bool use_deltaMCS,
++                                                         const bool use_deltaMCS,
+                                                          const NR_ServingCellConfigCommon_t *scc,
+                                                          const NR_UE_NR_Capability_t *uecap)
+ {
+@@ -2309,7 +2309,7 @@ NR_BCCH_DL_SCH_Message_t *get_SIB1_NR(const NR_ServingCellConfigCommon_t *scc,
+                                frequency_range);
+ 
+   LOG_I(NR_RRC,
+-	"SIB1 freq: offsetToPointA %d\n",
++        "SIB1 freq: offsetToPointA %d\n",
+         (int)sib1->servingCellConfigCommon->downlinkConfigCommon.frequencyInfoDL.offsetToPointA);
+   
+   for (int i = 0; i < frequencyInfoDL->scs_SpecificCarrierList.list.count; i++) {
+@@ -2921,7 +2921,7 @@ static NR_SpCellConfig_t *get_initial_SpCellConfig(int uid,
+     }
+     const NR_BWP_Id_t *firstActiveDownlinkBWP_Id = servingcellconfigdedicated->firstActiveDownlinkBWP_Id;
+     first_active_dl_bwp = firstActiveDownlinkBWP_Id ? *firstActiveDownlinkBWP_Id : 1;
+-    const NR_BWP_Id_t	*defaultDownlinkBWP_Id = servingcellconfigdedicated->defaultDownlinkBWP_Id;
++    const NR_BWP_Id_t   *defaultDownlinkBWP_Id = servingcellconfigdedicated->defaultDownlinkBWP_Id;
+     default_dl_bwp = defaultDownlinkBWP_Id ? *defaultDownlinkBWP_Id : 1;
+   }
+   asn1cCallocOne(SpCellConfig->spCellConfigDedicated->firstActiveDownlinkBWP_Id, first_active_dl_bwp);
+@@ -3070,7 +3070,7 @@ NR_CellGroupConfig_t *get_initial_cellGroupConfig(int uid,
+   cellGroupConfig->cellGroupId = 0;
+ 
+   /* Rlc Bearer Config */
+-  /* TS38.331 9.2.1	Default SRB configurations */
++  /* TS38.331 9.2.1     Default SRB configurations */
+   cellGroupConfig->rlc_BearerToAddModList = calloc(1, sizeof(*cellGroupConfig->rlc_BearerToAddModList));
+   NR_RLC_BearerConfig_t *rlc_BearerConfig =
+       get_SRB_RLC_BearerConfig(1, 1, NR_LogicalChannelConfig__ul_SpecificParameters__bucketSizeDuration_ms1000);
+@@ -3104,26 +3104,54 @@ void update_cellGroupConfig(NR_CellGroupConfig_t *cellGroupConfig,
+   DevAssert(scc != NULL);
+ 
+   NR_SpCellConfig_t *SpCellConfig = cellGroupConfig->spCellConfig;
++  
++  // Check spCellConfigDedicated is not NULL before accessing
++  if (!SpCellConfig->spCellConfigDedicated) {
++    LOG_E(RRC, "spCellConfigDedicated is NULL, skipping update_cellGroupConfig\n");
++    return;
++  }
+ 
++  // Check pdsch_ServingCellConfig and its setup are not NULL before accessing
++  if (!SpCellConfig->spCellConfigDedicated->pdsch_ServingCellConfig ||
++      SpCellConfig->spCellConfigDedicated->pdsch_ServingCellConfig->present != NR_SetupRelease_PDSCH_ServingCellConfig_PR_setup ||
++      !SpCellConfig->spCellConfigDedicated->pdsch_ServingCellConfig->choice.setup) {
++    LOG_E(RRC, "pdsch_ServingCellConfig is not properly configured, skipping update_cellGroupConfig\n");
++    return;
++  }
++  
+   NR_PDSCH_ServingCellConfig_t *pdsch_servingcellconfig = SpCellConfig->spCellConfigDedicated->pdsch_ServingCellConfig->choice.setup;
+   set_dl_maxmimolayers(pdsch_servingcellconfig, scc, uecap, configuration->maxMIMO_layers);
+ 
++  // Check csi_MeasConfig and its setup are not NULL before accessing
++  if (!SpCellConfig->spCellConfigDedicated->csi_MeasConfig ||
++      SpCellConfig->spCellConfigDedicated->csi_MeasConfig->present != NR_SetupRelease_CSI_MeasConfig_PR_setup ||
++      !SpCellConfig->spCellConfigDedicated->csi_MeasConfig->choice.setup) {
++    LOG_E(RRC, "csi_MeasConfig is not properly configured, skipping update_cellGroupConfig\n");
++    return;
++  }
++  
+   NR_CSI_MeasConfig_t *csi_MeasConfig = SpCellConfig->spCellConfigDedicated->csi_MeasConfig->choice.setup;
+-  for (int report = 0; report < csi_MeasConfig->csi_ReportConfigToAddModList->list.count; report++) {
+-    NR_CSI_ReportConfig_t *csirep = csi_MeasConfig->csi_ReportConfigToAddModList->list.array[report];
+-    if(csirep->codebookConfig)
+-      config_csi_codebook(&configuration->pdsch_AntennaPorts, *pdsch_servingcellconfig->ext1->maxMIMO_Layers, csirep->codebookConfig);
++  
++  // Check csi_ReportConfigToAddModList is not NULL before accessing
++  if (csi_MeasConfig->csi_ReportConfigToAddModList &&
++      pdsch_servingcellconfig->ext1 && 
++      pdsch_servingcellconfig->ext1->maxMIMO_Layers) {
++    for (int report = 0; report < csi_MeasConfig->csi_ReportConfigToAddModList->list.count; report++) {
++      NR_CSI_ReportConfig_t *csirep = csi_MeasConfig->csi_ReportConfigToAddModList->list.array[report];
++      if(csirep && csirep->codebookConfig)
++        config_csi_codebook(&configuration->pdsch_AntennaPorts, *pdsch_servingcellconfig->ext1->maxMIMO_Layers, csirep->codebookConfig);
++    }
+   }
+ 
+   int curr_bwp = NRRIV2BW(scc->downlinkConfigCommon->initialDownlinkBWP->genericParameters.locationAndBandwidth, MAX_BWP_SIZE);
+-  NR_UplinkConfig_t *uplinkConfig =
+-      SpCellConfig && SpCellConfig->spCellConfigDedicated ? SpCellConfig->spCellConfigDedicated->uplinkConfig : NULL;
++  NR_UplinkConfig_t *uplinkConfig = SpCellConfig->spCellConfigDedicated->uplinkConfig;
+ 
+   uint8_t ul_max_layers = 1;
+   if (uecap && uecap->featureSets && uecap->featureSets->featureSetsUplinkPerCC
+       && uecap->featureSets->featureSetsUplinkPerCC->list.count > 0) {
+     NR_FeatureSetUplinkPerCC_t *ul_feature_setup_per_cc = uecap->featureSets->featureSetsUplinkPerCC->list.array[0];
+-    if (ul_feature_setup_per_cc->mimo_CB_PUSCH->maxNumberMIMO_LayersCB_PUSCH) {
++    if (ul_feature_setup_per_cc && ul_feature_setup_per_cc->mimo_CB_PUSCH && 
++        ul_feature_setup_per_cc->mimo_CB_PUSCH->maxNumberMIMO_LayersCB_PUSCH) {
+       switch (*ul_feature_setup_per_cc->mimo_CB_PUSCH->maxNumberMIMO_LayersCB_PUSCH) {
+         case NR_MIMO_LayersUL_twoLayers:
+           ul_max_layers = 2;
+@@ -3136,25 +3164,41 @@ void update_cellGroupConfig(NR_CellGroupConfig_t *cellGroupConfig,
+       }
+     }
+     ul_max_layers = min(ul_max_layers, configuration->pusch_AntennaPorts);
+-    if (uplinkConfig->initialUplinkBWP->pusch_Config) {
+-      NR_PUSCH_Config_t *pusch_Config = uplinkConfig->initialUplinkBWP->pusch_Config->choice.setup;
+-      if (pusch_Config->maxRank == NULL) {
+-        pusch_Config->maxRank = calloc(1, sizeof(*pusch_Config->maxRank));
++    
++    // Check uplinkConfig and initialUplinkBWP are not NULL before accessing
++    if (uplinkConfig && uplinkConfig->initialUplinkBWP) {
++      if (uplinkConfig->initialUplinkBWP->pusch_Config) {
++        NR_PUSCH_Config_t *pusch_Config = uplinkConfig->initialUplinkBWP->pusch_Config->choice.setup;
++        if (pusch_Config) {
++          if (pusch_Config->maxRank == NULL) {
++            pusch_Config->maxRank = calloc(1, sizeof(*pusch_Config->maxRank));
++          }
++          *pusch_Config->maxRank = ul_max_layers;
++        }
++      }
++      
++      if (!uplinkConfig->pusch_ServingCellConfig)
++        uplinkConfig->pusch_ServingCellConfig = calloc(1, sizeof(*uplinkConfig->pusch_ServingCellConfig));
++        
++      if (uplinkConfig->pusch_ServingCellConfig) {
++        uplinkConfig->pusch_ServingCellConfig->present = NR_SetupRelease_PUSCH_ServingCellConfig_PR_setup;
++        if (!uplinkConfig->pusch_ServingCellConfig->choice.setup)
++          uplinkConfig->pusch_ServingCellConfig->choice.setup = calloc(1, sizeof(*uplinkConfig->pusch_ServingCellConfig->choice.setup));
++          
++        if (uplinkConfig->pusch_ServingCellConfig->choice.setup) {
++          if (!uplinkConfig->pusch_ServingCellConfig->choice.setup->ext1)
++            uplinkConfig->pusch_ServingCellConfig->choice.setup->ext1 =
++                calloc(1, sizeof(*uplinkConfig->pusch_ServingCellConfig->choice.setup->ext1));
++                
++          if (uplinkConfig->pusch_ServingCellConfig->choice.setup->ext1)
++            asn1cCallocOne(uplinkConfig->pusch_ServingCellConfig->choice.setup->ext1->maxMIMO_Layers, ul_max_layers);
++        }
+       }
+-      *pusch_Config->maxRank = ul_max_layers;
+     }
+-    if (!uplinkConfig->pusch_ServingCellConfig)
+-      uplinkConfig->pusch_ServingCellConfig = calloc(1, sizeof(*uplinkConfig->pusch_ServingCellConfig));
+-    uplinkConfig->pusch_ServingCellConfig->present = NR_SetupRelease_PUSCH_ServingCellConfig_PR_setup;
+-    if (!uplinkConfig->pusch_ServingCellConfig->choice.setup)
+-      uplinkConfig->pusch_ServingCellConfig->choice.setup = calloc(1, sizeof(*uplinkConfig->pusch_ServingCellConfig->choice.setup));
+-    if (!uplinkConfig->pusch_ServingCellConfig->choice.setup->ext1)
+-      uplinkConfig->pusch_ServingCellConfig->choice.setup->ext1 =
+-          calloc(1, sizeof(*uplinkConfig->pusch_ServingCellConfig->choice.setup->ext1));
+-    asn1cCallocOne(uplinkConfig->pusch_ServingCellConfig->choice.setup->ext1->maxMIMO_Layers, ul_max_layers);
+   }
+ 
+   long maxMIMO_Layers = uplinkConfig && uplinkConfig->pusch_ServingCellConfig
++                                && uplinkConfig->pusch_ServingCellConfig->choice.setup
+                                 && uplinkConfig->pusch_ServingCellConfig->choice.setup->ext1
+                                 && uplinkConfig->pusch_ServingCellConfig->choice.setup->ext1->maxMIMO_Layers
+                             ? *uplinkConfig->pusch_ServingCellConfig->choice.setup->ext1->maxMIMO_Layers
+@@ -3173,15 +3217,23 @@ void update_cellGroupConfig(NR_CellGroupConfig_t *cellGroupConfig,
+                                                                 configuration->do_SRS);
+   }
+ 
+-  // Set DL MCS table
++  // Set DL MCS table - check initialDownlinkBWP is not NULL before accessing
+   NR_BWP_DownlinkDedicated_t *bwp_Dedicated = SpCellConfig->spCellConfigDedicated->initialDownlinkBWP;
+-  set_dl_mcs_table(scc->downlinkConfigCommon->initialDownlinkBWP->genericParameters.subcarrierSpacing,
+-                   configuration->force_256qam_off ? NULL : uecap,
+-                   bwp_Dedicated,
+-                   scc);
+-
+-  NR_BWP_UplinkDedicated_t *ul_bwp_Dedicated = SpCellConfig->spCellConfigDedicated->uplinkConfig->initialUplinkBWP;
+-  set_ul_mcs_table(configuration->force_UL256qam_off ? NULL : uecap, scc, ul_bwp_Dedicated->pusch_Config->choice.setup);
++  if (bwp_Dedicated) {
++    set_dl_mcs_table(scc->downlinkConfigCommon->initialDownlinkBWP->genericParameters.subcarrierSpacing,
++                     configuration->force_256qam_off ? NULL : uecap,
++                     bwp_Dedicated,
++                     scc);
++  }
++
++  // Check uplinkConfig and initialUplinkBWP are not NULL before accessing
++  if (SpCellConfig->spCellConfigDedicated->uplinkConfig && 
++      SpCellConfig->spCellConfigDedicated->uplinkConfig->initialUplinkBWP) {
++    NR_BWP_UplinkDedicated_t *ul_bwp_Dedicated = SpCellConfig->spCellConfigDedicated->uplinkConfig->initialUplinkBWP;
++    if (ul_bwp_Dedicated && ul_bwp_Dedicated->pusch_Config) {
++      set_ul_mcs_table(configuration->force_UL256qam_off ? NULL : uecap, scc, ul_bwp_Dedicated->pusch_Config->choice.setup);
++    }
++  }
+ 
+   struct NR_ServingCellConfig__downlinkBWP_ToAddModList *DL_BWP_list =
+       SpCellConfig->spCellConfigDedicated->downlinkBWP_ToAddModList;
+@@ -3189,35 +3241,45 @@ void update_cellGroupConfig(NR_CellGroupConfig_t *cellGroupConfig,
+   if (DL_BWP_list) {
+     for (int i = 0; i < DL_BWP_list->list.count; i++) {
+       NR_BWP_Downlink_t *bwp = DL_BWP_list->list.array[i];
+-      int scs = bwp->bwp_Common->genericParameters.subcarrierSpacing;
+-      set_dl_mcs_table(scs, configuration->force_256qam_off ? NULL : uecap, bwp->bwp_Dedicated, scc);
++      if (bwp && bwp->bwp_Common && bwp->bwp_Dedicated) {
++        int scs = bwp->bwp_Common->genericParameters.subcarrierSpacing;
++        set_dl_mcs_table(scs, configuration->force_256qam_off ? NULL : uecap, bwp->bwp_Dedicated, scc);
++      }
+     }
+   }
+   if (UL_BWP_list) {
+     for (int i = 0; i < UL_BWP_list->list.count; i++) {
+       NR_BWP_Uplink_t *ul_bwp = UL_BWP_list->list.array[i];
+-      int bwp_size = NRRIV2BW(ul_bwp->bwp_Common->genericParameters.locationAndBandwidth, MAX_BWP_SIZE);
+-      if (ul_bwp->bwp_Dedicated->pusch_Config) {
+-        NR_PUSCH_Config_t *pusch_Config = ul_bwp->bwp_Dedicated->pusch_Config->choice.setup;
+-        set_ul_mcs_table(configuration->force_UL256qam_off ? NULL : uecap, scc, pusch_Config);
+-        if (pusch_Config->maxRank == NULL) {
+-          pusch_Config->maxRank = calloc(1, sizeof(*pusch_Config->maxRank));
++      if (ul_bwp && ul_bwp->bwp_Common && ul_bwp->bwp_Dedicated) {
++        int bwp_size = NRRIV2BW(ul_bwp->bwp_Common->genericParameters.locationAndBandwidth, MAX_BWP_SIZE);
++        if (ul_bwp->bwp_Dedicated->pusch_Config) {
++          NR_PUSCH_Config_t *pusch_Config = ul_bwp->bwp_Dedicated->pusch_Config->choice.setup;
++          if (pusch_Config) {
++            set_ul_mcs_table(configuration->force_UL256qam_off ? NULL : uecap, scc, pusch_Config);
++            if (pusch_Config->maxRank == NULL) {
++              pusch_Config->maxRank = calloc(1, sizeof(*pusch_Config->maxRank));
++            }
++            *pusch_Config->maxRank = ul_max_layers;
++          }
+         }
+-        *pusch_Config->maxRank = ul_max_layers;
+-      }
+ 
+-      ASN_STRUCT_FREE(asn_DEF_NR_SetupRelease_SRS_Config, ul_bwp->bwp_Dedicated->srs_Config);
+-      ul_bwp->bwp_Dedicated->srs_Config = get_config_srs(scc,
+-                                                         uecap,
+-                                                         bwp_size,
+-                                                         uid,
+-                                                         i + 1,
+-                                                         maxMIMO_Layers,
+-                                                         configuration->minRXTXTIME,
+-                                                         configuration->do_SRS);
++        ASN_STRUCT_FREE(asn_DEF_NR_SetupRelease_SRS_Config, ul_bwp->bwp_Dedicated->srs_Config);
++        ul_bwp->bwp_Dedicated->srs_Config = get_config_srs(scc,
++                                                           uecap,
++                                                           bwp_size,
++                                                           uid,
++                                                           i + 1,
++                                                           maxMIMO_Layers,
++                                                           configuration->minRXTXTIME,
++                                                           configuration->do_SRS);
++      }
+     }
+   }
+-  update_cqitables(bwp_Dedicated->pdsch_Config, csi_MeasConfig);
++  
++  // Call update_cqitables only if both parameters are valid
++  if (bwp_Dedicated && bwp_Dedicated->pdsch_Config && csi_MeasConfig) {
++    update_cqitables(bwp_Dedicated->pdsch_Config, csi_MeasConfig);
++  }
+ }
+ 
+ void free_cellGroupConfig(NR_CellGroupConfig_t *cellGroupConfig)

@@ -1,0 +1,21 @@
+diff --git a/openair1/PHY/CODING/nr_polar_init.c b/openair1/PHY/CODING/nr_polar_init.c
+index 229862e49e..b9e708656a 100644
+--- a/openair1/PHY/CODING/nr_polar_init.c
++++ b/openair1/PHY/CODING/nr_polar_init.c
+@@ -50,10 +50,12 @@ static void nr_polar_delete_list(t_nrPolar_params * polarParams) {
+   
+   delete_decoder_tree(polarParams);
+   //From build_polar_tables()
+-  for (int n=0; n < polarParams->N; n++)
+-    if (polarParams->G_N_tab[n])
+-      free(polarParams->G_N_tab[n]);
+-  free(polarParams->G_N_tab);
++  if (polarParams->G_N_tab) {
++    for (int n=0; n < polarParams->N; n++)
++      if (polarParams->G_N_tab[n])
++        free(polarParams->G_N_tab[n]);
++    free(polarParams->G_N_tab);
++  }
+   free(polarParams->rm_tab);
+   if (polarParams->crc_generator_matrix)
+     free(polarParams->crc_generator_matrix);

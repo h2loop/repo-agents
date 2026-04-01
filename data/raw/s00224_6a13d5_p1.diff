@@ -1,0 +1,56 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+index 51cd290632..dfc5631ea2 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+@@ -6153,8 +6153,11 @@ static uint8_t unpack_nr_uci_pucch_2_3_4(nfapi_nr_uci_pucch_pdu_format_2_3_4_t*
+ 		if (!pullarray8(ppReadPackedMsg, value->sr.sr_payload,
+ 				(int)((value->sr.sr_bit_len / 8) + 1),
+ 				(int)((value->sr.sr_bit_len / 8) + 1),
+-                                end))
++                                end)) {
++			nfapi_p7_deallocate(value->sr.sr_payload, config);
++			value->sr.sr_payload = NULL;
+ 			return 0;
++		}
+ 	}
+ 
+ 	if ((value->pduBitmap >> 1) & 0x01) { //HARQ
+@@ -6175,8 +6178,11 @@ static uint8_t unpack_nr_uci_pucch_2_3_4(nfapi_nr_uci_pucch_pdu_format_2_3_4_t*
+ 		if (!pullarray8(ppReadPackedMsg, value->harq.harq_payload,
+ 				(int)((value->harq.harq_bit_len / 8) + 1),
+ 				(int)((value->harq.harq_bit_len / 8) + 1),
+-                                end))
++                                end)) {
++			nfapi_p7_deallocate(value->harq.harq_payload, config);
++			value->harq.harq_payload = NULL;
+ 			return 0;
++		}
+ 	}
+ 
+ 	if ((value->pduBitmap >> 2) & 0x01) { //CSI-1
+@@ -6198,8 +6204,11 @@ static uint8_t unpack_nr_uci_pucch_2_3_4(nfapi_nr_uci_pucch_pdu_format_2_3_4_t*
+ 		if (!pullarray8(ppReadPackedMsg, value->csi_part1.csi_part1_payload,
+                                 (int)((value->csi_part1.csi_part1_bit_len / 8) + 1),
+                                 (int)((value->csi_part1.csi_part1_bit_len / 8) + 1),
+-                                end))
++                                end)) {
++			nfapi_p7_deallocate(value->csi_part1.csi_part1_payload, config);
++			value->csi_part1.csi_part1_payload = NULL;
+ 			return 0;
++		}
+ 	}
+ 
+ 	if ((value->pduBitmap >> 3) & 0x01) { //CSI-2
+@@ -6221,8 +6230,11 @@ static uint8_t unpack_nr_uci_pucch_2_3_4(nfapi_nr_uci_pucch_pdu_format_2_3_4_t*
+ 		if (!pullarray8(ppReadPackedMsg, value->csi_part2.csi_part2_payload,
+                                 (int)((value->csi_part2.csi_part2_bit_len / 8) + 1),
+                                 (int)((value->csi_part2.csi_part2_bit_len / 8) + 1),
+-                                end))
++                                end)) {
++			nfapi_p7_deallocate(value->csi_part2.csi_part2_payload, config);
++			value->csi_part2.csi_part2_payload = NULL;
+ 			return 0;
++		}
+ 	}
+ 
+ 	return 1;

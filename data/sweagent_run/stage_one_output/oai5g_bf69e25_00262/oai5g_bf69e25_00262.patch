@@ -1,0 +1,13 @@
+diff --git a/openair2/LAYER2/rlc_v2/rlc_sdu.c b/openair2/LAYER2/rlc_v2/rlc_sdu.c
+index 16465a9ff1..c45310ab74 100644
+--- a/openair2/LAYER2/rlc_v2/rlc_sdu.c
++++ b/openair2/LAYER2/rlc_v2/rlc_sdu.c
+@@ -33,6 +33,8 @@ rlc_sdu_t *rlc_new_sdu(char *buffer, int size, int upper_layer_id)
+     goto oom;
+ 
+   ret->upper_layer_id = upper_layer_id;
++  ret->next_byte = 0;      /* Initialize next_byte to 0 */
++  ret->acked_bytes = 0;    /* Initialize acked_bytes to 0 */
+ 
+   ret->data = malloc(size);
+   if (ret->data == NULL)

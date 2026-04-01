@@ -1,0 +1,58 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c b/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c
+index 783ae0489f..c963740446 100644
+--- a/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c
++++ b/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c
+@@ -244,7 +244,7 @@ void nr_ue_decode_mib(NR_UE_MAC_INST_t *mac, int cc_id)
+   for (int i = 0; i < 4; i++)
+     frame_number_4lsb |= ((extra_bits >> i) & 1) << (3 - i);
+ 
+-  uint8_t ssb_subcarrier_offset_msb = (extra_bits >> 5) & 0x1;    //	extra bits[5]
++  uint8_t ssb_subcarrier_offset_msb = (extra_bits >> 5) & 0x1;    //    extra bits[5]
+   uint8_t ssb_subcarrier_offset = (uint8_t)mac->mib->ssb_SubcarrierOffset;
+ 
+   frame = frame << 4;
+@@ -258,7 +258,7 @@ void nr_ue_decode_mib(NR_UE_MAC_INST_t *mac, int cc_id)
+   }
+ 
+ #ifdef DEBUG_MIB
+-  uint8_t half_frame_bit = (extra_bits >> 4) & 0x1; //	extra bits[4]
++  uint8_t half_frame_bit = (extra_bits >> 4) & 0x1; //  extra bits[4]
+   LOG_I(MAC,"system frame number(6 MSB bits): %d\n",  mac->mib->systemFrameNumber.buf[0]);
+   LOG_I(MAC,"system frame number(with LSB): %d\n", (int) mac->mib_frame);
+   LOG_I(MAC,"subcarrier spacing (0=15or60, 1=30or120): %d\n", (int)mac->mib->subCarrierSpacingCommon);
+@@ -2792,7 +2792,7 @@ static csi_payload_t get_ssb_sinr_payload(NR_UE_MAC_INST_t *mac,
+     }
+   }
+   AssertFatal(bits <= 32, "Not supporting CSI report with more than 32 bits\n");
+-  csi_payload_t csi = {.part1_payload = temp_payload, .p1_bits = bits, csi.p2_bits = 0};
++  csi_payload_t csi = {.part1_payload = temp_payload, .p1_bits = bits, .p2_bits = 0};
+   return csi;
+ }
+ 
+@@ -2918,7 +2918,7 @@ static csi_payload_t get_ssb_rsrp_payload(NR_UE_MAC_INST_t *mac,
+     }
+   }
+   AssertFatal(bits <= 32, "Not supporting CSI report with more than 32 bits\n");
+-  csi_payload_t csi = {.part1_payload = temp_payload, .p1_bits = bits, csi.p2_bits = 0};
++  csi_payload_t csi = {.part1_payload = temp_payload, .p1_bits = bits, .p2_bits = 0};
+   return csi;
+ }
+ 
+@@ -3006,7 +3006,7 @@ static csi_payload_t get_csirs_RI_PMI_CQI_payload(NR_UE_MAC_INST_t *mac,
+     }
+   }
+   AssertFatal(p1_bits <= 32 && p2_bits <= 32, "Not supporting CSI report with more than 32 bits\n");
+-  csi_payload_t csi = {.part1_payload = temp_payload_1, .part2_payload = temp_payload_2, .p1_bits = p1_bits, csi.p2_bits = p2_bits};
++  csi_payload_t csi = {.part1_payload = temp_payload_1, .part2_payload = temp_payload_2, .p1_bits = p1_bits, .p2_bits = p2_bits};
+   return csi;
+ }
+ 
+@@ -3070,7 +3070,7 @@ static csi_payload_t get_csirs_RSRP_payload(NR_UE_MAC_INST_t *mac,
+     }
+   }
+   AssertFatal(n_bits <= 32, "Not supporting CSI report with more than 32 bits\n");
+-  csi_payload_t csi = {.part1_payload = temp_payload, .p1_bits = n_bits, csi.p2_bits = 0};
++  csi_payload_t csi = {.part1_payload = temp_payload, .p1_bits = n_bits, .p2_bits = 0};
+   return csi;
+ }
+ 

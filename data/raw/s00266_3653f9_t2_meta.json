@@ -1,0 +1,9 @@
+{
+  "run_id": "s00266_3653f9",
+  "pr_text": "## Title: Fix buffer overflow in emm_send_authentication_response\n\n### Summary\nFix a buffer overflow vulnerability in the NAS UE authentication response handling. The function `emm_send_authentication_response` was directly assigning an OctetString structure, which copies the pointer rather than the underlying data. This can lead to buffer overflow, memory corruption, and potential security exploits when the authentication response parameter is processed.\n\n### Changes\n- `openair3/NAS/UE/EMM/SAP/",
+  "trajectory_path": "data/raw/s00266_3653f9_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00266_3653f9_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 22,
+  "timestamp": "2026-02-10T12:15:12Z"
+}

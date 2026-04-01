@@ -1,0 +1,59 @@
+diff --git a/common/utils/T/tracer/record.c b/common/utils/T/tracer/record.c
+index 9e3c4c41a3..393ae3d7b7 100644
+--- a/common/utils/T/tracer/record.c
++++ b/common/utils/T/tracer/record.c
+@@ -3,6 +3,7 @@
+ #include <signal.h>
+ #include <string.h>
+ #include <unistd.h>
++#include <stdint.h>
+ #include "database.h"
+ #include "utils.h"
+ #include "../T_defs.h"
+@@ -132,7 +133,10 @@ int main(int n, char **v)
+     char *v;
+     int vpos = 0;
+ 
+-    if (fullread(socket, &length, 4) == -1) goto read_error;
++    if (fullread(socket, &length, 4) == -1) {
++      printf("Error reading length from socket\n");
++      goto read_error;
++    }
+     if (ebuf.omaxsize < length) {
+       ebuf.omaxsize = (length + 65535) & ~65535;
+       ebuf.obuf = realloc(ebuf.obuf, ebuf.omaxsize);
+@@ -142,15 +146,24 @@ int main(int n, char **v)
+     memcpy(v+vpos, &length, 4);
+     vpos += 4;
+ #ifdef T_SEND_TIME
+-    if (fullread(socket,v+vpos,sizeof(struct timespec))==-1) goto read_error;
++    if (fullread(socket,v+vpos,sizeof(struct timespec))==-1) {
++      printf("Error reading timestamp from socket\n");
++      goto read_error;
++    }
+     vpos += sizeof(struct timespec);
+     length -= sizeof(struct timespec);
+ #endif
+-    if (fullread(socket, &type, sizeof(int)) == -1) goto read_error;
++    if (fullread(socket, &type, sizeof(int)) == -1) {
++      printf("Error reading type from socket\n");
++      goto read_error;
++    }
+     memcpy(v+vpos, &type, sizeof(int));
+     vpos += sizeof(int);
+     length -= sizeof(int);
+-    if (fullread(socket, v+vpos, length) == -1) goto read_error;
++    if (fullread(socket, v+vpos, length) == -1) {
++      printf("Error reading data from socket\n");
++      goto read_error;
++    }
+     vpos += length;
+ 
+     if (type == -1) append_received_config_chunk(v+vpos-length, length);
+@@ -166,5 +179,5 @@ int main(int n, char **v)
+ read_error:
+   fclose(out);
+ 
+-  return 0;
++  return 1;
+ }

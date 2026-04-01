@@ -1,0 +1,9 @@
+{
+  "run_id": "s00441_c93ff3",
+  "pr_text": "## Title: Fix thread-safety issues in LTE UE measurements accessors\n\n### Summary\nThe LTE UE measurement accessor functions perform unsynchronized reads from shared PHY variables structures (`PHY_vars_UE_g`), creating race conditions when multiple threads access measurement data concurrently. Functions like `get_PL()`, `get_RSRQ()`, `get_n_adj_cells()`, and `get_rx_total_gain_dB()` read fields from `ue->measurements` and related structures without acquiring proper locks, leading to potential data",
+  "trajectory_path": "data/raw/s00441_c93ff3_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00441_c93ff3_p2.diff",
+  "patch_lines": 49,
+  "trajectory_steps": 62,
+  "timestamp": "2026-02-10T13:26:00Z"
+}

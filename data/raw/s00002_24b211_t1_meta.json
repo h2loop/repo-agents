@@ -1,0 +1,35 @@
+{
+  "run_id": "s00002_24b211",
+  "function": {
+    "name": "_gtpv1uSendDirect",
+    "file": "openair3/ocp-gtpu/gtp_itf.cpp",
+    "start_line": 313,
+    "end_line": 403,
+    "body_lines": 91,
+    "signature": "static void _gtpv1uSendDirect(instance_t instance, ue_id_t ue_id, int bearer_id, uint8_t *buf, size_t len, bool seqNumFlag, bool npduNumFlag, int32_t nru_seqnum)",
+    "subsystem": "openair3/ocp-gtpu",
+    "token_estimate": 223
+  },
+  "bug": {
+    "bug_id": "c_double_free",
+    "description": "double free where the same memory allocation is freed twice",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a double free where the same memory allocation is freed twice downstream of function _gtpv1uSendDirect in the openair3/ocp-gtpu subsystem.\nThe function is located at openair3/ocp-gtpu/gtp_itf.cpp:313.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00002_24b211_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00002_24b211_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 82,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T07:34:04Z"
+}

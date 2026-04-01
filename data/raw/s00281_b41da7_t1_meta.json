@@ -1,0 +1,35 @@
+{
+  "run_id": "s00281_b41da7",
+  "function": {
+    "name": "unpack_nb_iot_system_information_indication_value",
+    "file": "nfapi/open-nFAPI/nfapi/src/nfapi_p4.c",
+    "start_line": 1166,
+    "end_line": 1182,
+    "body_lines": 17,
+    "signature": "static uint8_t unpack_nb_iot_system_information_indication_value(void *tlv, uint8_t **ppReadPackedMsg, uint8_t *end)",
+    "subsystem": "nfapi/open-nFAPI/nfapi",
+    "token_estimate": 49
+  },
+  "bug": {
+    "bug_id": "c_missing_error_propagation",
+    "description": "missing error propagation where a failure is silently ignored",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a missing error propagation where a failure is silently ignored downstream of function unpack_nb_iot_system_information_indication_value in the nfapi/open-nFAPI/nfapi subsystem.\nThe function is located at nfapi/open-nFAPI/nfapi/src/nfapi_p4.c:1166.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00281_b41da7_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00281_b41da7_p1.diff",
+  "patch_lines": 9,
+  "trajectory_steps": 32,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T14:04:13Z"
+}

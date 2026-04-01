@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix unchecked return value in TLV header rewrite operation\n\n### Summary\nDuring UL configuration request processing, the nfapi packing function `pack_tlv` fails to check the return value when rewriting TLV headers with correct length information. This can lead to malformed messages being sent to the VNF when the second `pack_tl` call fails due to buffer space issues.\n\nThe issue manifests as corrupted CQI information in UL Config requests when the message buffer is nearly full. VNFs may reject these malformed messages, causing scheduling failures for UEs reporting channel quality information.\n\n### Changes\n- `nfapi/open-nFAPI/common/src/nfapi.c`: Added return value check for the second `pack_tl` call in `pack_tlv` function to properly handle header rewrite failures.\n\n"
+}

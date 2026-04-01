@@ -1,0 +1,19 @@
+diff --git a/subsys/net/lib/lwm2m/lwm2m_rw_oma_tlv.c b/subsys/net/lib/lwm2m/lwm2m_rw_oma_tlv.c
+index 4668f907..9bf60a21 100644
+--- a/subsys/net/lib/lwm2m/lwm2m_rw_oma_tlv.c
++++ b/subsys/net/lib/lwm2m/lwm2m_rw_oma_tlv.c
+@@ -818,8 +818,13 @@ static int do_write_op_tlv_dummy_read(struct lwm2m_message *msg)
+ {
+ 	struct oma_tlv tlv;
+ 	uint8_t read_char;
++	int ret;
++
++	ret = oma_tlv_get(&tlv, &msg->in, false);
++	if (ret < 0) {
++		return ret;
++	}
+ 
+-	oma_tlv_get(&tlv, &msg->in, false);
+ 	while (tlv.length--) {
+ 		if (buf_read_u8(&read_char, CPKT_BUF_READ(msg->in.in_cpkt),
+ 				&msg->in.offset) < 0) {

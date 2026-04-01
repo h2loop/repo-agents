@@ -1,0 +1,29 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+index 45d5f15ffe..93d7336bcb 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+@@ -7227,11 +7227,22 @@ static uint8_t unpack_rach_indication(uint8_t **ppReadPackedMsg, uint8_t *end, v
+ static uint8_t unpack_srs_indication_fdd_rel8_value(void *tlv, uint8_t **ppReadPackedMsg, uint8_t *end) {
+   nfapi_srs_indication_fdd_rel8_t *srs_pdu_fdd_rel8 = (nfapi_srs_indication_fdd_rel8_t *)tlv;
+ 
++  // First unpack the header fields including number_of_resource_blocks
+   if(!(pull16(ppReadPackedMsg, &srs_pdu_fdd_rel8->doppler_estimation, end) &&
+        pull16(ppReadPackedMsg, &srs_pdu_fdd_rel8->timing_advance, end) &&
+        pull8(ppReadPackedMsg, &srs_pdu_fdd_rel8->number_of_resource_blocks, end) &&
+-       pull8(ppReadPackedMsg, &srs_pdu_fdd_rel8->rb_start, end) &&
+-       pullarray8(ppReadPackedMsg, srs_pdu_fdd_rel8->snr, NFAPI_NUM_RB_MAX, srs_pdu_fdd_rel8->number_of_resource_blocks, end)))
++       pull8(ppReadPackedMsg, &srs_pdu_fdd_rel8->rb_start, end)))
++    return 0;
++
++  // Validate that number_of_resource_blocks does not exceed the maximum allowed value
++  if(srs_pdu_fdd_rel8->number_of_resource_blocks > NFAPI_NUM_RB_MAX) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "SRS indication FDD Rel8: number_of_resource_blocks %u exceeds maximum %u\n", 
++                srs_pdu_fdd_rel8->number_of_resource_blocks, NFAPI_NUM_RB_MAX);
++    return 0;
++  }
++
++  // Only then proceed to unpack the SNR array into the fixed-size buffer
++  if(!pullarray8(ppReadPackedMsg, srs_pdu_fdd_rel8->snr, NFAPI_NUM_RB_MAX, srs_pdu_fdd_rel8->number_of_resource_blocks, end))
+     return 0;
+ 
+   return 1;

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00099_b0b71f",
+  "pr_text": "## Title: Fix use-after-free vulnerability in PRACH subframe detection\n\n### Summary\nThe `is_prach_subframe()` function in the LTE PRACH transport layer contained a use-after-free vulnerability. The function accessed `frame_parms` and its nested configuration structures multiple times throughout execution, creating a time window where if the `frame_parms` memory was freed by another thread or calling context, subsequent accesses would operate on stale memory. This could lead to crashes, data corr",
+  "trajectory_path": "data/raw/s00099_b0b71f_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00099_b0b71f_p2.diff",
+  "patch_lines": 19,
+  "trajectory_steps": 34,
+  "timestamp": "2026-02-10T11:14:01Z"
+}

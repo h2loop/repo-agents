@@ -1,0 +1,56 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c
+index d1ac9fcdcb..26a57f81f9 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c
+@@ -2048,7 +2048,7 @@ static uint8_t pack_nr_p5_message_body(nfapi_p4_p5_message_header_t *header, uin
+       result = pack_nr_pnf_param_request(header, ppWritePackedMsg, end, config);
+       break;
+ 
+-    case NFAPI_PNF_PARAM_RESPONSE:
++    case NFAPI_NR_PHY_MSG_TYPE_PNF_PARAM_RESPONSE:
+       result = pack_nr_pnf_param_response(header, ppWritePackedMsg, end, config);
+       break;
+ 
+@@ -2072,7 +2072,7 @@ static uint8_t pack_nr_p5_message_body(nfapi_p4_p5_message_header_t *header, uin
+       result = pack_nr_pnf_stop_request(header, ppWritePackedMsg, end, config);
+       break;
+ 
+-    case NFAPI_PNF_STOP_RESPONSE:
++    case NFAPI_NR_PHY_MSG_TYPE_PNF_STOP_RESPONSE:
+       result = pack_nr_pnf_stop_response(header, ppWritePackedMsg, end, config);
+       break;
+ 
+@@ -2612,6 +2612,19 @@ static uint8_t unpack_nr_pnf_start_response(uint8_t **ppReadPackedMsg, uint8_t *
+           && unpack_nr_tlv_list(NULL, 0, ppReadPackedMsg, end, config, &(pNfapiMsg->vendor_extension)));
+ }
+ 
++static uint8_t unpack_nr_pnf_stop_request(uint8_t **ppReadPackedMsg, uint8_t *end, void *msg, nfapi_p4_p5_codec_config_t *config)
++{
++  nfapi_nr_pnf_stop_request_t *pNfapiMsg = (nfapi_nr_pnf_stop_request_t *)msg;
++  return unpack_nr_tlv_list(NULL, 0, ppReadPackedMsg, end, config, &(pNfapiMsg->vendor_extension));
++}
++
++static uint8_t unpack_nr_pnf_stop_response(uint8_t **ppReadPackedMsg, uint8_t *end, void *msg, nfapi_p4_p5_codec_config_t *config)
++{
++  nfapi_nr_pnf_stop_response_t *pNfapiMsg = (nfapi_nr_pnf_stop_response_t *)msg;
++  return (pull32(ppReadPackedMsg, &pNfapiMsg->error_code, end)
++          && unpack_nr_tlv_list(NULL, 0, ppReadPackedMsg, end, config, &(pNfapiMsg->vendor_extension)));
++}
++
+ static uint8_t unpack_pnf_stop_request(uint8_t **ppReadPackedMsg, uint8_t *end, void *msg, nfapi_p4_p5_codec_config_t *config) {
+   nfapi_pnf_stop_request_t *pNfapiMsg = (nfapi_pnf_stop_request_t *)msg;
+   return unpack_tlv_list(NULL, 0, ppReadPackedMsg, end, config, &(pNfapiMsg->vendor_extension));
+@@ -3829,11 +3842,11 @@ int nfapi_nr_p5_message_unpack(void *pMessageBuf,
+       break;
+ 
+     case NFAPI_NR_PHY_MSG_TYPE_PNF_STOP_REQUEST:
+-      result = unpack_pnf_stop_request(&pReadPackedMessage, end, pMessageHeader, config);
++      result = unpack_nr_pnf_stop_request(&pReadPackedMessage, end, pMessageHeader, config);
+       break;
+ 
+     case NFAPI_NR_PHY_MSG_TYPE_PNF_STOP_RESPONSE:
+-      result = unpack_pnf_stop_response(&pReadPackedMessage, end, pMessageHeader, config);
++      result = unpack_nr_pnf_stop_response(&pReadPackedMessage, end, pMessageHeader, config);
+       break;
+ 
+     case NFAPI_NR_PHY_MSG_TYPE_PARAM_REQUEST:

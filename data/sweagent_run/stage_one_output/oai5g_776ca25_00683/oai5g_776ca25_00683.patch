@@ -1,0 +1,31 @@
+diff --git a/openair2/RRC/NR_UE/rrc_timers_and_constants.c b/openair2/RRC/NR_UE/rrc_timers_and_constants.c
+index f0635b16b2..114b99c5b1 100644
+--- a/openair2/RRC/NR_UE/rrc_timers_and_constants.c
++++ b/openair2/RRC/NR_UE/rrc_timers_and_constants.c
+@@ -580,19 +580,17 @@ void handle_rlf_sync(NR_UE_Timers_Constants_t *tac,
+   else {
+     // OUT_OF_SYNC
+     tac->N311_cnt = 0;
+-    if(get_softmodem_params()->phy_test ||
+-       nr_timer_is_active(&tac->T300) ||
+-       nr_timer_is_active(&tac->T301) ||
+-       nr_timer_is_active(&tac->T304) ||
+-       nr_timer_is_active(&tac->T310) ||
+-       nr_timer_is_active(&tac->T311) ||
+-       nr_timer_is_active(&tac->T319))
++    // According to 38.331 5.3.10.3, increment N310 regardless of other timers
++    // Only check if T310 is not running before starting it
++    if(get_softmodem_params()->phy_test)
+       return;
+     tac->N310_cnt++;
+     // upon receiving N310 consecutive "out-of-sync" indications
+     if (tac->N310_cnt >= tac->N310_k) {
+-      // start timer T310
+-      nr_timer_start(&tac->T310);
++      // start timer T310 only if it's not already running
++      if (!nr_timer_is_active(&tac->T310)) {
++        nr_timer_start(&tac->T310);
++      }
+       tac->N310_cnt = 0;
+     }
+   }

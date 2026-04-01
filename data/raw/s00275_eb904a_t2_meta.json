@@ -1,0 +1,9 @@
+{
+  "run_id": "s00275_eb904a",
+  "pr_text": "## Title: Fix integer overflow in nFAPI segment size configuration\n\n### Summary\nThe nFAPI VNF and PNF P7 interface configurations used an excessively large default segment_size value (65000) that could cause integer overflow when calculating total buffer sizes. When segment_size is multiplied by max_num_segments (8), the result (520000) exceeds the range of uint16_t variables used in downstream buffer allocation logic, leading to truncated values and potential buffer overflows.\n\nThis change redu",
+  "trajectory_path": "data/raw/s00275_eb904a_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00275_eb904a_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 10,
+  "timestamp": "2026-02-10T12:18:58Z"
+}

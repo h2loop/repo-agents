@@ -1,0 +1,57 @@
+diff --git a/targets/TARGET_Cypress/TARGET_PSOC6/mtb-pdl-cat1/drivers/source/cy_crypto_core_ecc_nist_p.c b/targets/TARGET_Cypress/TARGET_PSOC6/mtb-pdl-cat1/drivers/source/cy_crypto_core_ecc_nist_p.c
+index 47fd4d60..622cd1f6 100644
+--- a/targets/TARGET_Cypress/TARGET_PSOC6/mtb-pdl-cat1/drivers/source/cy_crypto_core_ecc_nist_p.c
++++ b/targets/TARGET_Cypress/TARGET_PSOC6/mtb-pdl-cat1/drivers/source/cy_crypto_core_ecc_nist_p.c
+@@ -1390,7 +1390,51 @@ void Cy_Crypto_Core_EC_SquareMod( CRYPTO_Type *base,
+     uint32_t a,
+     uint32_t size)
+ {
+-    Cy_Crypto_Core_EC_MulMod( base, z, a, a, size);
++    uint32_t temp = 0u;
++    uint32_t red = 0u;
++
++    CY_CRYPTO_VU_PUSH_REG(base);
++    CY_CRYPTO_VU_ALLOC_MEM(base, temp, (uint32_t)(2u * size));
++    CY_CRYPTO_VU_ALLOC_MEM(base, red, size);
++
++    /* Calculate a * a */
++    CY_CRYPTO_VU_MOV(base, temp, a);
++    CY_CRYPTO_VU_MUL(base, temp, temp, a);
++
++    /* Modular reduction */
++    switch (eccMode)
++    {
++        case CY_CRYPTO_ECC_ECP_SECP192R1:
++            Cy_Crypto_Core_EC_CS_MUL_Red_P192(base, red, temp);
++            break;
++
++        case CY_CRYPTO_ECC_ECP_SECP224R1:
++            Cy_Crypto_Core_EC_CS_MUL_Red_P224(base, red, temp);
++            break;
++
++        case CY_CRYPTO_ECC_ECP_SECP256R1:
++            Cy_Crypto_Core_EC_CS_MUL_Red_P256(base, red, temp);
++            break;
++
++        case CY_CRYPTO_ECC_ECP_SECP384R1:
++            Cy_Crypto_Core_EC_CS_MUL_Red_P384(base, red, temp);
++            break;
++
++        case CY_CRYPTO_ECC_ECP_SECP521R1:
++            Cy_Crypto_Core_EC_CS_MUL_Red_P521(base, red, temp);
++            break;
++
++        default:
++            /* Should never get here */
++            CY_ASSERT(0u != 0u);
++            break;
++    }
++
++    /* Move result to z */
++    CY_CRYPTO_VU_MOV(base, z, red);
++
++    CY_CRYPTO_VU_FREE_MEM(base, CY_CRYPTO_VU_REG_BIT(temp) | CY_CRYPTO_VU_REG_BIT(red));
++    CY_CRYPTO_VU_POP_REG(base);
+ }
+ 
+ 

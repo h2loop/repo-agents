@@ -1,0 +1,35 @@
+{
+  "run_id": "s00406_219df4",
+  "function": {
+    "name": "e1apCUCP_handle_BEARER_CONTEXT_RELEASE_REQUEST",
+    "file": "openair2/E1AP/e1ap.c",
+    "start_line": 587,
+    "end_line": 594,
+    "body_lines": 8,
+    "signature": "int e1apCUCP_handle_BEARER_CONTEXT_RELEASE_REQUEST(instance_t instance, sctp_assoc_t assoc_id, uint32_t stream, E1AP_E1AP_PDU_t *pdu)",
+    "subsystem": "openair2/E1AP",
+    "token_estimate": 17
+  },
+  "bug": {
+    "bug_id": "c_missing_error_propagation",
+    "description": "missing error propagation where a failure is silently ignored",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a missing error propagation where a failure is silently ignored downstream of function e1apCUCP_handle_BEARER_CONTEXT_RELEASE_REQUEST in the openair2/E1AP subsystem.\nThe function is located at openair2/E1AP/e1ap.c:587.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00406_219df4_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00406_219df4_p1.diff",
+  "patch_lines": 5,
+  "trajectory_steps": 36,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:06:30Z"
+}

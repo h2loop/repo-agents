@@ -1,0 +1,30 @@
+{
+  "run_id": "s00018_c8c170",
+  "function": {
+    "name": "resize_nr_list",
+    "file": "openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c",
+    "start_line": 2356,
+    "end_line": 2382,
+    "body_lines": 27,
+    "signature": "void resize_nr_list(NR_list_t *list, int new_len)",
+    "subsystem": "openair2/LAYER2/NR_MAC_gNB",
+    "token_estimate": 151
+  },
+  "bug": {
+    "bug_id": "telecom_state_machine_invalid_transition",
+    "description": "incorrect protocol state machine transition that violates 3GPP specification",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a incorrect protocol state machine transition that violates 3GPP specification downstream of function resize_nr_list in the openair2/LAYER2/NR_MAC_gNB subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c:2356.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00018_c8c170_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00018_c8c170_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 51,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:40:02Z"
+}

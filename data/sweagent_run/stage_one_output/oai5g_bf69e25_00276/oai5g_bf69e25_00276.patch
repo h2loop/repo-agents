@@ -1,0 +1,17 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c b/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c
+index 7353e61711..dca7e3b8d5 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c
++++ b/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c
+@@ -304,6 +304,12 @@ static int handle_ue_context_drbs_release(NR_UE_info_t *UE,
+       DevAssert(ret == 0);
+     }
+   }
++  
++  /* After releasing DRBs, ensure MCS selection considers updated UE capabilities and channel quality */
++  NR_UE_sched_ctrl_t *sched_ctrl = &UE->UE_sched_ctrl;
++  /* Reset BLER statistics to ensure fresh MCS calculation based on current conditions */
++  memset(&sched_ctrl->dl_bler_stats, 0, sizeof(sched_ctrl->dl_bler_stats));
++  
+   return drbs_len;
+ }
+ 

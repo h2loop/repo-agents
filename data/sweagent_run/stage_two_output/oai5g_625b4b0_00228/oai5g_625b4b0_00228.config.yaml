@@ -1,0 +1,254 @@
+'{"env":{"deployment":{"image":"oai5g-sera:625b4b0","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_625b4b0_00228","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix NRACH indication packing to include instance length fields\n\n### Summary\nThe
+  `pack_nrach_indication` function in the NFAPI P7 interface was not correctly packing
+  the NRACH indication PDUs because it was missing the required 2-byte instance length
+  field before each PDU''s TLVs. This caused unpacking failures when the VNF tried
+  to process NRACH indications from the PNF.\n\nThe issue occurred because the unpack
+  function expected each PDU to have:\n- 2 bytes for instance length\n- 4 bytes for
+  TLV header (tag + length)  \n- 6 bytes for REL13 data content\n\nBut the pack function
+  was only writing the TLV without the instance length field.\n\n### Changes\n- `nfapi/open-nFAPI/nfapi/src/nfapi_p7.c`:
+  Modified `pack_nrach_indication_body_value` function to:\n  1. Write a placeholder
+  for the instance length before packing each PDU''s TLVs\n  2. Pack the TLVs for
+  that PDU using the existing `pack_tlv` function\n  3. Calculate the actual instance
+  length (total bytes after the instance length field)\n  4. Update the placeholder
+  with the calculated instance length\n\nThis ensures that the packed data format
+  matches what the unpack function expects, resolving the issue where calling `pack_nrach_indication()`
+  was not producing correctly formatted messages that could be successfully unpacked
+  by the receiving end.\n","extra_fields":{"bug_description":"incorrect argument order
+  in function call swapping similarly-typed parameters","bug_id":"c_wrong_arg_order","stage_one_patch":"diff
+  --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c\nindex
+  e75e418500..764f3d2351 100644\n--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c\n+++
+  b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c\n@@ -2377,17 +2377,17 @@ static uint8_t
+  pack_nrach_indication_body_value(void *tlv, uint8_t **ppWritePack\n   for(; i <
+  total_number_of_initial_scs_detected; ++i) {\n     nfapi_nrach_indication_pdu_t
+  *pdu = &(value->nrach_pdu_list[i]);\n \n-    //uint8_t* instance_length_p = *ppWritePackedMsg;\n-    //if(!push16(pdu->instance_length,
+  ppWritePackedMsg, end))\n-    //  return 0;\n+    // Write a placeholder for the
+  instance length\n+    uint8_t *instance_length_p = *ppWritePackedMsg;\n+    if(!push16(pdu->nrach_indication_rel13.tl.length,
+  ppWritePackedMsg, end))\n+      return 0;\n \n     if(!(pack_tlv(NFAPI_NRACH_INDICATION_REL13_TAG,
+  &pdu->nrach_indication_rel13, ppWritePackedMsg, end, pack_nrach_indication_rel13_value)))\n       return
+  0;\n \n-    // calculate the instance length subtracting the size of the instance\n-    //
+  length feild\n-    //uint16_t instance_length = *ppWritePackedMsg - instance_length_p
+  - 2;\n-    //push16(instance_length, &instance_length_p, end);\n+    // Calculate
+  the instance length (subtracting the size of the instance length field)\n+    uint16_t
+  instance_length = *ppWritePackedMsg - instance_length_p - 2;\n+    push16(instance_length,
+  &instance_length_p, end);\n   }\n \n   return 1;\n@@ -4844,139 +4844,139 @@ static
+  uint8_t unpack_rx_indication_rel9_value(void *tlv, uint8_t **ppReadPacked\n \n static
+  uint8_t unpack_rx_indication_body_value(void *tlv, uint8_t **ppReadPackedMsg, uint8_t
+  *end, nfapi_p7_codec_config_t *config)\n {\n-\tnfapi_rx_indication_body_t *value
+  = (nfapi_rx_indication_body_t*)tlv;\n-\n-\tNFAPI_TRACE(NFAPI_TRACE_DEBUG, \"%s value->tl.length
+  in unpack: %u \\n\", __FUNCTION__,\n-\t\t\t\tvalue->tl.length);\n-\tuint8_t *rxBodyEnd
+  = *ppReadPackedMsg + value->tl.length;\n-\n-\tNFAPI_TRACE(NFAPI_TRACE_DEBUG, \"%s
+  rxBodyEnd: %p end: %p\\n\", __FUNCTION__,\n-\t\t\t\trxBodyEnd, end);\n-\tif (rxBodyEnd
+  > end)\n-\t{\n-\t\t// pdu end is past buffer end\n-\t\treturn 0;\n-\t}\n-\n-\tif
+  (pull16(ppReadPackedMsg, &value->number_of_pdus, end) == 0)\n-\t\treturn 0;\n-\n-\tif
+  (value->number_of_pdus > NFAPI_RX_IND_MAX_PDU)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s number of rx ind pdu''s exceed maxium (count:%d max:%d)\\n\", __FUNCTION__,
+  value->number_of_pdus, NFAPI_RX_IND_MAX_PDU);\n-\t\treturn 0;\n-\t}\n-\n-\tif (value->number_of_pdus
+  > 0)\n-\t{\n-\t\tassert(value->number_of_pdus <= NFAPI_RX_IND_MAX_PDU);\n-\t\tvalue->rx_pdu_list
+  = (nfapi_rx_indication_pdu_t *)nfapi_p7_allocate(sizeof(nfapi_rx_indication_pdu_t)
+  * NFAPI_RX_IND_MAX_PDU, config);\n-\t\tif (value->rx_pdu_list == NULL)\n-\t\t{\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s failed to allocate rx ind pdu list (count:%d)\\n\", __FUNCTION__, value->number_of_pdus);\n-\t\t\treturn
+  0;\n-\t\t}\n-\t}\n-\telse\n-\t{\n-\t\tvalue->rx_pdu_list = 0;\n-\t}\n-\n-\tNFAPI_TRACE(NFAPI_TRACE_INFO,
+  \"%s number_of_pdus = %u\\n\", __FUNCTION__, value->number_of_pdus);\n-\tfor (int
+  i = 0; i < value->number_of_pdus; i++)\n-\t{\n-\t\tNFAPI_TRACE(NFAPI_TRACE_INFO,
+  \"%s i = %u\\n\", __FUNCTION__, i);\n-\t\tnfapi_tl_t generic_tl;\n-\n-\t\t// NFAPI_RX_UE_INFORMATION_TAG\n-\t\tif
+  (unpack_tl(ppReadPackedMsg, &generic_tl, end) == 0)\n-\t\t{\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s unpack_tl failed\\n\", __FUNCTION__);\n-\t\t\treturn 0;\n-\t\t}\n-\n-\t\tNFAPI_TRACE(NFAPI_TRACE_INFO,
+  \"%s generic_tl.tag = 0x%x length = %u\\n\", __FUNCTION__, generic_tl.tag, generic_tl.length);\n-\n-\t\tif
+  (generic_tl.tag != NFAPI_RX_UE_INFORMATION_TAG)\n-\t\t{\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s generic_tl.tag wrong\\n\", __FUNCTION__);\n-\t\t\treturn 0;\n-\t\t}\n-\n-\t\tassert(i
+  < NFAPI_RX_IND_MAX_PDU);\n-\t\tnfapi_rx_indication_pdu_t *pdu = &value->rx_pdu_list[i];\n-\n-\t\tpdu->rx_ue_information.tl
+  = generic_tl;\n-\t\tif (unpack_rx_ue_information_value(&pdu->rx_ue_information,
+  ppReadPackedMsg, end) == 0)\n-\t\t{\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR, \"%s
+  unpack_rx_ue_info failure\\n\", __FUNCTION__);\n-\t\t\treturn 0;\n-\t\t}\n-\n-\t\t//
+  NFAPI_RX_INDICATION_REL8_TAG\n-\t\tif (unpack_tl(ppReadPackedMsg, &generic_tl, end)
+  == 0)\n-\t\t{\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR, \"%s unpack_tl failed\\n\",
+  __FUNCTION__);\n-\t\t\treturn 0;\n-\t\t}\n-\n-\t\tNFAPI_TRACE(NFAPI_TRACE_INFO,
+  \"%s generic_tl.tag = 0x%x length = %u\\n\", __FUNCTION__, generic_tl.tag, generic_tl.length);\n-\n-\t\tif
+  (generic_tl.tag != NFAPI_RX_INDICATION_REL8_TAG)\n-\t\t{\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s generic_tl.tag wrong\\n\", __FUNCTION__);\n-\t\t\treturn 0;\n-\t\t}\n-\n-\t\tpdu->rx_indication_rel8.tl
+  = generic_tl;\n-\t\tif (unpack_rx_indication_rel8_value(&pdu->rx_indication_rel8,
+  ppReadPackedMsg, end) == 0)\n-\t\t{\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR, \"%s
+  unpack_rx_indication_rel8 failure\\n\", __FUNCTION__);\n-\t\t\treturn 0;\n-\t\t}\n-\t\t//What
+  is offset not stripping 10 bytes\n-\t\tNFAPI_TRACE(NFAPI_TRACE_INFO, \"%s pdu->rx_indication_rel8.offset
+  = %u\", __FUNCTION__,\n-\t\t\t\t\tpdu->rx_indication_rel8.offset);\n-\n-\t\t// NFAPI_RX_INDICATION_REL9_TAG\n-\t\tif
+  (unpack_tl(ppReadPackedMsg, &generic_tl, end) == 0)\n-\t\t{\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s unpack_tl failed\\n\", __FUNCTION__);\n-\t\t\treturn 0;\n-\t\t}\n-\n-\t\tNFAPI_TRACE(NFAPI_TRACE_INFO,
+  \"%s generic_tl.tag = 0x%x length = %u\\n\", __FUNCTION__, generic_tl.tag, generic_tl.length);\n-\n-\t\tif
+  (generic_tl.tag != NFAPI_RX_INDICATION_REL9_TAG)\n-\t\t{\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s generic_tl.tag wrong\\n\", __FUNCTION__);\n-\t\t\treturn 0;\n-\t\t}\n-\n-\t\tpdu->rx_indication_rel9.tl
+  = generic_tl;\n-\t\tif (unpack_rx_indication_rel9_value(&pdu->rx_indication_rel9,
+  ppReadPackedMsg, end) == 0)\n-\t\t{\n-\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR, \"%s
+  unpack_rx_indication_rel9 failure\\n\", __FUNCTION__);\n-\t\t\treturn 0;\n-\t\t}\n-\t}\n+        nfapi_rx_indication_body_t
+  *value = (nfapi_rx_indication_body_t*)tlv;\n+\n+        NFAPI_TRACE(NFAPI_TRACE_DEBUG,
+  \"%s value->tl.length in unpack: %u \\n\", __FUNCTION__,\n+                                value->tl.length);\n+        uint8_t
+  *rxBodyEnd = *ppReadPackedMsg + value->tl.length;\n+\n+        NFAPI_TRACE(NFAPI_TRACE_DEBUG,
+  \"%s rxBodyEnd: %p end: %p\\n\", __FUNCTION__,\n+                                rxBodyEnd,
+  end);\n+        if (rxBodyEnd > end)\n+        {\n+                // pdu end is
+  past buffer end\n+                return 0;\n+        }\n+\n+        if (pull16(ppReadPackedMsg,
+  &value->number_of_pdus, end) == 0)\n+                return 0;\n+\n+        if (value->number_of_pdus
+  > NFAPI_RX_IND_MAX_PDU)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s number of rx ind pdu''s exceed maxium (count:%d max:%d)\\n\", __FUNCTION__,
+  value->number_of_pdus, NFAPI_RX_IND_MAX_PDU);\n+                return 0;\n+        }\n+\n+        if
+  (value->number_of_pdus > 0)\n+        {\n+                assert(value->number_of_pdus
+  <= NFAPI_RX_IND_MAX_PDU);\n+                value->rx_pdu_list = (nfapi_rx_indication_pdu_t
+  *)nfapi_p7_allocate(sizeof(nfapi_rx_indication_pdu_t) * NFAPI_RX_IND_MAX_PDU, config);\n+                if
+  (value->rx_pdu_list == NULL)\n+                {\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s failed to allocate rx ind pdu list (count:%d)\\n\", __FUNCTION__, value->number_of_pdus);\n+                        return
+  0;\n+                }\n+        }\n+        else\n+        {\n+                value->rx_pdu_list
+  = 0;\n+        }\n+\n+        NFAPI_TRACE(NFAPI_TRACE_INFO, \"%s number_of_pdus
+  = %u\\n\", __FUNCTION__, value->number_of_pdus);\n+        for (int i = 0; i < value->number_of_pdus;
+  i++)\n+        {\n+                NFAPI_TRACE(NFAPI_TRACE_INFO, \"%s i = %u\\n\",
+  __FUNCTION__, i);\n+                nfapi_tl_t generic_tl;\n+\n+                //
+  NFAPI_RX_UE_INFORMATION_TAG\n+                if (unpack_tl(ppReadPackedMsg, &generic_tl,
+  end) == 0)\n+                {\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s unpack_tl failed\\n\", __FUNCTION__);\n+                        return 0;\n+                }\n+\n+                NFAPI_TRACE(NFAPI_TRACE_INFO,
+  \"%s generic_tl.tag = 0x%x length = %u\\n\", __FUNCTION__, generic_tl.tag, generic_tl.length);\n+\n+                if
+  (generic_tl.tag != NFAPI_RX_UE_INFORMATION_TAG)\n+                {\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s generic_tl.tag wrong\\n\", __FUNCTION__);\n+                        return
+  0;\n+                }\n+\n+                assert(i < NFAPI_RX_IND_MAX_PDU);\n+                nfapi_rx_indication_pdu_t
+  *pdu = &value->rx_pdu_list[i];\n+\n+                pdu->rx_ue_information.tl =
+  generic_tl;\n+                if (unpack_rx_ue_information_value(&pdu->rx_ue_information,
+  ppReadPackedMsg, end) == 0)\n+                {\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s unpack_rx_ue_info failure\\n\", __FUNCTION__);\n+                        return
+  0;\n+                }\n+\n+                // NFAPI_RX_INDICATION_REL8_TAG\n+                if
+  (unpack_tl(ppReadPackedMsg, &generic_tl, end) == 0)\n+                {\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s unpack_tl failed\\n\", __FUNCTION__);\n+                        return 0;\n+                }\n+\n+                NFAPI_TRACE(NFAPI_TRACE_INFO,
+  \"%s generic_tl.tag = 0x%x length = %u\\n\", __FUNCTION__, generic_tl.tag, generic_tl.length);\n+\n+                if
+  (generic_tl.tag != NFAPI_RX_INDICATION_REL8_TAG)\n+                {\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s generic_tl.tag wrong\\n\", __FUNCTION__);\n+                        return
+  0;\n+                }\n+\n+                pdu->rx_indication_rel8.tl = generic_tl;\n+                if
+  (unpack_rx_indication_rel8_value(&pdu->rx_indication_rel8, ppReadPackedMsg, end)
+  == 0)\n+                {\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s unpack_rx_indication_rel8 failure\\n\", __FUNCTION__);\n+                        return
+  0;\n+                }\n+                //What is offset not stripping 10 bytes\n+                NFAPI_TRACE(NFAPI_TRACE_INFO,
+  \"%s pdu->rx_indication_rel8.offset = %u\", __FUNCTION__,\n+                                        pdu->rx_indication_rel8.offset);\n+\n+                //
+  NFAPI_RX_INDICATION_REL9_TAG\n+                if (unpack_tl(ppReadPackedMsg, &generic_tl,
+  end) == 0)\n+                {\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s unpack_tl failed\\n\", __FUNCTION__);\n+                        return 0;\n+                }\n+\n+                NFAPI_TRACE(NFAPI_TRACE_INFO,
+  \"%s generic_tl.tag = 0x%x length = %u\\n\", __FUNCTION__, generic_tl.tag, generic_tl.length);\n+\n+                if
+  (generic_tl.tag != NFAPI_RX_INDICATION_REL9_TAG)\n+                {\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s generic_tl.tag wrong\\n\", __FUNCTION__);\n+                        return
+  0;\n+                }\n+\n+                pdu->rx_indication_rel9.tl = generic_tl;\n+                if
+  (unpack_rx_indication_rel9_value(&pdu->rx_indication_rel9, ppReadPackedMsg, end)
+  == 0)\n+                {\n+                        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s unpack_rx_indication_rel9 failure\\n\", __FUNCTION__);\n+                        return
+  0;\n+                }\n+        }\n \n         assert(value->number_of_pdus <=
+  NFAPI_RX_IND_MAX_PDU);\n-\tfor (int i = 0; i < value->number_of_pdus; ++i)\n-\t{\n-\t\tnfapi_rx_indication_pdu_t
+  *pdu = &value->rx_pdu_list[i];\n-\t\tif (pdu->rx_indication_rel8.tl.tag == NFAPI_RX_INDICATION_REL8_TAG)\n-\t\t{\n-\t\t\tuint32_t
+  length = pdu->rx_indication_rel8.length;\n-\t\t\tif (pullarray8(ppReadPackedMsg,
+  pdu->rx_ind_data, NFAPI_RX_IND_DATA_MAX, length, end) == 0)\n-\t\t\t{\n-\t\t\t\tNFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s pullarray8 failure\\n\", __FUNCTION__);\n-\t\t\t\treturn 0;\n-\t\t\t}\n-\t\t}\n-\t}\n-\n-\treturn
+  1;\n+        for (int i = 0; i < value->number_of_pdus; ++i)\n+        {\n+                nfapi_rx_indication_pdu_t
+  *pdu = &value->rx_pdu_list[i];\n+                if (pdu->rx_indication_rel8.tl.tag
+  == NFAPI_RX_INDICATION_REL8_TAG)\n+                {\n+                        uint32_t
+  length = pdu->rx_indication_rel8.length;\n+                        if (pullarray8(ppReadPackedMsg,
+  pdu->rx_ind_data, NFAPI_RX_IND_DATA_MAX, length, end) == 0)\n+                        {\n+                                NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s pullarray8 failure\\n\", __FUNCTION__);\n+                                return
+  0;\n+                        }\n+                }\n+        }\n+\n+        return
+  1;\n }\n \n static uint8_t unpack_rx_indication(uint8_t **ppReadPackedMsg, uint8_t
+  *end, void *msg, nfapi_p7_codec_config_t *config) {\n@@ -6298,31 +6298,31 @@ bool
+  nfapi_nr_p7_message_unpack(void *pMessageBuf,\n       if (check_nr_fapi_unpack_length(NFAPI_NR_PHY_MSG_TYPE_RX_DATA_INDICATION,
+  unpackedBufLen)) {\n         result = unpack_nr_rx_data_indication(&pReadPackedMessage,
+  end, pMessageHeader, config);\n       }\n-\t\t\tbreak;\n+                        break;\n
+  \n     case NFAPI_NR_PHY_MSG_TYPE_CRC_INDICATION:\n       if (check_nr_fapi_unpack_length(NFAPI_NR_PHY_MSG_TYPE_CRC_INDICATION,
+  unpackedBufLen)) {\n         result = unpack_nr_crc_indication(&pReadPackedMessage,
+  end, pMessageHeader, config);\n-\t\t\t}\n-\t\t\tbreak;\n+                        }\n+                        break;\n
+  \n     case NFAPI_NR_PHY_MSG_TYPE_UCI_INDICATION:\n       if (check_nr_fapi_unpack_length(NFAPI_NR_PHY_MSG_TYPE_UCI_INDICATION,
+  unpackedBufLen)) {\n         result = unpack_nr_uci_indication(&pReadPackedMessage,
+  end, pMessageHeader, config);\n-\t\t\t}\n-\t\t\tbreak;\n+                        }\n+                        break;\n
+  \n     case NFAPI_NR_PHY_MSG_TYPE_SRS_INDICATION:\n       if (check_nr_fapi_unpack_length(NFAPI_NR_PHY_MSG_TYPE_SRS_INDICATION,
+  unpackedBufLen)) {\n         result = unpack_nr_srs_indication(&pReadPackedMessage,  end,
+  pMessageHeader, config);\n-\t\t\t}\n-\t\t\tbreak;\n+                        }\n+                        break;\n
+  \n     case NFAPI_NR_PHY_MSG_TYPE_RACH_INDICATION:\n       if (check_nr_fapi_unpack_length(NFAPI_NR_PHY_MSG_TYPE_RACH_INDICATION,
+  unpackedBufLen)) {\n         result = unpack_nr_rach_indication(&pReadPackedMessage,  end,
+  pMessageHeader, config);\n-\t\t\t}\n-\t\t\tbreak;\n+                        }\n+                        break;\n
+  \n     case NFAPI_NR_PHY_MSG_TYPE_DL_NODE_SYNC:\n       if (check_nr_fapi_unpack_length(NFAPI_NR_PHY_MSG_TYPE_DL_NODE_SYNC,
+  unpackedBufLen))\n","start_fn":"pack_nrach_indication","start_fn_file":"nfapi/open-nFAPI/nfapi/src/nfapi_p7.c","subsystem":"nfapi/open-nFAPI/nfapi"},"type":"text","id":"oai5g_625b4b0_00228"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

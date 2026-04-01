@@ -1,0 +1,35 @@
+{
+  "run_id": "s00050_b23948",
+  "function": {
+    "name": "rrc_eNB_process_ENDC_DC_prep_timeout",
+    "file": "openair2/RRC/LTE/rrc_eNB.c",
+    "start_line": 7554,
+    "end_line": 7571,
+    "body_lines": 18,
+    "signature": "void rrc_eNB_process_ENDC_DC_prep_timeout(module_id_t module_id, x2ap_ENDC_dc_prep_timeout_t *m)",
+    "subsystem": "openair2/RRC/LTE",
+    "token_estimate": 69
+  },
+  "bug": {
+    "bug_id": "c_missing_error_propagation",
+    "description": "missing error propagation where a failure is silently ignored",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a missing error propagation where a failure is silently ignored downstream of function rrc_eNB_process_ENDC_DC_prep_timeout in the openair2/RRC/LTE subsystem.\nThe function is located at openair2/RRC/LTE/rrc_eNB.c:7554.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00050_b23948_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00050_b23948_p1.diff",
+  "patch_lines": 7,
+  "trajectory_steps": 50,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:51:14Z"
+}

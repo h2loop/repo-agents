@@ -1,0 +1,37 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
+index 264150f314..0ceb27c5b9 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
+@@ -3018,6 +3018,16 @@ bool add_connected_nr_ue(gNB_MAC_INST *nr_mac, NR_UE_info_t *UE)
+   dump_nr_list(UE_info->connected_ue_list);
+   AssertFatal(!UE->ra, "UE in connected cannot have RA process\n");
+ 
++  NR_UE_sched_ctrl_t *sched_ctrl = &UE->UE_sched_ctrl;
++  sched_ctrl->dl_max_mcs = 28; /* do not limit MCS for individual UEs */
++  sched_ctrl->pdcch_cl_adjust = 0;
++  reset_srs_stats(UE);
++
++  // Initialize bler_stats before adding UE to list to avoid race condition
++  // with timer expiry handlers and message processing threads
++  init_bler_stats(&nr_mac->dl_bler, &sched_ctrl->dl_bler_stats, nr_mac->frame);
++  init_bler_stats(&nr_mac->ul_bler, &sched_ctrl->ul_bler_stats, nr_mac->frame);
++
+   NR_SCHED_LOCK(&UE_info->mutex);
+ 
+   bool success = add_UE_to_list(MAX_MOBILES_PER_GNB, UE_info->connected_ue_list, UE);
+@@ -3028,15 +3038,6 @@ bool add_connected_nr_ue(gNB_MAC_INST *nr_mac, NR_UE_info_t *UE)
+     return false;
+   }
+ 
+-  NR_UE_sched_ctrl_t *sched_ctrl = &UE->UE_sched_ctrl;
+-  sched_ctrl->dl_max_mcs = 28; /* do not limit MCS for individual UEs */
+-  sched_ctrl->pdcch_cl_adjust = 0;
+-  reset_srs_stats(UE);
+-
+-  // Initialize bler_stats
+-  init_bler_stats(&nr_mac->dl_bler, &sched_ctrl->dl_bler_stats, nr_mac->frame);
+-  init_bler_stats(&nr_mac->ul_bler, &sched_ctrl->ul_bler_stats, nr_mac->frame);
+-
+   NR_SCHED_UNLOCK(&UE_info->mutex);
+   dump_nr_list(UE_info->connected_ue_list);
+   return true;

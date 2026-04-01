@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect UE ID assignment in Bearer Context Release Complete message\n\n### Summary\nThe E1AP Bearer Context Release Complete message was incorrectly populated with the CU-CP UE ID instead of the CU-UP UE ID. This caused issues with E1AP communication between CU-CP and CU-UP entities during bearer release procedures.\n\nThe issue was in the `fill_BEARER_CONTEXT_RELEASE_COMPLETE` function where `cmd->gNB_cu_cp_ue_id` was used for both the CU-CP and CU-UP UE ID fields. This has been corrected to use the appropriate UE IDs for each field.\n\n### Changes\n- `openair2/E1AP/e1ap.c`: Fixed UE ID assignment in `fill_BEARER_CONTEXT_RELEASE_COMPLETE` function\n- `openair2/E1AP/e1ap.c`: Corrected typo in TODO comment\n"
+}

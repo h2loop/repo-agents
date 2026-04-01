@@ -1,0 +1,49 @@
+diff --git a/targets/TARGET_NORDIC/TARGET_NRF5x/TARGET_SDK_15_0/modules/nrfx/drivers/src/nrfx_swi.c b/targets/TARGET_NORDIC/TARGET_NRF5x/TARGET_SDK_15_0/modules/nrfx/drivers/src/nrfx_swi.c
+index 4a6dcc4d..4a705ebe 100644
+--- a/targets/TARGET_NORDIC/TARGET_NRF5x/TARGET_SDK_15_0/modules/nrfx/drivers/src/nrfx_swi.c
++++ b/targets/TARGET_NORDIC/TARGET_NRF5x/TARGET_SDK_15_0/modules/nrfx/drivers/src/nrfx_swi.c
+@@ -177,8 +177,12 @@ static void swi_handler_setup(nrfx_swi_t         swi,
+     if (swi < NRFX_SWI_EGU_COUNT)
+     {
+         NRF_EGU_Type * p_egu = nrfx_swi_egu_instance_get(swi);
+-        NRFX_ASSERT(p_egu != NULL);
+-        nrf_egu_int_enable(p_egu, NRF_EGU_INT_ALL);
++#if (NRFX_SWI_EGU_COUNT < SWI_COUNT)
++        if (p_egu != NULL)
++#endif
++        {
++            nrf_egu_int_enable(p_egu, NRF_EGU_INT_ALL);
++        }
+ 
+         if (event_handler == NULL)
+         {
+@@ -259,8 +263,13 @@ void nrfx_swi_all_free(void)
+ #if NRFX_SWI_EGU_COUNT
+             if (swi < NRFX_SWI_EGU_COUNT)
+             {
+-                nrf_egu_int_disable(nrfx_swi_egu_instance_get(swi),
+-                                    NRF_EGU_INT_ALL);
++                NRF_EGU_Type * p_egu = nrfx_swi_egu_instance_get(swi);
++#if (NRFX_SWI_EGU_COUNT < SWI_COUNT)
++                if (p_egu != NULL)
++#endif
++                {
++                    nrf_egu_int_disable(p_egu, NRF_EGU_INT_ALL);
++                }
+             }
+ #endif
+         }
+@@ -308,7 +317,12 @@ static void egu_irq_handler(nrfx_swi_t swi, uint8_t egu_channel_count)
+     NRFX_ASSERT(handler != NULL);
+ 
+     NRF_EGU_Type * p_egu = nrfx_swi_egu_instance_get(swi);
+-    NRFX_ASSERT(p_egu != NULL);
++#if (NRFX_SWI_EGU_COUNT < SWI_COUNT)
++    if (p_egu == NULL)
++    {
++        return;
++    }
++#endif
+ 
+     nrfx_swi_flags_t flags = 0;
+     for (uint8_t i = 0; i < egu_channel_count; ++i)

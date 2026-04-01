@@ -1,0 +1,31 @@
+diff --git a/radio/vrtsim/noise_device.c b/radio/vrtsim/noise_device.c
+index acb3a2b5da..b6a98dd48b 100644
+--- a/radio/vrtsim/noise_device.c
++++ b/radio/vrtsim/noise_device.c
+@@ -79,7 +79,7 @@ void free_noise_device(void)
+   AssertFatal(ret == 0, "pthread_join failed: %d, errno %d (%s)\n", ret, errno, strerror(errno));
+ }
+ 
+-void get_noise_vector(float *noise_vector, int length)
++int get_noise_vector(float *noise_vector, int length)
+ {
+   int start_block = random_uint() % NUM_BLOCKS;
+   while (length > 0) {
+@@ -89,4 +89,5 @@ void get_noise_vector(float *noise_vector, int length)
+     length -= copy_size;
+     noise_vector += copy_size;
+   }
++  return 0;
+ }
+diff --git a/radio/vrtsim/noise_device.h b/radio/vrtsim/noise_device.h
+index 421723891a..5a3a217d7e 100644
+--- a/radio/vrtsim/noise_device.h
++++ b/radio/vrtsim/noise_device.h
+@@ -26,6 +26,6 @@
+ 
+ void init_noise_device(float noise_power);
+ void free_noise_device(void);
+-void get_noise_vector(float *noise_vector, int length);
++int get_noise_vector(float *noise_vector, int length);
+ 
+ #endif

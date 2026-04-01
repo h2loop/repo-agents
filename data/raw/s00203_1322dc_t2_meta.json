@@ -1,0 +1,9 @@
+{
+  "run_id": "s00203_1322dc",
+  "pr_text": "## Title: Fix unreachable code path in RU MBSFN configuration update logic\n\n### Summary\nThe RU control thread contains unreachable code after the first MBSFN configuration update. The conditional `fp->num_MBSFN_config != ru_sf_update` only detected changes in the number of MBSFN configurations. Once synchronized, this condition permanently evaluated to false, preventing subsequent updates even when MBSFN parameters changed. This caused remote RU units to miss configuration updates, potentially l",
+  "trajectory_path": "data/raw/s00203_1322dc_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00203_1322dc_p2.diff",
+  "patch_lines": 19,
+  "trajectory_steps": 29,
+  "timestamp": "2026-02-11T13:16:08Z"
+}

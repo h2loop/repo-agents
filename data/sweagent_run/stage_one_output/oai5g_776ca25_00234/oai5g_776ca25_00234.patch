@@ -1,0 +1,28 @@
+diff --git a/common/utils/T/tracer/macpdu2wireshark.c b/common/utils/T/tracer/macpdu2wireshark.c
+index 6d0a564ab8..9ecbdd228d 100644
+--- a/common/utils/T/tracer/macpdu2wireshark.c
++++ b/common/utils/T/tracer/macpdu2wireshark.c
+@@ -141,17 +141,19 @@ typedef struct {
+ void write_pcap_header(const char *filename, FILE *f)
+ {
+   /* see 'man pcap-savefile' for format */
+-  uint32_t magic = 0xa1b23c4d;              /* magic for second/nanosecond */
++  /* 0xa1b23c4d = native byte order with nanosecond timestamps */
++  uint32_t magic = 0xa1b23c4d;
+   uint16_t major = 2;
+   uint16_t minor = 4;
+-  uint32_t reserved = 0;
++  uint32_t reserved1 = 0;  /* GMT to local correction */
++  uint32_t reserved2 = 0;  /* accuracy of timestamps */
+   uint32_t snapshot_length = 0x7fffffff;    /* let's be generous */
+   uint32_t link_layer_type = 252;           /* DLT_WIRESHARK_UPPER_PDU */
+   if (fwrite(&magic, 4, 1, f) != 1
+       || fwrite(&major, 2, 1, f) != 1
+       || fwrite(&minor, 2, 1, f) != 1
+-      || fwrite(&reserved, 4, 1, f) != 1
+-      || fwrite(&reserved, 4, 1, f) != 1
++      || fwrite(&reserved1, 4, 1, f) != 1
++      || fwrite(&reserved2, 4, 1, f) != 1
+       || fwrite(&snapshot_length, 4, 1, f) != 1
+       || fwrite(&link_layer_type, 4, 1, f) != 1) {
+     printf("fatal: error writing header to %s\n", filename);

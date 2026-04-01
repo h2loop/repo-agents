@@ -1,0 +1,44 @@
+diff --git a/nfapi/open-nFAPI/nfapi/public_inc/nfapi_interface.h b/nfapi/open-nFAPI/nfapi/public_inc/nfapi_interface.h
+index 7ce7da2290..e43dc40fb3 100644
+--- a/nfapi/open-nFAPI/nfapi/public_inc/nfapi_interface.h
++++ b/nfapi/open-nFAPI/nfapi/public_inc/nfapi_interface.h
+@@ -3924,6 +3924,13 @@ typedef struct nfapi_p4_p5_codec_config {
+ 	 */
+ 	void* user_data;
+ 
++	/*! Optional mutex for thread-safe callback execution
++	 *  \param mutex A pointer to a pthread_mutex_t for protecting shared state during TLV unpacking
++	 *
++	 *  If not set (NULL), no locking is performed (backward compatible)
++	 */
++	pthread_mutex_t* mutex;
++
+ } nfapi_p4_p5_codec_config_t;
+ 
+ //
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c
+index d1ac9fcdcb..9982161954 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c
+@@ -3419,8 +3419,20 @@ static uint8_t unpack_nr_config_request(uint8_t **ppReadPackedMsg, uint8_t *end,
+ 
+ static uint8_t unpack_config_response(uint8_t **ppReadPackedMsg, uint8_t *end, void *msg, nfapi_p4_p5_codec_config_t *config) {
+   nfapi_config_response_t *pNfapiMsg = (nfapi_config_response_t *)msg;
+-  return ( pull32(ppReadPackedMsg, &pNfapiMsg->error_code, end) &&
++  
++  // Optional mutex protection for thread-safe TLV unpacking
++  if (config && config->mutex) {
++    pthread_mutex_lock(config->mutex);
++  }
++  
++  uint8_t result = ( pull32(ppReadPackedMsg, &pNfapiMsg->error_code, end) &&
+            unpack_tlv_list(NULL, 0, ppReadPackedMsg, end, config, &(pNfapiMsg->vendor_extension)));
++  
++  if (config && config->mutex) {
++    pthread_mutex_unlock(config->mutex);
++  }
++  
++  return result;
+ }
+ 
+ static uint8_t unpack_nr_config_response(uint8_t **ppReadPackedMsg, uint8_t *end, void *msg, nfapi_p4_p5_codec_config_t *config)

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Add missing handle_rar_reception wrapper function for backward compatibility\n\n### Summary\nUsers calling the expected `handle_rar_reception` function were getting undefined symbol errors since only `nr_ue_process_rar` existed. This adds the missing wrapper function.\n\nThis fix provides the expected API entry point that just forwards to the existing implementation.\n\n### Changes\n- `openair2/LAYER2/NR_MAC_UE/mac_proto.h`: Added function prototype for `handle_rar_reception`.\n- `openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c`: Implemented `handle_rar_reception` as a wrapper around `nr_ue_process_rar`.\n\n### Reproduction Steps\n1. Attempt to link application code calling `handle_rar_reception(&dl_info, pdu_id)`\n2. Observe linker error: \"undefined reference to handle_rar_reception\"\n3. With fix applied, function call succeeds and behaves identically to `nr_ue_process_rar`\n\n"
+}

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00309_979670",
+  "pr_text": "## Title: Fix signedness bug in NFAPI shared PA parameter serialization\n\n### Summary\nThe NFAPI PNF parameter general TLV incorrectly serializes the `shared_pa` field using unsigned 8-bit packing functions (`push8`/`pull8`). This field represents a power adjustment value that can be negative, and using unsigned serialization corrupts negative values during message packing/unpacking. The bug manifests when the PHY attempts to apply power control adjustments, resulting in incorrect transmit power l",
+  "trajectory_path": "data/raw/s00309_979670_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00309_979670_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 11,
+  "timestamp": "2026-02-10T12:32:20Z"
+}

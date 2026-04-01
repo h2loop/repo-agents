@@ -1,0 +1,9 @@
+{
+  "run_id": "s00006_cd6498",
+  "pr_text": "## Title: Fix incomplete MAC configuration in MBMS SIB13 setup\n\n### Summary\nThe `rrc_M2AP_do_SIB23_SIB13` function was violating 3GPP signaling procedure sequence by sending an incompletely populated MAC configuration request to the lower layers. The `rrc_mac_config_req_eNB_t` structure was missing critical MBMS parameters including the MBSFN subframe configuration list, RNTI assignment, and FeMBMS flag. This caused the MAC layer to receive incomplete configuration during MBMS cell setup, potent",
+  "trajectory_path": "data/raw/s00006_cd6498_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00006_cd6498_p2.diff",
+  "patch_lines": 7,
+  "trajectory_steps": 90,
+  "timestamp": "2026-02-11T07:37:11Z"
+}

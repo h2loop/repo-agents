@@ -1,0 +1,32 @@
+diff --git a/openair1/PHY/TOOLS/oai_dfts_neon.c b/openair1/PHY/TOOLS/oai_dfts_neon.c
+index f3a2e5cb46..6c7f312d8a 100644
+--- a/openair1/PHY/TOOLS/oai_dfts_neon.c
++++ b/openair1/PHY/TOOLS/oai_dfts_neon.c
+@@ -58,6 +58,10 @@
+ #define print_ints(s,x) printf("%s %d %d %d %d\n",s,(x)[0],(x)[1],(x)[2],(x)[3])
+ 
+ 
++// Thread-safety protection for global twiddle factors
++static pthread_mutex_t twiddle_mutex = PTHREAD_MUTEX_INITIALIZER;
++static int twiddle_initialized = 0;
++
+ const static int16_t conjugatedft[32] __attribute__((aligned(32))) = {-1,1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,1};
+ 
+ 
+@@ -6861,6 +6865,16 @@ void dft3240(int16_t *x,int16_t *y,unsigned char scale_flag)  // 1080 x 3
+   simd_q15_t *y128=(simd_q15_t *)y;
+   simd_q15_t *twa128=(simd_q15_t *)&twa3240[0];
+   simd_q15_t *twb128=(simd_q15_t *)&twb3240[0];
++  // Ensure twiddle factors are initialized (thread-safe)
++  if (!twiddle_initialized) {
++    pthread_mutex_lock(&twiddle_mutex);
++    if (!twiddle_initialized) {
++      init_rad3_rep(3240,twa3240,twb3240);
++      twiddle_initialized = 1;
++    }
++    pthread_mutex_unlock(&twiddle_mutex);
++  }
++
+   simd_q15_t x2128[3240];// = (simd_q15_t *)&x2128array[0];
+   simd_q15_t ytmp128[3240];//=&ytmp128array3[0];
+ 

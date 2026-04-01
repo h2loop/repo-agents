@@ -1,0 +1,22 @@
+diff --git a/openair1/PHY/LTE_UE_TRANSPORT/pucch_ue.c b/openair1/PHY/LTE_UE_TRANSPORT/pucch_ue.c
+index d6361f4606..37a5acdc01 100644
+--- a/openair1/PHY/LTE_UE_TRANSPORT/pucch_ue.c
++++ b/openair1/PHY/LTE_UE_TRANSPORT/pucch_ue.c
+@@ -619,7 +619,7 @@ void generate_pucch3x(int32_t **txdataF,
+ 
+   // variables for Scrambling
+   uint32_t cinit = 0;
+-  uint32_t x1;
++  uint32_t x1 = 0;
+   uint32_t s,s0,s1;
+   uint8_t  C[48] ={};
+   uint8_t  scr_dt[48]={};
+@@ -651,7 +651,7 @@ void generate_pucch3x(int32_t **txdataF,
+ 
+     // Channel Coding
+     for (uint8_t i=0; i<7; i++) {
+-      chcod_tbl_idx += (payload[i]<<i); 
++      chcod_tbl_idx |= ((payload[i] & 1) << i); 
+     }
+ 
+     // Scrambling

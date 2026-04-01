@@ -1,0 +1,9 @@
+{
+  "run_id": "s00109_411f9a",
+  "pr_text": "## Title: Fix stack buffer overflow in nas_proc_get_loc_info\n\n### Summary\nThe `nas_proc_get_loc_info()` function in the NAS UE subsystem uses `sprintf()` to format TAC and CI values into fixed-size caller-provided buffers without bounds checking. This can write beyond buffer boundaries if the hex formatting produces more characters than expected, leading to stack corruption and potential security vulnerabilities.\n\nThis patch replaces the unsafe `sprintf()` calls with `snprintf()` and adds explic",
+  "trajectory_path": "data/raw/s00109_411f9a_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00109_411f9a_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 9,
+  "timestamp": "2026-02-10T11:16:50Z"
+}

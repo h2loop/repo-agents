@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix uninitialized dummy field in CGMR AT command parser\n\n### Summary\nThe `parse_cgmr()` function in the AT command parser was not properly initializing the dummy field in the command structure union. This could lead to undefined behavior when the parsed command structure was used later in the NAS stack.\n\nThe issue manifests as intermittent crashes when processing CGMR commands, particularly when the UE is under memory pressure or when the dummy field contains garbage values that affect downstream processing.\n\nThis fix ensures the dummy field is explicitly zeroed during parsing to maintain consistent behavior.\n\n### Changes\n- `openair3/NAS/UE/API/USER/at_command.c`: Added initialization of dummy field in parse_cgmr() and parse_cgmr_test() functions.\n\n"
+}

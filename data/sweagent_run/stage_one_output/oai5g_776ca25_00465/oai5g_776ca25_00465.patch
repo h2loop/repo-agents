@@ -1,0 +1,303 @@
+diff --git a/openair2/RRC/LTE/rrc_UE.c b/openair2/RRC/LTE/rrc_UE.c
+index 0cdac830d0..51c63ebe31 100644
+--- a/openair2/RRC/LTE/rrc_UE.c
++++ b/openair2/RRC/LTE/rrc_UE.c
+@@ -207,7 +207,7 @@ rrc_ue_process_MBMSCountingRequest(
+   const protocol_ctxt_t *const ctxt_pP,
+   LTE_MBMSCountingRequest_r10_t *MBMSCountingRequest,
+   uint8_t eNB_index
+-		);
++                );
+ 
+ static void process_nr_nsa_msg(nsa_msg_t *msg, int msg_len);
+ static void nsa_sendmsg_to_nrue(const void *message, size_t msg_len, Rrc_Msg_Type_t msg_type);
+@@ -3159,46 +3159,70 @@ int decode_SIB1( const protocol_ctxt_t *const ctxt_pP, const uint8_t eNB_index,
+   LTE_SystemInformationBlockType1_t *sib1 = UE_rrc_inst[ctxt_pP->module_id].sib1[eNB_index];
+   VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME( VCD_SIGNAL_DUMPER_FUNCTIONS_RRC_UE_DECODE_SIB1, VCD_FUNCTION_IN );
+   LOG_I( RRC, "[UE %d] : Dumping SIB 1\n", ctxt_pP->module_id );
+-  const int n = sib1->cellAccessRelatedInfo.plmn_IdentityList.list.count;
+-  for (int i = 0; i < n; ++i) {
+-    LTE_PLMN_Identity_t *PLMN_identity = &sib1->cellAccessRelatedInfo.plmn_IdentityList.list.array[i]->plmn_Identity;
+-    int mccdigits = PLMN_identity->mcc->list.count;
+-    int mncdigits = PLMN_identity->mnc.list.count;
+-
+-    int mcc;
+-    if (mccdigits == 2) {
+-      mcc = *PLMN_identity->mcc->list.array[0]*10 + *PLMN_identity->mcc->list.array[1];
+-    } else {
+-      mcc = *PLMN_identity->mcc->list.array[0]*100 + *PLMN_identity->mcc->list.array[1]*10 + *PLMN_identity->mcc->list.array[2];
+-    }
+-
+-    int mnc;
+-    if (mncdigits == 2) {
+-      mnc = *PLMN_identity->mnc.list.array[0]*10 + *PLMN_identity->mnc.list.array[1];
+-    } else {
+-      mnc = *PLMN_identity->mnc.list.array[0]*100 + *PLMN_identity->mnc.list.array[1]*10 + *PLMN_identity->mnc.list.array[2];
+-    }
+-
+-    LOG_I( RRC, "PLMN %d MCC %0*d, MNC %0*d\n", i + 1, mccdigits, mcc, mncdigits, mnc);
+-
+-    // search internal table for provider name
+-    const size_t num_plmn_data = sizeof(plmn_data) / sizeof(plmn_data[0]);
+-    for (size_t plmn_ind = 0;; ++plmn_ind) {
+-      if (plmn_ind == num_plmn_data) {
+-        LOG_W( RRC, "Did not find operator name from internal table for MCC %0*d, MNC %0*d\n",
+-               mccdigits, mcc, mncdigits, mnc);
+-        break;
+-      }
+-      if ((plmn_data[plmn_ind].mcc == mcc) && (plmn_data[plmn_ind].mnc == mnc)) {
+-        LOG_I( RRC, "Found %s (name from internal table)\n", plmn_data[plmn_ind].oper_short );
+-        break;
++  
++  // Check if plmn_IdentityList exists and has valid data
++  if (sib1->cellAccessRelatedInfo.plmn_IdentityList.list.array != NULL) {
++    const int n = sib1->cellAccessRelatedInfo.plmn_IdentityList.list.count;
++    for (int i = 0; i < n && i < sib1->cellAccessRelatedInfo.plmn_IdentityList.list.size; ++i) {
++      if (sib1->cellAccessRelatedInfo.plmn_IdentityList.list.array[i] != NULL) {
++        LTE_PLMN_Identity_t *PLMN_identity = &sib1->cellAccessRelatedInfo.plmn_IdentityList.list.array[i]->plmn_Identity;
++        
++        // Check if MCC exists and has valid data
++        if (PLMN_identity->mcc != NULL && PLMN_identity->mcc->list.array != NULL) {
++          int mccdigits = PLMN_identity->mcc->list.count;
++          if (mccdigits >= 2 && mccdigits <= 3) {
++            int mcc = 0;
++            if (mccdigits == 2 && PLMN_identity->mcc->list.count >= 2) {
++              mcc = *PLMN_identity->mcc->list.array[0]*10 + *PLMN_identity->mcc->list.array[1];
++            } else if (mccdigits == 3 && PLMN_identity->mcc->list.count >= 3) {
++              mcc = *PLMN_identity->mcc->list.array[0]*100 + *PLMN_identity->mcc->list.array[1]*10 + *PLMN_identity->mcc->list.array[2];
++            }
++            
++            // Check if MNC has valid data
++            int mncdigits = PLMN_identity->mnc.list.count;
++            if (mncdigits >= 2 && mncdigits <= 3 && PLMN_identity->mnc.list.array != NULL) {
++              int mnc = 0;
++              if (mncdigits == 2 && PLMN_identity->mnc.list.count >= 2) {
++                mnc = *PLMN_identity->mnc.list.array[0]*10 + *PLMN_identity->mnc.list.array[1];
++              } else if (mncdigits == 3 && PLMN_identity->mnc.list.count >= 3) {
++                mnc = *PLMN_identity->mnc.list.array[0]*100 + *PLMN_identity->mnc.list.array[1]*10 + *PLMN_identity->mnc.list.array[2];
++              }
++              
++              LOG_I( RRC, "PLMN %d MCC %0*d, MNC %0*d\n", i + 1, mccdigits, mcc, mncdigits, mnc);
++              
++              // search internal table for provider name
++              const size_t num_plmn_data = sizeof(plmn_data) / sizeof(plmn_data[0]);
++              for (size_t plmn_ind = 0;; ++plmn_ind) {
++                if (plmn_ind == num_plmn_data) {
++                  LOG_W( RRC, "Did not find operator name from internal table for MCC %0*d, MNC %0*d\n",
++                         mccdigits, mcc, mncdigits, mnc);
++                  break;
++                }
++                if ((plmn_data[plmn_ind].mcc == mcc) && (plmn_data[plmn_ind].mnc == mnc)) {
++                  LOG_I( RRC, "Found %s (name from internal table)\n", plmn_data[plmn_ind].oper_short );
++                  break;
++                }
++              }
++            }
++          }
++        }
+       }
+     }
+   }
++  
+   LOG_I( RRC, "TAC 0x%04x\n",
+-         ((sib1->cellAccessRelatedInfo.trackingAreaCode.size == 2)?((sib1->cellAccessRelatedInfo.trackingAreaCode.buf[0]<<8) + sib1->cellAccessRelatedInfo.trackingAreaCode.buf[1]):0));
+-  LOG_I( RRC, "cellReservedForOperatorUse                 : raw:%ld decoded:%s\n", sib1->cellAccessRelatedInfo.plmn_IdentityList.list.array[0]->cellReservedForOperatorUse,
+-         SIBreserved(sib1->cellAccessRelatedInfo.plmn_IdentityList.list.array[0]->cellReservedForOperatorUse) );
++         ((sib1->cellAccessRelatedInfo.trackingAreaCode.size == 2 && sib1->cellAccessRelatedInfo.trackingAreaCode.buf != NULL)?
++         ((sib1->cellAccessRelatedInfo.trackingAreaCode.buf[0]<<8) + sib1->cellAccessRelatedInfo.trackingAreaCode.buf[1]):0));
++  
++  // Check if plmn_IdentityList array exists before accessing
++  if (sib1->cellAccessRelatedInfo.plmn_IdentityList.list.array != NULL && 
++      sib1->cellAccessRelatedInfo.plmn_IdentityList.list.count > 0) {
++    LOG_I( RRC, "cellReservedForOperatorUse                 : raw:%ld decoded:%s\n", 
++           sib1->cellAccessRelatedInfo.plmn_IdentityList.list.array[0]->cellReservedForOperatorUse,
++           SIBreserved(sib1->cellAccessRelatedInfo.plmn_IdentityList.list.array[0]->cellReservedForOperatorUse) );
++  } else {
++    LOG_W( RRC, "cellReservedForOperatorUse                 : not available\n");
++  }
+ 
+   LOG_I( RRC, "cellAccessRelatedInfo.cellIdentity         : raw:%"PRIu32" decoded:%02x.%02x.%02x.%02x\n",
+          BIT_STRING_to_uint32( &sib1->cellAccessRelatedInfo.cellIdentity ),
+@@ -3229,20 +3253,28 @@ int decode_SIB1( const protocol_ctxt_t *const ctxt_pP, const uint8_t eNB_index,
+ 
+   LOG_I( RRC, "freqBandIndicator                          : %ld\n", sib1->freqBandIndicator );
+ 
+-  if (sib1->schedulingInfoList.list.count > 0) {
+-    for (int i=0; i<sib1->schedulingInfoList.list.count; i++) {
+-      LOG_I( RRC, "si_Periodicity[%d]                          : %s\n", i, SIBPeriod[min(sib1->schedulingInfoList.list.array[i]->si_Periodicity,7)]);
++  if (sib1->schedulingInfoList.list.count > 0 && sib1->schedulingInfoList.list.array != NULL) {
++    for (int i=0; i<sib1->schedulingInfoList.list.count && i < sib1->schedulingInfoList.list.size; i++) {
++      if (sib1->schedulingInfoList.list.array[i] != NULL) {
++        LOG_I( RRC, "si_Periodicity[%d]                          : %s\n", i, SIBPeriod[min(sib1->schedulingInfoList.list.array[i]->si_Periodicity,7)]);
+ 
+-      if (sib1->schedulingInfoList.list.array[i]->sib_MappingInfo.list.count > 0) {
+-        char temp[32 * sizeof(SIBType[0])] = {0}; // maxSIB==32
++        if (sib1->schedulingInfoList.list.array[i]->sib_MappingInfo.list.count > 0) {
++          char temp[32 * sizeof(SIBType[0])] = {0}; // maxSIB==32
+ 
+-        for (int j=0; j<sib1->schedulingInfoList.list.array[i]->sib_MappingInfo.list.count; j++) {
+-          sprintf( temp + j*sizeof(SIBType[0]), "%*s ", (int)sizeof(SIBType[0])-1, SIBType[min(*sib1->schedulingInfoList.list.array[i]->sib_MappingInfo.list.array[0],11)] );
+-        }
++          for (int j=0; j<sib1->schedulingInfoList.list.array[i]->sib_MappingInfo.list.count && j < sib1->schedulingInfoList.list.array[i]->sib_MappingInfo.list.size; j++) {
++            if (sib1->schedulingInfoList.list.array[i]->sib_MappingInfo.list.array[j] != NULL) {
++              // Check that we don't exceed the bounds of SIBType array
++              int sib_type_index = min(*sib1->schedulingInfoList.list.array[i]->sib_MappingInfo.list.array[j],11);
++              if (sib_type_index >= 0) {
++                sprintf( temp + j*sizeof(SIBType[0]), "%*s ", (int)sizeof(SIBType[0])-1, SIBType[sib_type_index] );
++              }
++            }
++          }
+ 
+-        LOG_I( RRC, "siSchedulingInfoSIBType[%d]                 : %s\n", i, temp );
+-      } else {
+-        LOG_I( RRC, "mapping list %d is null\n", i );
++          LOG_I( RRC, "siSchedulingInfoSIBType[%d]                 : %s\n", i, temp );
++        } else {
++          LOG_I( RRC, "mapping list %d is null\n", i );
++        }
+       }
+     }
+   } else {
+@@ -3257,7 +3289,13 @@ int decode_SIB1( const protocol_ctxt_t *const ctxt_pP, const uint8_t eNB_index,
+ 
+   LOG_I( RRC, "siWindowLength                             : %s\n", siWindowLength[min(sib1->si_WindowLength,8)] );
+   LOG_I( RRC, "systemInfoValueTag                         : %ld\n", sib1->systemInfoValueTag );
+-  UE_rrc_inst[ctxt_pP->module_id].Info[eNB_index].SIperiod     = siPeriod_int[sib1->schedulingInfoList.list.array[0]->si_Periodicity];
++  
++  // Check if schedulingInfoList array exists before accessing
++  if (sib1->schedulingInfoList.list.array != NULL && sib1->schedulingInfoList.list.count > 0 && sib1->schedulingInfoList.list.array[0] != NULL) {
++    UE_rrc_inst[ctxt_pP->module_id].Info[eNB_index].SIperiod     = siPeriod_int[sib1->schedulingInfoList.list.array[0]->si_Periodicity];
++  } else {
++    UE_rrc_inst[ctxt_pP->module_id].Info[eNB_index].SIperiod     = 0; // default value
++  }
+   UE_rrc_inst[ctxt_pP->module_id].Info[eNB_index].SIwindowsize = siWindowLength_int[sib1->si_WindowLength];
+   LOG_I( RRC, "[FRAME unknown][RRC_UE][MOD %02"PRIu8"][][--- MAC_CONFIG_REQ (SIB1 params eNB %"PRIu8") --->][MAC_UE][MOD %02"PRIu8"][]\n",
+          ctxt_pP->module_id, eNB_index, ctxt_pP->module_id );
+@@ -3309,43 +3347,47 @@ int decode_SIB1( const protocol_ctxt_t *const ctxt_pP, const uint8_t eNB_index,
+ 
+       /* Compare requested PLMN and PLMNs from SIB1*/
+       for (plmn = 0; plmn < plmn_number; plmn++) {
+-        LTE_PLMN_Identity_t *plmn_Identity;
+-        plmn_Identity = &sib1->cellAccessRelatedInfo.plmn_IdentityList.list.array[plmn]->plmn_Identity;
++        if (sib1->cellAccessRelatedInfo.plmn_IdentityList.list.array[plmn] != NULL) {
++          LTE_PLMN_Identity_t *plmn_Identity;
++          plmn_Identity = &sib1->cellAccessRelatedInfo.plmn_IdentityList.list.array[plmn]->plmn_Identity;
+ 
+-        if (
+-          (
+-            (plmn_Identity->mcc == NULL)
+-            ||
++          if (
+             (
+-              (UE_rrc_inst[ctxt_pP->module_id].plmnID.MCCdigit1 == *(plmn_Identity->mcc->list.array[0])) &&
+-              (UE_rrc_inst[ctxt_pP->module_id].plmnID.MCCdigit2 == *(plmn_Identity->mcc->list.array[1])) &&
+-              (UE_rrc_inst[ctxt_pP->module_id].plmnID.MCCdigit3 == *(plmn_Identity->mcc->list.array[2]))
++              (plmn_Identity->mcc == NULL)
++              ||
++              (
++                (plmn_Identity->mcc->list.array != NULL) && (plmn_Identity->mcc->list.count >= 3) &&
++                (UE_rrc_inst[ctxt_pP->module_id].plmnID.MCCdigit1 == *(plmn_Identity->mcc->list.array[0])) &&
++                (UE_rrc_inst[ctxt_pP->module_id].plmnID.MCCdigit2 == *(plmn_Identity->mcc->list.array[1])) &&
++                (UE_rrc_inst[ctxt_pP->module_id].plmnID.MCCdigit3 == *(plmn_Identity->mcc->list.array[2]))
++              )
+             )
+-          )
+-          &&
+-          (UE_rrc_inst[ctxt_pP->module_id].plmnID.MNCdigit1 == *(plmn_Identity->mnc.list.array[0]))
+-          &&
+-          (UE_rrc_inst[ctxt_pP->module_id].plmnID.MNCdigit2 == *(plmn_Identity->mnc.list.array[1]))
+-          &&
+-          (
+-            ((UE_rrc_inst[ctxt_pP->module_id].plmnID.MNCdigit3 == 0xf) && (plmn_Identity->mnc.list.count == 2))
+-            ||
+-            (UE_rrc_inst[ctxt_pP->module_id].plmnID.MNCdigit3 == *(plmn_Identity->mnc.list.array[2]))
+-          )
+-        ) {
+-          /* PLMN match, send a confirmation to NAS */
+-          MessageDef  *msg_p;
+-          msg_p = itti_alloc_new_message(TASK_RRC_UE, 0, NAS_CELL_SELECTION_CNF);
+-          NAS_CELL_SELECTION_CNF (msg_p).errCode = AS_SUCCESS;
+-          NAS_CELL_SELECTION_CNF (msg_p).cellID = BIT_STRING_to_uint32(&sib1->cellAccessRelatedInfo.cellIdentity);
+-          NAS_CELL_SELECTION_CNF (msg_p).tac = BIT_STRING_to_uint16(&sib1->cellAccessRelatedInfo.trackingAreaCode);
+-          NAS_CELL_SELECTION_CNF (msg_p).rat = 0xFF;
+-          NAS_CELL_SELECTION_CNF (msg_p).rsrq = rsrq;
+-          NAS_CELL_SELECTION_CNF (msg_p).rsrp = rsrp;
+-          itti_send_msg_to_task(TASK_NAS_UE, ctxt_pP->instance, msg_p);
+-          cell_valid = 1;
+-          UE_rrc_inst[ctxt_pP->module_id].selected_plmn_identity = plmn + 1;
+-          break;
++            &&
++            (plmn_Identity->mnc.list.array != NULL) && (plmn_Identity->mnc.list.count >= 2) &&
++            (UE_rrc_inst[ctxt_pP->module_id].plmnID.MNCdigit1 == *(plmn_Identity->mnc.list.array[0]))
++            &&
++            (UE_rrc_inst[ctxt_pP->module_id].plmnID.MNCdigit2 == *(plmn_Identity->mnc.list.array[1]))
++            &&
++            (
++              ((UE_rrc_inst[ctxt_pP->module_id].plmnID.MNCdigit3 == 0xf) && (plmn_Identity->mnc.list.count == 2))
++              ||
++              ((plmn_Identity->mnc.list.count >= 3) && (UE_rrc_inst[ctxt_pP->module_id].plmnID.MNCdigit3 == *(plmn_Identity->mnc.list.array[2])))
++            )
++          ) {
++            /* PLMN match, send a confirmation to NAS */
++            MessageDef  *msg_p;
++            msg_p = itti_alloc_new_message(TASK_RRC_UE, 0, NAS_CELL_SELECTION_CNF);
++            NAS_CELL_SELECTION_CNF (msg_p).errCode = AS_SUCCESS;
++            NAS_CELL_SELECTION_CNF (msg_p).cellID = BIT_STRING_to_uint32(&sib1->cellAccessRelatedInfo.cellIdentity);
++            NAS_CELL_SELECTION_CNF (msg_p).tac = BIT_STRING_to_uint16(&sib1->cellAccessRelatedInfo.trackingAreaCode);
++            NAS_CELL_SELECTION_CNF (msg_p).rat = 0xFF;
++            NAS_CELL_SELECTION_CNF (msg_p).rsrq = rsrq;
++            NAS_CELL_SELECTION_CNF (msg_p).rsrp = rsrp;
++            itti_send_msg_to_task(TASK_NAS_UE, ctxt_pP->instance, msg_p);
++            cell_valid = 1;
++            UE_rrc_inst[ctxt_pP->module_id].selected_plmn_identity = plmn + 1;
++            break;
++          }
+         }
+       }
+     }
+@@ -4745,23 +4787,23 @@ int decode_MCCH_Message( const protocol_ctxt_t *const ctxt_pP, const uint8_t eNB
+       LOG_D(RRC,"[UE %d] Found mcch message \n",
+             ctxt_pP->module_id);
+         if(mcch->message.choice.later.present == LTE_MCCH_MessageType__later_PR_c2){
+-		if(mcch->message.choice.later.choice.c2.present == LTE_MCCH_MessageType__later__c2_PR_mbmsCountingRequest_r10){
+-        		LOG_I(RRC,"[UE %d] Frame %d : Found MBMSCountingRequest from eNB %d %p\n",
+-              			ctxt_pP->module_id,
+-              			ctxt_pP->frame,
+-              			eNB_index,&mcch->message.choice.later.choice.c2.choice.mbmsCountingRequest_r10);
++                if(mcch->message.choice.later.choice.c2.present == LTE_MCCH_MessageType__later__c2_PR_mbmsCountingRequest_r10){
++                        LOG_I(RRC,"[UE %d] Frame %d : Found MBMSCountingRequest from eNB %d %p\n",
++                                ctxt_pP->module_id,
++                                ctxt_pP->frame,
++                                eNB_index,&mcch->message.choice.later.choice.c2.choice.mbmsCountingRequest_r10);
+ 
+-  			rrc_ue_process_MBMSCountingRequest(ctxt_pP,&mcch->message.choice.later.choice.c2.choice.mbmsCountingRequest_r10,eNB_index);
++                        rrc_ue_process_MBMSCountingRequest(ctxt_pP,&mcch->message.choice.later.choice.c2.choice.mbmsCountingRequest_r10,eNB_index);
+ 
+-			decode_MBMSCountingRequest(
+-          			ctxt_pP->module_id,
+-          			eNB_index,
+-          			ctxt_pP->frame,
+-          			mbsfn_sync_area);
++                        decode_MBMSCountingRequest(
++                                ctxt_pP->module_id,
++                                eNB_index,
++                                ctxt_pP->frame,
++                                mbsfn_sync_area);
+ 
+ 
+-		}
+-	}
++                }
++        }
+     }
+ 
+   }
+@@ -4820,7 +4862,7 @@ void decode_MBSFNAreaConfiguration( module_id_t ue_mod_idP, uint8_t eNB_index, f
+                         (LTE_MBSFN_AreaInfoList_r9_t *)NULL
+                        );
+   if(1/*UE_rrc_inst[ue_mod_idP].Info[eNB_index].State >= RRC_CONNECTED*/ /*|| UE_rrc_inst[ue_mod_idP].Info[eNB_index].State == RRC_RECONFIGURED*/)
+-  	UE_rrc_inst[ue_mod_idP].Info[eNB_index].MCCHStatus[mbsfn_sync_area] = 1;
++        UE_rrc_inst[ue_mod_idP].Info[eNB_index].MCCHStatus[mbsfn_sync_area] = 1;
+   PROTOCOL_CTXT_SET_BY_MODULE_ID(&ctxt, ue_mod_idP, ENB_FLAG_NO, UE_rrc_inst[ue_mod_idP].Info[eNB_index].rnti, frameP, 0,eNB_index);
+   // Config Radio Bearer for MBMS user data (similar way to configure for eNB side in init_MBMS function)
+   rrc_pdcp_config_asn1_req(&ctxt,

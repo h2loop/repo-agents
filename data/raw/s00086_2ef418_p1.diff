@@ -1,0 +1,64 @@
+diff --git a/openair3/NAS/TEST/AS_SIMULATOR/as_data.c b/openair3/NAS/TEST/AS_SIMULATOR/as_data.c
+index 56b00125a4..b37f302010 100644
+--- a/openair3/NAS/TEST/AS_SIMULATOR/as_data.c
++++ b/openair3/NAS/TEST/AS_SIMULATOR/as_data.c
+@@ -66,13 +66,17 @@ Description Defines constants and functions used by the AS simulator
+  */
+ const char* getTime(void)
+ {
+-#define TIME_BUFFER_SIZE  16
++#define TIME_BUFFER_SIZE  32
+   static char time_buffer[TIME_BUFFER_SIZE];
+   struct timespec ts;
+ 
+-  clock_gettime (CLOCK_REALTIME, &ts);
+-  snprintf(time_buffer, TIME_BUFFER_SIZE, "%.6ld:%.6ld",
+-           ts.tv_sec % 3600, ts.tv_nsec / 1000);
++  if (clock_gettime(CLOCK_REALTIME, &ts) == 0) {
++    snprintf(time_buffer, TIME_BUFFER_SIZE, "%ld:%06ld",
++             ts.tv_sec % 3600, ts.tv_nsec / 1000);
++  } else {
++    /* Provide fallback timestamp if clock_gettime fails */
++    snprintf(time_buffer, TIME_BUFFER_SIZE, "0:000000");
++  }
+   return (time_buffer);
+ }
+ 
+diff --git a/openair3/NAS/TEST/AS_SIMULATOR/as_process.c b/openair3/NAS/TEST/AS_SIMULATOR/as_process.c
+index 740c67b1e0..b8c49e14a6 100644
+--- a/openair3/NAS/TEST/AS_SIMULATOR/as_process.c
++++ b/openair3/NAS/TEST/AS_SIMULATOR/as_process.c
+@@ -166,6 +166,11 @@ int process_nas_establish_req(int msg_id, const nas_establish_req_t* req,
+   /* Setup NAS signalling connection establishment indication message */
+   ind->UEid = 1;  // Valid UEid starts at index 1
+   ind->tac = DEFAULT_TAC;
++  ind->asCause = req->cause;  // Set mandatory asCause field
++  
++  /* Initialize nested NAS message structure */
++  ind->initialNasMsg.length = 0;
++  ind->initialNasMsg.data = NULL;
+ 
+   if (req->initialNasMsg.length > 0) {
+     ind->initialNasMsg.data = malloc(req->initialNasMsg.length);
+@@ -234,6 +239,10 @@ int process_ul_info_transfer_req(int msg_id, const ul_info_transfer_req_t* req,
+ 
+   /* Setup uplink information indication message */
+   ind->UEid = 1;  // Valid UEid starts at index 1
++  
++  /* Initialize nested NAS message structure */
++  ind->nasMsg.length = 0;
++  ind->nasMsg.data = NULL;
+ 
+   if (req->nasMsg.length > 0) {
+     ind->nasMsg.data = malloc(req->nasMsg.length);
+@@ -319,6 +328,10 @@ int process_nas_establish_rsp(int msg_id, const nas_establish_rsp_t* rsp,
+ 
+   /* Setup NAS signalling connection establishment confirm message */
+   cnf->errCode = rsp->errCode;
++  
++  /* Initialize nested NAS message structure */
++  cnf->nasMsg.length = 0;
++  cnf->nasMsg.data = NULL;
+ 
+   if (rsp->nasMsg.length > 0) {
+     cnf->nasMsg.data = malloc(rsp->nasMsg.length);

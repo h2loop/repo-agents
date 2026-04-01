@@ -1,0 +1,9 @@
+{
+  "run_id": "s00133_80f9e8",
+  "pr_text": "## Title: Fix 64-QAM LLR computation chain in nr_phy_common\n\n### Summary\nThe 64-QAM LLR (Log-Likelihood Ratio) computation function `nr_64qam_llr()` contained a copy-paste error that incorrectly calculated the sequential LLR values. The original code failed to properly chain the saturating subtraction operations, resulting in incorrect LLR outputs that would degrade channel decoding performance.\n\nThe bug manifested as a broken calculation chain: the second LLR value was computed directly from th",
+  "trajectory_path": "data/raw/s00133_80f9e8_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00133_80f9e8_p2.diff",
+  "patch_lines": 5,
+  "trajectory_steps": 7,
+  "timestamp": "2026-02-11T12:21:43Z"
+}

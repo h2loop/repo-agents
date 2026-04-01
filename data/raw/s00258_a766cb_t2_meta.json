@@ -1,0 +1,9 @@
+{
+  "run_id": "s00258_a766cb",
+  "pr_text": "## Title: Fix buffer overflow vulnerabilities in NR UE sidelink configuration\n\n### Summary\nReplace unsafe `sprintf` calls with bounded `snprintf` in NR UE sidelink preconfiguration functions to prevent stack buffer overflow vulnerabilities. The functions `prepare_NR_SL_SyncConfig`, `prepare_NR_SL_ResourcePool`, and `prepare_NR_SL_BWPConfigCommon` construct configuration parameter prefixes using `sprintf` without bounds checking into a fixed-size buffer (`aprefix[MAX_OPTNAME_SIZE*2 + 8]`). If con",
+  "trajectory_path": "data/raw/s00258_a766cb_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00258_a766cb_p2.diff",
+  "patch_lines": 11,
+  "trajectory_steps": 34,
+  "timestamp": "2026-02-11T13:54:02Z"
+}

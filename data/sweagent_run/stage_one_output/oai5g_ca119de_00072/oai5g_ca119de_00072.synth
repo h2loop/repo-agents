@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix GTP SM control function assertion failure\n\n### Summary\nThe `write_ctrl_gtp_sm()` function in `ran_func_gtp.c` was asserting with \"Not supported\" message instead of returning a proper response structure. This caused unexpected behavior when the function was called.\n\n### Changes\n- `openair2/E2AP/RAN_FUNCTION/CUSTOMIZED/ran_func_gtp.c`: Replaced assertion failure with proper response structure following the pattern from other control functions like `write_ctrl_tc_sm()` and `write_ctrl_slice_sm()`.\n\n### Reproduction\nBefore this fix, calling `write_ctrl_gtp_sm()` would always result in an assertion failure with the message \"Not supported\". After this fix, the function properly returns an `sm_ag_if_ans_t` structure with the correct type, allowing normal operation to continue.\n"
+}

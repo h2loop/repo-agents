@@ -1,0 +1,86 @@
+diff --git a/executables/lte-softmodem.c b/executables/lte-softmodem.c
+index 552de278d1..42cb00a7a2 100644
+--- a/executables/lte-softmodem.c
++++ b/executables/lte-softmodem.c
+@@ -517,6 +517,8 @@ int main ( int argc, char **argv )
+     LOG_I(ENB_APP,"NFAPI*** - mutex and cond created - will block shortly for completion of PNF connection\n");
+     pthread_cond_init(&sync_cond,NULL);
+     pthread_mutex_init(&sync_mutex, NULL);
++    pthread_cond_init(&nfapi_sync_cond,NULL);
++    pthread_mutex_init(&nfapi_sync_mutex, NULL);
+   }
+ 
+   if (NFAPI_MODE==NFAPI_MODE_VNF) {// VNF
+@@ -640,7 +642,7 @@ int main ( int argc, char **argv )
+      * threads have been stopped (they partially use the same memory) */
+     for (int inst = 0; inst < NB_eNB_INST; inst++) {
+       for (int cc_id = 0; cc_id < RC.nb_CC[inst]; cc_id++) {
+-	free_transport(RC.eNB[inst][cc_id]);
++    free_transport(RC.eNB[inst][cc_id]);
+         phy_free_lte_eNB(RC.eNB[inst][cc_id]);
+       }
+     }
+diff --git a/executables/lte-uesoftmodem.c b/executables/lte-uesoftmodem.c
+index 74c63687b0..8c8df6949f 100644
+--- a/executables/lte-uesoftmodem.c
++++ b/executables/lte-uesoftmodem.c
+@@ -509,7 +509,7 @@ static void init_pdcp(int ue_id) {
+ // Stupid function addition because UE itti messages queues definition is common with eNB
+ void *rrc_enb_process_msg(void *notUsed) {
+ AssertFatal(false,"");
+-	return NULL;
++return NULL;
+ }
+ 
+ int NB_UE_INST = 1;
+@@ -554,6 +554,8 @@ int main( int argc, char **argv ) {
+   cpuf=get_cpu_freq_GHz();
+   pthread_cond_init(&sync_cond,NULL);
+   pthread_mutex_init(&sync_mutex, NULL);
++  pthread_cond_init(&nfapi_sync_cond,NULL);
++  pthread_mutex_init(&nfapi_sync_mutex, NULL);
+ 
+   printf("ITTI init\n");
+   itti_init(TASK_MAX, tasks_info);
+@@ -701,6 +703,8 @@ int main( int argc, char **argv ) {
+   printf("stopping MODEM threads\n");
+   pthread_cond_destroy(&sync_cond);
+   pthread_mutex_destroy(&sync_mutex);
++  pthread_cond_destroy(&nfapi_sync_cond);
++  pthread_mutex_destroy(&nfapi_sync_mutex);
+ 
+   //  pthread_mutex_destroy(&ue_pf_po_mutex);
+ 
+diff --git a/executables/nr-softmodem.c b/executables/nr-softmodem.c
+index e449e6c33e..dde74ba067 100644
+--- a/executables/nr-softmodem.c
++++ b/executables/nr-softmodem.c
+@@ -262,8 +262,8 @@ static int create_gNB_tasks(ngran_node_t node_type, configmodule_interface_t *cf
+   }
+ 
+   if (get_softmodem_params()->nsa) { //&& !NODE_IS_DU(node_type)
+-	  LOG_I(X2AP, "X2AP enabled \n");
+-	  __attribute__((unused)) uint32_t x2_register_gnb_pending = gNB_app_register_x2 (gnb_id_start, gnb_id_end);
++  LOG_I(X2AP, "X2AP enabled \n");
++  __attribute__((unused)) uint32_t x2_register_gnb_pending = gNB_app_register_x2 (gnb_id_start, gnb_id_end);
+   }
+ 
+   /* For the CU case the gNB registration with the AMF might have to take place after the F1 setup, as the PLMN info
+@@ -549,6 +549,8 @@ int main( int argc, char **argv ) {
+   if (NFAPI_MODE && NFAPI_MODE != NFAPI_MODE_AERIAL) {
+     pthread_cond_init(&sync_cond,NULL);
+     pthread_mutex_init(&sync_mutex, NULL);
++    pthread_cond_init(&nfapi_sync_cond,NULL);
++    pthread_mutex_init(&nfapi_sync_mutex, NULL);
+   }
+ 
+   // start the main threads
+@@ -562,7 +564,7 @@ int main( int argc, char **argv ) {
+     for (ru_id=0; ru_id<RC.nb_RU; ru_id++) {
+       RC.ru[ru_id]->rf_map.card=0;
+       RC.ru[ru_id]->rf_map.chain=CC_id+chain_offset;
+-      if (ru_id==0) sl_ahead = RC.ru[ru_id]->sl_ahead;	
++      if (ru_id==0) sl_ahead = RC.ru[ru_id]->sl_ahead;
+       else AssertFatal(RC.ru[ru_id]->sl_ahead != RC.ru[0]->sl_ahead,"RU %d has different sl_ahead %d than RU 0 %d\n",ru_id,RC.ru[ru_id]->sl_ahead,RC.ru[0]->sl_ahead);
+     }
+     

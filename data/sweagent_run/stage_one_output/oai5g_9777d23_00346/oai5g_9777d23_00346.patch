@@ -1,0 +1,30 @@
+diff --git a/openair2/F1AP/f1ap_cu_rrc_message_transfer.c b/openair2/F1AP/f1ap_cu_rrc_message_transfer.c
+index cf85961ff5..f1601bff61 100644
+--- a/openair2/F1AP/f1ap_cu_rrc_message_transfer.c
++++ b/openair2/F1AP/f1ap_cu_rrc_message_transfer.c
+@@ -127,8 +127,10 @@ int CU_handle_UL_RRC_MESSAGE_TRANSFER(instance_t instance, sctp_assoc_t assoc_id
+     return -1;
+   }
+ 
+-  if (msg.srb_id < 1)
++  if (msg.srb_id > 2)
+     LOG_E(F1AP, "Unexpected UL RRC MESSAGE for SRB %d \n", msg.srb_id);
++  else if (msg.srb_id == 0)
++    LOG_D(F1AP, "UL RRC MESSAGE for SRB %d in CCCH \n", msg.srb_id);
+   else
+     LOG_D(F1AP, "UL RRC MESSAGE for SRB %d in DCCH \n", msg.srb_id);
+ 
+@@ -141,10 +143,11 @@ int CU_handle_UL_RRC_MESSAGE_TRANSFER(instance_t instance, sctp_assoc_t assoc_id
+   };
+ 
+   LOG_D(F1AP,
+-        "[UE %lx] calling pdcp_data_ind for SRB %d with size %d (DCCH) \n",
++        "[UE %lx] calling pdcp_data_ind for SRB %d with size %d (%s) \n",
+         ctxt.rntiMaybeUEid,
+         msg.srb_id,
+-        msg.rrc_container_length);
++        msg.rrc_container_length,
++        msg.srb_id == 0 ? "CCCH" : "DCCH");
+   uint8_t *mb = malloc16(msg.rrc_container_length);
+   memcpy(mb, msg.rrc_container, msg.rrc_container_length);
+ 

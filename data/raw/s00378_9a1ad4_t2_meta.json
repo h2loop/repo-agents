@@ -1,0 +1,9 @@
+{
+  "run_id": "s00378_9a1ad4",
+  "pr_text": "## Title: Fix incorrect IPv4 address validation in config_assign_ipv4addr\n\n### Summary\nThe `config_assign_ipv4addr()` function incorrectly rejects valid IPv4 addresses where the first octet is zero (e.g., `0.0.0.0`, `0.1.2.3`). The bug originates from an erroneous check `*(cfgoptions->uptr) > 0` that examines the first byte of the network-byte-order result from `inet_pton()`. This condition is both semantically wrong (addresses starting with 0 are valid) and redundant (since `inet_pton()` alread",
+  "trajectory_path": "data/raw/s00378_9a1ad4_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00378_9a1ad4_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 21,
+  "timestamp": "2026-02-10T12:56:13Z"
+}

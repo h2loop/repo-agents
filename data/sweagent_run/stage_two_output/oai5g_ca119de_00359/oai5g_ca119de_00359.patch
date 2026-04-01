@@ -1,0 +1,69 @@
+diff --git a/openair2/RRC/LTE/rrc_eNB.c b/openair2/RRC/LTE/rrc_eNB.c
+index a5ad82b61e..62bf7987db 100644
+--- a/openair2/RRC/LTE/rrc_eNB.c
++++ b/openair2/RRC/LTE/rrc_eNB.c
+@@ -1085,7 +1085,16 @@ rrc_eNB_generate_UECapabilityEnquiry(
+   uint8_t                             size;
+   T(T_ENB_RRC_UE_CAPABILITY_ENQUIRY, T_INT(ctxt_pP->module_id), T_INT(ctxt_pP->frame), T_INT(ctxt_pP->subframe), T_INT(ctxt_pP->rntiMaybeUEid));
+   int16_t eutra_band = RC.rrc[ctxt_pP->module_id]->configuration.eutra_band[0];
+-  uint32_t nr_band = RC.rrc[ctxt_pP->module_id]->nr_gnb_freq_band[0][0];
++  uint32_t nr_band;
++  
++  /* Check if any gNB cells are configured before accessing nr_gnb_freq_band */
++  if (RC.rrc[ctxt_pP->module_id]->num_gnb_cells > 0) {
++    nr_band = RC.rrc[ctxt_pP->module_id]->nr_gnb_freq_band[0][0];
++  } else {
++    /* Graceful fallback when no gNB cells are configured */
++    nr_band = 0;
++  }
++  
+   size = do_UECapabilityEnquiry(
+            ctxt_pP,
+            buffer,
+@@ -1125,7 +1134,16 @@ rrc_eNB_generate_NR_UECapabilityEnquiry(
+   uint8_t                             size;
+   T(T_ENB_RRC_UE_CAPABILITY_ENQUIRY, T_INT(ctxt_pP->module_id), T_INT(ctxt_pP->frame), T_INT(ctxt_pP->subframe), T_INT(ctxt_pP->rntiMaybeUEid));
+   int16_t eutra_band = RC.rrc[ctxt_pP->module_id]->configuration.eutra_band[0];
+-  uint32_t nr_band = RC.rrc[ctxt_pP->module_id]->nr_gnb_freq_band[0][0];
++  uint32_t nr_band;
++  
++  /* Check if any gNB cells are configured before accessing nr_gnb_freq_band */
++  if (RC.rrc[ctxt_pP->module_id]->num_gnb_cells > 0) {
++    nr_band = RC.rrc[ctxt_pP->module_id]->nr_gnb_freq_band[0][0];
++  } else {
++    /* Graceful fallback when no gNB cells are configured */
++    nr_band = 0;
++  }
++  
+   size = do_NR_UECapabilityEnquiry(
+            ctxt_pP,
+            buffer,
+@@ -6179,7 +6197,7 @@ is_dl_256QAM_supported(
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R118
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R11a
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R125
+-	 && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250 != NULL
++         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250 != NULL
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250 != NULL
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array != NULL
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array[0]->dl_256QAM_r12 != NULL
+@@ -6497,7 +6515,7 @@ rrc_eNB_decode_dcch(
+                   ue_context_p->ue_context.enb_gtp_ebi[i]  = 0;
+                 }
+               }
+-	      gtpv1u_delete_s1u_tunnel(ctxt_pP->instance, &delete_tunnels);
++              gtpv1u_delete_s1u_tunnel(ctxt_pP->instance, &delete_tunnels);
+               //S1AP_E_RAB_RELEASE_RESPONSE
+               rrc_eNB_send_S1AP_E_RAB_RELEASE_RESPONSE(ctxt_pP,
+                   ue_context_p,
+@@ -7226,8 +7244,8 @@ void rrc_subframe_process(protocol_ctxt_t *const ctxt_pP, const int CC_id) {
+           get_ue_Category(ue_context_p->ue_context.UE_Capability,&catDL,&catUL);
+           fprintf(fd,"RRC UE cap: CatDL %ld, CatUL %ld, 64QAM UL %s, 256 QAM DL %s, 256 QAM UL %s, ENDC %s,\n",
+                 catDL,catUL,
+-		is_ul_64QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
+-		is_dl_256QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
++                is_ul_64QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
++                is_dl_256QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
+                 is_ul_256QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
+                 is_en_dc_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no");
+         }

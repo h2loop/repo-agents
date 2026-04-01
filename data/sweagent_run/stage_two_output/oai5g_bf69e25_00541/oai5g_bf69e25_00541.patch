@@ -1,0 +1,417 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+index e75e418500..35ab5d7d17 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+@@ -207,6 +207,10 @@ static uint8_t pack_dl_config_dci_dl_pdu_rel12_value(void *tlv, uint8_t **ppWrit
+ }
+ 
+ static uint8_t pack_tpm_value(nfapi_dl_config_dci_dl_tpm_t *value, uint8_t **ppWritePackedMsg, uint8_t *end) {
++  // Check bounds for number_of_subbands, num_antennas, and scheduled_ues
++  if(value->number_of_subbands > NFAPI_MAX_NUM_SUBBANDS || value->num_antennas > NFAPI_MAX_NUM_ANTENNAS)
++    return 0;
++
+   if (!( push8(value->num_prb_per_subband, ppWritePackedMsg, end) &&
+          push8(value->number_of_subbands, ppWritePackedMsg, end) &&
+          push8(value->num_antennas, ppWritePackedMsg, end)))
+@@ -217,6 +221,10 @@ static uint8_t pack_tpm_value(nfapi_dl_config_dci_dl_tpm_t *value, uint8_t **ppW
+   for(idx = 0; idx < value->number_of_subbands; ++idx) {
+     nfapi_dl_config_dci_dl_tpm_subband_info_t *subband_info = &(value->subband_info[idx]);
+ 
++    // Check bounds for scheduled_ues
++    if(subband_info->scheduled_ues > NFAPI_MAX_NUM_SCHEDULED_UES)
++      return 0;
++
+     if(!(push8(subband_info->subband_index, ppWritePackedMsg, end) &&
+          push8(subband_info->scheduled_ues, ppWritePackedMsg, end)))
+       return 0;
+@@ -268,12 +276,22 @@ static uint8_t pack_dl_config_mch_pdu_rel8_value(void *tlv, uint8_t **ppWritePac
+ 
+ static uint8_t pack_bf_vector_info(void *elem, uint8_t **ppWritePackedMsg, uint8_t *end) {
+   nfapi_bf_vector_t *bf = (nfapi_bf_vector_t *)elem;
++  
++  // Check bounds for num_antennas
++  if(bf->num_antennas > NFAPI_MAX_NUM_ANTENNAS)
++    return 0;
++    
+   return ( push8(bf->subband_index, ppWritePackedMsg, end) &&
+            push8(bf->num_antennas, ppWritePackedMsg, end) &&
+            pusharray16(bf->bf_value, NFAPI_MAX_NUM_ANTENNAS, bf->num_antennas, ppWritePackedMsg, end));
+ }
+ static uint8_t pack_dl_config_dlsch_pdu_rel8_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end) {
+   nfapi_dl_config_dlsch_pdu_rel8_t *value = (nfapi_dl_config_dlsch_pdu_rel8_t *)tlv;
++  
++  // Check bounds for number_of_subbands
++  if(value->number_of_subbands > NFAPI_MAX_NUM_SUBBANDS)
++    return 0;
++    
+   return ( push16(value->length, ppWritePackedMsg, end) &&
+            push16(value->pdu_index, ppWritePackedMsg, end) &&
+            push16(value->rnti, ppWritePackedMsg, end) &&
+@@ -398,6 +416,10 @@ static uint8_t pack_dl_config_csi_rs_pdu_rel13_value(void *tlv, uint8_t **ppWrit
+   return 1;
+ }
+ static uint8_t pack_bf_vector(nfapi_bf_vector_t *vector, uint8_t **ppWritePackedMsg, uint8_t *end) {
++  // Check bounds for num_antennas
++  if(vector->num_antennas > NFAPI_MAX_NUM_ANTENNAS)
++    return 0;
++    
+   return ( push8(vector->subband_index, ppWritePackedMsg, end) &&
+            push8(vector->num_antennas, ppWritePackedMsg, end) &&
+            pusharray16(vector->bf_value, NFAPI_MAX_NUM_ANTENNAS, vector->num_antennas, ppWritePackedMsg, end));
+@@ -405,6 +427,11 @@ static uint8_t pack_bf_vector(nfapi_bf_vector_t *vector, uint8_t **ppWritePacked
+ 
+ static uint8_t pack_dl_config_epdcch_parameters_rel11_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end) {
+   nfapi_dl_config_epdcch_parameters_rel11_t *value = (nfapi_dl_config_epdcch_parameters_rel11_t *)tlv;
++  
++  // Check bounds for epdcch_num_prb
++  if(value->epdcch_num_prb > NFAPI_MAX_EPDCCH_PRB)
++    return 0;
++    
+   return ( push8(value->epdcch_resource_assignment_flag, ppWritePackedMsg, end) &&
+            push16(value->epdcch_id, ppWritePackedMsg, end) &&
+            push8(value->epdcch_start_symbol, ppWritePackedMsg, end) &&
+@@ -1569,6 +1596,10 @@ static uint8_t pack_harq_indication_tdd_rel8_value(void *tlv, uint8_t **ppWriteP
+ static uint8_t pack_harq_indication_tdd_rel9_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end) {
+   nfapi_harq_indication_tdd_rel9_t *harq_indication_tdd_rel9 = (nfapi_harq_indication_tdd_rel9_t *)tlv;
+ 
++  // Check bounds for number_of_ack_nack
++  if(harq_indication_tdd_rel9->number_of_ack_nack > NFAPI_MAX_NUMBER_ACK_NACK_TDD)
++    return 0;
++
+   if(!(push8(harq_indication_tdd_rel9->mode, ppWritePackedMsg, end) &&
+        push8(harq_indication_tdd_rel9->number_of_ack_nack, ppWritePackedMsg, end)))
+     return 0;
+@@ -1614,6 +1645,10 @@ static uint8_t pack_harq_indication_tdd_rel9_value(void *tlv, uint8_t **ppWriteP
+ static uint8_t pack_harq_indication_tdd_rel13_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end) {
+   nfapi_harq_indication_tdd_rel13_t *harq_indication_tdd_rel13 = (nfapi_harq_indication_tdd_rel13_t *)tlv;
+ 
++  // Check bounds for number_of_ack_nack
++  if(harq_indication_tdd_rel13->number_of_ack_nack > NFAPI_MAX_NUMBER_ACK_NACK_TDD)
++    return 0;
++
+   if(!(push8(harq_indication_tdd_rel13->mode, ppWritePackedMsg, end) &&
+        push16(harq_indication_tdd_rel13->number_of_ack_nack, ppWritePackedMsg, end)))
+     return 0;
+@@ -1947,6 +1982,10 @@ static uint8_t pack_srs_indication_fdd_rel11_value(void *tlv, uint8_t **ppWriteP
+ static uint8_t pack_tdd_channel_measurement_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end) {
+   nfapi_tdd_channel_measurement_t *value = (nfapi_tdd_channel_measurement_t *)tlv;
+ 
++  // Check bounds for number_of_subbands and num_atennas
++  if(value->number_of_subbands > NFAPI_MAX_NUM_SUBBANDS || value->num_atennas > NFAPI_MAX_NUM_PHYSICAL_ANTENNAS)
++    return 0;
++
+   if(!(push8(value->num_prb_per_subband, ppWritePackedMsg, end) &&
+        push8(value->number_of_subbands, ppWritePackedMsg, end) &&
+        push8(value->num_atennas, ppWritePackedMsg, end)))
+@@ -4844,139 +4883,139 @@ static uint8_t unpack_rx_indication_rel9_value(void *tlv, uint8_t **ppReadPacked
+ 
+ static uint8_t unpack_rx_indication_body_value(void *tlv, uint8_t **ppReadPackedMsg, uint8_t *end, nfapi_p7_codec_config_t *config)
+ {
+-	nfapi_rx_indication_body_t *value = (nfapi_rx_indication_body_t*)tlv;
+-
+-	NFAPI_TRACE(NFAPI_TRACE_DEBUG, "%s value->tl.length in unpack: %u \n", __FUNCTION__,
+-				value->tl.length);
+-	uint8_t *rxBodyEnd = *ppReadPackedMsg + value->tl.length;
+-
+-	NFAPI_TRACE(NFAPI_TRACE_DEBUG, "%s rxBodyEnd: %p end: %p\n", __FUNCTION__,
+-				rxBodyEnd, end);
+-	if (rxBodyEnd > end)
+-	{
+-		// pdu end is past buffer end
+-		return 0;
+-	}
+-
+-	if (pull16(ppReadPackedMsg, &value->number_of_pdus, end) == 0)
+-		return 0;
+-
+-	if (value->number_of_pdus > NFAPI_RX_IND_MAX_PDU)
+-	{
+-		NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s number of rx ind pdu's exceed maxium (count:%d max:%d)\n", __FUNCTION__, value->number_of_pdus, NFAPI_RX_IND_MAX_PDU);
+-		return 0;
+-	}
+-
+-	if (value->number_of_pdus > 0)
+-	{
+-		assert(value->number_of_pdus <= NFAPI_RX_IND_MAX_PDU);
+-		value->rx_pdu_list = (nfapi_rx_indication_pdu_t *)nfapi_p7_allocate(sizeof(nfapi_rx_indication_pdu_t) * NFAPI_RX_IND_MAX_PDU, config);
+-		if (value->rx_pdu_list == NULL)
+-		{
+-			NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s failed to allocate rx ind pdu list (count:%d)\n", __FUNCTION__, value->number_of_pdus);
+-			return 0;
+-		}
+-	}
+-	else
+-	{
+-		value->rx_pdu_list = 0;
+-	}
+-
+-	NFAPI_TRACE(NFAPI_TRACE_INFO, "%s number_of_pdus = %u\n", __FUNCTION__, value->number_of_pdus);
+-	for (int i = 0; i < value->number_of_pdus; i++)
+-	{
+-		NFAPI_TRACE(NFAPI_TRACE_INFO, "%s i = %u\n", __FUNCTION__, i);
+-		nfapi_tl_t generic_tl;
+-
+-		// NFAPI_RX_UE_INFORMATION_TAG
+-		if (unpack_tl(ppReadPackedMsg, &generic_tl, end) == 0)
+-		{
+-			NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s unpack_tl failed\n", __FUNCTION__);
+-			return 0;
+-		}
+-
+-		NFAPI_TRACE(NFAPI_TRACE_INFO, "%s generic_tl.tag = 0x%x length = %u\n", __FUNCTION__, generic_tl.tag, generic_tl.length);
+-
+-		if (generic_tl.tag != NFAPI_RX_UE_INFORMATION_TAG)
+-		{
+-			NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s generic_tl.tag wrong\n", __FUNCTION__);
+-			return 0;
+-		}
+-
+-		assert(i < NFAPI_RX_IND_MAX_PDU);
+-		nfapi_rx_indication_pdu_t *pdu = &value->rx_pdu_list[i];
+-
+-		pdu->rx_ue_information.tl = generic_tl;
+-		if (unpack_rx_ue_information_value(&pdu->rx_ue_information, ppReadPackedMsg, end) == 0)
+-		{
+-			NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s unpack_rx_ue_info failure\n", __FUNCTION__);
+-			return 0;
+-		}
+-
+-		// NFAPI_RX_INDICATION_REL8_TAG
+-		if (unpack_tl(ppReadPackedMsg, &generic_tl, end) == 0)
+-		{
+-			NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s unpack_tl failed\n", __FUNCTION__);
+-			return 0;
+-		}
+-
+-		NFAPI_TRACE(NFAPI_TRACE_INFO, "%s generic_tl.tag = 0x%x length = %u\n", __FUNCTION__, generic_tl.tag, generic_tl.length);
+-
+-		if (generic_tl.tag != NFAPI_RX_INDICATION_REL8_TAG)
+-		{
+-			NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s generic_tl.tag wrong\n", __FUNCTION__);
+-			return 0;
+-		}
+-
+-		pdu->rx_indication_rel8.tl = generic_tl;
+-		if (unpack_rx_indication_rel8_value(&pdu->rx_indication_rel8, ppReadPackedMsg, end) == 0)
+-		{
+-			NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s unpack_rx_indication_rel8 failure\n", __FUNCTION__);
+-			return 0;
+-		}
+-		//What is offset not stripping 10 bytes
+-		NFAPI_TRACE(NFAPI_TRACE_INFO, "%s pdu->rx_indication_rel8.offset = %u", __FUNCTION__,
+-					pdu->rx_indication_rel8.offset);
+-
+-		// NFAPI_RX_INDICATION_REL9_TAG
+-		if (unpack_tl(ppReadPackedMsg, &generic_tl, end) == 0)
+-		{
+-			NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s unpack_tl failed\n", __FUNCTION__);
+-			return 0;
+-		}
+-
+-		NFAPI_TRACE(NFAPI_TRACE_INFO, "%s generic_tl.tag = 0x%x length = %u\n", __FUNCTION__, generic_tl.tag, generic_tl.length);
+-
+-		if (generic_tl.tag != NFAPI_RX_INDICATION_REL9_TAG)
+-		{
+-			NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s generic_tl.tag wrong\n", __FUNCTION__);
+-			return 0;
+-		}
+-
+-		pdu->rx_indication_rel9.tl = generic_tl;
+-		if (unpack_rx_indication_rel9_value(&pdu->rx_indication_rel9, ppReadPackedMsg, end) == 0)
+-		{
+-			NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s unpack_rx_indication_rel9 failure\n", __FUNCTION__);
+-			return 0;
+-		}
+-	}
++        nfapi_rx_indication_body_t *value = (nfapi_rx_indication_body_t*)tlv;
++
++        NFAPI_TRACE(NFAPI_TRACE_DEBUG, "%s value->tl.length in unpack: %u \n", __FUNCTION__,
++                                value->tl.length);
++        uint8_t *rxBodyEnd = *ppReadPackedMsg + value->tl.length;
++
++        NFAPI_TRACE(NFAPI_TRACE_DEBUG, "%s rxBodyEnd: %p end: %p\n", __FUNCTION__,
++                                rxBodyEnd, end);
++        if (rxBodyEnd > end)
++        {
++                // pdu end is past buffer end
++                return 0;
++        }
++
++        if (pull16(ppReadPackedMsg, &value->number_of_pdus, end) == 0)
++                return 0;
++
++        if (value->number_of_pdus > NFAPI_RX_IND_MAX_PDU)
++        {
++                NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s number of rx ind pdu's exceed maxium (count:%d max:%d)\n", __FUNCTION__, value->number_of_pdus, NFAPI_RX_IND_MAX_PDU);
++                return 0;
++        }
++
++        if (value->number_of_pdus > 0)
++        {
++                assert(value->number_of_pdus <= NFAPI_RX_IND_MAX_PDU);
++                value->rx_pdu_list = (nfapi_rx_indication_pdu_t *)nfapi_p7_allocate(sizeof(nfapi_rx_indication_pdu_t) * NFAPI_RX_IND_MAX_PDU, config);
++                if (value->rx_pdu_list == NULL)
++                {
++                        NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s failed to allocate rx ind pdu list (count:%d)\n", __FUNCTION__, value->number_of_pdus);
++                        return 0;
++                }
++        }
++        else
++        {
++                value->rx_pdu_list = 0;
++        }
++
++        NFAPI_TRACE(NFAPI_TRACE_INFO, "%s number_of_pdus = %u\n", __FUNCTION__, value->number_of_pdus);
++        for (int i = 0; i < value->number_of_pdus; i++)
++        {
++                NFAPI_TRACE(NFAPI_TRACE_INFO, "%s i = %u\n", __FUNCTION__, i);
++                nfapi_tl_t generic_tl;
++
++                // NFAPI_RX_UE_INFORMATION_TAG
++                if (unpack_tl(ppReadPackedMsg, &generic_tl, end) == 0)
++                {
++                        NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s unpack_tl failed\n", __FUNCTION__);
++                        return 0;
++                }
++
++                NFAPI_TRACE(NFAPI_TRACE_INFO, "%s generic_tl.tag = 0x%x length = %u\n", __FUNCTION__, generic_tl.tag, generic_tl.length);
++
++                if (generic_tl.tag != NFAPI_RX_UE_INFORMATION_TAG)
++                {
++                        NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s generic_tl.tag wrong\n", __FUNCTION__);
++                        return 0;
++                }
++
++                assert(i < NFAPI_RX_IND_MAX_PDU);
++                nfapi_rx_indication_pdu_t *pdu = &value->rx_pdu_list[i];
++
++                pdu->rx_ue_information.tl = generic_tl;
++                if (unpack_rx_ue_information_value(&pdu->rx_ue_information, ppReadPackedMsg, end) == 0)
++                {
++                        NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s unpack_rx_ue_info failure\n", __FUNCTION__);
++                        return 0;
++                }
++
++                // NFAPI_RX_INDICATION_REL8_TAG
++                if (unpack_tl(ppReadPackedMsg, &generic_tl, end) == 0)
++                {
++                        NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s unpack_tl failed\n", __FUNCTION__);
++                        return 0;
++                }
++
++                NFAPI_TRACE(NFAPI_TRACE_INFO, "%s generic_tl.tag = 0x%x length = %u\n", __FUNCTION__, generic_tl.tag, generic_tl.length);
++
++                if (generic_tl.tag != NFAPI_RX_INDICATION_REL8_TAG)
++                {
++                        NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s generic_tl.tag wrong\n", __FUNCTION__);
++                        return 0;
++                }
++
++                pdu->rx_indication_rel8.tl = generic_tl;
++                if (unpack_rx_indication_rel8_value(&pdu->rx_indication_rel8, ppReadPackedMsg, end) == 0)
++                {
++                        NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s unpack_rx_indication_rel8 failure\n", __FUNCTION__);
++                        return 0;
++                }
++                //What is offset not stripping 10 bytes
++                NFAPI_TRACE(NFAPI_TRACE_INFO, "%s pdu->rx_indication_rel8.offset = %u", __FUNCTION__,
++                                        pdu->rx_indication_rel8.offset);
++
++                // NFAPI_RX_INDICATION_REL9_TAG
++                if (unpack_tl(ppReadPackedMsg, &generic_tl, end) == 0)
++                {
++                        NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s unpack_tl failed\n", __FUNCTION__);
++                        return 0;
++                }
++
++                NFAPI_TRACE(NFAPI_TRACE_INFO, "%s generic_tl.tag = 0x%x length = %u\n", __FUNCTION__, generic_tl.tag, generic_tl.length);
++
++                if (generic_tl.tag != NFAPI_RX_INDICATION_REL9_TAG)
++                {
++                        NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s generic_tl.tag wrong\n", __FUNCTION__);
++                        return 0;
++                }
++
++                pdu->rx_indication_rel9.tl = generic_tl;
++                if (unpack_rx_indication_rel9_value(&pdu->rx_indication_rel9, ppReadPackedMsg, end) == 0)
++                {
++                        NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s unpack_rx_indication_rel9 failure\n", __FUNCTION__);
++                        return 0;
++                }
++        }
+ 
+         assert(value->number_of_pdus <= NFAPI_RX_IND_MAX_PDU);
+-	for (int i = 0; i < value->number_of_pdus; ++i)
+-	{
+-		nfapi_rx_indication_pdu_t *pdu = &value->rx_pdu_list[i];
+-		if (pdu->rx_indication_rel8.tl.tag == NFAPI_RX_INDICATION_REL8_TAG)
+-		{
+-			uint32_t length = pdu->rx_indication_rel8.length;
+-			if (pullarray8(ppReadPackedMsg, pdu->rx_ind_data, NFAPI_RX_IND_DATA_MAX, length, end) == 0)
+-			{
+-				NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s pullarray8 failure\n", __FUNCTION__);
+-				return 0;
+-			}
+-		}
+-	}
+-
+-	return 1;
++        for (int i = 0; i < value->number_of_pdus; ++i)
++        {
++                nfapi_rx_indication_pdu_t *pdu = &value->rx_pdu_list[i];
++                if (pdu->rx_indication_rel8.tl.tag == NFAPI_RX_INDICATION_REL8_TAG)
++                {
++                        uint32_t length = pdu->rx_indication_rel8.length;
++                        if (pullarray8(ppReadPackedMsg, pdu->rx_ind_data, NFAPI_RX_IND_DATA_MAX, length, end) == 0)
++                        {
++                                NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s pullarray8 failure\n", __FUNCTION__);
++                                return 0;
++                        }
++                }
++        }
++
++        return 1;
+ }
+ 
+ static uint8_t unpack_rx_indication(uint8_t **ppReadPackedMsg, uint8_t *end, void *msg, nfapi_p7_codec_config_t *config) {
+@@ -6298,31 +6337,31 @@ bool nfapi_nr_p7_message_unpack(void *pMessageBuf,
+       if (check_nr_fapi_unpack_length(NFAPI_NR_PHY_MSG_TYPE_RX_DATA_INDICATION, unpackedBufLen)) {
+         result = unpack_nr_rx_data_indication(&pReadPackedMessage, end, pMessageHeader, config);
+       }
+-			break;
++                        break;
+ 
+     case NFAPI_NR_PHY_MSG_TYPE_CRC_INDICATION:
+       if (check_nr_fapi_unpack_length(NFAPI_NR_PHY_MSG_TYPE_CRC_INDICATION, unpackedBufLen)) {
+         result = unpack_nr_crc_indication(&pReadPackedMessage, end, pMessageHeader, config);
+-			}
+-			break;
++                        }
++                        break;
+ 
+     case NFAPI_NR_PHY_MSG_TYPE_UCI_INDICATION:
+       if (check_nr_fapi_unpack_length(NFAPI_NR_PHY_MSG_TYPE_UCI_INDICATION, unpackedBufLen)) {
+         result = unpack_nr_uci_indication(&pReadPackedMessage, end, pMessageHeader, config);
+-			}
+-			break;
++                        }
++                        break;
+ 
+     case NFAPI_NR_PHY_MSG_TYPE_SRS_INDICATION:
+       if (check_nr_fapi_unpack_length(NFAPI_NR_PHY_MSG_TYPE_SRS_INDICATION, unpackedBufLen)) {
+         result = unpack_nr_srs_indication(&pReadPackedMessage,  end, pMessageHeader, config);
+-			}
+-			break;
++                        }
++                        break;
+ 
+     case NFAPI_NR_PHY_MSG_TYPE_RACH_INDICATION:
+       if (check_nr_fapi_unpack_length(NFAPI_NR_PHY_MSG_TYPE_RACH_INDICATION, unpackedBufLen)) {
+         result = unpack_nr_rach_indication(&pReadPackedMessage,  end, pMessageHeader, config);
+-			}
+-			break;
++                        }
++                        break;
+ 
+     case NFAPI_NR_PHY_MSG_TYPE_DL_NODE_SYNC:
+       if (check_nr_fapi_unpack_length(NFAPI_NR_PHY_MSG_TYPE_DL_NODE_SYNC, unpackedBufLen))

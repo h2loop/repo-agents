@@ -1,0 +1,9 @@
+{
+  "run_id": "s00024_7108f1",
+  "pr_text": "## Title: Fix IQ sample accumulation timing to ensure minimum 1ms wait\n\n### Summary\nThe IQ samples time source thread was using integer division to calculate the number of samples required for a 1ms wait period. The calculation `iq_samples_per_second / 1000` could truncate fractional milliseconds when the sample rate wasn't a multiple of 1000, causing the thread to wake up prematurely with less than 1ms of accumulated samples. This violated 3GPP timing requirements for protocol timers downstream",
+  "trajectory_path": "data/raw/s00024_7108f1_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00024_7108f1_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 6,
+  "timestamp": "2026-02-10T10:40:58Z"
+}

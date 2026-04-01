@@ -1,0 +1,33 @@
+{
+  "run_id": "s00094_ae6ffc",
+  "function": {
+    "name": "main",
+    "file": "common/utils/T/tracer/multi.c",
+    "start_line": 193,
+    "end_line": 387,
+    "body_lines": 195,
+    "signature": "int main(int n, char **v)",
+    "subsystem": "common/utils/T",
+    "token_estimate": 733
+  },
+  "bug": {
+    "bug_id": "c_incorrect_loop_bounds",
+    "description": "incorrect loop bounds causing iteration over invalid indices",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a incorrect loop bounds causing iteration over invalid indices downstream of function main in the common/utils/T subsystem.\nThe function is located at common/utils/T/tracer/multi.c:193.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00094_ae6ffc_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00094_ae6ffc_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 30,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:07:57Z"
+}

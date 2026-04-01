@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix potential segfault in polar decoder cleanup when G_N_tab allocation fails\n\n### Summary\nThe `nr_polar_delete_list()` function could segfault when trying to clean up polar parameter structures where the `G_N_tab` allocation had failed during initialization. This occurred because the function accessed `polarParams->G_N_tab[n]` without first checking if `G_N_tab` itself was NULL.\n\nAdded a NULL check before accessing the G_N_tab array elements to prevent segmentation fault.\n\n### Changes\n- `openair1/PHY/CODING/nr_polar_init.c`: Added NULL check for `polarParams->G_N_tab` before entering cleanup loop\n\nWhen running polar decoding under memory pressure where calloc fails in build_polar_tables(), the application would previously crash with a segmentation fault in nr_polar_delete_list(). Now it handles the error condition gracefully.\n"
+}

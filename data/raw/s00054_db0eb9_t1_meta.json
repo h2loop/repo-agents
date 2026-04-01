@@ -1,0 +1,29 @@
+{
+  "run_id": "s00054_db0eb9",
+  "function": {
+    "name": "packed_cmultc",
+    "file": "openair1/PHY/TOOLS/oai_dfts_neon.c",
+    "start_line": 189,
+    "end_line": 197,
+    "body_lines": 9,
+    "signature": "static inline void packed_cmultc(int16x8_t a,int16x8_t b, int16x8_t *c)",
+    "subsystem": "openair1/PHY/TOOLS",
+    "token_estimate": 16
+  },
+  "bug": {
+    "bug_id": "telecom_wrong_mcs",
+    "description": "incorrect MCS selection not matching channel quality or UE capability",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a incorrect MCS selection not matching channel quality or UE capability downstream of function packed_cmultc in the openair1/PHY/TOOLS subsystem.\nThe function is located at openair1/PHY/TOOLS/oai_dfts_neon.c:189.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00054_db0eb9_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00054_db0eb9_p1.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 16,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T11:25:57Z"
+}

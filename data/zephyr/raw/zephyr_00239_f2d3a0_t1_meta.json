@@ -1,0 +1,26 @@
+{
+  "run_id": "zephyr_00239_f2d3a0",
+  "function": {
+    "name": "fcb_flash_read",
+    "file": "subsys/fs/fcb/fcb.c",
+    "start_line": 32,
+    "end_line": 52,
+    "body_lines": 21,
+    "signature": "int fcb_flash_read(const struct fcb *fcbp, const struct flash_sector *sector, off_t off, void *dst, size_t len)",
+    "subsystem": "subsys/fs/fcb",
+    "token_estimate": 55
+  },
+  "bug": {
+    "bug_id": "c_missing_error_propagation",
+    "description": "missing error propagation where a failure is silently ignored",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a missing error propagation where a failure is silently ignored downstream of function fcb_flash_read in the subsys/fs/fcb subsystem.\nThe function is located at subsys/fs/fcb/fcb.c:32.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 5,
+  "trajectory_steps": 21,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T23:42:57Z"
+}

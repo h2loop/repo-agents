@@ -1,0 +1,13 @@
+diff --git a/common/utils/T/tracer/multi.c b/common/utils/T/tracer/multi.c
+index 8e49ff43a1..42ed88ebce 100644
+--- a/common/utils/T/tracer/multi.c
++++ b/common/utils/T/tracer/multi.c
+@@ -96,7 +96,7 @@ void remove_tracer(multi_t *m, int t)
+ int send_is_on(int socket, int number_of_events, int *is_on)
+ {
+   int i;
+-  char mt = 1;
++  char mt = (char)1;
+   if (socket_send(socket, &mt, 1) == -1 ||
+       socket_send(socket, &number_of_events, sizeof(int)) == -1) return -1;
+   for (i = 0; i < number_of_events; i++) {

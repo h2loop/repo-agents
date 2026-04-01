@@ -1,0 +1,40 @@
+{
+  "run_id": "s00273_e8d058",
+  "function": {
+    "name": "new_view_xy",
+    "file": "common/utils/T/tracer/view/xy.c",
+    "start_line": 111,
+    "end_line": 147,
+    "body_lines": 37,
+    "signature": "view *new_view_xy(int length, float refresh_rate, gui *g, widget *w, int color, enum xy_mode mode)",
+    "subsystem": "common/utils/T",
+    "token_estimate": 112
+  },
+  "bug": {
+    "bug_id": "c_buffer_overflow",
+    "description": "buffer overflow vulnerability",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables",
+      "radio",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a buffer overflow vulnerability downstream of function new_view_xy in the common/utils/T subsystem.\nThe function is located at common/utils/T/tracer/view/xy.c:111.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00273_e8d058_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00273_e8d058_p1.diff",
+  "patch_lines": 7,
+  "trajectory_steps": 9,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:16:38Z"
+}

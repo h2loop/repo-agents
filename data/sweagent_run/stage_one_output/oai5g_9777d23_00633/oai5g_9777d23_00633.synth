@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix cross-layer parameter mismatch in RRC buffer configuration\n\n### Summary\nThe RRC layer had a parameter mismatch issue where the `rrc_config_buffer` function was not properly using its input parameters to configure logical channel descriptors. This caused inconsistent configuration between PHY, MAC, and RRC layers, particularly affecting CCCH and BCCH channel operations.\n\nThe issue was that `rrc_config_buffer` received `Lchan_type` and `Role` parameters but completely ignored them, leading to uninitialized CCCH_LCHAN_DESC usage and mismatched cross-layer parameters.\n\n### Changes\n- `openair2/RRC/LTE/rrc_common.c`: Enhanced `rrc_config_buffer` to properly configure LCHAN_DESC based on logical channel type\n- `openair2/RRC/LTE/rrc_common.c`: Added initialization for previously uninitialized CCCH_LCHAN_DESC\n\n"
+}

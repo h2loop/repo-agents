@@ -1,0 +1,33 @@
+{
+  "run_id": "s00300_53d3e9",
+  "function": {
+    "name": "config_sched_ctrlSIB1",
+    "file": "openair2/LAYER2/NR_MAC_gNB/config.c",
+    "start_line": 780,
+    "end_line": 834,
+    "body_lines": 55,
+    "signature": "static void config_sched_ctrlSIB1(gNB_MAC_INST *nr_mac)",
+    "subsystem": "openair2/LAYER2/NR_MAC_gNB",
+    "token_estimate": 217
+  },
+  "bug": {
+    "bug_id": "c_signed_unsigned_mismatch",
+    "description": "signed/unsigned integer comparison mismatch leading to incorrect branch",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a signed/unsigned integer comparison mismatch leading to incorrect branch downstream of function config_sched_ctrlSIB1 in the openair2/LAYER2/NR_MAC_gNB subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_gNB/config.c:780.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00300_53d3e9_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00300_53d3e9_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 90,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T14:15:45Z"
+}

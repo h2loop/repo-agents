@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect RB skipping logic in dump_I0_stats function\n\n### Summary\nThe `dump_I0_stats` function in the LTE eNB measurements module contained flawed logic for skipping resource blocks (RBs) around the DC carrier in odd-bandwidth configurations. This caused incorrect noise power reporting and potential buffer overreads.\n\nThe bug was triggered when running with odd numbers of UL RBs (e.g., 25 RBs in 5 MHz bandwidth). The original code attempted to skip the DC RB but used incorrect loop increment logic that would skip additional RBs or access uninitialized memory.\n\n### Changes\n- `openair1/PHY/LTE_ESTIMATION/lte_eNB_measurements.c`: \n  - Fixed min/max initialization values for proper comparison\n  - Corrected RB skipping logic to properly handle DC RB in odd RB configurations\n  - Applied consistent skipping logic to both measurement processing loops\n\n"
+}

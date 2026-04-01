@@ -1,0 +1,35 @@
+{
+  "run_id": "s00194_4e172d",
+  "function": {
+    "name": "usage",
+    "file": "common/utils/T/tracer/t_tracer_app_gnb.c",
+    "start_line": 225,
+    "end_line": 235,
+    "body_lines": 11,
+    "signature": "void usage(void)",
+    "subsystem": "common/utils/T",
+    "token_estimate": 36
+  },
+  "bug": {
+    "bug_id": "c_missing_cleanup",
+    "description": "missing cleanup of allocated resources on early return or error path",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a missing cleanup of allocated resources on early return or error path downstream of function usage in the common/utils/T subsystem.\nThe function is located at common/utils/T/tracer/t_tracer_app_gnb.c:225.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00194_4e172d_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00194_4e172d_p1.diff",
+  "patch_lines": 31,
+  "trajectory_steps": 42,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:08:37Z"
+}

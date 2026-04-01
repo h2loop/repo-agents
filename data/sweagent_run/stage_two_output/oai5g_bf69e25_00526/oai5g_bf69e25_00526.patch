@@ -1,0 +1,52 @@
+diff --git a/common/utils/T/tracer/event.c b/common/utils/T/tracer/event.c
+index a5d04166d4..b8e53ac162 100644
+--- a/common/utils/T/tracer/event.c
++++ b/common/utils/T/tracer/event.c
+@@ -13,6 +13,7 @@ event get_event(int socket, OBUF *event_buffer, void *database)
+ #endif
+   int type;
+   int32_t length;
++  int32_t payload_length;
+ 
+   /* Events type -1 and -2 are special: the tracee sends its version
+    * of T_messages.txt using those events.
+@@ -23,29 +24,30 @@ event get_event(int socket, OBUF *event_buffer, void *database)
+ 
+ again:
+   if (fullread(socket, &length, 4) == -1) goto read_error;
++  payload_length = length;
+ #ifdef T_SEND_TIME
+   if (fullread(socket, &t, sizeof(struct timespec)) == -1) goto read_error;
+-  length -= sizeof(struct timespec);
++  payload_length -= sizeof(struct timespec);
+ #endif
+   if (fullread(socket, &type, sizeof(int)) == -1) goto read_error;
+-  length -= sizeof(int);
+-  if (event_buffer->omaxsize < length) {
+-    event_buffer->omaxsize = (length + 65535) & ~65535;
++  payload_length -= sizeof(int);
++  if (event_buffer->omaxsize < payload_length) {
++    event_buffer->omaxsize = (payload_length + 65535) & ~65535;
+     event_buffer->obuf = realloc(event_buffer->obuf, event_buffer->omaxsize);
+     if (event_buffer->obuf == NULL) { printf("out of memory\n"); exit(1); }
+   }
+-  if (fullread(socket, event_buffer->obuf, length) == -1) goto read_error;
+-  event_buffer->osize = length;
++  if (fullread(socket, event_buffer->obuf, payload_length) == -1) goto read_error;
++  event_buffer->osize = payload_length;
+ 
+-  if (type == -1) append_received_config_chunk(event_buffer->obuf, length);
++  if (type == -1) append_received_config_chunk(event_buffer->obuf, payload_length);
+   if (type == -2) verify_config();
+ 
+   if (type == -1 || type == -2) goto again;
+ 
+ #ifdef T_SEND_TIME
+-  return new_event(t, type, length, event_buffer->obuf, database);
++  return new_event(t, type, payload_length, event_buffer->obuf, database);
+ #else
+-  return new_event(type, length, event_buffer->obuf, database);
++  return new_event(type, payload_length, event_buffer->obuf, database);
+ #endif
+ 
+ read_error:

@@ -1,0 +1,16 @@
+diff --git a/openair1/SIMULATION/TOOLS/random_channel.c b/openair1/SIMULATION/TOOLS/random_channel.c
+index e9c26e9abd..203bb4a000 100644
+--- a/openair1/SIMULATION/TOOLS/random_channel.c
++++ b/openair1/SIMULATION/TOOLS/random_channel.c
+@@ -449,9 +449,11 @@ void tdlModel(int  tdl_paths, double *tdl_delays, double *tdl_amps_dB, double DS
+     if (correlation_matrix[row] == NULL) {
+       // TS 38.104 - Table G.2.3.1.2-4: MIMO correlation matrices for low correlation
+       chan_desc->R_sqrt[row][row].r = 1.0;
++      chan_desc->R_sqrt[row][row].i = 0.0;
+     } else {
+       for (int col = 0; col < matrix_size; col++) {
+         chan_desc->R_sqrt[row][col].r = correlation_matrix[row][col];
++        chan_desc->R_sqrt[row][col].i = 0.0;
+       }
+     }
+   }

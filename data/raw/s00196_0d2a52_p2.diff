@@ -1,0 +1,73 @@
+diff --git a/openair1/PHY/LTE_TRANSPORT/dlsch_scrambling.c b/openair1/PHY/LTE_TRANSPORT/dlsch_scrambling.c
+index 8bdceceed8..73ed23a0e1 100644
+--- a/openair1/PHY/LTE_TRANSPORT/dlsch_scrambling.c
++++ b/openair1/PHY/LTE_TRANSPORT/dlsch_scrambling.c
+@@ -32,6 +32,8 @@
+ 
+ //#define DEBUG_SCRAMBLING 1
+ 
++#include <pthread.h>
++
+ #include "PHY/defs_eNB.h"
+ #include "PHY/defs_UE.h"
+ #include "PHY/LTE_REFSIG/lte_refsig.h"
+@@ -164,15 +166,27 @@ void dlsch_scrambling(LTE_DL_FRAME_PARMS *frame_parms,
+ }
+ 
+ uint8_t scrambling_lut[65536*16] __attribute__((aligned(32)));
++static pthread_mutex_t scrambling_lut_mutex = PTHREAD_MUTEX_INITIALIZER;
++static int scrambling_lut_initialized = 0;
++
+ void init_scrambling_lut(void) {
+   uint32_t s;
+   int i=0,j;
+ 
+-  for (s=0; s<=65535; s++) {
+-    for (j=0; j<16; j++) {
+-      scrambling_lut[i++] = (uint8_t)((s>>j)&1);
++  if (scrambling_lut_initialized) {
++    return;
++  }
++
++  pthread_mutex_lock(&scrambling_lut_mutex);
++  if (!scrambling_lut_initialized) {
++    for (s=0; s<=65535; s++) {
++      for (j=0; j<16; j++) {
++        scrambling_lut[i++] = (uint8_t)((s>>j)&1);
++      }
+     }
++    scrambling_lut_initialized = 1;
+   }
++  pthread_mutex_unlock(&scrambling_lut_mutex);
+ }
+ 
+ void dlsch_unscrambling(LTE_DL_FRAME_PARMS *frame_parms,
+@@ -215,13 +229,25 @@ void dlsch_unscrambling(LTE_DL_FRAME_PARMS *frame_parms,
+ }
+ 
+ int16_t unscrambling_lut[65536*16] __attribute__((aligned(32)));
++static pthread_mutex_t unscrambling_lut_mutex = PTHREAD_MUTEX_INITIALIZER;
++static int unscrambling_lut_initialized = 0;
++
+ void init_unscrambling_lut(void) {
+   uint32_t s;
+   int i=0,j;
+ 
+-  for (s=0; s<=65535; s++) {
+-    for (j=0; j<16; j++) {
+-      unscrambling_lut[i++] = (int16_t)((((s>>j)&1)<<1)-1);
++  if (unscrambling_lut_initialized) {
++    return;
++  }
++
++  pthread_mutex_lock(&unscrambling_lut_mutex);
++  if (!unscrambling_lut_initialized) {
++    for (s=0; s<=65535; s++) {
++      for (j=0; j<16; j++) {
++        unscrambling_lut[i++] = (int16_t)((((s>>j)&1)<<1)-1);
++      }
+     }
++    unscrambling_lut_initialized = 1;
+   }
++  pthread_mutex_unlock(&unscrambling_lut_mutex);
+ }

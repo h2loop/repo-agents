@@ -1,0 +1,12 @@
+diff --git a/openair1/PHY/NR_UE_TRANSPORT/nr_initial_sync.c b/openair1/PHY/NR_UE_TRANSPORT/nr_initial_sync.c
+index 4788c9ed9d..ec62d948c0 100644
+--- a/openair1/PHY/NR_UE_TRANSPORT/nr_initial_sync.c
++++ b/openair1/PHY/NR_UE_TRANSPORT/nr_initial_sync.c
+@@ -352,6 +352,7 @@ nr_initial_sync_t nr_initial_sync(UE_nr_rxtx_proc_t *proc,
+             ssbInfo->pssCorrAvgPower);
+       if (!res.syncRes.cell_detected) { // take the first cell detected
+         res = *ssbInfo;
++        res.rxdata = NULL; // Break pointer aliasing to prevent double-free
+       }
+     }
+     for (int ant = 0; ant < fp->nb_antennas_rx; ant++) {

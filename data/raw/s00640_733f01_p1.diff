@@ -1,0 +1,49 @@
+diff --git a/openair2/RRC/NR/rrc_gNB.c b/openair2/RRC/NR/rrc_gNB.c
+index 000c4f46cb..520691afe5 100644
+--- a/openair2/RRC/NR/rrc_gNB.c
++++ b/openair2/RRC/NR/rrc_gNB.c
+@@ -2070,12 +2070,13 @@ static void store_du_f1u_tunnel(const f1ap_drb_setup_t *drbs, int n, gNB_RRC_UE_
+ }
+ 
+ /* \brief use list of DRBs and send the corresponding bearer update message via
+- * E1 to the CU of this UE. Also updates TEID info internally */
+-static void e1_send_bearer_updates(gNB_RRC_INST *rrc, gNB_RRC_UE_t *UE, int n, f1ap_drb_setup_t *drbs)
++ * E1 to the CU of this UE. Also updates TEID info internally
++ * \return 0 on success, -1 on failure */
++static int e1_send_bearer_updates(gNB_RRC_INST *rrc, gNB_RRC_UE_t *UE, int n, f1ap_drb_setup_t *drbs)
+ {
+   // Quit bearer updates if no CU-UP is associated
+   if (!is_cuup_associated(rrc)) {
+-    return;
++    return 0;
+   }
+ 
+   // we assume the same UE ID in CU-UP and CU-CP
+@@ -2108,7 +2109,16 @@ static void e1_send_bearer_updates(gNB_RRC_INST *rrc, gNB_RRC_UE_t *UE, int n, f
+ 
+   // send the E1 bearer modification request message to update F1-U tunnel info
+   sctp_assoc_t assoc_id = get_existing_cuup_for_ue(rrc, UE);
++  
++  /* Check if we can send the message before attempting to send it */
++  if (assoc_id <= 0) {
++    LOG_E(RRC, "UE %d: Invalid assoc_id %d for CU-UP, cannot send bearer modification request\n", UE->rrc_ue_id, assoc_id);
++    free(req.secInfo);
++    return -1;
++  }
++  
+   rrc->cucp_cuup.bearer_context_mod(assoc_id, &req);
++  return 0;
+ }
+ 
+ static void rrc_CU_process_ue_context_setup_response(MessageDef *msg_p, instance_t instance)
+@@ -2295,7 +2305,9 @@ static void rrc_CU_process_ue_context_modification_response(MessageDef *msg_p, i
+ 
+   if (resp->drbs_len > 0) {
+     store_du_f1u_tunnel(resp->drbs, resp->drbs_len, UE);
+-    e1_send_bearer_updates(rrc, UE, resp->drbs_len, resp->drbs);
++    if (e1_send_bearer_updates(rrc, UE, resp->drbs_len, resp->drbs) < 0) {
++      LOG_E(RRC, "UE %d: Failed to send bearer updates to CU-UP\n", UE->rrc_ue_id);
++    }
+   }
+ 
+   if (resp->du_to_cu_rrc_info) {

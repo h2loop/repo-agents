@@ -1,0 +1,36 @@
+diff --git a/openair3/NAS/UE/API/USER/user_api.c b/openair3/NAS/UE/API/USER/user_api.c
+index 4d47a4c2b3..1b9791c4cf 100644
+--- a/openair3/NAS/UE/API/USER/user_api.c
++++ b/openair3/NAS/UE/API/USER/user_api.c
+@@ -617,6 +617,7 @@ static int _user_api_registration_handler(user_api_id_t *user_api_id, unsigned c
+ 
+   /* Setup AT command response message for AT+CEREG? read command */
+   at_response_t at_response;
++  memset(&at_response, 0, sizeof(at_response_t));
+   at_response.id = id; // may be +CREG, +CGREG, +CEREG
+   at_response.type = AT_COMMAND_GET;
+   at_response.mask = AT_RESPONSE_NO_PARAM;
+@@ -659,6 +660,7 @@ static int _user_api_location_handler(user_api_id_t *user_api_id, unsigned char
+ 
+   /* Setup AT command response message for AT+CEREG? read command */
+   at_response_t at_response;
++  memset(&at_response, 0, sizeof(at_response_t));
+   at_response.id = id; // may be +CREG, +CGREG, +CEREG
+   at_response.type = AT_COMMAND_GET;
+   at_response.mask = (AT_CEREG_RESP_TAC_MASK | AT_CEREG_RESP_CI_MASK);
+@@ -703,6 +705,7 @@ static int _user_api_network_handler(user_api_id_t *user_api_id, unsigned char i
+ 
+   /* Setup AT command response message for AT+COPS=? test command */
+   at_response_t at_response;
++  memset(&at_response, 0, sizeof(at_response_t));
+   at_response.id = AT_COPS;
+   at_response.type = AT_COMMAND_TST;
+   at_response.response.cops.tst.data = (char*)data;
+@@ -744,6 +747,7 @@ static int _user_api_pdn_connection_handler(user_api_id_t *user_api_id, unsigned
+ 
+   /* Setup AT command unsolicited result response message for +CGEV */
+   at_response_t at_response;
++  memset(&at_response, 0, sizeof(at_response_t));
+   at_response.id = AT_CGEV;
+   at_response.type = AT_COMMAND_GET;
+   at_response.mask = AT_RESPONSE_CGEV_MASK;

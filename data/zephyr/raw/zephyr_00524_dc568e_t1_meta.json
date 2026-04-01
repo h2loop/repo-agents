@@ -1,0 +1,26 @@
+{
+  "run_id": "zephyr_00524_dc568e",
+  "function": {
+    "name": "playing_order_recv_cb",
+    "file": "subsys/bluetooth/audio/shell/media_controller.c",
+    "start_line": 262,
+    "end_line": 270,
+    "body_lines": 9,
+    "signature": "static void playing_order_recv_cb(struct media_player *plr, int err, uint8_t order)",
+    "subsystem": "subsys/bluetooth/audio",
+    "token_estimate": 31
+  },
+  "bug": {
+    "bug_id": "rtos_isr_calling_blocking_api",
+    "description": "blocking RTOS API called from interrupt context causing undefined behavior",
+    "domain": "rtos",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a blocking RTOS API called from interrupt context causing undefined behavior downstream of function playing_order_recv_cb in the subsys/bluetooth/audio subsystem.\nThe function is located at subsys/bluetooth/audio/shell/media_controller.c:262.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 55,
+  "trajectory_steps": 24,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:15:45Z"
+}

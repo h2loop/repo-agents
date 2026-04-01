@@ -1,0 +1,16 @@
+diff --git a/openair2/RRC/NR_UE/rrc_UE.c b/openair2/RRC/NR_UE/rrc_UE.c
+index 53364b0768..f15097a8b7 100644
+--- a/openair2/RRC/NR_UE/rrc_UE.c
++++ b/openair2/RRC/NR_UE/rrc_UE.c
+@@ -1248,7 +1248,10 @@ static void nr_rrc_ue_process_securityModeCommand(NR_UE_RRC_INST_t *ue_rrc,
+ static void handle_meas_reporting_remove(rrcPerNB_t *rrc, int id, NR_UE_Timers_Constants_t *timers)
+ {
+   // remove the measurement reporting entry for this measId if included
+-  asn1cFreeStruc(asn_DEF_NR_VarMeasReport, rrc->MeasReport[id]);
++  if (rrc->MeasReport[id]) {
++    asn1cFreeStruc(asn_DEF_NR_VarMeasReport, rrc->MeasReport[id]);
++    rrc->MeasReport[id] = NULL;
++  }
+   // TODO stop the periodical reporting timer or timer T321, whichever is running,
+   // and reset the associated information (e.g. timeToTrigger) for this measId
+   nr_timer_stop(&timers->T321);

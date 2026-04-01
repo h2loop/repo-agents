@@ -1,0 +1,14 @@
+diff --git a/targets/TARGET_NUVOTON/TARGET_M2354/i2c_api.c b/targets/TARGET_NUVOTON/TARGET_M2354/i2c_api.c
+index 0009905b..70a840f8 100644
+--- a/targets/TARGET_NUVOTON/TARGET_M2354/i2c_api.c
++++ b/targets/TARGET_NUVOTON/TARGET_M2354/i2c_api.c
+@@ -911,6 +911,9 @@ uint32_t i2c_irq_handler_asynch(i2c_t *obj)
+             uint8_t *rx = (uint8_t *) obj->rx_buff.buffer;
+             rx[obj->rx_buff.pos ++] = I2C_GET_DATA(((I2C_T *) NU_MODBASE(obj->i2c.i2c)));
+         }
++        I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_SI_Msk | ((obj->rx_buff.pos != obj->rx_buff.length - 1) ? I2C_CTL0_AA_Msk : 0));
++        break;
++
+     case 0x40:  // Master Receive Address ACK
+         I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_SI_Msk | ((obj->rx_buff.pos != obj->rx_buff.length - 1) ? I2C_CTL0_AA_Msk : 0));
+         break;

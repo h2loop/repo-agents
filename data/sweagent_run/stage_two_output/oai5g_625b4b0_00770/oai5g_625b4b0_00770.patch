@@ -1,0 +1,32 @@
+diff --git a/openair3/NAS/COMMON/IES/AdditionalUpdateResult.c b/openair3/NAS/COMMON/IES/AdditionalUpdateResult.c
+index 1869155aba..39a9d4b4ef 100644
+--- a/openair3/NAS/COMMON/IES/AdditionalUpdateResult.c
++++ b/openair3/NAS/COMMON/IES/AdditionalUpdateResult.c
+@@ -48,8 +48,25 @@ int decode_additional_update_result(AdditionalUpdateResult *additionalupdateresu
+ int decode_u8_additional_update_result(AdditionalUpdateResult *additionalupdateresult, uint8_t iei, uint8_t value, uint32_t len)
+ {
+   int decoded = 0;
+-  uint8_t *buffer = &value;
+-  *additionalupdateresult = *buffer & 0x3;
++  
++  /* Set default value according to 3GPP TS 24.301 */
++  *additionalupdateresult = 0; /* Additional updating not needed */
++  
++  /* Check minimum length requirement */
++  if (len < ADDITIONAL_UPDATE_RESULT_MINIMUM_LENGTH) {
++    errorCodeDecoder = TLV_DECODE_BUFFER_TOO_SHORT;
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++  
++  /* When iei is specified (> 0), verify the upper 4 bits match */
++  if (iei > 0) {
++    if ((value & 0xf0) != iei) {
++      errorCodeDecoder = TLV_DECODE_UNEXPECTED_IEI;
++      return TLV_DECODE_UNEXPECTED_IEI;
++    }
++  }
++  
++  *additionalupdateresult = value & 0x3;
+   decoded++;
+ #if defined (NAS_DEBUG)
+   dump_additional_update_result_xml(additionalupdateresult, iei);

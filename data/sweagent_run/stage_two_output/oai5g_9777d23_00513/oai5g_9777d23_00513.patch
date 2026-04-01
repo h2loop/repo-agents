@@ -1,0 +1,30 @@
+diff --git a/openair3/NAS/UE/EMM/Detach.c b/openair3/NAS/UE/EMM/Detach.c
+index 654486226e..3ba11e8ea6 100644
+--- a/openair3/NAS/UE/EMM/Detach.c
++++ b/openair3/NAS/UE/EMM/Detach.c
+@@ -230,11 +230,10 @@ int emm_proc_detach_request(void *args)
+  **      Others:    T3421                                      **
+  **                                                                        **
+  ***************************************************************************/
+-int emm_proc_detach_accept(void* args)
++int emm_proc_detach_accept(nas_user_t *user)
+ {
+   LOG_FUNC_IN;
+ 
+-  nas_user_t *user=args;
+   emm_timers_t *emm_timers = user->emm_data->emm_timers;
+   int rc;
+ 
+diff --git a/openair3/NAS/UE/EMM/emm_proc.h b/openair3/NAS/UE/EMM/emm_proc.h
+index b93bb33bf1..a40ef9e61f 100644
+--- a/openair3/NAS/UE/EMM/emm_proc.h
++++ b/openair3/NAS/UE/EMM/emm_proc.h
+@@ -105,7 +105,7 @@ int emm_proc_attach_set_detach(void *user);
+  */
+ int emm_proc_detach(nas_user_t *user, emm_proc_detach_type_t type, bool switch_off);
+ int emm_proc_detach_request(void *args);
+-int emm_proc_detach_accept(void *args);
++int emm_proc_detach_accept(nas_user_t *user);
+ int emm_proc_detach_failure(bool is_initial, void *args);
+ int emm_proc_detach_release(void *args);
+ 

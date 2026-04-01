@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Add validation for idft8192 input parameters\n\n### Summary\nThe `idft8192` function in `openair1/PHY/TOOLS/oai_dfts_neon.c` was missing validation of its input parameters, which could lead to segmentation faults when called with NULL pointers. This adds proper validation using the existing assertion framework.\n\n### Changes\n- `openair1/PHY/TOOLS/oai_dfts_neon.c`: Added NULL pointer checks for input parameters in `idft8192` and `idft4096` functions\n\n### Reproduction\nWhen calling `idft8192(NULL, NULL, 1)` or similar with NULL pointers, the function would previously crash with a segmentation fault. Now it properly asserts with a descriptive error message.\n\n"
+}

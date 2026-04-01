@@ -1,0 +1,26 @@
+diff --git a/openair2/LAYER2/MAC/config.c b/openair2/LAYER2/MAC/config.c
+index 528c979595..076d5ae76a 100644
+--- a/openair2/LAYER2/MAC/config.c
++++ b/openair2/LAYER2/MAC/config.c
+@@ -697,6 +697,21 @@ config_sib13( int Mod_id,
+               int mbsfn_Area_idx,
+              long mbsfn_AreaId_r9){
+ 
++  AssertFatal(Mod_id >= 0 && Mod_id < MAX_MAC_INST,
++              "Invalid Mod_id %d (must be 0 <= Mod_id < %d)\n", Mod_id, MAX_MAC_INST);
++  AssertFatal(CC_id >= 0,
++              "Invalid CC_id %d (must be non-negative)\n", CC_id);
++  AssertFatal(mbsfn_Area_idx >= 0,
++              "Invalid mbsfn_Area_idx %d (must be non-negative)\n", mbsfn_Area_idx);
++  AssertFatal(RC.mac != NULL,
++              "RC.mac is NULL (MAC layer not initialized)\n");
++  AssertFatal(RC.mac[Mod_id] != NULL,
++              "RC.mac[%d] is NULL (MAC instance %d not initialized)\n", Mod_id, Mod_id);
++  AssertFatal(RC.mac[Mod_id]->config != NULL,
++              "RC.mac[%d]->config is NULL (MAC instance %d configuration not initialized)\n", Mod_id, Mod_id);
++  AssertFatal(RC.mac[Mod_id]->if_inst != NULL,
++              "RC.mac[%d]->if_inst is NULL (MAC instance %d interface not initialized)\n", Mod_id, Mod_id);
++
+   //nfapi_config_request_t *cfg = &RC.mac[Mod_id]->config[CC_id];
+ 
+   //work around until PHY_config_re "update" mechanisms get defined

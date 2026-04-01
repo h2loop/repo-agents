@@ -1,0 +1,14 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_RA.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_RA.c
+index 4682ba5911..0e8ee9e867 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_RA.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_RA.c
+@@ -1317,6 +1317,9 @@ static void nr_generate_Msg2(module_id_t module_idP,
+     pdsch_pdu_rel15->maintenance_parms_v3.tbSizeLbrmBytes = nr_compute_tbslbrm(mcsTableIdx,
+                                                                                bw_tbslbrm,
+                                                                                1);
++    // According to 3GPP TS 38.214, Msg2 transmissions must use tb_scaling = 0 (representing 100% scaling, i.e., no scaling applied)
++    // This explicit assignment ensures compliance with the specification for Random Access Response messages
++
+     pdsch_pdu_rel15->maintenance_parms_v3.ldpcBaseGraph = get_BG(TBS<<3,R);
+ 
+     // Fill PDCCH DL DCI PDU

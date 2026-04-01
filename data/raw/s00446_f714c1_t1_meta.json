@@ -1,0 +1,35 @@
+{
+  "run_id": "s00446_f714c1",
+  "function": {
+    "name": "get_noise_vector",
+    "file": "radio/vrtsim/noise_device.c",
+    "start_line": 82,
+    "end_line": 92,
+    "body_lines": 11,
+    "signature": "void get_noise_vector(float *noise_vector, int length)",
+    "subsystem": "radio/vrtsim",
+    "token_estimate": 44
+  },
+  "bug": {
+    "bug_id": "c_missing_error_propagation",
+    "description": "missing error propagation where a failure is silently ignored",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a missing error propagation where a failure is silently ignored downstream of function get_noise_vector in the radio/vrtsim subsystem.\nThe function is located at radio/vrtsim/noise_device.c:82.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00446_f714c1_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00446_f714c1_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 115,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:26:38Z"
+}

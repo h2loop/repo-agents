@@ -1,0 +1,41 @@
+diff --git a/common/utils/T/tracer/gui/textlist.c b/common/utils/T/tracer/gui/textlist.c
+index e919b7c0a5..f66f7537e9 100644
+--- a/common/utils/T/tracer/gui/textlist.c
++++ b/common/utils/T/tracer/gui/textlist.c
+@@ -40,8 +40,23 @@ static void allocate(
+   this->common.y = y;
+   this->common.width = width;
+   this->common.height = height;
+-  this->allocated_nlines = height / this->line_height;
++  
++  // Prevent division by zero
++  if (this->line_height > 0) {
++    // Calculate complete lines that fit
++    this->allocated_nlines = height / this->line_height;
++    // If there's space for a partial line, include it
++    if (height % this->line_height > 0) {
++      this->allocated_nlines += 1;
++    }
++  } else {
++    this->allocated_nlines = 0;
++  }
++  
+   LOGD("ALLOCATE textlist %p xywh %d %d %d %d nlines %d\n", this, x, y, width, height, this->allocated_nlines);
++  
++  // Trigger a repaint since our dimensions changed
++  send_event(gui, DIRTY, this->common.id);
+ }
+ 
+ static void button(gui *_g, widget *_this, int x, int y,
+@@ -62,7 +77,10 @@ static void button(gui *_g, widget *_this, int x, int y,
+   }
+   /* button 1/2/3 click */
+   if (button >= 1 && button <= 3 && up == 0) {
+-    int line = this->starting_line + y / this->line_height;
++    int line = this->starting_line;
++    if (this->line_height > 0) {
++      line += y / this->line_height;
++    }
+     if (line >= 0 && line < this->text_count)
+       gui_notify(g, "click", _this, (int[2]){ line, button });
+   }

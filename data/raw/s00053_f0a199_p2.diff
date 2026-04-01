@@ -1,0 +1,26 @@
+diff --git a/openair2/LAYER2/MAC/eNB_scheduler_bch.c b/openair2/LAYER2/MAC/eNB_scheduler_bch.c
+index fac997a663..62f13876df 100644
+--- a/openair2/LAYER2/MAC/eNB_scheduler_bch.c
++++ b/openair2/LAYER2/MAC/eNB_scheduler_bch.c
+@@ -916,7 +916,9 @@ schedule_SI_MBMS(module_id_t module_idP, frame_t frameP,
+         eNB->eNB_stats[CC_id].bcch_mcs = mcs;
+         //printf("SI %d.%d\n", frameP, subframeP);/////////////////////////////////////////******************************
+       } else {
+-        //LOG_D(MAC,"[eNB %d] Frame %d : BCCH not active \n",Mod_id,frame);
++        LOG_E(MAC,
++              "[eNB %d] CCid %d Frame %d, subframe %d : Failed to get MBMS SI data (bcch_sdu_length %d)\n",
++              module_idP, CC_id, frameP, subframeP, bcch_sdu_length);
+       }
+     }
+   }
+@@ -1247,7 +1249,9 @@ schedule_SI(module_id_t module_idP, frame_t frameP, sub_frame_t subframeP)
+         eNB->eNB_stats[CC_id].bcch_mcs = mcs;
+         //printf("SI %d.%d\n", frameP, subframeP);/////////////////////////////////////////******************************
+       } else {
+-        //LOG_D(MAC,"[eNB %d] Frame %d : BCCH not active \n",Mod_id,frame);
++        LOG_E(MAC,
++              "[eNB %d] CCid %d Frame %d, subframe %d : Failed to get MBMS SI data (bcch_sdu_length %d)\n",
++              module_idP, CC_id, frameP, subframeP, bcch_sdu_length);
+       }
+     }
+   }

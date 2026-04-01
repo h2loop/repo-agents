@@ -1,0 +1,30 @@
+{
+  "run_id": "s00358_0984f6",
+  "function": {
+    "name": "nfapi_vnf_stop_req",
+    "file": "nfapi/open-nFAPI/vnf/src/vnf_interface.c",
+    "start_line": 659,
+    "end_line": 667,
+    "body_lines": 9,
+    "signature": "int nfapi_vnf_stop_req(nfapi_vnf_config_t* config, int p5_idx, nfapi_stop_request_t* req)",
+    "subsystem": "nfapi/open-nFAPI/vnf",
+    "token_estimate": 27
+  },
+  "bug": {
+    "bug_id": "c_incorrect_errno_usage",
+    "description": "incorrect errno usage where errno is checked after an intervening call has overwritten it",
+    "domain": "generic_c",
+    "subsystems": [
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a incorrect errno usage where errno is checked after an intervening call has overwritten it downstream of function nfapi_vnf_stop_req in the nfapi/open-nFAPI/vnf subsystem.\nThe function is located at nfapi/open-nFAPI/vnf/src/vnf_interface.c:659.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00358_0984f6_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00358_0984f6_p1.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 63,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:49:00Z"
+}

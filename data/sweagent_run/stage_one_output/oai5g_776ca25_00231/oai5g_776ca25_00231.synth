@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect return value and missing ESM cleanup in detach abort procedure\n\n### Summary\nThe NR UE NAS stack contained an incorrect return value in the detach timer handler and missing ESM bearer context cleanup in the detach abort function. The bug manifested when detach procedures failed due to network timeouts or lower layer release events.\n\nThe incorrect return value caused the timer handler to return NULL instead of the actual result code, leading to potential undefined behavior. The missing ESM cleanup left EPS bearer contexts in an inconsistent state when detach procedures were aborted.\n\n### Changes\n- `openair3/NAS/UE/EMM/Detach.c`: Fixed return value in `emm_detach_t3421_handler` and added ESM bearer context deactivation in `_emm_detach_abort`.\n\n"
+}

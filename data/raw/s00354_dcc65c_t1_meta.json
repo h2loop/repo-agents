@@ -1,0 +1,33 @@
+{
+  "run_id": "s00354_dcc65c",
+  "function": {
+    "name": "ue_send_sl_sdu",
+    "file": "openair2/LAYER2/MAC/ue_procedures.c",
+    "start_line": 807,
+    "end_line": 876,
+    "body_lines": 70,
+    "signature": "void ue_send_sl_sdu(module_id_t module_idP, uint8_t CC_id, frame_t frameP, sub_frame_t subframeP, uint8_t *sdu, uint16_t sdu_len, uint8_t eNB_index, sl_discovery_flag_t sl_discovery_flag )",
+    "subsystem": "openair2/LAYER2/MAC",
+    "token_estimate": 223
+  },
+  "bug": {
+    "bug_id": "c_copy_paste_error",
+    "description": "copy-paste error where duplicated code was not correctly updated for its new context",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a copy-paste error where duplicated code was not correctly updated for its new context downstream of function ue_send_sl_sdu in the openair2/LAYER2/MAC subsystem.\nThe function is located at openair2/LAYER2/MAC/ue_procedures.c:807.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00354_dcc65c_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00354_dcc65c_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 21,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:45:48Z"
+}

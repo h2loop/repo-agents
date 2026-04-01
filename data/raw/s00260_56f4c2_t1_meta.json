@@ -1,0 +1,33 @@
+{
+  "run_id": "s00260_56f4c2",
+  "function": {
+    "name": "init_rad4",
+    "file": "openair1/PHY/TOOLS/oai_dfts_neon.c",
+    "start_line": 6896,
+    "end_line": 6911,
+    "body_lines": 16,
+    "signature": "void init_rad4(int N,int16_t *tw)",
+    "subsystem": "openair1/PHY/TOOLS",
+    "token_estimate": 48
+  },
+  "bug": {
+    "bug_id": "c_thread_unsafe_access",
+    "description": "thread-unsafe access to global or shared variable without proper synchronization",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a thread-unsafe access to global or shared variable without proper synchronization downstream of function init_rad4 in the openair1/PHY/TOOLS subsystem.\nThe function is located at openair1/PHY/TOOLS/oai_dfts_neon.c:6896.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00260_56f4c2_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00260_56f4c2_p1.diff",
+  "patch_lines": 14,
+  "trajectory_steps": 34,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:13:08Z"
+}

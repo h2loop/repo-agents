@@ -1,0 +1,32 @@
+{
+  "run_id": "s00166_87966e",
+  "function": {
+    "name": "rr_dl_setup",
+    "file": "openair2/LAYER2/MAC/pre_processor.c",
+    "start_line": 152,
+    "end_line": 157,
+    "body_lines": 6,
+    "signature": "void *rr_dl_setup(void)",
+    "subsystem": "openair2/LAYER2/MAC",
+    "token_estimate": 23
+  },
+  "bug": {
+    "bug_id": "c_dead_code",
+    "description": "dead code that is never executed and may mask intended logic",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a dead code that is never executed and may mask intended logic downstream of function rr_dl_setup in the openair2/LAYER2/MAC subsystem.\nThe function is located at openair2/LAYER2/MAC/pre_processor.c:152.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00166_87966e_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00166_87966e_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 6,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:36:03Z"
+}

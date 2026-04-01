@@ -1,0 +1,48 @@
+diff --git a/openair2/M2AP/m2ap_ids.c b/openair2/M2AP/m2ap_ids.c
+index 347ba36d82..2b7f7235e5 100644
+--- a/openair2/M2AP/m2ap_ids.c
++++ b/openair2/M2AP/m2ap_ids.c
+@@ -21,6 +21,7 @@
+ 
+ #include "m2ap_ids.h"
+ 
++#include <stddef.h>
+ #include <string.h>
+ 
+ void m2ap_id_manager_init(m2ap_id_manager *m)
+@@ -39,6 +40,10 @@ int m2ap_allocate_new_id(m2ap_id_manager *m)
+       m->ids[i].rnti = 0;
+       m->ids[i].id_source = -1;
+       m->ids[i].id_target = -1;
++      m->ids[i].target = NULL;
++      m->ids[i].state = M2ID_STATE_SOURCE_PREPARE;
++      m->ids[i].t_reloc_prep_start = 0;
++      m->ids[i].tm2_reloc_overall_start = 0;
+       return i;
+     }
+   return -1;
+diff --git a/openair2/X2AP/x2ap_ids.c b/openair2/X2AP/x2ap_ids.c
+index 0750ba5bc9..003f1ad618 100644
+--- a/openair2/X2AP/x2ap_ids.c
++++ b/openair2/X2AP/x2ap_ids.c
+@@ -21,6 +21,7 @@
+ 
+ #include "x2ap_ids.h"
+ 
++#include <stddef.h>
+ #include <string.h>
+ 
+ void x2ap_id_manager_init(x2ap_id_manager *m)
+@@ -39,6 +40,12 @@ int x2ap_allocate_new_id(x2ap_id_manager *m)
+       m->ids[i].rnti = 0;
+       m->ids[i].id_source = -1;
+       m->ids[i].id_target = -1;
++      m->ids[i].target = NULL;
++      m->ids[i].state = X2ID_STATE_SOURCE_PREPARE;
++      m->ids[i].t_reloc_prep_start = 0;
++      m->ids[i].tx2_reloc_overall_start = 0;
++      m->ids[i].t_dc_prep_start = 0;
++      m->ids[i].t_dc_overall_start = 0;
+       return i;
+     }
+   return -1;

@@ -1,0 +1,21 @@
+diff --git a/openair1/SIMULATION/TOOLS/random_channel.c b/openair1/SIMULATION/TOOLS/random_channel.c
+index e81542bb5a..ce680ddf4f 100644
+--- a/openair1/SIMULATION/TOOLS/random_channel.c
++++ b/openair1/SIMULATION/TOOLS/random_channel.c
+@@ -106,6 +106,7 @@ void fill_channel_desc(channel_desc_t *chan_desc,
+   chan_desc->nb_taps        = nb_taps;
+   chan_desc->channel_length = channel_length;
+   chan_desc->amps           = amps;
++  chan_desc->free_flags     = 0;  // Initialize free_flags to 0
+   LOG_D(OCM,"[CHANNEL] Doing delays ...\n");
+ 
+   if (delays==NULL) {
+@@ -169,7 +170,7 @@ void fill_channel_desc(channel_desc_t *chan_desc,
+       //chan_desc->R_sqrt[i]    = (struct complexd*) calloc(nb_tx*nb_rx*nb_tx*nb_rx,sizeof(struct complexd));
+       //chan_desc->R_sqrt = (struct complexd*)&R_sqrt[i][0];
+       /* all chan_desc share the same R_sqrt, coming from caller */
+-      chan_desc->R_sqrt[i] = R_sqrt;
++      chan_desc->R_sqrt[i] = &R_sqrt[i * nb_tx*nb_rx*nb_tx*nb_rx];
+     }
+   }
+ 

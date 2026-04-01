@@ -1,0 +1,330 @@
+diff --git a/openair2/COMMON/f1ap_messages_types.h b/openair2/COMMON/f1ap_messages_types.h
+index e44e1dccb4..3de0bec47b 100644
+--- a/openair2/COMMON/f1ap_messages_types.h
++++ b/openair2/COMMON/f1ap_messages_types.h
+@@ -671,4 +671,37 @@ typedef struct f1ap_reset_ack_t {
+   //uint16_t criticality_diagnostics; // not implemented as of now
+ } f1ap_reset_ack_t;
+ 
++/* TRP Positioning Types */
++typedef enum {
++  F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_NOTHING,
++  F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_PCI_NR,
++  F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_NG_RAN_CGI,
++  F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_NR_ARFCN,
++  F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_PRS_CONFIGURATION,
++  F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_SSB_INFORMATION,
++  F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_SFN_INITIALISATION_TIME,
++  F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_SPATIAL_DIRECTION_INFORMATION,
++  F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_GEOGRAPHICAL_COORDINATES,
++  F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_CHOICE_EXTENSION
++} f1ap_trp_info_type_response_item_present_e;
++
++typedef struct f1ap_trp_info_type_response_item_s {
++  f1ap_trp_info_type_response_item_present_e present;
++  union {
++    long pci_nr; /* NRPCI */
++    /* Add other union members for different TRP information types */
++    /* For now, we'll just define the basic structure with placeholders */
++    /* In a complete implementation, we would define structures for:
++       - NRCGI
++       - INTEGER (NRARFCN)
++       - PRSConfiguration
++       - SSBInformation
++       - SFNInitialisationTime
++       - SpatialDirectionInformation
++       - GeographicalCoordinates
++       - ProtocolIE-SingleContainer (for choice-extension)
++    */
++  } choice;
++} f1ap_trp_info_type_response_item_t;
++
+ #endif /* F1AP_MESSAGES_TYPES_H_ */
+diff --git a/openair2/F1AP/lib/f1ap_lib_includes.h b/openair2/F1AP/lib/f1ap_lib_includes.h
+index 3f039bf6f0..bd31d6e963 100644
+--- a/openair2/F1AP/lib/f1ap_lib_includes.h
++++ b/openair2/F1AP/lib/f1ap_lib_includes.h
+@@ -47,5 +47,6 @@
+ #include "F1AP_NonDynamic5QIDescriptor.h"
+ #include "F1AP_Dynamic5QIDescriptor.h"
+ #include "F1AP_DLUPTNLInformation-ToBeSetup-Item.h"
++#include "F1AP_TRPInformationTypeResponseItem.h"
+ 
+ #endif /* F1AP_LIB_INCLUDES_H_ */
+diff --git a/openair2/F1AP/lib/f1ap_positioning.c b/openair2/F1AP/lib/f1ap_positioning.c
+new file mode 100644
+index 0000000000..74836679c5
+--- /dev/null
++++ b/openair2/F1AP/lib/f1ap_positioning.c
+@@ -0,0 +1,225 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++#include "f1ap_positioning.h"
++
++#include "f1ap_lib_common.h"
++#include "f1ap_lib_includes.h"
++#include "f1ap_messages_types.h"
++
++#include "common/utils/assertions.h"
++#include "openair3/UTILS/conversions.h"
++#include "common/utils/oai_asn1.h"
++#include "common/utils/utils.h"
++
++/* ====================================
++ * TRP Information Type Response Item
++ * ==================================== */
++
++/**
++ * @brief TRP Information Type Response Item encoding
++ */
++F1AP_TRPInformationTypeResponseItem_t encode_trp_info_type_response_item(const f1ap_trp_info_type_response_item_t *msg)
++{
++  F1AP_TRPInformationTypeResponseItem_t trp_info_item = {0};
++  
++  /* Based on the ASN.1 definition, TRPInformationTypeResponseItem is a CHOICE type.
++   * The actual implementation would depend on which choice is selected.
++   */
++  
++  /* Copy the appropriate choice based on the input message type */
++  switch (msg->present) {
++    case F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_NOTHING:
++      trp_info_item.present = F1AP_TRPInformationTypeResponseItem_PR_NOTHING;
++      break;
++      
++    case F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_PCI_NR:
++      trp_info_item.present = F1AP_TRPInformationTypeResponseItem_PR_pCI_NR;
++      trp_info_item.choice.pCI_NR = msg->choice.pci_nr;
++      break;
++      
++    case F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_NG_RAN_CGI:
++      trp_info_item.present = F1AP_TRPInformationTypeResponseItem_PR_nG_RAN_CGI;
++      /* Implementation would go here for NRCGI */
++      break;
++      
++    case F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_NR_ARFCN:
++      trp_info_item.present = F1AP_TRPInformationTypeResponseItem_PR_nRARFCN;
++      /* Implementation would go here for NRARFCN */
++      break;
++      
++    case F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_PRS_CONFIGURATION:
++      trp_info_item.present = F1AP_TRPInformationTypeResponseItem_PR_pRSConfiguration;
++      /* Implementation would go here for PRSConfiguration */
++      break;
++      
++    case F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_SSB_INFORMATION:
++      trp_info_item.present = F1AP_TRPInformationTypeResponseItem_PR_sSBinformation;
++      /* Implementation would go here for SSBInformation */
++      break;
++      
++    case F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_SFN_INITIALISATION_TIME:
++      trp_info_item.present = F1AP_TRPInformationTypeResponseItem_PR_sFNInitialisationTime;
++      /* Implementation would go here for SFNInitialisationTime */
++      break;
++      
++    case F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_SPATIAL_DIRECTION_INFORMATION:
++      trp_info_item.present = F1AP_TRPInformationTypeResponseItem_PR_spatialDirectionInformation;
++      /* Implementation would go here for SpatialDirectionInformation */
++      break;
++      
++    case F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_GEOGRAPHICAL_COORDINATES:
++      trp_info_item.present = F1AP_TRPInformationTypeResponseItem_PR_geographicalCoordinates;
++      /* Implementation would go here for GeographicalCoordinates */
++      break;
++      
++    case F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_CHOICE_EXTENSION:
++      trp_info_item.present = F1AP_TRPInformationTypeResponseItem_PR_choice_extension;
++      /* Implementation would go here for ProtocolIE-SingleContainer */
++      break;
++      
++    default:
++      trp_info_item.present = F1AP_TRPInformationTypeResponseItem_PR_NOTHING;
++      break;
++  }
++  
++  return trp_info_item;
++}
++
++bool decode_trp_info_type_response_item(const F1AP_TRPInformationTypeResponseItem_t *pdu, f1ap_trp_info_type_response_item_t *out)
++{
++  if (!pdu || !out) return false;
++  
++  memset(out, 0, sizeof(*out));
++  
++  out->present = pdu->present;
++  
++  switch (pdu->present) {
++    case F1AP_TRPInformationTypeResponseItem_PR_NOTHING:
++      /* Nothing to decode */
++      break;
++      
++    case F1AP_TRPInformationTypeResponseItem_PR_pCI_NR:
++      out->present = F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_PCI_NR;
++      /* Implementation would go here for decoding NRPCI */
++      break;
++      
++    case F1AP_TRPInformationTypeResponseItem_PR_nG_RAN_CGI:
++      out->present = F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_NG_RAN_CGI;
++      /* Implementation would go here for decoding NRCGI */
++      break;
++      
++    case F1AP_TRPInformationTypeResponseItem_PR_nRARFCN:
++      out->present = F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_NR_ARFCN;
++      /* Implementation would go here for decoding NRARFCN */
++      break;
++      
++    case F1AP_TRPInformationTypeResponseItem_PR_pRSConfiguration:
++      out->present = F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_PRS_CONFIGURATION;
++      /* Implementation would go here for decoding PRSConfiguration */
++      break;
++      
++    case F1AP_TRPInformationTypeResponseItem_PR_sSBinformation:
++      out->present = F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_SSB_INFORMATION;
++      /* Implementation would go here for decoding SSBInformation */
++      break;
++      
++    case F1AP_TRPInformationTypeResponseItem_PR_sFNInitialisationTime:
++      out->present = F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_SFN_INITIALISATION_TIME;
++      /* Implementation would go here for decoding SFNInitialisationTime */
++      break;
++      
++    case F1AP_TRPInformationTypeResponseItem_PR_spatialDirectionInformation:
++      out->present = F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_SPATIAL_DIRECTION_INFORMATION;
++      /* Implementation would go here for decoding SpatialDirectionInformation */
++      break;
++      
++    case F1AP_TRPInformationTypeResponseItem_PR_geographicalCoordinates:
++      out->present = F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_GEOGRAPHICAL_COORDINATES;
++      /* Implementation would go here for decoding GeographicalCoordinates */
++      break;
++      
++    case F1AP_TRPInformationTypeResponseItem_PR_choice_extension:
++      out->present = F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_CHOICE_EXTENSION;
++      /* Implementation would go here for decoding ProtocolIE-SingleContainer */
++      break;
++      
++    default:
++      return false;
++  }
++  
++  return true;
++}
++
++f1ap_trp_info_type_response_item_t cp_trp_info_type_response_item(const f1ap_trp_info_type_response_item_t *msg)
++{
++  if (!msg) return (f1ap_trp_info_type_response_item_t){0};
++  
++  f1ap_trp_info_type_response_item_t ret = *msg;
++  /* Deep copy would go here if needed for complex types */
++  
++  return ret;
++}
++
++bool eq_trp_info_type_response_item(const f1ap_trp_info_type_response_item_t *a, const f1ap_trp_info_type_response_item_t *b)
++{
++  if (!a && !b) return true;
++  if (!a || !b) return false;
++  
++  if (a->present != b->present) return false;
++  
++  switch (a->present) {
++    case F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_NOTHING:
++      return true;
++      
++    case F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_PCI_NR:
++      return a->choice.pci_nr == b->choice.pci_nr;
++      
++    /* Add comparison cases for each choice */
++    default:
++      return false;
++  }
++}
++
++void free_trp_info_type_response_item(const f1ap_trp_info_type_response_item_t *msg)
++{
++  if (!msg) return;
++  
++  /* Free any allocated memory inside the structure */
++  /* Since our structure doesn't currently contain pointers, nothing to free */
++  switch (msg->present) {
++    case F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_NOTHING:
++    case F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_PCI_NR:
++    case F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_NG_RAN_CGI:
++    case F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_NR_ARFCN:
++    case F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_PRS_CONFIGURATION:
++    case F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_SSB_INFORMATION:
++    case F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_SFN_INITIALISATION_TIME:
++    case F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_SPATIAL_DIRECTION_INFORMATION:
++    case F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_GEOGRAPHICAL_COORDINATES:
++    case F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_CHOICE_EXTENSION:
++      /* No special freeing needed for basic types */
++      break;
++      
++    default:
++      break;
++  }
++}
+\ No newline at end of file
+diff --git a/openair2/F1AP/lib/f1ap_positioning.h b/openair2/F1AP/lib/f1ap_positioning.h
+new file mode 100644
+index 0000000000..266e078e7e
+--- /dev/null
++++ b/openair2/F1AP/lib/f1ap_positioning.h
+@@ -0,0 +1,38 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++#ifndef F1AP_POSITIONING_H_
++#define F1AP_POSITIONING_H_
++
++#include <stdbool.h>
++#include "f1ap_messages_types.h"
++
++struct F1AP_F1AP_PDU;
++struct F1AP_TRPInformationTypeResponseItem;
++
++/* TRP Information Type Response Item */
++struct F1AP_TRPInformationTypeResponseItem encode_trp_info_type_response_item(const f1ap_trp_info_type_response_item_t *msg);
++bool decode_trp_info_type_response_item(const struct F1AP_TRPInformationTypeResponseItem *pdu, f1ap_trp_info_type_response_item_t *out);
++f1ap_trp_info_type_response_item_t cp_trp_info_type_response_item(const f1ap_trp_info_type_response_item_t *msg);
++bool eq_trp_info_type_response_item(const f1ap_trp_info_type_response_item_t *a, const f1ap_trp_info_type_response_item_t *b);
++void free_trp_info_type_response_item(const f1ap_trp_info_type_response_item_t *msg);
++
++#endif /* F1AP_POSITIONING_H_ */
+\ No newline at end of file

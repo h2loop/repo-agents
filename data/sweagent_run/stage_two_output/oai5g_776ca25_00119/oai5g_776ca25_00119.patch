@@ -1,0 +1,26 @@
+diff --git a/openair1/PHY/LTE_TRANSPORT/transport_common_proto.h b/openair1/PHY/LTE_TRANSPORT/transport_common_proto.h
+index 57a7b2ec91..9241ffe14c 100644
+--- a/openair1/PHY/LTE_TRANSPORT/transport_common_proto.h
++++ b/openair1/PHY/LTE_TRANSPORT/transport_common_proto.h
+@@ -135,7 +135,7 @@ uint8_t SE2I_TBS(float SE,
+ 
+ int generate_srs(LTE_DL_FRAME_PARMS *frame_parms,
+                  SOUNDINGRS_UL_CONFIG_DEDICATED *soundingrs_ul_config_dedicated,
+-                 int *txdataF,
++                 int32_t *txdataF,
+                  int16_t amp,
+                  uint32_t subframe);
+ 
+diff --git a/openair1/PHY/LTE_UE_TRANSPORT/transport_proto_ue.h b/openair1/PHY/LTE_UE_TRANSPORT/transport_proto_ue.h
+index 36da4ccab0..e310b3b81e 100644
+--- a/openair1/PHY/LTE_UE_TRANSPORT/transport_proto_ue.h
++++ b/openair1/PHY/LTE_UE_TRANSPORT/transport_proto_ue.h
+@@ -1328,7 +1328,7 @@ uint8_t SE2I_TBS(float SE,
+     @returns 0 on success*/
+ int generate_srs(LTE_DL_FRAME_PARMS *frame_parms,
+                  SOUNDINGRS_UL_CONFIG_DEDICATED *soundingrs_ul_config_dedicated,
+-                 int *txdataF,
++                 int32_t *txdataF,
+                  int16_t amp,
+                  uint32_t subframe);
+ 

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00038_3054d6",
+  "pr_text": "## Title: Fix uninitialized SIMD accumulators in DFT causing missed UE scheduling\n\n### Summary\nThe butterfly-3 DFT functions in the PHY signal processing chain contained uninitialized SIMD accumulator registers, corrupting channel estimates and causing the MAC scheduler to miss valid scheduling opportunities for UEs with pending data. The `tmpre` and `tmpim` accumulators in `bfly3_256()` and `bfly3_tw1_256()` were not zeroed before `cmac_256()` operations, leading to stale values being accumulat",
+  "trajectory_path": "data/raw/s00038_3054d6_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00038_3054d6_p2.diff",
+  "patch_lines": 8,
+  "trajectory_steps": 69,
+  "timestamp": "2026-02-11T09:23:33Z"
+}

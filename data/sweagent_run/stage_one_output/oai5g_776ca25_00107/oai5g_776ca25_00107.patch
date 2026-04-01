@@ -1,0 +1,133 @@
+diff --git a/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c b/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c
+index 11dac69484..3ee4266129 100644
+--- a/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c
++++ b/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c
+@@ -107,11 +107,11 @@ static const uint16_t NCS_restricted_TypeB_delta_f_RA_5[14] =
+ // Table 6.3.3.1-7 (38.211) NCS for preamble formats with delta_f_RA = 15 * 2mu KHz where mu = {0,1,2,3}
+ static const uint16_t NCS_unrestricted_delta_f_RA_15[16] = {0, 2, 4, 6, 8, 10, 12, 13, 15, 17, 19, 23, 27, 34, 46, 69};
+ 
+-//	specification mapping talbe, table_38$x_$y_$z_c$a
+-//	- $x: specification
+-//	- $y: subclause-major
+-//	- $z: subclause-minor
+-//	- $a: ($a)th of column in table, start from zero
++//      specification mapping talbe, table_38$x_$y_$z_c$a
++//      - $x: specification
++//      - $y: subclause-major
++//      - $z: subclause-minor
++//      - $a: ($a)th of column in table, start from zero
+ const int32_t table_38213_13_1_c1[16] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, reserved}; // index 15 reserved
+ const int32_t table_38213_13_1_c2[16] = {24, 24, 24, 24, 24, 24, 48, 48, 48, 48, 48, 48, 96, 96, 96, reserved}; // index 15 reserved
+ const int32_t table_38213_13_1_c3[16] = { 2,  2,  2,  3,  3,  3,  1,  1,  2,  2,  3,  3,  1,  2,  3, reserved}; // index 15 reserved
+@@ -162,10 +162,10 @@ const int32_t table_38213_13_10_c2[16] = {48, 48, 48, 48, 24, 24, 48, 48, reserv
+ const int32_t table_38213_13_10_c3[16] = { 1,  1,  2,  2,  1,  1,  1,  1, reserved, reserved, reserved, reserved, reserved, reserved, reserved, reserved}; // index 08-15 reserved
+ const int32_t table_38213_13_10_c4[16] = { 0,  8,  0,  8,-41, 25,-41, 49, reserved, reserved, reserved, reserved, reserved, reserved, reserved, reserved}; // index 08-15 reserved, condition A as default
+ 
+-const float   table_38213_13_11_c1[16] = { 0,  0,  2,  2,  5,  5,  7,  7,  0,  5,  0,  0,  2,  2,  5,  5};	//	O
++const float   table_38213_13_11_c1[16] = { 0,  0,  2,  2,  5,  5,  7,  7,  0,  5,  0,  0,  2,  2,  5,  5};      //      O
+ const int32_t table_38213_13_11_c2[16] = { 1,  2,  1,  2,  1,  2,  1,  2,  1,  1,  1,  1,  1,  1,  1,  1};
+-const float   table_38213_13_11_c3[16] = { 1, 0.5f, 1, 0.5f, 1, 0.5f, 1, 0.5f,  2,  2,  1,  1,  1,  1,  1,  1};	//	M
+-const int32_t table_38213_13_11_c4[16] = { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  2,  1,  2,  1,  2};	// i is even as default
++const float   table_38213_13_11_c3[16] = { 1, 0.5f, 1, 0.5f, 1, 0.5f, 1, 0.5f,  2,  2,  1,  1,  1,  1,  1,  1}; //      M
++const int32_t table_38213_13_11_c4[16] = { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  2,  1,  2,  1,  2};      // i is even as default
+ 
+ const float   table_38213_13_12_c1[16] = { 0, 0, 2.5f, 2.5f, 5, 5, 0, 2.5f, 5, 7.5f, 7.5f, 7.5f, 0, 5, reserved, reserved}; // O, index 14-15 reserved
+ const int32_t table_38213_13_12_c2[16] = { 1,  2,  1,  2,  1,  2,  2,  2,  2,  1,  2,  2,  1,  1,  reserved,  reserved}; // index 14-15 reserved
+@@ -1574,67 +1574,86 @@ void set_monitoring_periodicity_offset(NR_SearchSpace_t *ss,
+                                        uint16_t period,
+                                        uint16_t offset) {
+ 
++  // Validate offset according to 3GPP TS 38.331 specification
++  // For sl1, offset should always be 0
++  // For other periodicities, offset should be less than the period
+   switch(period) {
+     case 1:
++      AssertFatal(offset == 0, "For periodicity=1 (sl1), offset must be 0, got %d\n", offset);
+       ss->monitoringSlotPeriodicityAndOffset->present = NR_SearchSpace__monitoringSlotPeriodicityAndOffset_PR_sl1;
+       break;
+     case 2:
++      AssertFatal(offset < period, "Offset (%d) must be less than period (%d). Valid range: [0, %d]\n", offset, period, period-1);
+       ss->monitoringSlotPeriodicityAndOffset->present = NR_SearchSpace__monitoringSlotPeriodicityAndOffset_PR_sl2;
+       ss->monitoringSlotPeriodicityAndOffset->choice.sl2 = offset;
+       break;
+     case 4:
++      AssertFatal(offset < period, "Offset (%d) must be less than period (%d). Valid range: [0, %d]\n", offset, period, period-1);
+       ss->monitoringSlotPeriodicityAndOffset->present = NR_SearchSpace__monitoringSlotPeriodicityAndOffset_PR_sl4;
+       ss->monitoringSlotPeriodicityAndOffset->choice.sl4 = offset;
+       break;
+     case 5:
++      AssertFatal(offset < period, "Offset (%d) must be less than period (%d). Valid range: [0, %d]\n", offset, period, period-1);
+       ss->monitoringSlotPeriodicityAndOffset->present = NR_SearchSpace__monitoringSlotPeriodicityAndOffset_PR_sl5;
+       ss->monitoringSlotPeriodicityAndOffset->choice.sl5 = offset;
+       break;
+     case 8:
++      AssertFatal(offset < period, "Offset (%d) must be less than period (%d). Valid range: [0, %d]\n", offset, period, period-1);
+       ss->monitoringSlotPeriodicityAndOffset->present = NR_SearchSpace__monitoringSlotPeriodicityAndOffset_PR_sl8;
+       ss->monitoringSlotPeriodicityAndOffset->choice.sl8 = offset;
+       break;
+     case 10:
++      AssertFatal(offset < period, "Offset (%d) must be less than period (%d). Valid range: [0, %d]\n", offset, period, period-1);
+       ss->monitoringSlotPeriodicityAndOffset->present = NR_SearchSpace__monitoringSlotPeriodicityAndOffset_PR_sl10;
+       ss->monitoringSlotPeriodicityAndOffset->choice.sl10 = offset;
+       break;
+     case 16:
++      AssertFatal(offset < period, "Offset (%d) must be less than period (%d). Valid range: [0, %d]\n", offset, period, period-1);
+       ss->monitoringSlotPeriodicityAndOffset->present = NR_SearchSpace__monitoringSlotPeriodicityAndOffset_PR_sl16;
+       ss->monitoringSlotPeriodicityAndOffset->choice.sl16 = offset;
+       break;
+     case 20:
++      AssertFatal(offset < period, "Offset (%d) must be less than period (%d). Valid range: [0, %d]\n", offset, period, period-1);
+       ss->monitoringSlotPeriodicityAndOffset->present = NR_SearchSpace__monitoringSlotPeriodicityAndOffset_PR_sl20;
+       ss->monitoringSlotPeriodicityAndOffset->choice.sl20 = offset;
+       break;
+     case 40:
++      AssertFatal(offset < period, "Offset (%d) must be less than period (%d). Valid range: [0, %d]\n", offset, period, period-1);
+       ss->monitoringSlotPeriodicityAndOffset->present = NR_SearchSpace__monitoringSlotPeriodicityAndOffset_PR_sl40;
+       ss->monitoringSlotPeriodicityAndOffset->choice.sl40 = offset;
+       break;
+     case 80:
++      AssertFatal(offset < period, "Offset (%d) must be less than period (%d). Valid range: [0, %d]\n", offset, period, period-1);
+       ss->monitoringSlotPeriodicityAndOffset->present = NR_SearchSpace__monitoringSlotPeriodicityAndOffset_PR_sl80;
+       ss->monitoringSlotPeriodicityAndOffset->choice.sl80 = offset;
+       break;
+     case 160:
++      AssertFatal(offset < period, "Offset (%d) must be less than period (%d). Valid range: [0, %d]\n", offset, period, period-1);
+       ss->monitoringSlotPeriodicityAndOffset->present = NR_SearchSpace__monitoringSlotPeriodicityAndOffset_PR_sl160;
+       ss->monitoringSlotPeriodicityAndOffset->choice.sl160 = offset;
+       break;
+     case 320:
++      AssertFatal(offset < period, "Offset (%d) must be less than period (%d). Valid range: [0, %d]\n", offset, period, period-1);
+       ss->monitoringSlotPeriodicityAndOffset->present = NR_SearchSpace__monitoringSlotPeriodicityAndOffset_PR_sl320;
+       ss->monitoringSlotPeriodicityAndOffset->choice.sl320 = offset;
+       break;
+     case 640:
++      AssertFatal(offset < period, "Offset (%d) must be less than period (%d). Valid range: [0, %d]\n", offset, period, period-1);
+       ss->monitoringSlotPeriodicityAndOffset->present = NR_SearchSpace__monitoringSlotPeriodicityAndOffset_PR_sl640;
+       ss->monitoringSlotPeriodicityAndOffset->choice.sl640 = offset;
+       break;
+     case 1280:
++      AssertFatal(offset < period, "Offset (%d) must be less than period (%d). Valid range: [0, %d]\n", offset, period, period-1);
+       ss->monitoringSlotPeriodicityAndOffset->present = NR_SearchSpace__monitoringSlotPeriodicityAndOffset_PR_sl1280;
+       ss->monitoringSlotPeriodicityAndOffset->choice.sl1280 = offset;
+       break;
+     case 2560:
++      AssertFatal(offset < period, "Offset (%d) must be less than period (%d). Valid range: [0, %d]\n", offset, period, period-1);
+       ss->monitoringSlotPeriodicityAndOffset->present = NR_SearchSpace__monitoringSlotPeriodicityAndOffset_PR_sl2560;
+-      ss->monitoringSlotPeriodicityAndOffset->choice.sl2560 = offset;      break;
++      ss->monitoringSlotPeriodicityAndOffset->choice.sl2560 = offset;
++      break;
+   default:
+-    AssertFatal(1==0,"Invalid monitoring slot periodicity value\n");
++    AssertFatal(1==0,"Invalid monitoring slot periodicity value %d\n", period);
+     break;
+   }
+ }
+@@ -1825,7 +1844,7 @@ static const uint16_t table_63313[838] = {
+ uint8_t compute_nr_root_seq(NR_RACH_ConfigCommon_t *rach_config,
+                             uint8_t nb_preambles,
+                             uint8_t unpaired,
+-			    frequency_range_t frequency_range) {
++                            frequency_range_t frequency_range) {
+ 
+   uint8_t config_index = rach_config->rach_ConfigGeneric.prach_ConfigurationIndex;
+   uint8_t ncs_index = rach_config->rach_ConfigGeneric.zeroCorrelationZoneConfig;

@@ -1,0 +1,35 @@
+{
+  "run_id": "s00099_b0b71f",
+  "function": {
+    "name": "is_prach_subframe",
+    "file": "openair1/PHY/LTE_TRANSPORT/prach_common.c",
+    "start_line": 359,
+    "end_line": 370,
+    "body_lines": 12,
+    "signature": "int is_prach_subframe(LTE_DL_FRAME_PARMS *frame_parms, uint32_t frame, uint8_t subframe)",
+    "subsystem": "openair1/PHY/LTE_TRANSPORT",
+    "token_estimate": 40
+  },
+  "bug": {
+    "bug_id": "c_use_after_free",
+    "description": "use-after-free vulnerability where freed memory is subsequently accessed",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a use-after-free vulnerability where freed memory is subsequently accessed downstream of function is_prach_subframe in the openair1/PHY/LTE_TRANSPORT subsystem.\nThe function is located at openair1/PHY/LTE_TRANSPORT/prach_common.c:359.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00099_b0b71f_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00099_b0b71f_p1.diff",
+  "patch_lines": 21,
+  "trajectory_steps": 59,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:12:07Z"
+}

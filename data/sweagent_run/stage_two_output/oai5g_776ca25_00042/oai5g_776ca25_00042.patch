@@ -1,0 +1,24 @@
+diff --git a/openair3/M3AP/m3ap_decoder.c b/openair3/M3AP/m3ap_decoder.c
+index cee0a5ff41..af03cb534e 100644
+--- a/openair3/M3AP/m3ap_decoder.c
++++ b/openair3/M3AP/m3ap_decoder.c
+@@ -188,15 +188,16 @@ int m3ap_decode_pdu(M3AP_M3AP_PDU_t *pdu, const uint8_t *const buffer, uint32_t
+                         length,
+                         0,
+                         0);
+-  if (asn1_xer_print) {
+-    xer_fprint(stdout, &asn_DEF_M3AP_M3AP_PDU, pdu);
+-  }
+ 
+   if (dec_ret.code != RC_OK) {
+     M3AP_ERROR("Failed to decode pdu\n");
+     return -1;
+   }
+ 
++  if (asn1_xer_print) {
++    xer_fprint(stdout, &asn_DEF_M3AP_M3AP_PDU, pdu);
++  }
++
+   switch(pdu->present) {
+     case M3AP_M3AP_PDU_PR_initiatingMessage:
+       return m3ap_decode_initiating_message(pdu);

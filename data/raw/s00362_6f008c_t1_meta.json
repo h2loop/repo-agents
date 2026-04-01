@@ -1,0 +1,33 @@
+{
+  "run_id": "s00362_6f008c",
+  "function": {
+    "name": "rrc_eNB_free_UE",
+    "file": "openair2/RRC/LTE/rrc_eNB.c",
+    "start_line": 814,
+    "end_line": 859,
+    "body_lines": 46,
+    "signature": "void rrc_eNB_free_UE( const module_id_t enb_mod_idP, const struct rrc_eNB_ue_context_s *const ue_context_pP) //-----------------------------------------------------------------------------",
+    "subsystem": "openair2/RRC/LTE",
+    "token_estimate": 210
+  },
+  "bug": {
+    "bug_id": "c_incorrect_loop_bounds",
+    "description": "incorrect loop bounds causing iteration over invalid indices",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a incorrect loop bounds causing iteration over invalid indices downstream of function rrc_eNB_free_UE in the openair2/RRC/LTE subsystem.\nThe function is located at openair2/RRC/LTE/rrc_eNB.c:814.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00362_6f008c_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00362_6f008c_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 34,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:50:26Z"
+}

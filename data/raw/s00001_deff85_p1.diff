@@ -1,0 +1,119 @@
+diff --git a/openair2/NR_UE_PHY_INTERFACE/NR_Packet_Drop.c b/openair2/NR_UE_PHY_INTERFACE/NR_Packet_Drop.c
+index 8a6bd3118c..a38dbd233a 100644
+--- a/openair2/NR_UE_PHY_INTERFACE/NR_Packet_Drop.c
++++ b/openair2/NR_UE_PHY_INTERFACE/NR_Packet_Drop.c
+@@ -71,13 +71,13 @@ float get_bler_val(uint8_t mcs, int sinr)
+   if (sinr < (int)(nr_bler_data[mcs].bler_table[0][0] * 10))
+   {
+     LOG_D(NR_MAC, "MCS %d table. SINR is smaller than lowest SINR, bler_val is set based on lowest SINR in table\n", mcs);
+-    bler_val = nr_bler_data[mcs].bler_table[0][4] / nr_bler_data[mcs].bler_table[0][5];
++    bler_val = nr_bler_data[mcs].bler_table[0][BLER_COL_DROPPED_PACKETS] / nr_bler_data[mcs].bler_table[0][BLER_COL_TOTAL_PACKETS];
+     return bler_val;
+   }
+   if (sinr > (int)(nr_bler_data[mcs].bler_table[nr_bler_data[mcs].length - 1][0] * 10))
+   {
+     LOG_D(NR_MAC, "MCS %d table. SINR is greater than largest SINR. bler_val is set based on largest SINR in table\n", mcs);
+-    bler_val = nr_bler_data[mcs].bler_table[(nr_bler_data[mcs].length - 1)][4] / nr_bler_data[mcs].bler_table[(nr_bler_data[mcs].length - 1)][5];
++    bler_val = nr_bler_data[mcs].bler_table[(nr_bler_data[mcs].length - 1)][BLER_COL_DROPPED_PACKETS] / nr_bler_data[mcs].bler_table[(nr_bler_data[mcs].length - 1)][BLER_COL_TOTAL_PACKETS];
+     return bler_val;
+   }
+   // Loop through bler table to find sinr_index
+@@ -86,14 +86,14 @@ float get_bler_val(uint8_t mcs, int sinr)
+     int temp_sinr = (int)(nr_bler_data[mcs].bler_table[i][0] * 10);
+     if (temp_sinr == sinr)
+     {
+-      bler_val = nr_bler_data[mcs].bler_table[i][4] / nr_bler_data[mcs].bler_table[i][5];
++      bler_val = nr_bler_data[mcs].bler_table[i][BLER_COL_DROPPED_PACKETS] / nr_bler_data[mcs].bler_table[i][BLER_COL_TOTAL_PACKETS];
+       return bler_val;
+     }
+     // Linear interpolation when SINR is between indices
+     if (temp_sinr > sinr)
+     {
+-      float bler_val1 = nr_bler_data[mcs].bler_table[i - 1][4] / nr_bler_data[mcs].bler_table[i - 1][5];
+-      float bler_val2 = nr_bler_data[mcs].bler_table[i][4] / nr_bler_data[mcs].bler_table[i][5];
++      float bler_val1 = nr_bler_data[mcs].bler_table[i - 1][BLER_COL_DROPPED_PACKETS] / nr_bler_data[mcs].bler_table[i - 1][BLER_COL_TOTAL_PACKETS];
++      float bler_val2 = nr_bler_data[mcs].bler_table[i][BLER_COL_DROPPED_PACKETS] / nr_bler_data[mcs].bler_table[i][BLER_COL_TOTAL_PACKETS];
+       LOG_D(NR_MAC, "sinr %d min %f max %f\n", sinr, bler_val1, bler_val2);
+       return ((bler_val1 + bler_val2) / 2);
+     }
+diff --git a/openair2/NR_UE_PHY_INTERFACE/NR_Packet_Drop.h b/openair2/NR_UE_PHY_INTERFACE/NR_Packet_Drop.h
+index dcc5710724..1d793f0dfc 100644
+--- a/openair2/NR_UE_PHY_INTERFACE/NR_Packet_Drop.h
++++ b/openair2/NR_UE_PHY_INTERFACE/NR_Packet_Drop.h
+@@ -31,6 +31,11 @@
+ #define NR_NUM_LAYER 1
+ #define MAX_NR_CHAN_PARAMS 256
+ 
++// BLER table column indices
++#define BLER_COL_SINR 0
++#define BLER_COL_DROPPED_PACKETS 4
++#define BLER_COL_TOTAL_PACKETS 5
++
+ typedef struct NR_UL_TIME_ALIGNMENT NR_UL_TIME_ALIGNMENT_t;
+ 
+ typedef struct {
+diff --git a/openair2/PHY_INTERFACE/phy_stub_UE.c b/openair2/PHY_INTERFACE/phy_stub_UE.c
+index af82d6093d..8f34fa04db 100644
+--- a/openair2/PHY_INTERFACE/phy_stub_UE.c
++++ b/openair2/PHY_INTERFACE/phy_stub_UE.c
+@@ -2037,35 +2037,35 @@ static bool did_drop_transport_block(int sf, uint16_t rnti)
+ 
+ static float get_bler_val(uint8_t mcs, int sinr)
+ {
+-  // 4th col = dropped packets, 5th col = total packets
++  // BLER_COL_DROPPED_PACKETS = dropped packets, BLER_COL_TOTAL_PACKETS = total packets
+   float bler_val = 0.0;
+   CHECK_INDEX(bler_data, mcs);
+-  if (sinr < (int)(bler_data[mcs].bler_table[0][0] * 10))
++  if (sinr < (int)(bler_data[mcs].bler_table[0][BLER_COL_SINR] * 10))
+   {
+     LOG_I(MAC, "MCS %d table. SINR is smaller than lowest SINR, bler_val is set based on lowest SINR in table\n", mcs);
+-    bler_val = bler_data[mcs].bler_table[0][4] / bler_data[mcs].bler_table[0][5];
++    bler_val = bler_data[mcs].bler_table[0][BLER_COL_DROPPED_PACKETS] / bler_data[mcs].bler_table[0][BLER_COL_TOTAL_PACKETS];
+     return bler_val;
+   }
+-  if (sinr > (int)(bler_data[mcs].bler_table[bler_data[mcs].length - 1][0] * 10))
++  if (sinr > (int)(bler_data[mcs].bler_table[bler_data[mcs].length - 1][BLER_COL_SINR] * 10))
+   {
+     LOG_I(MAC, "MCS %d table. SINR is greater than largest SINR. bler_val is set based on largest SINR in table\n", mcs);
+-    bler_val = bler_data[mcs].bler_table[(bler_data[mcs].length - 1)][4] / bler_data[mcs].bler_table[(bler_data[mcs].length - 1)][5];
++    bler_val = bler_data[mcs].bler_table[(bler_data[mcs].length - 1)][BLER_COL_DROPPED_PACKETS] / bler_data[mcs].bler_table[(bler_data[mcs].length - 1)][BLER_COL_TOTAL_PACKETS];
+     return bler_val;
+   }
+   // Loop through bler table to find sinr_index
+   for (int i = 0; i < bler_data[mcs].length; i++)
+   {
+-    int temp_sinr = (int)(bler_data[mcs].bler_table[i][0] * 10);
++    int temp_sinr = (int)(bler_data[mcs].bler_table[i][BLER_COL_SINR] * 10);
+     if (temp_sinr == sinr)
+     {
+-      bler_val = bler_data[mcs].bler_table[i][4] / bler_data[mcs].bler_table[i][5];
++      bler_val = bler_data[mcs].bler_table[i][BLER_COL_DROPPED_PACKETS] / bler_data[mcs].bler_table[i][BLER_COL_TOTAL_PACKETS];
+       return bler_val;
+     }
+     // Linear interpolation when SINR is between indices
+     if (temp_sinr > sinr)
+     {
+-      float bler_val1 = bler_data[mcs].bler_table[i - 1][4] / bler_data[mcs].bler_table[i - 1][5];
+-      float bler_val2 = bler_data[mcs].bler_table[i][4] / bler_data[mcs].bler_table[i][5];
++      float bler_val1 = bler_data[mcs].bler_table[i - 1][BLER_COL_DROPPED_PACKETS] / bler_data[mcs].bler_table[i - 1][BLER_COL_TOTAL_PACKETS];
++      float bler_val2 = bler_data[mcs].bler_table[i][BLER_COL_DROPPED_PACKETS] / bler_data[mcs].bler_table[i][BLER_COL_TOTAL_PACKETS];
+       return ((bler_val1 + bler_val2) / 2);
+     }
+   }
+diff --git a/openair2/PHY_INTERFACE/phy_stub_UE.h b/openair2/PHY_INTERFACE/phy_stub_UE.h
+index fe0e7be12e..6defc5444d 100644
+--- a/openair2/PHY_INTERFACE/phy_stub_UE.h
++++ b/openair2/PHY_INTERFACE/phy_stub_UE.h
+@@ -26,6 +26,11 @@
+ #define NUM_BLER_COL 13
+ #define LTE_NUM_LAYER 1
+ 
++// BLER table column indices
++#define BLER_COL_SINR 0
++#define BLER_COL_DROPPED_PACKETS 4
++#define BLER_COL_TOTAL_PACKETS 5
++
+ // this mutex is used to set multiple UE's UL value in L2 FAPI simulator.
+ extern FILL_UL_INFO_MUTEX_t fill_ul_mutex;
+ //below 2 difinitions move to phy_stub_UE.c to add initialization when difinition.

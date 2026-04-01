@@ -1,0 +1,30 @@
+{
+  "run_id": "s00008_f99a6b",
+  "function": {
+    "name": "handle_nr_srs_measurements",
+    "file": "openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c",
+    "start_line": 1500,
+    "end_line": 1653,
+    "body_lines": 154,
+    "signature": "void handle_nr_srs_measurements(const module_id_t module_id, const frame_t frame, const slot_t slot, nfapi_nr_srs_indication_pdu_t *srs_ind)",
+    "subsystem": "openair2/LAYER2/NR_MAC_gNB",
+    "token_estimate": 488
+  },
+  "bug": {
+    "bug_id": "telecom_interface_f1ap_error",
+    "description": "F1AP interface handling error between CU and DU causing message loss or corruption",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/LAYER2/MAC",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a F1AP interface handling error between CU and DU causing message loss or corruption downstream of function handle_nr_srs_measurements in the openair2/LAYER2/NR_MAC_gNB subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c:1500.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00008_f99a6b_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00008_f99a6b_p1.diff",
+  "patch_lines": 27,
+  "trajectory_steps": 32,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:30:07Z"
+}

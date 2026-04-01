@@ -1,0 +1,9 @@
+{
+  "run_id": "s00301_e42678",
+  "pr_text": "## Title: Fix type confusion in NAS timer callback arguments\n\n### Summary\nThe NAS timer implementation suffered from a type confusion vulnerability where raw callback arguments (`void *args`) were passed directly to the ITTI timer system. Downstream code incorrectly cast this pointer to an incompatible struct type, risking memory corruption, crashes, and undefined behavior when timers fired.\n\nThe fix introduces a `nas_timer_wrapper_t` structure that properly encapsulates both the original NAS ti",
+  "trajectory_path": "data/raw/s00301_e42678_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00301_e42678_p2.diff",
+  "patch_lines": 153,
+  "trajectory_steps": 105,
+  "timestamp": "2026-02-10T12:38:30Z"
+}

@@ -1,0 +1,108 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi.c b/nfapi/open-nFAPI/nfapi/src/nfapi.c
+index b4b078cbed..414b51abf3 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi.c
+@@ -53,6 +53,16 @@
+ #include <nfapi.h>
+ #include <debug.h>
+ 
++// Auto-detect endianness
++#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__)
++  #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
++    #define FAPI_BYTE_ORDERING_BIG_ENDIAN
++  #endif
++#elif defined(__BIG_ENDIAN__) || defined(__BIG_ENDIAN) || \
++      (defined(__BYTE_ORDER) && defined(__BIG_ENDIAN) && __BYTE_ORDER == __BIG_ENDIAN)
++  #define FAPI_BYTE_ORDERING_BIG_ENDIAN
++#endif
++
+ // What to do when an error happens (e.g., a push or pull fails)
+ static inline void on_error()
+ {
+@@ -103,11 +113,11 @@ uint8_t push16(uint16_t in, uint8_t **out, uint8_t *end) {
+ 
+   if((end - pOut) >= 2) {
+ #ifdef FAPI_BYTE_ORDERING_BIG_ENDIAN
+-    pOut[1] = (in & 0xFF00) >> 8;
+-    pOut[0] = (in & 0xFF);
++    pOut[0] = (in & 0xFF00) >> 8;  // MSB first
++    pOut[1] = (in & 0xFF);         // LSB second
+ #else
+-    pOut[0] = (in & 0xFF00) >> 8;
+-    pOut[1] = (in & 0xFF);
++    pOut[1] = (in & 0xFF00) >> 8;  // MSB second
++    pOut[0] = (in & 0xFF);         // LSB first
+ #endif
+     (*out)+=2;
+     return 2;
+@@ -143,15 +153,15 @@ uint8_t push32(uint32_t in, uint8_t **out, uint8_t *end) {
+ 
+   if((end - pOut) >= 4) {
+ #ifdef FAPI_BYTE_ORDERING_BIG_ENDIAN
+-    pOut[3] = (in & 0xFF000000) >> 24;
+-    pOut[2] = (in & 0xFF0000) >> 16;
+-    pOut[1] = (in & 0xFF00) >> 8;
+-    pOut[0] = (in & 0xFF);
+-#else
+-    pOut[0] = (in & 0xFF000000) >> 24;
++    pOut[0] = (in & 0xFF000000) >> 24;  // MSB first
+     pOut[1] = (in & 0xFF0000) >> 16;
+     pOut[2] = (in & 0xFF00) >> 8;
+-    pOut[3] = (in & 0xFF);
++    pOut[3] = (in & 0xFF);              // LSB last
++#else
++    pOut[3] = (in & 0xFF000000) >> 24;  // MSB last
++    pOut[2] = (in & 0xFF0000) >> 16;
++    pOut[1] = (in & 0xFF00) >> 8;
++    pOut[0] = (in & 0xFF);              // LSB first
+ #endif
+     (*out)+=4;
+     return 4;
+@@ -219,9 +229,9 @@ uint8_t pull16(uint8_t **in, uint16_t *out, uint8_t *end) {
+ 
+   if((end - pIn) >=2 ) {
+ #ifdef FAPI_BYTE_ORDERING_BIG_ENDIAN
+-    *out = ((pIn[1]) << 8) | pIn[0];
++    *out = ((pIn[0]) << 8) | pIn[1];  // MSB first
+ #else
+-    *out = ((pIn[0]) << 8) | pIn[1];
++    *out = ((pIn[1]) << 8) | pIn[0];  // LSB first
+ #endif
+     (*in)+=2;
+     return 2;
+@@ -237,9 +247,9 @@ uint8_t pulls16(uint8_t **in, int16_t *out, uint8_t *end) {
+ 
+   if((end - pIn) >=2 ) {
+ #ifdef FAPI_BYTE_ORDERING_BIG_ENDIAN
+-    *out = ((pIn[1]) << 8) | pIn[0];
++    *out = ((pIn[0]) << 8) | pIn[1];  // MSB first
+ #else
+-    *out = ((pIn[0]) << 8) | pIn[1];
++    *out = ((pIn[1]) << 8) | pIn[0];  // LSB first
+ #endif
+     (*in)+=2;
+     return 2;
+@@ -255,9 +265,9 @@ uint8_t pull32(uint8_t **in, uint32_t *out, uint8_t *end) {
+ 
+   if((end - pIn) >= 4) {
+ #ifdef FAPI_BYTE_ORDERING_BIG_ENDIAN
+-    *out = ((uint32_t)pIn[3] << 24) | (pIn[2] << 16) | (pIn[1] << 8) | pIn[0];
++    *out = ((uint32_t)pIn[0] << 24) | (pIn[1] << 16) | (pIn[2] << 8) | pIn[3];  // MSB first
+ #else
+-    *out = ((uint32_t)pIn[0] << 24) | (pIn[1] << 16) | (pIn[2] << 8) | pIn[3];
++    *out = ((uint32_t)pIn[3] << 24) | (pIn[2] << 16) | (pIn[1] << 8) | pIn[0];  // LSB first
+ #endif
+     (*in) += 4;
+     return 4;
+@@ -273,9 +283,9 @@ uint8_t pulls32(uint8_t **in, int32_t *out, uint8_t *end) {
+ 
+   if((end - pIn) >=4 ) {
+ #ifdef FAPI_BYTE_ORDERING_BIG_ENDIAN
+-    *out = (pIn[3] << 24) | (pIn[2] << 16) | (pIn[1] << 8) | pIn[0];
++    *out = (pIn[0] << 24) | (pIn[1] << 16) | (pIn[2] << 8) | pIn[3];  // MSB first
+ #else
+-    *out = (pIn[0] << 24) | (pIn[1] << 16) | (pIn[2] << 8) | pIn[3];
++    *out = (pIn[3] << 24) | (pIn[2] << 16) | (pIn[1] << 8) | pIn[0];  // LSB first
+ #endif
+     (*in)+=4;
+     return 4;

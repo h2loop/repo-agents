@@ -1,0 +1,30 @@
+{
+  "run_id": "s00079_32e6f7",
+  "function": {
+    "name": "unpack_rach_indication_body_value",
+    "file": "nfapi/open-nFAPI/nfapi/src/nfapi_p7.c",
+    "start_line": 5008,
+    "end_line": 5054,
+    "body_lines": 47,
+    "signature": "static uint8_t unpack_rach_indication_body_value(void *tlv, uint8_t **ppReadPackedMsg, uint8_t *end, nfapi_p7_codec_config_t *config)",
+    "subsystem": "nfapi/open-nFAPI/nfapi",
+    "token_estimate": 153
+  },
+  "bug": {
+    "bug_id": "c_incorrect_errno_usage",
+    "description": "incorrect errno usage where errno is checked after an intervening call has overwritten it",
+    "domain": "generic_c",
+    "subsystems": [
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a incorrect errno usage where errno is checked after an intervening call has overwritten it downstream of function unpack_rach_indication_body_value in the nfapi/open-nFAPI/nfapi subsystem.\nThe function is located at nfapi/open-nFAPI/nfapi/src/nfapi_p7.c:5008.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00079_32e6f7_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00079_32e6f7_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 26,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:01:39Z"
+}

@@ -1,0 +1,14 @@
+diff --git a/openair3/ocp-gtpu/gtp_itf.cpp b/openair3/ocp-gtpu/gtp_itf.cpp
+index 9be1873612..b13c3ac775 100644
+--- a/openair3/ocp-gtpu/gtp_itf.cpp
++++ b/openair3/ocp-gtpu/gtp_itf.cpp
+@@ -598,7 +598,8 @@ instance_t gtpv1Init(openAddr_t context)
+ 
+   if (id >= 0) {
+     LOG_I(GTPU, "Created gtpu instance id: %d\n", id);
+-    getInstRetInt(compatInst(id));
++    // Access the instance directly using the socket file descriptor
++    gtpEndPoint *inst = &globGtp.instances[id];
+     inst->thrData.h = id;
+     char name[32];
+     snprintf(name, sizeof(name), "GTPrx_%d", id);

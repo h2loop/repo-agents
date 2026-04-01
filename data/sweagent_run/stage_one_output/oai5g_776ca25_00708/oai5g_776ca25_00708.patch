@@ -1,0 +1,54 @@
+diff --git a/nfapi/oai_integration/nfapi_vnf.c b/nfapi/oai_integration/nfapi_vnf.c
+index 777da7c319..b5b6e97f29 100644
+--- a/nfapi/oai_integration/nfapi_vnf.c
++++ b/nfapi/oai_integration/nfapi_vnf.c
+@@ -1186,10 +1186,20 @@ int phy_nr_pack_p7_vendor_extension(void *header, uint8_t **ppWritePackedMsg, ui
+ int vnf_pack_p4_p5_vendor_extension(void *header, uint8_t **ppWritePackedMsg, uint8_t *end, nfapi_p4_p5_codec_config_t *codec)
+ {
+   // NFAPI_TRACE(NFAPI_TRACE_INFO, "%s\n", __FUNCTION__);
+-  if (((nfapi_p4_p5_message_header_t *)header)->message_id == P5_VENDOR_EXT_REQ) {
+-    vendor_ext_p5_req *req = (vendor_ext_p5_req *)(header);
+-    // NFAPI_TRACE(NFAPI_TRACE_INFO, "%s %d %d\n", __FUNCTION__, req->dummy1, req->dummy2);
+-    return (!(push16(req->dummy1, ppWritePackedMsg, end) && push16(req->dummy2, ppWritePackedMsg, end)));
++  nfapi_p4_p5_message_header_t *pHeader = (nfapi_p4_p5_message_header_t *)header;
++  
++  switch (pHeader->message_id) {
++    case P5_VENDOR_EXT_REQ: {
++      vendor_ext_p5_req *req = (vendor_ext_p5_req *)(header);
++      // NFAPI_TRACE(NFAPI_TRACE_INFO, "%s %d %d\n", __FUNCTION__, req->dummy1, req->dummy2);
++      // Return 1 if both push operations succeed, 0 otherwise
++      return (push16(req->dummy1, ppWritePackedMsg, end) && push16(req->dummy2, ppWritePackedMsg, end)) ? 1 : 0;
++    }
++    case P5_VENDOR_EXT_RSP: {
++      vendor_ext_p5_rsp *rsp = (vendor_ext_p5_rsp *)(header);
++      // Return 1 if push operation succeeds, 0 otherwise
++      return push16(rsp->error_code, ppWritePackedMsg, end) ? 1 : 0;
++    }
+   }
+ 
+   return 0;
+@@ -1198,10 +1208,20 @@ int vnf_pack_p4_p5_vendor_extension(void *header, uint8_t **ppWritePackedMsg, ui
+ int vnf_nr_pack_p4_p5_vendor_extension(void *header, uint8_t **ppWritePackedMsg, uint8_t *end, nfapi_p4_p5_codec_config_t *codec)
+ {
+   // NFAPI_TRACE(NFAPI_TRACE_INFO, "%s\n", __FUNCTION__);
+-  if (((nfapi_nr_p4_p5_message_header_t *)header)->message_id == P5_VENDOR_EXT_REQ) {
+-    vendor_ext_p5_req *req = (vendor_ext_p5_req *)(header);
+-    // NFAPI_TRACE(NFAPI_TRACE_INFO, "%s %d %d\n", __FUNCTION__, req->dummy1, req->dummy2);
+-    return (!(push16(req->dummy1, ppWritePackedMsg, end) && push16(req->dummy2, ppWritePackedMsg, end)));
++  nfapi_nr_p4_p5_message_header_t *pHeader = (nfapi_nr_p4_p5_message_header_t *)header;
++  
++  switch (pHeader->message_id) {
++    case P5_VENDOR_EXT_REQ: {
++      vendor_ext_p5_req *req = (vendor_ext_p5_req *)(header);
++      // NFAPI_TRACE(NFAPI_TRACE_INFO, "%s %d %d\n", __FUNCTION__, req->dummy1, req->dummy2);
++      // Return 1 if both push operations succeed, 0 otherwise
++      return (push16(req->dummy1, ppWritePackedMsg, end) && push16(req->dummy2, ppWritePackedMsg, end)) ? 1 : 0;
++    }
++    case P5_VENDOR_EXT_RSP: {
++      vendor_ext_p5_rsp *rsp = (vendor_ext_p5_rsp *)(header);
++      // Return 1 if push operation succeeds, 0 otherwise
++      return push16(rsp->error_code, ppWritePackedMsg, end) ? 1 : 0;
++    }
+   }
+ 
+   return 0;

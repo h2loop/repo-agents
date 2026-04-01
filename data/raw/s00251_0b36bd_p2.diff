@@ -1,0 +1,48 @@
+diff --git a/openair1/SCHED_NR_UE/phy_procedures_nr_ue.c b/openair1/SCHED_NR_UE/phy_procedures_nr_ue.c
+index 89205f6ce2..2a3fc907a1 100644
+--- a/openair1/SCHED_NR_UE/phy_procedures_nr_ue.c
++++ b/openair1/SCHED_NR_UE/phy_procedures_nr_ue.c
+@@ -52,6 +52,8 @@
+ #include "executables/nr-uesoftmodem.h"
+ #include "SCHED_NR_UE/pucch_uci_ue_nr.h"
+ #include <openair1/PHY/TOOLS/phy_scope_interface.h>
++#include "NR_MAC_UE/mac_proto.h"
++#include "NR_UE_PHY_INTERFACE/NR_IF_Module.h"
+ 
+ //#define DEBUG_PHY_PROC
+ //#define NR_PDCCH_SCHED_DEBUG
+@@ -1165,6 +1167,34 @@ void pdsch_processing(PHY_VARS_NR_UE *ue,
+     }
+     nr_ue_csi_rs_procedures(ue, proc, rxdataF, link_type_dl);
+     ue->csirs_vars[gNB_id]->active = 0;
++    
++    // Trigger schedulers after CSI-RS processing to use fresh channel estimates
++    nr_downlink_indication_t dl_indication;
++    nr_uplink_indication_t ul_indication;
++    
++    // Populate downlink indication
++    memset(&dl_indication, 0, sizeof(nr_downlink_indication_t));
++    dl_indication.module_id = ue->Mod_id;
++    dl_indication.gNB_index = gNB_id;
++    dl_indication.cc_id = ue->CC_id;
++    dl_indication.frame = proc->frame_rx;
++    dl_indication.slot = proc->nr_slot_rx;
++    dl_indication.phy_data = NULL;
++    
++    // Populate uplink indication
++    memset(&ul_indication, 0, sizeof(nr_uplink_indication_t));
++    ul_indication.module_id = ue->Mod_id;
++    ul_indication.gNB_index = gNB_id;
++    ul_indication.cc_id = ue->CC_id;
++    ul_indication.frame_rx = proc->frame_rx;
++    ul_indication.slot_rx = proc->nr_slot_rx;
++    ul_indication.frame_tx = proc->frame_tx;
++    ul_indication.slot_tx = proc->nr_slot_tx;
++    ul_indication.phy_data = NULL;
++    
++    // Call schedulers with fresh CSI-RS data
++    nr_ue_dl_scheduler(&dl_indication);
++    nr_ue_ul_scheduler(&ul_indication);
+   }
+ 
+   start_meas(&ue->generic_stat);

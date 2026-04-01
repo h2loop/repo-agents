@@ -1,0 +1,33 @@
+diff --git a/common/config/config_common.c b/common/config/config_common.c
+index c617c426d7..6f32cd3c8e 100644
+--- a/common/config/config_common.c
++++ b/common/config/config_common.c
+@@ -227,23 +227,21 @@ int config_setdefault_double(configmodule_interface_t *cfg, paramdef_t *cfgoptio
+ int config_assign_ipv4addr(configmodule_interface_t *cfg, paramdef_t *cfgoptions, char *ipv4addr)
+ {
+   config_check_valptr(cfg, cfgoptions, sizeof(*cfgoptions->uptr), 1);
+-  int rst=inet_pton(AF_INET, ipv4addr,cfgoptions->uptr );
++  int rst = inet_pton(AF_INET, ipv4addr, cfgoptions->uptr);
+ 
+-  if (rst == 1 && *(cfgoptions->uptr) > 0) {
++  if (rst == 1) {
+     printf_params(cfg, "[CONFIG] %s: %s\n", cfgoptions->optname, ipv4addr);
+     return 1;
+   } else {
+-    if ( strncmp(ipv4addr,ANY_IPV4ADDR_STRING,sizeof(ANY_IPV4ADDR_STRING)) == 0) {
++    if (strncmp(ipv4addr, ANY_IPV4ADDR_STRING, sizeof(ANY_IPV4ADDR_STRING)) == 0) {
+       printf_params(cfg, "[CONFIG] %s:%s (INADDR_ANY) \n", cfgoptions->optname, ipv4addr);
+-      *cfgoptions->uptr=INADDR_ANY;
++      *cfgoptions->uptr = INADDR_ANY;
+       return 1;
+     } else {
+-      fprintf(stderr,"[CONFIG] %s not valid for %s \n", ipv4addr, cfgoptions->optname);
++      fprintf(stderr, "[CONFIG] %s not valid for %s \n", ipv4addr, cfgoptions->optname);
+       return -1;
+     }
+   }
+-
+-  return 0;
+ }
+ 
+ int config_setdefault_ipv4addr(configmodule_interface_t *cfg, paramdef_t *cfgoptions, char *prefix)

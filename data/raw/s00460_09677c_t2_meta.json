@@ -1,0 +1,9 @@
+{
+  "run_id": "s00460_09677c",
+  "pr_text": "## Title: Add NULL pointer check in pdcp_advance_rx_window to prevent NGAP-triggered crashes\n\n### Summary\nThe PDCP sequence manager lacked a NULL pointer guard at the entry of `pdcp_advance_rx_window()`, which could cause segmentation faults when called with an invalid PDCP entity pointer during NGAP interface error scenarios between gNB and AMF. Under certain race conditions or protocol failure paths, the downstream NGAP procedures could invoke this function before the PDCP entity is fully init",
+  "trajectory_path": "data/raw/s00460_09677c_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00460_09677c_p2.diff",
+  "patch_lines": 5,
+  "trajectory_steps": 9,
+  "timestamp": "2026-02-10T13:31:54Z"
+}

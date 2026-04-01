@@ -1,0 +1,9 @@
+{
+  "run_id": "s00003_2a382f",
+  "pr_text": "## Title: Fix integer underflow in NFAPI DLSCH config pdu_index handling\n\n### Summary\nThe `fill_nfapi_dlsch_config` function in the MAC scheduler receives a signed `int16_t pdu_index` parameter that can be -1 to indicate no valid PDU index. When this -1 value was directly assigned to the NFAPI structure field, downstream code interpreted it as an unsigned value, causing an integer underflow that produced the unexpectedly large value 65535. This led to incorrect PDU tracking and potential resourc",
+  "trajectory_path": "data/raw/s00003_2a382f_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00003_2a382f_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 21,
+  "timestamp": "2026-02-10T10:23:32Z"
+}

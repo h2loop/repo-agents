@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix NULL context passed to T3411 timer handler in EMM attach failure procedure\n\n### Summary\nThe EMM attach failure procedure in the UE was passing NULL instead of the user context when starting the T3411 timer. This caused a segmentation fault when the timer expired and the handler tried to access the user data structure.\n\nThe bug occurred in two places where the T3411 timer was started after an attach failure. Under network conditions that trigger attach failures repeatedly, the UE would crash instead of properly retrying the attach procedure.\n\n### Changes\n- `openair3/NAS/UE/EMM/Attach.c`: Fixed T3411 timer context parameter in emm_proc_attach_failure function\n- `openair3/NAS/UE/EMM/Attach.c`: Fixed T3411 timer context parameter in _emm_attach_abnormal_cases_bcd function\n\n"
+}

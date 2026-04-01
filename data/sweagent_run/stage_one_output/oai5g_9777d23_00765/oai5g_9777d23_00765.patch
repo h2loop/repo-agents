@@ -1,0 +1,12 @@
+diff --git a/common/utils/T/tracer/gui/widget.c b/common/utils/T/tracer/gui/widget.c
+index b8ccba6d54..189ad88c41 100644
+--- a/common/utils/T/tracer/gui/widget.c
++++ b/common/utils/T/tracer/gui/widget.c
+@@ -118,6 +118,7 @@ void widget_add_child_internal(
+   /* new is between two existing items */
+   prev->next = new;
+   new->next = cur;
++  new->last = p->children->last;
+ 
+ repack:
+   send_event(_gui, REPACK, p->id);

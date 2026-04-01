@@ -1,0 +1,22 @@
+diff --git a/openair3/NAS/UE/API/USER/at_command.c b/openair3/NAS/UE/API/USER/at_command.c
+index a6591c6748..613f131ed6 100644
+--- a/openair3/NAS/UE/API/USER/at_command.c
++++ b/openair3/NAS/UE/API/USER/at_command.c
+@@ -804,6 +804,8 @@ static int parse_cgmr(const char* string, int position, at_command_t* at_command
+   /* CGMR action command - No parameter */
+   at_command->id = AT_CGMR;
+   at_command->mask = AT_COMMAND_CGMR_MASK;
++  /* Initialize dummy field to avoid potential issues */
++  at_command->command.cgmr.dummy = 0;
+   return at_command->id;
+ }
+ 
+@@ -811,6 +813,8 @@ static int parse_cgmr_test(const char* string, int position, at_command_t* at_co
+ {
+   /* CGMR test command - No parameter */
+   at_command->id = AT_CGMR;
++  /* Initialize dummy field to avoid potential issues */
++  at_command->command.cgmr.dummy = 0;
+   return at_command->id;
+ }
+ 

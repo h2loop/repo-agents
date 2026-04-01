@@ -1,0 +1,31 @@
+{
+  "run_id": "s00000_e0692f",
+  "function": {
+    "name": "pack_nb_iot_rssi_request_value",
+    "file": "nfapi/open-nFAPI/nfapi/src/nfapi_p4.c",
+    "start_line": 88,
+    "end_line": 112,
+    "body_lines": 25,
+    "signature": "static uint8_t pack_nb_iot_rssi_request_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end)",
+    "subsystem": "nfapi/open-nFAPI/nfapi",
+    "token_estimate": 72
+  },
+  "bug": {
+    "bug_id": "c_integer_underflow",
+    "description": "integer underflow producing an unexpectedly large unsigned value",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "common"
+    ]
+  },
+  "prompt": "There is a integer underflow producing an unexpectedly large unsigned value downstream of function pack_nb_iot_rssi_request_value in the nfapi/open-nFAPI/nfapi subsystem.\nThe function is located at nfapi/open-nFAPI/nfapi/src/nfapi_p4.c:88.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00000_e0692f_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00000_e0692f_p1.diff",
+  "patch_lines": 9,
+  "trajectory_steps": 31,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:26:30Z"
+}

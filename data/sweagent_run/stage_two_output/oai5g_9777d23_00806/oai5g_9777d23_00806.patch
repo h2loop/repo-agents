@@ -1,0 +1,36 @@
+diff --git a/openair1/PHY/INIT/nr_init.c b/openair1/PHY/INIT/nr_init.c
+index 18d98422a3..ce7751f477 100644
+--- a/openair1/PHY/INIT/nr_init.c
++++ b/openair1/PHY/INIT/nr_init.c
+@@ -524,6 +524,13 @@ int phy_init_nr_gNB(PHY_VARS_gNB *gNB)
+   int Prx=cfg->carrier_config.num_rx_ant.value;
+   int max_ul_mimo_layers = 4;
+ 
++  // Initialize max_nb_* fields to safe default values to prevent cross-layer parameter mismatch
++  // in case of early exit due to assertion failures
++  gNB->max_nb_pucch = 1;
++  gNB->max_nb_srs = 1;
++  gNB->max_nb_pdsch = 1;
++  gNB->max_nb_pusch = 1;
++
+   AssertFatal(Ptx>0 && Ptx<9,"Ptx %d is not supported\n",Ptx);
+   AssertFatal(Prx>0 && Prx<9,"Prx %d is not supported\n",Prx);
+   LOG_I(PHY,"[gNB %d] %s() About to wait for gNB to be configured\n", gNB->Mod_id, __FUNCTION__);
+@@ -680,7 +687,7 @@ int phy_init_nr_gNB(PHY_VARS_gNB *gNB)
+     common_vars->beam_id[i] = (uint8_t*)malloc16_clear(fp->symbols_per_slot*fp->slots_per_frame*sizeof(uint8_t));
+     memset(common_vars->beam_id[i],255,fp->symbols_per_slot*fp->slots_per_frame);
+   }
+-  common_vars->debugBuff = (int32_t*)malloc16_clear(fp->samples_per_frame*sizeof(int32_t)*100);	
++  common_vars->debugBuff = (int32_t*)malloc16_clear(fp->samples_per_frame*sizeof(int32_t)*100); 
+   common_vars->debugBuff_sample_offset = 0; 
+ 
+   // PRACH
+@@ -937,7 +944,7 @@ void nr_phy_config_request_sim(PHY_VARS_gNB *gNB,
+   gNB_config->ssb_table.ssb_mask_list[1].ssb_mask.value = (rev_burst)&(0xFFFFFFFF);
+   gNB_config->ssb_table.ssb_mask_list[0].ssb_mask.value = (rev_burst>>32)&(0xFFFFFFFF);
+   gNB_config->cell_config.frame_duplex_type.value       = TDD;
+-  gNB_config->ssb_table.ssb_period.value		= 1; //10ms
++  gNB_config->ssb_table.ssb_period.value                = 1; //10ms
+   gNB_config->carrier_config.dl_grid_size[mu].value     = N_RB_DL;
+   gNB_config->carrier_config.ul_grid_size[mu].value     = N_RB_UL;
+   gNB_config->carrier_config.num_tx_ant.value           = fp->nb_antennas_tx;

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix F1AP transaction identifier generation overflow\n\n### Summary\nThe function `F1AP_get_next_transaction_identifier()` was using an array of size 1 but indexing with values that could exceed the array bounds, causing undefined behavior. This fix increases the array size and uses a hash function to properly map indices.\n\n### Changes\n- `openair2/F1AP/f1ap_common.c`: Increased transaction identifier array size from 1 to 256 and implemented safe indexing using a hash function to prevent buffer overflow.\n\n### Reproduction\nWhen running F1 setup procedures with multiple gNB instances, the function would access memory outside the allocated array, leading to unpredictable transaction ID values and potential segmentation faults under certain memory layouts.\n"
+}

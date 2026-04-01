@@ -1,0 +1,155 @@
+'{"env":{"deployment":{"image":"oai5g-sera:ca119de","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_ca119de_00163","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix socket resource leak in NGAP overload message handling\n\n### Summary\nThe
+  NGAP overload handling functions `ngap_gNB_handle_overload_start` and `ngap_gNB_handle_overload_stop`
+  were not properly implemented, causing socket resource leaks when overload messages
+  were received. The handler table had NULL entries for these message types, meaning
+  overload conditions were not being processed at all.\n\nThis fix implements proper
+  handling of NGAP OverloadStart and OverloadStop messages, ensuring that socket resources
+  are properly managed and the gNB can respond appropriately to AMF overload conditions.\n\n###
+  Changes\n- `openair3/NGAP/ngap_gNB_overload.c`: Implemented `ngap_gNB_handle_overload_start`
+  function to properly parse OverloadStart messages and update AMF state. Enhanced
+  `ngap_gNB_handle_overload_stop` with proper error handling.\n- `openair3/NGAP/ngap_gNB_handlers.c`:
+  Updated message handler table to register the overload functions instead of having
+  NULL handlers.\n\n### Reproduction\nTo reproduce the issue:\n1. Configure an AMF
+  to send OverloadStart messages to the gNB\n2. Monitor socket resource usage during
+  overload conditions\n3. Observe that without the fix, socket descriptors may not
+  be properly managed during overload handling, leading to resource exhaustion\n\nThe
+  fix ensures that overload messages are properly processed and socket resources are
+  maintained correctly throughout the overload handling flow.\n","extra_fields":{"bug_description":"socket
+  resource leak where a socket is not closed after use or on error","bug_id":"c_socket_leak","stage_one_patch":"diff
+  --git a/openair3/NGAP/ngap_gNB_handlers.c b/openair3/NGAP/ngap_gNB_handlers.c\nindex
+  59b2792602..4f88182098 100644\n--- a/openair3/NGAP/ngap_gNB_handlers.c\n+++ b/openair3/NGAP/ngap_gNB_handlers.c\n@@
+  -1272,7 +1272,7 @@ static int ngap_gNB_handle_ng_path_switch_request_failure(sctp_assoc_t
+  assoc_id,\n static int ngap_gNB_handle_ng_ENDC_pdusession_modification_confirm(sctp_assoc_t
+  assoc_id, uint32_t stream, NGAP_NGAP_PDU_t *pdu)\n {\n   LOG_W(NGAP, \"Implementation
+  of NGAP Pdusession Modification confirm handler is pending...\\n\");\n-\treturn
+  0;\n+        return 0;\n }\n \n /* Handlers matrix. Only gNB related procedure present
+  here */\n@@ -1299,8 +1299,8 @@ const ngap_message_decoded_callback ngap_messages_callback[][3]
+  = {\n     {0, 0, 0}, /* NASNonDeliveryIndication */\n     {0, 0, 0}, /* NGReset
+  */\n     {0, ngap_gNB_handle_ng_setup_response, ngap_gNB_handle_ng_setup_failure},
+  /* NGSetup */\n-    {0, 0, 0}, /* OverloadStart */\n-    {0, 0, 0}, /* OverloadStop
+  */\n+    {ngap_gNB_handle_overload_start, 0, 0}, /* OverloadStart */\n+    {ngap_gNB_handle_overload_stop,
+  0, 0}, /* OverloadStop */\n     {ngap_gNB_handle_paging, 0, 0}, /* Paging */\n     {0,
+  ngap_gNB_handle_ng_path_switch_request_ack, ngap_gNB_handle_ng_path_switch_request_failure},
+  /* PathSwitchRequest */\n     {ngap_gNB_handle_pdusession_modify_request, 0, 0},
+  /* PDUSessionResourceModify */\ndiff --git a/openair3/NGAP/ngap_gNB_overload.c b/openair3/NGAP/ngap_gNB_overload.c\nindex
+  d8512c0695..9bf6484072 100644\n--- a/openair3/NGAP/ngap_gNB_overload.c\n+++ b/openair3/NGAP/ngap_gNB_overload.c\n@@
+  -47,7 +47,51 @@\n \n int ngap_gNB_handle_overload_start(sctp_assoc_t assoc_id, uint32_t
+  stream, NGAP_NGAP_PDU_t *pdu)\n {\n-    //TODO\n+    ngap_gNB_amf_data_t        *amf_desc_p;\n+    NGAP_OverloadStart_t       *container;\n+    NGAP_OverloadStartIEs_t    *ie;\n+\n+    DevAssert(pdu
+  != NULL);\n+\n+    container = &pdu->choice.initiatingMessage->value.choice.OverloadStart;\n+\n+    /*
+  Overload Start message should contain OverloadResponse IE */\n+    NGAP_FIND_PROTOCOLIE_BY_ID(NGAP_OverloadStartIEs_t,
+  ie, container,\n+                               NGAP_ProtocolIE_ID_id_AMFOverloadResponse,
+  true);\n+    \n+    if (ie == NULL) {\n+        NGAP_ERROR(\"Missing OverloadResponse
+  IE in OverloadStart message\\n\");\n+        return -1;\n+    }\n+\n+    /* Non
+  UE-associated signalling -> stream 0 */\n+    if (stream != 0) {\n+        NGAP_ERROR(\"[SCTP
+  %u] Received NG overload start on stream != 0 (%u)\\n\",\n+                   assoc_id,
+  stream);\n+        return -1;\n+    }\n+\n+    if ((amf_desc_p = ngap_gNB_get_AMF(NULL,
+  assoc_id, 0)) == NULL) {\n+        /* No AMF context associated */\n+        NGAP_ERROR(\"[SCTP
+  %u] Received NG overload start for non existing AMF context\\n\", assoc_id);\n+        return
+  -1;\n+    }\n+\n+    /* Mark the AMF as overloaded and set the overload state according
+  to\n+     * the value received.\n+     */\n+    amf_desc_p->state = NGAP_GNB_OVERLOAD;\n+    \n+    /*
+  Check if OverloadResponse is of type OverloadAction */\n+    if (ie->value.choice.OverloadResponse.present
+  == NGAP_OverloadResponse_PR_overloadAction) {\n+        amf_desc_p->overload_state
+  = ie->value.choice.OverloadResponse.choice.overloadAction;\n+    } else {\n+        /*
+  Default to reject MO data if we can''t determine the action */\n+        amf_desc_p->overload_state
+  = NGAP_OVERLOAD_REJECT_MO_DATA;\n+        NGAP_WARN(\"Unknown OverloadResponse type,
+  defaulting to REJECT_MO_DATA\\n\");\n+    }\n+\n+    NGAP_INFO(\"AMF overload start:
+  assoc_id=%u, overload_state=%d\\n\", assoc_id, amf_desc_p->overload_state);\n     return
+  0;\n }\n \n@@ -62,14 +106,21 @@ int ngap_gNB_handle_overload_stop(sctp_assoc_t assoc_id,
+  uint32_t stream, NGAP_N\n     ngap_gNB_amf_data_t *amf_desc_p;\n \n     /* Non UE-associated
+  signalling -> stream 0 */\n-    DevCheck(stream == 0, stream, 0, 0);\n+    if (stream
+  != 0) {\n+        NGAP_ERROR(\"[SCTP %u] Received NG overload stop on stream !=
+  0 (%u)\\n\",\n+                   assoc_id, stream);\n+        return -1;\n+    }\n
+  \n     if ((amf_desc_p = ngap_gNB_get_AMF(NULL, assoc_id, 0)) == NULL) {\n         /*
+  No AMF context associated */\n+        NGAP_ERROR(\"[SCTP %u] Received NG overload
+  stop for non existing AMF context\\n\", assoc_id);\n         return -1;\n     }\n
+  \n     amf_desc_p->state = NGAP_GNB_STATE_CONNECTED;\n     amf_desc_p->overload_state
+  = NGAP_NO_OVERLOAD;\n+    \n+    NGAP_INFO(\"AMF overload stop: assoc_id=%u, back
+  to normal state\\n\", assoc_id);\n     return 0;\n }\n","start_fn":"ngap_gNB_handle_overload_start","start_fn_file":"openair3/NGAP/ngap_gNB_overload.c","subsystem":"openair3/NGAP"},"type":"text","id":"oai5g_ca119de_00163"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

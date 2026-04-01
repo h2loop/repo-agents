@@ -1,0 +1,16 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
+index 8ae9c3dcc5..6896397f21 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
+@@ -3164,8 +3164,9 @@ void nr_mac_trigger_ul_failure(NR_UE_sched_ctrl_t *sched_ctrl, NR_SubcarrierSpac
+     return;
+   }
+   sched_ctrl->ul_failure = true;
+-  // 30 seconds till triggering release request
+-  sched_ctrl->ul_failure_timer = 30000 << subcarrier_spacing;
++  // 5 seconds till triggering release request per 3GPP timing requirements
++  // Timer value should not be scaled by subcarrier spacing
++  sched_ctrl->ul_failure_timer = 5000; // 5000ms = 5 seconds
+ }
+ 
+ void nr_mac_reset_ul_failure(NR_UE_sched_ctrl_t *sched_ctrl)

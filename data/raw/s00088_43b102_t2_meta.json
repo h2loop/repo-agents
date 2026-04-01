@@ -1,0 +1,9 @@
+{
+  "run_id": "s00088_43b102",
+  "pr_text": "## Title: Fix MCS selection to respect channel quality and UE capability\n\n### Summary\nThe uplink MCS selection in `ulsch_modulation()` was not considering channel quality indicators (CQI) or UE capability constraints, leading to potentially incorrect modulation scheme selection. The original implementation directly used the configured MCS without validation, which could result in choosing overly aggressive modulation orders for poor channel conditions or exceeding UE hardware limitations.\n\nThis ",
+  "trajectory_path": "data/raw/s00088_43b102_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00088_43b102_p2.diff",
+  "patch_lines": 43,
+  "trajectory_steps": 31,
+  "timestamp": "2026-02-10T11:08:02Z"
+}

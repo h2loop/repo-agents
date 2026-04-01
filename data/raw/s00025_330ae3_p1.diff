@@ -1,0 +1,16 @@
+diff --git a/common/utils/ocp_itti/intertask_interface.cpp b/common/utils/ocp_itti/intertask_interface.cpp
+index 8ad5f63a50..5d3fda35f6 100644
+--- a/common/utils/ocp_itti/intertask_interface.cpp
++++ b/common/utils/ocp_itti/intertask_interface.cpp
+@@ -427,7 +427,10 @@ typedef struct timer_elm_s {
+   }
+ 
+   const char *itti_get_task_name(task_id_t task_id) {
+-    return tasks[task_id]->admin.name;
++    pthread_mutex_lock(&lock_nb_queues);
++    const char *name = tasks[task_id]->admin.name;
++    pthread_mutex_unlock(&lock_nb_queues);
++    return name;
+   }
+ 
+   // void for compatibility

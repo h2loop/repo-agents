@@ -1,0 +1,20 @@
+diff --git a/nfapi/open-nFAPI/pnf/src/pnf_interface.c b/nfapi/open-nFAPI/pnf/src/pnf_interface.c
+index d80ab168fa..55d4d20d16 100644
+--- a/nfapi/open-nFAPI/pnf/src/pnf_interface.c
++++ b/nfapi/open-nFAPI/pnf/src/pnf_interface.c
+@@ -104,8 +104,14 @@ int nfapi_nr_pnf_pnf_param_resp(nfapi_pnf_config_t* config, nfapi_nr_pnf_param_r
+ 		return -1;
+ 	}
+ 
++	// check if send_p5_msg function pointer is configured
++	if (config->send_p5_msg == NULL)
++	{
++		NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s: send_p5_msg function pointer is NULL\n", __FUNCTION__);
++		return -1;
++	}
++
+ 	pnf_t* _this = (pnf_t*)(config);
+-  AssertFatal(config->send_p5_msg, "Function pointer must be configured!");
+ 	return config->send_p5_msg(_this, &(resp->header), sizeof(nfapi_nr_pnf_param_response_t));
+ }
+ 

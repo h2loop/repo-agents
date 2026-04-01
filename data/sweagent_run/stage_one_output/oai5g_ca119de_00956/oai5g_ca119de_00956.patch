@@ -1,0 +1,176 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c b/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c
+index 7229b98fd0..a955847f6e 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c
++++ b/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c
+@@ -125,9 +125,9 @@ void du_clear_all_ue_states()
+   NR_SCHED_UNLOCK(&mac->sched_lock);
+ }
+ 
+-void f1_reset_cu_initiated(const f1ap_reset_t *reset)
++void f1_reset_cu_initiated(sctp_assoc_t assoc_id, const f1ap_reset_t *reset)
+ {
+-  LOG_I(MAC, "F1 Reset initiated by CU\n");
++  LOG_I(MAC, "F1 Reset initiated by CU (assoc_id %d)\n", assoc_id);
+ 
+   f1ap_reset_ack_t ack = {.transaction_id = reset->transaction_id};
+   if(reset->reset_type == F1AP_RESET_ALL) {
+@@ -141,15 +141,15 @@ void f1_reset_cu_initiated(const f1ap_reset_t *reset)
+   mac->mac_rrc.f1_reset_acknowledge(&ack);
+ }
+ 
+-void f1_reset_acknowledge_du_initiated(const f1ap_reset_ack_t *ack)
++void f1_reset_acknowledge_du_initiated(sctp_assoc_t assoc_id, const f1ap_reset_ack_t *ack)
+ {
+   (void) ack;
+-  AssertFatal(false, "%s() not implemented yet\n", __func__);
++  AssertFatal(false, "%s() not implemented yet (assoc_id %d)\n", __func__, assoc_id);
+ }
+ 
+-void f1_setup_response(const f1ap_setup_resp_t *resp)
++void f1_setup_response(sctp_assoc_t assoc_id, const f1ap_setup_resp_t *resp)
+ {
+-  LOG_I(MAC, "received F1 Setup Response from CU %s\n", resp->gNB_CU_name);
++  LOG_I(MAC, "received F1 Setup Response from CU %s (assoc_id %d)\n", resp->gNB_CU_name, assoc_id);
+   LOG_I(MAC, "CU uses RRC version %d.%d.%d\n", resp->rrc_ver[0], resp->rrc_ver[1], resp->rrc_ver[2]);
+ 
+   if (resp->num_cells_to_activate == 0) {
+@@ -211,16 +211,16 @@ void f1_setup_response(const f1ap_setup_resp_t *resp)
+   }
+ }
+ 
+-void f1_setup_failure(const f1ap_setup_failure_t *failure)
++void f1_setup_failure(sctp_assoc_t assoc_id, const f1ap_setup_failure_t *failure)
+ {
+-  LOG_E(MAC, "the CU reported F1AP Setup Failure, is there a configuration mismatch?\n");
++  LOG_E(MAC, "the CU reported F1AP Setup Failure (assoc_id %d), is there a configuration mismatch?\n", assoc_id);
+   exit(1);
+ }
+ 
+-void gnb_du_configuration_update_acknowledge(const f1ap_gnb_du_configuration_update_acknowledge_t *ack)
++void gnb_du_configuration_update_acknowledge(sctp_assoc_t assoc_id, const f1ap_gnb_du_configuration_update_acknowledge_t *ack)
+ {
+   (void)ack;
+-  LOG_I(MAC, "received gNB-DU configuration update acknowledge\n");
++  LOG_I(MAC, "received gNB-DU configuration update acknowledge (assoc_id %d)\n", assoc_id);
+ }
+ 
+ static NR_RLC_BearerConfig_t *get_bearerconfig_from_srb(const f1ap_srb_to_setup_t *srb,
+@@ -687,10 +687,11 @@ static void update_cellgroup_for_reestablishment(NR_UE_info_t *UE, NR_CellGroupC
+   }
+ }
+ 
+-void ue_context_setup_request(const f1ap_ue_context_setup_req_t *req)
++void ue_context_setup_request(sctp_assoc_t assoc_id, const f1ap_ue_context_setup_req_t *req)
+ {
+   const bool is_SA = IS_SA_MODE(get_softmodem_params());
+   gNB_MAC_INST *mac = RC.nrmac[0];
++  LOG_D(MAC, "ue_context_setup_request received (assoc_id %d)\n", assoc_id);
+ 
+   f1ap_ue_context_setup_resp_t resp = {
+     .gNB_CU_ue_id = req->gNB_CU_ue_id,
+@@ -804,9 +805,10 @@ void ue_context_setup_request(const f1ap_ue_context_setup_req_t *req)
+   ASN_STRUCT_FREE(asn_DEF_NR_MeasurementTimingConfiguration, mtc);
+ }
+ 
+-void ue_context_modification_request(const f1ap_ue_context_mod_req_t *req)
++void ue_context_modification_request(sctp_assoc_t assoc_id, const f1ap_ue_context_mod_req_t *req)
+ {
+   gNB_MAC_INST *mac = RC.nrmac[0];
++  LOG_D(MAC, "ue_context_modification_request received (assoc_id %d)\n", assoc_id);
+   f1ap_ue_context_mod_resp_t resp = {
+     .gNB_CU_ue_id = req->gNB_CU_ue_id,
+     .gNB_DU_ue_id = req->gNB_DU_ue_id,
+@@ -919,9 +921,9 @@ void ue_context_modification_request(const f1ap_ue_context_mod_req_t *req)
+   free_ue_context_mod_resp(&resp);
+ }
+ 
+-void ue_context_modification_confirm(const f1ap_ue_context_modif_confirm_t *confirm)
++void ue_context_modification_confirm(sctp_assoc_t assoc_id, const f1ap_ue_context_modif_confirm_t *confirm)
+ {
+-  LOG_I(MAC, "Received UE Context Modification Confirm for UE %04x\n", confirm->gNB_DU_ue_id);
++  LOG_I(MAC, "Received UE Context Modification Confirm for UE %04x (assoc_id %d)\n", confirm->gNB_DU_ue_id, assoc_id);
+ 
+   gNB_MAC_INST *mac = RC.nrmac[0];
+   NR_SCHED_LOCK(&mac->sched_lock);
+@@ -941,14 +943,14 @@ void ue_context_modification_confirm(const f1ap_ue_context_modif_confirm_t *conf
+   /* nothing else to be done? */
+ }
+ 
+-void ue_context_modification_refuse(const f1ap_ue_context_modif_refuse_t *refuse)
++void ue_context_modification_refuse(sctp_assoc_t assoc_id, const f1ap_ue_context_modif_refuse_t *refuse)
+ {
+   /* Currently, we only use the UE Context Modification Required procedure to
+    * trigger a RRC reconfigurtion after Msg.3 with C-RNTI MAC CE. If the CU
+    * refuses, it cannot do this reconfiguration, leaving the UE in an
+    * unconfigured state. Therefore, we just free all RA-related info, and
+    * request the release of the UE.  */
+-  LOG_W(MAC, "Received UE Context Modification Refuse for %04x, requesting release\n", refuse->gNB_DU_ue_id);
++  LOG_W(MAC, "Received UE Context Modification Refuse for %04x, requesting release (assoc_id %d)\n", refuse->gNB_DU_ue_id, assoc_id);
+ 
+   gNB_MAC_INST *mac = RC.nrmac[0];
+   NR_SCHED_LOCK(&mac->sched_lock);
+@@ -970,10 +972,11 @@ void ue_context_modification_refuse(const f1ap_ue_context_modif_refuse_t *refuse
+   mac->mac_rrc.ue_context_release_request(&request);
+ }
+ 
+-void ue_context_release_command(const f1ap_ue_context_rel_cmd_t *cmd)
++void ue_context_release_command(sctp_assoc_t assoc_id, const f1ap_ue_context_rel_cmd_t *cmd)
+ {
+   /* mark UE as to be deleted after PUSCH failure */
+   gNB_MAC_INST *mac = RC.nrmac[0];
++  LOG_D(MAC, "ue_context_release_command received (assoc_id %d)\n", assoc_id);
+   NR_SCHED_LOCK(&mac->sched_lock);
+   NR_UE_info_t *UE = find_nr_UE(&mac->UE_info, cmd->gNB_DU_ue_id);
+   UE = UE ? UE : find_ra_UE(&mac->UE_info, cmd->gNB_DU_ue_id);
+@@ -1011,13 +1014,14 @@ void ue_context_release_command(const f1ap_ue_context_rel_cmd_t *cmd)
+  * is also responsible for re-establishing UE context when required (e.g., during RRC connection
+  * reestablishment).
+  * @param dl_rrc Pointer to the DL RRC MESSAGE TRANSFER data structure. */
+-void dl_rrc_message_transfer(const f1ap_dl_rrc_message_t *dl_rrc)
++void dl_rrc_message_transfer(sctp_assoc_t assoc_id, const f1ap_dl_rrc_message_t *dl_rrc)
+ {
+   LOG_D(NR_MAC,
+-        "DL RRC Message Transfer with %d bytes for RNTI %04x SRB %d\n",
++        "DL RRC Message Transfer with %d bytes for RNTI %04x SRB %d (assoc_id %d)\n",
+         dl_rrc->rrc_container_length,
+         dl_rrc->gNB_DU_ue_id,
+-        dl_rrc->srb_id);
++        dl_rrc->srb_id,
++        assoc_id);
+ 
+   gNB_MAC_INST *mac = RC.nrmac[0];
+   pthread_mutex_lock(&mac->sched_lock);
+diff --git a/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.h b/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.h
+index 1ba31f8e80..ad82404d4d 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.h
++++ b/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.h
+@@ -26,18 +26,18 @@
+ #include "f1ap_messages_types.h"
+ #include "openair2/RRC/NR/MESSAGES/asn1_msg.h"
+ 
+-void f1_reset_cu_initiated(const f1ap_reset_t *reset);
+-void f1_reset_acknowledge_du_initiated(const f1ap_reset_ack_t *ack);
+-void f1_setup_response(const f1ap_setup_resp_t *resp);
+-void f1_setup_failure(const f1ap_setup_failure_t *failure);
+-void gnb_du_configuration_update_acknowledge(const f1ap_gnb_du_configuration_update_acknowledge_t *ack);
++void f1_reset_cu_initiated(sctp_assoc_t assoc_id, const f1ap_reset_t *reset);
++void f1_reset_acknowledge_du_initiated(sctp_assoc_t assoc_id, const f1ap_reset_ack_t *ack);
++void f1_setup_response(sctp_assoc_t assoc_id, const f1ap_setup_resp_t *resp);
++void f1_setup_failure(sctp_assoc_t assoc_id, const f1ap_setup_failure_t *failure);
++void gnb_du_configuration_update_acknowledge(sctp_assoc_t assoc_id, const f1ap_gnb_du_configuration_update_acknowledge_t *ack);
+ NR_CellGroupConfig_t *clone_CellGroupConfig(const NR_CellGroupConfig_t *orig);
+-void ue_context_setup_request(const f1ap_ue_context_setup_req_t *req);
+-void ue_context_modification_request(const f1ap_ue_context_mod_req_t *req);
+-void ue_context_modification_confirm(const f1ap_ue_context_modif_confirm_t *confirm);
+-void ue_context_modification_refuse(const f1ap_ue_context_modif_refuse_t *refuse);
+-void ue_context_release_command(const f1ap_ue_context_rel_cmd_t *cmd);
++void ue_context_setup_request(sctp_assoc_t assoc_id, const f1ap_ue_context_setup_req_t *req);
++void ue_context_modification_request(sctp_assoc_t assoc_id, const f1ap_ue_context_mod_req_t *req);
++void ue_context_modification_confirm(sctp_assoc_t assoc_id, const f1ap_ue_context_modif_confirm_t *confirm);
++void ue_context_modification_refuse(sctp_assoc_t assoc_id, const f1ap_ue_context_modif_refuse_t *refuse);
++void ue_context_release_command(sctp_assoc_t assoc_id, const f1ap_ue_context_rel_cmd_t *cmd);
+ 
+-void dl_rrc_message_transfer(const f1ap_dl_rrc_message_t *dl_rrc);
++void dl_rrc_message_transfer(sctp_assoc_t assoc_id, const f1ap_dl_rrc_message_t *dl_rrc);
+ 
+ #endif /* MAC_RRC_DL_HANDLER_H */

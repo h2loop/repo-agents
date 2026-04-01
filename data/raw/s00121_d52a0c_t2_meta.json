@@ -1,0 +1,9 @@
+{
+  "run_id": "s00121_d52a0c",
+  "pr_text": "## Title: Fix null pointer dereference in LDPC cnProc generator main()\n\n### Summary\nThe nrLDPC code generator tool (`generator_cnProc`) contains a potential null pointer dereference in its `main()` function. The code accesses `argv[0]` in a `fprintf()` error message without first validating that `argv` and `argv[0]` are non-NULL. While POSIX/C standards guarantee `argc >= 1` and a valid `argv`, defensive programming practices and static analysis tools flag this as unsafe. This patch adds proper ",
+  "trajectory_path": "data/raw/s00121_d52a0c_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00121_d52a0c_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 7,
+  "timestamp": "2026-02-10T11:18:06Z"
+}

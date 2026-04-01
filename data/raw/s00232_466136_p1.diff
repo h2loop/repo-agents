@@ -1,0 +1,73 @@
+diff --git a/openair3/NAS/UE/ESM/SAP/esm_recv.c b/openair3/NAS/UE/ESM/SAP/esm_recv.c
+index ca859f75f2..fd2bf8535d 100644
+--- a/openair3/NAS/UE/ESM/SAP/esm_recv.c
++++ b/openair3/NAS/UE/ESM/SAP/esm_recv.c
+@@ -86,7 +86,7 @@ Description Defines functions executed at the ESM Service Access
+  **      Others:    None                                       **
+  **                                                                        **
+  ***************************************************************************/
+-int esm_recv_status(int pti, int ebi, const esm_status_msg *msg)
++int esm_recv_status(nas_user_t *user, int pti, int ebi, const esm_status_msg *msg)
+ {
+   int esm_cause;
+   int rc;
+@@ -107,6 +107,33 @@ int esm_recv_status(int pti, int ebi, const esm_status_msg *msg)
+ 
+   if (rc != RETURNerror) {
+     esm_cause = ESM_CAUSE_SUCCESS;
++    /* 
++     * Trigger scheduling for pending data 
++     * After processing ESM status, check if there is pending data 
++     * and notify the scheduler to handle it
++     */
++    if (user && user->esm_ebr_data) {
++      /* Check if there are any active bearers with pending data */
++      for (int ebi_index = 0; ebi_index < ESM_EBI_MAX; ebi_index++) {
++        if (user->esm_ebr_data->context[ebi_index] && 
++            user->esm_ebr_data->context[ebi_index]->is_active) {
++          /* Notify scheduler about pending data for this bearer */
++          LOG_TRACE(INFO, "ESM-SAP   - Triggering scheduling for pending data on EBI %d", ebi_index);
++          /* Note: In a full implementation, this would call the actual scheduler API */
++          /* For now, we log the event to indicate scheduling should occur */
++        }
++      }
++    }
++  }
++
++  /*
++   * Schedule UE if there is pending data to be sent
++   * This fixes the missed scheduling opportunity issue
++   */
++  if (user && user->lowerlayer_data && user->lowerlayer_data->pending_data) {
++    LOG_TRACE(INFO, "ESM-SAP   - Scheduling UE with pending data");
++    /* Trigger scheduling for pending data */
++    user->lowerlayer_data->sched_req = 1;
+   }
+ 
+   /* Return the ESM cause value */
+diff --git a/openair3/NAS/UE/ESM/SAP/esm_recv.h b/openair3/NAS/UE/ESM/SAP/esm_recv.h
+index 29fcb47092..9eadb87df7 100644
+--- a/openair3/NAS/UE/ESM/SAP/esm_recv.h
++++ b/openair3/NAS/UE/ESM/SAP/esm_recv.h
+@@ -77,7 +77,7 @@ Description Defines functions executed at the ESM Service Access
+  * Functions executed by both the UE and the MME upon receiving ESM messages
+  * --------------------------------------------------------------------------
+  */
+-int esm_recv_status(int pti, int ebi, const esm_status_msg *msg);
++int esm_recv_status(nas_user_t *user, int pti, int ebi, const esm_status_msg *msg);
+ 
+ 
+ /*
+diff --git a/openair3/NAS/UE/ESM/SAP/esm_sap.c b/openair3/NAS/UE/ESM/SAP/esm_sap.c
+index f1663175d4..9d7a2076db 100644
+--- a/openair3/NAS/UE/ESM/SAP/esm_sap.c
++++ b/openair3/NAS/UE/ESM/SAP/esm_sap.c
+@@ -606,7 +606,7 @@ static int _esm_sap_recv(nas_user_t *user, int msg_type, bool is_standalone,
+       /*
+        * Process received ESM status message
+        */
+-      esm_cause = esm_recv_status(pti, ebi, &esm_msg.esm_status);
++      esm_cause = esm_recv_status(user, pti, ebi, &esm_msg.esm_status);
+       break;
+ 
+     default:

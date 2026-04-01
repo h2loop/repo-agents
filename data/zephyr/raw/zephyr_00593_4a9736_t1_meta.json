@@ -1,0 +1,26 @@
+{
+  "run_id": "zephyr_00593_4a9736",
+  "function": {
+    "name": "lmp90xxx_read_reg",
+    "file": "drivers/adc/adc_lmp90xxx.c",
+    "start_line": 168,
+    "end_line": 236,
+    "body_lines": 69,
+    "signature": "static int lmp90xxx_read_reg(const struct device *dev, uint8_t addr, uint8_t *dptr, size_t len)",
+    "subsystem": "drivers/adc",
+    "token_estimate": 203
+  },
+  "bug": {
+    "bug_id": "embedded_interrupt_priority_error",
+    "description": "incorrect interrupt priority or missing interrupt enable causing missed or nested interrupt issues",
+    "domain": "embedded",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a incorrect interrupt priority or missing interrupt enable causing missed or nested interrupt issues downstream of function lmp90xxx_read_reg in the drivers/adc subsystem.\nThe function is located at drivers/adc/adc_lmp90xxx.c:168.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 10,
+  "trajectory_steps": 19,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:21:26Z"
+}

@@ -1,0 +1,153 @@
+diff --git a/openair2/UTIL/OMG/grid.c b/openair2/UTIL/OMG/grid.c
+index 6cfcde663b..e040f546e8 100644
+--- a/openair2/UTIL/OMG/grid.c
++++ b/openair2/UTIL/OMG/grid.c
+@@ -56,13 +56,13 @@ max_connecteddomains_ongrid (omg_global_param omg_param)
+ double
+ vertice_xpos (int loc_num, omg_global_param omg_param)
+ {
+-  int div, mod;
++  int div_x, mod;
+   double x_pos;
+ 
+-  div = (int) (omg_param.max_x / xloc_div + 1.0);
+-  mod = (loc_num % div) * xloc_div;
++  div_x = (int) (omg_param.max_x / xloc_div + 1.0);
++  mod = (loc_num % div_x) * xloc_div;
+   x_pos = omg_param.min_x + (double) mod;
+-  //LOG_D(OMG,"mod %d div %d x pos %.2f \n\n",mod,div,x_pos);
++  //LOG_D(OMG,"mod %d div_x %d x pos %.2f \n\n",mod,div_x,x_pos);
+   return x_pos;
+ }
+ 
+@@ -98,93 +98,91 @@ next_block (int current_bn, omg_global_param omg_param)
+ 
+   double rnd = randomgen (0, 1);
+   unsigned int blk;
+-  int div = (int) (omg_param.max_x / xloc_div);
++  int div_x = (int) (omg_param.max_x / xloc_div);
++  int div_y = (int) (omg_param.max_y / yloc_div);
+ 
+   /*left border blocks*/
+-  if ((current_bn % div) == 0) {
++  if ((current_bn % div_x) == 0) {
+     /*case 1 for left upper and lower corners(only 2 neighbors) */
+-    if ((int) (current_bn / div) == 0) {
++    if ((int) (current_bn / div_x) == 0) {
+       if (rnd <= 0.5)
+-        blk = selected_blockn (current_bn, RIGHT, div);
++        blk = selected_blockn (current_bn, RIGHT, div_x);
+       else
+-        blk = selected_blockn (current_bn, UPPER, div);
+-    } else if ((int) (current_bn / div) ==
+-               (int) (omg_param.max_y / yloc_div) - 1) {
++        blk = selected_blockn (current_bn, UPPER, div_x);
++    } else if ((int) (current_bn / div_x) == div_y - 1) {
+       if (rnd <= 0.5)
+-        blk = selected_blockn (current_bn, RIGHT, div);
++        blk = selected_blockn (current_bn, RIGHT, div_x);
+       else
+-        blk = selected_blockn (current_bn, LOWER, div);
++        blk = selected_blockn (current_bn, LOWER, div_x);
+     }
+     /*for 3 neighbor blocks */
+     else {
+       if (rnd <= 0.33)
+-        blk = selected_blockn (current_bn, RIGHT, div);
++        blk = selected_blockn (current_bn, RIGHT, div_x);
+       else if (rnd > 0.33 && rnd <= 0.66)
+-        blk = selected_blockn (current_bn, UPPER, div);
++        blk = selected_blockn (current_bn, UPPER, div_x);
+       else
+-        blk = selected_blockn (current_bn, LOWER, div);
++        blk = selected_blockn (current_bn, LOWER, div_x);
+     }
+ 
+   }
+-  /*right boredr blocks*/
+-  else if ((current_bn % (int) (omg_param.max_x / xloc_div)) == div - 1) {
++  /*right border blocks*/
++  else if ((current_bn % div_x) == div_x - 1) {
+     /*case 1 for right upper and lower corners(only 2 neighbors) */
+-    if ((int) (current_bn / div) == 0) {
++    if ((int) (current_bn / div_x) == 0) {
+       if (rnd <= 0.5)
+-        blk = selected_blockn (current_bn, LEFT, div);
++        blk = selected_blockn (current_bn, LEFT, div_x);
+       else
+-        blk = selected_blockn (current_bn, UPPER, div);
+-    } else if ((int) (current_bn / div) ==
+-               (int) (omg_param.max_y / yloc_div) - 1) {
++        blk = selected_blockn (current_bn, UPPER, div_x);
++    } else if ((int) (current_bn / div_x) == div_y - 1) {
+       if (rnd <= 0.5)
+-        blk = selected_blockn (current_bn, LEFT, div);
++        blk = selected_blockn (current_bn, LEFT, div_x);
+       else
+-        blk = selected_blockn (current_bn, LOWER, div);
++        blk = selected_blockn (current_bn, LOWER, div_x);
+     }
+     /*for 3 neighbor blocks */
+     else {
+       if (rnd <= 0.33)
+-        blk = selected_blockn (current_bn, LEFT, div);
++        blk = selected_blockn (current_bn, LEFT, div_x);
+       else if (rnd > 0.33 && rnd <= 0.66)
+-        blk = selected_blockn (current_bn, UPPER, div);
++        blk = selected_blockn (current_bn, UPPER, div_x);
+       else
+-        blk = selected_blockn (current_bn, LOWER, div);
++        blk = selected_blockn (current_bn, LOWER, div_x);
+     }
+ 
+ 
+   }
+-  /*for 3 neighbor uper and lower borders*/
+-  else if ((int) (current_bn / div) == 0
+-           || (int) (current_bn / div) ==
+-           (int) (omg_param.max_y / yloc_div) - 1) {
++  /*for 3 neighbor upper and lower borders*/
++  else if ((int) (current_bn / div_x) == 0
++           || (int) (current_bn / div_x) == div_y - 1) {
+ 
+-    if ((int) (current_bn / div) == 0) {
++    if ((int) (current_bn / div_x) == 0) {
+       if (rnd <= 0.33)
+-        blk = selected_blockn (current_bn, LEFT, div);
++        blk = selected_blockn (current_bn, LEFT, div_x);
+       else if (rnd > 0.33 && rnd <= 0.66)
+-        blk = selected_blockn (current_bn, RIGHT, div);
++        blk = selected_blockn (current_bn, RIGHT, div_x);
+       else
+-        blk = selected_blockn (current_bn, UPPER, div);
++        blk = selected_blockn (current_bn, UPPER, div_x);
+     }
+ 
+     else {
+       if (rnd <= 0.33)
+-        blk = selected_blockn (current_bn, LEFT, div);
++        blk = selected_blockn (current_bn, LEFT, div_x);
+       else if (rnd > 0.33 && rnd <= 0.66)
+-        blk = selected_blockn (current_bn, RIGHT, div);
++        blk = selected_blockn (current_bn, RIGHT, div_x);
+       else
+-        blk = selected_blockn (current_bn, LOWER, div);
++        blk = selected_blockn (current_bn, LOWER, div_x);
+     }
+ 
+   } else {
+     if (rnd <= 0.25)
+-      blk = selected_blockn (current_bn, LEFT, div);
++      blk = selected_blockn (current_bn, LEFT, div_x);
+     else if (rnd > 0.25 && rnd <= 0.50)
+-      blk = selected_blockn (current_bn, RIGHT, div);
++      blk = selected_blockn (current_bn, RIGHT, div_x);
+     else if (rnd > 0.50 && rnd <= 0.75)
+-      blk = selected_blockn (current_bn, UPPER, div);
++      blk = selected_blockn (current_bn, UPPER, div_x);
+     else
+-      blk = selected_blockn (current_bn, LOWER, div);
++      blk = selected_blockn (current_bn, LOWER, div_x);
+   }
+ 
+ 

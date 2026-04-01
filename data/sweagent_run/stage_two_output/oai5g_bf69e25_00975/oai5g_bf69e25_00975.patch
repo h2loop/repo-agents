@@ -1,0 +1,29 @@
+diff --git a/radio/rfsimulator/simulator.c b/radio/rfsimulator/simulator.c
+index e524097898..0736b5ec10 100644
+--- a/radio/rfsimulator/simulator.c
++++ b/radio/rfsimulator/simulator.c
+@@ -105,7 +105,7 @@ typedef enum { SIMU_ROLE_SERVER = 1, SIMU_ROLE_CLIENT } simuRole;
+ /*   optname                     helpstr                     paramflags           XXXptr                               defXXXval                          type         numelt  */
+ /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+ #define simOpt PARAMFLAG_NOFREE|PARAMFLAG_CMDLINE_NOPREFIXENABLED
+-#define RFSIMULATOR_PARAMS_DESC {					\
++#define RFSIMULATOR_PARAMS_DESC {                                       \
+     {"serveraddr",             "<ip address to connect to>\n",        simOpt,  .strptr=&rfsimulator->ip,               .defstrval="127.0.0.1",           TYPE_STRING,    0 },\
+     {"serverport",             "<port to connect to>\n",              simOpt,  .u16ptr=&(rfsimulator->port),           .defuintval=PORT,                 TYPE_UINT16,    0 },\
+     {RFSIMU_OPTIONS_PARAMNAME, RFSIM_CONFIG_HELP_OPTIONS,             0,       .strlistptr=NULL,                       .defstrlistval=NULL,              TYPE_STRINGLIST,0 },\
+@@ -997,6 +997,7 @@ int device_init(openair0_device *device, openair0_config_t *openair0_cfg) {
+         "Running as %s\n",
+         rfsimulator->role == SIMU_ROLE_SERVER ? "server waiting opposite rfsimulators to connect"
+                                               : "client: will connect to a rfsimulator server side");
++  device->priv = rfsimulator;
+   device->trx_start_func = rfsimulator->role == SIMU_ROLE_SERVER ? startServer : startClient;
+   device->trx_get_stats_func   = rfsimulator_get_stats;
+   device->trx_reset_stats_func = rfsimulator_reset_stats;
+@@ -1010,7 +1011,6 @@ int device_init(openair0_device *device, openair0_config_t *openair0_cfg) {
+   device->type = RFSIMULATOR;
+   openair0_cfg[0].rx_gain[0] = 0;
+   device->openair0_cfg=&openair0_cfg[0];
+-  device->priv = rfsimulator;
+   device->trx_write_init = rfsimulator_write_init;
+ 
+   for (int i = 0; i < MAX_FD_RFSIMU; i++)

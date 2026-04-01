@@ -1,0 +1,9 @@
+{
+  "run_id": "s00001_8eab83",
+  "pr_text": "## Title: Fix use-after-free vulnerability in PRACH subframe detection\n\n### Summary\nFix a critical use-after-free vulnerability in the `is_prach_subframe` function that could cause crashes when the frame parameters structure is freed while still being accessed. The function dereferences `frame_parms` and its nested configuration structures without validating their state, leading to potential memory corruption and undefined behavior if the memory has been deallocated.\n\nThis fix adds defensive che",
+  "trajectory_path": "data/raw/s00001_8eab83_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00001_8eab83_p2.diff",
+  "patch_lines": 17,
+  "trajectory_steps": 16,
+  "timestamp": "2026-02-10T10:12:13Z"
+}

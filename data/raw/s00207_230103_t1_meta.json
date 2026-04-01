@@ -1,0 +1,29 @@
+{
+  "run_id": "s00207_230103",
+  "function": {
+    "name": "get_field",
+    "file": "common/utils/T/tracer/hacks/multi-rru-clean.c",
+    "start_line": 46,
+    "end_line": 56,
+    "body_lines": 11,
+    "signature": "int get_field(database_event_format *f, char *field, char *type)",
+    "subsystem": "common/utils/T",
+    "token_estimate": 42
+  },
+  "bug": {
+    "bug_id": "telecom_wrong_mcs",
+    "description": "incorrect MCS selection not matching channel quality or UE capability",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a incorrect MCS selection not matching channel quality or UE capability downstream of function get_field in the common/utils/T subsystem.\nThe function is located at common/utils/T/tracer/hacks/multi-rru-clean.c:46.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00207_230103_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00207_230103_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 14,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:51:22Z"
+}

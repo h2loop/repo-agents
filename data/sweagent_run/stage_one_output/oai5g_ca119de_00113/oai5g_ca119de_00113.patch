@@ -1,0 +1,36 @@
+diff --git a/openair2/LAYER2/nr_rlc/nr_rlc_ue_manager.c b/openair2/LAYER2/nr_rlc/nr_rlc_ue_manager.c
+index 5b7563135e..0c93561efc 100644
+--- a/openair2/LAYER2/nr_rlc/nr_rlc_ue_manager.c
++++ b/openair2/LAYER2/nr_rlc/nr_rlc_ue_manager.c
+@@ -65,8 +65,14 @@ int nr_rlc_manager_get_gnb_flag(nr_rlc_ue_manager_t *_m)
+ void nr_rlc_manager_lock(nr_rlc_ue_manager_t *_m)
+ {
+   nr_rlc_ue_manager_internal_t *m = _m;
++  
++  if (m == NULL) {
++    LOG_E(RLC, "%s:%d:%s: fatal, NULL manager\n", __FILE__, __LINE__, __FUNCTION__);
++    exit(1);
++  }
++  
+   if (pthread_mutex_lock(&m->lock)) {
+-    LOG_E(RLC, "%s:%d:%s: fatal\n", __FILE__, __LINE__, __FUNCTION__);
++    LOG_E(RLC, "%s:%d:%s: fatal, error locking mutex\n", __FILE__, __LINE__, __FUNCTION__);
+     exit(1);
+   }
+ }
+@@ -74,8 +80,14 @@ void nr_rlc_manager_lock(nr_rlc_ue_manager_t *_m)
+ void nr_rlc_manager_unlock(nr_rlc_ue_manager_t *_m)
+ {
+   nr_rlc_ue_manager_internal_t *m = _m;
++  
++  if (m == NULL) {
++    LOG_E(RLC, "%s:%d:%s: fatal, NULL manager\n", __FILE__, __LINE__, __FUNCTION__);
++    exit(1);
++  }
++  
+   if (pthread_mutex_unlock(&m->lock)) {
+-    LOG_E(RLC, "%s:%d:%s: fatal\n", __FILE__, __LINE__, __FUNCTION__);
++    LOG_E(RLC, "%s:%d:%s: fatal, error unlocking mutex\n", __FILE__, __LINE__, __FUNCTION__);
+     exit(1);
+   }
+ }

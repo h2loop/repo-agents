@@ -1,0 +1,112 @@
+diff --git a/nfapi/oai_integration/nfapi_pnf.c b/nfapi/oai_integration/nfapi_pnf.c
+index a933aba614..49395bfe9d 100644
+--- a/nfapi/oai_integration/nfapi_pnf.c
++++ b/nfapi/oai_integration/nfapi_pnf.c
+@@ -2161,6 +2161,7 @@ void configure_nr_nfapi_pnf(char *vnf_ip_addr, int vnf_p5_port, char *pnf_ip_add
+   config->nr_start_req = &nr_start_request;
+   config->measurement_req = &measurement_request;
+   config->rssi_req = &rssi_request;
++  config->rssi_ind = &rssi_indication;
+   config->broadcast_detect_req = &broadcast_detect_request;
+   config->system_information_schedule_req = &system_information_schedule_request;
+   config->system_information_req = &system_information_request;
+diff --git a/nfapi/open-nFAPI/pnf/public_inc/nfapi_pnf_interface.h b/nfapi/open-nFAPI/pnf/public_inc/nfapi_pnf_interface.h
+index ca8bc8d9a4..4609322c80 100644
+--- a/nfapi/open-nFAPI/pnf/public_inc/nfapi_pnf_interface.h
++++ b/nfapi/open-nFAPI/pnf/public_inc/nfapi_pnf_interface.h
+@@ -240,6 +240,18 @@ typedef struct nfapi_pnf_config
+ 	 */
+ 	int (*rssi_req)(nfapi_pnf_config_t* config, nfapi_pnf_phy_config_t* phy, nfapi_rssi_request_t* req);
+ 	
++	/*! A callback for the RSSI.indication
++	 *  \param config A pointer to the pnf configuration
++	 *  \param phy A pointer to the pnf phy configuration
++	 *  \param ind A data structure for the decoded RSSI.indication. This will have
++	 *             been allocated on the stack
++	 *  \return not currently used
++	 * 
++	 * 	The client is expected to schedule UEs with pending data after receiving the
++	 *  RSSI.indication. This can be done in the call back to avoid missed scheduling opportunities.
++	 */
++	int (*rssi_ind)(nfapi_pnf_config_t* config, nfapi_pnf_phy_config_t* phy, nfapi_rssi_indication_t* ind);
++	
+ 	/*! A callback for the CELL_SEARCH.request
+ 	 *  \param config A pointer to the pnf configuration
+ 	 *  \param phy A pointer to the pnf phy configuration
+diff --git a/nfapi/open-nFAPI/pnf/src/pnf.c b/nfapi/open-nFAPI/pnf/src/pnf.c
+index f16fd776d2..460c5453e7 100644
+--- a/nfapi/open-nFAPI/pnf/src/pnf.c
++++ b/nfapi/open-nFAPI/pnf/src/pnf.c
+@@ -1150,6 +1150,61 @@ void pnf_handle_rssi_request(pnf_t* pnf, void *pRecvMsg, int recvMsgLen)
+ 	}
+ }
+ 
++void pnf_handle_rssi_indication(pnf_t* pnf, void *pRecvMsg, int recvMsgLen)
++{
++	if (pRecvMsg == NULL || pnf == NULL)
++	{
++		NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s: NULL parameters\n", __FUNCTION__);
++	}
++	else
++	{
++		nfapi_rssi_indication_t ind;
++
++		NFAPI_TRACE(NFAPI_TRACE_INFO, "RSSI.indication received\n");
++
++		nfapi_pnf_config_t* config = &(pnf->_public);
++
++		// unpack the message
++		if (nfapi_p4_message_unpack(pRecvMsg, recvMsgLen, &ind, sizeof(ind), &config->codec_config) >= 0)
++		{
++			if(config->state == NFAPI_PNF_RUNNING)
++			{
++				nfapi_pnf_phy_config_t* phy = nfapi_pnf_phy_config_find(config, ind.header.phy_id);
++				if(phy)
++				{
++					if(phy->state == NFAPI_PNF_PHY_RUNNING)
++					{
++						if(config->rssi_ind)
++						{
++							(config->rssi_ind)(config, phy, &ind);
++						}
++					}
++					else
++					{
++						NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s: PHY not in RUNNING state\n", __FUNCTION__);
++					}
++				}
++				else
++				{
++					NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s: PHY not found\n", __FUNCTION__);
++				}
++			}
++			else
++			{
++				NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s: PNF not in RUNNING state\n", __FUNCTION__);
++			}
++		}
++		else
++		{
++			NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s: Unpack message failed, ignoring\n", __FUNCTION__);
++		}
++
++		if(ind.vendor_extension)
++			pnf->_public.codec_config.deallocate(ind.vendor_extension);
++
++	}
++}
++
+ void pnf_handle_cell_search_request(pnf_t* pnf, void *pRecvMsg, int recvMsgLen)
+ {
+ 	if (pRecvMsg == NULL || pnf == NULL)
+@@ -1596,6 +1651,10 @@ void pnf_nr_handle_p5_message(pnf_t* pnf, void *pRecvMsg, int recvMsgLen)
+ 			pnf_handle_rssi_request(pnf, pRecvMsg, recvMsgLen);
+ 			break;
+ 
++		case NFAPI_RSSI_INDICATION:
++			pnf_handle_rssi_indication(pnf, pRecvMsg, recvMsgLen);
++			break;
++
+ 		case NFAPI_CELL_SEARCH_REQUEST:
+ 			pnf_handle_cell_search_request(pnf, pRecvMsg, recvMsgLen);
+ 			break;

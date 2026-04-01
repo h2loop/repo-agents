@@ -1,0 +1,45 @@
+diff --git a/common/utils/telnetsrv/telnetsrv_proccmd.c b/common/utils/telnetsrv/telnetsrv_proccmd.c
+index f081bb66a1..193e788451 100644
+--- a/common/utils/telnetsrv/telnetsrv_proccmd.c
++++ b/common/utils/telnetsrv/telnetsrv_proccmd.c
+@@ -102,7 +102,8 @@ while (procfile_fields != NULL && fieldcnt < 42) {
+       break;
+     case 18: // priority column index 2 in tdata, -2 to -100 (1, min to 99, highest prio)
+       priority = strtol(procfile_fields, NULL, 0);
+-    case 19: // nice	  column index 3 in tdata  0 to 39 (-20, highest prio, to 19)
++      break;
++    case 19: // nice      column index 3 in tdata  0 to 39 (-20, highest prio, to 19)
+       if (tdata != NULL) {
+         tdata->lines[tdata->numlines].val[fieldcnt - 16] = strdup(procfile_fields);
+       }
+@@ -425,7 +426,7 @@ int proccmd_show(char *buf, int debug, telnet_printfunc_t prnt)
+        const mapping *log_maskmap = log_maskmap_ptr();
+        for (int i=0; log_maskmap[i].name != NULL ; i++) {
+                prnt("%02i %17.17s %5.5s   %5.5s\n",i ,log_maskmap[i].name, 
+-	             ((g_log->debug_mask &  log_maskmap[i].value)?"Y":"N"),
++                     ((g_log->debug_mask &  log_maskmap[i].value)?"Y":"N"),
+                      ((g_log->dump_mask & log_maskmap[i].value)?"Y":"N") );
+        }
+    }
+@@ -452,7 +453,7 @@ int proccmd_show(char *buf, int debug, telnet_printfunc_t prnt)
+        prnt("   %02i Ru(s)\n", RC.nb_RU);
+        prnt("   %02i lte RRc(s),     %02i NbIoT RRC(s)\n",    RC.nb_inst, RC.nb_nb_iot_rrc_inst);
+        prnt("   %02i lte MACRLC(s),  %02i NbIoT MACRLC(s)\n", RC.nb_macrlc_inst, RC.nb_nb_iot_macrlc_inst);
+-       prnt("   %02i lte L1,	    %02i NbIoT L1\n",	     RC.nb_L1_inst, RC.nb_nb_iot_L1_inst);
++       prnt("   %02i lte L1,        %02i NbIoT L1\n",        RC.nb_L1_inst, RC.nb_nb_iot_L1_inst);
+ 
+        for(int i=0; i<RC.nb_inst; i++) {
+            prnt("    lte RRC %i:     %02i CC(s) \n",i,((RC.nb_CC == NULL)?0:RC.nb_CC[i]));
+@@ -544,10 +545,10 @@ int s = sscanf(buf,"%ms %i-%i\n",&logsubcmd, &idx1,&idx2);
+    if (s == 1 && logsubcmd != NULL) {
+       if (strcasestr(logsubcmd,"online") != NULL) {
+           if (strcasestr(buf,"noonline") != NULL) {
+-   	      set_glog_onlinelog(0);
++              set_glog_onlinelog(0);
+               prnt("online logging disabled\n",buf);
+           } else {
+-   	      set_glog_onlinelog(1);
++              set_glog_onlinelog(1);
+               prnt("online logging enabled\n",buf);
+           }
+       }

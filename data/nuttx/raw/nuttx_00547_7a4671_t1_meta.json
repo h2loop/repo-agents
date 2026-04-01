@@ -1,0 +1,26 @@
+{
+  "run_id": "nuttx_00547_7a4671",
+  "function": {
+    "name": "kinetis_detach",
+    "file": "arch/arm/src/kinetis/kinetis_lpserial.c",
+    "start_line": 999,
+    "end_line": 1011,
+    "body_lines": 13,
+    "signature": "static void kinetis_detach(struct uart_dev_s *dev)",
+    "subsystem": "arch/arm/src",
+    "token_estimate": 28
+  },
+  "bug": {
+    "bug_id": "embedded_interrupt_priority_error",
+    "description": "incorrect interrupt priority or missing interrupt enable causing missed or nested interrupt issues",
+    "domain": "embedded",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a incorrect interrupt priority or missing interrupt enable causing missed or nested interrupt issues downstream of function kinetis_detach in the arch/arm/src subsystem.\nThe function is located at arch/arm/src/kinetis/kinetis_lpserial.c:999.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 4,
+  "trajectory_steps": 50,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:34:27Z"
+}

@@ -1,0 +1,80 @@
+diff --git a/openair2/RRC/NR_UE/rrc_UE.c b/openair2/RRC/NR_UE/rrc_UE.c
+index 53364b0768..3542af79d3 100644
+--- a/openair2/RRC/NR_UE/rrc_UE.c
++++ b/openair2/RRC/NR_UE/rrc_UE.c
+@@ -323,6 +323,9 @@ NR_UE_RRC_INST_t* nr_rrc_init_ue(char* uecap_file, int nb_inst, int num_ant_tx)
+     rrc->ul_bwp_id = 0;
+     rrc->as_security_activated = false;
+     rrc->detach_after_release = false;
++    
++    // Initialize mutex for thread-safe access to RRC instance
++    pthread_mutex_init(&rrc->mutex, NULL);
+ 
+     FILE *f = NULL;
+     if (uecap_file)
+@@ -694,6 +697,7 @@ static int nr_decode_SI(NR_UE_RRC_SI_INFO *SI_info, NR_SystemInformation_t *si)
+ 
+ static void nr_rrc_handle_msg3_indication(NR_UE_RRC_INST_t *rrc, rnti_t rnti)
+ {
++  pthread_mutex_lock(&rrc->mutex);
+   NR_UE_Timers_Constants_t *tac = &rrc->timers_and_constants;
+   switch (rrc->ra_trigger) {
+     case RRC_CONNECTION_SETUP:
+@@ -740,6 +744,7 @@ static void nr_rrc_handle_msg3_indication(NR_UE_RRC_INST_t *rrc, rnti_t rnti)
+       AssertFatal(1==0, "Invalid ra_trigger value!\n");
+       break;
+   }
++  pthread_mutex_unlock(&rrc->mutex);
+ }
+ 
+ static void nr_rrc_ue_prepare_RRCSetupRequest(NR_UE_RRC_INST_t *rrc)
+@@ -1787,6 +1792,7 @@ static int nr_rrc_ue_decode_dcch(NR_UE_RRC_INST_t *rrc,
+ 
+ void nr_rrc_handle_ra_indication(NR_UE_RRC_INST_t *rrc, bool ra_succeeded)
+ {
++  pthread_mutex_lock(&rrc->mutex);
+   NR_UE_Timers_Constants_t *timers = &rrc->timers_and_constants;
+   if (ra_succeeded && nr_timer_is_active(&timers->T304)) {
+     // successful Random Access procedure triggered by reconfigurationWithSync
+@@ -1794,6 +1800,7 @@ void nr_rrc_handle_ra_indication(NR_UE_RRC_INST_t *rrc, bool ra_succeeded)
+     // TODO handle the rest of procedures as described in 5.3.5.3 for when
+     // reconfigurationWithSync is included in spCellConfig
+   }
++  pthread_mutex_unlock(&rrc->mutex);
+ }
+ 
+ void *rrc_nrue_task(void *args_p)
+diff --git a/openair2/RRC/NR_UE/rrc_defs.h b/openair2/RRC/NR_UE/rrc_defs.h
+index 26a102fdb0..dcf3ad730d 100644
+--- a/openair2/RRC/NR_UE/rrc_defs.h
++++ b/openair2/RRC/NR_UE/rrc_defs.h
+@@ -234,6 +234,9 @@ typedef struct NR_UE_RRC_INST_s {
+   //Sidelink params
+   NR_SL_PreconfigurationNR_r16_t *sl_preconfig;
+ 
++  // Thread synchronization
++  pthread_mutex_t mutex;
++
+ } NR_UE_RRC_INST_t;
+ 
+ #endif
+diff --git a/openair2/RRC/NR_UE/rrc_timers_and_constants.c b/openair2/RRC/NR_UE/rrc_timers_and_constants.c
+index f0635b16b2..e06bff9df4 100644
+--- a/openair2/RRC/NR_UE/rrc_timers_and_constants.c
++++ b/openair2/RRC/NR_UE/rrc_timers_and_constants.c
+@@ -124,6 +124,7 @@ void nr_rrc_SI_timers(NR_UE_RRC_SI_INFO *SInfo)
+ 
+ void nr_rrc_handle_timers(NR_UE_RRC_INST_t *rrc)
+ {
++  pthread_mutex_lock(&rrc->mutex);
+   NR_UE_Timers_Constants_t *timers = &rrc->timers_and_constants;
+ 
+   bool release_timer_expired = nr_timer_tick(&rrc->release_timer);
+@@ -170,6 +171,7 @@ void nr_rrc_handle_timers(NR_UE_RRC_INST_t *rrc)
+     // with release cause 'RRC connection failure'
+     nr_rrc_going_to_IDLE(rrc, RRC_CONNECTION_FAILURE, NULL);
+   }
++  pthread_mutex_unlock(&rrc->mutex);
+ }
+ 
+ int nr_rrc_get_T304(long t304)

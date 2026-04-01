@@ -1,0 +1,13 @@
+diff --git a/common/utils/T/tracer/gui/event.c b/common/utils/T/tracer/gui/event.c
+index 862f4d67dd..070dbd84da 100644
+--- a/common/utils/T/tracer/gui/event.c
++++ b/common/utils/T/tracer/gui/event.c
+@@ -91,7 +91,7 @@ static void compress_event_list(struct gui *g)
+   last = g->queued_events->last->item;
+   if (last->type == DIRTY || last->type == REPACK) {
+     cur = g->queued_events;
+-    while (cur->item != last) {
++    while (cur != NULL && cur->item != last) {
+       if (cur->item != NULL && events_equal(cur->item, last)) {
+         free_event(cur->item);
+         cur->item = NULL;

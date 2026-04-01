@@ -1,0 +1,9 @@
+{
+  "run_id": "s00326_5936bb",
+  "pr_text": "## Title: Add bounds checking for EMM FSM event string lookup\n\n### Summary\nThe EMM state machine logging contained a potential out-of-bounds array access when converting event primitives to human-readable strings. The code directly used `evt->primitive - _EMMREG_START - 1` as an index into `_emm_fsm_event_str[]` without validating the calculated index bounds. This could result in undefined behavior or crashes if unexpected event values were received from upper layers (RRC) or lower layers (PHY, ",
+  "trajectory_path": "data/raw/s00326_5936bb_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00326_5936bb_p2.diff",
+  "patch_lines": 12,
+  "trajectory_steps": 17,
+  "timestamp": "2026-02-11T14:29:23Z"
+}

@@ -1,0 +1,565 @@
+'{"env":{"deployment":{"image":"oai5g-sera:625b4b0","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_625b4b0_00621","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix MCS validation bounds check in M2AP setup response handling\n\n### Summary\nThe
+  M2AP setup response processing in the eNB RRC layer was not properly validating
+  MCS values before assigning them to the `signallingMCS_r9` ENUMERATED field. This
+  caused invalid MCS selections that did not match channel quality or UE capability,
+  leading to potential SIB13 configuration issues.\n\nThe bug was triggered when the
+  MCE sent MCS values outside the valid range (0-3) for the ENUMERATED type, which
+  maps to n2, n7, n13, n19 MCS levels respectively.\n\n### Changes\n- `openair2/RRC/LTE/rrc_eNB_M2AP.c`:
+  Added bounds checking for MCS values at all assignment points\n- Lines 458-459:
+  Validate MCS in `rrc_M2AP_do_SIB1_MBMS_SIB13` \n- Line 568-569: Validate MCS in
+  `rrc_M2AP_do_SIB1_MBMS_SIB13`\n- Line 991-992: Validate MCS in `rrc_M2AP_do_SIB23_SIB13`\n-
+  Line 1136-1137: Validate MCS in `rrc_M2AP_do_SIB23_SIB2_SIB13` \n- Line 1246-1247:
+  Validate MCS in `rrc_M2AP_do_SIB23_SIB2_SIB13`\n\nThe validation ensures MCS values
+  are clamped to valid range, defaulting to MCS n7 (value 1) when out of bounds.\n","extra_fields":{"bug_description":"incorrect
+  MCS selection not matching channel quality or UE capability","bug_id":"telecom_wrong_mcs","stage_one_patch":"diff
+  --git a/openair2/RRC/LTE/rrc_eNB_M2AP.c b/openair2/RRC/LTE/rrc_eNB_M2AP.c\nindex
+  63760907fd..f4ddb37faa 100644\n--- a/openair2/RRC/LTE/rrc_eNB_M2AP.c\n+++ b/openair2/RRC/LTE/rrc_eNB_M2AP.c\n@@
+  -154,78 +154,78 @@ static uint8_t rrc_M2AP_do_MBSFNAreaConfig(\n   // Common Subframe
+  Allocation (CommonSF-Alloc-r9)\n \n   for(i=0; i<m2ap_mbms_scheduling_information->num_mbms_area_config_list;
+  i++){\n-\t  for(j=0;j < m2ap_mbms_scheduling_information->mbms_area_config_list[i].num_mbms_sf_config_list;
+  j++){\n+          for(j=0;j < m2ap_mbms_scheduling_information->mbms_area_config_list[i].num_mbms_sf_config_list;
+  j++){\n       mbsfn_SubframeConfig1 = CALLOC(1, sizeof(*mbsfn_SubframeConfig1));\n       //\n-\t\t  mbsfn_SubframeConfig1->radioframeAllocationPeriod=
+  m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].radioframe_allocation_period;//LTE_MBSFN_SubframeConfig__radioframeAllocationPeriod_n4;\n-\t\t  mbsfn_SubframeConfig1->radioframeAllocationOffset=
+  m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].radioframe_allocation_offset;\n-\t\t  if(m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].is_four_sf){\n-\t         \t  LOG_I(RRC,\"is_four_sf\\n\");\n-\t\t\t  mbsfn_SubframeConfig1->subframeAllocation.present=
+  LTE_MBSFN_SubframeConfig__subframeAllocation_PR_fourFrames;\n-\t\t\t  mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf=
+  MALLOC(3);\n+                  mbsfn_SubframeConfig1->radioframeAllocationPeriod=
+  m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].radioframe_allocation_period;//LTE_MBSFN_SubframeConfig__radioframeAllocationPeriod_n4;\n+                  mbsfn_SubframeConfig1->radioframeAllocationOffset=
+  m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].radioframe_allocation_offset;\n+                  if(m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].is_four_sf){\n+                          LOG_I(RRC,\"is_four_sf\\n\");\n+                          mbsfn_SubframeConfig1->subframeAllocation.present=
+  LTE_MBSFN_SubframeConfig__subframeAllocation_PR_fourFrames;\n+                          mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf=
+  MALLOC(3);\n                           mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf[2]
+  = ((m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].subframe_allocation)
+  & 0xFF);\n                           mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf[1]
+  = ((m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].subframe_allocation>>8)
+  & 0xFF);\n                           mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf[0]
+  = ((m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].subframe_allocation>>16)
+  & 0xFF);\n-\t\t\t  mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.size=
+  3;\n-\t\t\t  mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.bits_unused=
+  0;\n-\t\t\n-\n-   \t\t  }else {\n-\t\t\t  LOG_I(RRC,\"is_one_sf\\n\");\n-\t\t\t  mbsfn_SubframeConfig1->subframeAllocation.present=
+  LTE_MBSFN_SubframeConfig__subframeAllocation_PR_oneFrame;\n-\t\t\t  mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf=
+  MALLOC(1);\n-\t\t\t  mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.size=
+  1;\n-\t\t\t  mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.bits_unused=
+  2;\n-\t\t\t  mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf[0] =
+  (m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].subframe_allocation
+  & 0x3F)<<2;\n-\t\t  }\n-\n-\t\t  asn1cSeqAdd(&(*mbsfnAreaConfiguration)->commonSF_Alloc_r9.list,mbsfn_SubframeConfig1);\n-\t  }\n-\t  //  commonSF-AllocPeriod-r9\n-\t  (*mbsfnAreaConfiguration)->commonSF_AllocPeriod_r9=
+  m2ap_mbms_scheduling_information->mbms_area_config_list[i].common_sf_allocation_period;//LTE_MBSFNAreaConfiguration_r9__commonSF_AllocPeriod_r9_rf16;\n-\t  //
+  PMCHs Information List (PMCH-InfoList-r9)\n-\t  for(j=0; j < m2ap_mbms_scheduling_information->mbms_area_config_list[i].num_pmch_config_list;
+  j++){\n-\t\t  // PMCH_1  Config\n+                          mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.size=
+  3;\n+                          mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.bits_unused=
+  0;\n+                \n+\n+                  }else {\n+                          LOG_I(RRC,\"is_one_sf\\n\");\n+                          mbsfn_SubframeConfig1->subframeAllocation.present=
+  LTE_MBSFN_SubframeConfig__subframeAllocation_PR_oneFrame;\n+                          mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf=
+  MALLOC(1);\n+                          mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.size=
+  1;\n+                          mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.bits_unused=
+  2;\n+                          mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf[0]
+  = (m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].subframe_allocation
+  & 0x3F)<<2;\n+                  }\n+\n+                  asn1cSeqAdd(&(*mbsfnAreaConfiguration)->commonSF_Alloc_r9.list,mbsfn_SubframeConfig1);\n+          }\n+          //  commonSF-AllocPeriod-r9\n+          (*mbsfnAreaConfiguration)->commonSF_AllocPeriod_r9=
+  m2ap_mbms_scheduling_information->mbms_area_config_list[i].common_sf_allocation_period;//LTE_MBSFNAreaConfiguration_r9__commonSF_AllocPeriod_r9_rf16;\n+          //
+  PMCHs Information List (PMCH-InfoList-r9)\n+          for(j=0; j < m2ap_mbms_scheduling_information->mbms_area_config_list[i].num_pmch_config_list;
+  j++){\n+                  // PMCH_1  Config\n       pmch_Info_1 = CALLOC(1, sizeof(LTE_PMCH_Info_r9_t));\n       /*\n-\t\t   *
+  take the value of last mbsfn subframe in this CSA period because there is only one
+  PMCH in this mbsfn area\n-\t\t   * Note: this has to be set based on the subframeAllocation
+  and CSA\n-\t\t   */\n-\t\t  pmch_Info_1->pmch_Config_r9.sf_AllocEnd_r9= m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].allocated_sf_end;\n-\t\t  pmch_Info_1->pmch_Config_r9.dataMCS_r9=
+  m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].data_mcs;\n-\t\t  //pmch_Info_1->pmch_Config_r9.mch_SchedulingPeriod_r9=
+  LTE_PMCH_Config_r9__mch_SchedulingPeriod_r9_rf16;\n-\t\t  pmch_Info_1->pmch_Config_r9.mch_SchedulingPeriod_r9
+  = m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mch_scheduling_period;\n-\t\t  //
+  MBMSs-SessionInfoList-r9\n-\t\t  for(k=0; k < m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].num_mbms_session_list;
+  k++){\n-\t\t\t  //  pmch_Info_1->mbms_SessionInfoList_r9 = CALLOC(1,sizeof(struct
+  MBMS_SessionInfoList_r9));\n-\t\t\t  //  Session 1\n+                   * take the
+  value of last mbsfn subframe in this CSA period because there is only one PMCH in
+  this mbsfn area\n+                   * Note: this has to be set based on the subframeAllocation
+  and CSA\n+                   */\n+                  pmch_Info_1->pmch_Config_r9.sf_AllocEnd_r9=
+  m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].allocated_sf_end;\n+                  pmch_Info_1->pmch_Config_r9.dataMCS_r9=
+  m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].data_mcs;\n+                  //pmch_Info_1->pmch_Config_r9.mch_SchedulingPeriod_r9=
+  LTE_PMCH_Config_r9__mch_SchedulingPeriod_r9_rf16;\n+                  pmch_Info_1->pmch_Config_r9.mch_SchedulingPeriod_r9
+  = m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mch_scheduling_period;\n+                  //
+  MBMSs-SessionInfoList-r9\n+                  for(k=0; k < m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].num_mbms_session_list;
+  k++){\n+                          //  pmch_Info_1->mbms_SessionInfoList_r9 = CALLOC(1,sizeof(struct
+  MBMS_SessionInfoList_r9));\n+                          //  Session 1\n         mbms_Session_1
+  = CALLOC(1, sizeof(LTE_MBMS_SessionInfo_r9_t));\n         // TMGI value\n-\t\t\t  mbms_Session_1->tmgi_r9.plmn_Id_r9.present=
+  LTE_TMGI_r9__plmn_Id_r9_PR_plmn_Index_r9;\n-\t\t\t  mbms_Session_1->tmgi_r9.plmn_Id_r9.choice.plmn_Index_r9=
+  1;\n-\t\t\t  // Service ID\n-\t\t\t  //uint8_t TMGI[5] = {4,3,2,1,0};//TMGI is a
+  string of octet, ref. TS 24.008 fig. 10.5.4a\n-\t\t\t  char buf[4];\n-\t\t\t  buf[0]
+  = m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].service_id
+  << 24;\n-\t\t\t  buf[1] = m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].service_id
+  << 16;\n-\t\t\t  buf[2] = m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].service_id
+  << 8;\n-\t\t\t  buf[3] = m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].service_id
+  << 0;\n-\t\t\t  //INT32_TO_BUFFER(m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].service_id,buf);\n-\t\t\t  memset(&mbms_Session_1->tmgi_r9.serviceId_r9,0,sizeof(OCTET_STRING_t));//
+  need to check\n-\t\t\t  OCTET_STRING_fromBuf(&mbms_Session_1->tmgi_r9.serviceId_r9,(const
+  char *)&buf[1],3);\n-\t\t\t  // Session ID is still missing here, it can be used
+  as an rab id or mrb id\n-\t\t\t  mbms_Session_1->sessionId_r9 = CALLOC(1,sizeof(OCTET_STRING_t));\n-\t\t\t  mbms_Session_1->sessionId_r9->buf=
+  MALLOC(1);\n-\t\t\t  mbms_Session_1->sessionId_r9->size= 1;\n-\t\t\t  mbms_Session_1->sessionId_r9->buf[0]=
+  m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].service_id;
+  //1;\n-\t\t\t  // Logical Channel ID\n-\t\t\t  mbms_Session_1->logicalChannelIdentity_r9=m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].lcid;
+  //1;\n-\t\t\t  LOG_D(RRC,\"lcid %lu %d\\n\",mbms_Session_1->logicalChannelIdentity_r9,m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].lcid);\n-\t\t\t  LOG_D(RRC,\"service_id
+  %d\\n\",m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].service_id);\n-\t\t\t  asn1cSeqAdd(&pmch_Info_1->mbms_SessionInfoList_r9.list,mbms_Session_1);\n-\t\t  }\n-\t\t  asn1cSeqAdd(&(*mbsfnAreaConfiguration)->pmch_InfoList_r9.list,pmch_Info_1);\n-\t  }\n+                          mbms_Session_1->tmgi_r9.plmn_Id_r9.present=
+  LTE_TMGI_r9__plmn_Id_r9_PR_plmn_Index_r9;\n+                          mbms_Session_1->tmgi_r9.plmn_Id_r9.choice.plmn_Index_r9=
+  1;\n+                          // Service ID\n+                          //uint8_t
+  TMGI[5] = {4,3,2,1,0};//TMGI is a string of octet, ref. TS 24.008 fig. 10.5.4a\n+                          char
+  buf[4];\n+                          buf[0] = m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].service_id
+  << 24;\n+                          buf[1] = m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].service_id
+  << 16;\n+                          buf[2] = m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].service_id
+  << 8;\n+                          buf[3] = m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].service_id
+  << 0;\n+                          //INT32_TO_BUFFER(m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].service_id,buf);\n+                          memset(&mbms_Session_1->tmgi_r9.serviceId_r9,0,sizeof(OCTET_STRING_t));//
+  need to check\n+                          OCTET_STRING_fromBuf(&mbms_Session_1->tmgi_r9.serviceId_r9,(const
+  char *)&buf[1],3);\n+                          // Session ID is still missing here,
+  it can be used as an rab id or mrb id\n+                          mbms_Session_1->sessionId_r9
+  = CALLOC(1,sizeof(OCTET_STRING_t));\n+                          mbms_Session_1->sessionId_r9->buf=
+  MALLOC(1);\n+                          mbms_Session_1->sessionId_r9->size= 1;\n+                          mbms_Session_1->sessionId_r9->buf[0]=
+  m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].service_id;
+  //1;\n+                          // Logical Channel ID\n+                          mbms_Session_1->logicalChannelIdentity_r9=m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].lcid;
+  //1;\n+                          LOG_D(RRC,\"lcid %lu %d\\n\",mbms_Session_1->logicalChannelIdentity_r9,m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].lcid);\n+                          LOG_D(RRC,\"service_id
+  %d\\n\",m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].service_id);\n+                          asn1cSeqAdd(&pmch_Info_1->mbms_SessionInfoList_r9.list,mbms_Session_1);\n+                  }\n+                  asn1cSeqAdd(&(*mbsfnAreaConfiguration)->pmch_InfoList_r9.list,pmch_Info_1);\n+          }\n   }\n
+  \n   if ( LOG_DEBUGFLAG(DEBUG_ASN1) ) {\n@@ -315,7 +315,7 @@ static void rrc_M2AP_init_MCCH(\n           (uint8_t
+  *)RC.rrc[enb_mod_idP]->carrier[CC_id].MCCH_MESSAGE[sync_area],\n           &RC.rrc[enb_mod_idP]->carrier[CC_id].mcch,\n           &RC.rrc[enb_mod_idP]->carrier[CC_id].mcch_message,\n-\t  m2ap_mbms_scheduling_information
+  \n+          m2ap_mbms_scheduling_information \n       );\n \n       RC.rrc[enb_mod_idP]->carrier[CC_id].sizeof_MCCH_MESSAGE_COUNTING[sync_area]
+  = 0;\n@@ -362,11 +362,11 @@ static void rrc_M2AP_init_MCCH(\n \n  \n static uint8_t
+  rrc_M2AP_do_SIB1_MBMS_SIB13(\n-  \t\t\t  const protocol_ctxt_t *const ctxt_pP,\n-\t\t\t  uint8_t
+  Mod_id, \n-\t\t\t  int CC_id,\n-  \t\t\t  const m2ap_setup_resp_t *const m2ap_setup_resp,\n-  \t\t\t  const
+  m2ap_mbms_scheduling_information_t *const m2ap_mbms_scheduling_information\n+                          const
+  protocol_ctxt_t *const ctxt_pP,\n+                          uint8_t Mod_id, \n+                          int
+  CC_id,\n+                          const m2ap_setup_resp_t *const m2ap_setup_resp,\n+                          const
+  m2ap_mbms_scheduling_information_t *const m2ap_mbms_scheduling_information\n ){\n
+  \n   int i,j,l;\n@@ -409,27 +409,27 @@ static uint8_t rrc_M2AP_do_SIB1_MBMS_SIB13(\n     typeandinfo
+  = bcch_message->message.choice.c1.choice.systemInformation.criticalExtensions.choice.systemInformation_r8.sib_TypeAndInfo.list.array[i];\n     switch(typeandinfo->present)
+  {\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_NOTHING:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib3:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib4:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib5:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib6:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib7:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib8:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib9:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib10:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib11:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib12_v920:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib13_v920:\n         RC.rrc[Mod_id]->carrier[CC_id].sib13
+  = &typeandinfo->choice.sib13_v920;\n         LTE_SystemInformationBlockType13_r9_t
+  *sib13 = RC.rrc[Mod_id]->carrier[CC_id].sib13;\n@@ -455,32 +455,33 @@ static uint8_t
+  rrc_M2AP_do_SIB1_MBMS_SIB13(\n           MBSFN_Area1->mcch_Config_r9.sf_AllocInfo_r9.size
+  = 1;\n           MBSFN_Area1->mcch_Config_r9.sf_AllocInfo_r9.buf[0] = m2ap_setup_resp->mcch_config_per_mbsfn[j].subframe_allocation_info
+  << 2; // FDD: SF1\n           MBSFN_Area1->mcch_Config_r9.sf_AllocInfo_r9.bits_unused
+  = 2;\n-          MBSFN_Area1->mcch_Config_r9.signallingMCS_r9 = m2ap_setup_resp->mcch_config_per_mbsfn[j].mcs;\n+          //
+  Validate MCS value to be within valid range (0-3) for signallingMCS_r9 ENUMERATED
+  type\n+          MBSFN_Area1->mcch_Config_r9.signallingMCS_r9 = (m2ap_setup_resp->mcch_config_per_mbsfn[j].mcs
+  > 3) ? 1 : m2ap_setup_resp->mcch_config_per_mbsfn[j].mcs;\n           asn1cSeqAdd(&MBSFNArea_list->list,
+  MBSFN_Area1);\n         }\n         break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib14_v1130:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib15_v1130:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib16_v1130:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib17_v1250:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib18_v1250:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib19_v1250:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib20_v1310:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib21_v1430:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib24_v1530:\n-\tbreak;\n+        break;\n       case
+  LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib25_v1530:\n-\tbreak;\n+        break;\n       case
+  LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib26_v1530:\n-\tbreak;\n+        break;\n       case
+  LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib26a_v1610:\n         break;\n       case
+  LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib27_v1610:\n@@ -564,7
+  +565,8 @@ static uint8_t rrc_M2AP_do_SIB1_MBMS_SIB13(\n       MBSFN_Area1->mcch_Config_r9.sf_AllocInfo_r9.size
+  = 1;\n       MBSFN_Area1->mcch_Config_r9.sf_AllocInfo_r9.buf[0] = m2ap_setup_resp->mcch_config_per_mbsfn[i].subframe_allocation_info
+  << 2; // FDD: SF1\n       MBSFN_Area1->mcch_Config_r9.sf_AllocInfo_r9.bits_unused
+  = 2;\n-      MBSFN_Area1->mcch_Config_r9.signallingMCS_r9 = m2ap_setup_resp->mcch_config_per_mbsfn[i].mcs;\n+      //
+  Validate MCS value to be within valid range (0-3) for signallingMCS_r9 ENUMERATED
+  type\n+      MBSFN_Area1->mcch_Config_r9.signallingMCS_r9 = (m2ap_setup_resp->mcch_config_per_mbsfn[i].mcs
+  > 3) ? 1 : m2ap_setup_resp->mcch_config_per_mbsfn[i].mcs;\n       asn1cSeqAdd(&MBSFNArea_list->list,
+  MBSFN_Area1);\n     }\n \n@@ -619,11 +621,11 @@ static uint8_t rrc_M2AP_do_SIB1_MBMS_SIB13(\n   return
+  0;\n }\n //static uint8_t rrc_M2AP_do_SIB1(\n-//  \t\t\t  const protocol_ctxt_t
+  *const ctxt_pP,\n-//\t\t\t  uint8_t Mod_id, \n-//\t\t\t  int CC_id,\n-//  \t\t\t  const
+  m2ap_setup_resp_t *const m2ap_setup_resp,\n-//  \t\t\t  const m2ap_mbms_scheduling_information_t
+  *const m2ap_mbms_scheduling_information\n+//                        const protocol_ctxt_t
+  *const ctxt_pP,\n+//                        uint8_t Mod_id, \n+//                        int
+  CC_id,\n+//                        const m2ap_setup_resp_t *const m2ap_setup_resp,\n+//                        const
+  m2ap_mbms_scheduling_information_t *const m2ap_mbms_scheduling_information\n //){\n
+  //  int i/*,j,l*/;\n //  \n@@ -654,19 +656,19 @@ static uint8_t rrc_M2AP_do_SIB1_MBMS_SIB13(\n
+  //   \n //    uint8_t find_sib13=0;\n //    for(i=0; i<(*sib1)->schedulingInfoList.list.count;
+  i++){\n-//\t\t//for(j=0; j<(*sib1)->schedulingInfoList.list.array[i]->sib_MappingInfo.list.count;j++)\n-//\t\t//\tif((*sib1)->schedulingInfoList.list.array[i]->sib_MappingInfo.list.array[j]
+  == LTE_SIB_Type_sibType13_v920)\n-//\t\t//\t\tfind_sib13=1;\n+//              //for(j=0;
+  j<(*sib1)->schedulingInfoList.list.array[i]->sib_MappingInfo.list.count;j++)\n+//              //      if((*sib1)->schedulingInfoList.list.array[i]->sib_MappingInfo.list.array[j]
+  == LTE_SIB_Type_sibType13_v920)\n+//              //              find_sib13=1;\n
+  //    }\n //    if(!find_sib13){\n-//   \tLTE_SchedulingInfo_t schedulingInfo;\n-//   \tLTE_SIB_Type_t
+  sib_type;\n+//      LTE_SchedulingInfo_t schedulingInfo;\n+//      LTE_SIB_Type_t
+  sib_type;\n //        memset(&schedulingInfo,0,sizeof(LTE_SchedulingInfo_t));\n
+  //        memset(&sib_type,0,sizeof(LTE_SIB_Type_t));\n-//\t\n-//\tschedulingInfo.si_Periodicity=LTE_SchedulingInfo__si_Periodicity_rf8;\n-//\tsib_type=LTE_SIB_Type_sibType13_v920;\n-//\tasn1cSeqAdd(&(*sib1)->schedulingInfoList.list,&schedulingInfo);\n+//      \n+//      schedulingInfo.si_Periodicity=LTE_SchedulingInfo__si_Periodicity_rf8;\n+//      sib_type=LTE_SIB_Type_sibType13_v920;\n+//      asn1cSeqAdd(&(*sib1)->schedulingInfoList.list,&schedulingInfo);\n
+  //    }\n //\n //    enc_rval = uper_encode_to_buffer(&asn_DEF_LTE_BCCH_DL_SCH_Message,\n@@
+  -690,10 +692,10 @@ static uint8_t rrc_M2AP_do_SIB1_MBMS_SIB13(\n \n \n static uint8_t
+  rrc_M2AP_do_SIB23_SIB2(\n-  \t\t\t  const protocol_ctxt_t *const ctxt_pP,\n-\t\t\t  uint8_t
+  Mod_id, \n-\t\t\t  int CC_id,\n-  \t\t\t  const m2ap_mbms_scheduling_information_t
+  *const m2ap_mbms_scheduling_information\n+                          const protocol_ctxt_t
+  *const ctxt_pP,\n+                          uint8_t Mod_id, \n+                          int
+  CC_id,\n+                          const m2ap_mbms_scheduling_information_t *const
+  m2ap_mbms_scheduling_information\n ){\n \n   int i,j,l;\n@@ -714,13 +716,13 @@ static
+  uint8_t rrc_M2AP_do_SIB23_SIB2(\n \n \n   if(ctxt_pP->brOption){\n-\tbuffer   =
+  RC.rrc[Mod_id]->carrier[CC_id].SIB23_BR;\t\n-\tsib2 \t =  &RC.rrc[Mod_id]->carrier[CC_id].sib2_BR;\n+        buffer   =
+  RC.rrc[Mod_id]->carrier[CC_id].SIB23_BR;     \n+        sib2     =  &RC.rrc[Mod_id]->carrier[CC_id].sib2_BR;\n         LOG_I(RRC,\"Running
+  SIB2/3 Encoding for eMTC\\n\");\n \n   } else {\n-\tbuffer   = RC.rrc[Mod_id]->carrier[CC_id].SIB23;\t\n-\tsib2
+  \t =  &RC.rrc[Mod_id]->carrier[CC_id].sib2;\n+        buffer   = RC.rrc[Mod_id]->carrier[CC_id].SIB23;        \n+        sib2     =  &RC.rrc[Mod_id]->carrier[CC_id].sib2;\n   }\n
+  \n \n@@ -747,51 +749,51 @@ static uint8_t rrc_M2AP_do_SIB23_SIB2(\n     typeandinfo
+  = bcch_message->message.choice.c1.choice.systemInformation.criticalExtensions.choice.systemInformation_r8.sib_TypeAndInfo.list.array[i];\n     switch(typeandinfo->present)
+  {\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_NOTHING:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib3:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib4:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib5:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib6:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib7:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib8:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib9:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib10:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib11:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib12_v920:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib13_v920:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib14_v1130:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib15_v1130:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib16_v1130:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib17_v1250:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib18_v1250:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib19_v1250:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib20_v1310:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib21_v1430:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib24_v1530:\n-\tbreak;\n+        break;\n       case
+  LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib25_v1530:\n-\tbreak;\n+        break;\n       case
+  LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib26_v1530:\n-\tbreak;\n+        break;\n       case
+  LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib26a_v1610:\n         break;\n       case
+  LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib27_v1610:\n@@ -802,48
+  +804,48 @@ static uint8_t rrc_M2AP_do_SIB23_SIB2(\n         break;\n       case
+  LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib2: \n \n-\tLOG_I(RRC,\"Adding
+  MBSFN subframe Configuration 1 to SIB2, %p %p\\n\",&typeandinfo->choice.sib2,*sib2);\n+        LOG_I(RRC,\"Adding
+  MBSFN subframe Configuration 1 to SIB2, %p %p\\n\",&typeandinfo->choice.sib2,*sib2);\n
+  \n-\tfor(j=0; j < m2ap_mbms_scheduling_information->num_mbms_area_config_list ;
+  j++) {\n+        for(j=0; j < m2ap_mbms_scheduling_information->num_mbms_area_config_list
+  ; j++) {\n \n-    \t\t\t(&typeandinfo->choice.sib2)->mbsfn_SubframeConfigList =
+  CALLOC(1,sizeof(struct LTE_MBSFN_SubframeConfigList));\n-    \t\t\tMBSFNSubframeConfigList
+  = (&typeandinfo->choice.sib2)->mbsfn_SubframeConfigList;\n+                        (&typeandinfo->choice.sib2)->mbsfn_SubframeConfigList
+  = CALLOC(1,sizeof(struct LTE_MBSFN_SubframeConfigList));\n+                        MBSFNSubframeConfigList
+  = (&typeandinfo->choice.sib2)->mbsfn_SubframeConfigList;\n \n-\t\tfor(l=0; l < m2ap_mbms_scheduling_information->mbms_area_config_list[j].num_mbms_sf_config_list;
+  l++){\n-\t\t\tLTE_MBSFN_SubframeConfig_t *sib2_mbsfn_SubframeConfig1;\n+                for(l=0;
+  l < m2ap_mbms_scheduling_information->mbms_area_config_list[j].num_mbms_sf_config_list;
+  l++){\n+                        LTE_MBSFN_SubframeConfig_t *sib2_mbsfn_SubframeConfig1;\n       sib2_mbsfn_SubframeConfig1
+  = CALLOC(1, sizeof(*sib2_mbsfn_SubframeConfig1));\n \n       sib2_mbsfn_SubframeConfig1->radioframeAllocationPeriod
+  = m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].radioframe_allocation_period;\n-\t\t\tsib2_mbsfn_SubframeConfig1->radioframeAllocationOffset
+  = m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].radioframe_allocation_offset;\n+                        sib2_mbsfn_SubframeConfig1->radioframeAllocationOffset
+  = m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].radioframe_allocation_offset;\n
+  \n \n-\t\t\tif(m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].is_four_sf){\n-\t\t\t\tLOG_I(RRC,\"is_four_sf\\n\");\n-\t\t\t\tsib2_mbsfn_SubframeConfig1->subframeAllocation.present=
+  LTE_MBSFN_SubframeConfig__subframeAllocation_PR_fourFrames;\n+                        if(m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].is_four_sf){\n+                                LOG_I(RRC,\"is_four_sf\\n\");\n+                                sib2_mbsfn_SubframeConfig1->subframeAllocation.present=
+  LTE_MBSFN_SubframeConfig__subframeAllocation_PR_fourFrames;\n \n-    \t\t\t\tsib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf=
+  MALLOC(3);\n-    \t\t\t\tsib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.size=
+  3;\n-    \t\t\t\tsib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.bits_unused=
+  0;\n-  \t                        sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf[2]
+  = ((m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].subframe_allocation)
+  & 0xFF);\n-                           \tsib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf[1]
+  = ((m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].subframe_allocation>>8)
+  & 0xFF);\n-                           \tsib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf[0]
+  = ((m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].subframe_allocation>>16)
+  & 0xFF);\n+                                sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf=
+  MALLOC(3);\n+                                sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.size=
+  3;\n+                                sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.bits_unused=
+  0;\n+                                sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf[2]
+  = ((m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].subframe_allocation)
+  & 0xFF);\n+                                sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf[1]
+  = ((m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].subframe_allocation>>8)
+  & 0xFF);\n+                                sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf[0]
+  = ((m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].subframe_allocation>>16)
+  & 0xFF);\n \n-\t\t\t}else{\n-\t\t\t\tLOG_I(RRC,\"is_one_sf\\n\");\n-\t\t\t\tsib2_mbsfn_SubframeConfig1->subframeAllocation.present=
+  LTE_MBSFN_SubframeConfig__subframeAllocation_PR_oneFrame;\n-    \t\t\t\tsib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf=
+  MALLOC(1);\n-    \t\t\t\tsib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.size=
+  1;\n-    \t\t\t\tsib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.bits_unused=
+  2;\n-    \t\t\t\tsib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf[0]=(m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].subframe_allocation<<2);\n+                        }else{\n+                                LOG_I(RRC,\"is_one_sf\\n\");\n+                                sib2_mbsfn_SubframeConfig1->subframeAllocation.present=
+  LTE_MBSFN_SubframeConfig__subframeAllocation_PR_oneFrame;\n+                                sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf=
+  MALLOC(1);\n+                                sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.size=
+  1;\n+                                sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.bits_unused=
+  2;\n+                                sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf[0]=(m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].subframe_allocation<<2);\n
+  \n \n-\t\t\t}\n+                        }\n \n-        \t\tasn1cSeqAdd(&MBSFNSubframeConfigList->list,sib2_mbsfn_SubframeConfig1);\n-\t\t}\t\n-\t}\n+                        asn1cSeqAdd(&MBSFNSubframeConfigList->list,sib2_mbsfn_SubframeConfig1);\n+                }       \n+        }\n
+  \n-\tbreak;\n+        break;\n \n     }\n   }\n@@ -880,10 +882,10 @@ static uint8_t
+  rrc_M2AP_do_SIB23_SIB2(\n }\n \n static uint8_t rrc_M2AP_do_SIB23_SIB13(\n-  \t\t\t  const
+  protocol_ctxt_t *const ctxt_pP,\n-\t\t\t  uint8_t Mod_id, \n-\t\t\t  int CC_id,\n-  \t\t\t  const
+  m2ap_setup_resp_t *const m2ap_setup_resp\n+                          const protocol_ctxt_t
+  *const ctxt_pP,\n+                          uint8_t Mod_id, \n+                          int
+  CC_id,\n+                          const m2ap_setup_resp_t *const m2ap_setup_resp\n
+  ){\n \n   int i;\n@@ -901,12 +903,12 @@ static uint8_t rrc_M2AP_do_SIB23_SIB13(\n
+  \n \n   if(ctxt_pP->brOption){\n-\tbuffer   = RC.rrc[Mod_id]->carrier[CC_id].SIB23_BR;\t\n-\tsib2
+  \t =  &RC.rrc[Mod_id]->carrier[CC_id].sib2_BR;\n+        buffer   = RC.rrc[Mod_id]->carrier[CC_id].SIB23_BR;     \n+        sib2     =  &RC.rrc[Mod_id]->carrier[CC_id].sib2_BR;\n     LOG_I(RRC,\"Running
+  SIB2/3 Encoding for eMTC\\n\");\n   } else {\n-\tbuffer   = RC.rrc[Mod_id]->carrier[CC_id].SIB23;\t\n-\tsib2
+  \t =  &RC.rrc[Mod_id]->carrier[CC_id].sib2;\n+        buffer   = RC.rrc[Mod_id]->carrier[CC_id].SIB23;        \n+        sib2     =  &RC.rrc[Mod_id]->carrier[CC_id].sib2;\n   }\n
+  \n   if (bcch_message) {\n@@ -931,25 +933,25 @@ static uint8_t rrc_M2AP_do_SIB23_SIB13(\n     typeandinfo
+  = (*si)->criticalExtensions.choice.systemInformation_r8.sib_TypeAndInfo.list.array[i];\n     switch(typeandinfo->present)
+  {\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib2:\n-\tLTE_SystemInformationBlockType2_t
+  *sib2 = &typeandinfo->choice.sib2\n-\t LOG_I(RRC,\"Adding MBSFN subframe Configuration
+  1 to SIB2\\n\");\n-    \tLTE_MBSFN_SubframeConfig_t *sib2_mbsfn_SubframeConfig1;\n-    \t(*sib2)->mbsfn_SubframeConfigList
+  = CALLOC(1,sizeof(struct LTE_MBSFN_SubframeConfigList));\n-    \tMBSFNSubframeConfigList
+  = (*sib2)->mbsfn_SubframeConfigList;\n-    \tsib2_mbsfn_SubframeConfig1= CALLOC(1,sizeof(*sib2_mbsfn_SubframeConfig1));\n-    \tmemset((void
+  *)sib2_mbsfn_SubframeConfig1,0,sizeof(*sib2_mbsfn_SubframeConfig1));\n-    \tsib2_mbsfn_SubframeConfig1->radioframeAllocationPeriod=
+  LTE_MBSFN_SubframeConfig__radioframeAllocationPeriod_n4;\n-    \tsib2_mbsfn_SubframeConfig1->radioframeAllocationOffset=
+  1;\n-    \tsib2_mbsfn_SubframeConfig1->subframeAllocation.present= LTE_MBSFN_SubframeConfig__subframeAllocation_PR_oneFrame;\n-    \tsib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf=
+  MALLOC(1);\n-    \tsib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.size=
+  1;\n-    \tsib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.bits_unused=
+  2;\n-    \tsib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf[0]=0x38<<2;\n+        LTE_SystemInformationBlockType2_t
+  *sib2 = &typeandinfo->choice.sib2\n+         LOG_I(RRC,\"Adding MBSFN subframe Configuration
+  1 to SIB2\\n\");\n+        LTE_MBSFN_SubframeConfig_t *sib2_mbsfn_SubframeConfig1;\n+        (*sib2)->mbsfn_SubframeConfigList
+  = CALLOC(1,sizeof(struct LTE_MBSFN_SubframeConfigList));\n+        MBSFNSubframeConfigList
+  = (*sib2)->mbsfn_SubframeConfigList;\n+        sib2_mbsfn_SubframeConfig1= CALLOC(1,sizeof(*sib2_mbsfn_SubframeConfig1));\n+        memset((void
+  *)sib2_mbsfn_SubframeConfig1,0,sizeof(*sib2_mbsfn_SubframeConfig1));\n+        sib2_mbsfn_SubframeConfig1->radioframeAllocationPeriod=
+  LTE_MBSFN_SubframeConfig__radioframeAllocationPeriod_n4;\n+        sib2_mbsfn_SubframeConfig1->radioframeAllocationOffset=
+  1;\n+        sib2_mbsfn_SubframeConfig1->subframeAllocation.present= LTE_MBSFN_SubframeConfig__subframeAllocation_PR_oneFrame;\n+        sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf=
+  MALLOC(1);\n+        sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.size=
+  1;\n+        sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.bits_unused=
+  2;\n+        sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf[0]=0x38<<2;\n
+  \n         asn1cSeqAdd(&MBSFNSubframeConfigList->list,sib2_mbsfn_SubframeConfig1);\n
+  \n \n-\tbreak;\n+        break;\n \n     }\n   }*/\n@@ -986,7 +988,8 @@ static uint8_t
+  rrc_M2AP_do_SIB23_SIB13(\n     MBSFN_Area1->mcch_Config_r9.sf_AllocInfo_r9.size
+  = 1;\n     MBSFN_Area1->mcch_Config_r9.sf_AllocInfo_r9.buf[0] = m2ap_setup_resp->mcch_config_per_mbsfn[i].subframe_allocation_info
+  << 2; // FDD: SF1\n     MBSFN_Area1->mcch_Config_r9.sf_AllocInfo_r9.bits_unused
+  = 2;\n-    MBSFN_Area1->mcch_Config_r9.signallingMCS_r9 = m2ap_setup_resp->mcch_config_per_mbsfn[i].mcs;\n+    //
+  Validate MCS value to be within valid range (0-3) for signallingMCS_r9 ENUMERATED
+  type\n+    MBSFN_Area1->mcch_Config_r9.signallingMCS_r9 = (m2ap_setup_resp->mcch_config_per_mbsfn[i].mcs
+  > 3) ? 1 : m2ap_setup_resp->mcch_config_per_mbsfn[i].mcs;\n     asn1cSeqAdd(&MBSFNArea_list->list,
+  MBSFN_Area1);\n   }\n \n@@ -1023,11 +1026,11 @@ static uint8_t rrc_M2AP_do_SIB23_SIB13(\n
+  \n \n static uint8_t rrc_M2AP_do_SIB23_SIB2_SIB13(\n-  \t\t\t  const protocol_ctxt_t
+  *const ctxt_pP,\n-\t\t\t  uint8_t Mod_id, \n-\t\t\t  int CC_id,\n-  \t\t\t  const
+  m2ap_setup_resp_t *const m2ap_setup_resp,\n-  \t\t\t  const m2ap_mbms_scheduling_information_t
+  *const m2ap_mbms_scheduling_information\n+                          const protocol_ctxt_t
+  *const ctxt_pP,\n+                          uint8_t Mod_id, \n+                          int
+  CC_id,\n+                          const m2ap_setup_resp_t *const m2ap_setup_resp,\n+                          const
+  m2ap_mbms_scheduling_information_t *const m2ap_mbms_scheduling_information\n ){\n
+  \n   int i,j,l;\n@@ -1050,13 +1053,13 @@ static uint8_t rrc_M2AP_do_SIB23_SIB2_SIB13(\n  struct
+  LTE_MBSFN_AreaInfo_r9 *MBSFN_Area1;\n \n   if(ctxt_pP->brOption){\n-\tbuffer   =
+  RC.rrc[Mod_id]->carrier[CC_id].SIB23_BR;\t\n-\tsib2 \t =  &RC.rrc[Mod_id]->carrier[CC_id].sib2_BR;\n+        buffer   =
+  RC.rrc[Mod_id]->carrier[CC_id].SIB23_BR;     \n+        sib2     =  &RC.rrc[Mod_id]->carrier[CC_id].sib2_BR;\n         LOG_I(RRC,\"Running
+  SIB2/3 Encoding for eMTC\\n\");\n \n   } else {\n-\tbuffer   = RC.rrc[Mod_id]->carrier[CC_id].SIB23;\t\n-\tsib2
+  \t =  &RC.rrc[Mod_id]->carrier[CC_id].sib2;\n+        buffer   = RC.rrc[Mod_id]->carrier[CC_id].SIB23;        \n+        sib2     =  &RC.rrc[Mod_id]->carrier[CC_id].sib2;\n   }\n
+  \n   if (bcch_message) {\n@@ -1085,77 +1088,78 @@ static uint8_t rrc_M2AP_do_SIB23_SIB2_SIB13(\n     typeandinfo
+  = bcch_message->message.choice.c1.choice.systemInformation.criticalExtensions.choice.systemInformation_r8.sib_TypeAndInfo.list.array[i];\n     switch(typeandinfo->present)
+  {\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_NOTHING:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib3:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib4:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib5:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib6:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib7:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib8:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib9:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib10:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib11:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib12_v920:
+  \n-\tbreak;\n+        break;\n       case LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib13_v920:
+  \n-\t*sib13=&typeandinfo->choice.sib13_v920;\n-\t(*sib13)->notificationConfig_r9.notificationRepetitionCoeff_r9=LTE_MBMS_NotificationConfig_r9__notificationRepetitionCoeff_r9_n2;\n-
+  \t(*sib13)->notificationConfig_r9.notificationOffset_r9=0;\n- \t(*sib13)->notificationConfig_r9.notificationSF_Index_r9=1;\n-\t//  MBSFN-AreaInfoList\n-
+  \tMBSFNArea_list= &(*sib13)->mbsfn_AreaInfoList_r9;//CALLOC(1,sizeof(*MBSFNArea_list));\n-
+  \tmemset(MBSFNArea_list,0,sizeof(*MBSFNArea_list));\n-\n-\tfor( j=0; j < m2ap_setup_resp->num_mcch_config_per_mbsfn;
+  j++){\n- \t   // MBSFN Area 1\n- \t   MBSFN_Area1= CALLOC(1, sizeof(*MBSFN_Area1));\n-
+  \t   MBSFN_Area1->mbsfn_AreaId_r9= m2ap_setup_resp->mcch_config_per_mbsfn[j].mbsfn_area;\n-
+  \t   MBSFN_Area1->non_MBSFNregionLength= m2ap_setup_resp->mcch_config_per_mbsfn[j].pdcch_length;\n-
+  \t   MBSFN_Area1->notificationIndicator_r9= 0;\n- \t   MBSFN_Area1->mcch_Config_r9.mcch_RepetitionPeriod_r9=
+  m2ap_setup_resp->mcch_config_per_mbsfn[j].repetition_period;//LTE_MBSFN_AreaInfo_r9__mcch_Config_r9__mcch_RepetitionPeriod_r9_rf32;\n-
+  \t   MBSFN_Area1->mcch_Config_r9.mcch_Offset_r9= m2ap_setup_resp->mcch_config_per_mbsfn[j].offset;
+  // in accordance with mbsfn subframe configuration in sib2\n- \t   MBSFN_Area1->mcch_Config_r9.mcch_ModificationPeriod_r9=
+  m2ap_setup_resp->mcch_config_per_mbsfn[j].modification_period;\n-\n- \t   //  Subframe
+  Allocation Info\n- \t   MBSFN_Area1->mcch_Config_r9.sf_AllocInfo_r9.buf= MALLOC(1);\n-
+  \t   MBSFN_Area1->mcch_Config_r9.sf_AllocInfo_r9.size= 1;\n- \t   MBSFN_Area1->mcch_Config_r9.sf_AllocInfo_r9.buf[0]=m2ap_setup_resp->mcch_config_per_mbsfn[j].subframe_allocation_info<<2;  //
+  FDD: SF1\n- \t   MBSFN_Area1->mcch_Config_r9.sf_AllocInfo_r9.bits_unused= 2;\n-
+  \t   MBSFN_Area1->mcch_Config_r9.signallingMCS_r9= m2ap_setup_resp->mcch_config_per_mbsfn[j].mcs;\n-
+  \t   asn1cSeqAdd(&MBSFNArea_list->list,MBSFN_Area1);\n- \t}\n-\tbreak;\n+        *sib13=&typeandinfo->choice.sib13_v920;\n+        (*sib13)->notificationConfig_r9.notificationRepetitionCoeff_r9=LTE_MBMS_NotificationConfig_r9__notificationRepetitionCoeff_r9_n2;\n+        (*sib13)->notificationConfig_r9.notificationOffset_r9=0;\n+        (*sib13)->notificationConfig_r9.notificationSF_Index_r9=1;\n+        //  MBSFN-AreaInfoList\n+        MBSFNArea_list=
+  &(*sib13)->mbsfn_AreaInfoList_r9;//CALLOC(1,sizeof(*MBSFNArea_list));\n+        memset(MBSFNArea_list,0,sizeof(*MBSFNArea_list));\n+\n+        for(
+  j=0; j < m2ap_setup_resp->num_mcch_config_per_mbsfn; j++){\n+           // MBSFN
+  Area 1\n+           MBSFN_Area1= CALLOC(1, sizeof(*MBSFN_Area1));\n+           MBSFN_Area1->mbsfn_AreaId_r9=
+  m2ap_setup_resp->mcch_config_per_mbsfn[j].mbsfn_area;\n+           MBSFN_Area1->non_MBSFNregionLength=
+  m2ap_setup_resp->mcch_config_per_mbsfn[j].pdcch_length;\n+           MBSFN_Area1->notificationIndicator_r9=
+  0;\n+           MBSFN_Area1->mcch_Config_r9.mcch_RepetitionPeriod_r9= m2ap_setup_resp->mcch_config_per_mbsfn[j].repetition_period;//LTE_MBSFN_AreaInfo_r9__mcch_Config_r9__mcch_RepetitionPeriod_r9_rf32;\n+           MBSFN_Area1->mcch_Config_r9.mcch_Offset_r9=
+  m2ap_setup_resp->mcch_config_per_mbsfn[j].offset; // in accordance with mbsfn subframe
+  configuration in sib2\n+           MBSFN_Area1->mcch_Config_r9.mcch_ModificationPeriod_r9=
+  m2ap_setup_resp->mcch_config_per_mbsfn[j].modification_period;\n+\n+           //  Subframe
+  Allocation Info\n+           MBSFN_Area1->mcch_Config_r9.sf_AllocInfo_r9.buf= MALLOC(1);\n+           MBSFN_Area1->mcch_Config_r9.sf_AllocInfo_r9.size=
+  1;\n+           MBSFN_Area1->mcch_Config_r9.sf_AllocInfo_r9.buf[0]=m2ap_setup_resp->mcch_config_per_mbsfn[j].subframe_allocation_info<<2;  //
+  FDD: SF1\n+           MBSFN_Area1->mcch_Config_r9.sf_AllocInfo_r9.bits_unused= 2;\n+           //
+  Validate MCS value to be within valid range (0-3) for signallingMCS_r9 ENUMERATED
+  type\n+           MBSFN_Area1->mcch_Config_r9.signallingMCS_r9= (m2ap_setup_resp->mcch_config_per_mbsfn[j].mcs
+  > 3) ? 1 : m2ap_setup_resp->mcch_config_per_mbsfn[j].mcs;\n+           asn1cSeqAdd(&MBSFNArea_list->list,MBSFN_Area1);\n+        }\n+        break;\n       case
+  LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib14_v1130: \n-\tbreak;\n+        break;\n       case
+  LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib15_v1130: \n-\tbreak;\n+        break;\n       case
+  LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib16_v1130: \n-\tbreak;\n+        break;\n       case
+  LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib17_v1250: \n-\tbreak;\n+        break;\n       case
+  LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib18_v1250: \n-\tbreak;\n+        break;\n       case
+  LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib19_v1250: \n-\tbreak;\n+        break;\n       case
+  LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib20_v1310: \n-\tbreak;\n+        break;\n       case
+  LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib21_v1430: \n-\tbreak;\n+        break;\n       case
+  LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib24_v1530:\n-\tbreak;\n+        break;\n       case
+  LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib25_v1530:\n-\tbreak;\n+        break;\n       case
+  LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib26_v1530:\n-\tbreak;\n+        break;\n       case
+  LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib26a_v1610:\n         break;\n       case
+  LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib27_v1610:\n@@ -1166,48
+  +1170,48 @@ static uint8_t rrc_M2AP_do_SIB23_SIB2_SIB13(\n         break;\n       case
+  LTE_SystemInformation_r8_IEs__sib_TypeAndInfo__Member_PR_sib2: \n \n-\tLOG_I(RRC,\"Adding
+  MBSFN subframe Configuration 1 to SIB2, %p %p\\n\",&typeandinfo->choice.sib2,*sib2);\n+        LOG_I(RRC,\"Adding
+  MBSFN subframe Configuration 1 to SIB2, %p %p\\n\",&typeandinfo->choice.sib2,*sib2);\n
+  \n-\tfor(j=0; j < m2ap_mbms_scheduling_information->num_mbms_area_config_list ;
+  j++) {\n+        for(j=0; j < m2ap_mbms_scheduling_information->num_mbms_area_config_list
+  ; j++) {\n \n-    \t\t\t(&typeandinfo->choice.sib2)->mbsfn_SubframeConfigList =
+  CALLOC(1,sizeof(struct LTE_MBSFN_SubframeConfigList));\n-    \t\t\tMBSFNSubframeConfigList
+  = (&typeandinfo->choice.sib2)->mbsfn_SubframeConfigList;\n+                        (&typeandinfo->choice.sib2)->mbsfn_SubframeConfigList
+  = CALLOC(1,sizeof(struct LTE_MBSFN_SubframeConfigList));\n+                        MBSFNSubframeConfigList
+  = (&typeandinfo->choice.sib2)->mbsfn_SubframeConfigList;\n \n-\t\tfor(l=0; l < m2ap_mbms_scheduling_information->mbms_area_config_list[j].num_mbms_sf_config_list;
+  l++){\n-\t\t\tLTE_MBSFN_SubframeConfig_t *sib2_mbsfn_SubframeConfig1;\n+                for(l=0;
+  l < m2ap_mbms_scheduling_information->mbms_area_config_list[j].num_mbms_sf_config_list;
+  l++){\n+                        LTE_MBSFN_SubframeConfig_t *sib2_mbsfn_SubframeConfig1;\n       sib2_mbsfn_SubframeConfig1
+  = CALLOC(1, sizeof(*sib2_mbsfn_SubframeConfig1));\n \n       sib2_mbsfn_SubframeConfig1->radioframeAllocationPeriod
+  = m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].radioframe_allocation_period;\n-\t\t\tsib2_mbsfn_SubframeConfig1->radioframeAllocationOffset
+  = m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].radioframe_allocation_offset;\n+                        sib2_mbsfn_SubframeConfig1->radioframeAllocationOffset
+  = m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].radioframe_allocation_offset;\n
+  \n \n-\t\t\tif(m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].is_four_sf){\n-\t\t\t\tsib2_mbsfn_SubframeConfig1->subframeAllocation.present=
+  LTE_MBSFN_SubframeConfig__subframeAllocation_PR_fourFrames;\n-\t\t\t\tLOG_I(RRC,\"rrc_M2AP_do_SIB23_SIB2_SIB13
+  is_four_sf\\n\");\n+                        if(m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].is_four_sf){\n+                                sib2_mbsfn_SubframeConfig1->subframeAllocation.present=
+  LTE_MBSFN_SubframeConfig__subframeAllocation_PR_fourFrames;\n+                                LOG_I(RRC,\"rrc_M2AP_do_SIB23_SIB2_SIB13
+  is_four_sf\\n\");\n \n-    \t\t\t\tsib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf=
+  MALLOC(3);\n-    \t\t\t\tsib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.size=
+  3;\n-    \t\t\t\tsib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.bits_unused=
+  0;\n-  \t                        sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf[2]
+  = ((m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].subframe_allocation)
+  & 0xFF);\n-                           \tsib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf[1]
+  = ((m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].subframe_allocation>>8)
+  & 0xFF);\n-                           \tsib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf[0]
+  = ((m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].subframe_allocation>>16)
+  & 0xFF);\n+                                sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf=
+  MALLOC(3);\n+                                sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.size=
+  3;\n+                                sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.bits_unused=
+  0;\n+                                sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf[2]
+  = ((m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].subframe_allocation)
+  & 0xFF);\n+                                sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf[1]
+  = ((m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].subframe_allocation>>8)
+  & 0xFF);\n+                                sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf[0]
+  = ((m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].subframe_allocation>>16)
+  & 0xFF);\n \n-\t\t\t}else{\n-\t\t\t\tLOG_I(RRC,\"rrc_M2AP_do_SIB23_SIB2_SIB13 rs_one_sf\\n\");\n-\t\t\t\tsib2_mbsfn_SubframeConfig1->subframeAllocation.present=
+  LTE_MBSFN_SubframeConfig__subframeAllocation_PR_oneFrame;\n-    \t\t\t\tsib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf=
+  MALLOC(1);\n-    \t\t\t\tsib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.size=
+  1;\n-    \t\t\t\tsib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.bits_unused=
+  2;\n-    \t\t\t\tsib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf[0]=(m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].subframe_allocation<<2);\n+                        }else{\n+                                LOG_I(RRC,\"rrc_M2AP_do_SIB23_SIB2_SIB13
+  rs_one_sf\\n\");\n+                                sib2_mbsfn_SubframeConfig1->subframeAllocation.present=
+  LTE_MBSFN_SubframeConfig__subframeAllocation_PR_oneFrame;\n+                                sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf=
+  MALLOC(1);\n+                                sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.size=
+  1;\n+                                sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.bits_unused=
+  2;\n+                                sib2_mbsfn_SubframeConfig1->subframeAllocation.choice.oneFrame.buf[0]=(m2ap_mbms_scheduling_information->mbms_area_config_list[j].mbms_sf_config_list[l].subframe_allocation<<2);\n
+  \n \n-\t\t\t}\n+                        }\n \n-        \t\tasn1cSeqAdd(&MBSFNSubframeConfigList->list,sib2_mbsfn_SubframeConfig1);\n-\t\t}\t\n-\t}\n+                        asn1cSeqAdd(&MBSFNSubframeConfigList->list,sib2_mbsfn_SubframeConfig1);\n+                }       \n+        }\n
+  \n-\tbreak;\n+        break;\n \n     }\n   }\n@@ -1239,7 +1243,8 @@ static uint8_t
+  rrc_M2AP_do_SIB23_SIB2_SIB13(\n    MBSFN_Area1->mcch_Config_r9.sf_AllocInfo_r9.size=
+  1;\n    MBSFN_Area1->mcch_Config_r9.sf_AllocInfo_r9.buf[0]=m2ap_setup_resp->mcch_config_per_mbsfn[i].subframe_allocation_info<<2;  //
+  FDD: SF1\n    MBSFN_Area1->mcch_Config_r9.sf_AllocInfo_r9.bits_unused= 2;\n-   MBSFN_Area1->mcch_Config_r9.signallingMCS_r9=
+  m2ap_setup_resp->mcch_config_per_mbsfn[i].mcs;\n+   // Validate MCS value to be
+  within valid range (0-3) for signallingMCS_r9 ENUMERATED type\n+   MBSFN_Area1->mcch_Config_r9.signallingMCS_r9=
+  (m2ap_setup_resp->mcch_config_per_mbsfn[i].mcs > 3) ? 1 : m2ap_setup_resp->mcch_config_per_mbsfn[i].mcs;\n    asn1cSeqAdd(&MBSFNArea_list->list,MBSFN_Area1);\n    }\n
+  \n@@ -1287,7 +1292,7 @@ rrc_eNB_process_M2AP_SETUP_RESP(\n   const m2ap_setup_resp_t
+  *const m2ap_setup_resp\n )\n {\n- //protocol_ctxt_t \tctxt;\n+ //protocol_ctxt_t      ctxt;\n  //LOG_W(RRC,\"instance
+  %d\\n\",instance);\n  \n  AssertFatal(RC.rrc[ctxt_pP->module_id]->carrier[0].SIB23
+  != NULL,\"Memory fo SIB23 not allocated\");\n@@ -1313,7 +1318,7 @@ rrc_eNB_process_M2AP_MBMS_SCHEDULING_INFORMATION(\n   const
+  m2ap_mbms_scheduling_information_t *const m2ap_mbms_scheduling_information\n )\n
+  {\n- //protocol_ctxt_t \tctxt;\n+ //protocol_ctxt_t      ctxt;\n  //LOG_W(RRC,\"instance
+  %d\\n\",instance);\n  \n  AssertFatal(RC.rrc[ctxt_pP->module_id]->carrier[0].SIB23
+  != NULL,\"Memory fo SIB23 not allocated\");\n@@ -1326,12 +1331,12 @@ rrc_eNB_process_M2AP_MBMS_SCHEDULING_INFORMATION(\n  memcpy(m2ap_mbms_scheduling_information_g,m2ap_mbms_scheduling_information,sizeof(m2ap_mbms_scheduling_information_t));\n
+  \n  /*if(m2ap_setup_resp_g != NULL){\n-\t RC.rrc[ctxt_pP->module_id]->carrier[CC_id].num_mbsfn_sync_area
+  = m2ap_setup_resp_g->num_mcch_config_per_mbsfn;\n-\t rrc_M2AP_do_SIB23_SIB2(ctxt_pP,ctxt_pP->module_id,CC_id,m2ap_mbms_scheduling_information);
+  \n-\t rrc_M2AP_do_SIB23_SIB13(ctxt_pP,ctxt_pP->module_id,CC_id,m2ap_setup_resp_g);
+  \n-\t rrc_M2AP_init_MCCH(ctxt_pP,ctxt_pP->module_id,CC_id,m2ap_mbms_scheduling_information);
+  \n-\t rrc_M2AP_init_MBMS(ctxt_pP->module_id, CC_id, 0);\n-\t rrc_M2AP_openair_rrc_top_init_MBMS(RC.rrc[ctxt_pP->module_id]->carrier[CC_id].MBMS_flag);\n+         RC.rrc[ctxt_pP->module_id]->carrier[CC_id].num_mbsfn_sync_area
+  = m2ap_setup_resp_g->num_mcch_config_per_mbsfn;\n+         rrc_M2AP_do_SIB23_SIB2(ctxt_pP,ctxt_pP->module_id,CC_id,m2ap_mbms_scheduling_information);
+  \n+         rrc_M2AP_do_SIB23_SIB13(ctxt_pP,ctxt_pP->module_id,CC_id,m2ap_setup_resp_g);
+  \n+         rrc_M2AP_init_MCCH(ctxt_pP,ctxt_pP->module_id,CC_id,m2ap_mbms_scheduling_information);
+  \n+         rrc_M2AP_init_MBMS(ctxt_pP->module_id, CC_id, 0);\n+         rrc_M2AP_openair_rrc_top_init_MBMS(RC.rrc[ctxt_pP->module_id]->carrier[CC_id].MBMS_flag);\n  }*/\n  MessageDef      *msg_p;\n  msg_p
+  = itti_alloc_new_message (TASK_RRC_ENB, 0, M2AP_MBMS_SCHEDULING_INFORMATION_RESP);\n@@
+  -1354,22 +1359,22 @@ rrc_eNB_process_M2AP_MBMS_SESSION_START_REQ(\n  int split_cfg=0;\n  pthread_mutex_lock(&RC.rrc[ctxt_pP->module_id]->cell_info_mutex);\n  if(m2ap_setup_resp_g
+  != NULL && m2ap_mbms_scheduling_information_g !=NULL ){\n-\t RC.rrc[ctxt_pP->module_id]->carrier[CC_id].num_mbsfn_sync_area
+  = m2ap_setup_resp_g->num_mcch_config_per_mbsfn;\n-\n-\t //rrc_M2AP_do_SIB1(ctxt_pP,ctxt_pP->module_id,CC_id,NULL,NULL);\n-\tif(split_cfg){\n-\t
+  rrc_M2AP_do_SIB23_SIB2(ctxt_pP,ctxt_pP->module_id,CC_id,m2ap_mbms_scheduling_information_g);
+  \n-\t rrc_M2AP_do_SIB23_SIB13(ctxt_pP,ctxt_pP->module_id,CC_id,m2ap_setup_resp_g);
+  \n-\t}else{\n-\t   if(RC.rrc[ctxt_pP->module_id]->carrier[CC_id].FeMBMS_flag){\n-\t\trrc_M2AP_do_SIB1_MBMS_SIB13(ctxt_pP,ctxt_pP->module_id,CC_id,m2ap_setup_resp_g,m2ap_mbms_scheduling_information_g);\n-\t   }else{
+  \n-\t \trrc_M2AP_do_SIB23_SIB2_SIB13(ctxt_pP,ctxt_pP->module_id,CC_id,m2ap_setup_resp_g,m2ap_mbms_scheduling_information_g);
+  \n-\t   }\n-\t}\n-\t rrc_M2AP_init_MCCH(ctxt_pP,ctxt_pP->module_id,CC_id,m2ap_mbms_scheduling_information_g);
+  \n-\t rrc_M2AP_init_MBMS(ctxt_pP->module_id, CC_id, 0);\n-\t rrc_M2AP_openair_rrc_top_init_MBMS(RC.rrc[ctxt_pP->module_id]->carrier[CC_id].MBMS_flag);\n+         RC.rrc[ctxt_pP->module_id]->carrier[CC_id].num_mbsfn_sync_area
+  = m2ap_setup_resp_g->num_mcch_config_per_mbsfn;\n+\n+         //rrc_M2AP_do_SIB1(ctxt_pP,ctxt_pP->module_id,CC_id,NULL,NULL);\n+        if(split_cfg){\n+         rrc_M2AP_do_SIB23_SIB2(ctxt_pP,ctxt_pP->module_id,CC_id,m2ap_mbms_scheduling_information_g);
+  \n+         rrc_M2AP_do_SIB23_SIB13(ctxt_pP,ctxt_pP->module_id,CC_id,m2ap_setup_resp_g);
+  \n+        }else{\n+           if(RC.rrc[ctxt_pP->module_id]->carrier[CC_id].FeMBMS_flag){\n+                rrc_M2AP_do_SIB1_MBMS_SIB13(ctxt_pP,ctxt_pP->module_id,CC_id,m2ap_setup_resp_g,m2ap_mbms_scheduling_information_g);\n+           }else{
+  \n+                rrc_M2AP_do_SIB23_SIB2_SIB13(ctxt_pP,ctxt_pP->module_id,CC_id,m2ap_setup_resp_g,m2ap_mbms_scheduling_information_g);
+  \n+           }\n+        }\n+         rrc_M2AP_init_MCCH(ctxt_pP,ctxt_pP->module_id,CC_id,m2ap_mbms_scheduling_information_g);
+  \n+         rrc_M2AP_init_MBMS(ctxt_pP->module_id, CC_id, 0);\n+         rrc_M2AP_openair_rrc_top_init_MBMS(RC.rrc[ctxt_pP->module_id]->carrier[CC_id].MBMS_flag);\n  }\n  pthread_mutex_unlock(&RC.rrc[ctxt_pP->module_id]->cell_info_mutex);\n
+  \n","start_fn":"rrc_eNB_process_M2AP_SETUP_RESP","start_fn_file":"openair2/RRC/LTE/rrc_eNB_M2AP.c","subsystem":"openair2/RRC/LTE"},"type":"text","id":"oai5g_625b4b0_00621"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

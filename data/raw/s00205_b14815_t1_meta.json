@@ -1,0 +1,30 @@
+{
+  "run_id": "s00205_b14815",
+  "function": {
+    "name": "ngap_gNB_handle_ng_setup_response",
+    "file": "openair3/NGAP/ngap_gNB_handlers.c",
+    "start_line": 170,
+    "end_line": 319,
+    "body_lines": 150,
+    "signature": "static int ngap_gNB_handle_ng_setup_response(sctp_assoc_t assoc_id, uint32_t stream, NGAP_NGAP_PDU_t *pdu)",
+    "subsystem": "openair3/NGAP",
+    "token_estimate": 426
+  },
+  "bug": {
+    "bug_id": "telecom_state_machine_stale_state",
+    "description": "stale protocol state not cleared after procedure completion or failure",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a stale protocol state not cleared after procedure completion or failure downstream of function ngap_gNB_handle_ng_setup_response in the openair3/NGAP subsystem.\nThe function is located at openair3/NGAP/ngap_gNB_handlers.c:170.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00205_b14815_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00205_b14815_p1.diff",
+  "patch_lines": 75,
+  "trajectory_steps": 50,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:53:30Z"
+}

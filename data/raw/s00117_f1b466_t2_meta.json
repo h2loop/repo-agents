@@ -1,0 +1,9 @@
+{
+  "run_id": "s00117_f1b466",
+  "pr_text": "## Title: Fix incorrect array size parameter in DCI payload unpacking\n\n### Summary\nFix a critical bug in the nFAPI P7 interface where DCI payload unpacking functions incorrectly used `PayloadSizeBits` as both the array capacity and the number of elements to read. This parameter mismatch could cause buffer overruns or memory corruption during DCI message parsing. The fix replaces the magic number with the proper symbolic constant `DCI_PAYLOAD_BYTE_LEN` for the array size parameter.\n\n### Changes\n-",
+  "trajectory_path": "data/raw/s00117_f1b466_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00117_f1b466_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 23,
+  "timestamp": "2026-02-10T11:19:23Z"
+}

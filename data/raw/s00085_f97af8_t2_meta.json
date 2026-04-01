@@ -1,0 +1,9 @@
+{
+  "run_id": "s00085_f97af8",
+  "pr_text": "## Title: Fix buffer overrun in SRS indication FDD Rel8 unpacking\n\n### Summary\nThe `unpack_srs_indication_fdd_rel8_value` function in the nFAPI parser reads a `number_of_resource_blocks` value from incoming messages and uses it to unpack SNR values into a fixed-size array without bounds validation. This allows malformed messages to trigger a buffer overrun when `number_of_resource_blocks` exceeds `NFAPI_NUM_RB_MAX`, potentially corrupting memory and causing undefined behavior.\n\nThis fix adds exp",
+  "trajectory_path": "data/raw/s00085_f97af8_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00085_f97af8_p2.diff",
+  "patch_lines": 13,
+  "trajectory_steps": 37,
+  "timestamp": "2026-02-10T11:09:54Z"
+}

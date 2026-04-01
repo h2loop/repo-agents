@@ -1,0 +1,87 @@
+diff --git a/executables/lte-enb.c b/executables/lte-enb.c
+index 5e686d6527..a119e021f1 100644
+--- a/executables/lte-enb.c
++++ b/executables/lte-enb.c
+@@ -81,6 +81,7 @@
+ #include "UTIL/OTG/otg_externs.h"
+ #include "common/utils/LOG/vcd_signal_dumper.h"
+ #include "UTIL/OPT/opt.h"
++#include "common/utils/utils.h"
+ #include "enb_config.h"
+ #include "executables/lte-softmodem.h"
+ 
+@@ -1156,34 +1157,51 @@ void init_eNB_afterRU(void) {
+       if (NFAPI_MODE==NFAPI_MODE_PNF) AssertFatal(eNB->num_RU>0,"Number of RU attached to eNB %d is      zero\n",eNB->Mod_id);
+       for (int ru_id=0; ru_id<eNB->num_RU; ru_id++) 
+          eNB->frame_parms.nb_antennas_rx    += eNB->RU_list[ru_id]->nb_rx;
+-      phy_init_lte_eNB(eNB,0,0);
+-      LOG_I(PHY,"Overwriting eNB->prach_vars.rxsigF[0]:%p\n", eNB->prach_vars.rxsigF[0]);
+-      eNB->prach_vars.rxsigF[0] = (int16_t **)malloc16(64*sizeof(int16_t *));
+-
+-      for (int ce_level=0; ce_level<4; ce_level++) {
+-        LOG_I(PHY,"Overwriting eNB->prach_vars_br.rxsigF.rxsigF[0]:%p\n", eNB->prach_vars_br.rxsigF[ce_level]);
+-        eNB->prach_vars_br.rxsigF[ce_level] = (int16_t **)malloc16(64*sizeof(int16_t *));
+-      }
+-
+-
+-      for (int ru_id=0,aa=0; ru_id<eNB->num_RU; ru_id++) {
++      
++      // Check if we have any RUs attached
++      if (eNB->num_RU > 0) {
++        phy_init_lte_eNB(eNB,0,0);
++        
++        // Free previously allocated memory if it exists
++        if (eNB->prach_vars.rxsigF[0] != NULL) {
++          free_and_zero(eNB->prach_vars.rxsigF[0]);
++        }
++        LOG_I(PHY,"Overwriting eNB->prach_vars.rxsigF[0]:%p\n", eNB->prach_vars.rxsigF[0]);
++        // Allocate pointer array for PRACH signals - we'll point these to RU data
++        eNB->prach_vars.rxsigF[0] = (int16_t **)malloc16_clear(64*sizeof(int16_t *));
++
++        for (int ce_level=0; ce_level<4; ce_level++) {
++          // Free previously allocated memory if it exists
++          if (eNB->prach_vars_br.rxsigF[ce_level] != NULL) {
++            free_and_zero(eNB->prach_vars_br.rxsigF[ce_level]);
++          }
++          LOG_I(PHY,"Overwriting eNB->prach_vars_br.rxsigF.rxsigF[0]:%p\n", eNB->prach_vars_br.rxsigF[ce_level]);
++          // Allocate pointer array for PRACH BR signals - we'll point these to RU data
++          eNB->prach_vars_br.rxsigF[ce_level] = (int16_t **)malloc16_clear(64*sizeof(int16_t *));
++        }
+ 
+-        AssertFatal(eNB->RU_list[ru_id]->common.rxdataF!=NULL,
+-                    "RU %d : common.rxdataF is NULL\n",
+-                    eNB->RU_list[ru_id]->idx);
+-        AssertFatal(eNB->RU_list[ru_id]->prach_rxsigF!=NULL,
+-                    "RU %d : prach_rxsigF is NULL\n",
+-                    eNB->RU_list[ru_id]->idx);
++        // Map RU antennas to eNB antennas
++        for (int ru_id=0,aa=0; ru_id<eNB->num_RU; ru_id++) {
++          AssertFatal(eNB->RU_list[ru_id]->common.rxdataF!=NULL,
++                      "RU %d : common.rxdataF is NULL\n",
++                      eNB->RU_list[ru_id]->idx);
++          AssertFatal(eNB->RU_list[ru_id]->prach_rxsigF!=NULL,
++                      "RU %d : prach_rxsigF is NULL\n",
++                      eNB->RU_list[ru_id]->idx);
+ 
+-        for (i=0; i<eNB->RU_list[ru_id]->nb_rx; aa++,i++) {
+-          LOG_I(PHY,"Attaching RU %d antenna %d to eNB antenna %d\n",eNB->RU_list[ru_id]->idx,i,aa);
+-          eNB->prach_vars.rxsigF[0][aa]    =  eNB->RU_list[ru_id]->prach_rxsigF[0][i];
++          for (i=0; i<eNB->RU_list[ru_id]->nb_rx; aa++,i++) {
++            LOG_I(PHY,"Attaching RU %d antenna %d to eNB antenna %d\n",eNB->RU_list[ru_id]->idx,i,aa);
++            eNB->prach_vars.rxsigF[0][aa]    =  eNB->RU_list[ru_id]->prach_rxsigF[0][i];
+ 
+-          for (int ce_level=0; ce_level<4; ce_level++)
+-            eNB->prach_vars_br.rxsigF[ce_level][aa] = eNB->RU_list[ru_id]->prach_rxsigF_br[ce_level][i];
++            for (int ce_level=0; ce_level<4; ce_level++)
++              eNB->prach_vars_br.rxsigF[ce_level][aa] = eNB->RU_list[ru_id]->prach_rxsigF_br[ce_level][i];
+ 
+-          eNB->common_vars.rxdataF[aa]     =  eNB->RU_list[ru_id]->common.rxdataF[i];
++            eNB->common_vars.rxdataF[aa]     =  eNB->RU_list[ru_id]->common.rxdataF[i];
++          }
+         }
++      } else {
++        // No RUs attached, perform normal initialization
++        phy_init_lte_eNB(eNB,0,0);
+       }
+ 
+       /* TODO: review this code, there is something wrong.

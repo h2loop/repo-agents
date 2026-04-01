@@ -1,0 +1,32 @@
+{
+  "run_id": "s00357_419770",
+  "function": {
+    "name": "rlc_um_reception_actions",
+    "file": "openair2/LAYER2/rlc_v2/rlc_entity_um.c",
+    "start_line": 198,
+    "end_line": 229,
+    "body_lines": 32,
+    "signature": "static void rlc_um_reception_actions(rlc_entity_um_t *entity, rlc_rx_pdu_segment_t *pdu_segment)",
+    "subsystem": "openair2/LAYER2/rlc_v2",
+    "token_estimate": 94
+  },
+  "bug": {
+    "bug_id": "c_type_confusion",
+    "description": "type confusion where a pointer is cast to an incompatible struct type",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a type confusion where a pointer is cast to an incompatible struct type downstream of function rlc_um_reception_actions in the openair2/LAYER2/rlc_v2 subsystem.\nThe function is located at openair2/LAYER2/rlc_v2/rlc_entity_um.c:198.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00357_419770_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00357_419770_p1.diff",
+  "patch_lines": 8,
+  "trajectory_steps": 34,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:49:14Z"
+}

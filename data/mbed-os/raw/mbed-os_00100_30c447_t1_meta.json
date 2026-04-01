@@ -1,0 +1,26 @@
+{
+  "run_id": "mbed-os_00100_30c447",
+  "function": {
+    "name": "i2c_init",
+    "file": "targets/TARGET_NUVOTON/TARGET_M2354/i2c_api.c",
+    "start_line": 99,
+    "end_line": 152,
+    "body_lines": 54,
+    "signature": "void i2c_init(i2c_t *obj, PinName sda, PinName scl)",
+    "subsystem": "targets/TARGET_NUVOTON/TARGET_M2354",
+    "token_estimate": 221
+  },
+  "bug": {
+    "bug_id": "c_missing_break",
+    "description": "missing break statement in switch case causing unintended fallthrough",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a missing break statement in switch case causing unintended fallthrough downstream of function i2c_init in the targets/TARGET_NUVOTON/TARGET_M2354 subsystem.\nThe function is located at targets/TARGET_NUVOTON/TARGET_M2354/i2c_api.c:99.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 3,
+  "trajectory_steps": 22,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:21:29Z"
+}

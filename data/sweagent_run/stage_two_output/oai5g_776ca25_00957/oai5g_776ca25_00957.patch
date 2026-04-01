@@ -1,0 +1,46 @@
+diff --git a/executables/softmodem-common.c b/executables/softmodem-common.c
+index c4b25d7f20..d4a221f5a3 100644
+--- a/executables/softmodem-common.c
++++ b/executables/softmodem-common.c
+@@ -74,8 +74,8 @@ softmodem_params_t *get_softmodem_params(void) {
+ int32_t check_execmask(uint64_t execmask) {
+   char *softmodemfunc=map_int_to_str(softmodem_funcs, execmask);
+   if (softmodemfunc != NULL) {
+-  	  set_softmodem_optmask(execmask);
+-  	  return 0;
++          set_softmodem_optmask(execmask);
++          return 0;
+   } 
+   return -1;
+ }
+@@ -83,11 +83,27 @@ char *get_softmodem_function(uint64_t *sofmodemfunc_mask_ptr) {
+   uint64_t fmask=(get_softmodem_optmask()&SOFTMODEM_FUNC_BITS);
+   char *softmodemfunc=map_int_to_str(softmodem_funcs, fmask);
+   if (sofmodemfunc_mask_ptr != NULL)
+-  	  *sofmodemfunc_mask_ptr=fmask;
++          *sofmodemfunc_mask_ptr=fmask;
+   if (softmodemfunc != NULL) {
+-  	  return softmodemfunc;
++          return softmodemfunc;
++  }
++  
++  // Handle cases when multiple bits are set or no bits are set
++  if (fmask == 0) {
++    // No function bits are set
++    return "unknown";
++  } else {
++    // Multiple bits are set, return the first matching function name
++    mapping *map = softmodem_funcs;
++    while (map->name) {
++      if (map->value & fmask) {
++        return map->name;
++      }
++      map++;
++    }
++    // Should not reach here if fmask != 0, but just in case
++    return "unknown";
+   }
+-  return "???";
+ }
+ 
+ void get_common_options(configmodule_interface_t *cfg, uint32_t execmask)

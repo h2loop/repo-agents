@@ -1,0 +1,23 @@
+diff --git a/radio/vrtsim/vrtsim.c b/radio/vrtsim/vrtsim.c
+index f2f9cfef1d..9d9b7122e2 100644
+--- a/radio/vrtsim/vrtsim.c
++++ b/radio/vrtsim/vrtsim.c
+@@ -556,6 +556,18 @@ static int vrtsim_write_beams(openair0_device_t *device,
+                               int num_beams,
+                               int flags)
+ {
++  AssertFatal(nsamps > 0, "Number of samples must be greater than 0\n");
++  AssertFatal(nb_antennas_tx > 0 && nb_antennas_tx <= MAX_NUM_ANTENNAS_TX,
++              "Number of TX antennas %d must be between 1 and %d\n",
++              nb_antennas_tx,
++              MAX_NUM_ANTENNAS_TX);
++  AssertFatal(num_beams > 0 && num_beams <= 64,
++              "Number of beams %d must be between 1 and 64\n",
++              num_beams);
++  AssertFatal(timestamp >= 0, "Timestamp must be non-negative, got %ld\n", timestamp);
++  AssertFatal(buff != NULL, "Buffer pointer must not be NULL\n");
++  AssertFatal(buff[0] != NULL, "Buffer[0] pointer must not be NULL\n");
++  
+   vrtsim_write(device, timestamp, (void **)buff[0], nsamps, nb_antennas_tx, flags);
+   return nsamps;
+ }

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00392_24693b",
+  "pr_text": "## Title: Fix incorrect type cast in PRS TOA calculation\n\n### Summary\nThe PRS (Positioning Reference Signal) time-of-arrival (TOA) calculation in `nr_prs_channel_estimation` was performing division on `prs_toa` without proper type casting. Since `prs_toa` is an integer type, the division operation was subject to integer arithmetic rules, causing precision loss before the result was stored in the floating-point field `dl_toa`. This led to inaccurate TOA measurements that could degrade positioning",
+  "trajectory_path": "data/raw/s00392_24693b_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00392_24693b_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 16,
+  "timestamp": "2026-02-10T13:03:42Z"
+}

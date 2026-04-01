@@ -1,0 +1,73 @@
+diff --git a/executables/nr-ue.c b/executables/nr-ue.c
+index 0d1ae421f0..1b2d182d9c 100644
+--- a/executables/nr-ue.c
++++ b/executables/nr-ue.c
+@@ -101,12 +101,64 @@
+  */
+ 
+ static void start_process_slot_tx(void* arg) {
+-  notifiedFIFO_elt_t *newTx = arg;
+-  nr_rxtx_thread_data_t *curMsgTx = NotifiedFifoData(newTx);
+-  int num_ul_actors = get_nrUE_params()->num_ul_actors;
++  // Validate input argument
++  if (arg == NULL) {
++    LOG_E(NR_PHY, "start_process_slot_tx: NULL argument provided\n");
++    return;
++  }
++
++  notifiedFIFO_elt_t *newTx = (notifiedFIFO_elt_t *)arg;
++  
++  // Validate newTx
++  if (newTx == NULL) {
++    LOG_E(NR_PHY, "start_process_slot_tx: newTx is NULL\n");
++    return;
++  }
++
++  nr_rxtx_thread_data_t *curMsgTx = (nr_rxtx_thread_data_t *)NotifiedFifoData(newTx);
++  
++  // Validate curMsgTx
++  if (curMsgTx == NULL) {
++    LOG_E(NR_PHY, "start_process_slot_tx: curMsgTx is NULL\n");
++    return;
++  }
++
++  // Validate UE pointer
++  if (curMsgTx->UE == NULL) {
++    LOG_E(NR_PHY, "start_process_slot_tx: curMsgTx->UE is NULL\n");
++    return;
++  }
++
++  // Validate nrUE parameters
++  nrUE_params_t *nrUE_params = get_nrUE_params();
++  if (nrUE_params == NULL) {
++    LOG_E(NR_PHY, "start_process_slot_tx: get_nrUE_params() returned NULL\n");
++    return;
++  }
++
++  int num_ul_actors = nrUE_params->num_ul_actors;
++  
+   if (num_ul_actors > 0) {
+-    pushNotifiedFIFO(&curMsgTx->UE->ul_actors[curMsgTx->proc.nr_slot_tx % num_ul_actors].fifo, newTx);
++    // Validate slot number
++    if (curMsgTx->proc.nr_slot_tx < 0) {
++      LOG_E(NR_PHY, "start_process_slot_tx: Invalid negative slot number (%d)\n", curMsgTx->proc.nr_slot_tx);
++      return;
++    }
++    
++    // Validate ul_actors array
++    if (curMsgTx->UE->ul_actors == NULL) {
++      LOG_E(NR_PHY, "start_process_slot_tx: curMsgTx->UE->ul_actors is NULL\n");
++      return;
++    }
++    
++    int actor_index = curMsgTx->proc.nr_slot_tx % num_ul_actors;
++    pushNotifiedFIFO(&curMsgTx->UE->ul_actors[actor_index].fifo, newTx);
+   } else {
++    // Validate processing function
++    if (newTx->processingFunc == NULL) {
++      LOG_E(NR_PHY, "start_process_slot_tx: newTx->processingFunc is NULL\n");
++      return;
++    }
+     newTx->processingFunc(curMsgTx);
+   }
+ }

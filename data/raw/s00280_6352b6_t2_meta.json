@@ -1,0 +1,9 @@
+{
+  "run_id": "s00280_6352b6",
+  "pr_text": "## Title: Add NULL check in nas_timer_restart to prevent segmentation fault\n\n### Summary\nThe NAS timer management module lacks a NULL pointer check in `nas_timer_restart()` after removing a timer entry from the queue. When `_nas_timer_db_remove_entry()` fails and returns NULL (due to race conditions or corrupted timer state), the code immediately dereferences the pointer to access `te->tv`, causing a segmentation fault. This crash scenario can occur when attempting to restart an active timer tha",
+  "trajectory_path": "data/raw/s00280_6352b6_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00280_6352b6_p2.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 15,
+  "timestamp": "2026-02-11T14:03:45Z"
+}

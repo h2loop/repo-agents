@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix race condition in UE context access during handover operations\n\n### Summary\nMultiple threads can simultaneously access the shared UE context tree without synchronization, leading to potential data corruption during handover procedures. This affects any function that accesses UE contexts, including the missing `ngap_gNB_handover_request_acknowledge` function.\n\nThe race condition manifests as inconsistent UE state or crashes when high-frequency handover operations occur.\n\n### Changes\n- `openair3/NGAP/ngap_gNB_ue_context.c`: Added mutex protection around UE context tree operations\n- `openair3/NGAP/ngap_gNB_ue_context.h`: Added pthread.h include for mutex support\n\n"
+}

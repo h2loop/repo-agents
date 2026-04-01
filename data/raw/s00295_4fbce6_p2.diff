@@ -1,0 +1,56 @@
+diff --git a/openair1/PHY/CODING/crc_byte.c b/openair1/PHY/CODING/crc_byte.c
+index dd5712519a..5052deb9bb 100644
+--- a/openair1/PHY/CODING/crc_byte.c
++++ b/openair1/PHY/CODING/crc_byte.c
+@@ -57,6 +57,9 @@ static const uint32_t poly8 = 0x9B000000; // 1001 1011                      D^8
+ static const uint32_t poly6 = 0x84000000; // 10000100000... -> D^6+D^5+1
+ static const uint32_t poly11 = 0xc4200000; // 11000100001000... -> D^11+D^10+D^9+D^5+1
+ 
++/* CRC shift offset constants for aligning results in 32-bit registers */
++#define CRC_SHIFT_OFFSET_16BIT 16
++
+ /*********************************************************
+ 
+ For initialization && verification purposes,
+@@ -234,11 +237,11 @@ uint32_t crc16(unsigned char* inptr, int bitlen)
+ 
+   while (octetlen-- > 0) {
+ 
+-    crc = (crc << 8) ^ (((uint32_t)crc16Table[(*inptr++) ^ (crc >> 24)]) << 16);
++    crc = (crc << 8) ^ (((uint32_t)crc16Table[(*inptr++) ^ (crc >> 24)]) << CRC_SHIFT_OFFSET_16BIT);
+   }
+ 
+   if (resbit > 0)
+-    crc = (crc << resbit) ^ (((uint32_t)crc16Table[(*inptr) >> (8 - resbit) ^ (crc >> (32 - resbit))]) << 16);
++    crc = (crc << resbit) ^ (((uint32_t)crc16Table[(*inptr) >> (8 - resbit) ^ (crc >> (32 - resbit))]) << CRC_SHIFT_OFFSET_16BIT);
+ 
+   return crc;
+ }
+@@ -251,11 +254,11 @@ uint32_t crc12(unsigned char* inptr, int bitlen)
+   resbit = (bitlen % 8);
+ 
+   while (octetlen-- > 0) {
+-    crc = (crc << 8) ^ (crc12Table[(*inptr++) ^ (crc >> 24)] << 16);
++    crc = (crc << 8) ^ (crc12Table[(*inptr++) ^ (crc >> 24)] << CRC_SHIFT_OFFSET_16BIT);
+   }
+ 
+   if (resbit > 0)
+-    crc = (crc << resbit) ^ (crc12Table[((*inptr) >> (8 - resbit)) ^ (crc >> (32 - resbit))] << 16);
++    crc = (crc << resbit) ^ (crc12Table[((*inptr) >> (8 - resbit)) ^ (crc >> (32 - resbit))] << CRC_SHIFT_OFFSET_16BIT);
+ 
+   return crc;
+ }
+@@ -268,11 +271,11 @@ uint32_t crc11(unsigned char* inptr, int bitlen)
+   resbit = (bitlen % 8);
+ 
+   while (octetlen-- > 0) {
+-    crc = (crc << 8) ^ (crc11Table[(*inptr++) ^ (crc >> 24)] << 16);
++    crc = (crc << 8) ^ (crc11Table[(*inptr++) ^ (crc >> 24)] << CRC_SHIFT_OFFSET_16BIT);
+   }
+ 
+   if (resbit > 0)
+-    crc = (crc << resbit) ^ (crc11Table[((*inptr) >> (8 - resbit)) ^ (crc >> (32 - resbit))] << 16);
++    crc = (crc << resbit) ^ (crc11Table[((*inptr) >> (8 - resbit)) ^ (crc >> (32 - resbit))] << CRC_SHIFT_OFFSET_16BIT);
+ 
+   return crc;
+ }

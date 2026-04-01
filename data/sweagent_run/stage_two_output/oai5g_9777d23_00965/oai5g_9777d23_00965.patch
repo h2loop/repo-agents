@@ -1,0 +1,22 @@
+diff --git a/common/utils/T/tracer/logger/textlog.c b/common/utils/T/tracer/logger/textlog.c
+index 2003ff4233..1cbe3b0e6b 100644
+--- a/common/utils/T/tracer/logger/textlog.c
++++ b/common/utils/T/tracer/logger/textlog.c
+@@ -159,7 +159,7 @@ error:
+   return (struct chunk){.type = C_ERROR};
+ }
+ 
+-logger *new_textlog(event_handler *h, void *database,
++logger *new_textlog(void *handler, void *database,
+     char *event_name, char *format)
+ {
+   struct textlog *ret;
+@@ -176,7 +176,7 @@ logger *new_textlog(event_handler *h, void *database,
+ 
+   event_id = event_id_from_name(database, event_name);
+ 
+-  ret->common.handler_id = register_handler_function(h,event_id,_event,ret);
++  ret->common.handler_id = register_handler_function((event_handler *)handler,event_id,_event,ret);
+ 
+   f = get_format(database, event_id);
+ 

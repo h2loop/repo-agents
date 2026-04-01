@@ -1,0 +1,22 @@
+diff --git a/nfapi/open-nFAPI/fapi/src/nr_fapi_p5.c b/nfapi/open-nFAPI/fapi/src/nr_fapi_p5.c
+index 295cca7a48..3908f6c664 100644
+--- a/nfapi/open-nFAPI/fapi/src/nr_fapi_p5.c
++++ b/nfapi/open-nFAPI/fapi/src/nr_fapi_p5.c
+@@ -1177,7 +1177,7 @@ uint8_t pack_nr_config_request(void *msg, uint8_t **ppWritePackedMsg, uint8_t *e
+   // Struct in nfapi/open-nFAPI/nfapi/public_inc/nfapi_nr_interface_scf.h nfapi_nr_pm_pdu_t, currently unused, tag to use for AERIAL
+   // is 0xA011 END Precoding Matrix (PM) PDU
+ #ifndef ENABLE_AERIAL
+-  // START nFAPI TLVs included in CONFIG.request for IDLE and CONFIGURED states
++  // START nFAPI TLVs included in CONFIG.request for IDLE state only
+   retval &= pack_nr_tlv(NFAPI_NR_NFAPI_P7_VNF_ADDRESS_IPV4_TAG,
+                         &(pNfapiMsg->nfapi_config.p7_vnf_address_ipv4),
+                         ppWritePackedMsg,
+@@ -1219,7 +1219,7 @@ uint8_t pack_nr_config_request(void *msg, uint8_t **ppWritePackedMsg, uint8_t *e
+                         end,
+                         &pack_uint8_tlv_value);
+   numTLVs++;
+-  // END nFAPI TLVs included in CONFIG.request for IDLE and CONFIGURED states
++  // END nFAPI TLVs included in CONFIG.request for IDLE state only
+ 
+   if (pNfapiMsg->vendor_extension != 0 && config != 0) {
+     retval &= pack_vendor_extension_tlv(pNfapiMsg->vendor_extension, ppWritePackedMsg, end, config);

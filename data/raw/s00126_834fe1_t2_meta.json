@@ -1,0 +1,9 @@
+{
+  "run_id": "s00126_834fe1",
+  "pr_text": "## Title: Fix signed/unsigned integer type mismatch in nr_get_ssb_start_symbol\n\n### Summary\nThe `nr_get_ssb_start_symbol` function in `nr_parms.c` declared the local variable `mu` as a signed `int` when assigning from `fp->numerology_index`. This creates a signed/unsigned integer comparison mismatch since `numerology_index` is defined as an unsigned 8-bit integer type. This mismatch can lead to compiler warnings and potential incorrect branching behavior in downstream logic that compares `mu` ag",
+  "trajectory_path": "data/raw/s00126_834fe1_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00126_834fe1_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 45,
+  "timestamp": "2026-02-10T11:22:37Z"
+}

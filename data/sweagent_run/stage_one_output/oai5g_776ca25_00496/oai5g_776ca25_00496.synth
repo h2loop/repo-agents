@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect field unpacking in UL HARQ info REL13 structure\n\n### Summary\nThe `unpack_ul_config_harq_info_rel13_value()` function in the NFAPI library was not correctly handling the field order when unpacking the UL HARQ information REL13 structure. This caused incorrect data interpretation during UL configuration processing, particularly affecting HARQ parameter extraction.\n\nThe issue was caused by a mismatch between the expected field order in the packed message and the actual unpacking sequence. Under certain network conditions, this led to incorrect HARQ resource allocations and potential scheduling conflicts.\n\n### Changes\n- `nfapi/open-nFAPI/nfapi/src/nfapi_p7.c`: Corrected field unpacking order in `unpack_ul_config_harq_info_rel13_value()` to match the structure definition and corresponding pack function.\n\n"
+}

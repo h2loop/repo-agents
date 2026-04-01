@@ -1,0 +1,26 @@
+{
+  "run_id": "nuttx_00088_4c018f",
+  "function": {
+    "name": "nrf52_bringup",
+    "file": "boards/arm/nrf52/nrf9160-dk-nrf52/src/nrf52_bringup.c",
+    "start_line": 58,
+    "end_line": 84,
+    "body_lines": 27,
+    "signature": "int nrf52_bringup(void)",
+    "subsystem": "boards/arm/nrf52",
+    "token_estimate": 66
+  },
+  "bug": {
+    "bug_id": "rtos_semaphore_leak",
+    "description": "semaphore or mutex not released on error path causing eventual resource starvation",
+    "domain": "rtos",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a semaphore or mutex not released on error path causing eventual resource starvation downstream of function nrf52_bringup in the boards/arm/nrf52 subsystem.\nThe function is located at boards/arm/nrf52/nrf9160-dk-nrf52/src/nrf52_bringup.c:58.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 4,
+  "trajectory_steps": 7,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:10:15Z"
+}

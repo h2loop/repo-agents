@@ -1,0 +1,22 @@
+diff --git a/nfapi/oai_integration/nfapi_pnf.c b/nfapi/oai_integration/nfapi_pnf.c
+index a933aba614..c06275ec87 100644
+--- a/nfapi/oai_integration/nfapi_pnf.c
++++ b/nfapi/oai_integration/nfapi_pnf.c
+@@ -2275,6 +2275,17 @@ void handle_nr_slot_ind(uint16_t sfn, uint16_t slot) {
+ 
+ int oai_nfapi_rach_ind(nfapi_rach_indication_t *rach_ind) {
+   rach_ind->header.phy_id = 1; // HACK TODO FIXME - need to pass this around!!!!
++  
++  // Validate preamble count to prevent integer truncation in message length calculation
++  // Each preamble_pdu_t can exceed 50 bytes when fully populated with TLVs.
++  // With message_length being uint16_t (max 65535), we limit to 100 preambles to keep
++  // total message size safely below the limit (100 * 600 bytes ≈ 60KB).
++  if (rach_ind->rach_indication_body.number_of_preambles > 100) {
++    LOG_E(PHY, "%s() Error: number_of_preambles %d exceeds safe limit of 100\n", 
++          __FUNCTION__, rach_ind->rach_indication_body.number_of_preambles);
++    return -1;
++  }
++  
+   LOG_D(PHY, "%s() sfn_sf:%d preambles:%d\n", __FUNCTION__, NFAPI_SFNSF2DEC(rach_ind->sfn_sf), rach_ind->rach_indication_body.number_of_preambles);
+   return nfapi_pnf_p7_rach_ind(p7_config_g, rach_ind);
+ }

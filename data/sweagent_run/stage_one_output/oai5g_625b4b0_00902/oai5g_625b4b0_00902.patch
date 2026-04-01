@@ -1,0 +1,39 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/config_ue.c b/openair2/LAYER2/NR_MAC_UE/config_ue.c
+index 65612872d6..282f95787b 100644
+--- a/openair2/LAYER2/NR_MAC_UE/config_ue.c
++++ b/openair2/LAYER2/NR_MAC_UE/config_ue.c
+@@ -1793,7 +1793,7 @@ static void configure_maccellgroup(NR_UE_MAC_INST_t *mac, const NR_MAC_CellGroup
+         NR_SchedulingRequestToAddMod_t *sr = src->schedulingRequestToAddModList->list.array[i];
+         nr_sr_info_t *sr_info = &si->sr_info[sr->schedulingRequestId];
+         sr_info->active_SR_ID = true;
+-        // NR_SchedulingRequestToAddMod__sr_TransMax_n4	= 0 and so on
++        // NR_SchedulingRequestToAddMod__sr_TransMax_n4 = 0 and so on
+         // to obtain the value to configure we need to right shift 4 by the RRC parameter
+         sr_info->maxTransmissions = 4 << sr->sr_TransMax;
+         int target_ms = 0;
+@@ -2167,8 +2167,10 @@ static void configure_BWPs(NR_UE_MAC_INST_t *mac, NR_ServingCellConfig_t *scd)
+   if (scd->downlinkBWP_ToReleaseList) {
+     for (int i = 0; i < scd->downlinkBWP_ToReleaseList->list.count; i++) {
+       for (int j = 0; j < mac->dl_BWPs.count; j++) {
+-        if (*scd->downlinkBWP_ToReleaseList->list.array[i] == mac->dl_BWPs.array[i]->bwp_id)
+-          release_dl_BWP(mac, i);
++        if (*scd->downlinkBWP_ToReleaseList->list.array[i] == mac->dl_BWPs.array[j]->bwp_id) {
++          release_dl_BWP(mac, j);
++          j--; // Adjust index after removal
++        }
+       }
+     }
+   }
+@@ -2189,8 +2191,10 @@ static void configure_BWPs(NR_UE_MAC_INST_t *mac, NR_ServingCellConfig_t *scd)
+     if (scd->uplinkConfig->uplinkBWP_ToReleaseList) {
+       for (int i = 0; i < scd->uplinkConfig->uplinkBWP_ToReleaseList->list.count; i++) {
+         for (int j = 0; j < mac->ul_BWPs.count; j++) {
+-          if (*scd->uplinkConfig->uplinkBWP_ToReleaseList->list.array[i] == mac->ul_BWPs.array[i]->bwp_id)
+-            release_ul_BWP(mac, i);
++          if (*scd->uplinkConfig->uplinkBWP_ToReleaseList->list.array[i] == mac->ul_BWPs.array[j]->bwp_id) {
++            release_ul_BWP(mac, j);
++            j--; // Adjust index after removal
++          }
+         }
+       }
+     }

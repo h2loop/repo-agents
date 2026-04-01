@@ -1,0 +1,278 @@
+diff --git a/common/utils/nr/nr_common.c b/common/utils/nr/nr_common.c
+index 860d31f605..8f09479d47 100644
+--- a/common/utils/nr/nr_common.c
++++ b/common/utils/nr/nr_common.c
+@@ -454,11 +454,11 @@ int get_nr_table_idx(int nr_bandP, uint8_t scs_index) {
+ int get_subband_size(int NPRB,int size) {
+   // implements table  5.2.1.4-2 from 36.214
+   //
+-  //Bandwidth part (PRBs)	Subband size (PRBs)
+-  // < 24	                   N/A
+-  //24 – 72	                   4, 8
+-  //73 – 144	                   8, 16
+-  //145 – 275	                  16, 32
++  //Bandwidth part (PRBs)       Subband size (PRBs)
++  // < 24                          N/A
++  //24 – 72                        4, 8
++  //73 – 144                       8, 16
++  //145 – 275                     16, 32
+ 
+   if (NPRB<24) return(1);
+   if (NPRB<72) return (size==0 ? 4 : 8);
+@@ -606,7 +606,7 @@ void get_samplerate_and_bw(int mu,
+ 
+     case 133 :
+       if (threequarter_fs) {
+-	AssertFatal(1==0,"N_RB %d cannot use 3/4 sampling\n",n_rb);
++        AssertFatal(1==0,"N_RB %d cannot use 3/4 sampling\n",n_rb);
+       }
+       else {
+         *sample_rate=61.44e6;
+@@ -832,3 +832,84 @@ int get_NREsci2_2(const int sci2_alpha,
+   uint8_t gamma = 12 - (min_val % 12);
+   return min_val + (gamma % 12);
+ }
++
++// Function to find GSCN values to scan for a given band and SCS
++// Returns the number of GSCN values found, or -1 on error
++int find_gscn_to_scan(int band, int scs, int *gscn_list, int max_gscn) {
++  // synchronization raster per band tables (Rel.15)
++  // (38.101-1 Table 5.4.3.3-1 and 38.101-2 Table 5.4.3.3-1)
++  // band nb, sub-carrier spacing index, Range of gscn (First, Step size, Last)
++  const sync_raster_t sync_raster[] = {
++    {1, 0, 5279, 1, 5419},
++    {2, 0, 4829, 1, 4969},
++    {3, 0, 4517, 1, 4693},
++    {5, 0, 2177, 1, 2230},
++    {5, 1, 2183, 1, 2224},
++    {7, 0, 6554, 1, 6718},
++    {8, 0, 2318, 1, 2395},
++    {12, 0, 1828, 1, 1858},
++    {20, 0, 1982, 1, 2047},
++    {25, 0, 4829, 1, 4981},
++    {28, 0, 1901, 1, 2002},
++    {34, 0, 5030, 1, 5056},
++    {38, 0, 6431, 1, 6544},
++    {39, 0, 4706, 1, 4795},
++    {40, 1, 5762, 1, 5989},
++    {41, 0, 6246, 3, 6717},
++    {41, 1, 6252, 3, 6714},
++    {48, 1, 7884, 1, 7982},
++    {50, 0, 3584, 1, 3787},
++    {51, 0, 3572, 1, 3574},
++    {66, 0, 5279, 1, 5494},
++    {66, 1, 5285, 1, 5488},
++    {70, 0, 4993, 1, 5044},
++    {71, 0, 1547, 1, 1624},
++    {74, 0, 3692, 1, 3790},
++    {75, 0, 3584, 1, 3787},
++    {76, 0, 3572, 1, 3574},
++    {77, 1, 7711, 1, 8329},
++    {78, 1, 7711, 1, 8051},
++    {79, 1, 8480, 16, 8880},
++    {257, 3, 22388, 1, 22558},
++    {257, 4, 22390, 2, 22556},
++    {258, 3, 22257, 1, 22443},
++    {258, 4, 22258, 2, 22442},
++    {260, 3, 22995, 1, 23166},
++    {260, 4, 22996, 2, 23164},
++    {261, 3, 22446, 1, 22492},
++    {261, 4, 22446, 2, 22490},
++  };
++  
++  const int sizeof_sync_raster = sizeof(sync_raster) / sizeof(sync_raster_t);
++  
++  int start_gscn = 0, step_gscn = 0, end_gscn = 0;
++  int found = 0;
++  
++  // Find the GSCN range for the given band and SCS
++  for (int i = 0; i < sizeof_sync_raster; i++) {
++    if (sync_raster[i].band == band &&
++        sync_raster[i].scs_index == scs) {
++      start_gscn = sync_raster[i].first_gscn;
++      step_gscn = sync_raster[i].step_gscn;
++      end_gscn = sync_raster[i].last_gscn;
++      found = 1;
++      break;
++    }
++  }
++  
++  // If we didn't find the band/SCS combination, return error
++  if (!found) {
++    return -1;
++  }
++  
++  // Generate the list of GSCN values to scan
++  int count = 0;
++  for (int gscn = start_gscn; gscn <= end_gscn; gscn += step_gscn) {
++    if (count >= max_gscn) {
++      break;
++    }
++    gscn_list[count++] = gscn;
++  }
++  
++  return count;
++}
+diff --git a/common/utils/nr/nr_common.h b/common/utils/nr/nr_common.h
+index b244a3f804..53e71e6084 100644
+--- a/common/utils/nr/nr_common.h
++++ b/common/utils/nr/nr_common.h
+@@ -129,6 +129,10 @@ int get_NREsci2(const int sci2_alpha,
+ int get_ssb_subcarrier_offset(uint32_t absoluteFrequencySSB, uint32_t absoluteFrequencyPointA);
+ 
+ 
++// Function to find GSCN values to scan for a given band and SCS
++int find_gscn_to_scan(int band, int scs, int *gscn_list, int max_gscn);
++
++
+ #define CEILIDIV(a,b) ((a+b-1)/b)
+ #define ROUNDIDIV(a,b) (((a<<1)+b)/(b<<1))
+ 
+diff --git a/openair2/GNB_APP/gnb_config.c b/openair2/GNB_APP/gnb_config.c
+index d724785399..5e64e2bce6 100644
+--- a/openair2/GNB_APP/gnb_config.c
++++ b/openair2/GNB_APP/gnb_config.c
+@@ -173,7 +173,7 @@ void prepare_scc(NR_ServingCellConfigCommon_t *scc) {
+   dl_scs_SpecificCarrierList        = CALLOC(1,sizeof(struct NR_SCS_SpecificCarrier));
+ 
+   asn1cSeqAdd(&scc->downlinkConfigCommon->frequencyInfoDL->frequencyBandList.list,dl_frequencyBandList);  
+-  asn1cSeqAdd(&scc->downlinkConfigCommon->frequencyInfoDL->scs_SpecificCarrierList.list,dl_scs_SpecificCarrierList);		   		   
++  asn1cSeqAdd(&scc->downlinkConfigCommon->frequencyInfoDL->scs_SpecificCarrierList.list,dl_scs_SpecificCarrierList);                               
+   //  scc->downlinkConfigCommon->initialDownlinkBWP->genericParameters.cyclicPrefix    = CALLOC(1,sizeof(long));
+   scc->downlinkConfigCommon->initialDownlinkBWP->pdcch_ConfigCommon                = CALLOC(1,sizeof(struct NR_SetupRelease_PDCCH_ConfigCommon));
+   scc->downlinkConfigCommon->initialDownlinkBWP->pdcch_ConfigCommon->present=NR_SetupRelease_PDCCH_ConfigCommon_PR_setup; 
+@@ -260,7 +260,7 @@ void prepare_scc(NR_ServingCellConfigCommon_t *scc) {
+ 
+ void fill_scc_sim(NR_ServingCellConfigCommon_t *scc,uint64_t *ssb_bitmap,int N_RB_DL,int N_RB_UL,int mu_dl,int mu_ul) {
+ 
+-  *scc->physCellId=0;							\
++  *scc->physCellId=0;                                                   \
+   //  *scc->n_TimingAdvanceOffset=NR_ServingCellConfigCommon__n_TimingAdvanceOffset_n0;
+   *scc->ssb_periodicityServingCell=NR_ServingCellConfigCommon__ssb_periodicityServingCell_ms20;
+   scc->dmrs_TypeA_Position=NR_ServingCellConfigCommon__dmrs_TypeA_Position_pos2;
+@@ -440,7 +440,7 @@ void fix_scc(NR_ServingCellConfigCommon_t *scc,uint64_t ssbmap) {
+ 
+   // check pucch_ResourceConfig
+   AssertFatal(*scc->uplinkConfigCommon->initialUplinkBWP->pucch_ConfigCommon->choice.setup->pucch_ResourceCommon < 2,
+-	      "pucch_ResourceConfig should be 0 or 1 for now\n");
++              "pucch_ResourceConfig should be 0 or 1 for now\n");
+ }
+ 
+ /* Function to allocate dedicated serving cell config strutures */
+@@ -670,7 +670,7 @@ void RCconfig_nr_prs(void)
+         RC.gNB[j]                       = (PHY_VARS_gNB *)malloc(sizeof(PHY_VARS_gNB));
+         LOG_I(NR_PHY,"RC.gNB[%d] = %p\n",j,RC.gNB[j]);
+         memset(RC.gNB[j],0,sizeof(PHY_VARS_gNB));
+-	      RC.gNB[j]->Mod_id  = j;
++              RC.gNB[j]->Mod_id  = j;
+       }
+ 
+       RC.gNB[j]->prs_vars.NumPRSResources = *(PRS_ParamList.paramarray[j][NUM_PRS_RESOURCES].uptr);
+@@ -1225,12 +1225,12 @@ void RCconfig_NRRRC(MessageDef *msg_p, uint32_t i, gNB_RRC_INST *rrc)
+       sprintf(aprefix, "%s.[%i].%s.[%i]", GNB_CONFIG_STRING_GNB_LIST,0,GNB_CONFIG_STRING_SERVINGCELLCONFIGCOMMON, 0);
+       config_get(SCCsParams,sizeof(SCCsParams) / sizeof(paramdef_t), aprefix);
+       LOG_I(RRC,"Read in ServingCellConfigCommon (PhysCellId %d, ABSFREQSSB %d, DLBand %d, ABSFREQPOINTA %d, DLBW %d,RACH_TargetReceivedPower %d\n",
+-	    (int)*scc->physCellId,
+-	    (int)*scc->downlinkConfigCommon->frequencyInfoDL->absoluteFrequencySSB,
+-	    (int)*scc->downlinkConfigCommon->frequencyInfoDL->frequencyBandList.list.array[0],
+-	    (int)scc->downlinkConfigCommon->frequencyInfoDL->absoluteFrequencyPointA,
+-	    (int)scc->downlinkConfigCommon->frequencyInfoDL->scs_SpecificCarrierList.list.array[0]->carrierBandwidth,
+-	    (int)scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->rach_ConfigGeneric.preambleReceivedTargetPower);
++            (int)*scc->physCellId,
++            (int)*scc->downlinkConfigCommon->frequencyInfoDL->absoluteFrequencySSB,
++            (int)*scc->downlinkConfigCommon->frequencyInfoDL->frequencyBandList.list.array[0],
++            (int)scc->downlinkConfigCommon->frequencyInfoDL->absoluteFrequencyPointA,
++            (int)scc->downlinkConfigCommon->frequencyInfoDL->scs_SpecificCarrierList.list.array[0]->carrierBandwidth,
++            (int)scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->rach_ConfigGeneric.preambleReceivedTargetPower);
+       // SSB of the PCell is always on the sync raster
+       uint64_t ssb_freq = from_nrarfcn(*scc->downlinkConfigCommon->frequencyInfoDL->frequencyBandList.list.array[0],
+                                        *scc->ssbSubcarrierSpacing,
+@@ -1312,11 +1312,11 @@ void RCconfig_NRRRC(MessageDef *msg_p, uint32_t i, gNB_RRC_INST *rrc)
+     
+     for (k=0; k <num_gnbs ; k++) {
+       if (strcmp(GNBSParams[GNB_ACTIVE_GNBS_IDX].strlistptr[k], *(GNBParamList.paramarray[i][GNB_GNB_NAME_IDX].strptr) )== 0) {
+-	
++        
+         char gnbpath[MAX_OPTNAME_SIZE + 8];
+         sprintf(gnbpath,"%s.[%i]",GNB_CONFIG_STRING_GNB_LIST,k);
+ 
+-	
++        
+         paramdef_t PLMNParams[] = GNBPLMNPARAMS_DESC;
+ 
+         paramlist_def_t PLMNParamList = {GNB_CONFIG_STRING_PLMN_LIST, NULL, 0};
+@@ -1346,14 +1346,14 @@ void RCconfig_NRRRC(MessageDef *msg_p, uint32_t i, gNB_RRC_INST *rrc)
+         NRRRC_CONFIGURATION_REQ(msg_p).num_plmn = PLMNParamList.numelt;
+ 
+         for (int l = 0; l < PLMNParamList.numelt; ++l) {
+-	
+-	  NRRRC_CONFIGURATION_REQ (msg_p).mcc[l]               = *PLMNParamList.paramarray[l][GNB_MOBILE_COUNTRY_CODE_IDX].uptr;
+-	  NRRRC_CONFIGURATION_REQ (msg_p).mnc[l]               = *PLMNParamList.paramarray[l][GNB_MOBILE_NETWORK_CODE_IDX].uptr;
+-	  NRRRC_CONFIGURATION_REQ (msg_p).mnc_digit_length[l]  = *PLMNParamList.paramarray[l][GNB_MNC_DIGIT_LENGTH].u8ptr;
+-	  AssertFatal((NRRRC_CONFIGURATION_REQ (msg_p).mnc_digit_length[l] == 2) ||
+-		      (NRRRC_CONFIGURATION_REQ (msg_p).mnc_digit_length[l] == 3),"BAD MNC DIGIT LENGTH %d",
+-		      NRRRC_CONFIGURATION_REQ (msg_p).mnc_digit_length[l]);
+-	}
++        
++          NRRRC_CONFIGURATION_REQ (msg_p).mcc[l]               = *PLMNParamList.paramarray[l][GNB_MOBILE_COUNTRY_CODE_IDX].uptr;
++          NRRRC_CONFIGURATION_REQ (msg_p).mnc[l]               = *PLMNParamList.paramarray[l][GNB_MOBILE_NETWORK_CODE_IDX].uptr;
++          NRRRC_CONFIGURATION_REQ (msg_p).mnc_digit_length[l]  = *PLMNParamList.paramarray[l][GNB_MNC_DIGIT_LENGTH].u8ptr;
++          AssertFatal((NRRRC_CONFIGURATION_REQ (msg_p).mnc_digit_length[l] == 2) ||
++                      (NRRRC_CONFIGURATION_REQ (msg_p).mnc_digit_length[l] == 3),"BAD MNC DIGIT LENGTH %d",
++                      NRRRC_CONFIGURATION_REQ (msg_p).mnc_digit_length[l]);
++        }
+         LOG_I(GNB_APP,"pdsch_AntennaPorts N1 %d\n",*GNBParamList.paramarray[i][GNB_PDSCH_ANTENNAPORTS_N1_IDX].iptr);
+         NRRRC_CONFIGURATION_REQ (msg_p).pdsch_AntennaPorts.N1 = *GNBParamList.paramarray[i][GNB_PDSCH_ANTENNAPORTS_N1_IDX].iptr;
+         LOG_I(GNB_APP,"pdsch_AntennaPorts N2 %d\n",*GNBParamList.paramarray[i][GNB_PDSCH_ANTENNAPORTS_N2_IDX].iptr);
+@@ -1730,10 +1730,10 @@ int RCconfig_NR_X2(MessageDef *msg_p, uint32_t i) {
+             paramdef_t X2Params[]  = X2PARAMS_DESC;
+             paramlist_def_t X2ParamList = {ENB_CONFIG_STRING_TARGET_ENB_X2_IP_ADDRESS,NULL,0};
+             paramdef_t SCTPParams[]  = GNBSCTPPARAMS_DESC;
+-	    char*             gnb_ipv4_address_for_NGU      = NULL;
+-	    uint32_t          gnb_port_for_NGU              = 0;
+-	    char*             gnb_ipv4_address_for_S1U      = NULL;
+-	    uint32_t          gnb_port_for_S1U              = 0;
++            char*             gnb_ipv4_address_for_NGU      = NULL;
++            uint32_t          gnb_port_for_NGU              = 0;
++            char*             gnb_ipv4_address_for_S1U      = NULL;
++            uint32_t          gnb_port_for_S1U              = 0;
+ 
+             paramdef_t NETParams[]  =  GNBNETPARAMS_DESC;
+             /* TODO: fix the size - if set lower we have a crash (MAX_OPTNAME_SIZE was 64 when this code was written) */
+@@ -1941,14 +1941,14 @@ int RCconfig_NR_DU_F1(MessageDef *msg_p, uint32_t i) {
+         strcpy(f1Setup->CU_f1_ip_address.ipv4_address, RC.nrmac[k]->eth_params_n.remote_addr);
+         LOG_I(GNB_APP,"F1AP: DU_ip4_address in DU %s\n",RC.nrmac[k]->eth_params_n.my_addr);
+         LOG_I(GNB_APP,"FIAP: DU_ip4_address in DU %p, strlen %ld\n",
+-	      f1Setup->DU_f1_ip_address.ipv4_address,
+-	      strlen(RC.nrmac[k]->eth_params_n.my_addr));
++              f1Setup->DU_f1_ip_address.ipv4_address,
++              strlen(RC.nrmac[k]->eth_params_n.my_addr));
+         f1Setup->DU_f1_ip_address.ipv6 = 0;
+         f1Setup->DU_f1_ip_address.ipv4 = 1;
+         //strcpy(f1Setup->DU_f1_ip_address.ipv6_address, "");
+         strcpy(f1Setup->DU_f1_ip_address.ipv4_address, RC.nrmac[k]->eth_params_n.my_addr);
+-	f1Setup->DUport= RC.nrmac[k]->eth_params_n.my_portd;
+-	f1Setup->CUport= RC.nrmac[k]->eth_params_n.remote_portd;
++        f1Setup->DUport= RC.nrmac[k]->eth_params_n.my_portd;
++        f1Setup->CUport= RC.nrmac[k]->eth_params_n.remote_portd;
+         //strcpy(f1Setup->CU_ip_address[l].ipv6_address,*(F1ParamList.paramarray[l][ENB_CU_IPV6_ADDRESS_IDX].strptr));
+         sprintf(aprefix,"%s.[%i].%s",GNB_CONFIG_STRING_GNB_LIST,k,GNB_CONFIG_STRING_SCTP_CONFIG);
+         config_get(SCTPParams,sizeof(SCTPParams)/sizeof(paramdef_t),aprefix);
+@@ -2226,7 +2226,7 @@ int gNB_app_handle_f1ap_setup_resp(f1ap_setup_resp_t *resp) {
+                                    resp->cells_to_activate[j].SI_container[si_ind],
+                                    resp->cells_to_activate[j].SI_container_length[si_ind]);
+         }
+-	ret++;
++        ret++;
+       } else {
+         LOG_E(GNB_APP, "F1 Setup Response not matching\n");
+       }
+@@ -2258,7 +2258,7 @@ int gNB_app_handle_f1ap_gnb_cu_configuration_update(f1ap_gnb_cu_configuration_up
+                                    gnb_cu_cfg_update->cells_to_activate[j].SI_container[si_ind],
+                                    gnb_cu_cfg_update->cells_to_activate[j].SI_container_length[si_ind]);
+         }
+-	ret++;
++        ret++;
+       } else {
+         LOG_E(GNB_APP, "GNB_CU_CONFIGURATION_UPDATE not matching\n");
+       }

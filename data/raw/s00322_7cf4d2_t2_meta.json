@@ -1,0 +1,9 @@
+{
+  "run_id": "s00322_7cf4d2",
+  "pr_text": "## Title: Fix integer type mismatch for remote_port in pnf_sim phy_info\n\n### Summary\nThe `phy_info` class in the pnf_sim component incorrectly declared `remote_port` as `int`, which is inconsistent with standard network port representation and could lead to integer truncation issues. Network ports are conventionally unsigned 16-bit values (0-65535) per protocol specifications. This change corrects the type mismatch to improve type safety, prevent potential sign-related bugs, and align with the u",
+  "trajectory_path": "data/raw/s00322_7cf4d2_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00322_7cf4d2_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 20,
+  "timestamp": "2026-02-10T12:38:10Z"
+}

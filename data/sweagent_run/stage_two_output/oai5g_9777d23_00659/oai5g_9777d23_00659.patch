@@ -1,0 +1,45 @@
+diff --git a/radio/rfsimulator/simulator.cpp b/radio/rfsimulator/simulator.cpp
+index 83bdba990a..06dc63627f 100644
+--- a/radio/rfsimulator/simulator.cpp
++++ b/radio/rfsimulator/simulator.cpp
+@@ -108,7 +108,7 @@ typedef enum { SIMU_ROLE_SERVER = 1, SIMU_ROLE_CLIENT } simuRole;
+ /*                                            configuration parameters for the rfsimulator device */
+ /* optname                              helpstr                                 paramflags  XXXptr                            defXXXval */
+ /*----------------------------------------------------------------------------------------------------------------------------------------------------*/
+-#define RFSIMULATOR_PARAMS_DESC {					\
++#define RFSIMULATOR_PARAMS_DESC {                                       \
+   STRINGPARAM(RFSIMU_SERVER_ADDR,       "<ip address to connect to>\n",             simOpt, NULL,                             "127.0.0.1"),           \
+   UINT16PARAM(RFSIMU_SERVER_PORT,       "<port to connect to>\n",                   simOpt, NULL,                             PORT),                  \
+   STRLISTPARAM(RFSIMU_OPTIONS_PARAMNAME, RFSIM_CONFIG_HELP_OPTIONS,                 simOpt, NULL,                             NULL),                  \
+@@ -719,8 +719,10 @@ static int rfsimu_setchanmod_cmd(char *buff, int debug, telnet_printfunc_t prnt,
+     prnt("%s: ERROR: 2 parameters required: model name and model type (%i found)\n", __func__, s);
+   }
+ 
+-  free(modelname);
+-  free(modeltype);
++  if (modelname != NULL)
++    free(modelname);
++  if (modeltype != NULL)
++    free(modeltype);
+   return CMDSTATUS_FOUND;
+ }
+ 
+@@ -741,7 +743,7 @@ static int rfsimu_setdistance_cmd(char *buff, int debug, telnet_printfunc_t prnt
+   if (debug)
+     prnt("%s() buffer \"%s\"\n", __func__, buff);
+ 
+-  char *modelname;
++  char *modelname = NULL;
+   int distance;
+   int s = sscanf(buff, "%m[^ ] %d\n", &modelname, &distance);
+   if (s != 2) {
+@@ -775,7 +777,8 @@ static int rfsimu_setdistance_cmd(char *buff, int debug, telnet_printfunc_t prnt
+     cd->channel_offset = new_offset;
+   }
+ 
+-  free(modelname);
++  if (modelname != NULL)
++    free(modelname);
+ 
+   return CMDSTATUS_FOUND;
+ }

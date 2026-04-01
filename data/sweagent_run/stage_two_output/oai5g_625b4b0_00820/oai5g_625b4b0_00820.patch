@@ -1,0 +1,26 @@
+diff --git a/openair2/UTIL/OMG/trace_hashtable.c b/openair2/UTIL/OMG/trace_hashtable.c
+index 9a7a67feef..4902954998 100644
+--- a/openair2/UTIL/OMG/trace_hashtable.c
++++ b/openair2/UTIL/OMG/trace_hashtable.c
+@@ -214,7 +214,7 @@ hash (int *key, int len)
+   uint16_t hash = 0xbabe; // WHY NOT
+   size_t i = 0;
+ 
+-  for (; i < (sizeof (key) / 2); i++) {
++  for (; i < (sizeof (int) / 2); i++) {
+     hash ^= (i << 4 ^ *ptr << 8 ^ *ptr);
+     ptr++;
+   }
+diff --git a/openair2/UTIL/OMG/trace_hashtable.h b/openair2/UTIL/OMG/trace_hashtable.h
+index b842880e29..8e42342f6f 100644
+--- a/openair2/UTIL/OMG/trace_hashtable.h
++++ b/openair2/UTIL/OMG/trace_hashtable.h
+@@ -109,7 +109,7 @@ typedef struct nodeinfo {
+  * Function that returns a hash value for a given key and key_len
+  * @param key pointer to the key
+  * @param key_len length of the key
+- *f @param max_key max value of the hash to be returned by the function
++ * @param max_key max value of the hash to be returned by the function
+  * @returns hash value belonging to [0, max_key)
+  */
+ uint16_t hash (int *key, int len);

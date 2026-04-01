@@ -1,0 +1,35 @@
+{
+  "run_id": "s00291_b44045",
+  "function": {
+    "name": "main",
+    "file": "nfapi/open-nFAPI/pnf_sim/src/main.cpp",
+    "start_line": 2225,
+    "end_line": 2282,
+    "body_lines": 58,
+    "signature": "int main(int argc, char *argv[])",
+    "subsystem": "nfapi/open-nFAPI/pnf_sim",
+    "token_estimate": 134
+  },
+  "bug": {
+    "bug_id": "c_use_after_free",
+    "description": "use-after-free vulnerability where freed memory is subsequently accessed",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a use-after-free vulnerability where freed memory is subsequently accessed downstream of function main in the nfapi/open-nFAPI/pnf_sim subsystem.\nThe function is located at nfapi/open-nFAPI/pnf_sim/src/main.cpp:2225.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00291_b44045_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00291_b44045_p1.diff",
+  "patch_lines": 15,
+  "trajectory_steps": 34,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:23:49Z"
+}

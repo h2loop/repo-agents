@@ -1,0 +1,30 @@
+diff --git a/openair3/NAS/TEST/USER/user_simulator.c b/openair3/NAS/TEST/USER/user_simulator.c
+index 3050c16692..8aa3fa4c4b 100644
+--- a/openair3/NAS/TEST/USER/user_simulator.c
++++ b/openair3/NAS/TEST/USER/user_simulator.c
+@@ -42,9 +42,10 @@ Description Implements the user simulator running at the user application
+ 
+ #include "user_parser.h"
+ 
+-#include "include/commonDef.h"
++#include "commonDef.h"
+ #include "util/socket.h"
+ #include "util/device.h"
++#include <common/utils/system.h>
+ 
+ #include <stdio.h>  // printf, perror
+ #include <errno.h>  // errno
+@@ -176,12 +177,8 @@ int main (int argc, const char* argv[])
+   /*
+    * Create the receiving thread
+    */
+-  pthread_attr_t attr;
+   pthread_t thread_id;
+-  pthread_attr_init(&attr);
+-  pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
+-  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+-  int rc = pthread_create (&thread_id, &attr, _receive_thread, NULL);
++  int rc = threadCreate(&thread_id, _receive_thread, NULL, "NAS_TEST_USER_RX", -1, OAI_PRIORITY_RT_LOW);
+ 
+   if (rc != 0) {
+     perror("ERROR\t: pthread_create() failed");

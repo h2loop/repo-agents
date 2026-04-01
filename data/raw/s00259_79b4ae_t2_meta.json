@@ -1,0 +1,9 @@
+{
+  "run_id": "s00259_79b4ae",
+  "pr_text": "## Title: Fix scheduling priority inversion in NAS user simulator receive thread\n\n### Summary\nThe NAS user simulator's receive thread was created without proper priority configuration, causing scheduling priority inversion where lower-priority tasks could preempt this critical signaling thread. The manual pthread creation using `pthread_attr_init()` and related calls bypassed the OpenAirInterface (OAI) centralized priority management system, leading to undefined scheduling behavior under load.\n\n",
+  "trajectory_path": "data/raw/s00259_79b4ae_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00259_79b4ae_p2.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 19,
+  "timestamp": "2026-02-10T12:13:34Z"
+}

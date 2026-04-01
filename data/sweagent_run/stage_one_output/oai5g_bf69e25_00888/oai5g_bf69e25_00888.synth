@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix endianness handling in NFAPI message packing functions\n\n### Summary\nThe NFAPI library had incorrect endianness handling in the message packing/unpacking functions. On big-endian systems, multi-byte values (16-bit and 32-bit) were being serialized with incorrect byte ordering, causing interoperability issues with little-endian peers.\n\nThe issue was two-fold:\n1. The FAPI_BYTE_ORDERING_BIG_ENDIAN macro was not automatically defined on big-endian systems\n2. The existing endianness handling logic in push16/push32/pull16/pull32 functions was backwards\n\nThis caused corrupted message exchanges when running the OAI stack on big-endian architectures.\n\n### Changes\n- `nfapi/open-nFAPI/nfapi/src/nfapi.c`: Added automatic endianness detection and fixed byte ordering in all push/pull functions\n\n"
+}

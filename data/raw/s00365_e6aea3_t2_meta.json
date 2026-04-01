@@ -1,0 +1,9 @@
+{
+  "run_id": "s00365_e6aea3",
+  "pr_text": "## Title: Fix 5GMM timer handling on authentication reject\n\n### Summary\nThe NAS UE implementation did not properly stop running 5GMM timers when receiving an Authentication Reject message from the network. This violated 3GPP TS 24.501 protocol requirements and could lead to timer expiry events firing after authentication failure, causing undefined behavior and potential state machine corruption. This patch ensures all active 5GMM timers are stopped when authentication is rejected.\n\n### Changes\n-",
+  "trajectory_path": "data/raw/s00365_e6aea3_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00365_e6aea3_p2.diff",
+  "patch_lines": 37,
+  "trajectory_steps": 59,
+  "timestamp": "2026-02-10T12:58:53Z"
+}

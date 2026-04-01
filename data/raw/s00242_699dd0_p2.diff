@@ -1,0 +1,36 @@
+diff --git a/openair2/NR_UE_PHY_INTERFACE/NR_Packet_Drop.c b/openair2/NR_UE_PHY_INTERFACE/NR_Packet_Drop.c
+index 97c5a4e130..3e8735dd08 100644
+--- a/openair2/NR_UE_PHY_INTERFACE/NR_Packet_Drop.c
++++ b/openair2/NR_UE_PHY_INTERFACE/NR_Packet_Drop.c
+@@ -43,6 +43,20 @@ void read_channel_param(const nfapi_nr_dl_tti_pdsch_pdu_rel15_t * pdu, int slot,
+     slot_rnti_mcs[i].latest = false;
+   }
+ 
++  /* Clear per-slot HARQ state when processing the first PDU for a slot (index == 0).
++     This prevents stale redundancy versions and transmission parameters from previous
++     slots from being incorrectly applied to new transport blocks. */
++  if (index == 0)
++  {
++    slot_rnti_mcs[slot].num_pdus = 0;
++    slot_rnti_mcs[slot].sinr = 0.0f;
++    slot_rnti_mcs[slot].area_code = 0;
++    memset(slot_rnti_mcs[slot].rvIndex, 0, sizeof(slot_rnti_mcs[slot].rvIndex));
++    memset(slot_rnti_mcs[slot].rnti, 0, sizeof(slot_rnti_mcs[slot].rnti));
++    memset(slot_rnti_mcs[slot].mcs, 0, sizeof(slot_rnti_mcs[slot].mcs));
++    memset(slot_rnti_mcs[slot].drop_flag, 0, sizeof(slot_rnti_mcs[slot].drop_flag));
++  }
++
+   CHECK_INDEX(slot_rnti_mcs[slot].rnti, index);
+   CHECK_INDEX(slot_rnti_mcs[slot].mcs, index);
+   CHECK_INDEX(slot_rnti_mcs[slot].drop_flag, index);
+@@ -52,7 +66,9 @@ void read_channel_param(const nfapi_nr_dl_tti_pdsch_pdu_rel15_t * pdu, int slot,
+   slot_rnti_mcs[slot].drop_flag[index] = false;
+   slot_rnti_mcs[slot].num_pdus = index+1; //index starts at 0 so we incrament to get num of pdus
+   slot_rnti_mcs[slot].latest = true;
+-  LOG_D(NR_MAC, "Adding MCS %d and RNTI %x for slot_rnti_mcs[%d]\n", slot_rnti_mcs[slot].mcs[index], slot_rnti_mcs[slot].rnti[index], slot);
++  LOG_D(NR_MAC, "Adding MCS %d, RNTI %x, and RV %d for slot_rnti_mcs[%d]\n", 
++        slot_rnti_mcs[slot].mcs[index], slot_rnti_mcs[slot].rnti[index], 
++        slot_rnti_mcs[slot].rvIndex[index], slot);
+ 
+   return;
+ }

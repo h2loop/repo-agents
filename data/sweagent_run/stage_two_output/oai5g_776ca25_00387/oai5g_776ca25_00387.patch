@@ -1,0 +1,15 @@
+diff --git a/openair2/E2AP/RAN_FUNCTION/CUSTOMIZED/ran_func_gtp.c b/openair2/E2AP/RAN_FUNCTION/CUSTOMIZED/ran_func_gtp.c
+index c1d2a0f0b7..0c07442172 100644
+--- a/openair2/E2AP/RAN_FUNCTION/CUSTOMIZED/ran_func_gtp.c
++++ b/openair2/E2AP/RAN_FUNCTION/CUSTOMIZED/ran_func_gtp.c
+@@ -93,5 +93,9 @@ void read_gtp_setup_sm(void* data)
+ sm_ag_if_ans_t write_ctrl_gtp_sm(void const* src)
+ {
+   assert(src != NULL);
+-  assert(0 !=0 && "Not supported");
++  //assert(src->type == GTP_CTRL_REQ_V0 );
++
++  sm_ag_if_ans_t ans = {.type = CTRL_OUTCOME_SM_AG_IF_ANS_V0};
++  ans.ctrl_out.type = GTP_AGENT_IF_CTRL_ANS_V0;
++  return ans;
+ }

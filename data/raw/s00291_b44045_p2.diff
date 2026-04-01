@@ -1,0 +1,40 @@
+diff --git a/nfapi/open-nFAPI/pnf_sim/src/main.cpp b/nfapi/open-nFAPI/pnf_sim/src/main.cpp
+index 251e2a48cb..8c8c4d50c2 100644
+--- a/nfapi/open-nFAPI/pnf_sim/src/main.cpp
++++ b/nfapi/open-nFAPI/pnf_sim/src/main.cpp
+@@ -2236,10 +2236,11 @@ int main(int argc, char *argv[])
+ 
+ 	set_thread_priority(50);
+ 
+-	pnf_info pnf;
+-	if(read_pnf_xml(pnf, argv[3]) < 0)
++	pnf_info* pnf = new pnf_info();
++	if(read_pnf_xml(*pnf, argv[3]) < 0)
+ 	{
+ 		printf("Failed to read xml file>\n");
++		delete pnf;
+ 		return 0;
+ 	}
+ 
+@@ -2269,7 +2270,7 @@ int main(int argc, char *argv[])
+ 
+ 	config->trace = &pnf_sim_trace;
+ 
+-	config->user_data = &pnf;
++	config->user_data = pnf;
+ 
+ 	// To allow custom vendor extentions to be added to nfapi
+ 	config->codec_config.unpack_vendor_extension_tlv = &pnf_sim_unpack_vendor_extension_tlv;
+@@ -2281,6 +2282,11 @@ int main(int argc, char *argv[])
+ 	config->codec_config.unpack_p4_p5_vendor_extension = &pnf_sim_unpack_p4_p5_vendor_extension;
+ 	config->codec_config.pack_p4_p5_vendor_extension = &pnf_sim_pack_p4_p5_vendor_extension;
+ 
+-	return nfapi_pnf_start(config);
++	int result = nfapi_pnf_start(config);
++	
++	delete pnf;
++	nfapi_pnf_config_destroy(config);
++	
++	return result;
+ 	
+ }

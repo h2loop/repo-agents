@@ -1,0 +1,33 @@
+{
+  "run_id": "s00216_0f3d2e",
+  "function": {
+    "name": "eNB_app_handle_m2ap_mbms_session_start_req",
+    "file": "openair2/ENB_APP/enb_app.c",
+    "start_line": 120,
+    "end_line": 126,
+    "body_lines": 7,
+    "signature": "static uint32_t eNB_app_handle_m2ap_mbms_session_start_req(instance_t instance)",
+    "subsystem": "openair2/ENB_APP",
+    "token_estimate": 21
+  },
+  "bug": {
+    "bug_id": "c_deadlock",
+    "description": "deadlock caused by inconsistent lock acquisition ordering",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a deadlock caused by inconsistent lock acquisition ordering downstream of function eNB_app_handle_m2ap_mbms_session_start_req in the openair2/ENB_APP subsystem.\nThe function is located at openair2/ENB_APP/enb_app.c:120.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00216_0f3d2e_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00216_0f3d2e_p1.diff",
+  "patch_lines": 10,
+  "trajectory_steps": 50,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:56:17Z"
+}

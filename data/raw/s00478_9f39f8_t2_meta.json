@@ -1,0 +1,9 @@
+{
+  "run_id": "s00478_9f39f8",
+  "pr_text": "## Title: Fix measurement configuration deadlock with dedicated mutex\n\n### Summary\nThe NR RRC measurement configuration code had a race condition leading to potential deadlock due to unsynchronized access to the shared `measurementConfiguration` structure. This introduces a dedicated mutex to protect all accesses to measurement configuration data, ensuring thread-safe operation during A2/A3 event preparation and periodic reporting.\n\n### Changes\n- `openair2/RRC/NR/nr_rrc_defs.h`: Added `pthread_m",
+  "trajectory_path": "data/raw/s00478_9f39f8_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00478_9f39f8_p2.diff",
+  "patch_lines": 31,
+  "trajectory_steps": 62,
+  "timestamp": "2026-02-10T13:40:13Z"
+}

@@ -1,0 +1,36 @@
+diff --git a/openair3/NAS/COMMON/IES/TimeZoneAndTime.c b/openair3/NAS/COMMON/IES/TimeZoneAndTime.c
+index 6a26eeac78..712f86978d 100644
+--- a/openair3/NAS/COMMON/IES/TimeZoneAndTime.c
++++ b/openair3/NAS/COMMON/IES/TimeZoneAndTime.c
+@@ -22,12 +22,16 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <stdint.h>
++#include <pthread.h>
+ 
+ 
+ #include "TLVEncoder.h"
+ #include "TLVDecoder.h"
+ #include "TimeZoneAndTime.h"
+ 
++/* Mutex to protect dump_time_zone_and_time_xml from race conditions */
++static pthread_mutex_t dump_mutex = PTHREAD_MUTEX_INITIALIZER;
++
+ int decode_time_zone_and_time(TimeZoneAndTime *timezoneandtime, uint8_t iei, uint8_t *buffer, uint32_t len)
+ {
+   int decoded = 0;
+@@ -90,6 +94,7 @@ int encode_time_zone_and_time(TimeZoneAndTime *timezoneandtime, uint8_t iei, uin
+ 
+ void dump_time_zone_and_time_xml(TimeZoneAndTime *timezoneandtime, uint8_t iei)
+ {
++  pthread_mutex_lock(&dump_mutex);
+   printf("<Time Zone And Time>\n");
+ 
+   if (iei > 0)
+@@ -104,5 +109,5 @@ void dump_time_zone_and_time_xml(TimeZoneAndTime *timezoneandtime, uint8_t iei)
+   printf("    <Second>%u</Second>\n", timezoneandtime->second);
+   printf("    <Time Zone>%u</Time Zone>\n", timezoneandtime->timezone);
+   printf("</Time Zone And Time>\n");
++  pthread_mutex_unlock(&dump_mutex);
+ }
+-

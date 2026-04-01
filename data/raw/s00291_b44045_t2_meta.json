@@ -1,0 +1,9 @@
+{
+  "run_id": "s00291_b44045",
+  "pr_text": "## Title: Fix use-after-free vulnerability in pnf_sim main()\n\n### Summary\nFixes a use-after-free vulnerability in the pnf_sim main() function where a stack-allocated `pnf_info` structure was passed as user data to `nfapi_pnf_start()`. The stack-allocated object could be accessed after the function returned or after the stack frame was destroyed, leading to undefined behavior and potential crashes.\n\nThe root cause was that `pnf_info pnf` was declared as a local stack variable but its pointer (`&p",
+  "trajectory_path": "data/raw/s00291_b44045_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00291_b44045_p2.diff",
+  "patch_lines": 10,
+  "trajectory_steps": 27,
+  "timestamp": "2026-02-10T12:25:36Z"
+}

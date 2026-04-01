@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix memory leak in SL TDD configuration allocation\n\n### Summary\nThe NR UE MAC sidelink TDD configuration function `sl_set_tdd_config_nr_ue` was leaking memory when called multiple times with different TDD patterns. This occurred because the function allocated new memory for the TDD configuration tables without first freeing any previously allocated memory.\n\nThe leak was particularly noticeable during RRC reconfigurations where the UE would receive new sidelink TDD configurations, causing the old configuration memory to be orphaned.\n\n### Changes\n- `openair2/LAYER2/NR_MAC_UE/config_ue_sl.c`: Added memory cleanup before TDD configuration allocation in `sl_set_tdd_config_nr_ue` function.\n\n"
+}

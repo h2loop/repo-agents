@@ -1,0 +1,17 @@
+diff --git a/common/utils/T/tracer/gui/textlist.c b/common/utils/T/tracer/gui/textlist.c
+index e919b7c0a5..39663f4fa2 100644
+--- a/common/utils/T/tracer/gui/textlist.c
++++ b/common/utils/T/tracer/gui/textlist.c
+@@ -78,6 +78,12 @@ widget *new_textlist(gui *_gui, int width, int nlines, int bgcol)
+ 
+   w = new_widget(g, TEXT_LIST, sizeof(struct textlist_widget));
+ 
++  w->text = NULL;
++  w->color = NULL;
++  w->text_count = 0;
++  w->starting_line = 0;
++  w->allocated_nlines = 0;
++
+   w->wanted_nlines = nlines;
+   x_text_get_dimensions(g->x, DEFAULT_FONT, ".",
+       &dummy, &w->line_height, &w->baseline);

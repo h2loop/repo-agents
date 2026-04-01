@@ -1,0 +1,26 @@
+{
+  "run_id": "zephyr_00323_c10e67",
+  "function": {
+    "name": "video_stm32_dcmi_set_fmt",
+    "file": "drivers/video/video_stm32_dcmi.c",
+    "start_line": 198,
+    "end_line": 217,
+    "body_lines": 20,
+    "signature": "static int video_stm32_dcmi_set_fmt(const struct device *dev, struct video_format *fmt)",
+    "subsystem": "drivers/video",
+    "token_estimate": 52
+  },
+  "bug": {
+    "bug_id": "embedded_watchdog_not_fed",
+    "description": "watchdog timer not serviced on a long-running code path causing unexpected reset",
+    "domain": "embedded",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a watchdog timer not serviced on a long-running code path causing unexpected reset downstream of function video_stm32_dcmi_set_fmt in the drivers/video subsystem.\nThe function is located at drivers/video/video_stm32_dcmi.c:198.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 6,
+  "trajectory_steps": 70,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:19:34Z"
+}

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00399_f31013",
+  "pr_text": "## Title: Fix PDCP initialization order to resolve configuration mismatch\n\n### Summary\nReorder initialization calls in `nr_pdcp_layer_init()` to ensure the PDCP data indication queue is established before E1 interface initialization. The previous order caused a configuration mismatch where the E1 interface initialization could attempt to configure or access PDCP data structures before they were properly set up, leading to inconsistent behavior in split gNB architectures (CU-CP/CU-UP).\n\nThe root ",
+  "trajectory_path": "data/raw/s00399_f31013_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00399_f31013_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 11,
+  "timestamp": "2026-02-10T13:06:59Z"
+}

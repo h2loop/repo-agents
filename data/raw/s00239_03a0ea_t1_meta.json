@@ -1,0 +1,30 @@
+{
+  "run_id": "s00239_03a0ea",
+  "function": {
+    "name": "trx_eth_read_raw_IF4p5",
+    "file": "radio/ETHERNET/eth_raw.c",
+    "start_line": 323,
+    "end_line": 408,
+    "body_lines": 86,
+    "signature": "int trx_eth_read_raw_IF4p5(openair0_device_t *device, openair0_timestamp_t *timestamp, void **buff, int nsamps, int cc)",
+    "subsystem": "radio/ETHERNET",
+    "token_estimate": 230
+  },
+  "bug": {
+    "bug_id": "telecom_power_control_error",
+    "description": "power control error causing incorrect transmit power level",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "radio"
+    ]
+  },
+  "prompt": "There is a power control error causing incorrect transmit power level downstream of function trx_eth_read_raw_IF4p5 in the radio/ETHERNET subsystem.\nThe function is located at radio/ETHERNET/eth_raw.c:323.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00239_03a0ea_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00239_03a0ea_p1.diff",
+  "patch_lines": 13,
+  "trajectory_steps": 52,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:04:29Z"
+}

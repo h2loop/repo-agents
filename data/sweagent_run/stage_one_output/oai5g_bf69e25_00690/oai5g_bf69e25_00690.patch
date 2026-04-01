@@ -1,0 +1,203 @@
+diff --git a/openair2/F1AP/lib/f1ap_interface_management.c b/openair2/F1AP/lib/f1ap_interface_management.c
+index acd6859ad7..4e1cc3e8ac 100644
+--- a/openair2/F1AP/lib/f1ap_interface_management.c
++++ b/openair2/F1AP/lib/f1ap_interface_management.c
+@@ -187,6 +187,9 @@ bool decode_f1ap_reset(const F1AP_F1AP_PDU_t *pdu, f1ap_reset_t *out)
+           out->reset_type = F1AP_RESET_PART_OF_F1_INTERFACE;
+           const F1AP_UE_associatedLogicalF1_ConnectionListRes_t *con_list = ie->value.choice.ResetType.choice.partOfF1_Interface;
+           AssertError(con_list->list.count > 0, return false, "no UEs for partially reset F1 interface\n");
++          AssertError(con_list->list.count <= F1AP_MAX_NO_OF_INDIVIDUAL_CONNECTIONS_TO_RESET, return false,
++                      "num_ue_to_reset (%d) exceeds maximum allowed (%d)",
++                      con_list->list.count, F1AP_MAX_NO_OF_INDIVIDUAL_CONNECTIONS_TO_RESET);
+           out->num_ue_to_reset = con_list->list.count;
+           out->ue_to_reset = calloc_or_fail(out->num_ue_to_reset, sizeof(*out->ue_to_reset));
+           for (int i = 0; i < out->num_ue_to_reset; ++i) {
+@@ -244,6 +247,9 @@ f1ap_reset_t cp_f1ap_reset(const f1ap_reset_t *orig)
+   };
+   if (orig->reset_type == F1AP_RESET_PART_OF_F1_INTERFACE) {
+     DevAssert(orig->num_ue_to_reset > 0);
++    AssertFatal(orig->num_ue_to_reset <= F1AP_MAX_NO_OF_INDIVIDUAL_CONNECTIONS_TO_RESET,
++                "num_ue_to_reset (%d) exceeds maximum allowed (%d)",
++                orig->num_ue_to_reset, F1AP_MAX_NO_OF_INDIVIDUAL_CONNECTIONS_TO_RESET);
+     cp.num_ue_to_reset = orig->num_ue_to_reset;
+     cp.ue_to_reset = calloc_or_fail(cp.num_ue_to_reset, sizeof(*cp.ue_to_reset));
+     for (int i = 0; i < cp.num_ue_to_reset; ++i)
+@@ -320,6 +326,9 @@ bool decode_f1ap_reset_ack(const struct F1AP_F1AP_PDU *pdu, f1ap_reset_ack_t *ou
+         {
+           const F1AP_UE_associatedLogicalF1_ConnectionListResAck_t *conn_list = &ie->value.choice.UE_associatedLogicalF1_ConnectionListResAck;
+           AssertError(conn_list->list.count > 0, return false, "no UEs for partially reset F1 interface\n");
++          AssertError(conn_list->list.count <= F1AP_MAX_NO_OF_INDIVIDUAL_CONNECTIONS_TO_RESET, return false,
++                      "num_ue_to_reset (%d) exceeds maximum allowed (%d)",
++                      conn_list->list.count, F1AP_MAX_NO_OF_INDIVIDUAL_CONNECTIONS_TO_RESET);
+           out->num_ue_to_reset = conn_list->list.count;
+           out->ue_to_reset = calloc_or_fail(out->num_ue_to_reset, sizeof(*out->ue_to_reset));
+           for (int i = 0; i < out->num_ue_to_reset; ++i) {
+@@ -360,6 +369,9 @@ f1ap_reset_ack_t cp_f1ap_reset_ack(const f1ap_reset_ack_t *orig)
+ {
+   f1ap_reset_ack_t cp = {.transaction_id = orig->transaction_id, .num_ue_to_reset = orig->num_ue_to_reset};
+   if (cp.num_ue_to_reset > 0) {
++    AssertFatal(cp.num_ue_to_reset <= F1AP_MAX_NO_OF_INDIVIDUAL_CONNECTIONS_TO_RESET,
++                "num_ue_to_reset (%d) exceeds maximum allowed (%d)",
++                cp.num_ue_to_reset, F1AP_MAX_NO_OF_INDIVIDUAL_CONNECTIONS_TO_RESET);
+     cp.ue_to_reset = calloc_or_fail(cp.num_ue_to_reset, sizeof(*cp.ue_to_reset));
+     for (int i = 0; i < cp.num_ue_to_reset; ++i)
+       cp.ue_to_reset[i] = cp_f1ap_ue_to_reset(&orig->ue_to_reset[i]);
+@@ -842,6 +854,9 @@ bool decode_f1ap_setup_request(const F1AP_F1AP_PDU_t *pdu, f1ap_setup_req_t *out
+         /* GNB_DU_Served_Cells_List */
+         out->num_cells_available = ie->value.choice.GNB_DU_Served_Cells_List.list.count;
+         AssertError(out->num_cells_available > 0, return false, "at least 1 cell must be present");
++        AssertError(out->num_cells_available <= F1AP_MAX_NB_CELLS, return false, 
++                    "num_cells_available (%d) exceeds maximum allowed (%d)",
++                    out->num_cells_available, F1AP_MAX_NB_CELLS);
+         /* Loop over gNB-DU Served Cells Items */
+         for (int i = 0; i < out->num_cells_available; i++) {
+           F1AP_GNB_DU_Served_Cells_Item_t *served_cells_item =
+@@ -952,6 +967,9 @@ f1ap_setup_req_t cp_f1ap_setup_request(const f1ap_setup_req_t *msg)
+   cp.transaction_id = msg->transaction_id;
+   /* num_cells_available */
+   cp.num_cells_available = msg->num_cells_available;
++  AssertFatal(cp.num_cells_available <= F1AP_MAX_NB_CELLS, 
++              "num_cells_available (%d) exceeds maximum allowed (%d)",
++              cp.num_cells_available, F1AP_MAX_NB_CELLS);
+   for (int n = 0; n < msg->num_cells_available; n++) {
+     /* cell.info */
+     cp.cell[n].info = copy_f1ap_served_cell_info(&msg->cell[n].info);
+@@ -1131,6 +1149,9 @@ bool decode_f1ap_setup_response(const F1AP_F1AP_PDU_t *pdu, f1ap_setup_resp_t *o
+         out->num_cells_to_activate = Cells_to_be_Activated_List->list.count;
+         // Loop Cells to be Activated List Items (count >= 1)
+         AssertError(out->num_cells_to_activate > 0, return false, "At least 1 cell must be present");
++        AssertError(out->num_cells_to_activate <= F1AP_MAX_NB_CELLS, return false,
++                    "num_cells_to_activate (%d) exceeds maximum allowed (%d)",
++                    out->num_cells_to_activate, F1AP_MAX_NB_CELLS);
+         for (int i = 0; i < out->num_cells_to_activate; i++) {
+           const F1AP_Cells_to_be_Activated_List_ItemIEs_t *itemIEs
+             = (F1AP_Cells_to_be_Activated_List_ItemIEs_t *)Cells_to_be_Activated_List->list.array[i];
+@@ -1507,6 +1528,9 @@ bool decode_f1ap_du_configuration_update(const F1AP_F1AP_PDU_t *pdu, f1ap_gnb_du
+         /* Served Cells To Add List */
+         out->num_cells_to_add = ie->value.choice.Served_Cells_To_Add_List.list.count;
+         AssertError(out->num_cells_to_add > 0, return false, "at least 1 cell to add shall to be present");
++        AssertError(out->num_cells_to_add <= F1AP_MAX_NB_CELLS, return false,
++                    "num_cells_to_add (%d) exceeds maximum allowed (%d)",
++                    out->num_cells_to_add, F1AP_MAX_NB_CELLS);
+         for (int i = 0; i < out->num_cells_to_add; i++) {
+           F1AP_Served_Cells_To_Add_Item_t *served_cells_item =
+               &((F1AP_Served_Cells_To_Add_ItemIEs_t *)ie->value.choice.Served_Cells_To_Add_List.list.array[i])
+@@ -1525,6 +1549,9 @@ bool decode_f1ap_du_configuration_update(const F1AP_F1AP_PDU_t *pdu, f1ap_gnb_du
+         /* Served Cells To Modify List (O) */
+         out->num_cells_to_modify = ie->value.choice.Served_Cells_To_Modify_List.list.count;
+         AssertError(out->num_cells_to_modify > 0, return false, "at least 1 cell to modify shall to be present");
++        AssertError(out->num_cells_to_modify <= F1AP_MAX_NB_CELLS, return false,
++                    "num_cells_to_modify (%d) exceeds maximum allowed (%d)",
++                    out->num_cells_to_modify, F1AP_MAX_NB_CELLS);
+         for (int i = 0; i < out->num_cells_to_modify; i++) {
+           /* Served Cells To Modify List item (count >= 1) */
+           F1AP_Served_Cells_To_Modify_Item_t *served_cells_item =
+@@ -1550,6 +1577,9 @@ bool decode_f1ap_du_configuration_update(const F1AP_F1AP_PDU_t *pdu, f1ap_gnb_du
+         /* Served Cells To Delete List */
+         out->num_cells_to_delete = ie->value.choice.Served_Cells_To_Delete_List.list.count;
+         AssertError(out->num_cells_to_delete > 0, return false, "at least 1 cell to delete shall to be present");
++        AssertError(out->num_cells_to_delete <= F1AP_MAX_NB_CELLS, return false,
++                    "num_cells_to_delete (%d) exceeds maximum allowed (%d)",
++                    out->num_cells_to_delete, F1AP_MAX_NB_CELLS);
+         for (int i = 0; i < out->num_cells_to_delete; i++) {
+           F1AP_Served_Cells_To_Delete_Item_t *served_cells_item =
+               &((F1AP_Served_Cells_To_Delete_ItemIEs_t *)ie->value.choice.Served_Cells_To_Delete_List.list.array[i])
+@@ -1673,18 +1703,27 @@ f1ap_gnb_du_configuration_update_t cp_f1ap_du_configuration_update(const f1ap_gn
+   cp.transaction_id = msg->transaction_id;
+   /* to add */
+   cp.num_cells_to_add = msg->num_cells_to_add;
++  AssertFatal(cp.num_cells_to_add <= F1AP_MAX_NB_CELLS, 
++              "num_cells_to_add (%d) exceeds maximum allowed (%d)",
++              cp.num_cells_to_add, F1AP_MAX_NB_CELLS);
+   for (int i = 0; i < cp.num_cells_to_add; ++i) {
+     cp.cell_to_add[i].info = copy_f1ap_served_cell_info(&msg->cell_to_add[i].info);
+     cp.cell_to_add[i].sys_info = copy_f1ap_gnb_du_system_info(msg->cell_to_add[i].sys_info);
+   }
+   /* to delete */
+   cp.num_cells_to_delete = msg->num_cells_to_delete;
++  AssertFatal(cp.num_cells_to_delete <= F1AP_MAX_NB_CELLS, 
++              "num_cells_to_delete (%d) exceeds maximum allowed (%d)",
++              cp.num_cells_to_delete, F1AP_MAX_NB_CELLS);
+   for (int i = 0; i < cp.num_cells_to_delete; i++) {
+     cp.cell_to_delete[i].nr_cellid = msg->cell_to_delete[i].nr_cellid;
+     cp.cell_to_delete[i].plmn = msg->cell_to_delete[i].plmn;
+   }
+   /* to modify */
+   cp.num_cells_to_modify = msg->num_cells_to_modify;
++  AssertFatal(cp.num_cells_to_modify <= F1AP_MAX_NB_CELLS, 
++              "num_cells_to_modify (%d) exceeds maximum allowed (%d)",
++              cp.num_cells_to_modify, F1AP_MAX_NB_CELLS);
+   for (int i = 0; i < cp.num_cells_to_modify; i++) {
+     cp.cell_to_modify[i].old_plmn = msg->cell_to_modify[i].old_plmn;
+     cp.cell_to_modify[i].old_nr_cellid = msg->cell_to_modify[i].old_nr_cellid;
+@@ -1693,6 +1732,9 @@ f1ap_gnb_du_configuration_update_t cp_f1ap_du_configuration_update(const f1ap_gn
+   }
+   /* cell status */
+   cp.num_status  = msg->num_status;
++  AssertFatal(cp.num_status <= F1AP_MAX_NB_CELLS, 
++              "num_status (%d) exceeds maximum allowed (%d)",
++              cp.num_status, F1AP_MAX_NB_CELLS);
+   for (int i = 0; i < cp.num_status; ++i)
+     cp.status[i] = msg->status[i];
+   return cp;
+@@ -1768,6 +1810,9 @@ bool decode_f1ap_cu_configuration_update(const F1AP_F1AP_PDU_t *pdu, f1ap_gnb_cu
+         F1AP_Cells_to_be_Activated_List_t *Cells_to_be_Activated_List = &ie->value.choice.Cells_to_be_Activated_List;
+         out->num_cells_to_activate = Cells_to_be_Activated_List->list.count;
+         AssertError(out->num_cells_to_activate > 0, return false, "At least 1 cell to activate must be present");
++        AssertError(out->num_cells_to_activate <= F1AP_MAX_NB_CELLS, return false,
++                    "num_cells_to_activate (%d) exceeds maximum allowed (%d)",
++                    out->num_cells_to_activate, F1AP_MAX_NB_CELLS);
+         for (int i = 0; i < out->num_cells_to_activate; i++) {
+           if (!decode_cells_to_activate(&out->cells_to_activate[i],
+                                         (F1AP_Cells_to_be_Activated_List_ItemIEs_t *)Cells_to_be_Activated_List->list.array[i]))
+@@ -2008,18 +2053,30 @@ f1ap_gnb_cu_configuration_update_acknowledge_t cp_f1ap_cu_configuration_update_a
+   cp.transaction_id = msg->transaction_id;
+   // number of cells failed to be activated
+   cp.num_cells_failed_to_be_activated = msg->num_cells_failed_to_be_activated;
++  AssertFatal(cp.num_cells_failed_to_be_activated <= F1AP_MAX_NB_CELLS,
++              "num_cells_failed_to_be_activated (%d) exceeds maximum allowed (%d)",
++              cp.num_cells_failed_to_be_activated, F1AP_MAX_NB_CELLS);
+   for (int i = 0; i < cp.num_cells_failed_to_be_activated; i++)
+     cp.cells_failed_to_be_activated[i] = msg->cells_failed_to_be_activated[i];
+   // TNL Associations to setup
+   cp.noofTNLAssociations_to_setup = msg->noofTNLAssociations_to_setup;
++  AssertFatal(cp.noofTNLAssociations_to_setup <= F1AP_MAX_NO_OF_TNL_ASSOCIATIONS,
++              "noofTNLAssociations_to_setup (%d) exceeds maximum allowed (%d)",
++              cp.noofTNLAssociations_to_setup, F1AP_MAX_NO_OF_TNL_ASSOCIATIONS);
+   for (int i = 0; i < cp.noofTNLAssociations_to_setup; i++)
+     cp.tnlAssociations_to_setup[i] = msg->tnlAssociations_to_setup[i];
+   // TNL Associations failed to setup
+   cp.noofTNLAssociations_failed = msg->noofTNLAssociations_failed;
++  AssertFatal(cp.noofTNLAssociations_failed <= F1AP_MAX_NO_OF_TNL_ASSOCIATIONS,
++              "noofTNLAssociations_failed (%d) exceeds maximum allowed (%d)",
++              cp.noofTNLAssociations_failed, F1AP_MAX_NO_OF_TNL_ASSOCIATIONS);
+   for (int i = 0; i < cp.noofTNLAssociations_failed; i++)
+     cp.tnlAssociations_failed[i] = msg->tnlAssociations_failed[i];
+   // Dedicated SI Delivery Needed UE List
+   cp.noofDedicatedSIDeliveryNeededUEs = msg->noofDedicatedSIDeliveryNeededUEs;
++  AssertFatal(cp.noofDedicatedSIDeliveryNeededUEs <= F1AP_MAX_NO_UE_ID,
++              "noofDedicatedSIDeliveryNeededUEs (%d) exceeds maximum allowed (%d)",
++              cp.noofDedicatedSIDeliveryNeededUEs, F1AP_MAX_NO_UE_ID);
+   for (int i = 0; i < cp.noofDedicatedSIDeliveryNeededUEs; i++)
+     cp.dedicatedSIDeliveryNeededUEs[i] = msg->dedicatedSIDeliveryNeededUEs[i];
+   return cp;
+@@ -2094,6 +2151,9 @@ bool decode_f1ap_du_configuration_update_acknowledge(const F1AP_F1AP_PDU_t *pdu,
+         _F1_EQ_CHECK_INT(ie->value.present, F1AP_GNBDUConfigurationUpdateAcknowledgeIEs__value_PR_Cells_to_be_Activated_List);
+         F1AP_Cells_to_be_Activated_List_t *list = &ie->value.choice.Cells_to_be_Activated_List;
+         out->num_cells_to_activate = list->list.count;
++        AssertError(out->num_cells_to_activate <= F1AP_MAX_NB_CELLS, return false,
++                    "num_cells_to_activate (%d) exceeds maximum allowed (%d)",
++                    out->num_cells_to_activate, F1AP_MAX_NB_CELLS);
+         for (int j = 0; j < out->num_cells_to_activate; j++) {
+           const F1AP_Cells_to_be_Activated_List_ItemIEs_t *itemIE =
+               (F1AP_Cells_to_be_Activated_List_ItemIEs_t *)list->list.array[j];
+@@ -2147,6 +2207,9 @@ f1ap_gnb_du_configuration_update_acknowledge_t cp_f1ap_du_configuration_update_a
+   cp.transaction_id = msg->transaction_id;
+   // number of cells to activate
+   cp.num_cells_to_activate = msg->num_cells_to_activate;
++  AssertFatal(cp.num_cells_to_activate <= F1AP_MAX_NB_CELLS, 
++              "num_cells_to_activate (%d) exceeds maximum allowed (%d)",
++              cp.num_cells_to_activate, F1AP_MAX_NB_CELLS);
+   // Loop through cells to activate
+   for (int i = 0; i < cp.num_cells_to_activate; i++) {
+     cp.cells_to_activate[i] = msg->cells_to_activate[i];

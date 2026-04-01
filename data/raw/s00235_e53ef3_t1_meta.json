@@ -1,0 +1,32 @@
+{
+  "run_id": "s00235_e53ef3",
+  "function": {
+    "name": "decode_eps_mobile_identity",
+    "file": "openair3/NAS/COMMON/IES/EpsMobileIdentity.c",
+    "start_line": 39,
+    "end_line": 75,
+    "body_lines": 37,
+    "signature": "int decode_eps_mobile_identity(EpsMobileIdentity *epsmobileidentity, uint8_t iei, uint8_t *buffer, uint32_t len)",
+    "subsystem": "openair3/NAS/COMMON",
+    "token_estimate": 106
+  },
+  "bug": {
+    "bug_id": "c_magic_number",
+    "description": "magic number used without symbolic constant making intent unclear and maintenance error-prone",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a magic number used without symbolic constant making intent unclear and maintenance error-prone downstream of function decode_eps_mobile_identity in the openair3/NAS/COMMON subsystem.\nThe function is located at openair3/NAS/COMMON/IES/EpsMobileIdentity.c:39.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00235_e53ef3_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00235_e53ef3_p1.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 37,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:35:39Z"
+}

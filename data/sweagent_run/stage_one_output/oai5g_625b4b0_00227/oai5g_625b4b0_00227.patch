@@ -1,0 +1,26 @@
+diff --git a/nfapi/open-nFAPI/common/src/nfapi.c b/nfapi/open-nFAPI/common/src/nfapi.c
+index f997552c1e..213788c0bc 100644
+--- a/nfapi/open-nFAPI/common/src/nfapi.c
++++ b/nfapi/open-nFAPI/common/src/nfapi.c
+@@ -890,7 +890,7 @@ int unpack_nr_tlv_list(unpack_tlv_t unpack_fns[],
+   uint8_t numBadTags = 0;
+   uint16_t idx = 0;
+   if (size == 0) { return 1; }
+-  while ((uint8_t *)(*ppReadPackedMsg) + 4 < end) {
++  while (end - (uint8_t *)(*ppReadPackedMsg) >= 4) {
+     // unpack the tl and process the values accordingly
+     if (unpack_tl(ppReadPackedMsg, &generic_tl, end) == 0)
+       return 0;
+diff --git a/nfapi/open-nFAPI/fapi/src/nr_fapi_p5.c b/nfapi/open-nFAPI/fapi/src/nr_fapi_p5.c
+index 9bbda9d519..60f39ebcc2 100644
+--- a/nfapi/open-nFAPI/fapi/src/nr_fapi_p5.c
++++ b/nfapi/open-nFAPI/fapi/src/nr_fapi_p5.c
+@@ -1420,7 +1420,7 @@ uint8_t unpack_nr_config_request(uint8_t **ppReadPackedMsg, uint8_t *end, void *
+   nfapi_tl_t generic_tl;
+   uint8_t numBadTags = 0;
+   unsigned long idx = 0;
+-  while ((uint8_t *)(*ppReadPackedMsg) + 4 < end) {
++  while (end - (uint8_t *)(*ppReadPackedMsg) >= 4) {
+     // unpack the tl and process the values accordingly
+     if (unpack_tl(ppReadPackedMsg, &generic_tl, end) == 0)
+       return 0;

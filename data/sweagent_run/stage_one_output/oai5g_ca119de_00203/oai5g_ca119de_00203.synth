@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect SDU tracking initialization in RLC layer\n\n### Summary\nThe RLC layer was not properly initializing the `next_byte` and `acked_bytes` fields when creating new SDUs. This caused incorrect information element values in outgoing protocol messages downstream of the `rlc_new_sdu` function.\n\nThe issue occurred because while `calloc` initializes memory to zero, the explicit initialization of these critical tracking fields was missing, leading to potential undefined behavior in certain edge cases.\n\n### Changes\n- `openair2/LAYER2/rlc_v2/rlc_sdu.c`: Added explicit initialization of `next_byte` and `acked_bytes` fields to 0 in the `rlc_new_sdu` function.\n\n"
+}

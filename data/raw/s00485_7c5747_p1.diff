@@ -1,0 +1,22 @@
+diff --git a/openair3/NAS/TOOLS/conf_network.c b/openair3/NAS/TOOLS/conf_network.c
+index 054189a130..f1031a6728 100644
+--- a/openair3/NAS/TOOLS/conf_network.c
++++ b/openair3/NAS/TOOLS/conf_network.c
+@@ -24,7 +24,7 @@ plmn_t make_plmn_from_conf(const plmn_conf_param_t *plmn_conf) {
+ 	plmn_t plmn;
+ 	char num[6];
+ 
+-	memset(&plmn, 0xff, sizeof(plmn));
++	memset(&plmn, 0, sizeof(plmn));
+ 
+ 	snprintf(num, 6, "%s%s", plmn_conf->mcc, plmn_conf->mnc);
+ 
+@@ -35,6 +35,8 @@ plmn_t make_plmn_from_conf(const plmn_conf_param_t *plmn_conf) {
+ 	plmn.MNCdigit1 = plmn_conf->mnc[0];
+ 	if (strlen(plmn_conf->mnc) > 2) {
+ 		plmn.MNCdigit3 = plmn_conf->mnc[2];
++	} else {
++		plmn.MNCdigit3 = 'F';
+ 	}
+ 	return plmn;
+ }

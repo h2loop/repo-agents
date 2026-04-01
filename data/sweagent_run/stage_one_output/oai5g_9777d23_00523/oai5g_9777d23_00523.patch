@@ -1,0 +1,81 @@
+diff --git a/openair2/LAYER2/nr_rlc/nr_rlc_oai_api.c b/openair2/LAYER2/nr_rlc/nr_rlc_oai_api.c
+index 126f9fb51c..ac2f785fb9 100644
+--- a/openair2/LAYER2/nr_rlc/nr_rlc_oai_api.c
++++ b/openair2/LAYER2/nr_rlc/nr_rlc_oai_api.c
+@@ -82,24 +82,25 @@ static void release_rlc_entity_from_lcid(nr_rlc_ue_t *ue, logical_chan_id_t chan
+     return;
+   if (rb->type == NR_LCID_SRB) {
+     int id = rb->choice.srb_id - 1;
+-    AssertFatal(id >= 0, "logic bug: impossible to have srb0 here\n");
++    AssertFatal(id >= 0 && id < 3, "Invalid SRB ID %d\n", rb->choice.srb_id);
+     if (ue->srb[id]) {
+       ue->srb[id]->delete_entity(ue->srb[id]);
+       ue->srb[id] = NULL;
+     }
+     else
+-      LOG_E(RLC, "Trying to release a non-established enity with LCID %d\n", channel_id);
++      LOG_E(RLC, "Trying to release a non-established entity with LCID %d\n", channel_id);
+   }
+   else {
+     AssertFatal(rb->type == NR_LCID_DRB,
+                 "Invalid RB type\n");
+     int id = rb->choice.drb_id - 1;
++    AssertFatal(id >= 0 && id < MAX_DRBS_PER_UE, "Invalid DRB ID %d\n", rb->choice.drb_id);
+     if (ue->drb[id]) {
+       ue->drb[id]->delete_entity(ue->drb[id]);
+       ue->drb[id] = NULL;
+     }
+     else
+-      LOG_E(RLC, "Trying to release a non-established enity with LCID %d\n", channel_id);
++      LOG_E(RLC, "Trying to release a non-established entity with LCID %d\n", channel_id);
+   }
+ }
+ 
+@@ -134,12 +135,15 @@ static nr_rlc_entity_t *get_rlc_entity_from_lcid(nr_rlc_ue_t *ue, logical_chan_i
+   if (rb->type == NR_LCID_NONE)
+     return NULL;
+   if (rb->type == NR_LCID_SRB) {
+-    AssertFatal(rb->choice.srb_id > 0, "logic bug: impossible to have srb0 here\n");
+-    return ue->srb[rb->choice.srb_id - 1];
++    AssertFatal(rb->choice.srb_id > 0 && rb->choice.srb_id <= 3, "Invalid SRB ID %d\n", rb->choice.srb_id);
++    int id = rb->choice.srb_id - 1;
++    return ue->srb[id];
+   } else {
+     AssertFatal(rb->type == NR_LCID_DRB,
+                 "Invalid RB type\n");
+-    return ue->drb[rb->choice.drb_id - 1];
++    AssertFatal(rb->choice.drb_id >= 1 && rb->choice.drb_id <= MAX_DRBS_PER_UE, "Invalid DRB ID %d\n", rb->choice.drb_id);
++    int id = rb->choice.drb_id - 1;
++    return ue->drb[id];
+   }
+ }
+ 
+@@ -957,6 +961,7 @@ void nr_rlc_test_trigger_reestablishment(int ue_id)
+   /* we simply assume the SRB exists, because the scheduler creates it as soon
+    * as the UE context is created. */
+   nr_rlc_entity_t *ent = ue->srb[0];
++  AssertFatal(ent != NULL, "SRB[0] is NULL for UE %04x\n", ue_id);
+   ent->reestablishment(ent);
+   /* Trigger re-establishment on OAI UE */
+   nr_rlc_entity_t *drb = ue->drb[0];
+@@ -1010,10 +1015,10 @@ bool nr_rlc_get_statistics(int ue_id, int srb_flag, int rb_id, nr_rlc_statistics
+   nr_rlc_entity_t *rb = NULL;
+ 
+   if (srb_flag) {
+-    if (rb_id >= 1 && rb_id <= 2)
++    if (rb_id >= 1 && rb_id <= 3)
+       rb = ue->srb[rb_id - 1];
+   } else {
+-    if (rb_id >= 1 && rb_id <= 5)
++    if (rb_id >= 1 && rb_id <= MAX_DRBS_PER_UE)
+       rb = ue->drb[rb_id - 1];
+   }
+ 
+@@ -1046,6 +1051,7 @@ void nr_rlc_srb_recv_sdu(const int ue_id, const logical_chan_id_t channel_id, un
+   if (channel_id == 0) {
+     rb = ue->srb0;
+   } else {
++    AssertFatal(channel_id >= 1 && channel_id <= 3, "Invalid SRB LCID %d\n", channel_id);
+     rb = ue->srb[channel_id - 1];
+   }
+ 

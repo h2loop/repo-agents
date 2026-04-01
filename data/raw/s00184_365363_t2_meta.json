@@ -1,0 +1,9 @@
+{
+  "run_id": "s00184_365363",
+  "pr_text": "## Title: Fix type confusion in PDCP SRB entity creation\n\n### Summary\nFix a type confusion bug in the PDCP layer where a UE context pointer was incorrectly passed as a callback function parameter during SRB (Signaling Radio Bearer) PDCP entity creation. The `deliver_pdu_data` parameter expects a function pointer for PDU delivery notifications, but for SRBs this callback is unused. Passing the `ue` pointer (nr_pdcp_ue_t*) created a type mismatch that could lead to undefined behavior if the code e",
+  "trajectory_path": "data/raw/s00184_365363_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00184_365363_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 20,
+  "timestamp": "2026-02-11T13:03:34Z"
+}

@@ -1,0 +1,83 @@
+diff --git a/openair2/F1AP/lib/f1ap_ue_context.c b/openair2/F1AP/lib/f1ap_ue_context.c
+index 9d8cbfe15f..e1733ff273 100644
+--- a/openair2/F1AP/lib/f1ap_ue_context.c
++++ b/openair2/F1AP/lib/f1ap_ue_context.c
+@@ -88,6 +88,10 @@ static F1AP_CUtoDURRCInformation_t encode_cu_to_du_rrc_info(const f1ap_cu_to_du_
+ 
+ static bool decode_cu_to_du_rrc_info(f1ap_cu_to_du_rrc_info_t *dec, const F1AP_CUtoDURRCInformation_t *cu2du)
+ {
++  /* Note: This function does not have access to SpCellID/ServCellIndex fields
++   * as they are separate IEs at the UE Context message level. 
++   * Validation for 3GPP TS 38.473 compliance should be done at that level. */
++  
+   if (cu2du->cG_ConfigInfo) {
+     dec->cg_configinfo = calloc_or_fail(1, sizeof(*dec->cg_configinfo));
+     const F1AP_CG_ConfigInfo_t *cgci = cu2du->cG_ConfigInfo;
+@@ -1238,6 +1242,25 @@ bool decode_ue_context_setup_req(const F1AP_F1AP_PDU_t *pdu, f1ap_ue_context_set
+ 
+   F1AP_UEContextSetupRequest_t *in = &pdu->choice.initiatingMessage->value.choice.UEContextSetupRequest;
+   F1AP_UEContextSetupRequestIEs_t *ie;
++  
++  /* Check for SpCellID and ServCellIndex presence during decoding */
++  bool spCellID_present = false;
++  bool servCellIndex_present = false;
++  
++  for (int i = 0; i < in->protocolIEs.list.count; ++i) {
++    ie = in->protocolIEs.list.array[i];
++    if (ie->id == F1AP_ProtocolIE_ID_id_SpCell_ID) {
++      spCellID_present = true;
++    } else if (ie->id == F1AP_ProtocolIE_ID_id_ServCellIndex) {
++      servCellIndex_present = true;
++    }
++  }
++  
++  /* 3GPP TS 38.473 compliance: Log warning if SpCellID present without ServCellIndex */
++  /* Maintains backward compatibility for setup as specified in PR */
++  if (spCellID_present && !servCellIndex_present) {
++    PRINT_ERROR("3GPP TS 38.473 warning: SpCellID present without ServCellIndex in UE Context Setup Request (backward compatibility maintained)\n");
++  }
+ 
+   F1AP_LIB_FIND_IE(F1AP_UEContextSetupRequestIEs_t, ie, &in->protocolIEs.list, F1AP_ProtocolIE_ID_id_gNB_CU_UE_F1AP_ID, true);
+   F1AP_LIB_FIND_IE(F1AP_UEContextSetupRequestIEs_t, ie, &in->protocolIEs.list, F1AP_ProtocolIE_ID_id_SpCell_ID, true);
+@@ -1579,6 +1602,12 @@ void free_ue_context_setup_resp(f1ap_ue_context_setup_resp_t *resp)
+  */
+ F1AP_F1AP_PDU_t *encode_ue_context_mod_req(const f1ap_ue_context_mod_req_t *req)
+ {
++  /* 3GPP TS 38.473 compliance: ServCellIndex is conditionally mandatory when SpCellID is present */
++  if (req->plmn && req->nr_cellid && !req->servCellIndex) {
++    PRINT_ERROR("3GPP TS 38.473 violation: SpCellID present without ServCellIndex in UE Context Modification Request\n");
++    return NULL;
++  }
++
+   F1AP_F1AP_PDU_t *pdu = calloc_or_fail(1, sizeof(*pdu));
+ 
+   /* Message Type */
+@@ -1716,6 +1745,28 @@ bool decode_ue_context_mod_req(const F1AP_F1AP_PDU_t *pdu, f1ap_ue_context_mod_r
+   DevAssert(out != NULL);
+   memset(out, 0, sizeof(*out));
+ 
++  F1AP_UEContextModificationRequest_t *in = &pdu->choice.initiatingMessage->value.choice.UEContextModificationRequest;
++  F1AP_UEContextModificationRequestIEs_t *ie;
++  
++  /* Check for SpCellID presence during decoding */
++  bool spCellID_present = false;
++  bool servCellIndex_present = false;
++  
++  for (int i = 0; i < in->protocolIEs.list.count; ++i) {
++    ie = in->protocolIEs.list.array[i];
++    if (ie->id == F1AP_ProtocolIE_ID_id_SpCell_ID) {
++      spCellID_present = true;
++    } else if (ie->id == F1AP_ProtocolIE_ID_id_ServCellIndex) {
++      servCellIndex_present = true;
++    }
++  }
++  
++  /* 3GPP TS 38.473 compliance: ServCellIndex is conditionally mandatory when SpCellID is present */
++  if (spCellID_present && !servCellIndex_present) {
++    PRINT_ERROR("3GPP TS 38.473 violation: SpCellID present without ServCellIndex in UE Context Modification Request\n");
++    return false;
++  }
++
+   F1AP_UEContextModificationRequest_t *in = &pdu->choice.initiatingMessage->value.choice.UEContextModificationRequest;
+   F1AP_UEContextModificationRequestIEs_t *ie;
+   F1AP_LIB_FIND_IE(F1AP_UEContextModificationRequestIEs_t, ie, &in->protocolIEs.list, F1AP_ProtocolIE_ID_id_gNB_CU_UE_F1AP_ID, true);

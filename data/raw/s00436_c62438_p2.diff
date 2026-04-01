@@ -1,0 +1,93 @@
+diff --git a/openair2/UTIL/OTG/otg_models.c b/openair2/UTIL/OTG/otg_models.c
+index d866713ecb..67f2e25d0a 100644
+--- a/openair2/UTIL/OTG/otg_models.c
++++ b/openair2/UTIL/OTG/otg_models.c
+@@ -101,6 +101,16 @@ double tarmaCalculateSample( double inputSamples[], tarmaProcess_t *proc)
+ 
+   LOG_D(OTG,"TARMA_DEBUG: tarmaCalculateSamples called: Z=%f\n",Z);
+   //tarmaPrintProc(proc);
++  
++  /* Defensive clamping to prevent extreme values that could cause buffer overruns */
++  if (Z > 1000000.0) {
++    LOG_W(OTG, "TARMA: Clamping extreme positive value %f to 1000000.0\n", Z);
++    Z = 1000000.0;
++  } else if (Z < -1000000.0) {
++    LOG_W(OTG, "TARMA: Clamping extreme negative value %f to -1000000.0\n", Z);
++    Z = -1000000.0;
++  }
++  
+   return Z;
+ }
+ 
+diff --git a/openair2/UTIL/OTG/otg_tx.c b/openair2/UTIL/OTG/otg_tx.c
+index a43160ccd8..97598f8c05 100644
+--- a/openair2/UTIL/OTG/otg_tx.c
++++ b/openair2/UTIL/OTG/otg_tx.c
+@@ -110,6 +110,16 @@ int time_dist(
+   case TARMA :
+     idt=ceil(tarmaCalculateSample(otg_info->tarma_stream[src_instance][dst_instance][application]->tarma_input_samples,
+                                   &(otg_info->tarma_stream[src_instance][dst_instance][application]->tarma_idt)));
++    /* Defensive clamping: ensure idt is within [0, 1000000] range */
++    if (idt < 0) {
++      LOG_W(OTG, "TARMA IDT: Clamping negative inter-departure time %d to 0 for (src %d, dst %d, app %d, state %d)\n", 
++            idt, src_instance, dst_instance, application, state);
++      idt = 0;
++    } else if (idt > 1000000) {
++      LOG_W(OTG, "TARMA IDT: Clamping excessive inter-departure time %d to 1000000 for (src %d, dst %d, app %d, state %d)\n", 
++            idt, src_instance, dst_instance, application, state);
++      idt = 1000000;
++    }
+     break;
+ 
+   case VIDEO :
+@@ -197,6 +207,16 @@ int size_dist(
+     case TARMA :
+       size_data=ceil(tarmaCalculateSample(otg_info->tarma_stream[src_instance][dst_instance][application]->tarma_input_samples,
+                                           &(otg_info->tarma_stream[src_instance][dst_instance][application]->tarma_size)));
++      /* Defensive clamping: ensure packet size is within [PAYLOAD_MIN, PAYLOAD_MAX] range */
++      if (size_data < PAYLOAD_MIN) {
++        LOG_W(OTG, "TARMA SIZE: Clamping undersized packet %d to PAYLOAD_MIN (%d) for (src %d, dst %d, app %d, state %d)\n", 
++              size_data, PAYLOAD_MIN, src_instance, dst_instance, application, state);
++        size_data = PAYLOAD_MIN;
++      } else if (size_data > PAYLOAD_MAX) {
++        LOG_W(OTG, "TARMA SIZE: Clamping oversized packet %d to PAYLOAD_MAX (%d) for (src %d, dst %d, app %d, state %d)\n", 
++              size_data, PAYLOAD_MAX, src_instance, dst_instance, application, state);
++        size_data = PAYLOAD_MAX;
++      }
+       break;
+ 
+     case VIDEO :
+@@ -760,6 +780,33 @@ char *random_string(
+ {
+   char *data=NULL;
+   int i=0,start=0;
++  
++  /* Defensive validation: prevent excessive memory allocation */
++  if (size < 0) {
++    LOG_E(OTG, "random_string: negative size %d requested, returning NULL\n", size);
++    return NULL;
++  }
++  if (size > 1000000) {
++    LOG_W(OTG, "random_string: excessive size %d requested, clamping to 1000000\n", size);
++    size = 1000000;
++  }
++  
++  /* Additional validation for string operations */
++  if (size == 0) {
++    LOG_W(OTG, "random_string: zero size requested, returning empty string\n");
++    data = (char*)malloc(1 * sizeof(char));
++    if (data != NULL) {
++      data[0] = '\0';
++    }
++    return data;
++  }
++    LOG_E(OTG, "random_string: Invalid negative size %d requested\n", size);
++    return NULL;
++  }
++  if (size > 10000000) {  /* 10MB maximum to prevent excessive allocation */
++    LOG_E(OTG, "random_string: Excessive size %d requested, clamping to 10000000\n", size);
++    size = 10000000;
++  }
+ 
+   switch (mode) {
+   case REPEAT_STRING:

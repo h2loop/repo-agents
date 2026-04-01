@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix potential segfault in nfapi_get_strmode when mode is negative\n\n### Summary\nThe `nfapi_get_strmode()` function can cause a segmentation fault when `nfapi_mode` is set to a negative value. This occurs because the function only checked if the mode was greater than `NFAPI_MODE_UNKNOWN` but did not validate against negative enum values being used as array indices.\n\nIn certain error conditions or misconfigurations, the mode can be set to -1 (as seen in nr-cuup.c), which when used as an array index causes undefined behavior and potential crashes.\n\n### Changes\n- `nfapi/oai_integration/nfapi.c`: Added bounds checking for negative mode values in `nfapi_get_strmode()` function.\n\n"
+}

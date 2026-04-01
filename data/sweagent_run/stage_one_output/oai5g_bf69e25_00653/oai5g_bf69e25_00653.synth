@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix TDD configuration parameters being written for FDD frames in SMBV config\n\n### Summary\nThe `smbv_write_config_from_frame_parms` function in the SMBV configuration tool was incorrectly writing TDD-specific parameters (UDC and SPSC) regardless of the actual frame type. This caused issues when configuring FDD frames as the R&S SMBV100A would receive invalid TDD configuration commands for FDD mode.\n\nThis fix ensures that TDD-specific configuration parameters are only written when the frame type is actually TDD, and adds proper input validation and error checking.\n\n### Changes\n- `openair1/PHY/TOOLS/smbv.c`: \n  - Added input parameter validation for fname and frame_parms\n  - Added file opening error checking\n  - Moved TDD-specific configuration parameters inside the TDD frame type condition\n  - Fixed configurable SF logic to only apply special case for TDD frames with tdd_config == 3\n\n"
+}

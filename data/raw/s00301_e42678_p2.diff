@@ -1,0 +1,216 @@
+diff --git a/openair3/NAS/COMMON/UTIL/nas_timer.c b/openair3/NAS/COMMON/UTIL/nas_timer.c
+index 0a521ceeb4..2a35c06439 100644
+--- a/openair3/NAS/COMMON/UTIL/nas_timer.c
++++ b/openair3/NAS/COMMON/UTIL/nas_timer.c
+@@ -55,6 +55,25 @@ Description Timer utilities
+ /*******************  L O C A L    D E F I N I T I O N S  *******************/
+ /****************************************************************************/
+ 
++/* Structure to wrap NAS timer callback and arguments
++ * ----------------------------------------------------
++ * This wrapper ensures type safety when passing callbacks to the ITTI
++ * timer system, preventing type confusion vulnerabilities.
++ */
++typedef struct {
++  nas_timer_callback_t cb;    /* Original NAS timer callback function */
++  void *args;                 /* Original callback arguments          */
++} nas_timer_wrapper_t;
++
++/* Handler function for timer expiry that unwraps and calls original callback */
++static void nas_timer_wrapper_handler(void *arg) {
++  nas_timer_wrapper_t *wrapper = (nas_timer_wrapper_t *)arg;
++  if (wrapper && wrapper->cb) {
++    wrapper->cb(wrapper->args);
++    free(wrapper);  // Free the wrapper after use
++  }
++}
++
+ /* Structure of an interval timer entry
+  * ------------------------------------
+  * The callback function is scheduled to be executed upon expiration of
+@@ -69,6 +88,7 @@ long timer_id;          /* Timer id returned by the timer API from ITTI */
+ 
+   nas_timer_callback_t cb;    /* Callback executed at timer expiration */
+   void *args;                 /* Callback argument parameters          */
++  nas_timer_wrapper_t *wrapper; /* Wrapper for ITTI timer system (type safety) */
+ } nas_timer_entry_t;
+ 
+ /* Structure of a timer queue - list of active interval timer entries
+@@ -112,6 +132,28 @@ static nas_timer_database_t _nas_timer_db = {
+  * The handler executed whenever the system timer expires
+  */
+ 
++/**
++ * nas_timer_itti_handler: Handler called by ITTI timer system
++ * @param timer_id: ITTI timer identifier
++ * @param arg: Pointer to nas_timer_wrapper_t containing callback and args
++ * 
++ * This function unwraps the timer callback and arguments, then invokes
++ * the original NAS timer callback with the correct arguments to prevent
++ * type confusion vulnerabilities.
++ */
++static void nas_timer_itti_handler(long timer_id, void *arg)
++{
++  nas_timer_wrapper_t *wrapper = (nas_timer_wrapper_t *)arg;
++  
++  if (wrapper != NULL) {
++    /* Invoke the original callback with the correct arguments */
++    if (wrapper->cb != NULL) {
++      wrapper->cb(wrapper->args);
++    }
++    /* Free the wrapper after use */
++    free(wrapper);
++  }
++}
+ 
+ /*
+  * -----------------------------------------------------------------------------
+@@ -216,9 +258,22 @@ int nas_timer_start(long sec, nas_timer_callback_t cb, void *args)
+ 
+   /* Insert the new entry into the timer queue */
+   _nas_timer_db_insert_entry(id, te);
+-  ret = timer_setup(sec, 0, TASK_NAS_UE, INSTANCE_DEFAULT, TIMER_PERIODIC, args, &timer_id);
++  
++  /* Create wrapper to prevent type confusion */
++  nas_timer_wrapper_t *wrapper = (nas_timer_wrapper_t *)malloc(sizeof(nas_timer_wrapper_t));
++  if (wrapper == NULL) {
++    _nas_timer_db_delete_entry(id);
++    return NAS_TIMER_INACTIVE_ID;
++  }
++  wrapper->cb = cb;
++  wrapper->args = args;
++  
++  /* Pass wrapper to ITTI timer system */
++  ret = timer_setup(sec, 0, TASK_NAS_UE, INSTANCE_DEFAULT, TIMER_PERIODIC, wrapper, &timer_id);
+ 
+   if (ret == -1) {
++    free(wrapper);
++    _nas_timer_db_delete_entry(id);
+     return NAS_TIMER_INACTIVE_ID;
+   }
+   te->timer_id = timer_id;
+@@ -401,7 +456,7 @@ static bool _nas_timer_db_is_active(int id)
+  ***************************************************************************/
+ static nas_timer_entry_t *_nas_timer_db_create_entry(
+   long sec, nas_timer_callback_t cb,
+-  void *args)
++  void *args, nas_timer_wrapper_t *wrapper)
+ {
+   nas_timer_entry_t *te = (nas_timer_entry_t *)malloc(sizeof(nas_timer_entry_t));
+ 
+@@ -412,6 +467,7 @@ stati
+... [truncated] ...
+er_expired: Timer expiry message containing the wrapper
++ * 
++ * This function handles TIMER_HAS_EXPIRED messages by extracting the
++ * nas_timer_wrapper_t and invoking the appropriate callback to prevent
++ * type confusion vulnerabilities.
++ */
++static void nas_ue_timer_expired(instance_t instance, timer_has_expired_t *timer_expired)
++{
++  if (timer_expired && timer_expired->arg) {
++    /* The arg contains our wrapper - extract and handle it */
++    nas_timer_wrapper_t *wrapper = (nas_timer_wrapper_t *)timer_expired->arg;
++    
++    if (wrapper != NULL) {
++      /* Invoke the original callback with the correct arguments */
++      if (wrapper->cb != NULL) {
++        wrapper->cb(wrapper->args);
++      }
++      /* Free the wrapper after use */
++      free(wrapper);
++    }
++  }
++}
++
+ // Initialize user api id and port number
+ void nas_user_api_id_initialize(nas_user_t *user) {
+   user_api_id_t *user_api_id = calloc_or_fail(1, sizeof(user_api_id_t));
+@@ -287,6 +317,11 @@ void *nas_ue_task(void *args_p)
+ 
+         break;
+ 
++      case TIMER_HAS_EXPIRED:
++        LOG_D(NAS, "[UE %d] Received %s\n", Mod_id, ITTI_MSG_NAME(msg_p));
++        nas_ue_timer_expired(instance, &TIMER_HAS_EXPIRED(msg_p));
++        break;
++
+       default:
+         LOG_E(NAS, "[UE %d] Received unexpected message %s\n", Mod_id,  ITTI_MSG_NAME (msg_p));
+         break;
+@@ -320,6 +355,75 @@ nas_user_t *find_user_from_fd(nas_user_container_t *users, int fd) {
+   return NULL;
+ }
+ 
++/* Timer expiry handler for NAS UE task */
++static void nas_ue_timer_expired(instance_t instance, timer_has_expired_t *timer_expired)
++{
++  nas_timer_wrapper_t *wrapper = NULL;
++  
++  if (timer_expired->arg != NULL) {
++    wrapper = (nas_timer_wrapper_t *)timer_expired->arg;
++    
++    /* Invoke the original callback with the correct arguments */
++    if (wrapper->cb != NULL) {
++      wrapper->cb(wrapper->args);
++    }
++    
++    /* Free the wrapper after use */
++    free(wrapper);
++  }
++}
++
++/**
++ * nas_ue_timer_expired: Handler for timer expiry messages from ITTI
++ * @param instance: Instance identifier
++ * @param timer_expired: Timer expiry message containing timer_id and arg
++ * 
++ * This function handles timer expiry by checking if the expired timer_id
++ * matches any active NAS timer and calling the appropriate callback.
++ */
++static void nas_ue_timer_expired(instance_t instance, timer_has_expired_t *timer_expired)
++{
++  nas_user_container_t *users = (nas_user_container_t *)NULL; // Would need to get this from context
++  nas_user_t *user = NULL;
++  
++  LOG_I(NAS, "[UE] Timer expired: timer_id=%ld\n", timer_expired->timer_id);
++  
++  // The timer_arg contains our wrapper which will be freed by the ITTI system
++  // The actual callback invocation happens in the wrapper handler
++  // This function is mainly for logging and any additional handling
++}
++
++/**
++ * nas_ue_timer_expired: Handle timer expiry messages from ITTI
++ * @param instance: Instance identifier
++ * @param timer_expired: Timer expiry message containing timer_id and arg
++ * 
++ * This function handles timer expiry messages from the ITTI timer subsystem.
++ * It extracts the wrapper from the timer_arg and calls the appropriate handler.
++ */
++static void nas_ue_timer_expired(instance_t instance, timer_has_expired_t *timer_expired)
++{
++  if (timer_expired == NULL) {
++    LOG_E(NAS, "Received NULL timer_expired message\n");
++    return;
++  }
++  
++  if (timer_expired->arg != NULL) {
++    /* The arg contains our wrapper with the original callback */
++    nas_timer_wrapper_t *wrapper = (nas_timer_wrapper_t *)timer_expired->arg;
++    
++    if (wrapper->cb != NULL) {
++      /* Call the original NAS timer callback with the correct arguments */
++      wrapper->cb(wrapper->args);
++    }
++    
++    /* Free the wrapper as it's no longer needed */
++    free(wrapper);
++  } else {
++    LOG_W(NAS, "Timer expired with NULL arg\n");
++  }
++}
++
+ char *make_port_str_from_ueid(const char *base_port_str, int ueid) {
+   int port;
+   int base_port;

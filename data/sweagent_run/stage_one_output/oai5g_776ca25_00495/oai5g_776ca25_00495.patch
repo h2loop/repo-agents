@@ -1,0 +1,61 @@
+diff --git a/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c b/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c
+index 0a858e0be9..29ce114abf 100644
+--- a/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c
++++ b/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c
+@@ -1716,15 +1716,15 @@ void copy_uci_indication_PUSCH(const nfapi_nr_uci_pusch_pdu_t *src, nfapi_nr_uci
+ 
+   // Bit 0 not used in PUSCH PDU
+   // HARQ
+-  if ((dst->pduBitmap >> 1) & 0x01) {
++  if ((src->pduBitmap >> 1) & 0x01) {
+     copy_uci_indication_harq_pdu_2_3_4(&src->harq, &dst->harq);
+   }
+   // CSI Part 1
+-  if ((dst->pduBitmap >> 2) & 0x01) {
++  if ((src->pduBitmap >> 2) & 0x01) {
+     copy_uci_indication_csi_part1(&src->csi_part1, &dst->csi_part1);
+   }
+   // CSI Part 2
+-  if ((dst->pduBitmap >> 3) & 0x01) {
++  if ((src->pduBitmap >> 3) & 0x01) {
+     copy_uci_indication_csi_part2(&src->csi_part2, &dst->csi_part2);
+   }
+ }
+@@ -1740,11 +1740,11 @@ void copy_uci_indication_PUCCH_0_1(const nfapi_nr_uci_pucch_pdu_format_0_1_t *sr
+   dst->rssi = src->rssi;
+ 
+   // SR
+-  if (dst->pduBitmap & 0x01) {
++  if (src->pduBitmap & 0x01) {
+     copy_uci_indication_sr_pdu_0_1(&src->sr, &dst->sr);
+   }
+   // HARQ
+-  if ((dst->pduBitmap >> 1) & 0x01) {
++  if ((src->pduBitmap >> 1) & 0x01) {
+     copy_uci_indication_harq_pdu_0_1(&src->harq, &dst->harq);
+   }
+ }
+@@ -1759,19 +1759,19 @@ void copy_uci_indication_PUCCH_2_3_4(const nfapi_nr_uci_pucch_pdu_format_2_3_4_t
+   dst->timing_advance = src->timing_advance;
+   dst->rssi = src->rssi;
+   // SR
+-  if (dst->pduBitmap & 0x01) {
++  if (src->pduBitmap & 0x01) {
+     copy_uci_indication_sr_pdu_2_3_4(&src->sr, &dst->sr);
+   }
+   // HARQ
+-  if ((dst->pduBitmap >> 1) & 0x01) {
++  if ((src->pduBitmap >> 1) & 0x01) {
+     copy_uci_indication_harq_pdu_2_3_4(&src->harq, &dst->harq);
+   }
+   // CSI Part 1
+-  if ((dst->pduBitmap >> 2) & 0x01) {
++  if ((src->pduBitmap >> 2) & 0x01) {
+     copy_uci_indication_csi_part1(&src->csi_part1, &dst->csi_part1);
+   }
+   // CSI Part 2
+-  if ((dst->pduBitmap >> 3) & 0x01) {
++  if ((src->pduBitmap >> 3) & 0x01) {
+     copy_uci_indication_csi_part2(&src->csi_part2, &dst->csi_part2);
+   }
+ }

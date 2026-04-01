@@ -1,0 +1,9 @@
+{
+  "run_id": "s00000_32c4b5",
+  "pr_text": "## Title: Fix buffer overflow in LTE turbo decoder causing scheduling constraint violations\n\n### Summary\nFix a buffer overflow in the LTE turbo decoder scalar implementation that was causing resource block allocation violations in downstream scheduling logic. The `phy_threegpplte_turbo_decoder_scalar` function allocated arrays `ext` and `ext2` with size `n` (the coded block size in bits), but the `compute_ext_s` function accesses these arrays beyond their declared bounds during extrinsic informa",
+  "trajectory_path": "data/raw/s00000_32c4b5_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00000_32c4b5_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 20,
+  "timestamp": "2026-02-10T10:15:40Z"
+}

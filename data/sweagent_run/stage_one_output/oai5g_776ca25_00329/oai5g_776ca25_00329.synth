@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix missing nr_rlc_entity_um_tx_list_occupancy function implementation\n\n### Summary\nThe function `nr_rlc_entity_um_tx_list_occupancy()` was declared in the header but not implemented in the source file, causing linking errors when the function was called. This adds the missing implementation.\n\n### Changes\n- `openair2/LAYER2/nr_rlc/nr_rlc_entity_um.c`: Added implementation of `nr_rlc_entity_um_tx_list_occupancy()` \n- `openair2/LAYER2/nr_rlc/nr_rlc_entity_um.h`: Confirmed function declaration exists\n\n### Reproduction\nWhen calling `nr_rlc_entity_um_tx_list_occupancy()` from other modules, the linker would fail with undefined reference error. Function now returns current TX list occupancy as expected.\n"
+}

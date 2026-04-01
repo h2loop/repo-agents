@@ -1,0 +1,13 @@
+diff --git a/nfapi/open-nFAPI/pnf/src/pnf_p7_interface.c b/nfapi/open-nFAPI/pnf/src/pnf_p7_interface.c
+index dd91d2fc71..72fdf789b1 100644
+--- a/nfapi/open-nFAPI/pnf/src/pnf_p7_interface.c
++++ b/nfapi/open-nFAPI/pnf/src/pnf_p7_interface.c
+@@ -133,7 +133,7 @@ int nfapi_pnf_p7_harq_ind(nfapi_pnf_p7_config_t* config, nfapi_harq_indication_t
+ 
+ 	pnf_p7_t* _this = (pnf_p7_t*)(config);
+ 
+-	return pnf_p7_pack_and_send_p7_message(_this, (nfapi_p7_message_header_t*)ind, sizeof(nfapi_harq_indication_t));
++	return pnf_p7_pack_and_send_p7_message(_this, (nfapi_p7_message_header_t*)ind, sizeof(nfapi_harq_indication_t) + (ind->harq_indication_body.number_of_harqs * sizeof(nfapi_harq_indication_pdu_t)));
+ }
+ int nfapi_pnf_p7_crc_ind(nfapi_pnf_p7_config_t* config, nfapi_crc_indication_t* ind)
+ {

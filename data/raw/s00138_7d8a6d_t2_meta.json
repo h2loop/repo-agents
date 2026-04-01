@@ -1,0 +1,9 @@
+{
+  "run_id": "s00138_7d8a6d",
+  "pr_text": "## Title: Fix double free vulnerability in UL retransmission allocation\n\n### Summary\nThe `allocate_ul_retransmission` function in the gNB MAC UL scheduler contained a double-free vulnerability that could cause memory corruption during uplink retransmissions. The function was copying HARQ process scheduling information from `retInfo` into `sched_ctrl->sched_pusch` via structure assignment, then using a pointer to the copied data. Since `retInfo` points to memory managed by the HARQ process (which",
+  "trajectory_path": "data/raw/s00138_7d8a6d_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00138_7d8a6d_p2.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 83,
+  "timestamp": "2026-02-10T11:31:25Z"
+}

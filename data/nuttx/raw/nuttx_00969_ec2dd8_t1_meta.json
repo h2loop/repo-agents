@@ -1,0 +1,26 @@
+{
+  "run_id": "nuttx_00969_ec2dd8",
+  "function": {
+    "name": "host_rename",
+    "file": "arch/sim/src/sim/posix/sim_hostfs.c",
+    "start_line": 595,
+    "end_line": 604,
+    "body_lines": 10,
+    "signature": "int host_rename(const char *oldpath, const char *newpath)",
+    "subsystem": "arch/sim/src",
+    "token_estimate": 25
+  },
+  "bug": {
+    "bug_id": "embedded_gpio_pin_conflict",
+    "description": "GPIO pin multiplexing conflict where same pin is configured for two different functions",
+    "domain": "embedded",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a GPIO pin multiplexing conflict where same pin is configured for two different functions downstream of function host_rename in the arch/sim/src subsystem.\nThe function is located at arch/sim/src/sim/posix/sim_hostfs.c:595.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 80,
+  "trajectory_steps": 63,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:16:47Z"
+}

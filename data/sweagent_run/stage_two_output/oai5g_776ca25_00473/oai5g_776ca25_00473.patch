@@ -1,0 +1,22 @@
+diff --git a/radio/IRIS/iris_lib.cpp b/radio/IRIS/iris_lib.cpp
+index 927c63d72d..a2d071cab0 100644
+--- a/radio/IRIS/iris_lib.cpp
++++ b/radio/IRIS/iris_lib.cpp
+@@ -2,7 +2,7 @@
+ /** iris_lib.cpp
+  *
+  * \authors: Rahman Doost-Mohammady : doost@rice.edu
+- * 	    Clay Shepard : cws@rice.edu
++ *          Clay Shepard : cws@rice.edu
+  */
+ 
+ #include <string.h>
+@@ -165,7 +165,7 @@ trx_iris_write(openair0_device *device, openair0_timestamp timestamp, void **buf
+         flag |= SOAPY_SDR_END_BURST;
+     }
+ 
+-    long long timeNs = SoapySDR::ticksToTimeNs(timestamp - device.command_line_sample_advance, s->sample_rate / SAMPLE_RATE_DOWN);
++    long long timeNs = SoapySDR::ticksToTimeNs(timestamp - device->openair0_cfg->command_line_sample_advance, s->sample_rate / SAMPLE_RATE_DOWN);
+     uint32_t *samps[2]; //= (uint32_t **)buff;
+     int r;
+     int m = s->tx_num_channels;

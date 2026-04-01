@@ -1,0 +1,22 @@
+diff --git a/openair3/NAS/COMMON/IES/EpsQualityOfService.c b/openair3/NAS/COMMON/IES/EpsQualityOfService.c
+index ac45a9c0f5..ce5b9deb50 100644
+--- a/openair3/NAS/COMMON/IES/EpsQualityOfService.c
++++ b/openair3/NAS/COMMON/IES/EpsQualityOfService.c
+@@ -58,7 +58,7 @@ int decode_eps_quality_of_service(EpsQualityOfService *epsqualityofservice, uint
+   epsqualityofservice->qci = *(buffer + decoded);
+   decoded++;
+ 
+-  if ( ielen > 2 + (iei > 0) ? 1 : 0 ) {
++  if ( ielen > 2 + ((iei > 0) ? 1 : 0) ) {
+     /* bitRates is present */
+     epsqualityofservice->bitRatesPresent = 1;
+     decoded += decode_eps_qos_bit_rates(&epsqualityofservice->bitRates,
+@@ -68,7 +68,7 @@ int decode_eps_quality_of_service(EpsQualityOfService *epsqualityofservice, uint
+     epsqualityofservice->bitRatesPresent = 0;
+   }
+ 
+-  if ( ielen > 6 + (iei > 0) ? 1 : 0 ) {
++  if ( ielen > 6 + ((iei > 0) ? 1 : 0) ) {
+     /* bitRatesExt is present */
+     epsqualityofservice->bitRatesExtPresent = 1;
+     decoded += decode_eps_qos_bit_rates(&epsqualityofservice->bitRatesExt,

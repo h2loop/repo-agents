@@ -1,0 +1,120 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c b/openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c
+index 7f7556b175..01f7090555 100644
+--- a/openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c
++++ b/openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c
+@@ -31,6 +31,7 @@
+ #include <stdio.h>
+ #include <math.h>
+ #include <pthread.h>
++#include <string.h>
+ 
+ /* exe */
+ #include <common/utils/nr/nr_common.h>
+@@ -1405,9 +1406,9 @@ void nr_ue_ul_scheduler(NR_UE_MAC_INST_t *mac, nr_uplink_indication_t *ul_info)
+             && (mac->state == UE_CONNECTED || (ra->ra_state == nrRA_WAIT_RAR && ra->cfra))) {
+           // Getting IP traffic to be transmitted
+           nr_ue_get_sdu(mac, cc_id, frame_tx, slot_tx, gNB_index, ulsch_input_buffer, TBS_bytes);
+-	  ulcfg_pdu->pusch_config_pdu.tx_request_body.fapiTxPdu = ulsch_input_buffer;
+-	  ulcfg_pdu->pusch_config_pdu.tx_request_body.pdu_length = TBS_bytes;
+-	  number_of_pdus++;
++          ulcfg_pdu->pusch_config_pdu.tx_request_body.fapiTxPdu = ulsch_input_buffer;
++          ulcfg_pdu->pusch_config_pdu.tx_request_body.pdu_length = TBS_bytes;
++          number_of_pdus++;
+         }
+       }
+ 
+@@ -1947,7 +1948,7 @@ static void map_ssb_to_ro(NR_UE_MAC_INST_t *mac)
+         for (int i = 0; i < prach_period->nb_of_prach_conf_period && !done; i++, prach_configuration_period_idx++) {
+           // Build the association period with its association PRACH Configuration indexes
+           prach_period->prach_conf_period_list[i] = &prach_assoc_pattern->prach_conf_period_list[prach_configuration_period_idx];
+-	  prach_conf_period_t *prach_conf = prach_period->prach_conf_period_list[i];
++          prach_conf_period_t *prach_conf = prach_period->prach_conf_period_list[i];
+           for (int frame = 0; frame < prach_conf->nb_of_frame && !done; frame++) {
+             for (int slot = 0; slot < prach_conf->nb_of_slot && !done; slot++) {
+               prach_occasion_slot_t *slot_map = &prach_conf->prach_occasion_slot_map[frame][slot];
+@@ -2860,16 +2861,18 @@ static void nr_ue_get_sdu_mac_ce_post(NR_UE_MAC_INST_t *mac,
+ 
+       if (num_lcg_id_with_data > 1) {
+         // REPORT SHORT TRUNCATED BSR
+-        // Get LCGID of highest priority LCID with data (todo)
+-        for (int lcid = 1; lcid <= NR_MAX_NUM_LCID; lcid++) {
+-          NR_LC_SCHEDULING_INFO *sched_info = get_scheduling_info_from_lcid(mac, lcid);
+-          if ((sched_info->LCGID != NR_INVALID_LCGID) && (mac->scheduling_info.lcg_sched_info[sched_info->LCGID].BSR_bytes)) {
+-            lcg_id_bsr_trunc = sched_info->LCGID;
++        // Get LCGID of highest priority LCG with data
++        // For now, we'll pick the first LCG with data, but ideally this should consider LCID priorities
++        lcg_id_bsr_trunc = 0;
++        for (int lcg_id = 0; lcg_id < NR_MAX_NUM_LCGID; lcg_id++) {
++          if (sched_info->lcg_sched_info[lcg_id].BSR_bytes) {
++            lcg_id_bsr_trunc = lcg_id;
++            break; // Pick the first one (assuming lowest index means higher priority)
+           }
+         }
+       } else {
+         // Report SHORT BSR, clear bsr_t
+-        mac_ce_p->bsr_t = NULL;
++        memset(mac_ce_p->bsr_t, 0, sizeof(NR_BSR_SHORT));
+       }
+ 
+       // Trigger BSR Padding
+@@ -2883,12 +2886,12 @@ static void nr_ue_get_sdu_mac_ce_post(NR_UE_MAC_INST_t *mac,
+ 
+   //Fill BSR Infos
+   if (mac_ce_p->bsr_ce_len == 0) {
+-    mac_ce_p->bsr_s = NULL;
+-    mac_ce_p->bsr_l = NULL;
+-    mac_ce_p->bsr_t = NULL;
++    memset(mac_ce_p->bsr_s, 0, sizeof(NR_BSR_SHORT));
++    memset(mac_ce_p->bsr_l, 0, sizeof(NR_BSR_LONG));
++    memset(mac_ce_p->bsr_t, 0, sizeof(NR_BSR_SHORT));
+   } else if (mac_ce_p->bsr_header_len == sizeof(NR_MAC_SUBHEADER_SHORT)) {
+-    mac_ce_p->bsr_s = NULL;
+-    mac_ce_p->bsr_t = NULL;
++    memset(mac_ce_p->bsr_s, 0, sizeof(NR_BSR_SHORT));
++    memset(mac_ce_p->bsr_t, 0, sizeof(NR_BSR_SHORT));
+     mac_ce_p->bsr_l->Buffer_size0 = sched_info->lcg_sched_info[0].BSR;
+     mac_ce_p->bsr_l->Buffer_size1 = sched_info->lcg_sched_info[1].BSR;
+     mac_ce_p->bsr_l->Buffer_size2 = sched_info->lcg_sched_info[2].BSR;
+@@ -2913,11 +2916,15 @@ static void nr_ue_get_sdu_mac_ce_post(NR_UE_MAC_INST_t *mac,
+           sched_info->lcg_sched_info[6].BSR,
+           sched_info->lcg_sched_info[7].BSR);
+   } else if (mac_ce_p->bsr_header_len == sizeof(NR_MAC_SUBHEADER_FIXED)) {
+-    mac_ce_p->bsr_l = NULL;
++    memset(mac_ce_p->bsr_l, 0, sizeof(NR_BSR_LONG));
+ 
+-    if ((mac_ce_p->bsr_t != NULL) && (sched_info->BSR_reporting_active & NR_BSR_TRIGGER_PADDING)) {
++    // Determine if we should report truncated BSR
++    bool report_truncated_bsr = (num_lcg_id_with_data > 1) && 
++                                (sched_info->BSR_reporting_active & NR_BSR_TRIGGER_PADDING);
++    
++    if (report_truncated_bsr) {
+       //Truncated BSR
+-      mac_ce_p->bsr_s = NULL;
++      memset(mac_ce_p->bsr_s, 0, sizeof(NR_BSR_SHORT));
+       mac_ce_p->bsr_t->LcgID = lcg_id_bsr_trunc;
+       mac_ce_p->bsr_t->Buffer_size = sched_info->lcg_sched_info[lcg_id_bsr_trunc].BSR;
+       LOG_D(NR_MAC,
+@@ -2929,7 +2936,7 @@ static void nr_ue_get_sdu_mac_ce_post(NR_UE_MAC_INST_t *mac,
+             sched_info->lcg_sched_info[lcg_id_bsr_trunc].BSR,
+             lcg_id_bsr_trunc);
+     } else {
+-      mac_ce_p->bsr_t = NULL;
++      memset(mac_ce_p->bsr_t, 0, sizeof(NR_BSR_SHORT));
+       mac_ce_p->bsr_s->LcgID = lcg_id_bsr_trunc;
+       mac_ce_p->bsr_s->Buffer_size = sched_info->lcg_sched_info[lcg_id_bsr_trunc].BSR;
+       LOG_D(NR_MAC,
+@@ -2955,7 +2962,13 @@ static void nr_ue_get_sdu_mac_ce_post(NR_UE_MAC_INST_t *mac,
+     // Reset ReTx BSR Timer
+     nr_timer_start(&sched_info->retxBSR_Timer);
+     // Reset Periodic Timer except when BSR is truncated
+-    if (mac_ce_p->bsr_t == NULL) {
++    // A BSR is considered truncated when we send a short truncated BSR
++    bool is_bsr_truncated = (mac_ce_p->bsr_header_len == sizeof(NR_MAC_SUBHEADER_FIXED)) && 
++                            (mac_ce_p->bsr_ce_len == sizeof(NR_BSR_SHORT)) &&
++                            (num_lcg_id_with_data > 1) &&
++                            ((sched_info->BSR_reporting_active & NR_BSR_TRIGGER_PADDING) != 0);
++    
++    if (!is_bsr_truncated) {
+       nr_timer_start(&sched_info->periodicBSR_Timer);
+       LOG_D(NR_MAC, "[UE %d] MAC Periodic BSR Timer Reset\n", mac->ue_id);
+     }

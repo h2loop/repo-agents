@@ -1,0 +1,32 @@
+diff --git a/openair3/NAS/COMMON/ESM/MSG/EsmStatus.h b/openair3/NAS/COMMON/ESM/MSG/EsmStatus.h
+index 4f6e213ec8..b11adc4afd 100644
+--- a/openair3/NAS/COMMON/ESM/MSG/EsmStatus.h
++++ b/openair3/NAS/COMMON/ESM/MSG/EsmStatus.h
+@@ -22,6 +22,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <stdint.h>
++#include <asm/byteorder.h>
+ 
+ #include "ProtocolDiscriminator.h"
+ #include "EpsBearerIdentity.h"
+@@ -50,12 +51,18 @@
+ 
+ typedef struct esm_status_msg_tag {
+   /* Mandatory fields */
++#ifdef __LITTLE_ENDIAN_BITFIELD
+   ProtocolDiscriminator        protocoldiscriminator:4;
+   EpsBearerIdentity            epsbeareridentity:4;
++#endif
++#ifdef __BIG_ENDIAN_BITFIELD
++  EpsBearerIdentity            epsbeareridentity:4;
++  ProtocolDiscriminator        protocoldiscriminator:4;
++#endif
+   ProcedureTransactionIdentity proceduretransactionidentity;
+   MessageType                  messagetype;
+   EsmCause                     esmcause;
+-} esm_status_msg;
++} __attribute__((__packed__)) esm_status_msg;
+ 
+ int decode_esm_status(esm_status_msg *esmstatus, uint8_t *buffer, uint32_t len);
+ 

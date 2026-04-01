@@ -1,0 +1,24 @@
+diff --git a/executables/ru_control.c b/executables/ru_control.c
+index 8345007f0b..ccaa4c3ee6 100644
+--- a/executables/ru_control.c
++++ b/executables/ru_control.c
+@@ -510,7 +510,19 @@ void* ru_thread_control( void* param )
+       if (ru->state == RU_RUN && ru->if_south != LOCAL_RF){
+ 	LTE_DL_FRAME_PARMS *fp = &ru->eNB_list[0]->frame_parms;	
+ 	LOG_D(PHY,"Check MBSFN SF changes\n");
++	// Check if MBSFN count changed or if MBSFN config data changed
++	int config_changed = 0;
+ 	if(fp->num_MBSFN_config != ru_sf_update){
++		config_changed = 1;
++	} else {
++		// Check if MBSFN config data changed even if count is same
++		for(i=0; i < fp->num_MBSFN_config && !config_changed; i++){
++			if(fp->MBSFN_config[i].mbsfn_SubframeConfig != ru->frame_parms->MBSFN_config[i].mbsfn_SubframeConfig){
++				config_changed = 1;
++			}
++		}
++	}
++	if(config_changed){
+ 		ru_sf_update = fp->num_MBSFN_config;
+ 		LOG_W(PHY,"RU SF should be updated ... calling send_update_rru(ru)\n");
+ 		send_update_rru(ru,fp);

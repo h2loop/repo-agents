@@ -1,0 +1,9 @@
+{
+  "run_id": "s00370_571265",
+  "pr_text": "## Title: Add bounds checking to EMMAS-SAP primitive string conversion\n\n### Summary\nThe `emmas_to_str()` function in the NAS UE EMM SAP layer performs unchecked array indexing when converting EMMAS primitive values to human-readable strings. When invalid primitive values are passed due to NGAP interface errors or corrupted messages, this results in out-of-bounds memory access, causing undefined behavior and potential NGAP procedure failures downstream.\n\nThis fix adds proper bounds validation bef",
+  "trajectory_path": "data/raw/s00370_571265_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00370_571265_p2.diff",
+  "patch_lines": 5,
+  "trajectory_steps": 12,
+  "timestamp": "2026-02-10T12:54:10Z"
+}

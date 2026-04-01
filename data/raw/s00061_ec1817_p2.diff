@@ -1,0 +1,139 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+index 45d5f15ffe..bf5f1b9233 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+@@ -2404,9 +2404,24 @@ static uint8_t pack_harq_indication_body_value(void *tlv, uint8_t **ppWritePacke
+       return 0;
+ 
+     // calculate the instance length subtracting the size of the instance
+-    // length feild
++    // length field
+     uint16_t instance_length = *ppWritePackedMsg - instance_length_p - 2;
+-    push16(instance_length, &instance_length_p, end);
++    
++    // Check if we have space to write the instance length (2 bytes)
++    if((end - instance_length_p) < 2) {
++      NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s: insufficient buffer space for instance length\n", __FUNCTION__);
++      return 0;
++    }
++    
++    // Write the instance length directly to the saved position without incrementing pointer
++    // Handle both big-endian and little-endian byte ordering
++#ifdef FAPI_BYTE_ORDERING_BIG_ENDIAN
++    instance_length_p[0] = (instance_length & 0xFF00) >> 8;
++    instance_length_p[1] = (instance_length & 0xFF);
++#else
++    instance_length_p[0] = (instance_length & 0xFF);
++    instance_length_p[1] = (instance_length & 0xFF00) >> 8;
++#endif
+   }
+ 
+   return 1;
+@@ -2446,9 +2461,24 @@ static uint8_t pack_crc_indication_body_value(void *tlv, uint8_t **ppWritePacked
+       return 0;
+ 
+     // calculate the instance length subtracting the size of the instance
+-    // length feild
++    // length field
+     uint16_t instance_length = *ppWritePackedMsg - instance_length_p - 2;
+-    push16(instance_length, &instance_length_p, end);
++    
++    // Check if we have space to write the instance length (2 bytes)
++    if((end - instance_length_p) < 2) {
++      NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s: insufficient buffer space for instance length\n", __FUNCTION__);
++      return 0;
++    }
++    
++    // Write the instance length directly to the saved position without incrementing pointer
++    // Handle both big-endian and little-endian byte ordering
++#ifdef FAPI_BYTE_ORDERING_BIG_ENDIAN
++    instance_length_p[0] = (instance_length & 0xFF00) >> 8;
++    instance_length_p[1] = (instance_length & 0xFF);
++#else
++    instance_length_p[0] = (instance_length & 0xFF);
++    instance_length_p[1] = (instance_length & 0xFF00) >> 8;
++#endif
+   }
+ 
+   return 1;
+@@ -2592,9 +2622,24 @@ static uint8_t pack_rach_indication_body_value(void *tlv, uint8_t **ppWritePacke
+       return 0;
+ 
+     // calculate the instance length subtracting the size of the instance
+-    // length feild
++    // length field
+     uint16_t instance_length = *ppWritePackedMsg - instance_length_p - 2;
+-    push16(instance_length, &instance_length_p, end);
++    
++    // Check if we have space to write the instance length (2 bytes)
++    if((end - instance_length_p) < 2) {
++      NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s: insufficient buffer space for instance length\n", __FUNCTION__);
++      return 0;
++    }
++    
++    // Write the instance length directly to the saved position without incrementing pointer
++    // Handle both big-endian and little-endian byte ordering
++#ifdef FAPI_BYTE_ORDERING_BIG_ENDIAN
++    instance_length_p[0] = (instance_length & 0xFF00) >> 8;
++    instance_length_p[1] = (instance_length & 0xFF);
++#else
++    instance_length_p[0] = (instance_length & 0xFF);
++    instance_length_p[1] = (instance_length & 0xFF00) >> 8;
++#endif
+   }
+ 
+   return 1;
+@@ -2675,9 +2720,24 @@ static uint8_t pack_srs_indication_body_value(void *tlv, uint8_t **ppWritePacked
+       return 0;
+ 
+     // calculate the instance length subtracting the size of the instance
+-    // length feild
++    // length field
+     uint16_t instance_length = *ppWritePackedMsg - instance_length_p - 2;
+-    push16(instance_length, &instance_length_p, end);
++    
++    // Check if we have space to write the instance length (2 bytes)
++    if((end - instance_length_p) < 2) {
++      NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s: insufficient buffer space for instance length\n", __FUNCTION__);
++      return 0;
++    }
++    
++    // Write the instance length directly to the saved position without incrementing pointer
++    // Handle both big-endian and little-endian byte ordering
++#ifdef FAPI_BYTE_ORDERING_BIG_ENDIAN
++    instance_length_p[0] = (instance_length & 0xFF00) >> 8;
++    instance_length_p[1] = (instance_length & 0xFF);
++#else
++    instance_length_p[0] = (instance_length & 0xFF);
++    instance_length_p[1] = (instance_length & 0xFF00) >> 8;
++#endif
+   }
+ 
+   return 1;
+@@ -2711,9 +2771,24 @@ static uint8_t pack_sr_indication_body_value(void *tlv, uint8_t **ppWritePackedM
+       return 0;
+ 
+     // calculate the instance length subtracting the size of the instance
+-    // length feild
++    // length field
+     uint16_t instance_length = *ppWritePackedMsg - instance_length_p - 2;
+-    push16(instance_length, &instance_length_p, end);
++    
++    // Check if we have space to write the instance length (2 bytes)
++    if((end - instance_length_p) < 2) {
++      NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s: insufficient buffer space for instance length\n", __FUNCTION__);
++      return 0;
++    }
++    
++    // Write the instance length directly to the saved position without incrementing pointer
++    // Handle both big-endian and little-endian byte ordering
++#ifdef FAPI_BYTE_ORDERING_BIG_ENDIAN
++    instance_length_p[0] = (instance_length & 0xFF00) >> 8;
++    instance_length_p[1] = (instance_length & 0xFF);
++#else
++    instance_length_p[0] = (instance_length & 0xFF);
++    instance_length_p[1] = (instance_length & 0xFF00) >> 8;
++#endif
+   }
+ 
+   return 1;

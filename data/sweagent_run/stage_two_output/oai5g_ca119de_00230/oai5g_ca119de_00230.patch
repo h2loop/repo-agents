@@ -1,0 +1,38 @@
+diff --git a/openair1/PHY/CODING/nrLDPC_coding/nrLDPC_coding_xdma/nrLDPC_coding_xdma_offload.c b/openair1/PHY/CODING/nrLDPC_coding/nrLDPC_coding_xdma/nrLDPC_coding_xdma_offload.c
+index 0673ad2c73..7936be21ce 100644
+--- a/openair1/PHY/CODING/nrLDPC_coding/nrLDPC_coding_xdma/nrLDPC_coding_xdma_offload.c
++++ b/openair1/PHY/CODING/nrLDPC_coding/nrLDPC_coding_xdma/nrLDPC_coding_xdma_offload.c
+@@ -82,9 +82,9 @@ char allocated_read[24 * 1024 * 3] __attribute__((aligned(4096)));
+ /*
+  * man 2 write:
+  * On Linux, write() (and similar system calls) will transfer at most
+- * 	0x7ffff000 (2,147,479,552) bytes, returning the number of bytes
+- *	actually transferred.  (This is true on both 32-bit and 64-bit
+- *	systems.)
++ *      0x7ffff000 (2,147,479,552) bytes, returning the number of bytes
++ *      actually transferred.  (This is true on both 32-bit and 64-bit
++ *      systems.)
+  */
+ 
+ #define RW_MAX_SIZE 0x7ffff000
+@@ -768,14 +768,18 @@ int nrLDPC_decoder_FPGA_PYM(uint8_t* buf_in, uint8_t* buf_out, DecIFConf dec_con
+   // LDPC accelerator start
+   // write into accelerator
+   if (test_dma_dec_write((char *)buf_in, Confparam) != 0) {
+-    exit(1);
+     printf("write exit!!\n");
++    test_dma_shutdown();
++    init_flag = 0;
++    return -1;
+   }
+ 
+   // read output of accelerator
+   if (test_dma_dec_read((char *)buf_out, Confparam) != 0) {
+-    exit(1);
+     printf("read exit!!\n");
++    test_dma_shutdown();
++    init_flag = 0;
++    return -1;
+   }
+ 
+   return 0;

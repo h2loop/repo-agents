@@ -1,0 +1,26 @@
+{
+  "run_id": "mbed-os_00778_09426d",
+  "function": {
+    "name": "LL_RTC_ExitInitMode",
+    "file": "targets/TARGET_STM/TARGET_STM32F3/STM32Cube_FW/STM32F3xx_HAL_Driver/stm32f3xx_ll_rtc.c",
+    "start_line": 781,
+    "end_line": 790,
+    "body_lines": 10,
+    "signature": "ErrorStatus LL_RTC_ExitInitMode(RTC_TypeDef *RTCx)",
+    "subsystem": "targets/TARGET_STM/TARGET_STM32F3",
+    "token_estimate": 19
+  },
+  "bug": {
+    "bug_id": "c_missing_error_propagation",
+    "description": "missing error propagation where a failure is silently ignored",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a missing error propagation where a failure is silently ignored downstream of function LL_RTC_ExitInitMode in the targets/TARGET_STM/TARGET_STM32F3 subsystem.\nThe function is located at targets/TARGET_STM/TARGET_STM32F3/STM32Cube_FW/STM32F3xx_HAL_Driver/stm32f3xx_ll_rtc.c:781.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 21,
+  "trajectory_steps": 32,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:05:11Z"
+}

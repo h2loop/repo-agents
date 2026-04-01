@@ -1,0 +1,30 @@
+{
+  "run_id": "s00498_ee2270",
+  "function": {
+    "name": "rrc_eNB_find_ue_context_from_gnb_rnti",
+    "file": "openair2/RRC/LTE/rrc_eNB_UE_context.c",
+    "start_line": 118,
+    "end_line": 131,
+    "body_lines": 14,
+    "signature": "struct rrc_eNB_ue_context_s * rrc_eNB_find_ue_context_from_gnb_rnti( eNB_RRC_INST *rrc_instance_pP, int gnb_rnti) //------------------------------------------------------------------------------",
+    "subsystem": "openair2/RRC/LTE",
+    "token_estimate": 31
+  },
+  "bug": {
+    "bug_id": "telecom_power_control_error",
+    "description": "power control error causing incorrect transmit power level",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "radio"
+    ]
+  },
+  "prompt": "There is a power control error causing incorrect transmit power level downstream of function rrc_eNB_find_ue_context_from_gnb_rnti in the openair2/RRC/LTE subsystem.\nThe function is located at openair2/RRC/LTE/rrc_eNB_UE_context.c:118.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00498_ee2270_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00498_ee2270_p1.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 36,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:41:25Z"
+}

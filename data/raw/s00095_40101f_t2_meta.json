@@ -1,0 +1,9 @@
+{
+  "run_id": "s00095_40101f",
+  "pr_text": "## Title: Fix buffer overflow vulnerabilities in eNB thread name formatting\n\n### Summary\nReplace unsafe `sprintf()` calls with bounded `snprintf()` when formatting thread names in the eNB L1 processing threads. The original code used unbounded string formatting that could potentially overflow the 100-byte thread name buffers, and included unnecessary newline characters in the thread names.\n\n### Changes\n- `executables/lte-enb.c`: \n  - In `L1_thread_tx()`: Replace `sprintf()` with `snprintf(thread",
+  "trajectory_path": "data/raw/s00095_40101f_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00095_40101f_p2.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 18,
+  "timestamp": "2026-02-10T11:09:19Z"
+}

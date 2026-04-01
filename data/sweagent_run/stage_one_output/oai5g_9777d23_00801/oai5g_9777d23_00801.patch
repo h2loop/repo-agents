@@ -1,0 +1,25 @@
+diff --git a/openair3/NGAP/ngap_gNB_nas_procedures.c b/openair3/NGAP/ngap_gNB_nas_procedures.c
+index 29541d8acf..20e83cf1c2 100644
+--- a/openair3/NGAP/ngap_gNB_nas_procedures.c
++++ b/openair3/NGAP/ngap_gNB_nas_procedures.c
+@@ -1223,7 +1223,19 @@ int ngap_gNB_pdusession_release_resp(instance_t instance, ngap_pdusession_releas
+     for (i = 0; i < pdusession_release_resp_p->nb_of_pdusessions_released; i++) {
+       asn1cSequenceAdd(ie->value.choice.PDUSessionResourceReleasedListRelRes.list, NGAP_PDUSessionResourceReleasedItemRelRes_t, item);
+       item->pDUSessionID = pdusession_release_resp_p->pdusession_release[i].pdusession_id;
+-      allocCopy(&item->pDUSessionResourceReleaseResponseTransfer, pdusession_release_resp_p->pdusession_release[i].data);
++      
++      /* Create and encode the PDUSessionResourceReleaseResponseTransfer structure */
++      NGAP_PDUSessionResourceReleaseResponseTransfer_t pdusessionTransfer = {0};
++      
++      /* Encode the transfer structure */
++      asn_encode_to_new_buffer_result_t res = asn_encode_to_new_buffer(NULL, ATS_ALIGNED_CANONICAL_PER, 
++        &asn_DEF_NGAP_PDUSessionResourceReleaseResponseTransfer, &pdusessionTransfer);
++      AssertFatal(res.buffer != NULL, "ASN1 message encoding failed (%s, %ld)!\n", 
++        res.result.failed_type ? res.result.failed_type->name : "unknown", res.result.encoded);
++      
++      item->pDUSessionResourceReleaseResponseTransfer.buf = res.buffer;
++      item->pDUSessionResourceReleaseResponseTransfer.size = res.result.encoded;
++      
+       NGAP_DEBUG("pdusession_release_resp: pdusession ID %ld\n", item->pDUSessionID);
+     }
+   }

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00044_4cf943",
+  "pr_text": "## Title: Fix buffer overrun in textlog command-line argument parsing\n\n### Summary\nThe textlog utility's argument parser contains a buffer overrun vulnerability when processing multiple `-on`, `-off`, `-ON`, and `-OFF` command-line flags. The code tracks these flags in dynamically allocated arrays (`on_off_name[]` and `on_off_action[]`) sized by the total argument count `n`, but fails to validate that the running index `on_off_n` stays within bounds. When users supply excessive toggle flags, the",
+  "trajectory_path": "data/raw/s00044_4cf943_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00044_4cf943_p2.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 12,
+  "timestamp": "2026-02-10T10:47:54Z"
+}

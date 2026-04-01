@@ -1,0 +1,44 @@
+diff --git a/openair3/NAS/TEST/NETWORK/network_simulator.c b/openair3/NAS/TEST/NETWORK/network_simulator.c
+index 492a709463..2c23fab08c 100644
+--- a/openair3/NAS/TEST/NETWORK/network_simulator.c
++++ b/openair3/NAS/TEST/NETWORK/network_simulator.c
+@@ -661,6 +661,7 @@ static int _process_emm_msg(EMM_msg* msg)
+   default:
+     printf("ERROR\t: EMM message 0x%x is not valid\n",
+            msg->header.message_type);
++    bytes = 0;
+     break;
+   }
+ 
+@@ -872,6 +873,15 @@ static int _process_attach_complete(const attach_complete_msg* msg)
+ {
+   int bytes = -1;
+ 
++  static int _attach_complete_failure_counter = 0;
++
++  if (_attach_complete_failure_counter > 0) {
++    sleep(rand()%SLEEP_TIME);
++    _attach_complete_failure_counter -= 1;
++    /* XXX - Return transmission failure indication */
++    return (-1);
++  }
++
+   printf("Attach Complete\n");
+   printf("INFO\t: ESM message container (length = %d)\n",
+          msg->esmmessagecontainer.esmmessagecontainercontents.length);
+@@ -910,15 +920,6 @@ static int _process_attach_complete(const attach_complete_msg* msg)
+     break;
+   }
+ 
+-  static int _attach_complete_failure_counter = 0;
+-
+-  if (_attach_complete_failure_counter > 0) {
+-    sleep(rand()%SLEEP_TIME);
+-    _attach_complete_failure_counter -= 1;
+-    /* XXX - Return transmission failure indication */
+-    return (-1);
+-  }
+-
+   return (bytes);
+ }
+ 

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00407_718e35",
+  "pr_text": "## Title: Fix turbo decoder memory deallocation by replacing buggy macro\n\n### Summary\nThe `free_td16()` cleanup function in the LTE turbo decoder was using the `free_and_zero()` macro to deallocate lookup table memory. The macro has a subtle bug when applied to array element references (e.g., `pi2tab16[ind]`), causing incorrect pointer handling and potential memory corruption downstream. This manifested as incorrect flags being passed to system memory functions in certain build configurations.\n\n",
+  "trajectory_path": "data/raw/s00407_718e35_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00407_718e35_p2.diff",
+  "patch_lines": 16,
+  "trajectory_steps": 22,
+  "timestamp": "2026-02-10T13:08:35Z"
+}

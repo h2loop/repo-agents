@@ -1,0 +1,31 @@
+diff --git a/common/utils/hashtable/hashtable.c b/common/utils/hashtable/hashtable.c
+index bbd03692e4..fa58b456c1 100644
+--- a/common/utils/hashtable/hashtable.c
++++ b/common/utils/hashtable/hashtable.c
+@@ -124,7 +124,7 @@ hashtable_rc_t hashtable_destroy(hash_table_t **hashtblP) {
+       oldnode=node;
+       node=node->next;
+ 
+-      if (oldnode->data) {
++      if (oldnode->data && (*hashtblP)->freefunc) {
+         (*hashtblP)->freefunc(oldnode->data);
+       }
+ 
+@@ -215,7 +215,7 @@ hashtable_rc_t hashtable_insert(hash_table_t *const hashtblP, const hash_key_t k
+ 
+   while(node) {
+     if(node->key == keyP) {
+-      if (node->data) {
++      if (node->data && hashtblP->freefunc) {
+         hashtblP->freefunc(node->data);
+       }
+ 
+@@ -261,7 +261,7 @@ hashtable_rc_t hashtable_remove(hash_table_t *const hashtblP, const hash_key_t k
+       if(prevnode) prevnode->next=node->next;
+       else hashtblP->nodes[hash]=node->next;
+ 
+-      if (node->data) {
++      if (node->data && hashtblP->freefunc) {
+         hashtblP->freefunc(node->data);
+       }
+ 

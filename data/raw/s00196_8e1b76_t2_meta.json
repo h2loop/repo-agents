@@ -1,0 +1,9 @@
+{
+  "run_id": "s00196_8e1b76",
+  "pr_text": "## Title: Fix buffer overflow vulnerability in SCTP connection lookup\n\n### Summary\nThe `sctp_get_cnx()` function in the SCTP eNB task layer contains a buffer overflow vulnerability that occurs when the function returns connection elements with uninitialized `out_streams` fields (value 0). Callers validate stream indices using `if (stream >= sctp_cnx->out_streams)`, but when `out_streams` is 0, this bounds check passes for any valid stream value (>= 0). This allows out-of-bounds memory access, le",
+  "trajectory_path": "data/raw/s00196_8e1b76_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00196_8e1b76_p2.diff",
+  "patch_lines": 10,
+  "trajectory_steps": 15,
+  "timestamp": "2026-02-11T13:12:41Z"
+}

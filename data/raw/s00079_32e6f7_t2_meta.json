@@ -1,0 +1,9 @@
+{
+  "run_id": "s00079_32e6f7",
+  "pr_text": "## Title: Fix errno corruption in RACH indication unpacking\n\n### Summary\nThe `unpack_rach_indication_body_value` function in the nFAPI P7 codec fails to preserve errno when `nfapi_p7_allocate` fails. When memory allocation fails (setting errno to ENOMEM), the subsequent `NFAPI_TRACE` logging call may internally modify errno before the caller can check it. This causes upstream error handling to misinterpret the failure reason, potentially leading to incorrect error reporting or recovery actions.\n",
+  "trajectory_path": "data/raw/s00079_32e6f7_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00079_32e6f7_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 17,
+  "timestamp": "2026-02-10T11:02:49Z"
+}

@@ -1,0 +1,184 @@
+diff --git a/openair2/COMMON/m3ap_messages_types.h b/openair2/COMMON/m3ap_messages_types.h
+index 815f8b6df4..00466252f7 100644
+--- a/openair2/COMMON/m3ap_messages_types.h
++++ b/openair2/COMMON/m3ap_messages_types.h
+@@ -272,11 +272,81 @@ typedef struct m3ap_mme_sctp_req_s {
+ 
+ 
+ 
+-typedef struct m3ap_session_start_req_s{
+-  // This dummy element is to avoid CLANG warning: empty struct has size 0 in C, size 1 in C++
+-  // To be removed if the structure is filled
+-  uint32_t dummy;
+-}m3ap_session_start_req_t;
++typedef struct m3ap_session_start_req_s {
++  /* Mandatory IEs */
++  uint32_t mme_mbms_m3ap_id;                    /* MME-MBMS-M3AP-ID */
++  
++  /* TMGI - Temporary Mobile Group Identity */
++  uint16_t mcc;                                 /* Mobile Country Code */
++  uint16_t mnc;                                 /* Mobile Network Code */
++  uint8_t  mnc_digit_length;                    /* MNC digit length */
++  uint32_t service_id;                          /* Service ID from TMGI */
++  
++  /* Optional MBMS-Session-ID */
++  uint8_t  mbms_session_id_present;
++  uint8_t  mbms_session_id;                     /* MBMS Session ID */
++  
++  /* MBMS-E-RAB-QoS-Parameters */
++  uint8_t  qci;                                 /* QoS Class Identifier */
++  uint8_t  priority_level_present;
++  uint8_t  priority_level;                    /* Allocation and Retention Priority - Priority Level */
++  uint8_t  pre_emption_capability_present;
++  uint8_t  pre_emption_capability;            /* Pre-emption Capability */
++  uint8_t  pre_emption_vulnerability_present;
++  uint8_t  pre_emption_vulnerability;           /* Pre-emption Vulnerability */
++  
++  /* MBMS-Session-Duration */
++  uint16_t mbms_session_duration;               /* MBMS Session Duration in seconds */
++  
++  /* MBMS-Service-Area */
++  uint8_t  num_mbms_service_area;
++  uint16_t mbms_service_area_id[32];            /* MBMS Service Area IDs */
++  
++  /* MinimumTimeToMBMSDataTransfer */
++  uint16_t minimum_time_to_mbms_data_transfer;  /* Minimum Time To MBMS Data Transfer in seconds */
++  
++  /* TNL-Information (Transport Network Layer) */
++  uint8_t  num_tnl_info;
++  struct {
++    uint8_t  ipv4:1;
++    uint8_t  ipv6:1;
++    char     ipv4_address[16];
++    char     ipv6_address[46];
++    uint32_t port;
++  } tnl_info[8];                                /* TNL Information list */
++  
++  /* Optional Absolute-Time-ofMBMS-Data */
++  uint8_t  time_of_mbms_data_transfer_present;
++  struct {
++    uint16_t year;
++    uint8_t  month;
++    uint8_t  day;
++    uint8_t  hour;
++    uint8_t  minute;
++    uint8_t  second;
++    uint16_t millisecond;
++  } time_of_mbms_data_transfer;
++  
++  /* Optional Reestablishment */
++  uint8_t  reestablishment_present;
++  uint8_t  reestablishment;                   /* Reestablishment indicator */
++  
++  /* Optional Alternative-TNL-Information */
++  uint8_t  num_alternative_tnl_info;
++  struct {
++    uint8_t  ipv4:1;
++    uint8_t  ipv6:1;
++    char     ipv4_address[16];
++    char     ipv6_address[46];
++    uint32_t port;
++  } alternative_tnl_info[8];                  /* Alternative TNL Information */
++  
++  /* Optional MBMS-Cell-List */
++  uint8_t  num_mbms_cell_list;
++  struct {
++    uint32_t cell_id;                         /* Cell ID */
++  } mbms_cell_list[256];                      /* MBMS Cell List */
++} m3ap_session_start_req_t;
+ typedef struct m3ap_session_start_resp_s{
+   // This dummy element is to avoid CLANG warning: empty struct has size 0 in C, size 1 in C++
+   // To be removed if the structure is filled
+diff --git a/openair3/M3AP/m3ap_MCE_interface_management.c b/openair3/M3AP/m3ap_MCE_interface_management.c
+index 82fc044d3e..58995e5501 100644
+--- a/openair3/M3AP/m3ap_MCE_interface_management.c
++++ b/openair3/M3AP/m3ap_MCE_interface_management.c
+@@ -47,6 +47,9 @@
+ #include "assertions.h"
+ #include "conversions.h"
+ 
++#include <arpa/inet.h>
++#include <string.h>
++
+ 
+ //#include "m3ap_common.h"
+ //#include "m3ap_encoder.h"
+@@ -62,35 +65,221 @@ int MCE_handle_MBMS
+... [truncated] ...
+= 1;
++        inet_ntop(AF_INET6, tnl_item->tNLAddress.buf, 
++                  M3AP_MBMS_SESSION_START_REQ(message_p).tnl_info[i].ipv6_address, 
++                  sizeof(M3AP_MBMS_SESSION_START_REQ(message_p).tnl_info[i].ipv6_address));
++      }
++    }
++    
++    LOG_D(M3AP, "Extracted TNL-Information with %d entries\n", M3AP_MBMS_SESSION_START_REQ(message_p).num_tnl_info);
++  }
++
++  /* Extract Time-ofMBMS-DataTransfer (Optional) */
++  M3AP_FIND_PROTOCOLIE_BY_ID(M3AP_MBMSSessionStartRequest_Ies_t, ie, container, M3AP_ProtocolIE_ID_id_Time_ofMBMS_DataTransfer, false);
++  if (ie) {
++    M3AP_MBMS_SESSION_START_REQ(message_p).time_of_mbms_data_transfer_present = 1;
++    LOG_D(M3AP, "Extracted Time-ofMBMS-DataTransfer\n");
++  }
++
++  /* Extract Reestablishment (Optional) */
++  M3AP_FIND_PROTOCOLIE_BY_ID(M3AP_MBMSSessionStartRequest_Ies_t, ie, container, M3AP_ProtocolIE_ID_id_Reestablishment, false);
++  if (ie) {
++    M3AP_MBMS_SESSION_START_REQ(message_p).reestablishment_present = 1;
++    M3AP_MBMS_SESSION_START_REQ(message_p).reestablishment = ie->value.choice.Reestablishment;
++    LOG_D(M3AP, "Extracted Reestablishment: %lu\n", M3AP_MBMS_SESSION_START_REQ(message_p).reestablishment);
++  }
++
++  /* Extract Alternative-TNL-Information (Optional) */
++  M3AP_FIND_PROTOCOLIE_BY_ID(M3AP_MBMSSessionStartRequest_Ies_t, ie, container, M3AP_ProtocolIE_ID_id_Alternative_TNL_Information, false);
++  if (ie) {
++    M3AP_TNL_Information_t *alt_tnl_info = &ie->value.choice.Alternative_TNL_Information;
++    M3AP_MBMS_SESSION_START_REQ(message_p).num_alternative_tnl_info = alt_tnl_info->list.count;
++    
++    for (i = 0; i < alt_tnl_info->list.count && i < 8; i++) {
++      M3AP_TNLInformation_Item_t *tnl_item = alt_tnl_info->list.array[i];
++      
++      if (tnl_item->tNLAddress.size == 4) {
++        /* IPv4 address */
++        M3AP_MBMS_SESSION_START_REQ(message_p).alternative_tnl_info[i].ipv4 = 1;
++        M3AP_MBMS_SESSION_START_REQ(message_p).alternative_tnl_info[i].ipv6 = 0;
++        inet_ntop(AF_INET, tnl_item->tNLAddress.buf, 
++                  M3AP_MBMS_SESSION_START_REQ(message_p).alternative_tnl_info[i].ipv4_address, 
++                  sizeof(M3AP_MBMS_SESSION_START_REQ(message_p).alternative_tnl_info[i].ipv4_address));
++      } else if (tnl_item->tNLAddress.size == 16) {
++        /* IPv6 address */
++        M3AP_MBMS_SESSION_START_REQ(message_p).alternative_tnl_info[i].ipv4 = 0;
++        M3AP_MBMS_SESSION_START_REQ(message_p).alternative_tnl_info[i].ipv6 = 1;
++        inet_ntop(AF_INET6, tnl_item->tNLAddress.buf, 
++                  M3AP_MBMS_SESSION_START_REQ(message_p).alternative_tnl_info[i].ipv6_address, 
++                  sizeof(M3AP_MBMS_SESSION_START_REQ(message_p).alternative_tnl_info[i].ipv6_address));
++      }
++    }
++    
++    LOG_D(M3AP, "Extracted Alternative-TNL-Information with %d entries\n", M3AP_MBMS_SESSION_START_REQ(message_p).num_alternative_tnl_info);
++  }
++
++  /* Extract MBMS-Cell-List (Optional) */
++  M3AP_FIND_PROTOCOLIE_BY_ID(M3AP_MBMSSessionStartRequest_Ies_t, ie, container, M3AP_ProtocolIE_ID_id_MBMS_Cell_List, false);
++  if (ie) {
++    M3AP_MBMS_Cell_List_t *cell_list = &ie->value.choice.MS_Cell_List;
++    M3AP_MBMS_SESSION_START_REQ(message_p).num_mbms_cell_list = cell_list->list.count;
++    
++    for (i = 0; i < cell_list->list.count && i < 256; i++) {
++      M3AP_ECGI_t *ecgi = cell_list->list.array[i];
++      M3AP_MBMS_SESSION_START_REQ(message_p).mbms_cell_list[i].cell_id = ecgi->eUTRANcellIdentifier.buf[0];
++    }
++    
++    LOG_D(M3AP, "Extracted MBMS-Cell-List with %d cells\n", M3AP_MBMS_SESSION_START_REQ(message_p).num_mbms_cell_list);
++  }
++
++  /* Send message to MCE APP */
++  itti_send_msg_to_task(TASK_MCE_APP, ENB_MODULE_ID_TO_INSTANCE(instance), message_p);
++
++  LOG_I(M3AP, "Successfully processed MBMS Session Start Request from assoc_id %d\n", assoc_id);
+   
++  return 0;
+ }
+ 
+ int MCE_send_MBMS_SESSION_START_RESPONSE(instance_t instance, m3ap_session_start_resp_t * m3ap_session_start_resp){

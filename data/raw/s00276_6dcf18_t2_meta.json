@@ -1,0 +1,9 @@
+{
+  "run_id": "s00276_6dcf18",
+  "pr_text": "## Title: Add range validation for RLC bearer configuration parameters\n\n### Summary\nThe RLC bearer configuration processing in the NR MAC gNB lacked validation for configuration parameters received from RRC, allowing out-of-spec values to propagate downstream. Specifically, the `process_rlcBearerConfig` function did not validate:\n- The count of RLC bearers to add/release against array bounds\n- Logical Channel IDs (LCID) against the 3GPP-specified maximum value of 32\n- The total number of active ",
+  "trajectory_path": "data/raw/s00276_6dcf18_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00276_6dcf18_p2.diff",
+  "patch_lines": 39,
+  "trajectory_steps": 39,
+  "timestamp": "2026-02-10T12:22:37Z"
+}

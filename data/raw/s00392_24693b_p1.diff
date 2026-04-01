@@ -1,0 +1,13 @@
+diff --git a/openair1/PHY/NR_UE_ESTIMATION/nr_dl_channel_estimation.c b/openair1/PHY/NR_UE_ESTIMATION/nr_dl_channel_estimation.c
+index 0e186a3bc3..a9afcbcc24 100644
+--- a/openair1/PHY/NR_UE_ESTIMATION/nr_dl_channel_estimation.c
++++ b/openair1/PHY/NR_UE_ESTIMATION/nr_dl_channel_estimation.c
+@@ -459,7 +459,7 @@ int nr_prs_channel_estimation(uint8_t gNB_id,
+     prs_meas[rxAnt]->slot       = proc->nr_slot_rx;
+     prs_meas[rxAnt]->rxAnt_idx  = rxAnt;
+     prs_meas[rxAnt]->dl_aoa     = rsc_id;
+-    prs_meas[rxAnt]->dl_toa = prs_toa / (float)NR_PRS_IDFT_OVERSAMP_FACTOR;
++    prs_meas[rxAnt]->dl_toa = (float)prs_toa / (float)NR_PRS_IDFT_OVERSAMP_FACTOR;
+     if ((frame_params->ofdm_symbol_size - prs_meas[rxAnt]->dl_toa) < frame_params->ofdm_symbol_size / 2)
+       prs_meas[rxAnt]->dl_toa -= (frame_params->ofdm_symbol_size);
+     LOG_I(PHY,

@@ -1,0 +1,26 @@
+{
+  "run_id": "nuttx_00024_82f710",
+  "function": {
+    "name": "stm32_ncd_interrupt",
+    "file": "boards/arm/stm32h7/weact-stm32h750/src/stm32_sdmmc.c",
+    "start_line": 76,
+    "end_line": 88,
+    "body_lines": 13,
+    "signature": "static int stm32_ncd_interrupt(int irq, void *context, void *param)",
+    "subsystem": "boards/arm/stm32h7",
+    "token_estimate": 28
+  },
+  "bug": {
+    "bug_id": "c_unchecked_return_value",
+    "description": "unchecked return value from a function that can indicate failure",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a unchecked return value from a function that can indicate failure downstream of function stm32_ncd_interrupt in the boards/arm/stm32h7 subsystem.\nThe function is located at boards/arm/stm32h7/weact-stm32h750/src/stm32_sdmmc.c:76.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 21,
+  "trajectory_steps": 47,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:07:11Z"
+}

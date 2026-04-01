@@ -1,0 +1,9 @@
+{
+  "run_id": "s00165_09594f",
+  "pr_text": "## Title: Fix signed/unsigned integer comparison mismatch in Msg4 retransmission check\n\n### Summary\nThe `check_Msg4_retransmission` function in the eNB MAC scheduler contained a signed/unsigned integer comparison mismatch that could lead to incorrect branching behavior and compiler warnings. The local variable `round` was declared as a signed `int` but was being compared against unsigned values in the HARQ status checking logic, creating a type mismatch that violates C language semantics and cou",
+  "trajectory_path": "data/raw/s00165_09594f_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00165_09594f_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 31,
+  "timestamp": "2026-02-10T11:40:23Z"
+}

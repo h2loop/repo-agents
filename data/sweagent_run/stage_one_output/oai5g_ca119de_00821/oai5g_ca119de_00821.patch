@@ -1,0 +1,544 @@
+diff --git a/openair3/NAS/COMMON/IES/AccessPointName.c b/openair3/NAS/COMMON/IES/AccessPointName.c
+index c63bb91222..74ee5801c8 100644
+--- a/openair3/NAS/COMMON/IES/AccessPointName.c
++++ b/openair3/NAS/COMMON/IES/AccessPointName.c
+@@ -39,6 +39,11 @@ int decode_access_point_name(AccessPointName *accesspointname, uint8_t iei, uint
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/ApnAggregateMaximumBitRate.c b/openair3/NAS/COMMON/IES/ApnAggregateMaximumBitRate.c
+index 4d01fc5b46..140757ef7d 100644
+--- a/openair3/NAS/COMMON/IES/ApnAggregateMaximumBitRate.c
++++ b/openair3/NAS/COMMON/IES/ApnAggregateMaximumBitRate.c
+@@ -38,6 +38,11 @@ int decode_apn_aggregate_maximum_bit_rate(ApnAggregateMaximumBitRate *apnaggrega
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/AuthenticationFailureParameter.c b/openair3/NAS/COMMON/IES/AuthenticationFailureParameter.c
+index 4989ae27fe..9ee25079c1 100644
+--- a/openair3/NAS/COMMON/IES/AuthenticationFailureParameter.c
++++ b/openair3/NAS/COMMON/IES/AuthenticationFailureParameter.c
+@@ -39,6 +39,11 @@ int decode_authentication_failure_parameter(AuthenticationFailureParameter *auth
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/AuthenticationParameterAutn.c b/openair3/NAS/COMMON/IES/AuthenticationParameterAutn.c
+index 7de70359f7..c8bbc1ca77 100644
+--- a/openair3/NAS/COMMON/IES/AuthenticationParameterAutn.c
++++ b/openair3/NAS/COMMON/IES/AuthenticationParameterAutn.c
+@@ -39,6 +39,11 @@ int decode_authentication_parameter_autn(AuthenticationParameterAutn *authentica
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/AuthenticationResponseParameter.c b/openair3/NAS/COMMON/IES/AuthenticationResponseParameter.c
+index 85bcaeb1b2..841cf405a3 100644
+--- a/openair3/NAS/COMMON/IES/AuthenticationResponseParameter.c
++++ b/openair3/NAS/COMMON/IES/AuthenticationResponseParameter.c
+@@ -39,6 +39,11 @@ int decode_authentication_response_parameter(AuthenticationResponseParameter *au
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/Cli.c b/openair3/NAS/COMMON/IES/Cli.c
+index e8878a2642..83677e1d00 100644
+--- a/openair3/NAS/COMMON/IES/Cli.c
++++ b/openair3/NAS/COMMON/IES/Cli.c
+@@ -39,6 +39,11 @@ int decode_cli(Cli *cli, uint8_t iei, uint8_t *buffer, uint32_t len)
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/DaylightSavingTime.c b/openair3/NAS/COMMON/IES/DaylightSavingTime.c
+index b5c242414d..ad019e1f34 100644
+--- a/openair3/NAS/COMMON/IES/DaylightSavingTime.c
++++ b/openair3/NAS/COMMON/IES/DaylightSavingTime.c
+@@ -38,6 +38,11 @@ int decode_daylight_saving_time(DaylightSavingTime *daylightsavingtime, uint8_t
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/EmergencyNumberList.c b/openair3/NAS/COMMON/IES/EmergencyNumberList.c
+index ccf030b583..5d210488a6 100644
+--- a/openair3/NAS/COMMON/IES/EmergencyNumberList.c
++++ b/openair3/NAS/COMMON/IES/EmergencyNumberList.c
+@@ -38,6 +38,11 @@ int decode_emergency_number_list(EmergencyNumberList *emergencynumberlist, uint8
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+@@ -50,12 +55,12 @@ int decode_emergency_number_list(EmergencyNumberList *emergencynumberlist, uint8
+     int remaining_len = emergencynumberlist->emergency_number_information[information_element_index].lengthofemergency - 1;
+     int digit_index = 0;
+     while (remaining_len > 0) {
+-    	emergencynumberlist->emergency_number_information[information_element_index].bcd_digits[digit_index++] = *(buffer + decoded);
++        emergencynumberlist->emergency_number_information[information_element_index].bcd_digits[digit_index++] = *(buffer + decoded);
+         decoded++;
+         remaining_len --;
+     }
+     while (digit_index < EMERGENCY_NUMBER_LIST_MAX_2DIGITS) {
+-    	emergencynumberlist->emergency_number_information[information_element_index].bcd_digits[digit_index++] = 0xFF;
++        emergencynumberlist->emergency_number_information[information_element_index].bcd_digits[digit_index++] = 0xFF;
+     }
+     information_element_index++;
+   }
+@@ -82,14 +87,14 @@ int encode_emergency_number_list(EmergencyNumberList *emergencynumberlist, uint8
+   lenPtr  = (buffer + encoded);
+   encoded ++;
+   for (  int ie_index = 0; ie_index < emergencynumberlist->num_emergency_elements; ie_index++) {
+-	  *(buffer + encoded) = emergencynumberlist->emergency_number_information[ie_index].lengthofemergency;
+-	  encoded++;
+-	  *(buffer + encoded) = 0x00 |
+-	                        (emergencynumberlist->emergency_number_information[ie_index].emergencyservicecategoryvalue & 0x1f);
+-	  encoded++;
+-	  for (int bcd2_index = 0; bcd2_index < (emergencynumberlist->emergency_number_information[ie_index].lengthofemergency - 1); bcd2_index++) {
+-		  *(buffer + encoded) = emergencynumberlist->emergency_number_information[ie_index].bcd_digits[bcd2_index];
+-	  }
++          *(buffer + encoded) = emergencynumberlist->emergency_number_information[ie_index].lengthofemergency;
++          encoded++;
++          *(buffer + encoded) = 0x00 |
++                                (emergencynumberlist->emergency_number_information[ie_index].emergencyservicecategoryvalue & 0x1f);
++          encoded++;
++          for (int bcd2_index = 0; bcd2_index < (emergencynumberlist->emergency_number_information[ie_index].lengthofemergency - 1); bcd2_index++) {
++                  *(buffer + encoded) = emergencynumberlist->emergency_number_information[ie_index].bcd_digits[bcd2_index];
++          }
+   }
+   *lenPtr = encoded - 1 - ((iei > 0) ? 1 : 0);
+   return encoded;
+@@ -103,18 +108,18 @@ void dump_emergency_number_list_xml(EmergencyNumberList *emergencynumberlist, ui
+     /* Don't display IEI if = 0 */
+     printf("    <IEI>0x%X</IEI>\n", iei);
+   for (  int ie_index = 0; ie_index < emergencynumberlist->num_emergency_elements; ie_index++) {
+-	  printf("    <Length of emergency>%u</Length of emergency>\n", emergencynumberlist->emergency_number_information[ie_index].lengthofemergency);
+-	  printf("    <Emergency service category value>%u</Emergency service category value>\n", emergencynumberlist->emergency_number_information[ie_index].emergencyservicecategoryvalue);
+-	  for (int bcd2_index = 0; bcd2_index < (emergencynumberlist->emergency_number_information[ie_index].lengthofemergency - 1); bcd2_index++) {
+-		  uint8_t bcd1 = emergencynumberlist->emergency_number_information[ie_index].bcd_digits[bcd2_index] & 0x0f;
+-		  uint8_t bcd2 = (emergencynumberlist->emergency_number_information[ie_index].bcd_digits[bcd2_index] & 0xf0) >> 4;
+-		  if (bcd1 < 10) {
+-		    printf("    <BCD Digit%u>%u</BCD Digit%u>\n", (bcd2_index*2)+1, bcd1, (bcd2_index*2)+1);
+-		    if (bcd2 < 10) {
+-		    	printf("    <BCD Digit%u>%u</BCD Digit%u>\n", (bcd2_index*2)+2, bcd2, (bcd2_index*2)+2);
+-		    }
+-		  }
+-	  }
++          printf("    <Length of emergency>%u</Length of emergency>\n", emergencynumberlist->emergency_number_information[ie_index].lengthofemergency);
++          printf("    <Emergency service category value>%u</Emergency service category value>\n", emergencynumberlist->emergency_number_information[ie_index].emergencyservicecategoryvalue);
++          for (int bcd2_index = 0; bcd2_index < (emergencynumberlist->emergency_number_information[ie_index].lengthofemergency - 1); bcd2_index++) {
++                  uint8_t bcd1 = emergencynumberlist->emergency_number_information[ie_index].bcd_digits[bcd2_index] & 0x0f;
++                  uint8_t bcd2 = (emergencynumberlist->emergency_number_information[ie_index].bcd_digits[bcd2_index] & 0xf0) >> 4;
++                  if (bcd1 < 10) {
++                    printf("    <BCD Digit%u>%u</BCD Digit%u>\n", (bcd2_index*2)+1, bcd1, (bcd2_index*2)+1);
++                    if (bcd2 < 10) {
++                        printf("    <BCD Digit%u>%u</BCD Digit%u>\n", (bcd2_index*2)+2, bcd2, (bcd2_index*2)+2);
++                    }
++                  }
++          }
+   }
+   printf("</Emergency Number List>\n");
+ }
+diff --git a/openair3/NAS/COMMON/IES/EpsBearerContextStatus.c b/openair3/NAS/COMMON/IES/EpsBearerContextStatus.c
+index 9984375dff..59666ef835 100644
+--- a/openair3/NAS/COMMON/IES/EpsBearerContextStatus.c
++++ b/openair3/NAS/COMMON/IES/EpsBearerContextStatus.c
+@@ -38,6 +38,11 @@ int decode_eps_bearer_context_status(EpsBearerContextStatus *epsbearercontextsta
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/EpsMobileIdentity.c b/openair3/NAS/COMMON/IES/EpsMobileIdentity.c
+index 4437412b86..fb87f7f3b4 100644
+--- a/openair3/NAS/COMMON/IES/EpsMobileIdentity.c
++++ b/openair3/NAS/COMMON/IES/EpsMobileIdentity.c
+@@ -47,6 +47,11 @@ int decode_eps_mobile_identity(EpsMobileIdentity *epsmobileidentity, uint8_t iei
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/EpsNetworkFeatureSupport.c b/openair3/NAS/COMMON/IES/EpsNetworkFeatureSupport.c
+index 2ef36d7595..d3656d5b06 100644
+--- a/openair3/NAS/COMMON/IES/EpsNetworkFeatureSupport.c
++++ b/openair3/NAS/COMMON/IES/EpsNetworkFeatureSupport.c
+@@ -38,6 +38,11 @@ int decode_eps_network_feature_support(EpsNetworkFeatureSupport *epsnetworkfeatu
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/EpsQualityOfService.c b/openair3/NAS/COMMON/IES/EpsQualityOfService.c
+index ac45a9c0f5..3de5d375aa 100644
+--- a/openair3/NAS/COMMON/IES/EpsQualityOfService.c
++++ b/openair3/NAS/COMMON/IES/EpsQualityOfService.c
+@@ -52,6 +52,11 @@ int decode_eps_quality_of_service(EpsQualityOfService *epsqualityofservice, uint
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/EsmMessageContainer.c b/openair3/NAS/COMMON/IES/EsmMessageContainer.c
+index e33c06c71d..8b3b3992a2 100644
+--- a/openair3/NAS/COMMON/IES/EsmMessageContainer.c
++++ b/openair3/NAS/COMMON/IES/EsmMessageContainer.c
+@@ -43,6 +43,11 @@ int decode_esm_message_container(EsmMessageContainer *esmmessagecontainer, uint8
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 2) {
++    LOG_FUNC_RETURN(TLV_DECODE_BUFFER_TOO_SHORT);
++  }
++
+   DECODE_LENGTH_U16(buffer + decoded, ielen, decoded);
+ 
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/LcsClientIdentity.c b/openair3/NAS/COMMON/IES/LcsClientIdentity.c
+index 89014ce46c..8cd974c27b 100644
+--- a/openair3/NAS/COMMON/IES/LcsClientIdentity.c
++++ b/openair3/NAS/COMMON/IES/LcsClientIdentity.c
+@@ -39,6 +39,11 @@ int decode_lcs_client_identity(LcsClientIdentity *lcsclientidentity, uint8_t iei
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/MobileIdentity.c b/openair3/NAS/COMMON/IES/MobileIdentity.c
+index fbe6d93e47..7f3fe171fe 100644
+--- a/openair3/NAS/COMMON/IES/MobileIdentity.c
++++ b/openair3/NAS/COMMON/IES/MobileIdentity.c
+@@ -53,6 +53,11 @@ int decode_mobile_identity(MobileIdentity *mobileidentity, uint8_t iei, uint8_t
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+ 
+diff --git a/openair3/NAS/COMMON/IES/MobileStationClassmark2.c b/openair3/NAS/COMMON/IES/MobileStationClassmark2.c
+index e3a165bf3a..4e882da6a2 100644
+--- a/openair3/NAS/COMMON/IES/MobileStationClassmark2.c
++++ b/openair3/NAS/COMMON/IES/MobileStationClassmark2.c
+@@ -38,6 +38,11 @@ int decode_mobile_station_classmark_2(MobileStationClassmark2 *mobilestationclas
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/MsNetworkCapability.c b/openair3/NAS/COMMON/IES/MsNetworkCapability.c
+index 8c2955177e..5853ca9e5a 100644
+--- a/openair3/NAS/COMMON/IES/MsNetworkCapability.c
++++ b/openair3/NAS/COMMON/IES/MsNetworkCapability.c
+@@ -39,6 +39,11 @@ int decode_ms_network_capability(MsNetworkCapability *msnetworkcapability, uint8
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/NasMessageContainer.c b/openair3/NAS/COMMON/IES/NasMessageContainer.c
+index cccb8f7543..c46588e225 100644
+--- a/openair3/NAS/COMMON/IES/NasMessageContainer.c
++++ b/openair3/NAS/COMMON/IES/NasMessageContainer.c
+@@ -39,6 +39,11 @@ int decode_nas_message_container(NasMessageContainer *nasmessagecontainer, uint8
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/NetworkName.c b/openair3/NAS/COMMON/IES/NetworkName.c
+index d0d92dccbe..bd538b17db 100644
+--- a/openair3/NAS/COMMON/IES/NetworkName.c
++++ b/openair3/NAS/COMMON/IES/NetworkName.c
+@@ -39,6 +39,11 @@ int decode_network_name(NetworkName *networkname, uint8_t iei, uint8_t *buffer,
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/PacketFlowIdentifier.c b/openair3/NAS/COMMON/IES/PacketFlowIdentifier.c
+index fef2edd10d..4f798ae082 100644
+--- a/openair3/NAS/COMMON/IES/PacketFlowIdentifier.c
++++ b/openair3/NAS/COMMON/IES/PacketFlowIdentifier.c
+@@ -38,6 +38,11 @@ int decode_packet_flow_identifier(PacketFlowIdentifier *packetflowidentifier, ui
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/PdnAddress.c b/openair3/NAS/COMMON/IES/PdnAddress.c
+index de64d410c5..fd84c4ce43 100644
+--- a/openair3/NAS/COMMON/IES/PdnAddress.c
++++ b/openair3/NAS/COMMON/IES/PdnAddress.c
+@@ -39,6 +39,11 @@ int decode_pdn_address(PdnAddress *pdnaddress, uint8_t iei, uint8_t *buffer, uin
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/PlmnList.c b/openair3/NAS/COMMON/IES/PlmnList.c
+index e6a3cecf4d..9f1d52cb15 100644
+--- a/openair3/NAS/COMMON/IES/PlmnList.c
++++ b/openair3/NAS/COMMON/IES/PlmnList.c
+@@ -38,6 +38,11 @@ int decode_plmn_list(PlmnList *plmnlist, uint8_t iei, uint8_t *buffer, uint32_t
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/ProtocolConfigurationOptions.c b/openair3/NAS/COMMON/IES/ProtocolConfigurationOptions.c
+index f4bd3e5e2c..d6b490d8b2 100644
+--- a/openair3/NAS/COMMON/IES/ProtocolConfigurationOptions.c
++++ b/openair3/NAS/COMMON/IES/ProtocolConfigurationOptions.c
+@@ -38,6 +38,11 @@ int decode_protocol_configuration_options(ProtocolConfigurationOptions *protocol
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+@@ -111,8 +116,8 @@ int encode_protocol_configuration_options(ProtocolConfigurationOptions *protocol
+     encoded++;
+ 
+     if ((encode_result = encode_octet_string(&protocolconfigurationoptions->protocolidcontents[num_protocol_id_or_container_id],
+-    		buffer + encoded,
+-    		len - encoded)) < 0)
++                buffer + encoded,
++                len - encoded)) < 0)
+       return encode_result;
+     else
+       encoded += encode_result;
+diff --git a/openair3/NAS/COMMON/IES/QualityOfService.c b/openair3/NAS/COMMON/IES/QualityOfService.c
+index 02c4ceca29..68dff7e8f4 100644
+--- a/openair3/NAS/COMMON/IES/QualityOfService.c
++++ b/openair3/NAS/COMMON/IES/QualityOfService.c
+@@ -38,6 +38,11 @@ int decode_quality_of_service(QualityOfService *qualityofservice, uint8_t iei, u
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/SupportedCodecList.c b/openair3/NAS/COMMON/IES/SupportedCodecList.c
+index 15a2fecaa0..0cdc5b1542 100644
+--- a/openair3/NAS/COMMON/IES/SupportedCodecList.c
++++ b/openair3/NAS/COMMON/IES/SupportedCodecList.c
+@@ -38,6 +38,11 @@ int decode_supported_codec_list(SupportedCodecList *supportedcodeclist, uint8_t
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/TrackingAreaIdentityList.c b/openair3/NAS/COMMON/IES/TrackingAreaIdentityList.c
+index d68ed72a21..f39b6473f8 100644
+--- a/openair3/NAS/COMMON/IES/TrackingAreaIdentityList.c
++++ b/openair3/NAS/COMMON/IES/TrackingAreaIdentityList.c
+@@ -37,6 +37,11 @@ int decode_tracking_area_identity_list(TrackingAreaIdentityList *trackingareaide
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/TrafficFlowTemplate.c b/openair3/NAS/COMMON/IES/TrafficFlowTemplate.c
+index d5ab249573..9ae5f96285 100644
+--- a/openair3/NAS/COMMON/IES/TrafficFlowTemplate.c
++++ b/openair3/NAS/COMMON/IES/TrafficFlowTemplate.c
+@@ -58,6 +58,11 @@ int decode_traffic_flow_template(TrafficFlowTemplate *trafficflowtemplate, uint8
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/UeSecurityCapability.c b/openair3/NAS/COMMON/IES/UeSecurityCapability.c
+index 9b40b1b85c..5aabc07bdb 100644
+--- a/openair3/NAS/COMMON/IES/UeSecurityCapability.c
++++ b/openair3/NAS/COMMON/IES/UeSecurityCapability.c
+@@ -39,6 +39,11 @@ int decode_ue_security_capability(UeSecurityCapability *uesecuritycapability, ui
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   memset(uesecuritycapability, 0, sizeof(UeSecurityCapability));
+   ielen = *(buffer + decoded);
+   decoded++;
+diff --git a/openair3/NAS/COMMON/IES/VoiceDomainPreferenceAndUeUsageSetting.c b/openair3/NAS/COMMON/IES/VoiceDomainPreferenceAndUeUsageSetting.c
+index 156c68d80f..4acd0ff1be 100644
+--- a/openair3/NAS/COMMON/IES/VoiceDomainPreferenceAndUeUsageSetting.c
++++ b/openair3/NAS/COMMON/IES/VoiceDomainPreferenceAndUeUsageSetting.c
+@@ -39,6 +39,11 @@ int decode_voice_domain_preference_and_ue_usage_setting(VoiceDomainPreferenceAnd
+     decoded++;
+   }
+ 
++  /* Check if we have enough buffer to read the length field */
++  if (len - decoded < 1) {
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
++
+   memset(voicedomainpreferenceandueusagesetting, 0, sizeof(VoiceDomainPreferenceAndUeUsageSetting));
+   ielen = *(buffer + decoded);
+   decoded++;

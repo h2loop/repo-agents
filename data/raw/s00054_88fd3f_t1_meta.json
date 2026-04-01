@@ -1,0 +1,28 @@
+{
+  "run_id": "s00054_88fd3f",
+  "function": {
+    "name": "rrc_deliver_ue_ctxt_modif_req",
+    "file": "openair2/RRC/NR/rrc_gNB_mobility.c",
+    "start_line": 172,
+    "end_line": 179,
+    "body_lines": 8,
+    "signature": "static void rrc_deliver_ue_ctxt_modif_req(void *deliver_pdu_data, ue_id_t ue_id, int srb_id, char *buf, int size, int sdu_id)",
+    "subsystem": "openair2/RRC/NR",
+    "token_estimate": 39
+  },
+  "bug": {
+    "bug_id": "telecom_sched_incorrect_rb_allocation",
+    "description": "incorrect resource block allocation violating scheduling constraints",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a incorrect resource block allocation violating scheduling constraints downstream of function rrc_deliver_ue_ctxt_modif_req in the openair2/RRC/NR subsystem.\nThe function is located at openair2/RRC/NR/rrc_gNB_mobility.c:172.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00054_88fd3f_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00054_88fd3f_p1.diff",
+  "patch_lines": 47,
+  "trajectory_steps": 32,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:51:10Z"
+}

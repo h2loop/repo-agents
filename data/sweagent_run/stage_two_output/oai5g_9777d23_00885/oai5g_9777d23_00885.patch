@@ -1,0 +1,38 @@
+diff --git a/openair3/NAS/NR_UE/nr_nas_msg.c b/openair3/NAS/NR_UE/nr_nas_msg.c
+index 8f4f9bd280..8934870ac7 100644
+--- a/openair3/NAS/NR_UE/nr_nas_msg.c
++++ b/openair3/NAS/NR_UE/nr_nas_msg.c
+@@ -1303,6 +1303,7 @@ static void handle_security_mode_command(nr_ue_nas_t *nas, as_nas_info_t *initia
+     LOG_E(NAS, "Invalid pdu_length=%d : send Security Mode Reject\n", pdu_length);
+     // 3GPP TS 24.501 5.4.2.5 NAS security mode command not accepted by the UE
+     generateSecurityModeReject(nas, initialNasMsg, Security_mode_rejected_unspecified);
++    return;
+   }
+ 
+   int ciphering_algorithm = (pdu[10] >> 4) & 0x0f;
+@@ -1343,6 +1344,25 @@ static void handle_security_mode_command(nr_ue_nas_t *nas, as_nas_info_t *initia
+     return;
+   }
+ 
++  /* synchronize NAS SQN, based on 24.501 4.4.3.1 */
++  if (pdu_length >= 7) {
++    // Sequence number is at offset 6 in the security protected message
++    int nas_sqn = pdu[6];
++    int target_sqn = nas->security.nas_count_dl & 0xff;
++    if (nas_sqn != target_sqn) {
++      if (nas_sqn < target_sqn)
++        nas->security.nas_count_dl += 256;
++      nas->security.nas_count_dl &= ~255;
++      nas->security.nas_count_dl |= nas_sqn;
++    }
++    if (nas->security.nas_count_dl > 0x00ffffff) {
++      /* it's doubtful that this will happen, so let's simply exit for the time being */
++      /* to be refined if needed */
++      LOG_E(NAS, "max NAS COUNT DL reached\n");
++      exit(1);
++    }
++  }
++
+   /* Check MAC and delete context if it does not match */
+   uint8_t computed_mac[NAS_INTEGRITY_SIZE];
+   byte_array_t ba = {.buf = pdu, .len = pdu_length};

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00080_fc988a",
+  "pr_text": "## Title: Fix malformed IPv6 address formatting in NAS ESM module\n\n### Summary\nThe `esm_data_get_ipv6_addr()` function in the NAS ESM module was producing malformed IPv6 address strings due to incorrect format specifiers (`%x%.2x`) and incomplete address processing. The implementation only consumed the first 8 bytes of the 16-byte IPv6 address, resulting in truncated, non-standard addresses in PDN connectivity logs and potentially corrupted signaling messages. This caused confusion during UE att",
+  "trajectory_path": "data/raw/s00080_fc988a_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00080_fc988a_p2.diff",
+  "patch_lines": 9,
+  "trajectory_steps": 10,
+  "timestamp": "2026-02-10T11:03:19Z"
+}

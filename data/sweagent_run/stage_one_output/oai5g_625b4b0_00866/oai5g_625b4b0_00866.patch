@@ -1,0 +1,45 @@
+diff --git a/openair2/RRC/LTE/rrc_eNB.c b/openair2/RRC/LTE/rrc_eNB.c
+index c26a57cd44..e052c7f56e 100644
+--- a/openair2/RRC/LTE/rrc_eNB.c
++++ b/openair2/RRC/LTE/rrc_eNB.c
+@@ -5862,7 +5862,10 @@ rrc_eNB_decode_ccch(
+                       ctxt_pP->rntiMaybeUEid,
+                       ue_context_p->ue_context.rnti,
+                       ue_context_p->ue_context.rnti);
+-                ue_context_p->ue_context.ul_failure_timer = 20000;
++                LOG_I(PHY, "remove RNTI %04x\n", ue_context_p->ue_context.rnti);
++                rrc_mac_remove_ue(ctxt_pP->module_id, ue_context_p->ue_context.rnti);
++                rrc_eNB_remove_ue_context(ctxt_pP, RC.rrc[ctxt_pP->module_id], ue_context_p);
++                ue_context_p = NULL;
+               }
+ 
+               ue_context_p = rrc_eNB_get_next_free_ue_context(ctxt_pP, random_value);
+@@ -6175,7 +6178,7 @@ is_dl_256QAM_supported(
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R118
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R11a
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R125
+-	 && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250 != NULL
++         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250 != NULL
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250 != NULL
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array != NULL
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array[0]->dl_256QAM_r12 != NULL
+@@ -6493,7 +6496,7 @@ rrc_eNB_decode_dcch(
+                   ue_context_p->ue_context.enb_gtp_ebi[i]  = 0;
+                 }
+               }
+-	      gtpv1u_delete_s1u_tunnel(ctxt_pP->instance, &delete_tunnels);
++              gtpv1u_delete_s1u_tunnel(ctxt_pP->instance, &delete_tunnels);
+               //S1AP_E_RAB_RELEASE_RESPONSE
+               rrc_eNB_send_S1AP_E_RAB_RELEASE_RESPONSE(ctxt_pP,
+                   ue_context_p,
+@@ -7222,8 +7225,8 @@ void rrc_subframe_process(protocol_ctxt_t *const ctxt_pP, const int CC_id) {
+           get_ue_Category(ue_context_p->ue_context.UE_Capability,&catDL,&catUL);
+           fprintf(fd,"RRC UE cap: CatDL %ld, CatUL %ld, 64QAM UL %s, 256 QAM DL %s, 256 QAM UL %s, ENDC %s,\n",
+                 catDL,catUL,
+-		is_ul_64QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
+-		is_dl_256QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
++                is_ul_64QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
++                is_dl_256QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
+                 is_ul_256QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
+                 is_en_dc_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no");
+         }

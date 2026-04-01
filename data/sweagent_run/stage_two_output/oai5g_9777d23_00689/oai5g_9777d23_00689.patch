@@ -1,0 +1,38 @@
+diff --git a/openair1/PHY/CODING/TESTBENCH/polartest.c b/openair1/PHY/CODING/TESTBENCH/polartest.c
+index beab44c689..5ae71fd12d 100644
+--- a/openair1/PHY/CODING/TESTBENCH/polartest.c
++++ b/openair1/PHY/CODING/TESTBENCH/polartest.c
+@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
+   memset(encoder_output, 0, sizeof(uint32_t) * 54);
+   t_nrPolar_params *currentPtrDCI = nr_polar_params(1, size, aggregation_level);
+ 
+-  polar_encoder_dci(dci_pdu, encoder_output, currentPtrDCI, rnti);
++  polar_encoder_dci(dci_pdu, encoder_output, rnti, 1, size, aggregation_level);
+   for (int i = 0; i < 54; i++)
+     printf("encoder_output: [%2d]->0x%08x \n", i, encoder_output[i]);
+ 
+diff --git a/openair1/PHY/CODING/nrPolar_tools/nr_polar_encoder.c b/openair1/PHY/CODING/nrPolar_tools/nr_polar_encoder.c
+index 0f22900d72..56eeabb359 100644
+--- a/openair1/PHY/CODING/nrPolar_tools/nr_polar_encoder.c
++++ b/openair1/PHY/CODING/nrPolar_tools/nr_polar_encoder.c
+@@ -194,16 +194,17 @@ void polar_encoder_dci(uint32_t *in,
+     printf("%d-", nr_polar_crc[i]);
+   printf("\n");
+ #endif
+-  uint8_t nr_polar_B[polarParams->payloadBits + 8 + 16];
++  uint8_t nr_polar_B[polarParams->K];
+   // Attach CRC to the Transport Block. (a to b)
+   memcpy(nr_polar_B, nr_polar_A, polarParams->payloadBits);
+ 
+   for (uint i = polarParams->payloadBits; i < polarParams->K; i++)
+     nr_polar_B[i] = nr_polar_crc[i - polarParams->payloadBits];
+ 
+-  // Scrambling (b to c)
++  // Scrambling (b to c) - apply RNTI scrambling to last 16 bits of CRC
++  const int scrambling_start_pos = polarParams->K - 16;
+   for (int i = 0; i < 16; i++)
+-    nr_polar_B[polarParams->payloadBits + 8 + i] = (nr_polar_B[polarParams->payloadBits + 8 + i] + ((n_RNTI >> (15 - i)) & 1)) % 2;
++    nr_polar_B[scrambling_start_pos + i] = (nr_polar_B[scrambling_start_pos + i] + ((n_RNTI >> (15 - i)) & 1)) % 2;
+ 
+ #ifdef DEBUG_POLAR_ENCODER_DCI
+   printf("[polar_encoder_dci] B: ");

@@ -1,0 +1,85 @@
+diff --git a/common/utils/ocp_itti/intertask_interface.cpp b/common/utils/ocp_itti/intertask_interface.cpp
+index 9d22e06d7d..f8600b55cb 100644
+--- a/common/utils/ocp_itti/intertask_interface.cpp
++++ b/common/utils/ocp_itti/intertask_interface.cpp
+@@ -25,6 +25,9 @@
+ #include <map>
+ #include <sys/eventfd.h>
+ #include <semaphore.h>
++#include <unistd.h>
++#include <errno.h>
++#include <sys/epoll.h>
+ 
+ 
+ extern "C" {
+@@ -334,6 +337,20 @@ typedef struct timer_elm_s {
+     usleep(100*1000); // Allow the tasks to receive the message before going returning to main thread
+   }
+ 
++  void itti_destroy_task(task_id_t task_id) {
++    if (tasks[task_id] != NULL) {
++      // Close file descriptors if they were created
++      if (tasks[task_id]->sem_fd >= 0) {
++        close(tasks[task_id]->sem_fd);
++        tasks[task_id]->sem_fd = -1;
++      }
++      if (tasks[task_id]->epoll_fd >= 0) {
++        close(tasks[task_id]->epoll_fd);
++        tasks[task_id]->epoll_fd = -1;
++      }
++    }
++  }
++
+   int itti_create_queue(const task_info_t *taskInfo) {
+     pthread_mutex_lock (&lock_nb_queues);
+     int newQueue=nb_queues++;
+@@ -346,9 +363,30 @@ typedef struct timer_elm_s {
+     LOG_D(ITTI, "Starting itti queue: %s as task %d\n", taskInfo->name, newQueue);
+     pthread_mutex_init(&tasks[newQueue]->queue_cond_lock, NULL);
+     memcpy(&tasks[newQueue]->admin, taskInfo, sizeof(task_info_t));
+-    AssertFatal( ( tasks[newQueue]->epoll_fd = epoll_create1(0) ) >=0, "");
+-    AssertFatal( ( tasks[newQueue]->sem_fd = eventfd(0, EFD_SEMAPHORE) ) >=0, "");
+-    itti_subscribe_event_fd((task_id_t)newQueue, tasks[newQueue]->sem_fd);
++    tasks[newQueue]->epoll_fd = epoll_create1(0);
++    AssertFatal(tasks[newQueue]->epoll_fd >= 0, "");
++    tasks[newQueue]->sem_fd = eventfd(0, EFD_SEMAPHORE);
++    AssertFatal(tasks[newQueue]->sem_fd >= 0, "");
++    
++    // Use a variable to track if we need to clean up
++    int result = 0;
++    
++    // Try to subscribe the event fd
++    struct epoll_event event;
++    event.events = EPOLLIN | EPOLLERR;
++    event.data.u64 = 0;
++    event.data.fd = tasks[newQueue]->sem_fd;
++    result = epoll_ctl(tasks[newQueue]->epoll_fd, EPOLL_CTL_ADD, tasks[newQueue]->sem_fd, &event);
++    if (result != 0) {
++        // Clean up on failure
++        close(tasks[newQueue]->sem_fd);
++        close(tasks[newQueue]->epoll_fd);
++        LOG_E(ITTI, "epoll_ctl failed: %s\n", strerror(errno));
++        AssertFatal(0, "epoll_ctl (EPOLL_CTL_ADD) failed for task %s, fd %d: %s!\n",
++                    taskInfo->name, tasks[newQueue]->sem_fd, strerror(errno));
++    }
++    
++    tasks[newQueue]->nb_fd_epoll++;
+ 
+     return newQueue;
+   }
+diff --git a/common/utils/ocp_itti/intertask_interface.h b/common/utils/ocp_itti/intertask_interface.h
+index f8f33a9c82..c496a944d7 100644
+--- a/common/utils/ocp_itti/intertask_interface.h
++++ b/common/utils/ocp_itti/intertask_interface.h
+@@ -499,6 +499,11 @@ void itti_exit_task(void);
+  **/
+ void itti_terminate_tasks(task_id_t task_id);
+ 
++/** \brief Destroy a task and clean up its resources.
++   \param task_id task to destroy
++ **/
++void itti_destroy_task(task_id_t task_id);
++
+ // Void for legacy compatibility
+ void itti_wait_ready(int wait_tasks);
+ void itti_mark_task_ready(task_id_t task_id);

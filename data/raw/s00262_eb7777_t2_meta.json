@@ -1,0 +1,9 @@
+{
+  "run_id": "s00262_eb7777",
+  "pr_text": "## Title: Fix integer overflow in NR sidelink resource pool preparation\n\n### Summary\nThe `prepare_NR_SL_ResourcePool` function in the NR UE sidelink preconfiguration code contains an integer overflow vulnerability when masking unused bits in the time resource buffer. The expression `0 - (1 << bits_unused)` relies on signed integer underflow, which is undefined behavior in C and can lead to incorrect bitmask generation on certain compilers or architectures. This patch replaces the unsafe underflo",
+  "trajectory_path": "data/raw/s00262_eb7777_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00262_eb7777_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 7,
+  "timestamp": "2026-02-11T13:52:52Z"
+}

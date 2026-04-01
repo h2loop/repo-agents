@@ -1,0 +1,17 @@
+diff --git a/openair1/PHY/TOOLS/oai_dfts.c b/openair1/PHY/TOOLS/oai_dfts.c
+index 8a83e530ab..6796be7028 100644
+--- a/openair1/PHY/TOOLS/oai_dfts.c
++++ b/openair1/PHY/TOOLS/oai_dfts.c
+@@ -8337,9 +8337,9 @@ void dft1944(int16_t *x,int16_t *y,unsigned char scale_flag)  // 648 x 3
+     x2128[i+1296] = x128[j+2];
+   }
+ 
+-  dft648((int16_t *)x2128,(int16_t *)ytmp128,1);
+-  dft648((int16_t *)(x2128+648),(int16_t *)(ytmp128+648),1);
+-  dft648((int16_t *)(x2128+1296),(int16_t *)(ytmp128+1296),1);
++  dft648((int16_t *)x2128,(int16_t *)ytmp128,scale_flag);
++  dft648((int16_t *)(x2128+648),(int16_t *)(ytmp128+648),scale_flag);
++  dft648((int16_t *)(x2128+1296),(int16_t *)(ytmp128+1296),scale_flag);
+ 
+   bfly3_tw1(ytmp128,ytmp128+648,ytmp128+1296,y128,y128+648,y128+1296);
+ 

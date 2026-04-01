@@ -1,0 +1,13 @@
+diff --git a/nfapi/oai_integration/nfapi.c b/nfapi/oai_integration/nfapi.c
+index 5e71c5e2a4..63efafe1c4 100644
+--- a/nfapi/oai_integration/nfapi.c
++++ b/nfapi/oai_integration/nfapi.c
+@@ -57,7 +57,7 @@ void set_thread_priority(int priority) {
+ }
+ 
+ const char *nfapi_get_strmode(void) {
+-  if (nfapi_params.nfapi_mode > NFAPI_MODE_UNKNOWN)
++  if (nfapi_params.nfapi_mode > NFAPI_MODE_UNKNOWN || nfapi_params.nfapi_mode < 0)
+     return nfapi_str_mode[NFAPI_MODE_UNKNOWN];
+ 
+   return nfapi_str_mode[nfapi_params.nfapi_mode];

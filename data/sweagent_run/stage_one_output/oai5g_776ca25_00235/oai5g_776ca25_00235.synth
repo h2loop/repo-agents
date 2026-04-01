@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix format string vulnerability in tracer utility\n\n### Summary\nThe eNB tracer utility contained a format string vulnerability in the usage() function where user-controlled data could be passed as a format string argument. This could potentially lead to arbitrary code execution if the program was invoked with malicious command-line arguments.\n\nThe vulnerability was in the printf call that displayed the help message, where format specifiers in the string were not properly matched with arguments.\n\n### Changes\n- `common/utils/T/tracer/enb.c`: Fixed format string handling in usage() function by properly passing format arguments to printf\n- `common/utils/T/tracer/ue.c`: Applied same correction to prevent similar vulnerability\n"
+}

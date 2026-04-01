@@ -1,0 +1,9 @@
+{
+  "run_id": "s00390_bd98aa",
+  "pr_text": "## Title: Fix off-by-one array indexing in DRB allocation lookup\n\n### Summary\nThe `next_available_drb()` function in the gNB RRC module contains an off-by-one indexing error when searching for inactive Data Radio Bearers (DRBs). The loop iterates with a zero-based index (`drb_id` from 0 to `MAX_DRBS_PER_UE-1`), but accesses the `ue->DRB_active` status array directly using this index. Since DRB IDs are 1-based in the 3GPP spec and OAI implementation, the array is actually indexed by `drb_id - 1`.",
+  "trajectory_path": "data/raw/s00390_bd98aa_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00390_bd98aa_p2.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 39,
+  "timestamp": "2026-02-10T13:05:25Z"
+}

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00127_8a4746",
+  "pr_text": "## Title: Fix HARQ redundancy version handling in MCH PDU processing\n\n### Summary\nFixed a HARQ process configuration error in the multicast channel (MCH) PDU processing path. The `handle_nfapi_mch_pdu` function was incorrectly hardcoding the redundancy version (`rvidx`) to 0 instead of using the actual value provided in the incoming PDU's REL-8 structure. This caused improper HARQ combining behavior for multicast transmissions, leading to potential data corruption and throughput degradation. The",
+  "trajectory_path": "data/raw/s00127_8a4746_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00127_8a4746_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 17,
+  "timestamp": "2026-02-11T12:11:03Z"
+}

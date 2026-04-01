@@ -1,0 +1,27 @@
+diff --git a/common/utils/T/tracer/gui/timeline.c b/common/utils/T/tracer/gui/timeline.c
+index d2373ff60a..29497629b3 100644
+--- a/common/utils/T/tracer/gui/timeline.c
++++ b/common/utils/T/tracer/gui/timeline.c
+@@ -37,9 +37,13 @@ static void hints(gui *_gui, widget *_w, int *width, int *height)
+ static void allocate(gui *_gui, widget *_this,
+     int x, int y, int width, int height)
+ {
++  struct gui *g = _gui;
+   struct timeline_widget *this = _this;
+   int i;
+   int j;
++  
++  glock(g);
++  
+   this->common.x = x;
+   this->common.y = y;
+   this->common.width = width;
+@@ -52,6 +56,8 @@ static void allocate(gui *_gui, widget *_this,
+     for (j = 0; j < width; j++) this->s[i].color[j] = -1;
+   }
+   gui_notify(_gui, "resize", _this, &width);
++  
++  gunlock(g);
+ }
+ 
+ static void button(gui *_g, widget *_this, int x, int y,

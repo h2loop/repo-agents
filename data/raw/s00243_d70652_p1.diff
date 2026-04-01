@@ -1,0 +1,28 @@
+diff --git a/openair1/PHY/LTE_ESTIMATION/freq_equalization.c b/openair1/PHY/LTE_ESTIMATION/freq_equalization.c
+index 2b42d68fd0..9ec65342ff 100644
+--- a/openair1/PHY/LTE_ESTIMATION/freq_equalization.c
++++ b/openair1/PHY/LTE_ESTIMATION/freq_equalization.c
+@@ -296,10 +296,11 @@ void freq_equalization(LTE_DL_FRAME_PARMS *frame_parms,
+ {
+   uint16_t re;
+   int16_t amp;
+-  simde__m128i *ul_ch_mag128,*ul_ch_magb128,*rxdataF_comp128;
++  simde__m128i *ul_ch_mag128,*ul_ch_magb128=NULL,*rxdataF_comp128;
+   rxdataF_comp128   = (simde__m128i *)&rxdataF_comp[0][symbol*frame_parms->N_RB_DL*12];
+   ul_ch_mag128      = (simde__m128i *)&ul_ch_mag[0][symbol*frame_parms->N_RB_DL*12];
+-  ul_ch_magb128      = (simde__m128i *)&ul_ch_magb[0][symbol*frame_parms->N_RB_DL*12];
++  if (ul_ch_magb != NULL)
++    ul_ch_magb128 = (simde__m128i *)&ul_ch_magb[0][symbol*frame_parms->N_RB_DL*12];
+ 
+   AssertFatal(symbol<frame_parms->symbols_per_tti,"symbol %d >= %d\n",
+ 	      symbol,frame_parms->symbols_per_tti);
+@@ -321,7 +322,8 @@ void freq_equalization(LTE_DL_FRAME_PARMS *frame_parms,
+       ul_ch_mag128[re]  = simde_mm_set1_epi16(324);  // this is 512*2/sqrt(10)
+     else {
+       ul_ch_mag128[re]  = simde_mm_set1_epi16(316);  // this is 512*4/sqrt(42)
+-      ul_ch_magb128[re] = simde_mm_set1_epi16(158);  // this is 512*2/sqrt(42)
++      if (ul_ch_magb128 != NULL)
++        ul_ch_magb128[re] = simde_mm_set1_epi16(158);  // this is 512*2/sqrt(42)
+     }
+     //            printf("(%d,%d)\n",*(int16_t*)&(rxdataF_comp128[re]),*(1+(int16_t*)&(rxdataF_comp128[re])));
+ 

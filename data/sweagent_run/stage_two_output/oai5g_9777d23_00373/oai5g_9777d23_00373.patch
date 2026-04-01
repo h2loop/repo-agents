@@ -1,0 +1,348 @@
+diff --git a/openair3/NAS/COMMON/IES/AccessPointName.c b/openair3/NAS/COMMON/IES/AccessPointName.c
+index c63bb91222..a4775c35ae 100644
+--- a/openair3/NAS/COMMON/IES/AccessPointName.c
++++ b/openair3/NAS/COMMON/IES/AccessPointName.c
+@@ -39,6 +39,7 @@ int decode_access_point_name(AccessPointName *accesspointname, uint8_t iei, uint
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/ApnAggregateMaximumBitRate.c b/openair3/NAS/COMMON/IES/ApnAggregateMaximumBitRate.c
+index 4d01fc5b46..acff5b24af 100644
+--- a/openair3/NAS/COMMON/IES/ApnAggregateMaximumBitRate.c
++++ b/openair3/NAS/COMMON/IES/ApnAggregateMaximumBitRate.c
+@@ -38,6 +38,7 @@ int decode_apn_aggregate_maximum_bit_rate(ApnAggregateMaximumBitRate *apnaggrega
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/AuthenticationFailureParameter.c b/openair3/NAS/COMMON/IES/AuthenticationFailureParameter.c
+index 4989ae27fe..95dcd8fbe5 100644
+--- a/openair3/NAS/COMMON/IES/AuthenticationFailureParameter.c
++++ b/openair3/NAS/COMMON/IES/AuthenticationFailureParameter.c
+@@ -39,6 +39,7 @@ int decode_authentication_failure_parameter(AuthenticationFailureParameter *auth
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/AuthenticationParameterAutn.c b/openair3/NAS/COMMON/IES/AuthenticationParameterAutn.c
+index 7de70359f7..9a51b259cc 100644
+--- a/openair3/NAS/COMMON/IES/AuthenticationParameterAutn.c
++++ b/openair3/NAS/COMMON/IES/AuthenticationParameterAutn.c
+@@ -39,6 +39,7 @@ int decode_authentication_parameter_autn(AuthenticationParameterAutn *authentica
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/AuthenticationResponseParameter.c b/openair3/NAS/COMMON/IES/AuthenticationResponseParameter.c
+index 85bcaeb1b2..8d97871550 100644
+--- a/openair3/NAS/COMMON/IES/AuthenticationResponseParameter.c
++++ b/openair3/NAS/COMMON/IES/AuthenticationResponseParameter.c
+@@ -39,6 +39,7 @@ int decode_authentication_response_parameter(AuthenticationResponseParameter *au
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/Cli.c b/openair3/NAS/COMMON/IES/Cli.c
+index e8878a2642..d76bac7263 100644
+--- a/openair3/NAS/COMMON/IES/Cli.c
++++ b/openair3/NAS/COMMON/IES/Cli.c
+@@ -39,6 +39,7 @@ int decode_cli(Cli *cli, uint8_t iei, uint8_t *buffer, uint32_t len)
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/DaylightSavingTime.c b/openair3/NAS/COMMON/IES/DaylightSavingTime.c
+index b5c242414d..9dc629a57a 100644
+--- a/openair3/NAS/COMMON/IES/DaylightSavingTime.c
++++ b/openair3/NAS/COMMON/IES/DaylightSavingTime.c
+@@ -38,6 +38,7 @@ int decode_daylight_saving_time(DaylightSavingTime *daylightsavingtime, uint8_t
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/EmergencyNumberList.c b/openair3/NAS/COMMON/IES/EmergencyNumberList.c
+index ccf030b583..81ac1e255c 100644
+--- a/openair3/NAS/COMMON/IES/EmergencyNumberList.c
++++ b/openair3/NAS/COMMON/IES/EmergencyNumberList.c
+@@ -38,6 +38,7 @@ int decode_emergency_number_list(EmergencyNumberList *emergencynumberlist, uint8
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/EpsBearerContextStatus.c b/openair3/NAS/COMMON/IES/EpsBearerContextStatus.c
+index 9984375dff..b9ca7d3ab8 100644
+--- a/openair3/NAS/COMMON/IES/EpsBearerContextStatus.c
++++ b/openair3/NAS/COMMON/IES/EpsBearerContextStatus.c
+@@ -38,6 +38,7 @@ int decode_eps_bearer_context_status(EpsBearerContextStatus *epsbearercontextsta
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/EpsMobileIdentity.c b/openair3/NAS/COMMON/IES/EpsMobileIdentity.c
+index 4437412b86..4a63562097 100644
+--- a/openair3/NAS/COMMON/IES/EpsMobileIdentity.c
++++ b/openair3/NAS/COMMON/IES/EpsMobileIdentity.c
+@@ -47,6 +47,7 @@ int decode_eps_mobile_identity(EpsMobileIdentity *epsmobileidentity, uint8_t iei
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/EpsNetworkFeatureSupport.c b/openair3/NAS/COMMON/IES/EpsNetworkFeatureSupport.c
+index 2ef36d7595..9eab767ace 100644
+--- a/openair3/NAS/COMMON/IES/EpsNetworkFeatureSupport.c
++++ b/openair3/NAS/COMMON/IES/EpsNetworkFeatureSupport.c
+@@ -38,6 +38,7 @@ int decode_eps_network_feature_support(EpsNetworkFeatureSupport *epsnetworkfeatu
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/EpsQualityOfService.c b/openair3/NAS/COMMON/IES/EpsQualityOfService.c
+index ac45a9c0f5..8563e46fb9 100644
+--- a/openair3/NAS/COMMON/IES/EpsQualityOfService.c
++++ b/openair3/NAS/COMMON/IES/EpsQualityOfService.c
+@@ -52,6 +52,7 @@ int decode_eps_quality_of_service(EpsQualityOfService *epsqualityofservice, uint
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/EsmMessageContainer.c b/openair3/NAS/COMMON/IES/EsmMessageContainer.c
+index e33c06c71d..1211e700c8 100644
+--- a/openair3/NAS/COMMON/IES/EsmMessageContainer.c
++++ b/openair3/NAS/COMMON/IES/EsmMessageContainer.c
+@@ -43,6 +43,7 @@ int decode_esm_message_container(EsmMessageContainer *esmmessagecontainer, uint8
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 2);
+   DECODE_LENGTH_U16(buffer + decoded, ielen, decoded);
+ 
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/LcsClientIdentity.c b/openair3/NAS/COMMON/IES/LcsClientIdentity.c
+index 89014ce46c..c1eb15b688 100644
+--- a/openair3/NAS/COMMON/IES/LcsClientIdentity.c
++++ b/openair3/NAS/COMMON/IES/LcsClientIdentity.c
+@@ -39,6 +39,7 @@ int decode_lcs_client_identity(LcsClientIdentity *lcsclientidentity, uint8_t iei
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/MobileIdentity.c b/openair3/NAS/COMMON/IES/MobileIdentity.c
+index fbe6d93e47..a74325226b 100644
+--- a/openair3/NAS/COMMON/IES/MobileIdentity.c
++++ b/openair3/NAS/COMMON/IES/MobileIdentity.c
+@@ -53,6 +53,7 @@ int decode_mobile_identity(MobileIdentity *mobileidentity, uint8_t iei, uint8_t
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+ 
+diff --git a/openair3/NAS/COMMON/IES/MobileStationClassmark2.c b/openair3/NAS/COMMON/IES/MobileStationClassmark2.c
+index e3a165bf3a..75744a70ba 100644
+--- a/openair3/NAS/COMMON/IES/MobileStationClassmark2.c
++++ b/openair3/NAS/COMMON/IES/MobileStationClassmark2.c
+@@ -38,6 +38,7 @@ int decode_mobile_station_classmark_2(MobileStationClassmark2 *mobilestationclas
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/MsNetworkCapability.c b/openair3/NAS/COMMON/IES/MsNetworkCapability.c
+index 8c2955177e..359d7c980c 100644
+--- a/openair3/NAS/COMMON/IES/MsNetworkCapability.c
++++ b/openair3/NAS/COMMON/IES/MsNetworkCapability.c
+@@ -39,6 +39,7 @@ int decode_ms_network_capability(MsNetworkCapability *msnetworkcapability, uint8
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/NasMessageContainer.c b/openair3/NAS/COMMON/IES/NasMessageContainer.c
+index cccb8f7543..bbaebddbaa 100644
+--- a/openair3/NAS/COMMON/IES/NasMessageContainer.c
++++ b/openair3/NAS/COMMON/IES/NasMessageContainer.c
+@@ -39,6 +39,7 @@ int decode_nas_message_container(NasMessageContainer *nasmessagecontainer, uint8
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/NetworkName.c b/openair3/NAS/COMMON/IES/NetworkName.c
+index d0d92dccbe..fd8ba8ec21 100644
+--- a/openair3/NAS/COMMON/IES/NetworkName.c
++++ b/openair3/NAS/COMMON/IES/NetworkName.c
+@@ -39,6 +39,7 @@ int decode_network_name(NetworkName *networkname, uint8_t iei, uint8_t *buffer,
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/PacketFlowIdentifier.c b/openair3/NAS/COMMON/IES/PacketFlowIdentifier.c
+index fef2edd10d..53a3edb23f 100644
+--- a/openair3/NAS/COMMON/IES/PacketFlowIdentifier.c
++++ b/openair3/NAS/COMMON/IES/PacketFlowIdentifier.c
+@@ -38,6 +38,7 @@ int decode_packet_flow_identifier(PacketFlowIdentifier *packetflowidentifier, ui
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/PdnAddress.c b/openair3/NAS/COMMON/IES/PdnAddress.c
+index de64d410c5..3c0554d91a 100644
+--- a/openair3/NAS/COMMON/IES/PdnAddress.c
++++ b/openair3/NAS/COMMON/IES/PdnAddress.c
+@@ -39,6 +39,7 @@ int decode_pdn_address(PdnAddress *pdnaddress, uint8_t iei, uint8_t *buffer, uin
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/PlmnList.c b/openair3/NAS/COMMON/IES/PlmnList.c
+index e6a3cecf4d..f6fe41ff81 100644
+--- a/openair3/NAS/COMMON/IES/PlmnList.c
++++ b/openair3/NAS/COMMON/IES/PlmnList.c
+@@ -38,6 +38,7 @@ int decode_plmn_list(PlmnList *plmnlist, uint8_t iei, uint8_t *buffer, uint32_t
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/ProtocolConfigurationOptions.c b/openair3/NAS/COMMON/IES/ProtocolConfigurationOptions.c
+index f4bd3e5e2c..3257e805fa 100644
+--- a/openair3/NAS/COMMON/IES/ProtocolConfigurationOptions.c
++++ b/openair3/NAS/COMMON/IES/ProtocolConfigurationOptions.c
+@@ -38,6 +38,7 @@ int decode_protocol_configuration_options(ProtocolConfigurationOptions *protocol
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/QualityOfService.c b/openair3/NAS/COMMON/IES/QualityOfService.c
+index 02c4ceca29..f46308be91 100644
+--- a/openair3/NAS/COMMON/IES/QualityOfService.c
++++ b/openair3/NAS/COMMON/IES/QualityOfService.c
+@@ -38,6 +38,7 @@ int decode_quality_of_service(QualityOfService *qualityofservice, uint8_t iei, u
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/SupportedCodecList.c b/openair3/NAS/COMMON/IES/SupportedCodecList.c
+index 15a2fecaa0..60ba4422c8 100644
+--- a/openair3/NAS/COMMON/IES/SupportedCodecList.c
++++ b/openair3/NAS/COMMON/IES/SupportedCodecList.c
+@@ -38,6 +38,7 @@ int decode_supported_codec_list(SupportedCodecList *supportedcodeclist, uint8_t
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/TrackingAreaIdentityList.c b/openair3/NAS/COMMON/IES/TrackingAreaIdentityList.c
+index d68ed72a21..ac781dc023 100644
+--- a/openair3/NAS/COMMON/IES/TrackingAreaIdentityList.c
++++ b/openair3/NAS/COMMON/IES/TrackingAreaIdentityList.c
+@@ -37,6 +37,7 @@ int decode_tracking_area_identity_list(TrackingAreaIdentityList *trackingareaide
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/TrafficFlowTemplate.c b/openair3/NAS/COMMON/IES/TrafficFlowTemplate.c
+index d5ab249573..0a85846ad7 100644
+--- a/openair3/NAS/COMMON/IES/TrafficFlowTemplate.c
++++ b/openair3/NAS/COMMON/IES/TrafficFlowTemplate.c
+@@ -58,6 +58,7 @@ int decode_traffic_flow_template(TrafficFlowTemplate *trafficflowtemplate, uint8
+     decoded++;
+   }
+ 
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/UeSecurityCapability.c b/openair3/NAS/COMMON/IES/UeSecurityCapability.c
+index 9b40b1b85c..d2ded8da1c 100644
+--- a/openair3/NAS/COMMON/IES/UeSecurityCapability.c
++++ b/openair3/NAS/COMMON/IES/UeSecurityCapability.c
+@@ -40,6 +40,7 @@ int decode_ue_security_capability(UeSecurityCapability *uesecuritycapability, ui
+   }
+ 
+   memset(uesecuritycapability, 0, sizeof(UeSecurityCapability));
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+diff --git a/openair3/NAS/COMMON/IES/VoiceDomainPreferenceAndUeUsageSetting.c b/openair3/NAS/COMMON/IES/VoiceDomainPreferenceAndUeUsageSetting.c
+index 156c68d80f..d5ebaf4c55 100644
+--- a/openair3/NAS/COMMON/IES/VoiceDomainPreferenceAndUeUsageSetting.c
++++ b/openair3/NAS/COMMON/IES/VoiceDomainPreferenceAndUeUsageSetting.c
+@@ -40,6 +40,7 @@ int decode_voice_domain_preference_and_ue_usage_setting(VoiceDomainPreferenceAnd
+   }
+ 
+   memset(voicedomainpreferenceandueusagesetting, 0, sizeof(VoiceDomainPreferenceAndUeUsageSetting));
++  CHECK_LENGTH_DECODER(len - decoded, 1);
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);

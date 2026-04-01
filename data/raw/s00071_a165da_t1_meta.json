@@ -1,0 +1,29 @@
+{
+  "run_id": "s00071_a165da",
+  "function": {
+    "name": "Gtpv1uHandleError",
+    "file": "openair3/ocp-gtpu/gtp_itf.cpp",
+    "start_line": 1026,
+    "end_line": 1046,
+    "body_lines": 21,
+    "signature": "static int Gtpv1uHandleError(int h, uint8_t *msgBuf, uint32_t msgBufLen, const struct sockaddr_in *addr)",
+    "subsystem": "openair3/ocp-gtpu",
+    "token_estimate": 115
+  },
+  "bug": {
+    "bug_id": "telecom_interface_ngap_error",
+    "description": "NGAP interface handling error between gNB and AMF causing procedure failure",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair3/NGAP",
+      "openair2/RRC"
+    ]
+  },
+  "prompt": "There is a NGAP interface handling error between gNB and AMF causing procedure failure downstream of function Gtpv1uHandleError in the openair3/ocp-gtpu subsystem.\nThe function is located at openair3/ocp-gtpu/gtp_itf.cpp:1026.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00071_a165da_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00071_a165da_p1.diff",
+  "patch_lines": 86,
+  "trajectory_steps": 71,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:02:04Z"
+}

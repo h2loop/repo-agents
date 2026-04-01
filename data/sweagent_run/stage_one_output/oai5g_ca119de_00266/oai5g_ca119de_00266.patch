@@ -1,0 +1,22 @@
+diff --git a/openair2/E1AP/e1ap.c b/openair2/E1AP/e1ap.c
+index fda507ef4e..d2d02bc32a 100644
+--- a/openair2/E1AP/e1ap.c
++++ b/openair2/E1AP/e1ap.c
+@@ -1356,7 +1356,7 @@ static void extract_BEARER_CONTEXT_MODIFICATION_REQUEST(const E1AP_E1AP_PDU_t *p
+         E1AP_NG_RAN_BearerContextModificationRequest_t *msgNGRAN = msgNGRAN_list->list.array[0];
+         DevAssert(msgNGRAN_list->list.count == 1);
+         DevAssert(msgNGRAN->id == E1AP_ProtocolIE_ID_id_PDU_Session_Resource_To_Modify_List);
+-        DevAssert(msgNGRAN->value.present =
++        DevAssert(msgNGRAN->value.present ==
+                       E1AP_NG_RAN_BearerContextModificationRequest__value_PR_PDU_Session_Resource_To_Modify_List);
+         /* PDU Session Resource To Modify List (see 9.3.3.11 of TS 38.463) */
+         E1AP_PDU_Session_Resource_To_Modify_List_t *pdu2ModList = &msgNGRAN->value.choice.PDU_Session_Resource_To_Modify_List;
+@@ -1384,7 +1384,7 @@ static void extract_BEARER_CONTEXT_MODIFICATION_REQUEST(const E1AP_E1AP_PDU_t *p
+                 up_params_t *dl_up_param = drb->DlUpParamList + k;
+                 E1AP_UP_Parameters_Item_t *dl_up_param_in = dl_up_paramList->list.array[k];
+                 if (dl_up_param_in->uP_TNL_Information.choice.gTPTunnel) { // Optional IE
+-                  DevAssert(dl_up_param_in->uP_TNL_Information.present = E1AP_UP_TNL_Information_PR_gTPTunnel);
++                  DevAssert(dl_up_param_in->uP_TNL_Information.present == E1AP_UP_TNL_Information_PR_gTPTunnel);
+                   BIT_STRING_TO_TRANSPORT_LAYER_ADDRESS_IPv4(
+                       &dl_up_param_in->uP_TNL_Information.choice.gTPTunnel->transportLayerAddress,
+                       dl_up_param->tlAddress);

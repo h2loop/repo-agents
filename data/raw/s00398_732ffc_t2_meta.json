@@ -1,0 +1,9 @@
+{
+  "run_id": "s00398_732ffc",
+  "pr_text": "## Title: Fix incorrect return type in detach timer handler\n\n### Summary\nThe `emm_detach_t3421_handler` timer callback function was incorrectly declared with return type `void *` despite being a void function that performs detach timeout processing without returning any value. This type mismatch could lead to data corruption or misinterpretation downstream, as callers might attempt to use the returned pointer value. The function now correctly declares `void` return type, matching its actual beha",
+  "trajectory_path": "data/raw/s00398_732ffc_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00398_732ffc_p2.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 33,
+  "timestamp": "2026-02-10T13:07:58Z"
+}

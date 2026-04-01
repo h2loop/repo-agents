@@ -1,0 +1,40 @@
+{
+  "run_id": "s00367_d56ca5",
+  "function": {
+    "name": "do_RRCConnectionReconfiguration_BR",
+    "file": "openair2/RRC/LTE/MESSAGES/asn1_msg.c",
+    "start_line": 3487,
+    "end_line": 3600,
+    "body_lines": 114,
+    "signature": "uint16_t do_RRCConnectionReconfiguration_BR(const protocol_ctxt_t *const ctxt_pP, uint8_t *buffer, size_t buffer_size, uint8_t Transaction_id, LTE_SRB_ToAddModList_t *SRB_list, LTE_DRB_ToAddModList_t *DRB_list, LTE_DRB_ToReleaseList_t *DRB_list2, struct LTE_SPS_Config *sps_Config, struct LTE_PhysicalConfigDedicated *physicalConfigDedicated, LTE_MeasObjectToAddModList_t *MeasObj_list, LTE_ReportConfigToAddModList_t *ReportConfig_list, LTE_QuantityConfig_t *quantityConfig, LTE_MeasIdToAddModList_t *MeasId_...",
+    "subsystem": "openair2/RRC/LTE",
+    "token_estimate": 259
+  },
+  "bug": {
+    "bug_id": "c_buffer_overflow",
+    "description": "buffer overflow vulnerability",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables",
+      "radio",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a buffer overflow vulnerability downstream of function do_RRCConnectionReconfiguration_BR in the openair2/RRC/LTE subsystem.\nThe function is located at openair2/RRC/LTE/MESSAGES/asn1_msg.c:3487.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00367_d56ca5_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00367_d56ca5_p1.diff",
+  "patch_lines": 8,
+  "trajectory_steps": 21,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:51:02Z"
+}

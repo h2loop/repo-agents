@@ -1,0 +1,31 @@
+{
+  "run_id": "s00371_efa168",
+  "function": {
+    "name": "rrc_M2AP_init_MBMS",
+    "file": "openair2/RRC/LTE/rrc_eNB_M2AP.c",
+    "start_line": 258,
+    "end_line": 290,
+    "body_lines": 33,
+    "signature": "static void rrc_M2AP_init_MBMS( module_id_t enb_mod_idP, int CC_id, frame_t frameP )",
+    "subsystem": "openair2/RRC/LTE",
+    "token_estimate": 104
+  },
+  "bug": {
+    "bug_id": "telecom_timer_incorrect_duration",
+    "description": "protocol timer configured with incorrect duration violating 3GPP timing requirements",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a protocol timer configured with incorrect duration violating 3GPP timing requirements downstream of function rrc_M2AP_init_MBMS in the openair2/RRC/LTE subsystem.\nThe function is located at openair2/RRC/LTE/rrc_eNB_M2AP.c:258.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00371_efa168_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00371_efa168_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 69,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T18:56:36Z"
+}

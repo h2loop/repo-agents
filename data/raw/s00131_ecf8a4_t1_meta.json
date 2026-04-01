@@ -1,0 +1,33 @@
+{
+  "run_id": "s00131_ecf8a4",
+  "function": {
+    "name": "_process_emm_msg",
+    "file": "openair3/NAS/TEST/NETWORK/network_simulator.c",
+    "start_line": 647,
+    "end_line": 668,
+    "body_lines": 22,
+    "signature": "static int _process_emm_msg(EMM_msg* msg)",
+    "subsystem": "openair3/NAS/TEST",
+    "token_estimate": 56
+  },
+  "bug": {
+    "bug_id": "c_copy_paste_error",
+    "description": "copy-paste error where duplicated code was not correctly updated for its new context",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a copy-paste error where duplicated code was not correctly updated for its new context downstream of function _process_emm_msg in the openair3/NAS/TEST subsystem.\nThe function is located at openair3/NAS/TEST/NETWORK/network_simulator.c:647.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00131_ecf8a4_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00131_ecf8a4_p1.diff",
+  "patch_lines": 10,
+  "trajectory_steps": 40,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T12:13:26Z"
+}

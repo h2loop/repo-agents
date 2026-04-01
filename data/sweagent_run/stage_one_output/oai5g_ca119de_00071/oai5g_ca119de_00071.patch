@@ -1,0 +1,41 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/config_ue.c b/openair2/LAYER2/NR_MAC_UE/config_ue.c
+index a04606b7e2..9221b9fb37 100644
+--- a/openair2/LAYER2/NR_MAC_UE/config_ue.c
++++ b/openair2/LAYER2/NR_MAC_UE/config_ue.c
+@@ -118,8 +118,8 @@ void set_tdd_config_nr_ue(fapi_nr_config_request_t *cfg,
+ }
+ 
+ void config_common_ue_sa(NR_UE_MAC_INST_t *mac,
+-		         module_id_t module_id,
+-		         int cc_idP) {
++                         module_id_t module_id,
++                         int cc_idP) {
+ 
+   fapi_nr_config_request_t *cfg = &mac->phy_config.config_req;
+   NR_ServingCellConfigCommonSIB_t *scc = mac->scc_SIB;
+@@ -264,8 +264,8 @@ void config_common_ue_sa(NR_UE_MAC_INST_t *mac,
+ }
+ 
+ void config_common_ue(NR_UE_MAC_INST_t *mac,
+-		      module_id_t module_id,
+-		      int cc_idP)
++                      module_id_t module_id,
++                      int cc_idP)
+ {
+   fapi_nr_config_request_t        *cfg = &mac->phy_config.config_req;
+   NR_ServingCellConfigCommon_t    *scc = mac->scc;
+@@ -524,6 +524,14 @@ int nr_rrc_mac_config_req_ue_logicalChannelBearer(
+     long                            logicalChannelIdentity,
+     bool                            status){
+     NR_UE_MAC_INST_t *mac = get_mac_inst(module_id);
++    
++    // Check bounds to prevent buffer overflow
++    if (logicalChannelIdentity >= NR_MAX_NUM_LCID) {
++        LOG_E(MAC, "Invalid logicalChannelIdentity %ld, must be less than %d\n", 
++              logicalChannelIdentity, NR_MAX_NUM_LCID);
++        return -1;
++    }
++    
+     mac->logicalChannelBearer_exist[logicalChannelIdentity] = status;
+     return 0;
+ }

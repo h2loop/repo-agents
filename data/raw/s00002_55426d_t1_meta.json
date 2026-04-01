@@ -1,0 +1,32 @@
+{
+  "run_id": "s00002_55426d",
+  "function": {
+    "name": "config_libconfig_getlist",
+    "file": "common/config/libconfig/config_libconfig.c",
+    "start_line": 533,
+    "end_line": 581,
+    "body_lines": 49,
+    "signature": "int config_libconfig_getlist(configmodule_interface_t *cfg, paramlist_def_t *ParamList, paramdef_t *params, int numparams, char *prefix)",
+    "subsystem": "common/config/libconfig",
+    "token_estimate": 159
+  },
+  "bug": {
+    "bug_id": "c_type_confusion",
+    "description": "type confusion where a pointer is cast to an incompatible struct type",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a type confusion where a pointer is cast to an incompatible struct type downstream of function config_libconfig_getlist in the common/config/libconfig subsystem.\nThe function is located at common/config/libconfig/config_libconfig.c:533.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00002_55426d_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00002_55426d_p1.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 31,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:36:51Z"
+}

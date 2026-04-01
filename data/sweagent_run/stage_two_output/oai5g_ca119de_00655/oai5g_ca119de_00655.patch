@@ -1,0 +1,43 @@
+diff --git a/common/utils/T/tracer/utils.c b/common/utils/T/tracer/utils.c
+index 39e04fb973..3a928310b4 100644
+--- a/common/utils/T/tracer/utils.c
++++ b/common/utils/T/tracer/utils.c
+@@ -15,27 +15,32 @@ void new_thread(void *(*f)(void *), void *data) {
+ 
+   if (pthread_attr_init(&att)) {
+     fprintf(stderr, "pthread_attr_init err\n");
+-    exit(1);
++    return;
+   }
+ 
+   if (pthread_attr_setdetachstate(&att, PTHREAD_CREATE_DETACHED)) {
+     fprintf(stderr, "pthread_attr_setdetachstate err\n");
+-    exit(1);
++    pthread_attr_destroy(&att);
++    return;
+   }
+ 
+-  if (pthread_attr_setstacksize(&att, 10000000)) {
++  /* Set stack size to 2MB which is large enough for tracer GUI threads
++   * while staying within typical system limits (usually 8MB) */
++  if (pthread_attr_setstacksize(&att, 2000000)) {
+     fprintf(stderr, "pthread_attr_setstacksize err\n");
+-    exit(1);
++    pthread_attr_destroy(&att);
++    return;
+   }
+ 
+   if (pthread_create(&t, &att, f, data)) {
+     fprintf(stderr, "pthread_create err\n");
+-    exit(1);
++    pthread_attr_destroy(&att);
++    return;
+   }
+ 
+   if (pthread_attr_destroy(&att)) {
+     fprintf(stderr, "pthread_attr_destroy err\n");
+-    exit(1);
++    return;
+   }
+ }
+ 

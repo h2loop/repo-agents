@@ -1,0 +1,9 @@
+{
+  "run_id": "s00166_87966e",
+  "pr_text": "## Title: Fix NULL pointer dereference before allocation check in rr_dl_setup\n\n### Summary\nReorder the NULL check and pointer dereference in `rr_dl_setup()` to prevent segmentation faults and restore proper error handling. The original code dereferenced the malloc result before validating it, causing two critical issues: (1) if allocation fails, the code crashes on `*(int *) data = 0` before reaching the AssertFatal, and (2) the AssertFatal becomes dead code that never catches allocation failure",
+  "trajectory_path": "data/raw/s00166_87966e_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00166_87966e_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 9,
+  "timestamp": "2026-02-10T11:36:42Z"
+}

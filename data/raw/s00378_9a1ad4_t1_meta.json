@@ -1,0 +1,30 @@
+{
+  "run_id": "s00378_9a1ad4",
+  "function": {
+    "name": "config_assign_ipv4addr",
+    "file": "common/config/config_common.c",
+    "start_line": 227,
+    "end_line": 247,
+    "body_lines": 21,
+    "signature": "int config_assign_ipv4addr(configmodule_interface_t *cfg, paramdef_t *cfgoptions, const char *ipv4addr)",
+    "subsystem": "common/config",
+    "token_estimate": 72
+  },
+  "bug": {
+    "bug_id": "telecom_asn1_encoding_error",
+    "description": "ASN.1 encoding error producing malformed protocol message",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a ASN.1 encoding error producing malformed protocol message downstream of function config_assign_ipv4addr in the common/config subsystem.\nThe function is located at common/config/config_common.c:227.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00378_9a1ad4_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00378_9a1ad4_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 14,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:55:02Z"
+}

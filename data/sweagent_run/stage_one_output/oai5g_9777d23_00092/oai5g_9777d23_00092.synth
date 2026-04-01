@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix CRC16 calculation error causing missed UE scheduling opportunities\n\n### Summary\nThe NR UE MAC scheduler was experiencing missed scheduling opportunities for UEs with pending uplink data due to incorrect CRC16 calculations in the transport channel processing. Under certain traffic patterns, UEs would fail CRC checks on their uplink grants, causing the scheduler to incorrectly mark them as having no pending data.\n\nThe root cause was an incorrect bit manipulation sequence in the `crc16_calc_lut` function that produced invalid CRC values, leading to false data integrity failures.\n\n### Changes\n- `openair1/PHY/CODING/crc.h`: Corrected the CRC16 lookup table calculation bit ordering\n- `openair1/PHY/CODING/crc_byte.c`: Updated corresponding CRC16 table initialization to match\n\n"
+}

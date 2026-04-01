@@ -1,0 +1,41 @@
+diff --git a/openair1/PHY/LTE_TRANSPORT/edci.c b/openair1/PHY/LTE_TRANSPORT/edci.c
+index f3a43584fb..f83764359c 100644
+--- a/openair1/PHY/LTE_TRANSPORT/edci.c
++++ b/openair1/PHY/LTE_TRANSPORT/edci.c
+@@ -238,10 +238,16 @@ extern uint8_t *generate_dci0(uint8_t *dci, uint8_t *e, uint8_t DCI_LENGTH, uint
+ 
+ uint16_t        mpdcch_dmrs_tab[12 * 6];
+ 
+-void init_mpdcch_dmrs_tab(uint16_t oss) {
++int init_mpdcch_dmrs_tab(uint16_t oss) {
+   int             re = 5 * oss;
+   int             pos = 0;
+ 
++  // Validate input parameter
++  if (oss < 128) {
++    LOG_E(PHY, "Invalid ofdm_symbol_size %d, should be >= 128\n", oss);
++    return -1;
++  }
++
+   for (int symb = 0; symb < 4; symb++) {
+     for (int prb = 0; prb < 6; prb++, re += 12) {
+       mpdcch_dmrs_tab[pos++] = re;
+@@ -256,6 +262,8 @@ void init_mpdcch_dmrs_tab(uint16_t oss) {
+     else if (symb == 2)
+       re = 13 * oss;
+   }
++  
++  return 0; // Success
+ }
+ 
+ void generate_mdci_top(PHY_VARS_eNB *eNB, int frame, int subframe, int16_t amp, int32_t **txdataF) {
+@@ -459,6 +467,8 @@ void init_mpdcch(PHY_VARS_eNB *eNB) {
+   init_mpdcch5ss3tab_normal_regular_subframe_evenNRBDL(eNB);
+   init_mpdcch3ss1tab_normal_regular_subframe_evenNRBDL(eNB);
+   init_mpdcch2ss1tab_normal_regular_subframe_evenNRBDL(eNB);
+-  init_mpdcch_dmrs_tab(eNB->frame_parms.ofdm_symbol_size);
++  if (init_mpdcch_dmrs_tab(eNB->frame_parms.ofdm_symbol_size) != 0) {
++    LOG_E(PHY, "Failed to initialize mpdcch_dmrs_tab\n");
++  }
+ }
+ 

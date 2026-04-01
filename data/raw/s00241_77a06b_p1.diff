@@ -1,0 +1,70 @@
+diff --git a/openair2/LAYER2/MAC/eNB_scheduler_RA.c b/openair2/LAYER2/MAC/eNB_scheduler_RA.c
+index 375059f315..946a9cdf03 100644
+--- a/openair2/LAYER2/MAC/eNB_scheduler_RA.c
++++ b/openair2/LAYER2/MAC/eNB_scheduler_RA.c
+@@ -1289,6 +1289,8 @@ initiate_ra_proc(module_id_t module_idP,
+   struct LTE_PRACH_ConfigSIB_v1310 *ext4_prach = NULL;
+   LTE_PRACH_ParametersListCE_r13_t *prach_ParametersListCE_r13 = NULL;
+ 
++  pthread_mutex_lock(&RC.mac[module_idP]->ra_mutex);
++
+   if (cc->mib->message.schedulingInfoSIB1_BR_r13>0) {
+     AssertFatal(cc->radioResourceConfigCommon_BR != NULL,"radioResourceConfigCommon_BR is null\n");
+     AssertFatal(cc->radioResourceConfigCommon_BR->ext4 != NULL, "radioResourceConfigCommon_BR->ext4 is null\n");
+@@ -1456,6 +1458,7 @@ cancel_ra_proc(module_id_t module_idP, int CC_id, frame_t frameP,
+         "[eNB %d][RAPROC] CC_id %d Frame %d Cancelling RA procedure for UE rnti %x\n",
+         module_idP, CC_id, frameP, rnti);
+ 
++  pthread_mutex_lock(&RC.mac[module_idP]->ra_mutex);
+   for (i = 0; i < NB_RA_PROC_MAX; i++) {
+     if (rnti == ra[i].rnti) {
+       ra[i].eRA_state = IDLE;
+@@ -1466,12 +1469,14 @@ cancel_ra_proc(module_id_t module_idP, int CC_id, frame_t frameP,
+       LOG_D(MAC,"[eNB %d][RAPROC] CC_id %d Frame %d Canceled RA procedure for UE rnti %x\n", module_idP, CC_id, frameP, rnti);
+     }
+   }
++  pthread_mutex_unlock(&RC.mac[module_idP]->ra_mutex);
+ }
+ 
+ void clear_ra_proc(module_id_t module_idP, int CC_id, frame_t frameP) {
+   unsigned char i;
+   RA_t *ra = (RA_t *) & RC.mac[module_idP]->common_channels[CC_id].ra[0];
+ 
++  pthread_mutex_lock(&RC.mac[module_idP]->ra_mutex);
+   for (i = 0; i < NB_RA_PROC_MAX; i++) {
+     LOG_I(MAC,"[eNB %d][RAPROC] CC_id %d Frame %d Clear Random access information rnti %x\n", module_idP, CC_id, frameP, ra[i].rnti);
+     ra[i].eRA_state = IDLE;
+@@ -1480,4 +1485,5 @@ void clear_ra_proc(module_id_t module_idP, int CC_id, frame_t frameP) {
+     ra[i].rnti = 0;
+     ra[i].msg3_round = 0;
+   }
++  pthread_mutex_unlock(&RC.mac[module_idP]->ra_mutex);
+ }
+diff --git a/openair2/LAYER2/MAC/mac.h b/openair2/LAYER2/MAC/mac.h
+index f10941c3ab..73c4481358 100644
+--- a/openair2/LAYER2/MAC/mac.h
++++ b/openair2/LAYER2/MAC/mac.h
+@@ -1650,6 +1650,8 @@ typedef struct {
+   time_stats_t rx_p;
+   /// Mutex for nfapi UL_INFO
+   pthread_mutex_t      UL_INFO_mutex;
++  /// Mutex for RA procedures
++  pthread_mutex_t      RA_mutex;
+   /// UE_Mode variable should be used in the case of Phy_stub operation since we won't have access to PHY_VARS_UE
+   /// where the UE_mode originally is for the full stack operation mode. The transitions between the states of the UE_Mode
+   /// will be triggered within phy_stub_ue.c in this case
+diff --git a/openair2/LAYER2/MAC/main.c b/openair2/LAYER2/MAC/main.c
+index 9fdf0cb75a..1110d530c0 100644
+--- a/openair2/LAYER2/MAC/main.c
++++ b/openair2/LAYER2/MAC/main.c
+@@ -206,6 +206,10 @@ void mac_top_init_eNB(void)
+ 
+   RC.mac = mac;
+ 
++  for (i = 0; i < RC.nb_macrlc_inst; i++) {
++    pthread_mutex_init(&RC.mac[i]->ra_mutex, NULL);
++  }
++
+   AssertFatal(rlc_module_init(1) == 0,
+       "Could not initialize RLC layer\n");
+ 

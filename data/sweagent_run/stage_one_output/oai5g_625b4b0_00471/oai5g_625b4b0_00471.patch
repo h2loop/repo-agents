@@ -1,0 +1,30 @@
+diff --git a/openair3/NAS/UE/nas_user.c b/openair3/NAS/UE/nas_user.c
+index 57327802f3..a7af806b80 100644
+--- a/openair3/NAS/UE/nas_user.c
++++ b/openair3/NAS/UE/nas_user.c
+@@ -2594,16 +2594,23 @@ static int _nas_user_proc_clac(nas_user_t *user, const at_command_t *data)
+     /* Get the list of supported AT commands */
+     clac->n_acs = at_command_get_list(clac->ac, AT_CLAC_RESP_SIZE);
+ 
+-    if (clac->n_acs == 0) {
++    /* Check if the function returned a valid count */
++    if (clac->n_acs < 0) {
+       LOG_TRACE(ERROR, "USR-MAIN  - Failed to get the list of "
+                 "supported AT commands");
+       at_response->cause_code = AT_ERROR_OPERATION_NOT_SUPPORTED;
++      ret_code = RETURNerror;
++    } else if (clac->n_acs == 0) {
++      LOG_TRACE(WARNING, "USR-MAIN  - No supported AT commands found");
++      at_response->cause_code = AT_ERROR_OPERATION_NOT_ALLOWED;
+     }
+ 
+     break;
+ 
+   case AT_COMMAND_TST:
+-    /* Nothing to do */
++    /* For +CLAC=?, no specific response is required according to the 
++     * specification. The command is supported, so we return success. */
++    clac->n_acs = 0;
+     break;
+ 
+   default:

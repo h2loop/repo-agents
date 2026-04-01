@@ -1,0 +1,9 @@
+{
+  "run_id": "s00004_424409",
+  "pr_text": "## Title: Fix incorrect LTE subframe count causing power control errors\n\n### Summary\nThe `subframe_num()` function in `phy_procedures_lte_common.c` incorrectly returned 6-9 subframes for TDD configurations instead of the standard 10 subframes per frame. This miscalculation propagated downstream, causing power control algorithms to compute incorrect transmit power levels. According to 3GPP LTE specifications, all frames (both FDD and TDD) contain exactly 10 subframes; TDD configuration only affec",
+  "trajectory_path": "data/raw/s00004_424409_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00004_424409_p2.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 11,
+  "timestamp": "2026-02-10T10:26:41Z"
+}

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00201_6c60f1",
+  "pr_text": "## Title: Add validation checks to NR tracer event handlers\n\n### Summary\nThe NR event handler functions in the MAC PDU tracer lacked validation checks for uninitialized field indices. The functions `nr_ul`, `nr_dl`, `nr_dl_retx`, `nr_mib`, and `nr_rar` access event field arrays using indices that are initialized to -1 during data structure setup. Without validation, if the format parsing fails or fields are missing, these indices remain at -1, leading to invalid memory access when dereferencing ",
+  "trajectory_path": "data/raw/s00201_6c60f1_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00201_6c60f1_p2.diff",
+  "patch_lines": 25,
+  "trajectory_steps": 50,
+  "timestamp": "2026-02-11T13:23:48Z"
+}

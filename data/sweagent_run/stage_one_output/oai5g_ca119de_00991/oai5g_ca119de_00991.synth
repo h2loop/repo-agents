@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix emergency number list encoding in NAS messages\n\n### Summary\nThe `encode_emergency_number_list` function in the NAS common IES was not properly incrementing the buffer position when encoding BCD digits, causing all digits to overwrite the same buffer location. This resulted in corrupted emergency number lists in Attach Accept and TAU Accept messages.\n\nAdditionally, the `decode_emergency_number_list` function was not properly maintaining the `num_emergency_elements` counter, which could lead to incorrect encoding when the list was later re-encoded.\n\n### Changes\n- `openair3/NAS/COMMON/IES/EmergencyNumberList.c`: Fixed BCD digit encoding loop to properly increment buffer position. Also fixed initialization and setting of `num_emergency_elements` in decode function.\n"
+}

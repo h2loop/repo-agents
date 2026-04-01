@@ -1,0 +1,9 @@
+{
+  "run_id": "s00647_b5765e",
+  "pr_text": "## Title: Fix use-after-free vulnerability in NR UL HARQ process management\n\n### Summary\nFix a use-after-free vulnerability in the NR UL HARQ process handling where HARQ process memory could be freed while still being accessed by the uplink encoding pipeline. The race condition occurred when `nr_ulsch_encoding` was actively using a HARQ process that could be simultaneously released by `free_nr_ue_ul_harq()`, leading to memory corruption and potential crashes.\n\nThe vulnerability manifested when u",
+  "trajectory_path": "data/raw/s00647_b5765e_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00647_b5765e_p2.diff",
+  "patch_lines": 8,
+  "trajectory_steps": 23,
+  "timestamp": "2026-02-10T19:41:38Z"
+}

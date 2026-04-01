@@ -1,0 +1,31 @@
+{
+  "run_id": "s00388_29c18e",
+  "function": {
+    "name": "init_bler_stats",
+    "file": "openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c",
+    "start_line": 2957,
+    "end_line": 2962,
+    "body_lines": 6,
+    "signature": "static void init_bler_stats(const NR_bler_options_t *bler_options, NR_bler_stats_t *bler_stats, frame_t frame)",
+    "subsystem": "openair2/LAYER2/NR_MAC_gNB",
+    "token_estimate": 24
+  },
+  "bug": {
+    "bug_id": "telecom_timer_race",
+    "description": "race condition between timer expiry handler and normal message processing",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a race condition between timer expiry handler and normal message processing downstream of function init_bler_stats in the openair2/LAYER2/NR_MAC_gNB subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c:2957.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00388_29c18e_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00388_29c18e_p1.diff",
+  "patch_lines": 10,
+  "trajectory_steps": 40,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:01:24Z"
+}

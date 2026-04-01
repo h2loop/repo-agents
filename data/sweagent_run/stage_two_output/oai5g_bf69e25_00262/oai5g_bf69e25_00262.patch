@@ -1,0 +1,211 @@
+diff --git a/openair1/PHY/TOOLS/smbv.c b/openair1/PHY/TOOLS/smbv.c
+index d361872547..1ef908801a 100644
+--- a/openair1/PHY/TOOLS/smbv.c
++++ b/openair1/PHY/TOOLS/smbv.c
+@@ -60,7 +60,19 @@ int smbv_init_config(const char* fname, uint16_t sequence_length)
+   FILE *f_ptr;
+   int k;
+ 
++  // Add input parameter validation
++  if (fname == NULL) {
++    msg("ERROR: Invalid input parameters\n");
++    return -1;
++  }
++
+   f_ptr = fopen(fname,"w");
++  
++  // Add file opening error checking
++  if (f_ptr == NULL) {
++    msg("ERROR: Could not open file %s\n", fname);
++    return -1;
++  }
+ 
+   if (sequence_length>4) {
+     msg("ERROR invalid sequence length: %d, maximum is 4\n", sequence_length);
+@@ -97,10 +109,21 @@ int smbv_init_config(const char* fname, uint16_t sequence_length)
+ 
+ int smbv_write_config_from_frame_parms(const char* fname, LTE_DL_FRAME_PARMS *frame_parms)
+ {
+-
+   FILE *f_ptr;
+ 
++  // Add input parameter validation
++  if (fname == NULL || frame_parms == NULL) {
++    msg("ERROR: Invalid input parameters\n");
++    return -1;
++  }
++
+   f_ptr = fopen(fname,"a");
++  
++  // Add file opening error checking
++  if (f_ptr == NULL) {
++    msg("ERROR: Could not open file %s\n", fname);
++    return -1;
++  }
+ 
+   fprintf(f_ptr, "BB:EUTR:SLEN %d\n",slen);
+ 
+@@ -115,9 +138,11 @@ int smbv_write_config_from_frame_parms(const char* fname, LTE_DL_FRAME_PARMS *fr
+   fprintf(f_ptr, "BB:EUTR:DL:NORB %d\n",frame_parms->N_RB_DL);
+   fprintf(f_ptr, "BB:EUTR:DL:FFT %d\n",frame_parms->ofdm_symbol_size);
+ 
+-  // TDD Frame Structure
+-  fprintf(f_ptr, "BB:EUTR:TDD:UDC %d\n",frame_parms->tdd_config);
+-  fprintf(f_ptr, "BB:EUTR:TDD:SPSC %d\n",frame_parms->tdd_config_S);
++  // TDD Frame Structure - Only for TDD frames
++  if(frame_parms->frame_type == TDD) {
++    fprintf(f_ptr, "BB:EUTR:TDD:UDC %d\n",frame_parms->tdd_config);
++    fprintf(f_ptr, "BB:EUTR:TDD:SPSC %d\n",frame_parms->tdd_config_S);
++  }
+ 
+   // MIMO
+   fprintf(f_ptr, "BB:EUTR:DL:MIMO:CONF TX%d\n",frame_parms->nb_antenna_ports_eNB);
+@@ -171,8 +196,8 @@ int smbv_write_config_from_frame_parms(const char* fname, LTE_DL_FRAME_PARMS *fr
+   fprintf(f_ptr, "BB:EUTR:DL:SYNC:PPOW 0\n");
+   fprintf(f_ptr, "BB:EUTR:DL:SYNC:SPOW 0\n");
+ 
+-  // Number of configurable SF
+-  if (frame_parms->tdd_config == 3) {
++  // Number of configurable SF - Only apply special case for TDD frames with tdd_config == 3
++  if (frame_parms->frame_type == TDD && frame_parms->tdd_config == 3) {
+     fprintf(f_ptr, "BB:EUTR:DL:CONS %d\n",7*((slen>4) ? 4 : slen));
+   } else {
+     fprintf(f_ptr, "BB:EUTR:DL:CONS 1\n");
+@@ -187,7 +212,21 @@ int smbv_write_config_from_frame_parms(const char* fname, LTE_DL_FRAME_PARMS *fr
+ int smbv_configure_datalist_for_alloc(const char* fname, uint8_t alloc, uint8_t subframe, uint8_t *buffer, uint32_t len)
+ {
+   FILE *f_ptr;
++  
++  // Add input parameter validation
++  if (fname == NULL || buffer == NULL) {
++    msg("ERROR: Invalid input parameters\n");
++    return -1;
++  }
++
+   f_ptr = fopen(fname,"a");
++  
++  // Add file opening error checking
++  if (f_ptr == NULL) {
++    msg("ERROR: Could not open file %s\n", fname);
++    return -1;
++  }
++  
+   char strbuf[(8<<1)+1];
+   int i,k;
+   strbuf[0] = '\0';
+@@ -244,7 +283,21 @@ int smbv_is_config_frame(uint32_t frame)
+ int smbv_configure_datalist_for_user(const char* fname, uint8_t user, uint8_t *buffer, uint32_t len)
+ {
+   FILE *f_ptr;
++  
++  // Add input parameter validation
++  if (fname == NULL || buffer == NULL) {
++    msg("ERROR: Invalid input parameters\n");
++    return -1;
++  }
++
+   f_ptr = fopen(fname,"a");
++  
++  // Add file opening error checking
++  if (f_ptr == NULL) {
++    msg("ERROR: Could not open file %s\n", fname);
++    return -1;
++  }
++  
+   char strbuf[(8<<1)+1];
+   int i,k;
+ 
+@@ -283,7 +336,20 @@ int smbv_configure_datalist_for_user(const char* fname, uint8_t user, uint8_t *b
+ int smbv_configure_user(const char* fname, uint8_t user, uint8_t transmission_mode, uint16_t rnti)
+ {
+   FILE *f_ptr;
++  
++  // Add input parameter validation
++  if (fname == NULL) {
++    msg("ERROR: Invalid input parameters\n");
++    return -1;
++  }
++
+   f_ptr = fopen(fname,"a");
++  
++  // Add file opening error checking
++  if (f_ptr == NULL) {
++    msg("ERROR: Could not open file %s\n", fname);
++    return -1;
++  }
+ 
+   fprintf(f_ptr, "BB:EUTR:DL:USER%d:TXM M1\n",user);
+   fprintf(f_ptr, "BB:EUTR:DL:USER%d:UEC USER\n",user);
+@@ -301,7 +367,19 @@ int smbv_configure_pdcch(const char* fname,uint8_t subframe,uint8_t num_pdcch_sy
+   int k;
+   FILE *f_ptr;
+ 
++  // Add input parameter validation
++  if (fname == NULL) {
++    msg("ERROR: Invalid input parameters\n");
++    return -1;
++  }
++
+   f_ptr = fopen(fname,"a");
++  
++  // Add file opening error checking
++  if (f_ptr == NULL) {
++    msg("ERROR: Could not open file %s\n", fname);
++    return -1;
++  }
+ 
+   fprintf(f_ptr, "BB:EUTR:DL:SUBF%d:ENCC:PCF:CREG %d\n",subframe,num_pdcch_symbols);
+   fprintf(f_ptr, "BB:EUTR:DL:SUBF%d:ENCC:PDCC:FORM VAR\n",subframe);
+@@ -324,7 +402,19 @@ int smbv_configure_common_dci(const char* fname, uint8_t subframe, const char* t
+   FILE *f_ptr;
+   void *dci_pdu = &dci_alloc->dci_pdu[0];
+ 
++  // Add input parameter validation
++  if (fname == NULL || type == NULL || dci_alloc == NULL) {
++    msg("ERROR: Invalid input parameters\n");
++    return -1;
++  }
++
+   f_ptr = fopen(fname,"a");
++  
++  // Add file opening error checking
++  if (f_ptr == NULL) {
++    msg("ERROR: Could not open file %s\n", fname);
++    return -1;
++  }
+ 
+   fprintf(f_ptr, "BB:EUTR:DL:SUBF%d:ENCC:STAT ON\n",subframe);
+ 
+@@ -382,7 +472,19 @@ int smbv_configure_ue_spec_dci(const char* fname, uint8_t subframe, uint8_t user
+   FILE *f_ptr;
+   void *dci_pdu = &dci_alloc->dci_pdu[0];
+ 
++  // Add input parameter validation
++  if (fname == NULL || dci_alloc == NULL) {
++    msg("ERROR: Invalid input parameters\n");
++    return -1;
++  }
++
+   f_ptr = fopen(fname,"a");
++  
++  // Add file opening error checking
++  if (f_ptr == NULL) {
++    msg("ERROR: Could not open file %s\n", fname);
++    return -1;
++  }
+ 
+   fprintf(f_ptr, "BB:EUTR:DL:SUBF%d:ENCC:STAT ON\n",subframe);
+   fprintf(f_ptr, "BB:EUTR:DL:SUBF%d:ENCC:PDCC:EXTC:ITEM%d:USER USER%d\n",subframe,item,user);
+@@ -507,6 +609,12 @@ int smbv_configure_from_file(int sockfd, const char* fname)
+ 
+   inst[0] = '\0';
+ 
++  // Add input parameter validation
++  if (fname == NULL) {
++    msg("ERROR: Invalid input parameters\n");
++    return -1;
++  }
++
+   f_ptr = fopen(fname,"r");
+ 
+   if (f_ptr!=NULL) {

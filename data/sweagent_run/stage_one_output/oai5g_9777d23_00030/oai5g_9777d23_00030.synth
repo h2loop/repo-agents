@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix bounds checking in antenna port parameter configuration\n\n### Summary\nThe NR UE MAC layer contained multiple out-of-bounds array access vulnerabilities in antenna port parameter configuration functions. These functions directly used DCI-provided indices to access static lookup tables without validating the indices against table bounds.\n\nThe bug manifested as memory corruption and segmentation faults during PDSCH/PUSCH configuration when the gNB signaled antenna port indices that exceeded the size of the corresponding lookup tables.\n\n### Changes\n- `openair2/LAYER2/NR_MAC_UE/mac_tables.c`: Added bounds checking for all table accesses in `set_antenna_port_parameters()`, `ul_ports_config()`, and `set_precoding_information_parameters()` with appropriate error logging and safe default values.\n\n"
+}

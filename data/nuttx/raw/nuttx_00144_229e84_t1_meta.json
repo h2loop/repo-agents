@@ -1,0 +1,26 @@
+{
+  "run_id": "nuttx_00144_229e84",
+  "function": {
+    "name": "rpmsgfs_rename_handler",
+    "file": "fs/rpmsgfs/rpmsgfs_server.c",
+    "start_line": 734,
+    "end_line": 749,
+    "body_lines": 16,
+    "signature": "static int rpmsgfs_rename_handler(FAR struct rpmsg_endpoint *ept, FAR void *data, size_t len, uint32_t src, FAR void *priv)",
+    "subsystem": "fs/rpmsgfs",
+    "token_estimate": 60
+  },
+  "bug": {
+    "bug_id": "c_missing_null_terminator",
+    "description": "missing null terminator on a string buffer leading to out-of-bounds read",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a missing null terminator on a string buffer leading to out-of-bounds read downstream of function rpmsgfs_rename_handler in the fs/rpmsgfs subsystem.\nThe function is located at fs/rpmsgfs/rpmsgfs_server.c:734.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 8,
+  "trajectory_steps": 16,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:03:17Z"
+}

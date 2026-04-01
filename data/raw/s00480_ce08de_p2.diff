@@ -1,0 +1,73 @@
+diff --git a/openair1/PHY/CODING/TESTBENCH/coding_unitary_defs.h b/openair1/PHY/CODING/TESTBENCH/coding_unitary_defs.h
+index 644751e80e..48d6b3d3cb 100644
+--- a/openair1/PHY/CODING/TESTBENCH/coding_unitary_defs.h
++++ b/openair1/PHY/CODING/TESTBENCH/coding_unitary_defs.h
+@@ -35,6 +35,11 @@ void exit_function(const char* file, const char* function, const int line, const
+ }
+ 
+ int8_t quantize(double D, double x, uint8_t B) {
++  // Check for invalid inputs that would cause undefined behavior
++  if (isnan(x) || isinf(x) || D == 0.0) {
++    return -128; // Return error indicator
++  }
++  
+   double qxd;
+   int16_t maxlev;
+   qxd = floor(x / D);
+diff --git a/openair1/PHY/CODING/TESTBENCH/ldpctest.c b/openair1/PHY/CODING/TESTBENCH/ldpctest.c
+index 97b39beaf8..84701115cf 100644
+--- a/openair1/PHY/CODING/TESTBENCH/ldpctest.c
++++ b/openair1/PHY/CODING/TESTBENCH/ldpctest.c
+@@ -48,6 +48,11 @@ ldpc_interface_t ldpc_orig, ldpc_toCompare;
+ // 4-bit quantizer
+ int8_t quantize4bit(double D, double x)
+ {
++  // Check for invalid inputs that would cause undefined behavior
++  if (isnan(x) || isinf(x) || D == 0.0) {
++    return -128; // Return error indicator
++  }
++  
+   double qxd;
+   qxd = floor(x / D);
+   //  printf("x=%f,qxd=%f\n",x,qxd);
+@@ -62,6 +67,11 @@ int8_t quantize4bit(double D, double x)
+ 
+ int8_t quantize8bit(double D, double x)
+ {
++  // Check for invalid inputs that would cause undefined behavior
++  if (isnan(x) || isinf(x) || D == 0.0) {
++    return -128; // Return error indicator
++  }
++  
+   double qxd;
+   // int8_t maxlev;
+   qxd = floor(x / D);
+@@ -92,6 +102,7 @@ typedef struct {
+   unsigned int errors_bit;
+   double errors_bit_uncoded;
+   unsigned int crc_misses;
++  unsigned int quantization_errors;
+   time_stats_t time_optim;
+   time_stats_t time_decoder;
+   n_iter_stats_t dec_iter;
+@@ -328,6 +339,12 @@ one_measurement_t test_ldpc(short max_iterations,
+         channel_output_fixed[j][i] =
+             (int8_t)quantize(sigma / 4.0 / 4.0, modulated_input[j][i] + sigma * gaussdouble(0.0, 1.0), qbits);
+ 
++        // Check for quantization errors
++        if (channel_output_fixed[j][i] == -128) {
++          ret.quantization_errors++;
++          printf("Warning: Quantization error at segment %d, position %d\n", j, i);
++        }
++
+         // Uncoded BER
+         uint8_t channel_output_uncoded = channel_output_fixed[j][i] < 0 ? 1 /* QPSK demod */ : 0;
+         if (channel_output_uncoded != ((channel_input_optim[i - 2 * Zc] >> j) & 0x1))
+@@ -576,6 +593,7 @@ int main(int argc, char *argv[])
+     printf("SNR %f, Mean iterations: %f\n", SNR, dec_iter[i].n_iter_mean);
+     printf("SNR %f, Std iterations: %f\n", SNR, dec_iter[i].n_iter_std);
+     printf("SNR %f, Max iterations: %d\n", SNR, dec_iter[i].n_iter_max);
++    printf("SNR %f, Quantization errors: %u\n", SNR, res.quantization_errors);
+     printf("\n");
+ 
+     double cpu_freq = get_cpu_freq_GHz();

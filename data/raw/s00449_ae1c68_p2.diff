@@ -1,0 +1,45 @@
+diff --git a/common/utils/T/tracer/t_tracer_app_ue.c b/common/utils/T/tracer/t_tracer_app_ue.c
+index 141bbd2385..abb4216321 100644
+--- a/common/utils/T/tracer/t_tracer_app_ue.c
++++ b/common/utils/T/tracer/t_tracer_app_ue.c
+@@ -116,11 +116,11 @@ char *get_time_stamp_usec(char time_stamp_str[])
+   time_t my_time;
+   struct tm *timeinfo;
+   time(&my_time);
+-  struct timeval tv;
++  struct timespec ts;
+ 
+   // get time stamp
+   timeinfo = localtime(&my_time);
+-  gettimeofday(&tv, NULL);
++  clock_gettime(CLOCK_REALTIME, &ts);
+   // Add time stamp: yyyy mm dd hh mm ss usec
+   uint16_t year = timeinfo->tm_year + 1900;
+   uint8_t mon = timeinfo->tm_mon + 1;
+@@ -128,7 +128,7 @@ char *get_time_stamp_usec(char time_stamp_str[])
+   uint8_t hour = timeinfo->tm_hour;
+   uint8_t min = timeinfo->tm_min;
+   uint8_t sec = timeinfo->tm_sec;
+-  uint16_t usec = (tv.tv_usec);
++  uint32_t usec = (ts.tv_nsec / 1000);
+   // printf ("Time stamp: %d_%d_%d_%d_%d_%d_%d \n",year,mon,mday,hour,min,sec,usec);
+   // sprintf(time_stamp_str, "%d_%d_%d_%d_%d_%d_%d",year,mon,mday,hour,min,sec,usec);
+   sprintf(time_stamp_str, "%04d%02d%02d%02d%02d%02d%06d", year, mon, mday, hour, min, sec, usec);
+@@ -163,7 +163,7 @@ void err_exit(char *buf)
+ int create_shm(char **addrN, const char *shm_path, int projectId)
+ {
+   key_t key;
+-  if (-1 != open(shm_path, O_CREAT, 0777)) {
++  if (-1 != open(shm_path, O_RDWR | O_CREAT, 0777)) {
+     key = ftok(shm_path, projectId);
+   } else {
+     err_exit("Error: open shared memory");
+@@ -178,7 +178,7 @@ int create_shm(char **addrN, const char *shm_path, int projectId)
+   if (shm_id == -1) {
+     if (errno == EEXIST) {
+       printf("Error: shared memeory already exist\n");
+-      shm_id = shmget(key, 0, 0);
++      shm_id = shmget(key, SHMSIZE, IPC_CREAT | 0664);
+       printf("reference shm_id = %d\n", shm_id);
+     } else {
+       perror("errno");

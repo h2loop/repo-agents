@@ -1,0 +1,24 @@
+diff --git a/common/utils/T/tracer/textlog.c b/common/utils/T/tracer/textlog.c
+index 99cddaf43a..ce1e4828a2 100644
+--- a/common/utils/T/tracer/textlog.c
++++ b/common/utils/T/tracer/textlog.c
+@@ -108,13 +108,17 @@ int main(int n, char **v)
+     if (!strcmp(v[i], "-p"))
+       { if (i > n-2) usage(); port = atoi(v[++i]); continue; }
+     if (!strcmp(v[i], "-on")) { if (i > n-2) usage();
++      if (on_off_n >= n) usage();
+       on_off_name[on_off_n]=v[++i]; on_off_action[on_off_n++]=1; continue; }
+     if (!strcmp(v[i], "-off")) { if (i > n-2) usage();
++      if (on_off_n >= n) usage();
+       on_off_name[on_off_n]=v[++i]; on_off_action[on_off_n++]=0; continue; }
+     if (!strcmp(v[i], "-ON"))
+-      { on_off_name[on_off_n]=NULL; on_off_action[on_off_n++]=1; continue; }
++      { if (on_off_n >= n) usage();
++      on_off_name[on_off_n]=NULL; on_off_action[on_off_n++]=1; continue; }
+     if (!strcmp(v[i], "-OFF"))
+-      { on_off_name[on_off_n]=NULL; on_off_action[on_off_n++]=0; continue; }
++      { if (on_off_n >= n) usage();
++      on_off_name[on_off_n]=NULL; on_off_action[on_off_n++]=0; continue; }
+     if (!strcmp(v[i], "-x")) { gui_mode = 1; continue; }
+     if (!strcmp(v[i], "-debug-gui")) { gui_logd = 1; continue; }
+     if (!strcmp(v[i], "-no-gui")) { gui_active = 0; continue; }

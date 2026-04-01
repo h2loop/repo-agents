@@ -1,0 +1,26 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+index 45d5f15ffe..d8d5c999cc 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+@@ -2406,7 +2406,20 @@ static uint8_t pack_harq_indication_body_value(void *tlv, uint8_t **ppWritePacke
+     // calculate the instance length subtracting the size of the instance
+     // length feild
+     uint16_t instance_length = *ppWritePackedMsg - instance_length_p - 2;
+-    push16(instance_length, &instance_length_p, end);
++    // Write the instance length directly without incrementing the pointer
++    // to avoid buffer overflow issues
++    if ((end - instance_length_p) >= 2) {
++#ifdef FAPI_BYTE_ORDERING_BIG_ENDIAN
++      instance_length_p[1] = (instance_length & 0xFF00) >> 8;
++      instance_length_p[0] = (instance_length & 0xFF);
++#else
++      instance_length_p[0] = (instance_length & 0xFF00) >> 8;
++      instance_length_p[1] = (instance_length & 0xFF);
++#endif
++    } else {
++      NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s no space in buffer for instance length\n", __FUNCTION__);
++      return 0;
++    }
+   }
+ 
+   return 1;

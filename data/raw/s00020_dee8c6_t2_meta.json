@@ -1,0 +1,9 @@
+{
+  "run_id": "s00020_dee8c6",
+  "pr_text": "## Title: Add mutex protection for VCD signal dumper FIFO operations\n\n### Summary\nThe VCD signal dumper functions `vcd_signal_dumper_dump_variable_by_name()` and `vcd_signal_dumper_dump_function_by_name()` were accessing shared FIFO state without synchronization, creating a race condition when multiple threads log signals concurrently. The shared `vcd_fifo` structure and its write index could be corrupted, leading to lost trace data or undefined behavior.\n\nThis patch introduces a global mutex to",
+  "trajectory_path": "data/raw/s00020_dee8c6_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00020_dee8c6_p2.diff",
+  "patch_lines": 7,
+  "trajectory_steps": 32,
+  "timestamp": "2026-02-11T07:39:59Z"
+}

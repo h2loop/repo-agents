@@ -1,0 +1,46 @@
+diff --git a/openair1/PHY/LTE_UE_TRANSPORT/dci_ue.c b/openair1/PHY/LTE_UE_TRANSPORT/dci_ue.c
+index 381dfc0cdf..1c86db584e 100644
+--- a/openair1/PHY/LTE_UE_TRANSPORT/dci_ue.c
++++ b/openair1/PHY/LTE_UE_TRANSPORT/dci_ue.c
+@@ -1136,27 +1136,32 @@ void pdcch_alamouti(LTE_DL_FRAME_PARMS *frame_parms,
+ {
+ 
+ 
+-  int16_t *rxF0,*rxF1;
++  int32_t *rxF0,*rxF1;
++  int16_t *rxF0_s,*rxF1_s;
+   uint8_t rb,re;
+   int32_t jj=(symbol*frame_parms->N_RB_DL*12);
+ 
+-  rxF0     = (int16_t*)&rxdataF_comp[0][jj];  //tx antenna 0  h0*y
+-  rxF1     = (int16_t*)&rxdataF_comp[2][jj];  //tx antenna 1  h1*y
++  rxF0     = &rxdataF_comp[0][jj];  //tx antenna 0  h0*y
++  rxF1     = &rxdataF_comp[2][jj];  //tx antenna 1  h1*y
+ 
+   for (rb=0; rb<frame_parms->N_RB_DL; rb++) {
+ 
+     for (re=0; re<12; re+=2) {
+ 
+       // Alamouti RX combining
++      // Use int16_t pointers for element-wise operations to access real and imaginary parts
++      rxF0_s = (int16_t*)rxF0;
++      rxF1_s = (int16_t*)rxF1;
+ 
+-      rxF0[0] = rxF0[0] + rxF1[2];
+-      rxF0[1] = rxF0[1] - rxF1[3];
++      rxF0_s[0] = rxF0_s[0] + rxF1_s[2];
++      rxF0_s[1] = rxF0_s[1] - rxF1_s[3];
+ 
+-      rxF0[2] = rxF0[2] - rxF1[0];
+-      rxF0[3] = rxF0[3] + rxF1[1];
++      rxF0_s[2] = rxF0_s[2] - rxF1_s[0];
++      rxF0_s[3] = rxF0_s[3] + rxF1_s[1];
+ 
+-      rxF0+=4;
+-      rxF1+=4;
++      // Increment by 2 int32_t elements (equivalent to 4 int16_t elements)
++      rxF0+=2;
++      rxF1+=2;
+     }
+   }
+ 

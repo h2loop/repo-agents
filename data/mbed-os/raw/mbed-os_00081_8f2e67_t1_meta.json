@@ -1,0 +1,26 @@
+{
+  "run_id": "mbed-os_00081_8f2e67",
+  "function": {
+    "name": "snmp_oid_to_ip4",
+    "file": "connectivity/lwipstack/lwip/src/apps/snmp/lwip_snmp_core.c",
+    "start_line": 285,
+    "end_line": 298,
+    "body_lines": 14,
+    "signature": "u8_t snmp_oid_to_ip4(const u32_t *oid, ip4_addr_t *ip)",
+    "subsystem": "connectivity/lwipstack/lwip",
+    "token_estimate": 37
+  },
+  "bug": {
+    "bug_id": "rtos_isr_calling_blocking_api",
+    "description": "blocking RTOS API called from interrupt context causing undefined behavior",
+    "domain": "rtos",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a blocking RTOS API called from interrupt context causing undefined behavior downstream of function snmp_oid_to_ip4 in the connectivity/lwipstack/lwip subsystem.\nThe function is located at connectivity/lwipstack/lwip/src/apps/snmp/lwip_snmp_core.c:285.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 61,
+  "trajectory_steps": 70,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:28:22Z"
+}

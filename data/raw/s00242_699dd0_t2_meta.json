@@ -1,0 +1,9 @@
+{
+  "run_id": "s00242_699dd0",
+  "pr_text": "## Title: Fix HARQ process error due to stale per-slot data persistence\n\n### Summary\nThe HARQ process in the NR UE PHY interface was using stale redundancy versions and transmission parameters from previous slots, causing incorrect retransmission behavior and BLER table lookups. The `read_channel_param()` function only reset the `latest` flag across all slots but failed to clear per-slot arrays (`rvIndex`, `drop_flag`, `rnti`, `mcs`) when processing a new downlink assignment. This resulted in le",
+  "trajectory_path": "data/raw/s00242_699dd0_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00242_699dd0_p2.diff",
+  "patch_lines": 17,
+  "trajectory_steps": 12,
+  "timestamp": "2026-02-11T13:40:28Z"
+}

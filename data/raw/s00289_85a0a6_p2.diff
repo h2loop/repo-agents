@@ -1,0 +1,13 @@
+diff --git a/executables/nr-ru.c b/executables/nr-ru.c
+index 20deff5725..79891968cc 100644
+--- a/executables/nr-ru.c
++++ b/executables/nr-ru.c
+@@ -1087,7 +1087,7 @@ void *ru_thread(void *param)
+     }
+ 
+     LOG_I(PHY, "Starting IF interface for RU %d, nb_rx %d\n", ru->idx, ru->nb_rx);
+-    AssertFatal(ru->nr_start_if(ru, NULL) == 0, "Could not start the IF device\n");
++    AssertFatal(ru->nr_start_if(ru, gNB) == 0, "Could not start the IF device\n");
+ 
+     if (ru->has_ctrl_prt > 0) {
+       if (ru->if_south == LOCAL_RF)

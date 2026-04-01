@@ -1,0 +1,21 @@
+diff --git a/drivers/misc/ethos_u/ethos_u_arm.c b/drivers/misc/ethos_u/ethos_u_arm.c
+index 116c65ca..b606893e 100644
+--- a/drivers/misc/ethos_u/ethos_u_arm.c
++++ b/drivers/misc/ethos_u/ethos_u_arm.c
+@@ -52,14 +52,14 @@ static int ethosu_zephyr_init(const struct device *dev)
+ 	LOG_DBG("Version. major=%u, minor=%u, patch=%u", version.major, version.minor,
+ 		version.patch);
+ 
++	config->irq_config();
++
+ 	if (ethosu_init(drv, config->base_addr, config->fast_mem_base, config->fast_mem_size,
+ 			config->secure_enable, config->privilege_enable)) {
+ 		LOG_ERR("Failed to initialize NPU with ethosu_init().");
+ 		return -EINVAL;
+ 	}
+ 
+-	config->irq_config();
+-
+ 	return 0;
+ }
+ 

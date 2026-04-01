@@ -1,0 +1,32 @@
+{
+  "run_id": "s00306_e1c599",
+  "function": {
+    "name": "new_throughputlog",
+    "file": "common/utils/T/tracer/logger/throughputlog.c",
+    "start_line": 91,
+    "end_line": 198,
+    "body_lines": 108,
+    "signature": "logger *new_throughputlog(event_handler *h, void *database, char *tick_event_name, char *frame_varname, char *tick_varname, char *event_name, char *data_varname, int ticks_per_frame)",
+    "subsystem": "common/utils/T",
+    "token_estimate": 391
+  },
+  "bug": {
+    "bug_id": "telecom_missing_optional_field",
+    "description": "missing optional field that is conditionally mandatory per 3GPP specification",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a missing optional field that is conditionally mandatory per 3GPP specification downstream of function new_throughputlog in the common/utils/T subsystem.\nThe function is located at common/utils/T/tracer/logger/throughputlog.c:91.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00306_e1c599_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00306_e1c599_p1.diff",
+  "patch_lines": 7,
+  "trajectory_steps": 39,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:31:28Z"
+}

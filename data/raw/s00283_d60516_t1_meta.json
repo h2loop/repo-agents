@@ -1,0 +1,28 @@
+{
+  "run_id": "s00283_d60516",
+  "function": {
+    "name": "m2ap_decode_pdu",
+    "file": "openair2/M2AP/m2ap_decoder.c",
+    "start_line": 155,
+    "end_line": 194,
+    "body_lines": 40,
+    "signature": "int m2ap_decode_pdu(M2AP_M2AP_PDU_t *pdu, const uint8_t *const buffer, uint32_t length)",
+    "subsystem": "openair2/M2AP",
+    "token_estimate": 71
+  },
+  "bug": {
+    "bug_id": "telecom_sched_priority_inversion",
+    "description": "scheduling priority inversion where lower-priority traffic is served before higher-priority",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a scheduling priority inversion where lower-priority traffic is served before higher-priority downstream of function m2ap_decode_pdu in the openair2/M2AP subsystem.\nThe function is located at openair2/M2AP/m2ap_decoder.c:155.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00283_d60516_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00283_d60516_p1.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 17,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:20:38Z"
+}

@@ -1,0 +1,52 @@
+diff --git a/common/utils/T/tracer/t_tracer_app_gnb.c b/common/utils/T/tracer/t_tracer_app_gnb.c
+index 3cb0325e39..c5e4109813 100644
+--- a/common/utils/T/tracer/t_tracer_app_gnb.c
++++ b/common/utils/T/tracer/t_tracer_app_gnb.c
+@@ -50,6 +50,7 @@
+ #include <stdbool.h>
+ #include <stddef.h>
+ #include <poll.h>
++#include <errno.h>
+ #define MAX_FRAME_INDEX 1023
+ #define MAX_SLOT_INDEX 19
+ #define DEBUG_T_Tracer
+@@ -90,8 +91,11 @@ bool is_bits_messages(int traces_bits_support_data_Collection_format_idx[], int
+ // Get the current time
+ struct timespec get_current_time()
+ {
+-  struct timespec time;
+-  clock_gettime(CLOCK_MONOTONIC, &time);
++  struct timespec time = {0, 0}; // Initialize to zero
++  if (clock_gettime(CLOCK_MONOTONIC, &time) == -1) {
++    // Handle error - time structure is already zero-initialized
++    fprintf(stderr, "Error: clock_gettime failed with errno %d\n", errno);
++  }
+   return time;
+ }
+ 
+diff --git a/common/utils/T/tracer/t_tracer_app_ue.c b/common/utils/T/tracer/t_tracer_app_ue.c
+index 141bbd2385..c16913a1af 100644
+--- a/common/utils/T/tracer/t_tracer_app_ue.c
++++ b/common/utils/T/tracer/t_tracer_app_ue.c
+@@ -50,6 +50,7 @@
+ #include <stdbool.h>
+ #include <stddef.h>
+ #include <poll.h>
++#include <errno.h>
+ #define MAX_FRAME_INDEX 1023
+ #define MAX_SLOT_INDEX 19
+ #define DEBUG_T_Tracer
+@@ -90,8 +91,11 @@ bool is_bits_messages(int traces_bits_support_data_Collection_format_idx[], int
+ // Get the current time
+ struct timespec get_current_time()
+ {
+-  struct timespec time;
+-  clock_gettime(CLOCK_MONOTONIC, &time);
++  struct timespec time = {0, 0}; // Initialize to zero
++  if (clock_gettime(CLOCK_MONOTONIC, &time) == -1) {
++    // Handle error - time structure is already zero-initialized
++    fprintf(stderr, "Error: clock_gettime failed with errno %d\n", errno);
++  }
+   return time;
+ }
+ 

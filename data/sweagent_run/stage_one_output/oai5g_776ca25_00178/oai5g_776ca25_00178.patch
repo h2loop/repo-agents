@@ -1,0 +1,28 @@
+diff --git a/common/utils/T/tracer/gui/positioner.c b/common/utils/T/tracer/gui/positioner.c
+index 673ffb32de..bde5202965 100644
+--- a/common/utils/T/tracer/gui/positioner.c
++++ b/common/utils/T/tracer/gui/positioner.c
+@@ -57,8 +57,10 @@ static void button(gui *_g, widget *_this, int x, int y,
+   struct gui *g = _g;
+   struct positioner_widget *this = _this;
+   struct widget_list *l = this->common.children;
+-  if (l != NULL)
++  while (l) {
+     l->item->button(g, l->item, x, y, key_modifiers, button, up);
++    l = l->next;
++  }
+ }
+ 
+ static void paint(gui *_gui, widget *_this)
+@@ -67,8 +69,10 @@ static void paint(gui *_gui, widget *_this)
+   struct gui *g = _gui;
+   struct widget *this = _this;
+   struct widget_list *l = this->children;
+-  if (l != NULL)
++  while (l) {
+     l->item->paint(g, l->item);
++    l = l->next;
++  }
+ }
+ 
+ widget *new_positioner(gui *_gui)

@@ -1,0 +1,56 @@
+diff --git a/openair2/E1AP/e1ap_common.c b/openair2/E1AP/e1ap_common.c
+index 984c3de887..dd00c5dab8 100644
+--- a/openair2/E1AP/e1ap_common.c
++++ b/openair2/E1AP/e1ap_common.c
+@@ -131,22 +131,45 @@ int e1ap_decode_initiating_message(E1AP_E1AP_PDU_t *pdu) {
+ 
+ int e1ap_decode_successful_outcome(E1AP_E1AP_PDU_t *pdu) {
+   DevAssert(pdu != NULL);
+-  switch(pdu->choice.successfulOutcome->procedureCode) {
+-    case E1AP_ProcedureCode_id_gNB_CU_UP_E1Setup:
++  E1AP_SuccessfulOutcome_t *successfulOutcome = pdu->choice.successfulOutcome;
++  void *ie = NULL;
++  
++  switch(successfulOutcome->procedureCode) {
++    case E1AP_ProcedureCode_id_gNB_CU_UP_E1Setup: {
++      E1AP_GNB_CU_UP_E1SetupResponse_t *response = &successfulOutcome->value.choice.GNB_CU_UP_E1SetupResponse;
++      // Validate mandatory TransactionID
++      F1AP_FIND_PROTOCOLIE_BY_ID(E1AP_GNB_CU_UP_E1SetupResponseIEs_t, ie, response, E1AP_ProtocolIE_ID_id_TransactionID, true);
+       break;
++    }
+ 
+-    case E1AP_ProcedureCode_id_bearerContextSetup:
++    case E1AP_ProcedureCode_id_bearerContextSetup: {
++      E1AP_BearerContextSetupResponse_t *response = &successfulOutcome->value.choice.BearerContextSetupResponse;
++      // Validate mandatory IEs
++      F1AP_FIND_PROTOCOLIE_BY_ID(E1AP_BearerContextSetupResponseIEs_t, ie, response, E1AP_ProtocolIE_ID_id_gNB_CU_CP_UE_E1AP_ID, true);
++      F1AP_FIND_PROTOCOLIE_BY_ID(E1AP_BearerContextSetupResponseIEs_t, ie, response, E1AP_ProtocolIE_ID_id_gNB_CU_UP_UE_E1AP_ID, true);
++      F1AP_FIND_PROTOCOLIE_BY_ID(E1AP_BearerContextSetupResponseIEs_t, ie, response, E1AP_ProtocolIE_ID_id_System_BearerContextSetupResponse, true);
+       break;
++    }
+ 
+-    case E1AP_ProcedureCode_id_bearerContextModification:
++    case E1AP_ProcedureCode_id_bearerContextModification: {
++      E1AP_BearerContextModificationResponse_t *response = &successfulOutcome->value.choice.BearerContextModificationResponse;
++      // Validate mandatory IEs
++      F1AP_FIND_PROTOCOLIE_BY_ID(E1AP_BearerContextModificationResponseIEs_t, ie, response, E1AP_ProtocolIE_ID_id_gNB_CU_CP_UE_E1AP_ID, true);
++      F1AP_FIND_PROTOCOLIE_BY_ID(E1AP_BearerContextModificationResponseIEs_t, ie, response, E1AP_ProtocolIE_ID_id_gNB_CU_UP_UE_E1AP_ID, true);
+       break;
++    }
+ 
+-    case E1AP_ProcedureCode_id_bearerContextRelease:
++    case E1AP_ProcedureCode_id_bearerContextRelease: {
++      E1AP_BearerContextReleaseComplete_t *response = &successfulOutcome->value.choice.BearerContextReleaseComplete;
++      // Validate mandatory IEs
++      F1AP_FIND_PROTOCOLIE_BY_ID(E1AP_BearerContextReleaseCompleteIEs_t, ie, response, E1AP_ProtocolIE_ID_id_gNB_CU_CP_UE_E1AP_ID, true);
++      F1AP_FIND_PROTOCOLIE_BY_ID(E1AP_BearerContextReleaseCompleteIEs_t, ie, response, E1AP_ProtocolIE_ID_id_gNB_CU_UP_UE_E1AP_ID, true);
+       break;
++    }
+ 
+     default:
+       LOG_E(E1AP, "Unsupported procedure code (%d) for successful message\n",
+-            (int)pdu->choice.successfulOutcome->procedureCode);
++            (int)successfulOutcome->procedureCode);
+       return -1;
+   }
+   return 0;

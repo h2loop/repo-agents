@@ -1,0 +1,40 @@
+{
+  "run_id": "s00650_b6bedb",
+  "function": {
+    "name": "nfapi_nr_pnf_pnf_param_resp",
+    "file": "nfapi/open-nFAPI/pnf/src/pnf_interface.c",
+    "start_line": 98,
+    "end_line": 110,
+    "body_lines": 13,
+    "signature": "int nfapi_nr_pnf_pnf_param_resp(nfapi_pnf_config_t* config, nfapi_nr_pnf_param_response_t* resp)",
+    "subsystem": "nfapi/open-nFAPI/pnf",
+    "token_estimate": 42
+  },
+  "bug": {
+    "bug_id": "c_null_pointer_dereference",
+    "description": "null pointer dereference due to missing NULL check before access",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables",
+      "radio",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a null pointer dereference due to missing NULL check before access downstream of function nfapi_nr_pnf_pnf_param_resp in the nfapi/open-nFAPI/pnf subsystem.\nThe function is located at nfapi/open-nFAPI/pnf/src/pnf_interface.c:98.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00650_b6bedb_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00650_b6bedb_p1.diff",
+  "patch_lines": 7,
+  "trajectory_steps": 9,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T17:37:44Z"
+}

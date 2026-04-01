@@ -1,0 +1,104 @@
+diff --git a/nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c b/nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c
+index fa0ed1bd8f..abd330614e 100644
+--- a/nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c
++++ b/nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c
+@@ -244,6 +244,18 @@ static uint8_t pack_nr_tx_beamforming_pdu(const nfapi_nr_tx_precoding_and_beamfo
+         && push8(beamforming_pdu->dig_bf_interfaces, ppWritePackedMsg, end))) {
+     return 0;
+   }
++  
++  // Check bounds to prevent buffer overflow
++  if (beamforming_pdu->num_prgs > NFAPI_MAX_NUM_PRGS) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "num_prgs (%d) exceeds maximum allowed (%d)\n", beamforming_pdu->num_prgs, NFAPI_MAX_NUM_PRGS);
++    return 0;
++  }
++  
++  if (beamforming_pdu->dig_bf_interfaces > NFAPI_MAX_NUM_BG_IF) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "dig_bf_interfaces (%d) exceeds maximum allowed (%d)\n", beamforming_pdu->dig_bf_interfaces, NFAPI_MAX_NUM_BG_IF);
++    return 0;
++  }
++  
+   for (int prg = 0; prg < beamforming_pdu->num_prgs; prg++) {
+     if (!push16(beamforming_pdu->prgs_list[prg].pm_idx, ppWritePackedMsg, end)) {
+       return 0;
+@@ -477,6 +489,18 @@ static uint8_t unpack_nr_tx_beamforming_pdu(nfapi_nr_tx_precoding_and_beamformin
+         && pull8(ppReadPackedMsg, &beamforming_pdu->dig_bf_interfaces, end))) {
+     return 0;
+   }
++  
++  // Check bounds to prevent buffer overflow
++  if (beamforming_pdu->num_prgs > NFAPI_MAX_NUM_PRGS) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "num_prgs (%d) exceeds maximum allowed (%d)\n", beamforming_pdu->num_prgs, NFAPI_MAX_NUM_PRGS);
++    return 0;
++  }
++  
++  if (beamforming_pdu->dig_bf_interfaces > NFAPI_MAX_NUM_BG_IF) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "dig_bf_interfaces (%d) exceeds maximum allowed (%d)\n", beamforming_pdu->dig_bf_interfaces, NFAPI_MAX_NUM_BG_IF);
++    return 0;
++  }
++  
+   for (int prg = 0; prg < beamforming_pdu->num_prgs; prg++) {
+     if (!(pull16(ppReadPackedMsg, &beamforming_pdu->prgs_list[prg].pm_idx, end))) {
+       return 0;
+@@ -505,6 +529,12 @@ static uint8_t unpack_dl_tti_pdcch_pdu_rel15_value(void *tlv, uint8_t **ppReadPa
+     return 0;
+   }
+ 
++  // Check bounds on numDlDci to prevent buffer overflow
++  if (value->numDlDci > MAX_DCI_CORESET) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "numDlDci (%d) exceeds maximum allowed (%d)\n", value->numDlDci, MAX_DCI_CORESET);
++    return 0;
++  }
++
+   for (uint16_t i = 0; i < value->numDlDci; ++i) {
+     if (!(pull16(ppReadPackedMsg, &value->dci_pdu[i].RNTI, end) && pull16(ppReadPackedMsg, &value->dci_pdu[i].ScramblingId, end)
+           && pull16(ppReadPackedMsg, &value->dci_pdu[i].ScramblingRNTI, end)
+@@ -513,7 +543,7 @@ static uint8_t unpack_dl_tti_pdcch_pdu_rel15_value(void *tlv, uint8_t **ppReadPa
+       return 0;
+     }
+ 
+-    // Preocding and Beamforming
++    // Precoding and Beamforming
+     if(!unpack_nr_tx_beamforming_pdu(&value->dci_pdu[i].precodingAndBeamforming, ppReadPackedMsg, end)) {
+       return 0;
+     }
+@@ -566,7 +596,7 @@ static uint8_t unpack_dl_tti_pdsch_pdu_rel15_value(void *tlv, uint8_t **ppReadPa
+     }
+   }
+ 
+-  // Preocding and Beamforming
++  // Precoding and Beamforming
+   if(!unpack_nr_tx_beamforming_pdu(&value->precodingAndBeamforming, ppReadPackedMsg, end)) {
+     return 0;
+   }
+@@ -606,7 +636,7 @@ static uint8_t unpack_dl_tti_csi_rs_pdu_rel15_value(void *tlv, uint8_t **ppReadP
+     return 0;
+   }
+ 
+-  // Preocding and Beamforming
++  // Precoding and Beamforming
+   if(!unpack_nr_tx_beamforming_pdu(&value->precodingAndBeamforming, ppReadPackedMsg, end)) {
+     return 0;
+   }
+@@ -630,7 +660,7 @@ static uint8_t unpack_dl_tti_ssb_pdu_rel15_value(void *tlv, uint8_t **ppReadPack
+   // rebuild the bchPayload
+   value->bchPayload = byte3 << 16 | byte2 << 8 | byte1;
+ 
+-  // Preocding and Beamforming
++  // Precoding and Beamforming
+   if(!unpack_nr_tx_beamforming_pdu(&value->precoding_and_beamforming, ppReadPackedMsg, end)) {
+     return 0;
+   }
+@@ -1459,6 +1489,12 @@ static uint8_t unpack_ul_dci_pdu_list_value(uint8_t **ppReadPackedMsg, uint8_t *
+     return 0;
+   }
+ 
++  // Check bounds on numDlDci to prevent buffer overflow
++  if (value->pdcch_pdu.pdcch_pdu_rel15.numDlDci > MAX_DCI_CORESET) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "numDlDci (%d) exceeds maximum allowed (%d)\n", value->pdcch_pdu.pdcch_pdu_rel15.numDlDci, MAX_DCI_CORESET);
++    return 0;
++  }
++
+   for (uint16_t i = 0; i < value->pdcch_pdu.pdcch_pdu_rel15.numDlDci; ++i) {
+     nfapi_nr_dl_dci_pdu_t *dci_pdu = &value->pdcch_pdu.pdcch_pdu_rel15.dci_pdu[i];
+     if (!(pull16(ppReadPackedMsg, &dci_pdu->RNTI, end) && pull16(ppReadPackedMsg, &dci_pdu->ScramblingId, end)

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00413_8c8660",
+  "pr_text": "## Title: Fix type confusion in NR MAC CellGroup configuration processing\n\n### Summary\nCorrect a type confusion bug in `process_CellGroup()` where `CellGroup->mac_CellGroupConfig` was incorrectly declared using typedef `NR_MAC_CellGroupConfig_t*` instead of the actual struct type `struct NR_MAC_CellGroupConfig*`. This mismatch caused undefined behavior when accessing MAC CellGroup configuration fields, potentially leading to memory corruption or crashes. The fix ensures proper type safety and co",
+  "trajectory_path": "data/raw/s00413_8c8660_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00413_8c8660_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 52,
+  "timestamp": "2026-02-10T13:16:39Z"
+}

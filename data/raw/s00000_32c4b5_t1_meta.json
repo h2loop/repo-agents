@@ -1,0 +1,28 @@
+{
+  "run_id": "s00000_32c4b5",
+  "function": {
+    "name": "compute_ext_s",
+    "file": "openair1/PHY/CODING/3gpplte_turbo_decoder.c",
+    "start_line": 800,
+    "end_line": 869,
+    "body_lines": 70,
+    "signature": "void compute_ext_s(llr_t* alpha,llr_t* beta,llr_t* m_11,llr_t* m_10,llr_t* ext, llr_t* systematic,unsigned short frame_length)",
+    "subsystem": "openair1/PHY/CODING",
+    "token_estimate": 209
+  },
+  "bug": {
+    "bug_id": "telecom_sched_incorrect_rb_allocation",
+    "description": "incorrect resource block allocation violating scheduling constraints",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a incorrect resource block allocation violating scheduling constraints downstream of function compute_ext_s in the openair1/PHY/CODING subsystem.\nThe function is located at openair1/PHY/CODING/3gpplte_turbo_decoder.c:800.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00000_32c4b5_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00000_32c4b5_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 63,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:14:57Z"
+}

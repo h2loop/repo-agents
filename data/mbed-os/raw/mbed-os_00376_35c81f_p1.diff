@@ -1,0 +1,32 @@
+diff --git a/targets/TARGET_Cypress/TARGET_PSOC6/mtb-pdl-cat1/drivers/source/cy_crypto_core_ecc_nist_p.c b/targets/TARGET_Cypress/TARGET_PSOC6/mtb-pdl-cat1/drivers/source/cy_crypto_core_ecc_nist_p.c
+index 47fd4d60..f1bbf8bb 100644
+--- a/targets/TARGET_Cypress/TARGET_PSOC6/mtb-pdl-cat1/drivers/source/cy_crypto_core_ecc_nist_p.c
++++ b/targets/TARGET_Cypress/TARGET_PSOC6/mtb-pdl-cat1/drivers/source/cy_crypto_core_ecc_nist_p.c
+@@ -1390,7 +1390,26 @@ void Cy_Crypto_Core_EC_SquareMod( CRYPTO_Type *base,
+     uint32_t a,
+     uint32_t size)
+ {
+-    Cy_Crypto_Core_EC_MulMod( base, z, a, a, size);
++    uint32_t ab_double       = 0u;
++    uint32_t my_z            = 1u;
++    uint32_t my_a            = 2u;
++
++    CY_CRYPTO_VU_PUSH_REG (base);
++
++    CY_CRYPTO_VU_LD_REG(base, my_z, z);
++    CY_CRYPTO_VU_LD_REG(base, my_a, a);
++
++    CY_CRYPTO_VU_ALLOC_MEM (base, ab_double, 2u * size);
++
++    CY_CRYPTO_VU_USQUARE (base, ab_double, my_a);
++    Cy_Crypto_Core_Vu_WaitForComplete(base);
++
++    /* Modular Reduction: Barrett reduction or curve-specific or shift-multiply */
++    Cy_Crypto_Core_EC_MulRed(base, my_z, ab_double, size);
++
++    CY_CRYPTO_VU_FREE_MEM (base, CY_CRYPTO_VU_REG_BIT(ab_double));
++
++    CY_CRYPTO_VU_POP_REG (base);
+ }
+ 
+ 

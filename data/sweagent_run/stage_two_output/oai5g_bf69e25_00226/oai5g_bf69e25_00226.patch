@@ -1,0 +1,96 @@
+diff --git a/openair2/F1AP/f1ap_cu_interface_management.c b/openair2/F1AP/f1ap_cu_interface_management.c
+index 360a2323aa..4d0914f538 100644
+--- a/openair2/F1AP/f1ap_cu_interface_management.c
++++ b/openair2/F1AP/f1ap_cu_interface_management.c
+@@ -35,6 +35,15 @@
+ #include "f1ap_itti_messaging.h"
+ #include "f1ap_cu_interface_management.h"
+ 
++int eq_f1ap_ue_to_reset(const f1ap_ue_context_setup_t *ue1, const f1ap_ue_context_setup_t *ue2)
++{
++  if (ue1 == NULL || ue2 == NULL) {
++    return 0;
++  }
++
++  return (ue1->gNB_CU_ue_id == ue2->gNB_CU_ue_id) && (ue1->gNB_DU_ue_id == ue2->gNB_DU_ue_id);
++}
++
+ int CU_send_RESET(sctp_assoc_t assoc_id, F1AP_Reset_t *Reset)
+ {
+   AssertFatal(1==0,"Not implemented yet\n");
+@@ -151,8 +160,8 @@ int CU_handle_F1_SETUP_REQUEST(instance_t instance, sctp_assoc_t assoc_id, uint3
+ 
+   for (i=0; i<req->num_cells_available; i++) {
+     F1AP_GNB_DU_Served_Cells_Item_t *served_cells_item = &(((F1AP_GNB_DU_Served_Cells_ItemIEs_t *)
+-							    ie->value.choice.GNB_DU_Served_Cells_List.list.array[i])->
+-							   value.choice.GNB_DU_Served_Cells_Item);
++                                                            ie->value.choice.GNB_DU_Served_Cells_List.list.array[i])->
++                                                           value.choice.GNB_DU_Served_Cells_Item);
+     F1AP_Served_Cell_Information_t *servedCellInformation= &served_cells_item->served_Cell_Information;
+     /* tac */
+     if (servedCellInformation->fiveGS_TAC) {
+@@ -197,7 +206,7 @@ int CU_handle_F1_SETUP_REQUEST(instance_t instance, sctp_assoc_t assoc_id, uint3
+       int dlBands=fDD_Info->dL_NRFreqInfo.freqBandListNr.list.count;
+       AssertFatal(dlBands == 1, "cannot handled more than one frequency band\n");
+       for (int dlB=0; dlB < dlBands; dlB++) {
+-	F1AP_FreqBandNrItem_t * FreqItem=fDD_Info->dL_NRFreqInfo.freqBandListNr.list.array[dlB];
++        F1AP_FreqBandNrItem_t * FreqItem=fDD_Info->dL_NRFreqInfo.freqBandListNr.list.array[dlB];
+         FDDs->dl_freqinfo.band = FreqItem->freqBandIndicatorNr;
+         int num_available_supported_SULBands = FreqItem->supportedSULBandList.list.count;
+         AssertFatal(num_available_supported_SULBands == 0, "cannot handle SUL bands!\n");
+diff --git a/openair2/F1AP/f1ap_cu_interface_management.h b/openair2/F1AP/f1ap_cu_interface_management.h
+index f506b83152..cb3f4caf4d 100644
+--- a/openair2/F1AP/f1ap_cu_interface_management.h
++++ b/openair2/F1AP/f1ap_cu_interface_management.h
+@@ -33,6 +33,13 @@
+ #ifndef F1AP_CU_INTERFACE_MANAGEMENT_H_
+ #define F1AP_CU_INTERFACE_MANAGEMENT_H_
+ 
++#include "f1ap_messages_types.h"
++
++/*
++ * Compare UE contexts for reset operation
++ */
++int eq_f1ap_ue_to_reset(const f1ap_ue_context_setup_t *ue1, const f1ap_ue_context_setup_t *ue2);
++
+ /*
+  * Reset
+  */
+diff --git a/openair2/F1AP/f1ap_du_interface_management.c b/openair2/F1AP/f1ap_du_interface_management.c
+index 7ea710a0b4..d8e4effb14 100644
+--- a/openair2/F1AP/f1ap_du_interface_management.c
++++ b/openair2/F1AP/f1ap_du_interface_management.c
+@@ -39,6 +39,15 @@
+ 
+ #include "GNB_APP/gnb_paramdef.h"
+ 
++int eq_f1ap_ue_to_reset(const f1ap_ue_context_setup_t *ue1, const f1ap_ue_context_setup_t *ue2)
++{
++  if (ue1 == NULL || ue2 == NULL) {
++    return 0;
++  }
++
++  return (ue1->gNB_CU_ue_id == ue2->gNB_CU_ue_id) && (ue1->gNB_DU_ue_id == ue2->gNB_DU_ue_id);
++}
++
+ int to_NRNRB(int nrb) {
+   for (int i=0; i<sizeofArray(nrb_lut); i++)
+     if (nrb_lut[i] == nrb)
+diff --git a/openair2/F1AP/f1ap_du_interface_management.h b/openair2/F1AP/f1ap_du_interface_management.h
+index c48754010f..fb3b44ac05 100644
+--- a/openair2/F1AP/f1ap_du_interface_management.h
++++ b/openair2/F1AP/f1ap_du_interface_management.h
+@@ -33,6 +33,13 @@
+ #ifndef F1AP_DU_INTERFACE_MANAGEMENT_H_
+ #define F1AP_DU_INTERFACE_MANAGEMENT_H_
+ 
++#include "f1ap_messages_types.h"
++
++/*
++ * Compare UE contexts for reset operation
++ */
++int eq_f1ap_ue_to_reset(const f1ap_ue_context_setup_t *ue1, const f1ap_ue_context_setup_t *ue2);
++
+ /*
+  * Reset
+  */

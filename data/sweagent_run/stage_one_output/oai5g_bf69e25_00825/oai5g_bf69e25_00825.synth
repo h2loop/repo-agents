@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix uninitialized imaginary components in TDL channel model correlation matrices\n\n### Summary\nThe TDL channel model in the random channel simulator was leaving the imaginary components of complex correlation matrices uninitialized. This caused unpredictable behavior when these matrices were later used in complex multiplication operations, leading to incorrect channel responses.\n\nThe issue manifests as inconsistent channel gains and phase rotations that vary randomly between simulation runs, even with identical input parameters.\n\n### Changes\n- `openair1/SIMULATION/TOOLS/random_channel.c`: Initialize imaginary components to 0.0 in tdlModel function when setting correlation matrix values.\n\n"
+}

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect MCS selection after DRB release in F1AP UE context handling\n\n### Summary\nThere is an incorrect MCS selection not matching channel quality or UE capability downstream of function eq_drb_to_release in openair2/F1AP/lib/f1ap_ue_context.c.\n\nThe issue manifests when DRBs are released via F1AP messages. The MCS selection algorithm continues to use stale BLER statistics that were accumulated when the now-released DRBs were active, leading to suboptimal modulation and coding schemes that don't match the current channel conditions.\n\nThis causes reduced throughput and potential retransmissions as the gNB attempts to schedule with MCS values that are not appropriate for the current UE configuration.\n\n### Changes\n- `openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c`: Added reset of DL BLER statistics after DRB release to ensure fresh MCS calculation based on current conditions.\n\n"
+}

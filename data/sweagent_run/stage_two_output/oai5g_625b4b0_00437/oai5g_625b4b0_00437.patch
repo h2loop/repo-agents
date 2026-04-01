@@ -1,0 +1,61 @@
+diff --git a/common/utils/nr/nr_common.c b/common/utils/nr/nr_common.c
+index 7954db7d54..7fe07176e6 100644
+--- a/common/utils/nr/nr_common.c
++++ b/common/utils/nr/nr_common.c
+@@ -427,11 +427,11 @@ int get_supported_bw_mhz(frequency_range_t frequency_range, int bw_index)
+ {
+   if (frequency_range == FR1) {
+     int bandwidth_index_to_mhz[] = {5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100};
+-    AssertFatal(bw_index >= 0 && bw_index <= sizeofArray(bandwidth_index_to_mhz), "Bandwidth index %d is invalid\n", bw_index);
++    AssertFatal(bw_index >= 0 && bw_index < sizeofArray(bandwidth_index_to_mhz), "Bandwidth index %d is invalid\n", bw_index);
+     return bandwidth_index_to_mhz[bw_index];
+   } else {
+     int bandwidth_index_to_mhz[] = {50, 100, 200, 400};
+-    AssertFatal(bw_index >= 0 && bw_index <= sizeofArray(bandwidth_index_to_mhz),
++    AssertFatal(bw_index >= 0 && bw_index < sizeofArray(bandwidth_index_to_mhz),
+                 "Bandwidth index %d is invalid\n",
+                 bw_index);
+     return bandwidth_index_to_mhz[bw_index];
+@@ -627,12 +627,12 @@ uint32_t to_nrarfcn(int nr_bandP, uint64_t dl_CarrierFreq, uint8_t scs_index, ui
+ 
+   AssertFatal(dl_CarrierFreq_by_1k >= nr_bandtable[i].dl_min,
+               "Band %d, bw %u : DL carrier frequency %llu kHz < %llu\n",
+-	      nr_bandP, bw, (long long unsigned int)dl_CarrierFreq_by_1k,
+-	      (long long unsigned int)nr_bandtable[i].dl_min);
++              nr_bandP, bw, (long long unsigned int)dl_CarrierFreq_by_1k,
++              (long long unsigned int)nr_bandtable[i].dl_min);
+   AssertFatal(dl_CarrierFreq_by_1k <= (nr_bandtable[i].dl_max - bw_kHz/2),
+               "Band %d, dl_CarrierFreq %llu bw %u: DL carrier frequency %llu kHz > %llu\n",
+-	      nr_bandP, (long long unsigned int)dl_CarrierFreq,bw, (long long unsigned int)dl_CarrierFreq_by_1k,
+-	      (long long unsigned int)(nr_bandtable[i].dl_max - bw_kHz/2));
++              nr_bandP, (long long unsigned int)dl_CarrierFreq,bw, (long long unsigned int)dl_CarrierFreq_by_1k,
++              (long long unsigned int)(nr_bandtable[i].dl_max - bw_kHz/2));
+ 
+   int deltaFglobal = 60;
+   uint32_t N_REF_Offs = 2016667;
+@@ -803,11 +803,11 @@ int get_nr_table_idx(int nr_bandP, uint8_t scs_index)
+ int get_subband_size(int NPRB,int size) {
+   // implements table  5.2.1.4-2 from 36.214
+   //
+-  //Bandwidth part (PRBs)	Subband size (PRBs)
+-  // < 24	                   N/A
+-  //24 – 72	                   4, 8
+-  //73 – 144	                   8, 16
+-  //145 – 275	                  16, 32
++  //Bandwidth part (PRBs)       Subband size (PRBs)
++  // < 24                          N/A
++  //24 – 72                        4, 8
++  //73 – 144                       8, 16
++  //145 – 275                     16, 32
+ 
+   if (NPRB<24) return(1);
+   if (NPRB<72) return (size==0 ? 4 : 8);
+@@ -978,7 +978,7 @@ void get_samplerate_and_bw(int mu,
+ 
+     case 133 :
+       if (threequarter_fs) {
+-	AssertFatal(1==0,"N_RB %d cannot use 3/4 sampling\n",n_rb);
++        AssertFatal(1==0,"N_RB %d cannot use 3/4 sampling\n",n_rb);
+       }
+       else {
+         *sample_rate=61.44e6;

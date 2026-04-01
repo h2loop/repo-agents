@@ -1,0 +1,31 @@
+{
+  "run_id": "s00365_e6aea3",
+  "function": {
+    "name": "eq_auth_reject",
+    "file": "openair3/NAS/NR_UE/5GS/5GMM/MSG/fgmm_authentication_reject.c",
+    "start_line": 62,
+    "end_line": 69,
+    "body_lines": 8,
+    "signature": "bool eq_auth_reject(fgmm_auth_reject_msg_t *a, fgmm_auth_reject_msg_t *b)",
+    "subsystem": "openair3/NAS/NR_UE",
+    "token_estimate": 21
+  },
+  "bug": {
+    "bug_id": "telecom_timer_missing_start_stop",
+    "description": "protocol timer not started or stopped at the required point in the procedure",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a protocol timer not started or stopped at the required point in the procedure downstream of function eq_auth_reject in the openair3/NAS/NR_UE subsystem.\nThe function is located at openair3/NAS/NR_UE/5GS/5GMM/MSG/fgmm_authentication_reject.c:62.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00365_e6aea3_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00365_e6aea3_p1.diff",
+  "patch_lines": 109,
+  "trajectory_steps": 115,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:55:34Z"
+}

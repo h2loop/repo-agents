@@ -1,0 +1,25 @@
+diff --git a/openair1/PHY/LTE_UE_TRANSPORT/linear_preprocessing_rec.c b/openair1/PHY/LTE_UE_TRANSPORT/linear_preprocessing_rec.c
+index 86a4b93ddd..c42acbc369 100644
+--- a/openair1/PHY/LTE_UE_TRANSPORT/linear_preprocessing_rec.c
++++ b/openair1/PHY/LTE_UE_TRANSPORT/linear_preprocessing_rec.c
+@@ -363,8 +363,7 @@ void compute_white_filter(float complex* H_re,
+ }
+ #endif
+ 
+-float sqrt_float(float x, float sqrt_x)
++float sqrt_float(float x)
+ {
+-  sqrt_x = (float)(sqrt((double)(x)));
+-  return sqrt_x;
++  return (float)(sqrt((double)(x)));
+ }
+diff --git a/openair1/PHY/LTE_UE_TRANSPORT/linear_preprocessing_rec.h b/openair1/PHY/LTE_UE_TRANSPORT/linear_preprocessing_rec.h
+index f38bc47556..0bd175064c 100644
+--- a/openair1/PHY/LTE_UE_TRANSPORT/linear_preprocessing_rec.h
++++ b/openair1/PHY/LTE_UE_TRANSPORT/linear_preprocessing_rec.h
+@@ -118,4 +118,4 @@ void whitening_processing_core_flp(float complex** rxdataF_ext_flcpx,
+                                    int length,
+                                    int start_point);
+ 
+-float sqrt_float(float x, float sqrt_x);
++float sqrt_float(float x);

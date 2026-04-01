@@ -1,0 +1,318 @@
+'{"env":{"deployment":{"image":"oai5g-sera:776ca25","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_776ca25_00054","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix incorrect errno usage in fapi_nvIPC epoll functions\n\n### Summary\nFixed
+  incorrect errno usage where errno was checked after intervening calls that could
+  overwrite it downstream of function create_recv_thread in nfapi/oai_integration/aerial/fapi_nvIPC.c.\n\n###
+  Changes\n- `nfapi/oai_integration/aerial/fapi_nvIPC.c`: \n  - Removed duplicate
+  errno.h include\n  - Fixed errno usage in epoll_create1 error handling by immediately
+  capturing errno value\n  - Fixed errno usage in epoll_ctl error handling by immediately
+  capturing errno value  \n  - Improved epoll_wait errno handling logic to properly
+  preserve errno values\n  - Added proper resource cleanup on errors\n- `nfapi/oai_integration/aerial/fapi_nvIPC.h`:
+  Created header file with function declarations\n- `nfapi/oai_integration/aerial/CMakeLists.txt`:
+  Added build configuration for aerial FAPI components\n\nThe fixes ensure that errno
+  values are captured immediately after system calls fail and are preserved for proper
+  error reporting, addressing potential issues where error information could be lost
+  due to intervening function calls overwriting errno.\n\n","extra_fields":{"bug_description":"incorrect
+  errno usage where errno is checked after an intervening call has overwritten it","bug_id":"c_incorrect_errno_usage","stage_one_patch":"diff
+  --git a/nfapi/oai_integration/aerial/CMakeLists.txt b/nfapi/oai_integration/aerial/CMakeLists.txt\nnew
+  file mode 100644\nindex 0000000000..3d391607a4\n--- /dev/null\n+++ b/nfapi/oai_integration/aerial/CMakeLists.txt\n@@
+  -0,0 +1,18 @@\n+# CMakeLists.txt for aerial directory\n+\n+set(AERIAL_FAPI_SOURCES\n+    fapi_nvIPC.c\n+    fapi_vnf_p7.c\n+)\n+\n+set(AERIAL_FAPI_HEADERS\n+    fapi_nvIPC.h\n+    fapi_vnf_p7.h\n+)\n+\n+#
+  Add the sources to the main nfapi library\n+list(APPEND NFAPI_OAI_INTegration_SOURCES
+  ${AERIAL_FAPI_SOURCES})\n+list(APPEND NFAPI_OAI_INTegration_HEADERS ${AERIAL_FAPI_HEADERS})\n+\n+set(NFAPI_OAI_INTegration_SOURCES
+  ${NFAPI_OAI_INTegration_SOURCES} PARENT_SCOPE)\n+set(NFAPI_OAI_INTegration_HEADERS
+  ${NFAPI_OAI_INTegration_HEADERS} PARENT_SCOPE)\n\\ No newline at end of file\ndiff
+  --git a/nfapi/oai_integration/aerial/fapi_nvIPC.c b/nfapi/oai_integration/aerial/fapi_nvIPC.c\nnew
+  file mode 100644\nindex 0000000000..722e481420\n--- /dev/null\n+++ b/nfapi/oai_integration/aerial/fapi_nvIPC.c\n@@
+  -0,0 +1,495 @@\n+/*\n+* Licensed to the OpenAirInterface (OAI) Software Alliance
+  under one or more\n+* contributor license agreements.  See the NOTICE file distributed
+  with\n+* this work for additional information regarding copyright ownership.\n+*
+  The OpenAirInterface Software Alliance licenses this file to You under\n+* the OAI
+  Public License, Version 1.1  (the \"License\"); you may not use this file\n+* except
+  in compliance with the License.\n+* You may obtain a copy of the License at\n+*\n+*      http://www.openairinterface.org/?page_id=698\n+*\n+*
+  Unless required by applicable law or agreed to in writing, software\n+* distributed
+  under the License is distributed on an \"AS IS\" BASIS,\n+* WITHOUT WARRANTIES OR
+  CONDITIONS OF ANY KIND, either express or implied.\n+* See the License for the specific
+  language governing permissions and\n+* limitations under the License.\n+*-------------------------------------------------------------------------------\n+*
+  For more information about the OpenAirInterface (OAI) Software Alliance:\n+*      contact@openairinterface.org\n+*/\n+\n+/*!
+  \\file fapi/oai-integration/fapi_nvIPC.c\n+* \\brief OAI MAC/Aerial L1 interface
+  file using FAPI over shared memory\n+* \\author Ruben S. Silva\n+* \\date 2023\n+*
+  \\version 0.1\n+* \\company OpenAirInterface Software Alliance\n+* \\email: contact@openairinterface.org,
+  rsilva@allbesmart.pt\n+* \\note\n+* \\warning\n+*/\n+\n+#define _GNU_SOURCE\n+#include
+  <sched.h>\n+#include <stdio.h>\n+#include <string.h>\n+#include <stdint.h>\n+#include
+  <stdlib.h>\n+#include <errno.h>\n+#include <pthread.h>\n+#include <fcntl.h>\n+#include
+  <inttypes.h>\n+#include <stdarg.h>\n+#include <unistd.h>\n+#include <termios.h>\n+#include
+  <stdatomic.h>\n+#include <sys/queue.h>\n+#include <sys/epoll.h>\n+#include \"fapi_nvIPC.h\"\n+#include
+  <nfapi_vnf.h>\n+#include <nr_fapi_p7_utils.h>\n+#include \"nfapi_interface.h\"\n+#include
+  \"nfapi.h\"\n+#include \"nfapi_nr_interface_scf.h\"\n+#include \"nfapi/open-nFAPI/vnf/inc/vnf_p7.h\"\n+#include
+  \"system.h\"\n+#include \"fapi_vnf_p7.h\"\n+\n+#define MAX_EVENTS 10\n+#define RECV_BUF_LEN
+  8192\n+char cpu_buf_recv[RECV_BUF_LEN];\n+\n+uint16_t sfn = 0, slot = 0;\n+nv_ipc_t
+  *ipc;\n+static nv_ipc_config_t nv_ipc_config;\n+static int cpu_msg_buf_size = 0;\n+static
+  int cpu_data_buf_size = 0;\n+\n+void nvIPC_Stop()\n+{\n+  LOG_I(NR_MAC, \"Received
+  STOP.indication\\n\");\n+  ((vnf_t *)get_config())->terminate = true;\n+}\n+\n+void
+  nvIPC_send_stop_request()\n+{\n+  nfapi_nr_stop_request_scf_t req = {.header.message_id
+  = NFAPI_NR_PHY_MSG_TYPE_STOP_REQUEST, .header.phy_id = 0};\n+  LOG_I(NR_MAC, \"Sending
+  NFAPI STOP.request\\n\");\n+  nfapi_nr_vnf_stop_req(get_config(), get_config()->pnf_list->p5_idx,
+  &req);\n+}\n+\n+\n+static uint16_t old_sfn = 0;\n+static uint16_t old_slot = 0;\n+////////////////////////////////////////////////////////////////////////\n+//
+  Handle an RX message\n+static int ipc_handle_rx_msg(nv_ipc_t *ipc, nv_ipc_msg_t
+  *msg)\n+{\n+  if (msg == NULL) {\n+    LOG_E(NFAPI_VNF, \"%s: ERROR: buffer is empty\\n\",
+  __func__);\n+    return -1;\n+  }\n+\n+  uint8_t *pReadPackedMessage = msg->msg_buf;\n+  uint8_t
+  *end = msg->msg_buf + msg->msg_len;\n+\n+  // unpack FAPI messages and handle them\n+  nfapi_vnf_config_t
+  * vnf_config = get_config();\n+  if (vnf_config != 0) {\n+    // first, unpack the
+  header\n+    fapi_message_header_t fapi_msg;\n+    if (!(pull8(&pReadPackedMessage,
+  &fapi_msg.num_msg, end) && pull8(&pReadPackedMessage, &fapi_msg.opaque_handle, end)\n+          &&
+  pull16(&pReadPackedMessage, &fapi_msg.message_id, end)\n+          && pull32(&pReadPackedMessage,
+  &fapi_msg.message_length, end))) {\n+      NFAPI_TRACE(NFAPI_TRACE_ERROR, \"FAPI
+  message header unpack failed\\n\");\n+      return -1;\n+    }\n+\n+   vnf_p7_t
+  *vnf_p7_config = (vnf_p7_t *)((vnf_info *)vnf_config->user_data)->p7_vnfs->config;\n+    switch
+  (fapi_msg.message_id) {\n+      case NFAPI_NR_PHY_MSG_TYPE_PARAM_RESPONSE ... NFAPI_NR_PHY_MSG_TYPE_ERROR_INDICATION:\n+        vnf_nr_handle_p4_p5_message(msg->msg_buf,
+  msg->msg_len, 1, vnf_config);\n+        break;\n+      // P7 Messages\n+      case
+  NFAPI_NR_PHY_MSG_TYPE_RX_DATA_INDICATION: {\n+        uint8_t *pReadData = msg->data_buf;\n+        int
+  dataBufLen = msg->data_len;\n+        uint8_t *data_end = msg->data_buf + dataBufLen;\n+        nfapi_nr_rx_data_indication_t
+  ind;\n+        ind.header.message_id = fapi_msg.message_id;\n+        ind.header.message_length
+  = fapi_msg.message_length;\n+        aerial_unpack_nr_rx_data_indication(\n+            &pReadPackedMessage,\n+            end,\n+            &pReadData,\n+            data_end,\n+            &ind,\n+            &vnf_p7_config->_public.codec_config);\n+        NFAPI_TRACE(NFAPI_TRACE_INFO,
+  \"%s: Handling RX Indication\\n\", __FUNCTION__);\n+        if (vnf_p7_config->_public.nr_rx_data_indication)
+  {\n+          (vnf_p7_config->_public.nr_rx_data_indication)(&ind);\n+          for
+  (int i = 0; i < ind.number_of_pdus; ++i) {\n+            free(ind.pdu_list[i].pdu);\n+          }\n+          free(ind.pdu_list);\n+        }\n+        break;\n+      }\n+\n+      case
+  NFAPI_NR_PHY_MSG_TYPE_SRS_INDICATION: {\n+        uint8_t *pReadData = msg->data_buf;\n+        int
+  dataBufLen = msg->data_len;\n+        uint8_t *data_end = msg->data_buf + dataBufLen;\n+        nfapi_nr_srs_indication_t
+  ind;\n+        aerial_unpack_nr_srs_indication(&pReadPackedMessage,\n+                                        end,\n+                                        &pReadData,\n+                                        data_end,\n+                                        &ind,\n+                                        &vnf_p7_config->_public.codec_config);\n+        if
+  (vnf_p7_config->_public.nr_srs_indication) {\n+          (vnf_p7_config->_public.nr_srs_indication)(&ind);\n+        }\n+        break;\n+      }\n+\n+      case
+  NFAPI_NR_PHY_MSG_TYPE_SLOT_INDICATION: {\n+        nfapi_nr_slot_indication_scf_t
+  ind;\n+        if (!vnf_p7_config->_public.unpack_func(msg->msg_buf, msg->msg_len,
+  &ind, sizeof(ind), &vnf_p7_config->_public.codec_config)) {\n+          NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s: Failed to unpack message\\n\", __FUNCTION__);\n+        } else {\n+          NFAPI_TRACE(NFAPI_TRACE_DEBUG,
+  \"%s: Handling NR SLOT Indication\\n\", __FUNCTION__);\n+          // check if the
+  sfn/slot unpacked come wrong at any time, should be old + 1 (slot 0 -- 19, sfn 0
+  -- 1023)\n+          // add 1 to current sfn number\n+          uint16_t old_slot_plus
+  = ((old_slot + 1) % 20);\n+          uint16_t old_sfn_plus = old_slot_plus == 0
+  ? ((old_sfn + 1) % 1024) : old_sfn;\n+          if (old_slot_plus != ind.slot ||
+  old_sfn_plus != ind.sfn) {\n+            LOG_E(NFAPI_VNF,\n+                  \"\\n============================================================================\\n\"\n+                  \"sfn
+  slot doesn''t match unpacked one! L2->L1 %d.%d  vs L1->L2 %d.%d  \\n\"\n+                  \"============================================================================\\n\",\n+                  old_sfn,\n+                  old_slot,\n+                  ind.sfn,\n+                  ind.slot);\n+          }\n+          old_sfn
+  = ind.sfn;\n+          old_slot = ind.slot;\n+          if (vnf_p7_config->_public.nr_slot_indication)
+  {\n+            (vnf_p7_config->_public.nr_slot_indication)(&ind);\n+          }\n+        }\n+        break;\n+      }\n+      case
+  NFAPI_NR_PHY_MSG_TYPE_CRC_INDICATION:\n+      case NFAPI_NR_PHY_MSG_TYPE_UCI_INDICATION:\n+      case
+  NFAPI_NR_PHY_MSG_TYPE_RACH_INDICATION: {\n+        vnf_nr_handle_p7_message(msg->msg_buf,
+  msg->msg_len, vnf_p7_config);\n+        break;\n+      }\n+      default: {\n+        NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"%s P5 Unknown message ID %d\\n\", __FUNCTION__, fapi_msg.message_id);\n+\n+        break;\n+      }\n+    }\n+  }\n+  return
+  0;\n+}\n+\n+int get_cpu_msg_buf_size()\n+{\n+  return cpu_msg_buf_size;\n+}\n+int
+  get_cpu_data_buf_size()\n+{\n+  return cpu_data_buf_size;\n+}\n+\n+bool allocate_msg(nv_ipc_msg_t
+  *send_msg)\n+{\n+  return ipc->tx_allocate(ipc, send_msg, 0) == 0;\n+}\n+void release_msg(nv_ipc_msg_t
+  *send_msg)\n+{\n+  ipc->tx_release(ipc, send_msg);\n+}\n+\n+bool send_nvipc_msg(nv_ipc_msg_t
+  *send_msg)\n+{\n+  int send_retval = ipc->tx_send_msg(ipc, send_msg);\n+  if (send_retval
+  != 0) {\n+    LOG_E(NFAPI_VNF, \"%s error: send TX message failed Error: %d\\n\",
+  __FUNCTION__, send_retval);\n+    ipc->tx_release(ipc, send_msg);\n+    return false;\n+  }\n+\n+  ipc->notify(ipc,
+  1); // notify that there''s 1 message in queue\n+  return true;\n+}\n+\n+bool aerial_nr_send_p5_message(vnf_t
+  *vnf, uint16_t p5_idx, nfapi_nr_p4_p5_message_header_t *msg, uint32_t msg_len)\n+{\n+  nfapi_vnf_pnf_info_t
+  *pnf = nfapi_vnf_pnf_list_find(&(vnf->_public), p5_idx);\n+\n+  if (pnf) {\n+    //
+  Create the message\n+    nv_ipc_msg_t send_msg = {.msg_id = msg->message_id,\n+                             .cell_id
+  = 0,\n+                             // For P5 we don''t need CPU_DATA\n+                             .data_pool
+  = NV_IPC_MEMPOOL_CPU_MSG,\n+                             .data_len = 0,\n+                             .data_buf
+  = NULL};\n+\n+    // Allocate the message\n+    if (!allocate_msg(&send_msg)) {\n+      return
+  false;\n+    }\n+\n+    int packedMessageLengthFAPI = -1;\n+    // Pack directly
+  into it\n+    if ((packedMessageLengthFAPI =\n+             vnf->_public.pack_func(msg,
+  msg_len, send_msg.msg_buf, get_cpu_msg_buf_size(), &vnf->_public.codec_config))\n+        <
+  0) {\n+      release_msg(&send_msg);\n+      return false;\n+    }\n+    if (packedMessageLengthFAPI
+  <= 0) {\n+      LOG_E(NFAPI_VNF, \"Error packing message 0x%02x\\n\", msg->message_id);\n+      release_msg(&send_msg);\n+      return
+  false;\n+    }\n+    // Set the length\n+    send_msg.msg_len = packedMessageLengthFAPI
+  + 8; // adding 8 to account for the size of the FAPI header\n+    // Send\n+    return
+  send_nvipc_msg(&send_msg);\n+  } else {\n+    NFAPI_TRACE(NFAPI_TRACE_INFO, \"%s()
+  cannot find pnf info for p5_idx:%d\\n\", __FUNCTION__, p5_idx);\n+    return false;\n+  }\n+}\n+\n+//
+  Always allocate message buffer, but allocate data buffer only when data_len > 0\n+static
+  int aerial_recv_msg(nv_ipc_t *ipc, nv_ipc_msg_t *recv_msg)\n+{\n+  if (ipc == NULL)
+  {\n+    return -1;\n+  }\n+  recv_msg->msg_buf = NULL;\n+  recv_msg->data_buf =
+  NULL;\n+\n+  // Allocate buffer for TX message\n+  if (ipc->rx_recv_msg(ipc, recv_msg)
+  < 0) {\n+    LOG_D(NFAPI_VNF, \"%s: no more message available\\n\", __func__);\n+    return
+  -1;\n+  }\n+  LOG_D(NFAPI_VNF,\n+         \"recv: cell_id=%d msg_id=0x%02X msg_len=%d
+  data_len=%d data_pool=%d\\n\",\n+         recv_msg->cell_id,\n+         recv_msg->msg_id,\n+         recv_msg->msg_len,\n+         recv_msg->data_len,\n+         recv_msg->data_pool);\n+  ipc_handle_rx_msg(ipc,
+  recv_msg);\n+\n+  // Release buffer of RX message\n+  int release_retval = ipc->rx_release(ipc,
+  recv_msg);\n+  if (release_retval != 0) {\n+    LOG_E(NFAPI_VNF, \"%s error: release
+  RX buffer failed Error: %d\\n\", __FUNCTION__, release_retval);\n+    return release_retval;\n+  }\n+  return
+  0;\n+}\n+\n+void *epoll_recv_task(void *arg)\n+{\n+  struct epoll_event ev, events[MAX_EVENTS];\n+  int
+  saved_errno;\n+\n+  LOG_D(NFAPI_VNF,\"Aerial recv task start \\n\");\n+\n+  int
+  epoll_fd = epoll_create1(0);\n+  if (epoll_fd == -1) {\n+    saved_errno = errno;\n+    LOG_E(NFAPI_VNF,
+  \"%s epoll_create failed: %s\\n\", __func__, strerror(saved_errno));\n+    return
+  NULL;\n+  }\n+\n+  int ipc_rx_event_fd = ipc->get_fd(ipc);\n+  ev.events = EPOLLIN;\n+  ev.data.fd
+  = ipc_rx_event_fd;\n+  if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, ev.data.fd, &ev) ==
+  -1) {\n+    saved_errno = errno;\n+    LOG_E(NFAPI_VNF, \"%s epoll_ctl failed: %s\\n\",
+  __func__, strerror(saved_errno));\n+    close(epoll_fd);\n+    return NULL;\n+  }\n+  //
+  From here on out the thread is ready to receive data, simulate the reception\n+  //
+  of a PARAM.response to get the VNF to send a CONFIG.request\n+  nfapi_nr_param_response_scf_t
+  resp_msg = {.header.message_id = NFAPI_NR_PHY_MSG_TYPE_PARAM_RESPONSE};\n+  nfapi_vnf_config_t
+  * vnf_config = get_config();\n+  vnf_config->nr_param_resp(vnf_config, 1, &resp_msg);\n+  while
+  (((vnf_t *)vnf_config)->terminate == false) {\n+    LOG_D(NFAPI_VNF, \"%s: epoll_wait
+  fd_rx=%d ...\\n\", __func__, ipc_rx_event_fd);\n+\n+    int nfds;\n+    do {\n+      //
+  epoll_wait() may return EINTR when get unexpected signal SIGSTOP from system\n+      nfds
+  = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);\n+      if (nfds == -1) {\n+        saved_errno
+  = errno;\n+        if (saved_errno == EINTR) {\n+          continue; // Retry on
+  EINTR\n+        } else {\n+          LOG_E(NFAPI_VNF, \"epoll_wait failed: epoll_fd=%d
+  nfds=%d err=%d - %s\\n\", epoll_fd, nfds, saved_errno, strerror(saved_errno));\n+          break;\n+        }\n+      }\n+    }
+  while (0); // Only loop for EINTR, not for other errors\n+\n+    if (nfds < 0) {\n+      //
+  Error already logged above\n+      break;\n+    }\n+\n+    int n = 0;\n+    for
+  (n = 0; n < nfds; ++n) {\n+      if (events[n].data.fd == ipc_rx_event_fd) {\n+        ipc->get_value(ipc);\n+        nv_ipc_msg_t
+  recv_msg;\n+        while (aerial_recv_msg(ipc, &recv_msg) == 0);\n+      }\n+    }\n+  }\n+  close(epoll_fd);\n+  ipc->ipc_destroy(ipc);\n+  return
+  NULL;\n+}\n+\n+void create_recv_thread(int8_t affinity)\n+{\n+  pthread_t thread_id;\n+  threadCreate(&thread_id,
+  epoll_recv_task, NULL, \"vnf_nvipc_aerial\", affinity, OAI_PRIORITY_RT);\n+}\n+\n+int
+  load_hard_code_config(nv_ipc_config_t *config, int module_type, nv_ipc_transport_t
+  _transport)\n+{\n+  // Create configuration\n+  config->ipc_transport = _transport;\n+  if
+  (set_nv_ipc_default_config(config, module_type) < 0) {\n+    LOG_E(NFAPI_VNF, \"%s:
+  set configuration failed\\n\", __func__);\n+    return -1;\n+  }\n+\n+  int test_cuda_device_id
+  = -1;\n+  LOG_D(NFAPI_VNF,\"CUDA device ID configured : %d \\n\", test_cuda_device_id);\n+  config->transport_config.shm.cuda_device_id
+  = test_cuda_device_id;\n+  if (test_cuda_device_id >= 0) {\n+    config->transport_config.shm.mempool_size[NV_IPC_MEMPOOL_CUDA_DATA].pool_len
+  = 128;\n+    config->transport_config.shm.mempool_size[NV_IPC_MEMPOOL_CPU_DATA].pool_len
+  = 1024;\n+    config->transport_config.shm.mempool_size[NV_IPC_MEMPOOL_CPU_MSG].pool_len
+  = 4096;\n+  }\n+\n+  return 0;\n+}\n+\n+int nvIPC_Init(nvipc_params_t nvipc_params_s)\n+{\n+  //
+  Want to use transport SHM, type epoll, module secondary (reads the created shm from
+  cuphycontroller)\n+  load_hard_code_config(&nv_ipc_config, NV_IPC_MODULE_SECONDARY,
+  NV_IPC_TRANSPORT_SHM);\n+  // save the mempool sizes for later use in packing\n+  cpu_msg_buf_size
+  = nv_ipc_get_buf_size(&nv_ipc_config, NV_IPC_MEMPOOL_CPU_MSG);\n+  cpu_data_buf_size
+  = nv_ipc_get_buf_size(&nv_ipc_config, NV_IPC_MEMPOOL_CPU_DATA);\n+\n+  // Create
+  nv_ipc_t instance\n+  LOG_I(NFAPI_VNF, \"%s: creating IPC interface with prefix
+  %s\\n\", __func__, nvipc_params_s.nvipc_shm_prefix);\n+  strcpy(nv_ipc_config.transport_config.shm.prefix,
+  nvipc_params_s.nvipc_shm_prefix);\n+  if ((ipc = create_nv_ipc_interface(&nv_ipc_config))
+  == NULL) {\n+    LOG_E(NFAPI_VNF, \"%s: create IPC interface failed\\n\", __func__);\n+    return
+  -1;\n+  }\n+  LOG_I(NFAPI_VNF, \"%s: create IPC interface successful\\n\", __func__);\n+  sleep(1);\n+  create_recv_thread(nvipc_params_s.nvipc_poll_core);\n+  return
+  0;\n+}\n+\n+int oai_fapi_ul_tti_req(nfapi_nr_ul_tti_request_t *ul_tti_req)\n+{\n+  nfapi_vnf_p7_config_t
+  *p7_config = get_p7_vnf_config();\n+\n+  ul_tti_req->header.phy_id = 1; // DJP HACK
+  TODO FIXME - need to pass this around!!!!\n+  ul_tti_req->header.message_id = NFAPI_NR_PHY_MSG_TYPE_UL_TTI_REQUEST;\n+\n+  bool
+  retval = p7_config->send_p7_msg(get_p7_vnf(), &ul_tti_req->header);\n+\n+  if (!retval)
+  {\n+    LOG_E(PHY, \"%s() Problem sending retval:%d\\n\", __FUNCTION__, retval);\n+  }
+  else {\n+    // Reset number of PDUs so that it is not resent\n+    ul_tti_req->n_pdus
+  = 0;\n+    ul_tti_req->n_group = 0;\n+    ul_tti_req->n_ulcch = 0;\n+    ul_tti_req->n_ulsch
+  = 0;\n+  }\n+  return retval;\n+}\n+\n+int oai_fapi_ul_dci_req(nfapi_nr_ul_dci_request_t
+  *ul_dci_req)\n+{\n+  nfapi_vnf_p7_config_t *p7_config = get_p7_vnf_config();\n+  ul_dci_req->header.phy_id
+  = 1; // DJP HACK TODO FIXME - need to pass this around!!!!\n+  ul_dci_req->header.message_id
+  = NFAPI_NR_PHY_MSG_TYPE_UL_DCI_REQUEST;\n+\n+  bool retval = p7_config->send_p7_msg(get_p7_vnf(),
+  &ul_dci_req->header);\n+  if (!retval) {\n+    LOG_E(PHY, \"%s() Problem sending
+  retval:%d\\n\", __FUNCTION__, retval);\n+  } else {\n+    ul_dci_req->numPdus =
+  0;\n+  }\n+  return retval;\n+}\n+\n+int oai_fapi_tx_data_req(nfapi_nr_tx_data_request_t
+  *tx_data_req)\n+{\n+  nfapi_vnf_p7_config_t *p7_config = get_p7_vnf_config();\n+  tx_data_req->header.phy_id
+  = 1; // DJP HACK TODO FIXME - need to pass this around!!!!\n+  tx_data_req->header.message_id
+  = NFAPI_NR_PHY_MSG_TYPE_TX_DATA_REQUEST;\n+\n+  bool retval = p7_config->send_p7_msg(get_p7_vnf(),
+  &tx_data_req->header);\n+  if (!retval) {\n+    LOG_E(PHY, \"%s() Problem sending
+  retval:%d\\n\", __FUNCTION__, retval);\n+  } else {\n+    tx_data_req->Number_of_PDUs
+  = 0;\n+  }\n+\n+  return retval;\n+}\n+\n+int oai_fapi_dl_tti_req(nfapi_nr_dl_tti_request_t
+  *dl_config_req)\n+{\n+  nfapi_vnf_p7_config_t *p7_config = get_p7_vnf_config();\n+  dl_config_req->header.message_id
+  = NFAPI_NR_PHY_MSG_TYPE_DL_TTI_REQUEST;\n+  dl_config_req->header.phy_id = 1; //
+  DJP HACK TODO FIXME - need to pass this around!!!!\n+\n+  bool retval = p7_config->send_p7_msg(get_p7_vnf(),
+  &dl_config_req->header);\n+  dl_config_req->dl_tti_request_body.nPDUs = 0;\n+  dl_config_req->dl_tti_request_body.nGroup
+  = 0;\n+\n+  if (!retval) {\n+    LOG_E(PHY, \"%s() Problem sending retval:%d\\n\",
+  __FUNCTION__, retval);\n+  }\n+  return retval;\n+}\n+\n+int oai_fapi_send_end_request(int
+  cell, uint32_t frame, uint32_t slot){\n+  nfapi_vnf_p7_config_t *p7_config = get_p7_vnf_config();\n+  nfapi_nr_slot_indication_scf_t
+  nr_slot_resp = {.header.message_id = 0x8F, .sfn = frame, .slot = slot};\n+\n+  bool
+  retval = p7_config->send_p7_msg(get_p7_vnf(), &nr_slot_resp.header);\n+  if (!retval)
+  {\n+    LOG_E(PHY, \"%s() Problem sending retval:%d\\n\", __FUNCTION__, retval);\n+  }\n+  return
+  retval;\n+}\n\\ No newline at end of file\ndiff --git a/nfapi/oai_integration/aerial/fapi_nvIPC.h
+  b/nfapi/oai_integration/aerial/fapi_nvIPC.h\nnew file mode 100644\nindex 0000000000..a6ed091a96\n---
+  /dev/null\n+++ b/nfapi/oai_integration/aerial/fapi_nvIPC.h\n@@ -0,0 +1,58 @@\n+/*\n+*
+  Licensed to the OpenAirInterface (OAI) Software Alliance under one or more\n+* contributor
+  license agreements.  See the NOTICE file distributed with\n+* this work for additional
+  information regarding copyright ownership.\n+* The OpenAirInterface Software Alliance
+  licenses this file to You under\n+* the OAI Public License, Version 1.1  (the \"License\");
+  you may not use this file\n+* except in compliance with the License.\n+* You may
+  obtain a copy of the License at\n+*\n+*      http://www.openairinterface.org/?page_id=698\n+*\n+*
+  Unless required by applicable law or agreed to in writing, software\n+* distributed
+  under the License is distributed on an \"AS IS\" BASIS,\n+* WITHOUT WARRANTIES OR
+  CONDITIONS OF ANY KIND, either express or implied.\n+* See the License for the specific
+  language governing permissions and\n+* limitations under the License.\n+*-------------------------------------------------------------------------------\n+*
+  For more information about the OpenAirInterface (OAI) Software Alliance:\n+*      contact@openairinterface.org\n+
+  */\n+\n+/*! \\file fapi/oai-integration/fapi_nvIPC.h\n+* \\brief Header file for
+  fapi_nvIPC.c\n+* \\author Ruben S. Silva\n+* \\date 2023\n+* \\version 0.1\n+* \\company
+  OpenAirInterface Software Alliance\n+* \\email: contact@openairinterface.org, rsilva@allbesmart.pt\n+*
+  \\note\n+* \\warning\n+ */\n+#ifndef OPENAIRINTERFACE_FAPI_NVIPC_H\n+#define OPENAIRINTERFACE_FAPI_NVIPC_H\n+\n+#include
+  \"nv_ipc.h\"\n+#include \"nv_ipc_utils.h\"\n+#include \"nvlog.h\"\n+#include \"nfapi/open-nFAPI/vnf/public_inc/nfapi_vnf_interface.h\"\n+#include
+  \"vnf.h\"\n+#include \"debug.h\"\n+\n+#include \"openair2/LAYER2/NR_MAC_gNB/nr_mac_gNB.h\"\n+\n+int
+  get_cpu_msg_buf_size();\n+int get_cpu_data_buf_size();\n+bool allocate_msg(nv_ipc_msg_t*
+  send_msg);\n+void release_msg(nv_ipc_msg_t* send_msg);\n+bool send_nvipc_msg(nv_ipc_msg_t*
+  send_msg);\n+bool aerial_nr_send_p5_message(vnf_t *vnf, uint16_t p5_idx, nfapi_nr_p4_p5_message_header_t
+  *msg, uint32_t msg_len);\n+int nvIPC_Init(nvipc_params_t nvipc_params_s);\n+int
+  oai_fapi_send_end_request(int cell_id, uint32_t frame, uint32_t slot);\n+int oai_fapi_ul_tti_req(nfapi_nr_ul_tti_request_t
+  *ul_tti_req);\n+int oai_fapi_ul_dci_req(nfapi_nr_ul_dci_request_t *ul_dci_req);\n+int
+  oai_fapi_tx_data_req(nfapi_nr_tx_data_request_t *tx_data_req);\n+int oai_fapi_dl_tti_req(nfapi_nr_dl_tti_request_t
+  *dl_config_req);\n+void nvIPC_Stop();\n+void nvIPC_send_stop_request();\n+#endif
+  // OPENAIRINTERFACE_FAPI_NVIPC_H\n\\ No newline at end of file\n","start_fn":"create_recv_thread","start_fn_file":"nfapi/oai_integration/aerial/fapi_nvIPC.c","subsystem":"nfapi/oai_integration/aerial"},"type":"text","id":"oai5g_776ca25_00054"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

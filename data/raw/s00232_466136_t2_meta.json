@@ -1,0 +1,9 @@
+{
+  "run_id": "s00232_466136",
+  "pr_text": "## Title: Fix missed scheduling opportunity in ESM Status message handler\n\n### Summary\nThe ESM Status message handler in the UE NAS stack was not triggering scheduling for pending data after processing status messages. When the UE had pending data to send on active bearers following an ESM Status exchange, the lower layers were not notified, causing a missed scheduling opportunity and potential data transmission delays.\n\nThis patch modifies the `esm_recv_status()` function to accept a `nas_user_",
+  "trajectory_path": "data/raw/s00232_466136_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00232_466136_p2.diff",
+  "patch_lines": 27,
+  "trajectory_steps": 98,
+  "timestamp": "2026-02-11T13:38:42Z"
+}

@@ -1,0 +1,29 @@
+diff --git a/openair1/PHY/TOOLS/oai_dfts_neon.c b/openair1/PHY/TOOLS/oai_dfts_neon.c
+index f3a2e5cb46..b31eb450ba 100644
+--- a/openair1/PHY/TOOLS/oai_dfts_neon.c
++++ b/openair1/PHY/TOOLS/oai_dfts_neon.c
+@@ -134,18 +134,18 @@ static inline void cmultc(int16x8_t a,int16x8_t b, int32x4_t *re32, int32x4_t *i
+ static inline void cmultc(int16x8_t a,int16x8_t b, int32x4_t *re32, int32x4_t *im32)
+ {
+   int32x4_t ab_re0,ab_re1,ab_im0,ab_im1;
+-  int16x8_t bconj = vmulq_s16(b,*(int16x8_t *)reflip);
+-  int16x8_t bflip = vrev32q_s16(bconj);
+-  int16x4_t al,ah,bl,bh,bfl,bfh; 
++  int16x8_t bflip = vrev32q_s16(b);
++  int16x8_t bconj = vmulq_s16(bflip,*(int16x8_t *)reflip);
++  int16x4_t al,ah,bl,bh,bcl,bch; 
+   int32x2_t abr0l,abr0h,abr1l,abr1h,abi0l,abi0h,abi1l,abi1h;
+   al  = vget_low_s16(a);     ah = vget_high_s16(a);
+   bl  = vget_low_s16(b);     bh = vget_high_s16(b);
+-  bfl = vget_low_s16(bflip); bfh = vget_high_s16(bflip);
++  bcl = vget_low_s16(bconj); bch = vget_high_s16(bconj);
+ 
+   ab_re0 = vmull_s16(al,bl);
+   ab_re1 = vmull_s16(ah,bh);
+-  ab_im0 = vmull_s16(al,bfl);
+-  ab_im1 = vmull_s16(ah,bfh);
++  ab_im0 = vmull_s16(al,bcl);
++  ab_im1 = vmull_s16(ah,bch);
+ 
+   abr0l = vget_low_s32(ab_re0); abr0h = vget_high_s32(ab_re0);
+   abr1l = vget_low_s32(ab_re1); abr1h = vget_high_s32(ab_re1);

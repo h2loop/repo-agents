@@ -1,0 +1,59 @@
+diff --git a/nfapi/open-nFAPI/vnf_sim/inc/mac.h b/nfapi/open-nFAPI/vnf_sim/inc/mac.h
+index eac5b3b2ac..c8f8e2dbb4 100644
+--- a/nfapi/open-nFAPI/vnf_sim/inc/mac.h
++++ b/nfapi/open-nFAPI/vnf_sim/inc/mac.h
+@@ -27,18 +27,18 @@ typedef struct mac mac_t;
+ 
+ typedef struct mac
+ {
+-	void* user_data;
++        void* user_data;
+ 
+-	void (*dl_config_req)(mac_t* mac, nfapi_dl_config_request_t* req);
+-	void (*ul_config_req)(mac_t* mac, nfapi_ul_config_request_t* req);
+-	void (*hi_dci0_req)(mac_t* mac, nfapi_hi_dci0_request_t* req);
+-	void (*tx_req)(mac_t* mac, nfapi_tx_request_t* req);
++        void (*dl_config_req)(mac_t* mac, nfapi_dl_config_request_t* req);
++        void (*ul_config_req)(mac_t* mac, nfapi_ul_config_request_t* req);
++        void (*hi_dci0_req)(mac_t* mac, nfapi_hi_dci0_request_t* req);
++        void (*tx_req)(mac_t* mac, nfapi_tx_request_t* req);
+ } mac_t;
+ 
+ mac_t* mac_create(uint8_t wireshark_test_mode);
+ void mac_destroy(mac_t* mac);
+ 
+-void mac_start_data(mac_t* mac, unsigned rx_port, const char* tx_addres, unsigned tx_port);
++void mac_start_data(mac_t* mac, unsigned rx_port, const char* tx_address, unsigned tx_port);
+ 
+ void mac_subframe_ind(mac_t* mac, uint16_t phy_id, uint16_t sfn_sf);
+ void mac_harq_ind(mac_t* mac, nfapi_harq_indication_t* ind);
+diff --git a/nfapi/open-nFAPI/vnf_sim/src/mac.cpp b/nfapi/open-nFAPI/vnf_sim/src/mac.cpp
+index 63bb877f1d..621a45630e 100644
+--- a/nfapi/open-nFAPI/vnf_sim/src/mac.cpp
++++ b/nfapi/open-nFAPI/vnf_sim/src/mac.cpp
+@@ -161,7 +161,7 @@ extern "C"
+     instance->rx_sock = socket(AF_INET, SOCK_DGRAM, 0);
+ 
+     if(instance->rx_sock < 0) {
+-      printf("[MAC] Failed to create socket\n");
++      printf("[MAC] Failed to create RX socket\n");
+       return;
+     }
+ 
+@@ -183,7 +183,16 @@ extern "C"
+ 
+     pthread_t mac_rx_thread;
+     pthread_create(&mac_rx_thread, NULL, &mac_rx_thread_start, instance);
++    
+     instance->tx_sock = socket(AF_INET, SOCK_DGRAM, 0);
++    if(instance->tx_sock < 0) {
++      printf("[MAC] Failed to create TX socket\n");
++      // Close the rx socket as well since we're in an error state
++      close(instance->rx_sock);
++      return;
++    }
++    
++    memset(&instance->tx_addr, 0, sizeof(instance->tx_addr));
+     instance->tx_addr.sin_family = AF_INET;
+     instance->tx_addr.sin_port = htons(tx_port);
+     instance->tx_addr.sin_addr.s_addr = inet_addr(tx_address);

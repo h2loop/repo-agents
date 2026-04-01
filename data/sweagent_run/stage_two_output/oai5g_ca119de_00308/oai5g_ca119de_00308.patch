@@ -1,0 +1,28 @@
+diff --git a/openair1/SCHED_UE/phy_procedures_lte_ue.c b/openair1/SCHED_UE/phy_procedures_lte_ue.c
+index 1f165380d4..400a4309b3 100644
+--- a/openair1/SCHED_UE/phy_procedures_lte_ue.c
++++ b/openair1/SCHED_UE/phy_procedures_lte_ue.c
+@@ -3024,6 +3024,23 @@ void copy_harq_proc_struct(LTE_DL_UE_HARQ_t *harq_processes_dest,
+   harq_processes_dest->rvidx          = current_harq_processes->rvidx          ;
+   harq_processes_dest->status         = current_harq_processes->status         ;
+   harq_processes_dest->vrb_type       = current_harq_processes->vrb_type       ;
++  
++  // Copy missing fields
++  for (int i = 0; i < MAX_NUM_DLSCH_SEGMENTS; i++) {
++    harq_processes_dest->c[i] = current_harq_processes->c[i];
++    harq_processes_dest->RTC[i] = current_harq_processes->RTC[i];
++    harq_processes_dest->d[i] = current_harq_processes->d[i];
++    
++    for (int j = 0; j < 3*(6144+64); j++) {
++      harq_processes_dest->w[i][j] = current_harq_processes->w[i][j];
++      harq_processes_dest->w_abs[i][j] = current_harq_processes->w_abs[i][j];
++    }
++  }
++  
++  for (int i = 0; i < 8; i++) {
++    harq_processes_dest->trials[i] = current_harq_processes->trials[i];
++    harq_processes_dest->errors[i] = current_harq_processes->errors[i];
++  }
+ }
+ 
+ void copy_ack_struct(harq_status_t *harq_ack_dest, harq_status_t *current_harq_ack) {

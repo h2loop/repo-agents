@@ -1,0 +1,29 @@
+{
+  "run_id": "s00168_399778",
+  "function": {
+    "name": "nr_get_default_pucch_res",
+    "file": "openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c",
+    "start_line": 1265,
+    "end_line": 1270,
+    "body_lines": 6,
+    "signature": "int nr_get_default_pucch_res(int pucch_ResourceCommon)",
+    "subsystem": "openair2/LAYER2/NR_MAC_gNB",
+    "token_estimate": 14
+  },
+  "bug": {
+    "bug_id": "telecom_harq_error",
+    "description": "HARQ process error such as incorrect retransmission or wrong redundancy version",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a HARQ process error such as incorrect retransmission or wrong redundancy version downstream of function nr_get_default_pucch_res in the openair2/LAYER2/NR_MAC_gNB subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c:1265.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00168_399778_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00168_399778_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 115,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:45:01Z"
+}

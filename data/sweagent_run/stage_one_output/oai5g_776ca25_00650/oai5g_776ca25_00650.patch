@@ -1,0 +1,40 @@
+diff --git a/openair2/F1AP/lib/f1ap_interface_management.c b/openair2/F1AP/lib/f1ap_interface_management.c
+index 2253493832..ba82348ea5 100644
+--- a/openair2/F1AP/lib/f1ap_interface_management.c
++++ b/openair2/F1AP/lib/f1ap_interface_management.c
+@@ -1948,6 +1948,35 @@ bool decode_f1ap_cu_configuration_update_acknowledge(const F1AP_F1AP_PDU_t *pdu,
+         }
+         break;
+       }
++      case F1AP_ProtocolIE_ID_id_CriticalityDiagnostics: {
++        /* Decode Criticality Diagnostics */
++        _F1_EQ_CHECK_INT(ie->value.present, F1AP_GNBCUConfigurationUpdateAcknowledgeIEs__value_PR_CriticalityDiagnostics);
++        out->have_criticality = 1;
++        // TODO: Actually decode the CriticalityDiagnostics content
++        // For now, just set the flag that we have it
++        break;
++      }
++      case F1AP_ProtocolIE_ID_id_Dedicated_SIDelivery_NeededUE_List: {
++        /* Decode Dedicated SI Delivery Needed UE List */
++        _F1_EQ_CHECK_INT(ie->value.present, 
++                         F1AP_GNBCUConfigurationUpdateAcknowledgeIEs__value_PR_Dedicated_SIDelivery_NeededUE_List);
++        // TODO: Implement actual decoding of Dedicated SI Delivery Needed UE List
++        // For now, just indicate we have the list
++        out->noofDedicatedSIDeliveryNeededUEs = 0; // Placeholder
++        break;
++      }
++      case 132: { // F1AP_ProtocolIE_ID_id_GNB_CU_TNL_Association_Setup_List (based on ASN.1 constants)
++        /* Decode GNB-CU TNL Association Setup List */
++        // TODO: Implement actual decoding
++        out->noofTNLAssociations_to_setup = 0; // Placeholder
++        break;
++      }
++      case 134: { // F1AP_ProtocolIE_ID_id_GNB_CU_TNL_Association_Failed_To_Setup_List (based on ASN.1 constants)
++        /* Decode GNB-CU TNL Association Failed To Setup List */
++        // TODO: Implement actual decoding
++        out->noofTNLAssociations_failed = 0; // Placeholder
++        break;
++      }
+       default:
+         AssertError(1 == 0, return false, "F1AP_ProtocolIE_ID_id %ld unknown\n", ie->id);
+         break;

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00000_52403f",
+  "pr_text": "## Title: Fix incorrect boolean literal passed as flag to put_UE_in_freelist\n\n### Summary\nThe `rx_sdu` function in the LTE MAC UL scheduler incorrectly passes a boolean `true` as the third parameter to `put_UE_in_freelist()`, but the function expects a numeric flag value. This occurs in the Random Access failure handling path when Msg3 HARQ retransmissions exceed the configured maximum. While `true` typically evaluates to `1`, using a boolean literal for a flag parameter is semantically incorrec",
+  "trajectory_path": "data/raw/s00000_52403f_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00000_52403f_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 15,
+  "timestamp": "2026-02-10T10:09:57Z"
+}

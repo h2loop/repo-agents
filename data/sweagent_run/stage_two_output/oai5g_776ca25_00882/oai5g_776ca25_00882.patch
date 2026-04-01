@@ -1,0 +1,64 @@
+diff --git a/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_bnProc_avx512/bnProcPc_gen_BG1_avx512.c b/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_bnProc_avx512/bnProcPc_gen_BG1_avx512.c
+index e4a7fb67eb..e37e055046 100644
+--- a/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_bnProc_avx512/bnProcPc_gen_BG1_avx512.c
++++ b/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_bnProc_avx512/bnProcPc_gen_BG1_avx512.c
+@@ -124,7 +124,7 @@ fprintf(fd,  "// Process group with 1 CNs \n");
+ 
+         fprintf(fd,"            zmm1 = _mm512_cvtepi8_epi16(p_bnProcBuf[%u + j +1]);\n", k*cnOffsetInGroup);
+ 
+-        fprintf(fd, "           zmmRes1 = _mm512_adds_epi16(zmmRes1, zmm1); \n");
++        fprintf(fd, "           zmmRes1 = _mm512_adds_epi16(zmmRes1, zmm1);\n");
+         }
+ 
+             // Add LLR from receiver input
+diff --git a/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_bnProc_avx512/bnProcPc_gen_BG2_avx512.c b/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_bnProc_avx512/bnProcPc_gen_BG2_avx512.c
+index 93584246e8..4f1678d4ec 100644
+--- a/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_bnProc_avx512/bnProcPc_gen_BG2_avx512.c
++++ b/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_bnProc_avx512/bnProcPc_gen_BG2_avx512.c
+@@ -112,31 +112,31 @@ fprintf(fd,  "// Process group with 1 CNs \n");
+         // Loop over BNs
+         fprintf(fd,"            for (int i=0,j=0;i<M;i++,j+=2) {\n");
+             // First 16 LLRs of first CN
+-        fprintf(fd,"           zmm0 = _mm512_cvtepi8_epi16(p_bnProcBuf [j]);\n");
+-        fprintf(fd,"           zmm1 = _mm512_cvtepi8_epi16(p_llrProcBuf[j]);\n");
++        fprintf(fd,"            zmm0 = _mm512_cvtepi8_epi16(p_bnProcBuf [j]);\n");
++        fprintf(fd,"            zmm1 = _mm512_cvtepi8_epi16(p_bnProcBuf[j + 1]);\n");
+ 
+             // Loop over CNs
+-        /*for (k=1; k<1; k++)
++        for (k=1; k<1; k++)
+         {
+-        fprintf(fd,"           zmm0 = _mm512_cvtepi8_epi16(p_bnProcBuf[%d + j]);\n", k*cnOffsetInGroup);
+-        fprintf(fd,"           zmmRes0 = _mm512_adds_epi16(zmmRes0,zmm0);\n");
++        fprintf(fd,"            zmm0 = _mm512_cvtepi8_epi16(p_bnProcBuf[%u + j]);\n", k*cnOffsetInGroup);
++        fprintf(fd,"            zmmRes0 = _mm512_adds_epi16(zmmRes0, zmm0);\n");
+ 
+-        fprintf(fd,"           zmm1 = _mm512_cvtepi8_epi16(p_bnProcBuf[%d + j +1]);\n", k*cnOffsetInGroup);
++        fprintf(fd,"            zmm1 = _mm512_cvtepi8_epi16(p_bnProcBuf[%u + j +1]);\n", k*cnOffsetInGroup);
+ 
+-        fprintf(fd, "          zmmRes1 = _mm512_adds_epi16(zmmRes1,zmm1); \n");
++        fprintf(fd, "           zmmRes1 = _mm512_adds_epi16(zmmRes1, zmm1);\n");
+         }
+-*/
++
+             // Add LLR from receiver input
+-        fprintf(fd,"           zmm0    = _mm512_cvtepi8_epi16(p_bnProcBuf[j+1]);\n");
+-        fprintf(fd,"           zmmRes0 = _mm512_adds_epi16(zmmRes0,zmm0);\n");
++        fprintf(fd,"            zmm0    = _mm512_cvtepi8_epi16(p_llrProcBuf[j]);\n");
++        fprintf(fd,"            zmmRes0 = _mm512_adds_epi16(zmmRes0, zmm0);\n");
+ 
+-        fprintf(fd,"           zmm1    = _mm512_cvtepi8_epi16(p_llrProcBuf[j +1 ]);\n");
+-        fprintf(fd,"           zmmRes1 = _mm512_adds_epi16(zmmRes1,zmm1);\n");
++        fprintf(fd,"            zmm1    = _mm512_cvtepi8_epi16(p_llrProcBuf[j +1 ]);\n");
++        fprintf(fd,"            zmmRes1 = _mm512_adds_epi16(zmmRes1, zmm1);\n");
+ 
+             // Pack results back to epi8
+-        fprintf(fd,"           zmm0 = _mm512_packs_epi16(zmmRes0,zmmRes1);\n");
+-            //zmm0     = [zmmRes1[255:256]zmmRes0[255:256]zmmRes1[127:0]zmmRes0[127:0]]
+-            // p_llrRes = [zmmRes1[255:256]zmmRes1[127:0]zmmRes0[255:256]zmmRes0[127:0]]
++        fprintf(fd,"            zmm0 = _mm512_packs_epi16(zmmRes0, zmmRes1);\n");
++            // zmm0     = [zmmRes1[255:256] zmmRes0[255:256] zmmRes1[127:0] zmmRes0[127:0]]
++            // p_llrRes = [zmmRes1[255:256] zmmRes1[127:0] zmmRes0[255:256] zmmRes0[127:0]]
+         fprintf(fd,"            p_llrRes[i] = _mm512_permutex_epi64(zmm0, 0xD8);\n");
+ 
+ 

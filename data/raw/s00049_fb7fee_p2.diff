@@ -1,0 +1,13 @@
+diff --git a/openair3/NAS/NR_UE/nr_nas_msg.c b/openair3/NAS/NR_UE/nr_nas_msg.c
+index 1199aad94b..9b9080b2a5 100644
+--- a/openair3/NAS/NR_UE/nr_nas_msg.c
++++ b/openair3/NAS/NR_UE/nr_nas_msg.c
+@@ -1096,7 +1096,7 @@ static void parse_allowed_nssai(nr_nas_msg_snssai_t nssaiList[8], const uint8_t
+ {
+   int nssai_cnt = 0;
+   const uint8_t *end = buf + len;
+-  while (buf < end) {
++  while (buf < end && nssai_cnt < 8) {
+     const int length = *buf++;
+     nr_nas_msg_snssai_t *nssai = nssaiList + nssai_cnt;
+     nssai->sd = 0xffffff;

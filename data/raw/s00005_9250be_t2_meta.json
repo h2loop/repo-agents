@@ -1,0 +1,9 @@
+{
+  "run_id": "s00005_9250be",
+  "pr_text": "## Title: Fix hash table resize atomicity to prevent signaling procedure violations\n\n### Summary\nThe `hash_table_resize` function in the OMG subsystem lacked proper error handling and atomicity guarantees. During resize operations, if `hash_table_add` failed while re-adding elements to the new store house, the hash table could be left in an inconsistent state with partially migrated data and incorrect mode settings. This corrupted state propagated downstream, causing signaling procedure sequence",
+  "trajectory_path": "data/raw/s00005_9250be_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00005_9250be_p2.diff",
+  "patch_lines": 58,
+  "trajectory_steps": 25,
+  "timestamp": "2026-02-10T10:28:21Z"
+}

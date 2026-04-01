@@ -1,0 +1,9 @@
+{
+  "run_id": "s00281_b41da7",
+  "pr_text": "## Title: Fix missing error propagation in NB-IoT system information indication unpacker\n\n### Summary\nThe `unpack_nb_iot_system_information_indication_value` function in `nfapi_p4.c` was silently returning failure (0) on parsing errors without logging the failure reason or invoking the codec's error callback. This made debugging NB-IoT system information processing issues difficult and inconsistent with other unpack functions in the codebase.\n\nThis fix adds explicit `NFAPI_TRACE` error logging f",
+  "trajectory_path": "data/raw/s00281_b41da7_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00281_b41da7_p2.diff",
+  "patch_lines": 0,
+  "trajectory_steps": 7,
+  "timestamp": "2026-02-11T14:04:32Z"
+}

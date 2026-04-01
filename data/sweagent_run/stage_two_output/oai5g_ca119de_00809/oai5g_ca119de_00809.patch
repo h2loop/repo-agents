@@ -1,0 +1,74 @@
+diff --git a/common/utils/nr/nr_common.c b/common/utils/nr/nr_common.c
+index 09dd5e7d94..07f56e33e4 100644
+--- a/common/utils/nr/nr_common.c
++++ b/common/utils/nr/nr_common.c
+@@ -449,7 +449,7 @@ uint16_t get_band(uint64_t downlink_frequency, int32_t delta_duplex)
+ int NRRIV2BW(int locationAndBandwidth,int N_RB) {
+   int tmp = locationAndBandwidth/N_RB;
+   int tmp2 = locationAndBandwidth%N_RB;
+-  if (tmp <= ((N_RB>>1)+1) && (tmp+tmp2)<N_RB) return(tmp+1);
++  if (tmp <= (N_RB>>1) && (tmp+tmp2)<N_RB) return(tmp+1);
+   else                      return(N_RB+1-tmp);
+ 
+ }
+@@ -457,7 +457,7 @@ int NRRIV2BW(int locationAndBandwidth,int N_RB) {
+ int NRRIV2PRBOFFSET(int locationAndBandwidth,int N_RB) {
+   int tmp = locationAndBandwidth/N_RB;
+   int tmp2 = locationAndBandwidth%N_RB;
+-  if (tmp <= ((N_RB>>1)+1) && (tmp+tmp2)<N_RB) return(tmp2);
++  if (tmp <= (N_RB>>1) && (tmp+tmp2)<N_RB) return(tmp2);
+   else                      return(N_RB-1-tmp2);
+ }
+ 
+@@ -468,7 +468,7 @@ int PRBalloc_to_locationandbandwidth0(int NPRB, int RBstart, int BWPsize)
+               "Illegal NPRB/RBstart Configuration (%d,%d) for BWPsize %d\n",
+               NPRB, RBstart, BWPsize);
+ 
+-  if (NPRB <= 1 + (BWPsize >> 1))
++  if (NPRB <= (BWPsize >> 1))
+     return (BWPsize * (NPRB - 1) + RBstart);
+   else
+     return (BWPsize * (BWPsize + 1 - NPRB) + (BWPsize - 1 - RBstart));
+@@ -576,12 +576,12 @@ uint32_t to_nrarfcn(int nr_bandP, uint64_t dl_CarrierFreq, uint8_t scs_index, ui
+ 
+   AssertFatal(dl_CarrierFreq_by_1k >= nr_bandtable[i].dl_min,
+               "Band %d, bw %u : DL carrier frequency %llu kHz < %llu\n",
+-	      nr_bandP, bw, (long long unsigned int)dl_CarrierFreq_by_1k,
+-	      (long long unsigned int)nr_bandtable[i].dl_min);
++              nr_bandP, bw, (long long unsigned int)dl_CarrierFreq_by_1k,
++              (long long unsigned int)nr_bandtable[i].dl_min);
+   AssertFatal(dl_CarrierFreq_by_1k <= (nr_bandtable[i].dl_max - bw_kHz/2),
+               "Band %d, dl_CarrierFreq %llu bw %u: DL carrier frequency %llu kHz > %llu\n",
+-	      nr_bandP, (long long unsigned int)dl_CarrierFreq,bw, (long long unsigned int)dl_CarrierFreq_by_1k,
+-	      (long long unsigned int)(nr_bandtable[i].dl_max - bw_kHz/2));
++              nr_bandP, (long long unsigned int)dl_CarrierFreq,bw, (long long unsigned int)dl_CarrierFreq_by_1k,
++              (long long unsigned int)(nr_bandtable[i].dl_max - bw_kHz/2));
+ 
+   int deltaFglobal = 60;
+   uint32_t N_REF_Offs = 2016667;
+@@ -749,11 +749,11 @@ int get_nr_table_idx(int nr_bandP, uint8_t scs_index)
+ int get_subband_size(int NPRB,int size) {
+   // implements table  5.2.1.4-2 from 36.214
+   //
+-  //Bandwidth part (PRBs)	Subband size (PRBs)
+-  // < 24	                   N/A
+-  //24 – 72	                   4, 8
+-  //73 – 144	                   8, 16
+-  //145 – 275	                  16, 32
++  //Bandwidth part (PRBs)       Subband size (PRBs)
++  // < 24                          N/A
++  //24 – 72                        4, 8
++  //73 – 144                       8, 16
++  //145 – 275                     16, 32
+ 
+   if (NPRB<24) return(1);
+   if (NPRB<72) return (size==0 ? 4 : 8);
+@@ -901,7 +901,7 @@ void get_samplerate_and_bw(int mu,
+ 
+     case 133 :
+       if (threequarter_fs) {
+-	AssertFatal(1==0,"N_RB %d cannot use 3/4 sampling\n",n_rb);
++        AssertFatal(1==0,"N_RB %d cannot use 3/4 sampling\n",n_rb);
+       }
+       else {
+         *sample_rate=61.44e6;

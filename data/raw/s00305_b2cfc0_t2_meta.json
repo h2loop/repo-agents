@@ -1,0 +1,9 @@
+{
+  "run_id": "s00305_b2cfc0",
+  "pr_text": "## Title: Fix redundant notifier search in gui_notify function\n\n### Summary\nThe `gui_notify` function in the GUI tracer module was inefficiently restarting its notifier search from index 0 after processing each matching notifier. When a handler was called, it would `goto loop` back to the start of the search loop, causing the function to re-examine all previously processed notifiers (marked with `done = 1`) on each iteration. This resulted in O(n\u00b2) complexity instead of linear O(n) processing, c",
+  "trajectory_path": "data/raw/s00305_b2cfc0_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00305_b2cfc0_p2.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 7,
+  "timestamp": "2026-02-11T14:17:49Z"
+}

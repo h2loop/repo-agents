@@ -1,0 +1,15 @@
+diff --git a/common/utils/T/tracer/gnb.c b/common/utils/T/tracer/gnb.c
+index 22567492f8..4860bce22f 100644
+--- a/common/utils/T/tracer/gnb.c
++++ b/common/utils/T/tracer/gnb.c
+@@ -230,6 +230,10 @@ int main(int n, char **v)
+     if (!strcmp(v[i], "-h") || !strcmp(v[i], "--help")) usage();
+     if (!strcmp(v[i], "-d"))
+       { if (i > n-2) usage(); database_filename = v[++i]; continue; }
++    if (!strcmp(v[i], "-ip"))
++      { if (i > n-2) usage(); ip = v[++i]; continue; }
++    if (!strcmp(v[i], "-p"))
++      { if (i > n-2) usage(); port = atoi(v[++i]); continue; }
+     usage();
+   }
+ 

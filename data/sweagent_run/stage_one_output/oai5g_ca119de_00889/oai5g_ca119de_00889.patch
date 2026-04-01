@@ -1,0 +1,22 @@
+diff --git a/openair3/NAS/UE/EMM/Attach.c b/openair3/NAS/UE/EMM/Attach.c
+index 52f7ebce44..6ba9b73919 100644
+--- a/openair3/NAS/UE/EMM/Attach.c
++++ b/openair3/NAS/UE/EMM/Attach.c
+@@ -353,6 +353,17 @@ int emm_proc_attach_accept(nas_user_t *user, long t3412, long t3402, long t3423,
+ 
+   LOG_TRACE(INFO, "EMM-PROC  - EPS attach accepted by the network");
+ 
++  /* Validate input parameters to prevent integer overflow */
++  if (n_tais < 0 || n_tais > 255) {
++    LOG_TRACE(ERROR, "EMM-PROC  - Invalid n_tais value: %d", n_tais);
++    n_tais = (n_tais < 0) ? 0 : 255;
++  }
++  
++  if (n_eplmns < 0 || n_eplmns > 255) {
++    LOG_TRACE(ERROR, "EMM-PROC  - Invalid n_eplmns value: %d", n_eplmns);
++    n_eplmns = (n_eplmns < 0) ? 0 : 255;
++  }
++
+   /* Stop timer T3410 */
+   LOG_TRACE(INFO, "EMM-PROC  - Stop timer T3410 (%d)", emm_timers->T3410.id);
+   emm_timers->T3410.id = nas_timer_stop(emm_timers->T3410.id);

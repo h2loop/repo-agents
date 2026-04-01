@@ -1,0 +1,9 @@
+{
+  "run_id": "s00260_56f4c2",
+  "pr_text": "## Title: Fix thread-safe initialization of twiddle factors in NEON DFT\n\n### Summary\nThe NEON DFT implementation uses global twiddle factor arrays (`twa3240`, `twb3240`) that were initialized lazily without synchronization. In multi-threaded PHY processing, concurrent calls to `dft3240()` from different threads could race to initialize these shared arrays, causing data corruption and potential crashes.\n\nThis change adds thread-safe lazy initialization using a pthread mutex with double-checked lo",
+  "trajectory_path": "data/raw/s00260_56f4c2_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00260_56f4c2_p2.diff",
+  "patch_lines": 12,
+  "trajectory_steps": 21,
+  "timestamp": "2026-02-10T12:14:17Z"
+}

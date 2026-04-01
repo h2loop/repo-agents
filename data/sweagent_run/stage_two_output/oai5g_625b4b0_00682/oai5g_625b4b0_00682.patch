@@ -1,0 +1,24 @@
+diff --git a/openair1/PHY/LTE_UE_TRANSPORT/dlsch_demodulation.c b/openair1/PHY/LTE_UE_TRANSPORT/dlsch_demodulation.c
+index ac045480da..f85cab6cc5 100644
+--- a/openair1/PHY/LTE_UE_TRANSPORT/dlsch_demodulation.c
++++ b/openair1/PHY/LTE_UE_TRANSPORT/dlsch_demodulation.c
+@@ -852,7 +852,7 @@ int rx_pdsch(PHY_VARS_UE *ue,
+              pdsch_vars[eNB_id]->llr_offset[symbol],
+              (int16_t*)pdsch_vars[eNB_id]->llr[0],
+              pllr_symbol_cw0,
+-	     signal_energy(pdsch_vars[eNB_id]->rxdataF_comp0[0], 7*2*frame_parms->N_RB_DL*12));
++             signal_energy(pdsch_vars[eNB_id]->rxdataF_comp0[0], 7*2*frame_parms->N_RB_DL*12));
+   switch (dlsch0_harq->Qm) {
+     case 2 :
+       if ((rx_type==rx_standard) || (codeword_TB1 == -1)) {
+@@ -2746,8 +2746,8 @@ void dlsch_channel_aver_band(int **dl_ch_estimates_ext,
+         /*  printf("symbol %d, ant %d, nre*nrb %d, rb %d \n", symbol, aatx*frame_parms->nb_antennas_rx + aarx, nb_rb*nre, rb);
+           print_shorts("aver dl_ch128",&dl_ch128[0]);
+           print_shorts("aver dl_ch128",&dl_ch128[1]);
+-          print_shorts("aver dl_ch128",&dl_ch128[2]);
+-        avg128D = simde_mm_add_epi16(avg128D, dl_ch128[0]);*/
++          print_shorts("aver dl_ch128",&dl_ch128[2]);*/
++        avg128D = simde_mm_add_epi16(avg128D, dl_ch128[0]);
+         //print_shorts("avg128D 2",&avg128D);
+         avg128D = simde_mm_add_epi16(avg128D, dl_ch128[1]);
+         //  print_shorts("avg128D 3",&avg128D);

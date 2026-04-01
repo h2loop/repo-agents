@@ -1,0 +1,26 @@
+diff --git a/common/utils/T/tracer/view/ticktime.c b/common/utils/T/tracer/view/ticktime.c
+index 1e1c7352a0..69a1710195 100644
+--- a/common/utils/T/tracer/view/ticktime.c
++++ b/common/utils/T/tracer/view/ticktime.c
+@@ -45,7 +45,7 @@ static struct timespec time_add(struct timespec a, struct timespec b)
+   struct timespec ret;
+   ret.tv_sec = a.tv_sec + b.tv_sec;
+   ret.tv_nsec = a.tv_nsec + b.tv_nsec;
+-  if (ret.tv_nsec > 1000000000) {
++  if (ret.tv_nsec >= 1000000000) {
+     ret.tv_sec++;
+     ret.tv_nsec -= 1000000000;
+   }
+diff --git a/common/utils/T/tracer/view/time.c b/common/utils/T/tracer/view/time.c
+index 287e7b1c7b..cfbfe6c65f 100644
+--- a/common/utils/T/tracer/view/time.c
++++ b/common/utils/T/tracer/view/time.c
+@@ -38,7 +38,7 @@ static struct timespec time_add(struct timespec a, struct timespec b)
+   struct timespec ret;
+   ret.tv_sec = a.tv_sec + b.tv_sec;
+   ret.tv_nsec = a.tv_nsec + b.tv_nsec;
+-  if (ret.tv_nsec > 1000000000) {
++  if (ret.tv_nsec >= 1000000000) {
+     ret.tv_sec++;
+     ret.tv_nsec -= 1000000000;
+   }

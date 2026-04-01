@@ -1,0 +1,23 @@
+diff --git a/common/utils/T/tracer/enb.c b/common/utils/T/tracer/enb.c
+index 5bb1cb87e2..c7b2591523 100644
+--- a/common/utils/T/tracer/enb.c
++++ b/common/utils/T/tracer/enb.c
+@@ -151,6 +151,9 @@ static void set_current_ue(gui *g, enb_data *e, int ue)
+   int i;
+   char s[256];
+ 
++  /* Protect against negative UE IDs */
++  if (ue < 0) ue = 0;
++
+   sprintf(s, "[UE %d]  ", ue);
+   label_set_text(g, e->e->current_ue_label, s);
+   sprintf(s, "PUSCH IQ [UE %d]", ue);
+@@ -739,7 +742,7 @@ int main(int n, char **v)
+   g = gui_init();
+   new_thread(gui_thread, g);
+ 
+-  enb_data.ue = 3;
++  enb_data.ue = 0;
+   enb_data.e = &eg;
+   enb_data.database = database;
+ 

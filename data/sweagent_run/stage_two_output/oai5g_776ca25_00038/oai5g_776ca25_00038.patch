@@ -1,0 +1,109 @@
+diff --git a/openair2/RRC/LTE/rrc_eNB.c b/openair2/RRC/LTE/rrc_eNB.c
+index 6b78e27f63..dcb3c4f672 100644
+--- a/openair2/RRC/LTE/rrc_eNB.c
++++ b/openair2/RRC/LTE/rrc_eNB.c
+@@ -6179,7 +6179,7 @@ is_dl_256QAM_supported(
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R118
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R11a
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R125
+-	 && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250 != NULL
++         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250 != NULL
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250 != NULL
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array != NULL
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array[0]->dl_256QAM_r12 != NULL
+@@ -6497,7 +6497,7 @@ rrc_eNB_decode_dcch(
+                   ue_context_p->ue_context.enb_gtp_ebi[i]  = 0;
+                 }
+               }
+-	      gtpv1u_delete_s1u_tunnel(ctxt_pP->instance, &delete_tunnels);
++              gtpv1u_delete_s1u_tunnel(ctxt_pP->instance, &delete_tunnels);
+               //S1AP_E_RAB_RELEASE_RESPONSE
+               rrc_eNB_send_S1AP_E_RAB_RELEASE_RESPONSE(ctxt_pP,
+                   ue_context_p,
+@@ -7230,8 +7230,8 @@ void rrc_subframe_process(protocol_ctxt_t *const ctxt_pP, const int CC_id) {
+           get_ue_Category(ue_context_p->ue_context.UE_Capability,&catDL,&catUL);
+           fprintf(fd,"RRC UE cap: CatDL %ld, CatUL %ld, 64QAM UL %s, 256 QAM DL %s, 256 QAM UL %s, ENDC %s,\n",
+                 catDL,catUL,
+-		is_ul_64QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
+-		is_dl_256QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
++                is_ul_64QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
++                is_dl_256QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
+                 is_ul_256QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
+                 is_en_dc_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no");
+         }
+@@ -7625,16 +7625,13 @@ void rrc_eNB_process_ENDC_sgNB_release_required(module_id_t module_id, x2ap_ENDC
+ }
+ 
+ //-----------------------------------------------------------------------------
+-void *rrc_enb_process_itti_msg(void *notUsed) {
+-  MessageDef                         *msg_p;
++static int rrc_enb_process_one_itti_msg(MessageDef *msg_p) {
+   const char                         *msg_name_p;
+   instance_t                          instance;
+   int                                 result;
+   protocol_ctxt_t                     ctxt;
+   memset(&ctxt, 0, sizeof(ctxt));
+-  // Wait for a message
+-  itti_poll_msg(TASK_RRC_ENB, &msg_p);
+-  while (msg_p) {
++  
+   msg_name_p = ITTI_MSG_NAME(msg_p);
+   instance = ITTI_MSG_DESTINATION_INSTANCE(msg_p);
+ 
+@@ -7936,11 +7933,36 @@ void *rrc_enb_process_itti_msg(void *notUsed) {
+   if (result != EXIT_SUCCESS) {
+       LOG_I(RRC, "Failed to free memory (%d)!\n", result);
+     }
++    
++  return result;
++}
++
++void *rrc_enb_process_itti_msg(void *notUsed) {
++  MessageDef                         *msg_p;
++  // Wait for a message
++  itti_poll_msg(TASK_RRC_ENB, &msg_p);
++  while (msg_p) {
++    rrc_enb_process_one_itti_msg(msg_p);
+     itti_poll_msg(TASK_RRC_ENB, &msg_p);
+   }
+   return NULL;
+ }
+ 
++int rrc_enb_process_itti_msg_one_shot(void) {
++  MessageDef *msg_p;
++  int count = 0;
++  
++  // Process all available messages without blocking
++  if (itti_poll_msg(TASK_RRC_ENB, &msg_p) == 0 && msg_p != NULL) {
++    do {
++      rrc_enb_process_one_itti_msg(msg_p);
++      count++;
++    } while (itti_poll_msg(TASK_RRC_ENB, &msg_p) == 0 && msg_p != NULL);
++  }
++  
++  return count;
++}
++
+ /*------------------------------------------------------------------------------*/
+ void
+ openair_rrc_top_init_eNB(int eMBMS_active,uint8_t HO_active)
+@@ -8286,6 +8308,6 @@ rrc_rx_tx(
+   RRC_SUBFRAME_PROCESS(message_p).ctxt  = *ctxt_pP;
+   RRC_SUBFRAME_PROCESS(message_p).CC_id = CC_id;
+   itti_send_msg_to_task(TASK_RRC_ENB, ctxt_pP->module_id, message_p);
+-  rrc_enb_process_itti_msg(NULL);
++  rrc_enb_process_itti_msg_one_shot();
+   return RRC_OK;
+ }
+diff --git a/openair2/RRC/LTE/rrc_proto.h b/openair2/RRC/LTE/rrc_proto.h
+index a54a7a7336..ad7017a584 100644
+--- a/openair2/RRC/LTE/rrc_proto.h
++++ b/openair2/RRC/LTE/rrc_proto.h
+@@ -342,6 +342,7 @@ rrc_eNB_reconfigure_DRBs (const protocol_ctxt_t *const ctxt_pP,
+ 
+ void  rrc_enb_init(void);
+ void *rrc_enb_process_itti_msg(void *);
++int rrc_enb_process_itti_msg_one_shot(void);
+ 
+ /**\brief RRC eNB task.
+    \param void *args_p Pointer on arguments to start the task. */

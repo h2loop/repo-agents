@@ -1,0 +1,15 @@
+diff --git a/openair1/SIMULATION/LTE_PHY/framegen.c b/openair1/SIMULATION/LTE_PHY/framegen.c
+index fe1c4b49b7..7ce879b9c9 100644
+--- a/openair1/SIMULATION/LTE_PHY/framegen.c
++++ b/openair1/SIMULATION/LTE_PHY/framegen.c
+@@ -53,6 +53,10 @@ void eNB_scheduler(uint8_t Mod_id, uint8_t cooperation_flag, uint8_t frame, uint
+ {
+ 
+   msg("Doing Scheduler for eNB, frame %d subframe %d\n",frame,subframe);
++  
++  // Trigger DCI generation to schedule UEs with pending data
++  // This ensures proper scheduling each subframe and prevents missed opportunities
++  get_dci(Mod_id, frame, subframe);
+ }
+ 
+ DCI_PDU DCI_pdu;

@@ -1,0 +1,34 @@
+{
+  "run_id": "s00109_411f9a",
+  "function": {
+    "name": "nas_proc_get_loc_info",
+    "file": "openair3/NAS/UE/nas_proc.c",
+    "start_line": 544,
+    "end_line": 553,
+    "body_lines": 10,
+    "signature": "int nas_proc_get_loc_info(nas_user_t *user, char *tac, char *ci, int *AcT)",
+    "subsystem": "openair3/NAS/UE",
+    "token_estimate": 31
+  },
+  "bug": {
+    "bug_id": "c_stack_buffer_overflow",
+    "description": "stack buffer overflow from unbounded copy into fixed-size local array",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a stack buffer overflow from unbounded copy into fixed-size local array downstream of function nas_proc_get_loc_info in the openair3/NAS/UE subsystem.\nThe function is located at openair3/NAS/UE/nas_proc.c:544.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00109_411f9a_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00109_411f9a_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 55,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:16:16Z"
+}

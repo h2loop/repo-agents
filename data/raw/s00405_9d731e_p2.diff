@@ -1,0 +1,28 @@
+diff --git a/common/utils/system.c b/common/utils/system.c
+index c614936359..ad385075f1 100644
+--- a/common/utils/system.c
++++ b/common/utils/system.c
+@@ -74,9 +74,9 @@ static void unlock_system(void) {
+   }
+ }
+ 
+-static void write_pipe(int p, char *b, int size) {
++static void write_pipe(int p, char *b, size_t size) {
+   while (size) {
+-    int ret = write(p, b, size);
++    ssize_t ret = write(p, b, size);
+ 
+     if (ret <= 0) exit(0);
+ 
+@@ -85,9 +85,9 @@ static void write_pipe(int p, char *b, int size) {
+   }
+ }
+ 
+-static void read_pipe(int p, char *b, int size) {
++static void read_pipe(int p, char *b, size_t size) {
+   while (size) {
+-    int ret = read(p, b, size);
++    ssize_t ret = read(p, b, size);
+ 
+     if (ret <= 0) exit(0);
+ 

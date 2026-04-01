@@ -1,0 +1,9 @@
+{
+  "run_id": "s00300_53d3e9",
+  "pr_text": "## Title: Fix signed/unsigned integer comparison in NR MAC gNB beam configuration\n\n### Summary\nThe NR MAC gNB beam initialization code contains a signed/unsigned integer comparison mismatch where `beam_allocation_size` (declared as signed `int`) is compared against unsigned values in size calculations within `initialize_beam_information()`. This triggers compiler warnings and risks incorrect branching behavior. Since these fields represent allocation counts and sizes, they are semantically unsig",
+  "trajectory_path": "data/raw/s00300_53d3e9_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00300_53d3e9_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 61,
+  "timestamp": "2026-02-11T14:18:05Z"
+}

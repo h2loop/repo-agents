@@ -1,0 +1,430 @@
+diff --git a/common/utils/CMakeLists.txt b/common/utils/CMakeLists.txt
+index 932f458a77..f63718546f 100644
+--- a/common/utils/CMakeLists.txt
++++ b/common/utils/CMakeLists.txt
+@@ -1,5 +1,6 @@
+ add_subdirectory(alg)
+ add_subdirectory(ds)
++add_subdirectory(time_manager)
+ add_boolean_option(ENABLE_TELNETSRV OFF "Whether to build telnet support in modems" OFF)
+ if(ENABLE_TELNETSRV)
+   add_subdirectory(telnetsrv)
+@@ -15,4 +16,4 @@ add_subdirectory(LOG)
+ add_subdirectory(threadPool)
+ add_library(utils utils.c system.c time_meas.c time_stat.c)
+ target_include_directories(utils PUBLIC .)
+-target_link_libraries(utils PRIVATE ${T_LIB})
++target_link_libraries(utils PRIVATE ${T_LIB} time_manager)
+diff --git a/common/utils/time_manager/CMakeLists.txt b/common/utils/time_manager/CMakeLists.txt
+new file mode 100644
+index 0000000000..9ecd17f693
+--- /dev/null
++++ b/common/utils/time_manager/CMakeLists.txt
+@@ -0,0 +1,7 @@
++add_library(time_manager time_manager.c)
++target_include_directories(time_manager PUBLIC .)
++target_link_libraries(time_manager PUBLIC utils)
++
++# Add test executable
++add_executable(test_time_manager test_time_manager.c)
++target_link_libraries(test_time_manager time_manager)
+\ No newline at end of file
+diff --git a/common/utils/time_manager/test_time_manager.c b/common/utils/time_manager/test_time_manager.c
+new file mode 100644
+index 0000000000..01df140a7a
+--- /dev/null
++++ b/common/utils/time_manager/test_time_manager.c
+@@ -0,0 +1,86 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++/*! \file test_time_manager.c
++ * \brief Test program for time manager functions
++ * \author OpenAirInterface Software Alliance
++ * \date 2023
++ * \version 0.1
++ * \company OpenAirInterface Software Alliance
++ * \email: contact@openairinterface.org
++ */
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <unistd.h>
++#include "common/utils/time_manager/time_manager.h"
++#include "common/utils/time_meas.h"
++
++int main() {
++    printf("Testing time_manager_iq_samples function\n");
++    
++    // Initialize time manager
++    double sample_rate = 30.72e6; // 30.72 MHz
++    if (time_manager_init(sample_rate) != 0) {
++        printf("Failed to initialize time manager\n");
++        return -1;
++    }
++    
++    // Test time_manager_iq_samples function
++    openair0_timestamp timestamp;
++    int num_samples = 1024;
++    
++    printf("Processing %d IQ samples\n", num_samples);
++    
++    int result = time_manager_iq_samples(×tamp, num_samples);
++    if (result != 0) {
++        printf("Error in time_manager_iq_samples: %d\n", result);
++        time_manager_cleanup();
++        return -1;
++    }
++    
++    printf("Successfully processed IQ samples. Timestamp: %lu\n", (unsigned long)timestamp);
++    
++    // Test with different number of samples
++    num_samples = 2048;
++    printf("Processing %d IQ samples\n", num_samples);
++    
++    result = time_manager_iq_samples(×tamp, num_samples);
++    if (result != 0) {
++        printf("Error in time_manager_iq_samples: %d\n", result);
++        time_manager_cleanup();
++        return -1;
++    }
++    
++    printf("Successfully processed IQ samples. Timestamp: %lu\n", (unsigned long)timestamp);
++    
++    // Get statistics
++    time_stats_t stats;
++    time_manager_get_stats(&stats);
++    printf("Time manager statistics - Trials: %d, Total time: %lu\n", 
++           stats.trials, (unsigned long)stats.diff);
++    
++    // Cleanup
++    time_manager_cleanup();
++    
++    printf("Time manager test completed successfully\n");
++    return 0;
++}
+\ No newline at end of file
+diff --git a/common/utils/time_manager/time_manager.c b/common/utils/time_manager/time_manager.c
+new file mode 100644
+index 0000000000..e1c274a88e
+--- /dev/null
++++ b/common/utils/time_manager/time_manager.c
+@@ -0,0 +1,138 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++/*! \file time_manager.c
++ * \brief Time management functions for IQ samples
++ * \author OpenAirInterface Software Alliance
++ * \date 2023
++ * \version 0.1
++ * \company OpenAirInterface Software Alliance
++ * \email: contact@openairinterface.org
++ */
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <time.h>
++#include <sys/time.h>
++#include "time_manager.h"
++#include "common/utils/time_meas.h"
++#include "common/utils/LOG/log.h"
++
++// Time management statistics
++static time_stats_t time_manager_iq_stats;
++
++// Global timestamp for IQ samples
++static openair0_timestamp current_iq_timestamp = 0;
++
++// Sample rate for IQ processing
++static double iq_sample_rate = 30.72e6; // Default to 30.72 MHz
++
++// Initialize time manager for IQ samples
++int time_manager_init(double sample_rate) {
++    reset_meas(&time_manager_iq_stats);
++    iq_sample_rate = sample_rate;
++    current_iq_timestamp = 0;
++    
++    LOG_I(PHY, "Time manager initialized with sample rate %f Hz\n", sample_rate);
++    return 0;
++}
++
++// Update timestamp for IQ samples
++void time_manager_update_timestamp(openair0_timestamp timestamp) {
++    current_iq_timestamp = timestamp;
++}
++
++// Get current IQ timestamp
++openair0_timestamp time_manager_get_timestamp(void) {
++    return current_iq_timestamp;
++}
++
++// Calculate time difference between two timestamps
++double time_manager_time_diff(openair0_timestamp ts1, openair0_timestamp ts2) {
++    return ((double)(ts2 - ts1)) / iq_sample_rate;
++}
++
++// Main function to manage time for IQ samples
++int time_manager_iq_samples(openair0_timestamp *timestamp, int num_samples) {
++    start_meas(&time_manager_iq_stats);
++    
++    // Validate input parameters
++    if (timestamp == NULL) {
++        LOG_E(PHY, "Invalid timestamp pointer\n");
++        stop_meas(&time_manager_iq_stats);
++        return -1;
++    }
++    
++    if (num_samples <= 0) {
++        LOG_E(PHY, "Invalid number of samples: %d\n", num_samples);
++        stop_meas(&time_manager_iq_stats);
++        return -1;
++    }
++    
++    // Update timestamp based on number of samples
++    // Each sample takes 1/sample_rate seconds
++    openair0_timestamp sample_time = (openair0_timestamp)(((double)num_samples / iq_sample_rate) * iq_sample_rate);
++    *timestamp = current_iq_timestamp;
++    current_iq_timestamp += sample_time;
++    
++    // Add some delay to simulate processing time if needed
++    // This is important for real-time IQ sample processing
++    struct timespec req;
++    req.tv_sec = 0;
++    req.tv_nsec = (long)((sample_time / iq_sample_rate) * 1e9);
++    
++    // Limit the delay to avoid excessive sleeping
++    if (req.tv_nsec > 1000000) { // 1ms
++        req.tv_nsec = 1000000;
++    }
++    
++    // Only sleep for small delays to maintain real-time performance
++    if (req.tv_nsec > 1000) { // 1us
++        nanosleep(&req, NULL);
++    }
++    
++    stop_meas(&time_manager_iq_stats);
++    
++    LOG_D(PHY, "Time manager processed %d IQ samples, timestamp: %lu\n", 
++          num_samples, (unsigned long)*timestamp);
++    
++    return 0; // Success
++}
++
++// Get time manager statistics
++void time_manager_get_stats(time_stats_t *stats) {
++    if (stats != NULL) {
++        copy_meas(stats, &time_manager_iq_stats);
++    }
++}
++
++// Reset time manager statistics
++void time_manager_reset_stats(void) {
++    reset_meas(&time_manager_iq_stats);
++}
++
++// Cleanup time manager
++void time_manager_cleanup(void) {
++    LOG_I(PHY, "Time manager cleanup\n");
++    reset_meas(&time_manager_iq_stats);
++    current_iq_timestamp = 0;
++}
+\ No newline at end of file
+diff --git a/common/utils/time_manager/time_manager.h b/common/utils/time_manager/time_manager.h
+new file mode 100644
+index 0000000000..392c5ec629
+--- /dev/null
++++ b/common/utils/time_manager/time_manager.h
+@@ -0,0 +1,89 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++/*! \file time_manager.h
++ * \brief Time management functions for IQ samples
++ * \author OpenAirInterface Software Alliance
++ * \date 2023
++ * \version 0.1
++ * \company OpenAirInterface Software Alliance
++ * \email: contact@openairinterface.org
++ */
++
++#ifndef __TIME_MANAGER_H__
++#define __TIME_MANAGER_H__
++
++#include <stdint.h>
++#include "common/utils/time_meas.h"
++#include "radio/COMMON/common_lib.h"
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++/*! \brief Initialize time manager for IQ samples
++ * \param sample_rate Sample rate in Hz
++ * \returns 0 on success, negative value on error
++ */
++int time_manager_init(double sample_rate);
++
++/*! \brief Update current timestamp for IQ samples
++ * \param timestamp New timestamp value
++ */
++void time_manager_update_timestamp(openair0_timestamp timestamp);
++
++/*! \brief Get current IQ timestamp
++ * \returns Current timestamp
++ */
++openair0_timestamp time_manager_get_timestamp(void);
++
++/*! \brief Calculate time difference between two timestamps
++ * \param ts1 First timestamp
++ * \param ts2 Second timestamp
++ * \returns Time difference in seconds
++ */
++double time_manager_time_diff(openair0_timestamp ts1, openair0_timestamp ts2);
++
++/*! \brief Main function to manage time for IQ samples
++ * \param timestamp Pointer to timestamp to be updated
++ * \param num_samples Number of IQ samples to process
++ * \returns 0 on success, negative value on error
++ */
++int time_manager_iq_samples(openair0_timestamp *timestamp, int num_samples);
++
++/*! \brief Get time manager statistics
++ * \param stats Pointer to time_stats_t structure to fill with statistics
++ */
++void time_manager_get_stats(time_stats_t *stats);
++
++/*! \brief Reset time manager statistics
++ */
++void time_manager_reset_stats(void);
++
++/*! \brief Cleanup time manager
++ */
++void time_manager_cleanup(void);
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif /* __TIME_MANAGER_H__ */
+\ No newline at end of file
+diff --git a/radio/COMMON/common_lib.h b/radio/COMMON/common_lib.h
+index aa2d9e3189..b73113d77f 100644
+--- a/radio/COMMON/common_lib.h
++++ b/radio/COMMON/common_lib.h
+@@ -38,6 +38,7 @@
+ #include <openair1/PHY/TOOLS/tools_defs.h>
+ #include "record_player.h"
+ #include <common/utils/threadPool/thread-pool.h>
++#include <common/utils/time_manager/time_manager.h>
+ 
+ /* default name of shared library implementing the radio front end */
+ #define OAI_RF_LIBNAME        "oai_device"
+diff --git a/radio/iqplayer/iqplayer_lib.c b/radio/iqplayer/iqplayer_lib.c
+index 2df57c9202..c4e699841e 100644
+--- a/radio/iqplayer/iqplayer_lib.c
++++ b/radio/iqplayer/iqplayer_lib.c
+@@ -40,6 +40,7 @@
+ #include "common_lib.h"
+ #include "assertions.h"
+ #include "common/utils/LOG/log.h"
++#include "common/utils/time_manager/time_manager.h"
+ 
+ static void busy_wait(uint32_t usecs) {
+   uint32_t elapsed_usecs;
+@@ -218,7 +219,9 @@ static void trx_iqplayer_end(openair0_device *device) {
+     close(device->recplay_state->fd);
+     device->recplay_state->fd = -1;
+   }
+-
++  
++  // Cleanup time manager
++  time_manager_cleanup();
+ }
+ /*! \brief Write iqs function when in replay mode, just introduce a delay, as configured at init time,
+       @param device pointer to the device structure specific to the RF hardware target
+@@ -299,7 +302,14 @@ static int trx_iqplayer_read(openair0_device *device, openair0_timestamp *ptimes
+   }
+   // the current timestamp is the stored timestamp until we wrap on input
+   AssertFatal(nsamps*4==curHeader->nbBytes,"nsamps=%d curHeader->nbBytes=%d", (int)nsamps, (int)curHeader->nbBytes);
+-  *ptimestamp = s->currentTs;
++  
++  // Use the time manager to handle IQ samples timing
++  if (time_manager_iq_samples(ptimestamp, nsamps) != 0) {
++    LOG_E(HW, "Error in time_manager_iq_samples for %d samples\n", nsamps);
++  } else {
++    s->currentTs = *ptimestamp;
++  }
++  
+   memcpy(buff[0], curHeader+1, nsamps*4);
+   s->curSamplesBlock++;
+   // Prepare for next read
+@@ -338,6 +348,13 @@ int device_init(openair0_device *device, openair0_config_t *openair0_cfg) {
+   //  bw_gain_adjust=1;
+   device->trx_write_func = trx_iqplayer_write;
+   device->trx_read_func  = trx_iqplayer_read;
++  
++  // Initialize time manager for IQ samples
++  double sample_rate = openair0_cfg->sample_rate > 0 ? openair0_cfg->sample_rate : 30.72e6;
++  if (time_manager_init(sample_rate) != 0) {
++    LOG_E(HW, "Failed to initialize time manager\n");
++  }
++  
+   iqplayer_loadfile(device, openair0_cfg);
+   LOG_UI(HW,"iqplayer device initialized, replay %s for %i iteration(s)\n",openair0_cfg->recplay_conf->u_sf_filename,openair0_cfg->recplay_conf->u_sf_loops);
+   return 0;

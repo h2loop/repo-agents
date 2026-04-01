@@ -1,0 +1,351 @@
+diff --git a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+index ccd5289a6f..ab9be4fc8d 100644
+--- a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
++++ b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+@@ -212,8 +212,16 @@ get_Msg3alloc(COMMON_channels_t *cc,
+               sub_frame_t       *subframe)
+ //------------------------------------------------------------------------------
+ {
+-  // Fill in other TDD Configuration!!!!
+-  int subframeAssignment;
++  // Initialize output parameters to safe defaults to prevent undefined behavior
++  *frame = current_frame;
++  *subframe = current_subframe;
++  
++  // Validate input parameters
++  if (current_subframe > 9) {
++    LOG_E(MAC, "Invalid current_subframe %d, should be 0-9\n", current_subframe);
++    // Use a safe fallback
++    current_subframe = 0;
++  }
+ 
+   if (cc->tdd_Config == NULL) { // FDD
+     *subframe = current_subframe + 6;
+@@ -225,92 +233,250 @@ get_Msg3alloc(COMMON_channels_t *cc,
+       *frame = current_frame;
+     }
+   } else {      // TDD
+-    subframeAssignment = (int) cc->tdd_Config->subframeAssignment;
+-
+-    if (subframeAssignment == 1) {
+-      switch (current_subframe) {
+-        case 0:
+-          *subframe = 7;
+-          *frame = current_frame;
+-          break;
++    int subframeAssignment = (int) cc->tdd_Config->subframeAssignment;
++    
++    // Handle all possible TDD subframe assignments (0-6)
++    switch (subframeAssignment) {
++      case 0: // TDD Subframe Assignment 0: DSSUUUDSSUUU
++        switch (current_subframe) {
++          case 0:
++          case 1:
++          case 5:
++          case 6:
++            *subframe = 2;
++            *frame = (current_frame + 1) & 1023;
++            break;
++            
++          case 7:
++          case 2:
++            *subframe = 3;
++            *frame = (current_frame + 1) & 1023;
++            break;
++            
++          case 8:
++          case 3:
++            *subframe = 4;
++            *frame = (current_frame + 1) & 1023;
++            break;
++            
++          case 9:
++          case 4:
++            *subframe = 2;
++            *frame = (current_frame + 2) & 1023;
++            break;
++            
++          default:
++            // Fallback: use standard offset for unhandled subframes
++            LOG_W(MAC, "Unhandled subframe %d for TDD config %d, using fallback\n", 
++                  current_subframe, subframeAssignment);
++            *subframe = (current_subframe + 6) % 10;
++            *frame = (current_frame + ((*subframe < current_subframe) ? 1 : 0)) & 1023;
++            break;
++        }
++        break;
++        
++      case 1: // TDD Subframe Assignment 1: DSUUUDSUUU
++        switch (current_subframe) {
++          case 0:
++            *subframe = 7;
++            *frame = current_frame;
++            break;
+ 
+-        case 4:
+-          *subframe = 2;
+-          *frame = (current_frame + 1) & 1023;
+-          break;
++          case 4:
++            *subframe = 2;
++            *frame = (current_frame + 1) & 1023;
++            break;
+ 
+-        case 5:
+-          *subframe = 2;
+-          *frame = (current_frame + 1) & 1023;
+-          break;
++          case 5:
++            *subframe = 2;
++            *frame = (current_frame + 1) & 1023;
++            break;
+ 
+-        case 9:
+-          *subframe = 7;
+-          *frame = (current_frame + 1) & 1023;
+-          break;
+-      }
+-    } else if (subframeAssignment == 3) {
+-      switch (current_subframe) {
+-        case 0:
+-        case 5:
+-        case 6:
+-          *subframe = 2;
+-          *frame = (current_frame + 1) & 1023;
+-          break;
++          case 9:
++            *subframe = 7;
++            *frame = (current_frame + 1) & 1023;
++            break;
++            
++          default:
++            // Fallback: use standard offset for unhandled subframes
++            LOG_W(MAC, "Unhandled subframe %d for TDD config %d, using fallback\n", 
++                  current_subframe, subframeAssignment);
++            *subframe = (current_subframe + 6) % 10;
++            *frame = (current_frame + ((*subframe < current_subframe) ? 1 : 0)) & 1023;
++            break;
++        }
++        break;
++        
++      case 2: // TDD Subframe Assignment 2: DSSUUUDSUU
++        switch (current_subframe) {
++          case 0:
++          case 1:
++          case 5:
++          case 6:
++            *subframe = 2;
++            *frame = (current_frame + 1) & 1023;
++            break;
++            
++          case 7:
++          case 2:
++            *subframe = 3;
++            *frame = (current_frame + 1) & 1023;
++            break;
++            
++          case 8:
++          case 3:
++            *subframe = 2;
++            *frame = (current_frame + 2) & 1023;
++            break;
++            
++          case 9:
++          case 4:
++            *subframe = 2;
++            *frame = (current_frame + 2) & 1023;
++            break;
++            
++          default:
++            // Fallback: use standard offset for unhandled subframes
++            LOG_W(MAC, "Unhandled subframe %d for TDD config %d, using fallback\n", 
++                  current_subframe, subframeAssignment);
++            *subframe = (current_subframe + 6) % 10;
++            *frame = (current_frame + ((*subframe < current_subframe) ? 1 : 0)) & 1023;
++            break;
++        }
++        break;
++        
++      case 3: // TDD Subframe Assignment 3: DSUUUDDSUU
++        switch (current_subframe) {
++          case 0:
++          case 5:
++          case 6:
++            *subframe = 2;
++            *frame = (current_frame + 1) & 1023;
++            break;
+ 
+-        case 7:
+-          *subframe = 3;
+-          *frame = (current_frame + 1) & 1023;
+-          break;
++          case 7:
++            *subframe = 3;
++            *frame = (current_frame + 1) & 1023;
++            break;
+ 
+-        case 8:
+-          *subframe = 4;
+-          *frame = (current_frame + 1) & 1023;
+-          break;
++          case 8:
++            *subframe = 4;
++            *frame = (current_frame + 1) & 1023;
++            break;
+ 
+-        case 9:
+-          *subframe = 2;
+-          *frame = (current_frame + 2) & 1023;
+-          break;
+-      }
+-    } else if (subframeAssignment == 4) {
+-      switch (current_subframe) {
+-        case 0:
+-        case 4:
+-        case 5:
+-        case 6:
+-          *subframe = 2;
+-          *frame = (current_frame + 1) & 1023;
+-          break;
++          case 9:
++            *subframe = 2;
++            *frame = (current_frame + 2) & 1023;
++            break;
++            
++          default:
++            // Fallback: use standard offset for unhandled subframes
++            LOG_W(MAC, "Unhandled subframe %d for TDD config %d, using fallback\n", 
++                  current_subframe, subframeAssignment);
++            *subframe = (current_subframe + 6) % 10;
++            *frame = (current_frame + ((*subframe < current_subframe) ? 1 : 0)) & 1023;
++            break;
++        }
++        break;
++        
++      case 4: // TDD Subframe Assignment 4: DSUUDDDSUU
++        switch (current_subframe) {
++          case 0:
++          case 4:
++          case 5:
++          case 6:
++            *subframe = 2;
++            *frame = (current_frame + 1) & 1023;
++            break;
+ 
+-        case 7:
+-          *subframe = 3;
+-          *frame = (current_frame + 1) & 1023;
+-          break;
++          case 7:
++            *subframe = 3;
++            *frame = (current_frame + 1) & 1023;
++            break;
+ 
+-        case 8:
+-        case 9:
+-          *subframe = 2;
+-          *frame = (current_frame + 2) & 1023;
+-          break;
+-      }
+-    } else if (subframeAssignment == 5) {
+-      switch (current_subframe) {
+-        case 0:
+-        case 4:
+-        case 5:
+-        case 6:
+-          *subframe = 2;
+-          *frame = (current_frame + 1) & 1023;
+-          break;
++          case 8:
++          case 9:
++            *subframe = 2;
++            *frame = (current_frame + 2) & 1023;
++            break;
++            
++          default:
++            // Fallback: use standard offset for unhandled subframes
++            LOG_W(MAC, "Unhandled subframe %d for TDD config %d, using fallback\n", 
++                  current_subframe, subframeAssignment);
++            *subframe = (current_subframe + 6) % 10;
++            *frame = (current_frame + ((*subframe < current_subframe) ? 1 : 0)) & 1023;
++            break;
++        }
++        break;
++        
++      case 5: // TDD Subframe Assignment 5: DSUDDDSDSUU
++        switch (current_subframe) {
++          case 0:
++          case 4:
++          case 5:
++          case 6:
++            *subframe = 2;
++            *frame = (current_frame + 1) & 1023;
++            break;
+ 
+-        case 7:
+-        case 8:
+-        case 9:
+-          *subframe = 2;
+-          *frame = (current_frame + 2) & 1023;
+-          break;
+-      }
++          case 7:
++          case 8:
++          case 9:
++            *subframe = 2;
++            *frame = (current_frame + 2) & 1023;
++            break;
++            
++          default:
++            // Fallback: use standard offset for unhandled subframes
++            LOG_W(MAC, "Unhandled subframe %d for TDD config %d, using fallback\n", 
++                  current_subframe, subframeAssignment);
++            *subframe = (current_subframe + 6) % 10;
++            *frame = (current_frame + ((*subframe < current_subframe) ? 1 : 0)) & 1023;
++            break;
++        }
++        break;
++        
++      case 6: // TDD Subframe Assignment 6: DSUUUDDDD
++        switch (current_subframe) {
++          case 0:
++          case 5:
++          case 6:
++            *subframe = 2;
++            *frame = (current_frame + 1) & 1023;
++            break;
++            
++          case 7:
++            *subframe = 3;
++            *frame = (current_frame + 1) & 1023;
++            break;
++            
++          case 8:
++            *subframe = 4;
++            *frame = (current_frame + 1) & 1023;
++            break;
++            
++          case 9:
++            *subframe = 2;
++            *frame = (current_frame + 2) & 1023;
++            break;
++            
++          default:
++            // Fallback: use standard offset for unhandled subframes
++            LOG_W(MAC, "Unhandled subframe %d for TDD config %d, using fallback\n", 
++                  current_subframe, subframeAssignment);
++            *subframe = (current_subframe + 6) % 10;
++            *frame = (current_frame + ((*subframe < current_subframe) ? 1 : 0)) & 1023;
++            break;
++        }
++        break;
++        
++      default:
++        // Handle unsupported TDD configurations with fallback behavior
++        LOG_E(MAC, "Unsupported TDD subframe assignment %d, using fallback\n", subframeAssignment);
++        *subframe = (current_subframe + 6) % 10;
++        *frame = (current_frame + ((*subframe < current_subframe) ? 1 : 0)) & 1023;
++        break;
+     }
+   }
+ 

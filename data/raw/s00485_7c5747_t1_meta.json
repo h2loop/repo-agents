@@ -1,0 +1,30 @@
+{
+  "run_id": "s00485_7c5747",
+  "function": {
+    "name": "make_plmn_from_conf",
+    "file": "openair3/NAS/TOOLS/conf_network.c",
+    "start_line": 23,
+    "end_line": 40,
+    "body_lines": 18,
+    "signature": "plmn_t make_plmn_from_conf(const plmn_conf_param_t *plmn_conf)",
+    "subsystem": "openair3/NAS/TOOLS",
+    "token_estimate": 44
+  },
+  "bug": {
+    "bug_id": "telecom_state_machine_invalid_transition",
+    "description": "incorrect protocol state machine transition that violates 3GPP specification",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a incorrect protocol state machine transition that violates 3GPP specification downstream of function make_plmn_from_conf in the openair3/NAS/TOOLS subsystem.\nThe function is located at openair3/NAS/TOOLS/conf_network.c:23.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00485_7c5747_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00485_7c5747_p1.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 8,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:34:02Z"
+}

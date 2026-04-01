@@ -1,0 +1,18 @@
+diff --git a/fs/rpmsgfs/rpmsgfs_server.c b/fs/rpmsgfs/rpmsgfs_server.c
+index 65730563..a799da77 100644
+--- a/fs/rpmsgfs/rpmsgfs_server.c
++++ b/fs/rpmsgfs/rpmsgfs_server.c
+@@ -743,6 +743,13 @@ static int rpmsgfs_rename_handler(FAR struct rpmsg_endpoint *ept,
+   oldlen = (strlen(msg->pathname) + 1 + 0x7) & ~0x7;
+   newpath = msg->pathname + oldlen;
+ 
++  /* Validate that newpath is within message bounds and null-terminated */
++  if (newpath >= (FAR char *)data + len || !memchr(newpath, '\0', (FAR char *)data + len - newpath))
++    {
++      msg->header.result = -EINVAL;
++      return rpmsg_send(ept, msg, sizeof(*msg));
++    }
++
+   ret = rename(msg->pathname, newpath);
+   msg->header.result = ret ? -get_errno() : 0;
+   return rpmsg_send(ept, msg, sizeof(*msg));

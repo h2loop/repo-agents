@@ -1,0 +1,36 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c
+index 820eba2b5b..c4dba02f3a 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c
+@@ -1691,9 +1691,8 @@ static bool allocate_ul_retransmission(gNB_MAC_INST *nrmac,
+    * as the new scheduling instruction */
+   retInfo->frame = sched_ctrl->sched_pusch.frame;
+   retInfo->slot = sched_ctrl->sched_pusch.slot;
+-  /* Get previous PSUCH field info */
+-  sched_ctrl->sched_pusch = *retInfo;
+-  NR_sched_pusch_t *sched_pusch = &sched_ctrl->sched_pusch;
++  /* Use retInfo directly instead of copying to sched_ctrl->sched_pusch */
++  NR_sched_pusch_t *sched_pusch = retInfo;
+ 
+   LOG_D(NR_MAC,
+         "%4d.%2d Allocate UL retransmission RNTI %04x sched %4d.%2d (%d RBs)\n",
+@@ -1709,8 +1708,8 @@ static bool allocate_ul_retransmission(gNB_MAC_INST *nrmac,
+ 
+   /* Mark the corresponding RBs as used */
+   n_rb_sched -= sched_pusch->rbSize;
+-  for (int rb = 0; rb < sched_ctrl->sched_pusch.rbSize; rb++)
+-    rballoc_mask[rb + sched_ctrl->sched_pusch.rbStart] ^= SL_to_bitmap(sched_pusch->tda_info.startSymbolIndex, sched_pusch->tda_info.nrOfSymbols);
++  for (int rb = 0; rb < sched_pusch->rbSize; rb++)
++    rballoc_mask[rb + sched_pusch->rbStart] ^= SL_to_bitmap(sched_pusch->tda_info.startSymbolIndex, sched_pusch->tda_info.nrOfSymbols);
+   return true;
+ }
+ 
+@@ -1771,6 +1770,8 @@ static void pf_ul(module_id_t module_id,
+     sched_pusch->ul_harq_pid = sched_ctrl->retrans_ul_harq.head;
+     LOG_D(NR_MAC,"pf_ul: UE %04x harq_pid %d\n",UE->rnti,sched_pusch->ul_harq_pid);
+     if (sched_pusch->ul_harq_pid >= 0) {
++      /* For retransmission, use the HARQ process memory directly */
++      sched_pusch = &sched_ctrl->ul_harq_processes[sched_pusch->ul_harq_pid].sched_pusch;
+       /* Allocate retransmission*/
+       const int tda = get_ul_tda(nrmac, scc, sched_pusch->frame, sched_pusch->slot);
+       bool r = allocate_ul_retransmission(nrmac, frame, slot, rballoc_mask, &n_rb_sched, UE, sched_pusch->ul_harq_pid, scc, tda);

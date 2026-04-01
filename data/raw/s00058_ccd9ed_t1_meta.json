@@ -1,0 +1,31 @@
+{
+  "run_id": "s00058_ccd9ed",
+  "function": {
+    "name": "logInit_log_mem",
+    "file": "common/utils/LOG/log.c",
+    "start_line": 977,
+    "end_line": 995,
+    "body_lines": 19,
+    "signature": "int logInit_log_mem (char * filename)",
+    "subsystem": "common/utils/LOG",
+    "token_estimate": 74
+  },
+  "bug": {
+    "bug_id": "c_integer_underflow",
+    "description": "integer underflow producing an unexpectedly large unsigned value",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "common"
+    ]
+  },
+  "prompt": "There is a integer underflow producing an unexpectedly large unsigned value downstream of function logInit_log_mem in the common/utils/LOG subsystem.\nThe function is located at common/utils/LOG/log.c:977.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00058_ccd9ed_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00058_ccd9ed_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 25,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:54:04Z"
+}

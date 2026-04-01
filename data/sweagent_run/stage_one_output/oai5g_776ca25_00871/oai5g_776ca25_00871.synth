@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect neighbor block selection in grid-based mobility model\n\n### Summary\nThe `next_block()` function in the grid-based mobility model had several issues that caused incorrect neighbor selection for mobile nodes. This led to nodes moving to invalid grid positions or getting stuck at grid boundaries.\n\nThe function had typos in comments (\"boredr\" instead of \"border\", \"uper\" instead of \"upper\") and inconsistent calculations that could cause nodes to select invalid neighboring blocks.\n\n### Changes\n- `openair2/UTIL/OMG/grid.c`: \n  * Fixed typos in comments\n  * Improved variable naming consistency (`div` \u2192 `div_x`, `div_y`)\n  * Fixed inconsistent right border condition check\n  * Ensured all boundary checks use consistent calculations\n\n"
+}

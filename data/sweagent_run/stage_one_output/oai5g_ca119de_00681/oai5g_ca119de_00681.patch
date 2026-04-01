@@ -1,0 +1,243 @@
+diff --git a/openair2/F1AP/lib/f1ap_lib_includes.h b/openair2/F1AP/lib/f1ap_lib_includes.h
+index 3f039bf6f0..1ac988ac00 100644
+--- a/openair2/F1AP/lib/f1ap_lib_includes.h
++++ b/openair2/F1AP/lib/f1ap_lib_includes.h
+@@ -47,5 +47,6 @@
+ #include "F1AP_NonDynamic5QIDescriptor.h"
+ #include "F1AP_Dynamic5QIDescriptor.h"
+ #include "F1AP_DLUPTNLInformation-ToBeSetup-Item.h"
++#include "f1ap_positioning.h"
+ 
+ #endif /* F1AP_LIB_INCLUDES_H_ */
+diff --git a/openair2/F1AP/lib/f1ap_positioning.c b/openair2/F1AP/lib/f1ap_positioning.c
+new file mode 100644
+index 0000000000..0d4ba8b55f
+--- /dev/null
++++ b/openair2/F1AP/lib/f1ap_positioning.c
+@@ -0,0 +1,133 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++/*! \file f1ap_positioning.c
++ * \brief F1AP positioning procedures for TRP information
++ * \author Javier Morgade
++ * \date 2024
++ * \version 1.0
++ * \company CTT Group
++ * \email: javier.morgade@ieee.org
++ */
++
++#include "f1ap_positioning.h"
++#include "f1ap_lib_common.h"
++#include "f1ap_messages_types.h"
++#include "common/utils/LOG/log.h"
++#include <string.h>
++
++// Include ASN.1 generated TRP-related headers
++#include "F1AP_TRPInformationTypeResponseItem.h"
++#include "F1AP_NRPCI.h"
++#include "F1AP_NRCGI.h"
++#include "F1AP_PRSConfiguration.h"
++#include "F1AP_SSBInformation.h"
++#include "F1AP_SFNInitialisationTime.h"
++#include "F1AP_SpatialDirectionInformation.h"
++#include "F1AP_GeographicalCoordinates.h"
++#include "F1AP_ProtocolIE-SingleContainer.h"
++
++// Helper function to copy ASN.1 structures (following the pattern from existing code)
++static void copy_nrcgi(F1AP_NRCGI_t *dest, const F1AP_NRCGI_t *src)
++{
++  if (dest && src) {
++    // Copy PLMN Identity
++    memcpy(&dest->pLMN_Identity, &src->pLMN_Identity, sizeof(dest->pLMN_Identity));
++    // Copy NR Cell Identity
++    memcpy(&dest->nRCellIdentity, &src->nRCellIdentity, sizeof(dest->nRCellIdentity));
++    // Copy extensions if present
++    if (src->iE_Extensions) {
++      dest->iE_Extensions = src->iE_Extensions; // Shallow copy for now
++    }
++  }
++}
++
++F1AP_TRPInformationTypeResponseItem_t encode_trp_info_type_response_item(
++    const f1ap_trp_info_type_response_item_t *trp_info_item)
++{
++  F1AP_TRPInformationTypeResponseItem_t enc = {0};
++
++  if (!trp_info_item) {
++    LOG_E(F1AP, "NULL TRP information type response item provided\n");
++    return enc;
++  }
++
++  switch (trp_info_item->present) {
++    case F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_pCI_NR:
++      enc.present = F1AP_TRPInformationTypeResponseItem_PR_pCI_NR;
++      enc.choice.pCI_NR = trp_info_item->choice.pCI_NR;
++      break;
++
++    case F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_nG_RAN_CGI:
++      enc.present = F1AP_TRPInformationTypeResponseItem_PR_nG_RAN_CGI;
++      // For now, do a shallow copy - in a real implementation this would need proper ASN.1 structure handling
++      enc.choice.nG_RAN_CGI = trp_info_item->choice.nG_RAN_CGI;
++      break;
++
++    case F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_nRARFCN:
++      enc.present = F1AP_TRPInformationTypeResponseItem_PR_nRARFCN;
++      enc.choice.nRARFCN = trp_info_item->choice.nRARFCN;
++      break;
++
++    case F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_pRSConfiguration:
++      enc.present = F1AP_TRPInformationTypeResponseItem_PR_pRSConfiguration;
++      // Shallow copy for now - would need proper ASN.1 structure handling in real implementation
++      enc.choice.pRSConfiguration = trp_info_item->choice.pRSConfiguration;
++      break;
++
++    case F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_sSBinformation:
++      enc.present = F1AP_TRPInformationTypeResponseItem_PR_sSBinformation;
++      // Shallow copy for now - would need proper ASN.1 structure handling in real implementation
++      enc.choice.sSBinformation = trp_info_item->choice.sSBinformation;
++      break;
++
++    case F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_sFNInitialisationTime:
++      enc.present = F1AP_TRPInformationTypeResponseItem_PR_sFNInitialisationTime;
++      enc.choice.sFNInitialisationTime = trp_info_item->choice.sFNInitialisationTime;
++      break;
++
++    case F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_spatialDirectionInformation:
++      enc.present = F1AP_TRPInformationTypeResponseItem_PR_spatialDirectionInformation;
++      // Shallow copy for now - would need proper ASN.1 structure handling in real implementation
++      enc.choice.spatialDirectionInformation = trp_info_item->choice.spatialDirectionInformation;
++      break;
++
++    case F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_geographicalCoordinates:
++      enc.present = F1AP_TRPInformationTypeResponseItem_PR_geographicalCoordinates;
++      // Shallow copy for now - would need proper ASN.1 structure handling in real implementation
++      enc.choice.geographicalCoordinates = trp_info_item->choice.geographicalCoordinates;
++      break;
++
++    case F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_choice_extension:
++      enc.present = F1AP_TRPInformationTypeResponseItem_PR_choice_extension;
++      // Shallow copy for now - would need proper ASN.1 structure handling in real implementation
++      enc.choice.choice_extension = trp_info_item->choice.choice_extension;
++      break;
++
++    case F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_NOTHING:
++    default:
++      LOG_W(F1AP, "Unknown or unspecified TRP information type response item %d\n", trp_info_item->present);
++      enc.present = F1AP_TRPInformationTypeResponseItem_PR_NOTHING;
++      break;
++  }
++
++  return enc;
++}
+\ No newline at end of file
+diff --git a/openair2/F1AP/lib/f1ap_positioning.h b/openair2/F1AP/lib/f1ap_positioning.h
+new file mode 100644
+index 0000000000..836206528f
+--- /dev/null
++++ b/openair2/F1AP/lib/f1ap_positioning.h
+@@ -0,0 +1,85 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++#ifndef F1AP_POSITIONING_H_
++#define F1AP_POSITIONING_H_
++
++#include <stdint.h>
++#include <stdbool.h>
++
++// Forward declarations for ASN.1 types
++typedef struct F1AP_TRPInformationTypeResponseItem F1AP_TRPInformationTypeResponseItem_t;
++typedef long F1AP_NRPCI_t;
++typedef struct F1AP_NRCGI F1AP_NRCGI_t;
++typedef struct F1AP_PRSConfiguration F1AP_PRSConfiguration_t;
++typedef struct F1AP_SSBInformation F1AP_SSBInformation_t;
++typedef long F1AP_SFNInitialisationTime_t;
++typedef struct F1AP_SpatialDirectionInformation F1AP_SpatialDirectionInformation_t;
++typedef struct F1AP_GeographicalCoordinates F1AP_GeographicalCoordinates_t;
++typedef struct F1AP_ProtocolIE_SingleContainer F1AP_ProtocolIE_SingleContainer_t;
++
++// Enum to represent the present field in the choice based on ASN.1 definition
++typedef enum {
++  F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_NOTHING,
++  F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_pCI_NR,
++  F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_nG_RAN_CGI,
++  F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_nRARFCN,
++  F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_pRSConfiguration,
++  F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_sSBinformation,
++  F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_sFNInitialisationTime,
++  F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_spatialDirectionInformation,
++  F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_geographicalCoordinates,
++  F1AP_TRP_INFO_TYPE_RESPONSE_ITEM_PR_choice_extension
++} f1ap_trp_info_type_response_item_present_t;
++
++// Structure to represent TRP information type response item
++// Based on ASN.1 definition:
++// TRPInformationTypeResponseItem ::= CHOICE {
++//   pCI-NR                              NRPCI,
++//   nG-RAN-CGI                          NRCGI,
++//   nRARFCN                             INTEGER (0..maxNRARFCN),
++//   pRSConfiguration                    PRSConfiguration,
++//   sSBinformation                      SSBInformation,
++//   sFNInitialisationTime               SFNInitialisationTime,
++//   spatialDirectionInformation         SpatialDirectionInformation,
++//   geographicalCoordinates             GeographicalCoordinates,
++//   choice-extension                    ProtocolIE-SingleContainer { { TRPInformationTypeResponseItem-ExtIEs} }
++// }
++typedef struct {
++  f1ap_trp_info_type_response_item_present_t present;
++  union {
++    F1AP_NRPCI_t pCI_NR;  // NRPCI type
++    F1AP_NRCGI_t nG_RAN_CGI;
++    long nRARFCN;
++    F1AP_PRSConfiguration_t pRSConfiguration;
++    F1AP_SSBInformation_t sSBinformation;
++    F1AP_SFNInitialisationTime_t sFNInitialisationTime;
++    F1AP_SpatialDirectionInformation_t spatialDirectionInformation;
++    F1AP_GeographicalCoordinates_t geographicalCoordinates;
++    F1AP_ProtocolIE_SingleContainer_t choice_extension;
++  } choice;
++} f1ap_trp_info_type_response_item_t;
++
++// Function declarations
++F1AP_TRPInformationTypeResponseItem_t encode_trp_info_type_response_item(
++    const f1ap_trp_info_type_response_item_t *trp_info_item);
++
++#endif /* F1AP_POSITIONING_H_ */
+\ No newline at end of file

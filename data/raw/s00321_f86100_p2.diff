@@ -1,0 +1,125 @@
+diff --git a/nfapi/oai_integration/nfapi_pnf.c b/nfapi/oai_integration/nfapi_pnf.c
+index a933aba614..8b4d9f0036 100644
+--- a/nfapi/oai_integration/nfapi_pnf.c
++++ b/nfapi/oai_integration/nfapi_pnf.c
+@@ -1894,6 +1894,15 @@ int rssi_request(nfapi_pnf_config_t *config, nfapi_pnf_phy_config_t *phy, nfapi_
+   return 0;
+ }
+ 
++int rssi_indication(nfapi_pnf_config_t *config, nfapi_pnf_phy_config_t *phy, nfapi_rssi_indication_t *ind) {
++  LOG_D(PHY, "%s() phy_id:%d number_of_rssi:%d rssi[0]:%d\n", __FUNCTION__, 
++        ind->header.phy_id, ind->rssi_indication_body.number_of_rssi, 
++        ind->rssi_indication_body.rssi[0]);
++  // Trigger UE scheduling based on RSSI measurements
++  // This is where the client can implement scheduling logic based on RSSI
++  return 0;
++}
++
+ int cell_search_request(nfapi_pnf_config_t *config, nfapi_pnf_phy_config_t *phy, nfapi_cell_search_request_t *req) {
+   nfapi_cell_search_response_t resp;
+   memset(&resp, 0, sizeof(resp));
+@@ -2161,6 +2170,7 @@ void configure_nr_nfapi_pnf(char *vnf_ip_addr, int vnf_p5_port, char *pnf_ip_add
+   config->nr_start_req = &nr_start_request;
+   config->measurement_req = &measurement_request;
+   config->rssi_req = &rssi_request;
++  config->rssi_ind = &rssi_indication;
+   config->broadcast_detect_req = &broadcast_detect_request;
+   config->system_information_schedule_req = &system_information_schedule_request;
+   config->system_information_req = &system_information_request;
+diff --git a/nfapi/open-nFAPI/pnf/public_inc/nfapi_pnf_interface.h b/nfapi/open-nFAPI/pnf/public_inc/nfapi_pnf_interface.h
+index ca8bc8d9a4..4cdcfeec6a 100644
+--- a/nfapi/open-nFAPI/pnf/public_inc/nfapi_pnf_interface.h
++++ b/nfapi/open-nFAPI/pnf/public_inc/nfapi_pnf_interface.h
+@@ -240,6 +240,19 @@ typedef struct nfapi_pnf_config
+ 	 */
+ 	int (*rssi_req)(nfapi_pnf_config_t* config, nfapi_pnf_phy_config_t* phy, nfapi_rssi_request_t* req);
+ 	
++	/*! A callback for the RSSI.indication
++	 *  \param config A pointer to the pnf configuration
++	 *  \param phy A pointer to the pnf phy configuration
++	 *  \param ind A data structure for the decoded RSSI.indication. This will have
++	 *             been allocated on the stack
++	 *  \return not currently used
++	 * 
++	 * 	The client can use this callback to trigger UE scheduling immediately upon
++	 * 	receiving RSSI measurements. This allows for timely scheduling decisions
++	 * 	based on the latest channel conditions.
++	 */
++	int (*rssi_ind)(nfapi_pnf_config_t* config, nfapi_pnf_phy_config_t* phy, nfapi_rssi_indication_t* ind);
++	
+ 	/*! A callback for the CELL_SEARCH.request
+ 	 *  \param config A pointer to the pnf configuration
+ 	 *  \param phy A pointer to the pnf phy configuration
+diff --git a/nfapi/open-nFAPI/pnf/src/pnf.c b/nfapi/open-nFAPI/pnf/src/pnf.c
+index f16fd776d2..7559579856 100644
+--- a/nfapi/open-nFAPI/pnf/src/pnf.c
++++ b/nfapi/open-nFAPI/pnf/src/pnf.c
+@@ -1078,6 +1078,57 @@ void pnf_handle_measurement_request(pnf_t* pnf, void *pRecvMsg, int recvMsgLen)
+ 	}
+ }
+ 
++void pnf_handle_rssi_indication(pnf_t* pnf, void *pRecvMsg, int recvMsgLen)
++{
++	nfapi_rssi_indication_t ind;
++	
++	// validate the input params
++	if(pRecvMsg == NULL || recvMsgLen < NFAPI_HEADER_LENGTH)
++	{
++		NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s: invalid input params\n", __FUNCTION__);
++		return;
++	}
++	
++	// unpack the message
++	if(nfapi_p4_message_unpack(pRecvMsg, recvMsgLen, &ind, sizeof(ind), &pnf->_public.codec_config) < 0)
++	{
++		NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s: unpack failed\n", __FUNCTION__);
++		return;
++	}
++	
++	// check pnf state
++	if(pnf->_public.state != NFAPI_PNF_RUNNING)
++	{
++		NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s: PNF not in RUNNING state (%d)\n", __FUNCTION__, pnf->_public.state);
++		return;
++	}
++	
++	// find the phy
++	nfapi_pnf_phy_config_t* phy = nfapi_pnf_phy_config_find(&pnf->_public, ind.header.phy_id);
++	if(phy == NULL)
++	{
++		NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s: phy not found\n", __FUNCTION__);
++		return;
++	}
++	
++	// check phy state
++	if(phy->state != NFAPI_PNF_PHY_RUNNING)
++	{
++		NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s: PHY not in RUNNING state (%d)\n", __FUNCTION__, phy->state);
++		return;
++	}
++	
++	// call the client callback if registered
++	if(pnf->_public.rssi_ind)
++	{
++		(pnf->_public.rssi_ind)(&pnf->_public, phy, &ind);
++	}
++	else
++	{
++		NFAPI_TRACE(NFAPI_TRACE_INFO, "%s: no client callback registered\n", __FUNCTION__);
++	}
++}
++
+ void pnf_handle_rssi_request(pnf_t* pnf, void *pRecvMsg, int recvMsgLen)
+ {
+ 
+@@ -1596,6 +1647,10 @@ void pnf_nr_handle_p5_message(pnf_t* pnf, void *pRecvMsg, int recvMsgLen)
+ 			pnf_handle_rssi_request(pnf, pRecvMsg, recvMsgLen);
+ 			break;
+ 
++		case NFAPI_RSSI_INDICATION:
++			pnf_handle_rssi_indication(pnf, pRecvMsg, recvMsgLen);
++			break;
++
+ 		case NFAPI_CELL_SEARCH_REQUEST:
+ 			pnf_handle_cell_search_request(pnf, pRecvMsg, recvMsgLen);
+ 			break;

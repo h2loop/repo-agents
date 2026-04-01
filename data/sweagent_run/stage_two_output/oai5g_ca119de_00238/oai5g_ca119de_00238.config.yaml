@@ -1,0 +1,244 @@
+'{"env":{"deployment":{"image":"oai5g-sera:ca119de","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_ca119de_00238","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix unchecked return values in PNF start thread functions\n\n### Summary\nThe
+  PNF start thread functions `pnf_start_thread` and `pnf_nr_start_thread` were calling
+  `nfapi_pnf_start` and `nfapi_nr_pnf_start` respectively without checking their return
+  values. These functions can return -1 on failure, which was being silently ignored.
+  This could lead to undetected initialization failures in the NFAPI PNF components.\n\nThis
+  fix adds proper error checking and logging for these return values.\n\n### Changes\n-
+  `nfapi/oai_integration/nfapi_pnf.c`: \n  - Added return value checking for `nfapi_pnf_start`
+  in `pnf_start_thread`\n  - Added return value checking for `nfapi_nr_pnf_start`
+  in `pnf_nr_start_thread`\n  - Added error logging when these functions fail\n\n###
+  Reproduction\nTo reproduce the issue:\n1. Start the PNF with invalid configuration
+  that causes `nfapi_pnf_start` to fail\n2. Observe that the failure is not detected
+  or logged\n3. The system may appear to start normally but NFAPI communication will
+  not work\n\nWith the fix, when `nfapi_pnf_start` or `nfapi_nr_pnf_start` fails,
+  an error message will be logged indicating the failure and return code, making it
+  easier to diagnose initialization issues.\n","extra_fields":{"bug_description":"unchecked
+  return value from a function that can indicate failure","bug_id":"c_unchecked_return_value","stage_one_patch":"diff
+  --git a/nfapi/oai_integration/nfapi_pnf.c b/nfapi/oai_integration/nfapi_pnf.c\nindex
+  a933aba614..e655c450c5 100644\n--- a/nfapi/oai_integration/nfapi_pnf.c\n+++ b/nfapi/oai_integration/nfapi_pnf.c\n@@
+  -567,192 +567,192 @@ int nr_param_request(nfapi_pnf_config_t *config, nfapi_pnf_phy_config_t
+  *phy, nf\n   nfapi_resp.cell_param.release_capability.tl.tag = NFAPI_NR_PARAM_TLV_RELEASE_CAPABILITY_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.cell_param.phy_state.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PHY_STATE_TAG;\n+  nfapi_resp.cell_param.phy_state.tl.tag
+  =                       NFAPI_NR_PARAM_TLV_PHY_STATE_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.cell_param.skip_blank_dl_config.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_SKIP_BLANK_DL_CONFIG_TAG;\n+  nfapi_resp.cell_param.skip_blank_dl_config.tl.tag
+  =                    NFAPI_NR_PARAM_TLV_SKIP_BLANK_DL_CONFIG_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.cell_param.skip_blank_ul_config.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_SKIP_BLANK_UL_CONFIG_TAG;\n+  nfapi_resp.cell_param.skip_blank_ul_config.tl.tag
+  =                    NFAPI_NR_PARAM_TLV_SKIP_BLANK_UL_CONFIG_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.cell_param.num_config_tlvs_to_report .tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_NUM_CONFIG_TLVS_TO_REPORT_TAG;\n+  nfapi_resp.cell_param.num_config_tlvs_to_report
+  .tl.tag =                      NFAPI_NR_PARAM_TLV_NUM_CONFIG_TLVS_TO_REPORT_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.carrier_param.cyclic_prefix.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_CYCLIC_PREFIX_TAG;\n+  nfapi_resp.carrier_param.cyclic_prefix.tl.tag
+  =                        NFAPI_NR_PARAM_TLV_CYCLIC_PREFIX_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.carrier_param.supported_subcarrier_spacings_dl.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_SUPPORTED_SUBCARRIER_SPACINGS_DL_TAG;\n+  nfapi_resp.carrier_param.supported_subcarrier_spacings_dl.tl.tag
+  =                     NFAPI_NR_PARAM_TLV_SUPPORTED_SUBCARRIER_SPACINGS_DL_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.carrier_param.supported_bandwidth_dl.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_SUPPORTED_BANDWIDTH_DL_TAG;\n+  nfapi_resp.carrier_param.supported_bandwidth_dl.tl.tag
+  =                       NFAPI_NR_PARAM_TLV_SUPPORTED_BANDWIDTH_DL_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.carrier_param.supported_subcarrier_spacings_ul.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_SUPPORTED_SUBCARRIER_SPACINGS_UL_TAG;\n+  nfapi_resp.carrier_param.supported_subcarrier_spacings_ul.tl.tag
+  =                     NFAPI_NR_PARAM_TLV_SUPPORTED_SUBCARRIER_SPACINGS_UL_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.carrier_param.supported_bandwidth_ul.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_SUPPORTED_BANDWIDTH_UL_TAG;\n+  nfapi_resp.carrier_param.supported_bandwidth_ul.tl.tag
+  =                       NFAPI_NR_PARAM_TLV_SUPPORTED_BANDWIDTH_UL_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pdcch_param.cce_mapping_type.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_CCE_MAPPING_TYPE_TAG;\n+  nfapi_resp.pdcch_param.cce_mapping_type.tl.tag
+  =                       NFAPI_NR_PARAM_TLV_CCE_MAPPING_TYPE_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pdcch_param.coreset_outside_first_3_of_ofdm_syms_of_slot.tl.tag
+  =\t\t\t NFAPI_NR_PARAM_TLV_CORESET_OUTSIDE_FIRST_3_OFDM_SYMS_OF_SLOT_TAG;\n+  nfapi_resp.pdcch_param.coreset_outside_first_3_of_ofdm_syms_of_slot.tl.tag
+  =                   NFAPI_NR_PARAM_TLV_CORESET_OUTSIDE_FIRST_3_OFDM_SYMS_OF_SLOT_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pdcch_param.coreset_precoder_granularity_coreset.tl.tag =\t\t\t
+  NFAPI_NR_PARAM_TLV_PRECODER_GRANULARITY_CORESET_TAG;\n+  nfapi_resp.pdcch_param.coreset_precoder_granularity_coreset.tl.tag
+  =                   NFAPI_NR_PARAM_TLV_PRECODER_GRANULARITY_CORESET_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pdcch_param.pdcch_mu_mimo.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PDCCH_MU_MIMO_TAG;\n+  nfapi_resp.pdcch_param.pdcch_mu_mimo.tl.tag
+  =                  NFAPI_NR_PARAM_TLV_PDCCH_MU_MIMO_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pdcch_param.pdcch_precoder_cycling.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PDCCH_PRECODER_CYCLING_TAG;\n+  nfapi_resp.pdcch_param.pdcch_precoder_cycling.tl.tag
+  =                         NFAPI_NR_PARAM_TLV_PDCCH_PRECODER_CYCLING_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pdcch_param.max_pdcch_per_slot.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_MAX_PDCCHS_PER_SLOT_TAG;\n+  nfapi_resp.pdcch_param.max_pdcch_per_slot.tl.tag
+  =                     NFAPI_NR_PARAM_TLV_MAX_PDCCHS_PER_SLOT_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pucch_param.pucch_formats.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PUCCH_FORMATS_TAG;\n+  nfapi_resp.pucch_param.pucch_formats.tl.tag
+  =                  NFAPI_NR_PARAM_TLV_PUCCH_FORMATS_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pucch_param.max_pucchs_per_slot.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_MAX_PUCCHS_PER_SLOT_TAG;\n+  nfapi_resp.pucch_param.max_pucchs_per_slot.tl.tag
+  =                    NFAPI_NR_PARAM_TLV_MAX_PUCCHS_PER_SLOT_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pdsch_param.pdsch_mapping_type.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PDSCH_MAPPING_TYPE_TAG;\n+  nfapi_resp.pdsch_param.pdsch_mapping_type.tl.tag
+  =                     NFAPI_NR_PARAM_TLV_PDSCH_MAPPING_TYPE_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pdsch_param.pdsch_dmrs_additional_pos.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PDSCH_DMRS_ADDITIONAL_POS_TAG;\n+  nfapi_resp.pdsch_param.pdsch_dmrs_additional_pos.tl.tag
+  =                      NFAPI_NR_PARAM_TLV_PDSCH_DMRS_ADDITIONAL_POS_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pdsch_param.pdsch_allocation_types.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PDSCH_ALLOCATION_TYPES_TAG;\n+  nfapi_resp.pdsch_param.pdsch_allocation_types.tl.tag
+  =                         NFAPI_NR_PARAM_TLV_PDSCH_ALLOCATION_TYPES_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pdsch_param.pdsch_vrb_to_prb_mapping.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PDSCH_VRB_TO_PRB_MAPPING_TAG;\n+  nfapi_resp.pdsch_param.pdsch_vrb_to_prb_mapping.tl.tag
+  =                       NFAPI_NR_PARAM_TLV_PDSCH_VRB_TO_PRB_MAPPING_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pdsch_param.pdsch_cbg.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PDSCH_CBG_TAG;\n+  nfapi_resp.pdsch_param.pdsch_cbg.tl.tag
+  =                      NFAPI_NR_PARAM_TLV_PDSCH_CBG_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pdsch_param.pdsch_dmrs_config_types.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PDSCH_DMRS_CONFIG_TYPES_TAG;\n+  nfapi_resp.pdsch_param.pdsch_dmrs_config_types.tl.tag
+  =                        NFAPI_NR_PARAM_TLV_PDSCH_DMRS_CONFIG_TYPES_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pdsch_param.max_number_mimo_layers_pdsch.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_MAX_NUMBER_MIMO_LAYERS_PDSCH_TAG;\n+  nfapi_resp.pdsch_param.max_number_mimo_layers_pdsch.tl.tag
+  =                   NFAPI_NR_PARAM_TLV_MAX_NUMBER_MIMO_LAYERS_PDSCH_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pdsch_param.max_mu_mimo_users_dl.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_MAX_MU_MIMO_USERS_DL_TAG;\n+  nfapi_resp.pdsch_param.max_mu_mimo_users_dl.tl.tag
+  =                   NFAPI_NR_PARAM_TLV_MAX_MU_MIMO_USERS_DL_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pdsch_param.pdsch_data_in_dmrs_symbols.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PDSCH_DATA_IN_DMRS_SYMBOLS_TAG;\n+  nfapi_resp.pdsch_param.pdsch_data_in_dmrs_symbols.tl.tag
+  =                     NFAPI_NR_PARAM_TLV_PDSCH_DATA_IN_DMRS_SYMBOLS_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pdsch_param.premption_support.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PREMPTION_SUPPORT_TAG;\n+  nfapi_resp.pdsch_param.premption_support.tl.tag
+  =                      NFAPI_NR_PARAM_TLV_PREMPTION_SUPPORT_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pdsch_param.pdsch_non_slot_support.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PDSCH_NON_SLOT_SUPPORT_TAG;\n+  nfapi_resp.pdsch_param.pdsch_non_slot_support.tl.tag
+  =                         NFAPI_NR_PARAM_TLV_PDSCH_NON_SLOT_SUPPORT_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pusch_param.uci_mux_ulsch_in_pusch.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_UCI_MUX_ULSCH_IN_PUSCH_TAG;\n+  nfapi_resp.pusch_param.uci_mux_ulsch_in_pusch.tl.tag
+  =                         NFAPI_NR_PARAM_TLV_UCI_MUX_ULSCH_IN_PUSCH_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pusch_param.uci_only_pusch.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_UCI_ONLY_PUSCH_TAG;\n+  nfapi_resp.pusch_param.uci_only_pusch.tl.tag
+  =                         NFAPI_NR_PARAM_TLV_UCI_ONLY_PUSCH_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pusch_param.pusch_frequency_hopping.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PUSCH_FREQUENCY_HOPPING_TAG;\n+  nfapi_resp.pusch_param.pusch_frequency_hopping.tl.tag
+  =                        NFAPI_NR_PARAM_TLV_PUSCH_FREQUENCY_HOPPING_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pusch_param.pusch_dmrs_config_types.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PUSCH_DMRS_CONFIG_TYPES_TAG;\n+  nfapi_resp.pusch_param.pusch_dmrs_config_types.tl.tag
+  =                        NFAPI_NR_PARAM_TLV_PUSCH_DMRS_CONFIG_TYPES_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pusch_param.pusch_dmrs_max_len.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PUSCH_DMRS_MAX_LEN_TAG;\n+  nfapi_resp.pusch_param.pusch_dmrs_max_len.tl.tag
+  =                     NFAPI_NR_PARAM_TLV_PUSCH_DMRS_MAX_LEN_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pusch_param.pusch_dmrs_additional_pos.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PUSCH_DMRS_ADDITIONAL_POS_TAG;\n+  nfapi_resp.pusch_param.pusch_dmrs_additional_pos.tl.tag
+  =                      NFAPI_NR_PARAM_TLV_PUSCH_DMRS_ADDITIONAL_POS_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pusch_param.pusch_cbg.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PUSCH_CBG_TAG;\n+  nfapi_resp.pusch_param.pusch_cbg.tl.tag
+  =                      NFAPI_NR_PARAM_TLV_PUSCH_CBG_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pusch_param.pusch_mapping_type.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PUSCH_MAPPING_TYPE_TAG;\n+  nfapi_resp.pusch_param.pusch_mapping_type.tl.tag
+  =                     NFAPI_NR_PARAM_TLV_PUSCH_MAPPING_TYPE_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pusch_param.pusch_allocation_types.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PUSCH_ALLOCATION_TYPES_TAG;\n+  nfapi_resp.pusch_param.pusch_allocation_types.tl.tag
+  =                         NFAPI_NR_PARAM_TLV_PUSCH_ALLOCATION_TYPES_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pusch_param.pusch_vrb_to_prb_mapping.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PUSCH_VRB_TO_PRB_MAPPING_TAG;\n+  nfapi_resp.pusch_param.pusch_vrb_to_prb_mapping.tl.tag
+  =                       NFAPI_NR_PARAM_TLV_PUSCH_VRB_TO_PRB_MAPPING_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pusch_param.pusch_max_ptrs_ports.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PUSCH_MAX_PTRS_PORTS_TAG;\n+  nfapi_resp.pusch_param.pusch_max_ptrs_ports.tl.tag
+  =                   NFAPI_NR_PARAM_TLV_PUSCH_MAX_PTRS_PORTS_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pusch_param.max_pduschs_tbs_per_slot.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_MAX_PDUSCHS_TBS_PER_SLOT_TAG;\n+  nfapi_resp.pusch_param.max_pduschs_tbs_per_slot.tl.tag
+  =                       NFAPI_NR_PARAM_TLV_MAX_PDUSCHS_TBS_PER_SLOT_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pusch_param.max_number_mimo_layers_non_cb_pusch.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_MAX_NUMBER_MIMO_LAYERS_NON_CB_PUSCH_TAG;\n+  nfapi_resp.pusch_param.max_number_mimo_layers_non_cb_pusch.tl.tag
+  =                    NFAPI_NR_PARAM_TLV_MAX_NUMBER_MIMO_LAYERS_NON_CB_PUSCH_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pusch_param.supported_modulation_order_ul.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_SUPPORTED_MODULATION_ORDER_UL_TAG;\n+  nfapi_resp.pusch_param.supported_modulation_order_ul.tl.tag
+  =                  NFAPI_NR_PARAM_TLV_SUPPORTED_MODULATION_ORDER_UL_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pusch_param.max_mu_mimo_users_ul.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_MAX_MU_MIMO_USERS_UL_TAG;\n+  nfapi_resp.pusch_param.max_mu_mimo_users_ul.tl.tag
+  =                   NFAPI_NR_PARAM_TLV_MAX_MU_MIMO_USERS_UL_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pusch_param.dfts_ofdm_support.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_DFTS_OFDM_SUPPORT_TAG;\n+  nfapi_resp.pusch_param.dfts_ofdm_support.tl.tag
+  =                      NFAPI_NR_PARAM_TLV_DFTS_OFDM_SUPPORT_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.pusch_param.pusch_aggregation_factor.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PUSCH_AGGREGATION_FACTOR_TAG;\n+  nfapi_resp.pusch_param.pusch_aggregation_factor.tl.tag
+  =                       NFAPI_NR_PARAM_TLV_PUSCH_AGGREGATION_FACTOR_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n   nfapi_resp.prach_param.prach_long_formats.tl.tag =             NFAPI_NR_PARAM_TLV_PRACH_LONG_FORMATS_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.prach_param.prach_short_formats.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PRACH_SHORT_FORMATS_TAG;\n+  nfapi_resp.prach_param.prach_short_formats.tl.tag
+  =                    NFAPI_NR_PARAM_TLV_PRACH_SHORT_FORMATS_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.prach_param.prach_restricted_sets.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_PRACH_RESTRICTED_SETS_TAG;\n+  nfapi_resp.prach_param.prach_restricted_sets.tl.tag
+  =                  NFAPI_NR_PARAM_TLV_PRACH_RESTRICTED_SETS_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.prach_param.max_prach_fd_occasions_in_a_slot.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_MAX_PRACH_FD_OCCASIONS_IN_A_SLOT_TAG;\n+  nfapi_resp.prach_param.max_prach_fd_occasions_in_a_slot.tl.tag
+  =                       NFAPI_NR_PARAM_TLV_MAX_PRACH_FD_OCCASIONS_IN_A_SLOT_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.measurement_param.rssi_measurement_support.tl.tag =\t\t\t NFAPI_NR_PARAM_TLV_RSSI_MEASUREMENT_SUPPORT_TAG;\n+  nfapi_resp.measurement_param.rssi_measurement_support.tl.tag
+  =                         NFAPI_NR_PARAM_TLV_RSSI_MEASUREMENT_SUPPORT_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.nfapi_config.p7_vnf_address_ipv4.tl.tag =\t\t\t NFAPI_NR_NFAPI_P7_VNF_ADDRESS_IPV4_TAG;\n+  nfapi_resp.nfapi_config.p7_vnf_address_ipv4.tl.tag
+  =                   NFAPI_NR_NFAPI_P7_VNF_ADDRESS_IPV4_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.nfapi_config.p7_vnf_address_ipv6.tl.tag =\t\t\t NFAPI_NR_NFAPI_P7_VNF_ADDRESS_IPV6_TAG;\n+  nfapi_resp.nfapi_config.p7_vnf_address_ipv6.tl.tag
+  =                   NFAPI_NR_NFAPI_P7_VNF_ADDRESS_IPV6_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.nfapi_config.p7_vnf_port.tl.tag =\t\t\t NFAPI_NR_NFAPI_P7_VNF_PORT_TAG;\n+  nfapi_resp.nfapi_config.p7_vnf_port.tl.tag
+  =                   NFAPI_NR_NFAPI_P7_VNF_PORT_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.nfapi_config.p7_pnf_address_ipv4.tl.tag =\t\t\t NFAPI_NR_NFAPI_P7_PNF_ADDRESS_IPV4_TAG;\n+  nfapi_resp.nfapi_config.p7_pnf_address_ipv4.tl.tag
+  =                   NFAPI_NR_NFAPI_P7_PNF_ADDRESS_IPV4_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.nfapi_config.p7_pnf_address_ipv6.tl.tag =\t\t\t NFAPI_NR_NFAPI_P7_PNF_ADDRESS_IPV6_TAG;\n+  nfapi_resp.nfapi_config.p7_pnf_address_ipv6.tl.tag
+  =                   NFAPI_NR_NFAPI_P7_PNF_ADDRESS_IPV6_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.nfapi_config.p7_pnf_port.tl.tag =\t\t\t NFAPI_NR_NFAPI_P7_PNF_PORT_TAG;\n+  nfapi_resp.nfapi_config.p7_pnf_port.tl.tag
+  =                   NFAPI_NR_NFAPI_P7_PNF_PORT_TAG;\n   nfapi_resp.num_tlv++;\n
+  /*\n-  nfapi_resp.nfapi_config.dl_ue_per_sf.tl.tag =\t\t\t NFAPI_NR_NFAPI_DOWNLINK_UES_PER_SUBFRAME_TAG;\n+  nfapi_resp.nfapi_config.dl_ue_per_sf.tl.tag
+  =                  NFAPI_NR_NFAPI_DOWNLINK_UES_PER_SUBFRAME_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.nfapi_config.ul_ue_per_sf.tl.tag =\t\t\t NFAPI_NR_NFAPI_UPLINK_UES_PER_SUBFRAME_TAG;\n+  nfapi_resp.nfapi_config.ul_ue_per_sf.tl.tag
+  =                  NFAPI_NR_NFAPI_UPLINK_UES_PER_SUBFRAME_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.nfapi_config.rf_bands.tl.tag =\t\t\t NFAPI_NR_NFAPI_RF_BANDS_TAG;\n+  nfapi_resp.nfapi_config.rf_bands.tl.tag
+  =                      NFAPI_NR_NFAPI_RF_BANDS_TAG;\n   nfapi_resp.num_tlv++;\n-  nfapi_resp.nfapi_config.max_transmit_power.tl.tag
+  =\t\t\t NFAPI_NR_NFAPI_MAXIMUM_TRANSMIT_POWER_TAG;\n+  nfapi_resp.nfapi_config.max_transmit_power.tl.tag
+  =                    NFAPI_NR_NFAPI_MAXIMUM_TRANSMIT_POWER_TAG;\n   nfapi_resp.num_tlv++;\n
+  */\n-  nfapi_resp.nfapi_config.timing_window.tl.tag =\t\t\t NFAPI_NR_NFAPI_TIMING_WINDOW_TAG;\n+  nfapi_resp.nfapi_config.timing_window.tl.tag
+  =                         NFAPI_NR_NFAPI_TIMING_WINDOW_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.nfapi_config.timing_info_mode.tl.tag =\t\t\t NFAPI_NR_NFAPI_TIMING_INFO_MODE_TAG;\n+  nfapi_resp.nfapi_config.timing_info_mode.tl.tag
+  =                      NFAPI_NR_NFAPI_TIMING_INFO_MODE_TAG;\n   nfapi_resp.num_tlv++;\n
+  \n-  nfapi_resp.nfapi_config.timing_info_period.tl.tag =\t\t\t NFAPI_NR_NFAPI_TIMING_INFO_PERIOD_TAG;\n+  nfapi_resp.nfapi_config.timing_info_period.tl.tag
+  =                    NFAPI_NR_NFAPI_TIMING_INFO_PERIOD_TAG;\n   nfapi_resp.num_tlv++;\n   }\n
+  \n@@ -2114,7 +2114,10 @@ void *pnf_start_thread(void *ptr) {\n   struct sched_param
+  sp;\n   sp.sched_priority = 20;\n   pthread_setschedparam(pthread_self(),SCHED_FIFO,&sp);\n-  nfapi_pnf_start(config);\n+  int
+  ret = nfapi_pnf_start(config);\n+  if (ret != 0) {\n+    NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"[PNF] nfapi_pnf_start failed with return code %d\\n\", ret);\n+  }\n   return
+  (void *)0;\n }\n \n@@ -2124,7 +2127,10 @@ void *pnf_nr_start_thread(void *ptr) {\n   struct
+  sched_param sp;\n   sp.sched_priority = 20;\n   pthread_setschedparam(pthread_self(),SCHED_FIFO,&sp);\n-  nfapi_nr_pnf_start(config);\n+  int
+  ret = nfapi_nr_pnf_start(config);\n+  if (ret != 0) {\n+    NFAPI_TRACE(NFAPI_TRACE_ERROR,
+  \"[PNF] nfapi_nr_pnf_start failed with return code %d\\n\", ret);\n+  }\n   return
+  (void *)0;\n }\n \n","start_fn":"pnf_start_thread","start_fn_file":"nfapi/oai_integration/nfapi_pnf.c","subsystem":"nfapi/oai_integration"},"type":"text","id":"oai5g_ca119de_00238"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

@@ -1,0 +1,108 @@
+diff --git a/openair1/PHY/NR_UE_TRANSPORT/pss_nr.c b/openair1/PHY/NR_UE_TRANSPORT/pss_nr.c
+index 6d9aaf7f9a..411205ed86 100644
+--- a/openair1/PHY/NR_UE_TRANSPORT/pss_nr.c
++++ b/openair1/PHY/NR_UE_TRANSPORT/pss_nr.c
+@@ -34,6 +34,7 @@
+ #include <assert.h>
+ #include <errno.h>
+ #include <math.h>
++#include <pthread.h>
+ #include <nr-uesoftmodem.h>
+ 
+ #include "PHY/defs_nr_UE.h"
+@@ -50,6 +51,8 @@
+ 
+ //#define DBG_PSS_NR
+ static time_stats_t generic_time[TIME_LAST];
++static pthread_mutex_t pss_timing_mutex = PTHREAD_MUTEX_INITIALIZER;
++int opp_enabled = 0;
+ static int pss_search_time_nr(const c16_t **rxdata,
+                               const NR_DL_FRAME_PARMS *frame_parms,
+                               const c16_t pssTime[NUMBER_PSS_SEQUENCE][frame_parms->ofdm_symbol_size],
+@@ -199,7 +202,7 @@ void generate_pss_nr_time(const NR_DL_FRAME_PARMS *fp, const int N_ID_2, int ssb
+ 
+     /* get pss in the time domain by applying an inverse FFT */
+     dft((int16_t)get_dft(length),
+-    	synchro_tmp,           /* complex input */
++        synchro_tmp,           /* complex input */
+         synchroF_tmp,          /* complex output */
+         1);                 /* scaling factor */
+ 
+@@ -344,9 +347,10 @@ void decimation_synchro_nr(PHY_VARS_NR_UE *PHY_vars_UE, int rate_change, int **r
+ 
+ #if TEST_SYNCHRO_TIMING_PSS
+ 
++  pthread_mutex_lock(&pss_timing_mutex);
+   opp_enabled = 1;
+-
+   start_meas(&generic_time[TIME_RATE_CHANGE]);
++  pthread_mutex_unlock(&pss_timing_mutex);
+ 
+ #endif
+ 
+@@ -366,9 +370,10 @@ void decimation_synchro_nr(PHY_VARS_NR_UE *PHY_vars_UE, int rate_change, int **r
+ 
+ #if TEST_SYNCHRO_TIMING_PSS
+ 
++  pthread_mutex_lock(&pss_timing_mutex);
+   stop_meas(&generic_time[TIME_RATE_CHANGE]);
+-
+   printf("Rate change execution duration %5.2f \n", generic_time[TIME_RATE_CHANGE].p_time/(cpuf*1000.0));
++  pthread_mutex_unlock(&pss_timing_mutex);
+ 
+ #endif
+ }
+@@ -399,7 +404,8 @@ int pss_synchro_nr(const c16_t **rxdata,
+   VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_PSS_SYNCHRO_NR, VCD_FUNCTION_IN);
+ #ifdef DBG_PSS_NR
+ 
+-  LOG_M("rxdata0_rand.m","rxd0_rand", &PHY_vars_UE->common_vars.rxdata[0][0], frame_parms->samples_per_frame, 1, 1);
++  // Note: PHY_vars_UE is not available in this function scope
++  // LOG_M("rxdata0_rand.m","rxd0_rand", &PHY_vars_UE->common_vars.rxdata[0][0], frame_parms->samples_per_frame, 1, 1);
+ 
+ #endif
+ 
+@@ -411,9 +417,10 @@ int pss_synchro_nr(const c16_t **rxdata,
+ 
+ #if TEST_SYNCHRO_TIMING_PSS
+ 
++  pthread_mutex_lock(&pss_timing_mutex);
+   opp_enabled = 1;
+-
+   start_meas(&generic_time[TIME_PSS]);
++  pthread_mutex_unlock(&pss_timing_mutex);
+ 
+ #endif
+ 
+@@ -426,9 +433,10 @@ int pss_synchro_nr(const c16_t **rxdata,
+ 
+ #if TEST_SYNCHRO_TIMING_PSS
+ 
++  pthread_mutex_lock(&pss_timing_mutex);
+   stop_meas(&generic_time[TIME_PSS]);
+-
+   int duration_ms = generic_time[TIME_PSS].p_time/(cpuf*1000.0);
++  pthread_mutex_unlock(&pss_timing_mutex);
+ 
+   #ifndef NR_UNIT_TEST
+ 
+@@ -597,8 +605,8 @@ static int pss_search_time_nr(const c16_t **rxdata,
+   
+   if (fo_flag){
+ 
+-	  // fractional frequency offset computation according to Cross-correlation Synchronization Algorithm Using PSS
+-	  // Shoujun Huang, Yongtao Su, Ying He and Shan Tang, "Joint time and frequency offset estimation in LTE downlink," 7th International Conference on Communications and Networking in China, 2012.
++          // fractional frequency offset computation according to Cross-correlation Synchronization Algorithm Using PSS
++          // Shoujun Huang, Yongtao Su, Ying He and Shan Tang, "Joint time and frequency offset estimation in LTE downlink," 7th International Conference on Communications and Networking in China, 2012.
+ 
+     // Computing cross-correlation at peak on half the symbol size for first half of data
+     c32_t r1 = dot_product(pssTime[pss_source],
+@@ -616,7 +624,7 @@ static int pss_search_time_nr(const c16_t **rxdata,
+     ffo_est = atan2(r1d.r * r2d.i - r2d.r * r1d.i, r1d.r * r2d.r + r1d.i * r2d.i) / M_PI;
+ 
+ #ifdef DBG_PSS_NR
+-	  printf("ffo %lf\n",ffo_est);
++          printf("ffo %lf\n",ffo_est);
+ #endif
+   }
+ 

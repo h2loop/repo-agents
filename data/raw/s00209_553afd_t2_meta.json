@@ -1,0 +1,9 @@
+{
+  "run_id": "s00209_553afd",
+  "pr_text": "## Title: Fix use-after-free vulnerability in PDN disconnect reject handling\n\n### Summary\nThe `esm_proc_pdn_disconnect_reject()` function contains a use-after-free vulnerability where transaction data is accessed after being freed. The code releases the procedure transaction identity via `esm_pt_release()` and then subsequently calls `_pdn_disconnect_get_default_ebi()` using the freed transaction data to retrieve the EPS bearer identity. This can cause crashes, memory corruption, or undefined be",
+  "trajectory_path": "data/raw/s00209_553afd_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00209_553afd_p2.diff",
+  "patch_lines": 5,
+  "trajectory_steps": 20,
+  "timestamp": "2026-02-10T11:55:59Z"
+}

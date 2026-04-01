@@ -1,0 +1,4 @@
+{
+    "is_good_patch": false,
+    "synth_pr": "\n## Title: Fix missing error propagation in CRC indication matching\n\n### Summary\nThe NR PHY interface contained a missing error propagation issue in the CRC indication matching logic. When unmatched CRC or RX data indications needed to be requeued, failures were silently ignored instead of being propagated upward. This could lead to memory leaks or inconsistent state under high load conditions.\n\nThe issue was in the `match_crc_rx_pdu` function which was declared as `void` and couldn't propagate errors. Memory allocation failures or queue full conditions would result in leaked memory and unhandled error states.\n\n### Changes\n- `openair2/NR_PHY_INTERFACE/NR_IF_Module.c`: Modified `match_crc_rx_pdu` to return int for error propagation, added error checking for memory allocations and requeue operations, updated call site to handle errors appropriately.\n\n"
+}

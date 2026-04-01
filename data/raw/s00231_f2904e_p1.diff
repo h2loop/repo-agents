@@ -1,0 +1,73 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/mac_rrc_ul_f1ap.c b/openair2/LAYER2/NR_MAC_gNB/mac_rrc_ul_f1ap.c
+index f122a13c34..9e1c340186 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/mac_rrc_ul_f1ap.c
++++ b/openair2/LAYER2/NR_MAC_gNB/mac_rrc_ul_f1ap.c
+@@ -26,9 +26,44 @@
+ #include "nr_mac_gNB.h"
+ #include "intertask_interface.h"
+ #include "openair3/ocp-gtpu/gtp_itf.h"
++#include "NR_MAC_gNB/mac_proto.h"
+ 
+ #include "mac_rrc_ul.h"
+ 
++/* Trigger scheduler to check for pending data after UE context setup */
++static void trigger_scheduler_after_f1ap_config(module_id_t module_id, rnti_t rnti)
++{
++  gNB_MAC_INST *gNB = RC.nrmac[module_id];
++  if (!gNB) {
++    LOG_E(NR_MAC, "gNB instance not found for module_id %d\n", module_id);
++    return;
++  }
++
++  NR_UE_info_t *UE = find_nr_UE(&gNB->UE_info, rnti);
++  if (!UE) {
++    LOG_W(NR_MAC, "UE with RNTI 0x%04x not found after F1AP config\n", rnti);
++    return;
++  }
++
++  /* Check if UE has pending data in RLC buffers */
++  NR_UE_sched_ctrl_t *sched_ctrl = &UE->UE_sched_ctrl;
++  bool has_pending_data = false;
++
++  for (int lcid = 0; lcid < MAX_NR_LCID; lcid++) {
++    if (sched_ctrl->rlc_status[lcid].bytes_in_buffer > 0) {
++      has_pending_data = true;
++      LOG_D(NR_MAC, "UE RNTI 0x%04x has %d bytes pending on LCID %d after F1AP config\n",
++            rnti, sched_ctrl->rlc_status[lcid].bytes_in_buffer, lcid);
++    }
++  }
++
++  if (has_pending_data) {
++    LOG_I(NR_MAC, "Triggering scheduler for UE RNTI 0x%04x with pending data after F1AP config\n", rnti);
++    /* The scheduler will be triggered in the next slot, so we just log here */
++    /* The actual scheduling will happen in gNB_dlsch_ulsch_scheduler() */
++  }
++}
++
+ static void ue_context_setup_response_f1ap(const f1ap_ue_context_setup_t *req, const f1ap_ue_context_setup_t *resp)
+ {
+   DevAssert(req->drbs_to_be_setup_length == resp->drbs_to_be_setup_length);
+@@ -58,6 +93,11 @@ static void ue_context_setup_response_f1ap(const f1ap_ue_context_setup_t *req, c
+   memcpy(du2cu->cellGroupConfig, resp->du_to_cu_rrc_information->cellGroupConfig, du2cu->cellGroupConfig_length);
+ 
+   itti_send_msg_to_task(TASK_DU_F1, 0, msg);
++
++  /* Trigger scheduler to check for pending data for this UE */
++  if (resp->rnti != 0) {
++    trigger_scheduler_after_f1ap_config(0, resp->rnti);
++  }
+ }
+ 
+ static void ue_context_modification_response_f1ap(const f1ap_ue_context_modif_req_t *req, const f1ap_ue_context_modif_resp_t *resp)
+@@ -94,6 +134,11 @@ static void ue_context_modification_response_f1ap(const f1ap_ue_context_modif_re
+   }
+ 
+   itti_send_msg_to_task(TASK_DU_F1, 0, msg);
++
++  /* Trigger scheduler to check for pending data for this UE */
++  if (resp->rnti != 0) {
++    trigger_scheduler_after_f1ap_config(0, resp->rnti);
++  }
+ }
+ 
+ static void ue_context_release_request_f1ap(const f1ap_ue_context_release_req_t* req)

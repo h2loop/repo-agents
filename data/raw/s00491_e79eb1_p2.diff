@@ -1,0 +1,12 @@
+diff --git a/openair3/NAS/COMMON/IES/ProtocolConfigurationOptions.c b/openair3/NAS/COMMON/IES/ProtocolConfigurationOptions.c
+index f4bd3e5e2c..cbf5548554 100644
+--- a/openair3/NAS/COMMON/IES/ProtocolConfigurationOptions.c
++++ b/openair3/NAS/COMMON/IES/ProtocolConfigurationOptions.c
+@@ -56,7 +56,6 @@ int decode_protocol_configuration_options(ProtocolConfigurationOptions *protocol
+   protocolconfigurationoptions->configurationprotol = (*(buffer + decoded) >> 1) & 0x7;
+   decoded++;
+ 
+-  //IES_DECODE_U16(protocolconfigurationoptions->protocolid, *(buffer + decoded));
+   protocolconfigurationoptions->num_protocol_id_or_container_id = 0;
+   while ((len - decoded) > 0) {
+     IES_DECODE_U16(buffer, decoded, protocolconfigurationoptions->protocolid[protocolconfigurationoptions->num_protocol_id_or_container_id]);

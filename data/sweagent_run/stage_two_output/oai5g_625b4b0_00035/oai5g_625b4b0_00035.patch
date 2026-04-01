@@ -1,0 +1,30 @@
+diff --git a/openair2/F1AP/lib/f1ap_interface_management.c b/openair2/F1AP/lib/f1ap_interface_management.c
+index 2253493832..49061b4261 100644
+--- a/openair2/F1AP/lib/f1ap_interface_management.c
++++ b/openair2/F1AP/lib/f1ap_interface_management.c
+@@ -1225,10 +1225,11 @@ f1ap_setup_resp_t cp_f1ap_setup_response(const f1ap_setup_resp_t *msg)
+ void free_f1ap_setup_response(const f1ap_setup_resp_t *msg)
+ {
+   DevAssert(msg != NULL);
+-  free(msg->gNB_CU_name);
++  if (msg->gNB_CU_name != NULL)
++    free(msg->gNB_CU_name);
+   for (int i = 0; i < msg->num_cells_to_activate; i++)
+     for (int j = 0; j < msg->cells_to_activate[i].num_SI; j++)
+-      if (msg->cells_to_activate[i].SI_msg[j].SI_container_length > 0)
++      if (msg->cells_to_activate[i].SI_msg[j].SI_container != NULL)
+         free(msg->cells_to_activate[i].SI_msg[j].SI_container);
+ }
+ 
+@@ -1786,8 +1787,9 @@ bool decode_f1ap_cu_configuration_update(const F1AP_F1AP_PDU_t *pdu, f1ap_gnb_cu
+ void free_f1ap_cu_configuration_update(const f1ap_gnb_cu_configuration_update_t *msg)
+ {
+   for (int i = 0; i < msg->num_cells_to_activate; i++)
+-    for (int j = 0; j < msg->cells_to_activate[j].num_SI; j++)
+-      free(msg->cells_to_activate[i].SI_msg[j].SI_container);
++    for (int j = 0; j < msg->cells_to_activate[i].num_SI; j++)
++      if (msg->cells_to_activate[i].SI_msg[j].SI_container != NULL)
++        free(msg->cells_to_activate[i].SI_msg[j].SI_container);
+ }
+ 
+ /**

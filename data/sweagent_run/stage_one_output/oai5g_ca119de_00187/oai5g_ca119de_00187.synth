@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix potential crash in M3AP SCTP data sending functions\n\n### Summary\nThe `m3ap_MCE_itti_send_sctp_data_req` and `m3ap_MME_itti_send_sctp_data_req` functions in `openair3/M3AP/m3ap_itti_messaging.c` could crash when memory allocation fails. This fix adds proper error handling to prevent crashes and ensure proper resource cleanup.\n\n### Changes\n- `openair3/M3AP/m3ap_itti_messaging.c`: Added NULL check after `itti_alloc_new_message` calls and proper error handling including buffer cleanup.\n\n### Reproduction\nWhen the system is under memory pressure, calling `m3ap_MCE_itti_send_sctp_data_req()` or `m3ap_MME_itti_send_sctp_data_req()` could result in a segmentation fault due to dereferencing a NULL pointer. The functions now handle allocation failures gracefully by freeing the encoded buffer and returning early.\n"
+}

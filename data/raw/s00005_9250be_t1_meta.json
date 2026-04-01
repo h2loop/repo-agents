@@ -1,0 +1,32 @@
+{
+  "run_id": "s00005_9250be",
+  "function": {
+    "name": "hash_table_resize",
+    "file": "openair2/UTIL/OMG/omg_hashtable.c",
+    "start_line": 461,
+    "end_line": 497,
+    "body_lines": 37,
+    "signature": "int hash_table_resize(omg_hash_table_t *table, size_t len)",
+    "subsystem": "openair2/UTIL/OMG",
+    "token_estimate": 131
+  },
+  "bug": {
+    "bug_id": "telecom_wrong_procedure_sequence",
+    "description": "incorrect signaling procedure sequence violating 3GPP message flow",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a incorrect signaling procedure sequence violating 3GPP message flow downstream of function hash_table_resize in the openair2/UTIL/OMG subsystem.\nThe function is located at openair2/UTIL/OMG/omg_hashtable.c:461.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00005_9250be_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00005_9250be_p1.diff",
+  "patch_lines": 55,
+  "trajectory_steps": 23,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:27:12Z"
+}

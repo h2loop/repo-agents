@@ -1,0 +1,230 @@
+'{"env":{"deployment":{"image":"oai5g-sera:776ca25","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_776ca25_00108","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix monitoring periodicity offset handling in SearchSpace configuration\n\n###
+  Summary\nThe `set_monitoring_periodicity_offset` function in the NR MAC layer was
+  not properly validating input parameters, leading to unexpected behavior when invalid
+  periodicity or offset values were passed. This caused issues during SearchSpace
+  configuration where the monitoring pattern was not set correctly.\n\nThe root cause
+  was missing input validation that allowed invalid parameter combinations to pass
+  through without proper error handling. Additionally, the function lacked clear documentation
+  on expected parameter ranges and valid values.\n\n### Changes\n- `openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c`:
+  Added input validation for period (must be > 0) and offset (must be < period for
+  period > 1)\n- `openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c`: Added function documentation
+  with valid parameter ranges\n- `openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c`:
+  Added explanatory comment for period=1 case\n- `openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c`:
+  Improved error messages to include actual invalid values\n\n","extra_fields":{"bug_description":"missing
+  NULL check after memory allocation that can fail","bug_id":"c_missing_null_check_after_alloc","stage_one_patch":"diff
+  --git a/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c b/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c\nindex
+  9387eef541..973b86d227 100644\n--- a/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c\n+++
+  b/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c\n@@ -161,11 +161,11 @@ static const
+  uint16_t NCS_restricted_TypeB_delta_f_RA_5[14] =\n // Table 6.3.3.1-7 (38.211) NCS
+  for preamble formats with delta_f_RA = 15 * 2mu KHz where mu = {0,1,2,3}\n static
+  const uint16_t NCS_unrestricted_delta_f_RA_15[16] = {0, 2, 4, 6, 8, 10, 12, 13,
+  15, 17, 19, 23, 27, 34, 46, 69};\n \n-//\tspecification mapping talbe, table_38$x_$y_$z_c$a\n-//\t-
+  $x: specification\n-//\t- $y: subclause-major\n-//\t- $z: subclause-minor\n-//\t-
+  $a: ($a)th of column in table, start from zero\n+//      specification mapping talbe,
+  table_38$x_$y_$z_c$a\n+//      - $x: specification\n+//      - $y: subclause-major\n+//      -
+  $z: subclause-minor\n+//      - $a: ($a)th of column in table, start from zero\n
+  const int32_t table_38213_13_1_c1[16] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, reserved}; // index 15 reserved\n const int32_t table_38213_13_1_c2[16] =
+  {24, 24, 24, 24, 24, 24, 48, 48, 48, 48, 48, 48, 96, 96, 96, reserved}; // index
+  15 reserved\n const int32_t table_38213_13_1_c3[16] = { 2,  2,  2,  3,  3,  3,  1,  1,  2,  2,  3,  3,  1,  2,  3,
+  reserved}; // index 15 reserved\n@@ -216,10 +216,10 @@ const int32_t table_38213_13_10_c2[16]
+  = {48, 48, 48, 48, 24, 24, 48, 48, reserv\n const int32_t table_38213_13_10_c3[16]
+  = { 1,  1,  2,  2,  1,  1,  1,  1, reserved, reserved, reserved, reserved, reserved,
+  reserved, reserved, reserved}; // index 08-15 reserved\n const int32_t table_38213_13_10_c4[16]
+  = { 0,  8,  0,  8,-41, 25,-41, 49, reserved, reserved, reserved, reserved, reserved,
+  reserved, reserved, reserved}; // index 08-15 reserved, condition A as default\n
+  \n-const float   table_38213_13_11_c1[16] = { 0,  0,  2,  2,  5,  5,  7,  7,  0,  5,  0,  0,  2,  2,  5,  5};\t//\tO\n+const
+  float   table_38213_13_11_c1[16] = { 0,  0,  2,  2,  5,  5,  7,  7,  0,  5,  0,  0,  2,  2,  5,  5};      //      O\n
+  const int32_t table_38213_13_11_c2[16] = { 1,  2,  1,  2,  1,  2,  1,  2,  1,  1,  1,  1,  1,  1,  1,  1};\n-const
+  float   table_38213_13_11_c3[16] = { 1, 0.5f, 1, 0.5f, 1, 0.5f, 1, 0.5f,  2,  2,  1,  1,  1,  1,  1,  1};\t//\tM\n-const
+  int32_t table_38213_13_11_c4[16] = { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  2,  1,  2,  1,  2};\t//
+  i is even as default\n+const float   table_38213_13_11_c3[16] = { 1, 0.5f, 1, 0.5f,
+  1, 0.5f, 1, 0.5f,  2,  2,  1,  1,  1,  1,  1,  1}; //      M\n+const int32_t table_38213_13_11_c4[16]
+  = { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  2,  1,  2,  1,  2};      // i is
+  even as default\n \n const float   table_38213_13_12_c1[16] = { 0, 0, 2.5f, 2.5f,
+  5, 5, 0, 2.5f, 5, 7.5f, 7.5f, 7.5f, 0, 5, reserved, reserved}; // O, index 14-15
+  reserved\n const int32_t table_38213_13_12_c2[16] = { 1,  2,  1,  2,  1,  2,  2,  2,  2,  1,  2,  2,  1,  1,  reserved,  reserved};
+  // index 14-15 reserved\n@@ -706,7 +706,7 @@ NR_tda_info_t get_dl_tda_info(const
+  NR_UE_DL_BWP_t *dl_BWP, int ss_type, int tda\n uint16_t get_NCS(uint8_t index, uint16_t
+  format0, uint8_t restricted_set_config) {\n \n   LOG_D(MAC,\"get_NCS: indx %d,format0
+  %d, restriced_set_config %d\\n\",\n-\tindex,format0,restricted_set_config);\n+        index,format0,restricted_set_config);\n
+  \n   if (format0 < 3) {\n     switch(restricted_set_config){\n@@ -744,7 +744,7 @@
+  static const int16_t N_RA_RB[16] = {6, 3, 2, 24, 12, 6, 12, 6, 3, 24, 12, 6, 12,\n
+  /* Function to get number of RBs required for prach occasion based on\n  * 38.211
+  Table 6.3.3.2-1 */\n int16_t get_N_RA_RB (int delta_f_RA_PRACH,int delta_f_PUSCH)
+  {\n-\t\n+        \n   int8_t index = 0;\n   switch(delta_f_RA_PRACH) {\n     case
+  0 :\n@@ -771,7 +771,7 @@ int16_t get_N_RA_RB (int delta_f_RA_PRACH,int delta_f_PUSCH)
+  {\n         index += 0;\n       else\n         index += 1;\n-      break;\t\t\n+      break;            \n     case
+  3:\n       index = 13;\n       if (delta_f_PUSCH == 2)\n@@ -782,7 +782,7 @@ int16_t
+  get_N_RA_RB (int delta_f_RA_PRACH,int delta_f_PUSCH) {\n     default : index = 10;/*30khz
+  prach scs and 30khz pusch scs*/\n   }\n   return N_RA_RB[index];\n-}\t\n+}       \n
+  // Table 6.3.3.2-2: Random access configurations for FR1 and paired spectrum/supplementary
+  uplink\n // the column 5, (SFN_nbr is a bitmap where we set bit to ''1'' in the
+  position of the subframe where the RACH can be sent.\n // E.g. in row 4, and column
+  5 we have set value 512 (''1000000000'') which means RACH can be sent at subframe
+  9.\n@@ -1570,7 +1570,7 @@ static const int64_t table_6_3_3_2_4_prachConfig_Index[256][10]
+  = {\n \n int get_format0(uint8_t index,\n                 uint8_t unpaired,\n-\t\tfrequency_range_t
+  frequency_range){\n+                frequency_range_t frequency_range){\n \n   uint16_t
+  format=0;\n   if (unpaired) {\n@@ -1647,12 +1647,29 @@ void find_aggregation_candidates(uint8_t
+  *aggregation_level,\n }\n \n \n+/*!\n+ * \\brief Set the monitoring slot periodicity
+  and offset for a SearchSpace\n+ * \\param ss The SearchSpace to configure\n+ * \\param
+  period The monitoring periodicity in slots (valid values: 1, 2, 4, 5, 8, 10, 16,
+  20, 40, 80, 160, 320, 640, 1280, 2560)\n+ * \\param offset The monitoring offset
+  in slots (0 <= offset < period)\n+ */\n void set_monitoring_periodicity_offset(NR_SearchSpace_t
+  *ss,\n                                        uint16_t period,\n                                        uint16_t
+  offset) {\n \n+  // Validate input parameters\n+  if (period == 0) {\n+    AssertFatal(1==0,\"Invalid
+  monitoring slot periodicity value: %d (must be > 0)\\n\", period);\n+  }\n+  \n+  //
+  For period > 1, validate that offset is within range\n+  if (period > 1 && offset
+  >= period) {\n+    AssertFatal(1==0,\"Invalid monitoring slot offset value: %d (must
+  be < period %d)\\n\", offset, period);\n+  }\n+\n   switch(period) {\n     case
+  1:\n+      // For period=1 (monitor every slot), offset is always 0 and no offset
+  field is needed\n       ss->monitoringSlotPeriodicityAndOffset->present = NR_SearchSpace__monitoringSlotPeriodicityAndOffset_PR_sl1;\n       break;\n     case
+  2:\n@@ -1709,9 +1726,10 @@ void set_monitoring_periodicity_offset(NR_SearchSpace_t
+  *ss,\n       break;\n     case 2560:\n       ss->monitoringSlotPeriodicityAndOffset->present
+  = NR_SearchSpace__monitoringSlotPeriodicityAndOffset_PR_sl2560;\n-      ss->monitoringSlotPeriodicityAndOffset->choice.sl2560
+  = offset;      break;\n+      ss->monitoringSlotPeriodicityAndOffset->choice.sl2560
+  = offset;\n+      break;\n   default:\n-    AssertFatal(1==0,\"Invalid monitoring
+  slot periodicity value\\n\");\n+    AssertFatal(1==0,\"Invalid monitoring slot periodicity
+  value: %d\\n\", period);\n     break;\n   }\n }\n@@ -1829,7 +1847,7 @@ int get_nr_prach_occasion_info_from_index(uint8_t
+  index,\n             *start_symbol,\n             *N_t_slot,\n             *N_dur,\n-\t    *N_RA_sfn);\n+            *N_RA_sfn);\n     }\n     return
+  1;\n  }\n@@ -1838,10 +1856,10 @@ int get_nr_prach_occasion_info_from_index(uint8_t
+  index,\n     if (unpaired) {\n       x = table_6_3_3_2_3_prachConfig_Index[index][2];\n       s_map
+  = table_6_3_3_2_3_prachConfig_Index[index][4];\n-\t\t  for(int i = 0; i < 64 ;i++)
+  {\n+                  for(int i = 0; i < 64 ;i++) {\n         if ( (s_map >> i)
+  & 0x01) {\n           (*N_RA_sfn)++;\n-\t\t\t\t}\n+                                }\n       }\n       *N_RA_slot
+  = table_6_3_3_2_3_prachConfig_Index[index][6]; // Number of RACH slots within a
+  subframe\n       *max_association_period = 160/(x * 10); \n@@ -1860,10 +1878,10
+  @@ int get_nr_prach_occasion_info_from_index(uint8_t index,\n               *start_symbol,\n               *N_t_slot,\n               *N_dur,\n-\t\t\t\t\t\t\t*N_RA_sfn);\n+                                                        *N_RA_sfn);\n       }\n-\t\t  return
+  1;\n-\t  }\n+                  return 1;\n+          }\n     else { // FDD\n       x
+  = table_6_3_3_2_2_prachConfig_Index[index][2];\n       s_map = table_6_3_3_2_2_prachConfig_Index[index][4];\n@@
+  -1907,7 +1925,7 @@ int get_nr_prach_info_from_index(uint8_t index,\n                                  uint8_t
+  *N_dur,\n                                  uint16_t *RA_sfn_index,\n                                  uint8_t
+  *N_RA_slot,\n-\t\t\t\t uint8_t *config_period) {\n+                                 uint8_t
+  *config_period) {\n \n   int x,y;\n   int64_t s_map;\n@@ -2102,7 +2120,7 @@ static
+  const uint16_t table_63313[838] = {\n uint8_t compute_nr_root_seq(NR_RACH_ConfigCommon_t
+  *rach_config,\n                             uint8_t nb_preambles,\n                             uint8_t
+  unpaired,\n-\t\t\t    frequency_range_t frequency_range) {\n+                            frequency_range_t
+  frequency_range) {\n \n   uint8_t config_index = rach_config->rach_ConfigGeneric.prach_ConfigurationIndex;\n   uint8_t
+  ncs_index = rach_config->rach_ConfigGeneric.zeroCorrelationZoneConfig;\n@@ -2310,12
+  +2328,12 @@ uint32_t to_nrarfcn(int nr_bandP,\n \n   AssertFatal(dl_CarrierFreq_by_1k
+  >= nr_bandtable[i].dl_min,\n         \"Band %d, bw %u : DL carrier frequency %llu
+  kHz < %llu\\n\",\n-\t      nr_bandP, bw, (long long unsigned int)dl_CarrierFreq_by_1k,\n-\t      (long
+  long unsigned int)nr_bandtable[i].dl_min);\n+              nr_bandP, bw, (long long
+  unsigned int)dl_CarrierFreq_by_1k,\n+              (long long unsigned int)nr_bandtable[i].dl_min);\n   AssertFatal(dl_CarrierFreq_by_1k
+  <= (nr_bandtable[i].dl_max - bw_kHz/2),\n         \"Band %d, dl_CarrierFreq %llu
+  bw %u: DL carrier frequency %llu kHz > %llu\\n\",\n-\t      nr_bandP, (long long
+  unsigned int)dl_CarrierFreq,bw, (long long unsigned int)dl_CarrierFreq_by_1k,\n-\t      (long
+  long unsigned int)(nr_bandtable[i].dl_max - bw_kHz/2));\n+              nr_bandP,
+  (long long unsigned int)dl_CarrierFreq,bw, (long long unsigned int)dl_CarrierFreq_by_1k,\n+              (long
+  long unsigned int)(nr_bandtable[i].dl_max - bw_kHz/2));\n  \n   int deltaFglobal
+  = 60;\n   uint32_t N_REF_Offs = 2016667;\n@@ -2401,7 +2419,7 @@ uint64_t from_nrarfcn(int
+  nr_bandP,\n }\n \n void nr_get_tbs_dl(nfapi_nr_dl_tti_pdsch_pdu *pdsch_pdu,\n-\t\t   int
+  x_overhead,\n+                   int x_overhead,\n                    uint8_t numdmrscdmgroupnodata,\n                    uint8_t
+  tb_scaling) {\n \n@@ -2441,7 +2459,7 @@ void nr_get_tbs_dl(nfapi_nr_dl_tti_pdsch_pdu
+  *pdsch_pdu,\n                        N_PRB_DMRS*dmrs_length,\n                        N_PRB_oh,\n                        tb_scaling,\n-\t\t       pdsch_rel15->nrOfLayers)>>3;\n+                       pdsch_rel15->nrOfLayers)>>3;\n
+  \n   pdsch_rel15->targetCodeRate[0] = R;\n   pdsch_rel15->qamModOrder[0] = Qm;\n@@
+  -3700,7 +3718,7 @@ int is_nr_DL_slot(NR_TDD_UL_DL_ConfigCommon_t *tdd_UL_DL_ConfigurationCommon,slo\n     period1
+  = 3000+*tdd_UL_DL_ConfigurationCommon->pattern1.ext1->dl_UL_TransmissionPeriodicity_v1530;\n   else\n     period1
+  = tdd_period_to_num[tdd_UL_DL_ConfigurationCommon->pattern1.dl_UL_TransmissionPeriodicity];\n-\t\t\t       \n+                               \n   if
+  (tdd_UL_DL_ConfigurationCommon->pattern2) {\n     if (tdd_UL_DL_ConfigurationCommon->pattern2->ext1
+  &&\n         tdd_UL_DL_ConfigurationCommon->pattern2->ext1->dl_UL_TransmissionPeriodicity_v1530)\n@@
+  -3717,7 +3735,7 @@ int is_nr_DL_slot(NR_TDD_UL_DL_ConfigCommon_t *tdd_UL_DL_ConfigurationCommon,slo\n   else
+  return(slot_in_period <= slots1+tdd_UL_DL_ConfigurationCommon->pattern2->nrofDownlinkSlots
+  ? 1 : 0);    \n }\n \n-int is_nr_UL_slot(NR_TDD_UL_DL_ConfigCommon_t\t*tdd_UL_DL_ConfigurationCommon,
+  slot_t slot, frame_type_t frame_type) {\n+int is_nr_UL_slot(NR_TDD_UL_DL_ConfigCommon_t   *tdd_UL_DL_ConfigurationCommon,
+  slot_t slot, frame_type_t frame_type) {\n \n   int period,period1,period2=0;\n \n@@
+  -3732,10 +3750,10 @@ int is_nr_UL_slot(NR_TDD_UL_DL_ConfigCommon_t\t*tdd_UL_DL_ConfigurationCommon,
+  sl\n     period1 = 3000+*tdd_UL_DL_ConfigurationCommon->pattern1.ext1->dl_UL_TransmissionPeriodicity_v1530;\n   else\n     period1
+  = tdd_period_to_num[tdd_UL_DL_ConfigurationCommon->pattern1.dl_UL_TransmissionPeriodicity];\n-\t\t\t       \n+                               \n   if
+  (tdd_UL_DL_ConfigurationCommon->pattern2) {\n     if (tdd_UL_DL_ConfigurationCommon->pattern2->ext1
+  &&\n-\t      tdd_UL_DL_ConfigurationCommon->pattern2->ext1->dl_UL_TransmissionPeriodicity_v1530)\n+              tdd_UL_DL_ConfigurationCommon->pattern2->ext1->dl_UL_TransmissionPeriodicity_v1530)\n       period2
+  = 3000+*tdd_UL_DL_ConfigurationCommon->pattern2->ext1->dl_UL_TransmissionPeriodicity_v1530;\n     else\n       period2
+  = tdd_period_to_num[tdd_UL_DL_ConfigurationCommon->pattern2->dl_UL_TransmissionPeriodicity];\n","start_fn":"set_monitoring_periodicity_offset","start_fn_file":"openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c","subsystem":"openair2/LAYER2/NR_MAC_COMMON"},"type":"text","id":"oai5g_776ca25_00108"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

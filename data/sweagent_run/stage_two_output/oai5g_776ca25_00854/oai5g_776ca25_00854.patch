@@ -1,0 +1,122 @@
+diff --git a/nfapi/open-nFAPI/vnf_sim/inc/mac.h b/nfapi/open-nFAPI/vnf_sim/inc/mac.h
+index eac5b3b2ac..c8f8e2dbb4 100644
+--- a/nfapi/open-nFAPI/vnf_sim/inc/mac.h
++++ b/nfapi/open-nFAPI/vnf_sim/inc/mac.h
+@@ -27,18 +27,18 @@ typedef struct mac mac_t;
+ 
+ typedef struct mac
+ {
+-	void* user_data;
++        void* user_data;
+ 
+-	void (*dl_config_req)(mac_t* mac, nfapi_dl_config_request_t* req);
+-	void (*ul_config_req)(mac_t* mac, nfapi_ul_config_request_t* req);
+-	void (*hi_dci0_req)(mac_t* mac, nfapi_hi_dci0_request_t* req);
+-	void (*tx_req)(mac_t* mac, nfapi_tx_request_t* req);
++        void (*dl_config_req)(mac_t* mac, nfapi_dl_config_request_t* req);
++        void (*ul_config_req)(mac_t* mac, nfapi_ul_config_request_t* req);
++        void (*hi_dci0_req)(mac_t* mac, nfapi_hi_dci0_request_t* req);
++        void (*tx_req)(mac_t* mac, nfapi_tx_request_t* req);
+ } mac_t;
+ 
+ mac_t* mac_create(uint8_t wireshark_test_mode);
+ void mac_destroy(mac_t* mac);
+ 
+-void mac_start_data(mac_t* mac, unsigned rx_port, const char* tx_addres, unsigned tx_port);
++void mac_start_data(mac_t* mac, unsigned rx_port, const char* tx_address, unsigned tx_port);
+ 
+ void mac_subframe_ind(mac_t* mac, uint16_t phy_id, uint16_t sfn_sf);
+ void mac_harq_ind(mac_t* mac, nfapi_harq_indication_t* ind);
+diff --git a/nfapi/open-nFAPI/vnf_sim/src/mac.cpp b/nfapi/open-nFAPI/vnf_sim/src/mac.cpp
+index 63bb877f1d..56eca83ffb 100644
+--- a/nfapi/open-nFAPI/vnf_sim/src/mac.cpp
++++ b/nfapi/open-nFAPI/vnf_sim/src/mac.cpp
+@@ -126,12 +126,24 @@ extern "C"
+ 
+   mac_t *mac_create(uint8_t wireshark_test_mode) {
+     mac_internal_t *instance = (mac_internal_t *)malloc(sizeof(mac_internal_t));
++    instance->rx_sock = -1;
++    instance->tx_sock = -1;
++    instance->tx_byte_count = 0;
+     instance->mac = new mac_private((wireshark_test_mode >= 1));
+     return (mac_t *)instance;
+   }
+ 
+   void mac_destroy(mac_t *mac) {
+     mac_internal_t *instance = (mac_internal_t *)mac;
++    
++    // Close sockets if they were opened
++    if(instance->rx_sock >= 0) {
++      close(instance->rx_sock);
++    }
++    if(instance->tx_sock >= 0) {
++      close(instance->tx_sock);
++    }
++    
+     delete instance->mac;
+     free(instance);
+   }
+@@ -161,7 +173,7 @@ extern "C"
+     instance->rx_sock = socket(AF_INET, SOCK_DGRAM, 0);
+ 
+     if(instance->rx_sock < 0) {
+-      printf("[MAC] Failed to create socket\n");
++      printf("[MAC] Failed to create RX socket\n");
+       return;
+     }
+ 
+@@ -181,12 +193,30 @@ extern "C"
+       return;
+     }
+ 
+-    pthread_t mac_rx_thread;
+-    pthread_create(&mac_rx_thread, NULL, &mac_rx_thread_start, instance);
++    // Create TX socket
+     instance->tx_sock = socket(AF_INET, SOCK_DGRAM, 0);
++    if(instance->tx_sock < 0) {
++      printf("[MAC] Failed to create TX socket\n");
++      close(instance->rx_sock);
++      return;
++    }
++
++    // Initialize tx_addr structure
++    memset(&(instance->tx_addr), 0, sizeof(instance->tx_addr));
+     instance->tx_addr.sin_family = AF_INET;
+     instance->tx_addr.sin_port = htons(tx_port);
++    
++    // Check if the IP address is valid
+     instance->tx_addr.sin_addr.s_addr = inet_addr(tx_address);
++    if(instance->tx_addr.sin_addr.s_addr == INADDR_NONE) {
++      printf("[MAC] Invalid IP address: %s\n", tx_address);
++      close(instance->rx_sock);
++      close(instance->tx_sock);
++      return;
++    }
++
++    pthread_t mac_rx_thread;
++    pthread_create(&mac_rx_thread, NULL, &mac_rx_thread_start, instance);
+   }
+ 
+ 
+@@ -1129,6 +1159,12 @@ extern "C"
+   void mac_rx_ind(mac_t *mac, nfapi_rx_indication_t *ind) {
+     mac_internal_t *instance = (mac_internal_t *)mac;
+ 
++    // Check if sockets are initialized
++    if(instance->rx_sock < 0 || instance->tx_sock < 0) {
++      printf("[MAC] Sockets not initialized. Call mac_start_data() first.\n");
++      return;
++    }
++
+     for(int i = 0; i < ind->rx_indication_body.number_of_pdus; ++i) {
+       uint16_t len = ind->rx_indication_body.rx_pdu_list[i].rx_indication_rel8.length;
+       uint8_t *data = ind->rx_indication_body.rx_pdu_list[i].data;
+@@ -1138,7 +1174,7 @@ extern "C"
+       int sendto_result = sendto(instance->tx_sock, data, len, 0, (struct sockaddr *)&(instance->tx_addr), sizeof(instance->tx_addr));
+ 
+       if(sendto_result < 0) {
+-        // error
++        printf("[MAC] Error sending data: %d\n", sendto_result);
+       }
+     }
+   }

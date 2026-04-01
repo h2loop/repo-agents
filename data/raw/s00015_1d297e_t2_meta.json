@@ -1,0 +1,9 @@
+{
+  "run_id": "s00015_1d297e",
+  "pr_text": "## Title: Fix integer underflow in bandwidth formatting utility\n\n### Summary\nThe `bps()` function in the tracer utility library calculates a logarithmic index (`flog`) to select appropriate bandwidth units (b/s, kb/s, Mb/s, Gb/s). When formatting values less than 1, the calculation `floor(floor(log10(v)) / 3)` produces negative results, causing negative array indexing into the `bps_unit` array. This leads to undefined behavior and potential memory corruption when processing very low or zero thro",
+  "trajectory_path": "data/raw/s00015_1d297e_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00015_1d297e_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 16,
+  "timestamp": "2026-02-11T07:37:20Z"
+}

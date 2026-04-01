@@ -1,0 +1,132 @@
+diff --git a/arch/sim/src/sim/posix/sim_linux_gpiochip.c b/arch/sim/src/sim/posix/sim_linux_gpiochip.c
+index e6bdd252..43228441 100644
+--- a/arch/sim/src/sim/posix/sim_linux_gpiochip.c
++++ b/arch/sim/src/sim/posix/sim_linux_gpiochip.c
+@@ -85,6 +85,7 @@ int host_gpiochip_direction(struct host_gpiochip_dev *priv, uint8_t pin,
+                             bool input)
+ {
+   struct gpio_v2_line_request req;
++  struct gpio_v2_line_info info;
+   int nonblock = 1;
+   int ret;
+ 
+@@ -92,8 +93,43 @@ int host_gpiochip_direction(struct host_gpiochip_dev *priv, uint8_t pin,
+   req.num_lines = 1;
+   req.offsets[0] = pin;
+ 
++  /* Check current line info to avoid reconfiguration conflicts */
++
++  memset(&info, 0, sizeof(info));
++  info.offset = pin;
++  ret = host_uninterruptible(ioctl, priv->file, GPIO_V2_GET_LINEINFO_IOCTL,
++                             &info);
++  if (ret < 0)
++    {
++      gpioerr("ERROR: Failed to get line info for pin %d: %s\n",
++              pin, strerror(errno));
++      return -errno;
++    }
++
++  /* If the line is already configured with the same direction and consumer,
++   * we can avoid reconfiguration
++   */
++
+   if (priv->line_fd[pin] > 0)
+     {
++      bool same_direction = false;
++
++      if (input && (info.flags & GPIO_V2_LINE_FLAG_INPUT))
++        {
++          same_direction = true;
++        }
++      else if (!input && (info.flags & GPIO_V2_LINE_FLAG_OUTPUT))
++        {
++          same_direction = true;
++        }
++
++      if (same_direction)
++        {
++          /* Line is already configured with the same direction, no need to reconfigure */
++          return 0;
++        }
++
++      /* Close the existing file descriptor before reconfiguration */
+       close(priv->line_fd[pin]);
+       priv->line_fd[pin] = -1;
+     }
+@@ -128,6 +164,9 @@ int host_gpiochip_direction(struct host_gpiochip_dev *priv, uint8_t pin,
+   return 0;
+ }
+ 
++  return 0;
++}
++
+ /****************************************************************************
+  * Name: host_gpiochip_irq_request
+  *
+@@ -144,11 +183,54 @@ int host_gpiochip_irq_request(struct host_gpiochip_dev *priv, uint8_t pin,
+                               uint16_t cfg)
+ {
+   struct gpio_v2_line_request req;
++  struct gpio_v2_line_info info;
+   int nonblock = 1;
+   int ret;
+ 
++  /* Check current line info to avoid reconfiguration conflicts */
++
++  memset(&info, 0, sizeof(info));
++  info.offset = pin;
++  ret = host_uninterruptible(ioctl, priv->file, GPIO_V2_GET_LINEINFO_IOCTL,
++                             &info);
++  if (ret < 0)
++    {
++      gpioerr("ERROR: Failed to get line info for pin %d: %s\n",
++              pin, strerror(errno));
++      return -errno;
++    }
++
++  /* Check if the line is already configured with the same interrupt settings */
++
+   if (priv->line_fd[pin] > 0)
+     {
++      uint64_t expected_flags = GPIO_V2_LINE_FLAG_INPUT;
++      bool same_config = false;
++
++      switch (cfg)
++        {
++          case GPIOCHIP_LINE_FLAG_FALLING:
++            expected_flags |= GPIO_V2_LINE_FLAG_EDGE_FALLING;
++            break;
++          case GPIOCHIP_LINE_FLAG_RISING:
++            expected_flags |= GPIO_V2_LINE_FLAG_EDGE_RISING;
++            break;
++          case GPIOCHIP_LINE_FLAG_BOTH:
++            expected_flags |= GPIO_V2_LINE_FLAG_EDGE_FALLING |
++                              GPIO_V2_LINE_FLAG_EDGE_RISING;
++            break;
++          default:
++            break;
++        }
++
++      /* Check if the current configuration matches the expected configuration */
++      if ((info.flags & expected_flags) == expected_flags)
++        {
++          /* Line is already configured with the same interrupt settings */
++          return 0;
++        }
++
++      /* Close the existing file descriptor before reconfiguration */
+       close(priv->line_fd[pin]);
+       priv->line_fd[pin] = -1;
+     }
+@@ -178,6 +260,10 @@ int host_gpiochip_irq_request(struct host_gpiochip_dev *priv, uint8_t pin,
+     {
+       snprintf(req.consumer, sizeof(req.consumer) - 1, "gpio-irq%d", pin);
+     }
++  else
++    {
++      snprintf(req.consumer, sizeof(req.consumer) - 1, "gpio%d", pin);
++    }
+ 
+   /* Warn only pin 10 can register in ch341A */
+ 

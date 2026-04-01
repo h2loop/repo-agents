@@ -1,0 +1,19 @@
+diff --git a/openair1/PHY/NR_UE_TRANSPORT/nr_psbch_tx.c b/openair1/PHY/NR_UE_TRANSPORT/nr_psbch_tx.c
+index 5a80ca272b..ea44bac04b 100644
+--- a/openair1/PHY/NR_UE_TRANSPORT/nr_psbch_tx.c
++++ b/openair1/PHY/NR_UE_TRANSPORT/nr_psbch_tx.c
+@@ -65,8 +65,12 @@ void sl_psbch_scrambling(uint32_t *output, uint32_t id, uint16_t length)
+   }
+ 
+   // scramble remaining bits
+-  for (; i < length; ++i) {
+-    output[i >> 5] ^= ((s >> (i & 0x1f) & 1) << (i & 0x1f));
++  if (i < length) {
++    // Generate a new scrambling word for remaining bits to maintain sequence continuity
++    s = lte_gold_generic(&x1, &x2, 0);
++    for (; i < length; ++i) {
++      output[i >> 5] ^= (((s >> (i & 0x1f)) & 1) << (i & 0x1f));
++    }
+   }
+ 
+ #ifdef SL_DEBUG

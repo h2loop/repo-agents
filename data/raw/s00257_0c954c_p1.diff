@@ -1,0 +1,14 @@
+diff --git a/openair2/F1AP/lib/f1ap_ue_context.c b/openair2/F1AP/lib/f1ap_ue_context.c
+index 9d8cbfe15f..76feabc7f0 100644
+--- a/openair2/F1AP/lib/f1ap_ue_context.c
++++ b/openair2/F1AP/lib/f1ap_ue_context.c
+@@ -1906,6 +1906,9 @@ bool eq_ue_context_mod_req(const f1ap_ue_context_mod_req_t *a, const f1ap_ue_con
+  */
+ void free_ue_context_mod_req(f1ap_ue_context_mod_req_t *req)
+ {
++  if (!req)
++    return;
++
+   free(req->plmn);
+   free(req->nr_cellid);
+   free(req->servCellIndex);

@@ -1,0 +1,156 @@
+diff --git a/openair3/NAS/COMMON/IES/TrafficFlowTemplate.c b/openair3/NAS/COMMON/IES/TrafficFlowTemplate.c
+index d5ab249573..1f0803fc3b 100644
+--- a/openair3/NAS/COMMON/IES/TrafficFlowTemplate.c
++++ b/openair3/NAS/COMMON/IES/TrafficFlowTemplate.c
+@@ -330,11 +330,20 @@ static int encode_traffic_flow_template_packet_filter_identifiers(PacketFilterId
+ {
+   int encoded = 0, i;
+ 
+-  for (i = 0; (i < nbpacketfilters) && (len - encoded > 0); i++) {
++  /* Check if buffer is NULL */
++  CHECK_PDU_POINTER_AND_LENGTH_ENCODER(buffer, nbpacketfilters, len);
++
++  for (i = 0; (i < nbpacketfilters) && (len > (uint32_t)(encoded + sizeof(uint8_t))); i++) {
+     /* Packet filter identifier */
+     IES_ENCODE_U8(buffer, encoded, (*packetfilteridentifiers)[i].identifier);
+   }
+ 
++  /* Check if we encoded all expected packet filters */
++  if (i < nbpacketfilters) {
++    /* Buffer too short */
++    return TLV_ENCODE_BUFFER_TOO_SHORT;
++  }
++
+   return encoded;
+ }
+ 
+@@ -342,11 +351,18 @@ static int encode_traffic_flow_template_packet_filters(PacketFilters* packetfilt
+ {
+   int encoded = 0, i, j;
+ 
+-  for (i = 0; (i < nbpacketfilters) && (len - encoded > 0); i++) {
+-    if (len - encoded <= 0) {
+-      /* Mismatch between the number of packet filters subfield,
+-       * and the number of packet filters in the packet filter list */
+-      return (TLV_DECODE_VALUE_DOESNT_MATCH);
++  /* Check if buffer is NULL */
++  CHECK_PDU_POINTER_AND_LENGTH_ENCODER(buffer, 1, len);
++
++  for (i = 0; (i < nbpacketfilters); i++) {
++    /* Check if we have enough space for at least the minimum packet filter fields:
++     * 1 byte for identifier/direction
++     * 1 byte for evaluation precedence
++     * 1 byte for packet filter contents length field
++     */
++    if (len < (uint32_t)(encoded + 3)) {
++      /* Buffer too short */
++      return TLV_ENCODE_BUFFER_TOO_SHORT;
+     }
+ 
+     /* Packet filter identifier and direction */
+@@ -364,6 +380,10 @@ static int encode_traffic_flow_template_packet_filters(PacketFilters* packetfilt
+       switch ((*packetfilters)[i].packetfilter.flags & flag) {
+       case TRAFFIC_FLOW_TEMPLATE_IPV4_REMOTE_ADDR_FLAG:
+         /* IPv4 remote address type */
++        /* Need 1 byte for component type + 8 bytes for address/mask */
++        if (len < (uint32_t)(encoded + 1 + 2 * TRAFFIC_FLOW_TEMPLATE_IPV4_ADDR_SIZE)) {
++          return TLV_ENCODE_BUFFER_TOO_SHORT;
++        }
+         IES_ENCODE_U8(buffer, encoded, TRAFFIC_FLOW_TEMPLATE_IPV4_REMOTE_ADDR);
+ 
+         for (j = 0; j < TRAFFIC_FLOW_TEMPLATE_IPV4_ADDR_SIZE; j++) {
+@@ -377,6 +397,10 @@ static int encode_traffic_flow_template_packet_filters(PacketFilters* packetfilt
+ 
+       case TRAFFIC_FLOW_TEMPLATE_IPV6_REMOTE_ADDR_FLAG:
+         /* IPv6 remote address type */
++        /* Need 1 byte for component type + 32 bytes for address/mask */
++        if (len < (uint32_t)(encoded + 1 + 2 * TRAFFIC_FLOW_TEMPLATE_IPV6_ADDR_SIZE)) {
++          return TLV_ENCODE_BUFFER_TOO_SHORT;
++        }
+         IES_ENCODE_U8(buffer, encoded, TRAFFIC_FLOW_TEMPLATE_IPV6_REMOTE_ADDR);
+ 
+         for (j = 0; j < TRAFFIC_FLOW_TEMPLATE_IPV6_ADDR_SIZE; j++) {
+@@ -390,18 +414,30 @@ static int encode_traffic_flow_template_packet_filters(PacketFilters* packetfilt
+ 
+       case TRAFFIC_FLOW_TEMPLATE_PROTOCOL_NEXT_HEADER_FLAG:
+         /* Protocol identifier/Next header type */
++        /* Need 1 byte for component type + 1 byte for value */
++        if (len < (uint32_t)(encoded + 2)) {
++          return TLV_ENCODE_BUFFER_TOO_SHORT;
++        }
+         IES_ENCODE_U8(buffer, encoded, TRAFFIC_FLOW_TEMPLATE_PROTOCOL_NEXT_HEADER);
+         IES_ENCODE_U8(buffer, encoded, (*packetfilters)[i].packetfilter.protocolidentifier_nextheader);
+         break;
+ 
+       case TRAFFIC_FLOW_TEMPLATE_SINGLE_LOCAL_PORT_FLAG:
+         /* Single local port type */
++        /* Need 1 byte for component type + 2 bytes for value */
++        if (len < (uint32_t)(encoded + 3)) {
++          return TLV_ENCODE_BUFFER_TOO_SHORT;
++        }
+         IES_ENCODE_U8(buffer, encoded, TRAFFIC_FLOW_TEMPLATE_SINGLE_LOCAL_PORT);
+         IES_ENCODE_U16(buffer, encoded, (*packetfilters)[i].packetfilter.singlelocalport);
+         break;
+ 
+       case TRAFFIC_FLOW_TEMPLATE_LOCAL_PORT_RANGE_FLAG:
+         /* Local port range type */
++        /* Need 1 byte for component type + 4 bytes for values */
++        if (len < (uint32_t)(encoded + 5)) {
++          return TLV_ENCODE_BUFFER_TOO_SHORT;
++        }
+         IES_ENCODE_U8(buffer, encoded, TRAFFIC_FLOW_TEMPLATE_LOCAL_PORT_RANGE);
+         IES_ENCODE_U16(buffer, encoded, (*packetfilters)[i].packetfilter.localportrange.lowlimit);
+         IES_ENCODE_U16(buffer, encoded, (*packetfilters)[i].packetfilter.localportrange.highlimit);
+@@ -409,12 +445,20 @@ static int encode_traffic_flow_template_packet_filters(PacketFilters* packetfilt
+ 
+       case TRAFFIC_FLOW_TEMPLATE_SINGLE_REMOTE_PORT_FLAG:
+         /* Single remote port type */
++        /* Need 1 byte for component type + 2 bytes for value */
++        if (len < (uint32_t)(encoded + 3)) {
++          return TLV_ENCODE_BUFFER_TOO_SHORT;
++        }
+         IES_ENCODE_U8(buffer, encoded, TRAFFIC_FLOW_TEMPLATE_SINGLE_REMOTE_PORT);
+         IES_ENCODE_U16(buffer, encoded, (*packetfilters)[i].packetfilter.singleremoteport);
+         break;
+ 
+       case TRAFFIC_FLOW_TEMPLATE_REMOTE_PORT_RANGE_FLAG:
+         /* Remote port range type */
++        /* Need 1 byte for component type + 4 bytes for values */
++        if (len < (uint32_t)(encoded + 5)) {
++          return TLV_ENCODE_BUFFER_TOO_SHORT;
++        }
+         IES_ENCODE_U8(buffer, encoded, TRAFFIC_FLOW_TEMPLATE_REMOTE_PORT_RANGE);
+         IES_ENCODE_U16(buffer, encoded, (*packetfilters)[i].packetfilter.remoteportrange.lowlimit);
+         IES_ENCODE_U16(buffer, encoded, (*packetfilters)[i].packetfilter.remoteportrange.highlimit);
+@@ -422,12 +466,20 @@ static int encode_traffic_flow_template_packet_filters(PacketFilters* packetfilt
+ 
+       case TRAFFIC_FLOW_TEMPLATE_SECURITY_PARAMETER_INDEX_FLAG:
+         /* Security parameter index type */
++        /* Need 1 byte for component type + 4 bytes for value */
++        if (len < (uint32_t)(encoded + 5)) {
++          return TLV_ENCODE_BUFFER_TOO_SHORT;
++        }
+         IES_ENCODE_U8(buffer, encoded, TRAFFIC_FLOW_TEMPLATE_SECURITY_PARAMETER_INDEX);
+         IES_ENCODE_U32(buffer, encoded, (*packetfilters)[i].packetfilter.securityparameterindex);
+         break;
+ 
+       case TRAFFIC_FLOW_TEMPLATE_TYPE_OF_SERVICE_TRAFFIC_CLASS_FLAG:
+         /* Type of service/Traffic class type */
++        /* Need 1 byte for component type + 2 bytes for values */
++        if (len < (uint32_t)(encoded + 3)) {
++          return TLV_ENCODE_BUFFER_TOO_SHORT;
++        }
+         IES_ENCODE_U8(buffer, encoded, TRAFFIC_FLOW_TEMPLATE_TYPE_OF_SERVICE_TRAFFIC_CLASS);
+         IES_ENCODE_U8(buffer, encoded, (*packetfilters)[i].packetfilter.typdeofservice_trafficclass.value);
+         IES_ENCODE_U8(buffer, encoded, (*packetfilters)[i].packetfilter.typdeofservice_trafficclass.mask);
+@@ -435,6 +487,10 @@ static int encode_traffic_flow_template_packet_filters(PacketFilters* packetfilt
+ 
+       case TRAFFIC_FLOW_TEMPLATE_FLOW_LABEL_FLAG:
+         /* Flow label type */
++        /* Need 1 byte for component type + 3 bytes for value */
++        if (len < (uint32_t)(encoded + 4)) {
++          return TLV_ENCODE_BUFFER_TOO_SHORT;
++        }
+         IES_ENCODE_U8(buffer, encoded, TRAFFIC_FLOW_TEMPLATE_FLOW_LABEL);
+         IES_ENCODE_U24(buffer, encoded, (*packetfilters)[i].packetfilter.flowlabel & 0x000fffff);
+         break;

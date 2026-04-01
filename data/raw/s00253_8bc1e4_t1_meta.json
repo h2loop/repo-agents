@@ -1,0 +1,33 @@
+{
+  "run_id": "s00253_8bc1e4",
+  "function": {
+    "name": "time_server_tick_callback",
+    "file": "common/utils/time_manager/time_server.c",
+    "start_line": 237,
+    "end_line": 243,
+    "body_lines": 7,
+    "signature": "static void time_server_tick_callback(void *ts)",
+    "subsystem": "common/utils/time_manager",
+    "token_estimate": 23
+  },
+  "bug": {
+    "bug_id": "c_signed_unsigned_mismatch",
+    "description": "signed/unsigned integer comparison mismatch leading to incorrect branch",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a signed/unsigned integer comparison mismatch leading to incorrect branch downstream of function time_server_tick_callback in the common/utils/time_manager subsystem.\nThe function is located at common/utils/time_manager/time_server.c:237.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00253_8bc1e4_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00253_8bc1e4_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 6,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:46:10Z"
+}

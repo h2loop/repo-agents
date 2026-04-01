@@ -1,0 +1,39 @@
+diff --git a/openair1/PHY/LTE_UE_TRANSPORT/ulsch_modulation.c b/openair1/PHY/LTE_UE_TRANSPORT/ulsch_modulation.c
+index 9c4ccf0679..3696cc9b90 100644
+--- a/openair1/PHY/LTE_UE_TRANSPORT/ulsch_modulation.c
++++ b/openair1/PHY/LTE_UE_TRANSPORT/ulsch_modulation.c
+@@ -211,7 +211,33 @@ void ulsch_modulation(int32_t **txdataF,
+ 
+   VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_UE_ULSCH_MODULATION, VCD_FUNCTION_IN);
+ 
+-  Q_m = get_Qm_ul(ulsch->harq_processes[harq_pid]->mcs);
++  // Validate and adjust MCS based on channel quality and UE capability
++  uint8_t mcs = ulsch->harq_processes[harq_pid]->mcs;
++  
++  // Apply channel quality constraints (CQI-based MCS limitation)
++  // This is a simplified version - in a real implementation, this would
++  // use actual CQI reports and UE capability information
++  if (ulsch->cqi_valid && ulsch->cqi < 7) {
++    // Poor channel quality - limit to QPSK
++    if (mcs > 10) {
++      LOG_W(PHY, "ulsch_modulation: MCS %d too high for CQI %d, limiting to MCS 10 (QPSK)\n", mcs, ulsch->cqi);
++      mcs = 10;
++    }
++  } else if (ulsch->cqi_valid && ulsch->cqi < 10) {
++    // Moderate channel quality - limit to 16QAM  
++    if (mcs > 20) {
++      LOG_W(PHY, "ulsch_modulation: MCS %d too high for CQI %d, limiting to MCS 20 (16QAM)\n", mcs, ulsch->cqi);
++      mcs = 20;
++    }
++  }
++  
++  // Apply UE capability constraints
++  if (ulsch->ue_cap_max_mcs > 0 && mcs > ulsch->ue_cap_max_mcs) {
++    LOG_W(PHY, "ulsch_modulation: MCS %d exceeds UE capability %d, limiting accordingly\n", mcs, ulsch->ue_cap_max_mcs);
++    mcs = ulsch->ue_cap_max_mcs;
++  }
++  
++  Q_m = get_Qm_ul(mcs);
+ 
+   G = (int)ulsch->harq_processes[harq_pid]->nb_rb * (12 * Q_m) * (ulsch->Nsymb_pusch);
+ 

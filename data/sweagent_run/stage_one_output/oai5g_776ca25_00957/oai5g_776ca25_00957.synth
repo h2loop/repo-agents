@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix uninitialized memory read in CESQ test command parsing\n\n### Summary\nThe `parse_cesq_test` function in the AT command parser was not initializing the `mask` field of the `at_command_t` structure. This led to uninitialized memory being read downstream when other code accessed `at_command->mask`, causing undefined behavior.\n\nThis fix initializes the `mask` field to `AT_COMMAND_CESQ_MASK` (which is defined as `AT_COMMAND_NO_PARAM`) in the `parse_cesq_test` function, matching the pattern used by the corresponding action function.\n\n### Changes\n- `openair3/NAS/UE/API/USER/at_command.c`: Initialize mask field in `parse_cesq_test` function.\n\n"
+}

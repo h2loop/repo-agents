@@ -1,0 +1,13 @@
+diff --git a/openair2/UTIL/CLI/cli_cmd.c b/openair2/UTIL/CLI/cli_cmd.c
+index 021c7c0b97..3f6ede68db 100644
+--- a/openair2/UTIL/CLI/cli_cmd.c
++++ b/openair2/UTIL/CLI/cli_cmd.c
+@@ -199,7 +199,7 @@ int token_argument(char *arg, char* optv[])
+   tokc = 0;
+   optv[tokc] = strtok(arg, " "); // get the first token
+ 
+-  while (optv[tokc]!=NULL) {
++  while (tokc < 19 && optv[tokc]!=NULL) {
+     tokc++;
+     optv[tokc] = strtok(NULL, " ");
+   }

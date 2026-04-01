@@ -1,0 +1,1067 @@
+diff --git a/openair1/PHY/TOOLS/oai_dfts.c b/openair1/PHY/TOOLS/oai_dfts.c
+index 8a83e530ab..4a0cc0ee58 100644
+--- a/openair1/PHY/TOOLS/oai_dfts.c
++++ b/openair1/PHY/TOOLS/oai_dfts.c
+@@ -320,9 +320,9 @@ static inline void cmac(int16x8_t a,int16x8_t b, int32x4_t *re32, int32x4_t *im3
+   ab_im0 = vmull_s16(((int16x4_t*)&a)[0],((int16x4_t*)&bflip)[0]);
+   ab_im1 = vmull_s16(((int16x4_t*)&a)[1],((int16x4_t*)&bflip)[1]);
+   *re32 = vqaddq_s32(*re32,vcombine_s32(vpadd_s32(((int32x2_t*)&ab_re0)[0],((int32x2_t*)&ab_re0)[1]),
+-					vpadd_s32(((int32x2_t*)&ab_re1)[0],((int32x2_t*)&ab_re1)[1])));
++                                        vpadd_s32(((int32x2_t*)&ab_re1)[0],((int32x2_t*)&ab_re1)[1])));
+   *im32 = vqaddq_s32(*im32,vcombine_s32(vpadd_s32(((int32x2_t*)&ab_im0)[0],((int32x2_t*)&ab_im0)[1]),
+-					vpadd_s32(((int32x2_t*)&ab_im1)[0],((int32x2_t*)&ab_im1)[1])));
++                                        vpadd_s32(((int32x2_t*)&ab_im1)[0],((int32x2_t*)&ab_im1)[1])));
+ }
+ 
+ static inline void cmacc(int16x8_t a,int16x8_t b, int32x4_t *re32, int32x4_t *im32) __attribute__((always_inline));
+@@ -337,9 +337,9 @@ static inline void cmacc(int16x8_t a,int16x8_t b, int32x4_t *re32, int32x4_t *im
+   ab_im0 = vmull_s16(((int16x4_t*)&a)[0],((int16x4_t*)&bflip)[0]);
+   ab_im1 = vmull_s16(((int16x4_t*)&a)[1],((int16x4_t*)&bflip)[1]);
+   *re32 = vqaddq_s32(*re32,vcombine_s32(vpadd_s32(((int32x2_t*)&ab_re0)[0],((int32x2_t*)&ab_re0)[1]),
+-					vpadd_s32(((int32x2_t*)&ab_re1)[0],((int32x2_t*)&ab_re1)[1])));
++                                        vpadd_s32(((int32x2_t*)&ab_re1)[0],((int32x2_t*)&ab_re1)[1])));
+   *im32 = vqaddq_s32(*im32,vcombine_s32(vpadd_s32(((int32x2_t*)&ab_im0)[0],((int32x2_t*)&ab_im0)[1]),
+-					vpadd_s32(((int32x2_t*)&ab_im1)[0],((int32x2_t*)&ab_im1)[1])));
++                                        vpadd_s32(((int32x2_t*)&ab_im1)[0],((int32x2_t*)&ab_im1)[1])));
+ 
+ }
+ 
+@@ -395,9 +395,9 @@ static inline void cmultc(int16x8_t a,int16x8_t b, int32x4_t *re32, int32x4_t *i
+   abi1l = vget_low_s32(ab_im1); abi1h = vget_high_s32(ab_im1);
+ 
+   *re32 = vcombine_s32(vpadd_s32(abr0l,abr0h),
+-		       vpadd_s32(abr1l,abr1h));
++                       vpadd_s32(abr1l,abr1h));
+   *im32 = vcombine_s32(vpadd_s32(abi0l,abi0h),
+-		       vpadd_s32(abi1l,abi1h));
++                       vpadd_s32(abi1l,abi1h));
+ 
+ }
+ 
+@@ -452,9 +452,9 @@ static inline int16x8_t packed_cmult2(int16x8_t a,int16x8_t b,  int16x8_t b2)
+   ab_im0 = vmull_s16(((int16x4_t*)&a)[0],((int16x4_t*)&b2)[0]);
+   ab_im1 = vmull_s16(((int16x4_t*)&a)[1],((int16x4_t*)&b2)[1]);
+   cre = vcombine_s32(vpadd_s32(((int32x2_t*)&ab_re0)[0],((int32x2_t*)&ab_re0)[1]),
+-		     vpadd_s32(((int32x2_t*)&ab_re1)[0],((int32x2_t*)&ab_re1)[1]));
++                     vpadd_s32(((int32x2_t*)&ab_re1)[0],((int32x2_t*)&ab_re1)[1]));
+   cim = vcombine_s32(vpadd_s32(((int32x2_t*)&ab_im0)[0],((int32x2_t*)&ab_im0)[1]),
+-		     vpadd_s32(((int32x2_t*)&ab_im1)[0],((int32x2_t*)&ab_im1)[1]));
++                     vpadd_s32(((int32x2_t*)&ab_im1)[0],((int32x2_t*)&ab_im1)[1]));
+   return(cpack(cre,cim));
+ 
+ }
+@@ -499,21 +499,21 @@ int16x8_t *W45 = (int16x8_t *)W45s;
+ #endif // defined(__x86_64__) || defined(__i386__)
+ 
+ const static int16_t dft_norm_table[16] = {9459,  //12
+-					   6689,//24
+-					   5461,//36
+-					   4729,//482
+-					   4230,//60
+-					   23170,//72
+-					   3344,//96
+-					   3153,//108
+-					   2991,//120
+-					   18918,//sqrt(3),//144
+-					   18918,//sqrt(3),//180
+-					   16384,//2, //192
+-					   18918,//sqrt(3), // 216
+-					   16384,//2, //240
+-					   18918,//sqrt(3), // 288
+-					   14654
++                                           6689,//24
++                                           5461,//36
++                                           4729,//482
++                                           4230,//60
++                                           23170,//72
++                                           3344,//96
++                                           3153,//108
++                                           2991,//120
++                                           18918,//sqrt(3),//144
++                                           18918,//sqrt(3),//180
++                                           16384,//2, //192
++                                           18918,//sqrt(3), // 216
++                                           16384,//2, //240
++                                           18918,//sqrt(3), // 288
++                                           14654
+ }; //sqrt(5) //300
+ 
+ 
+@@ -783,12 +783,12 @@ static inline void bfly3(__m128i *x0,__m128i *x1,__m128i *x2,
+ }
+ 
+ static inline void bfly3_256(__m256i *x0,__m256i *x1,__m256i *x2,
+-			     __m256i *y0,__m256i *y1,__m256i *y2,
+-			     __m256i *tw1,__m256i *tw2) __attribute__((always_inline));
++                             __m256i *y0,__m256i *y1,__m256i *y2,
++                             __m256i *tw1,__m256i *tw2) __attribute__((always_inline));
+ 
+ static inline void bfly3_256(__m256i *x0,__m256i *x1,__m256i *x2,
+-			     __m256i *y0,__m256i *y1,__m256i *y2,
+-			     __m256i *tw1,__m256i *tw2)
++                             __m256i *y0,__m256i *y1,__m256i *y2,
++                             __m256i *tw1,__m256i *tw2)
+ { 
+ 
+   __m256i tmpre,tmpim,x1_2,x2_2;
+@@ -836,12 +836,12 @@ static inline void bfly3(int16x8_t *x0,int16x8_t *x1,int16x8_t *x2,
+ 
+ #if defined(__x86_64__) || defined(__i386__)
+ static inline void ibfly3(__m128i *x0,__m128i *x1,__m128i *x2,
+-			  __m128i *y0,__m128i *y1,__m128i *y2,
+-			  __m128i *tw1,__m128i *tw2) __attribute__((always_inline));
++                          __m128i *y0,__m128i *y1,__m128i *y2,
++                          __m128i *tw1,__m128i *tw2) __attribute__((always_inline));
+ 
+ static inline void ibfly3(__m128i *x0,__m128i *x1,__m128i *x2,
+-			  __m128i *y0,__m128i *y1,__m128i *y2,
+-			  __m128i *tw1,__m128i *tw2)
++                          __m128i *y0,__m128i *y1,__m128i *y2,
++                          __m128i *tw1,__m128i *tw2)
+ {
+ 
+   __m128i tmpre,tmpim,x1_2,x2_2;
+@@ -860,12 +860,12 @@ static inline void ibfly3(__m128i *x0,__m128i *x1,__m128i *x2,
+ }
+ #if 0
+ static inline void ibfly3_256(__m256i *x0,__m256i *x1,__m256i *x2,
+-			      __m256i *y0,__m256i *y1,__m256i *y2,
+-			      __m256i *tw1,__m256i *tw2) __attribute__((always_inline));
++                              __m256i *y0,__m256i *y1,__m256i *y2,
++                              __m256i *tw1,__m256i *tw2) __attribute__((always_inline));
+ 
+ static inline void ibfly3_256(__m256i *x0,__m256i *x1,__m256i *x2,
+-			      __m256i *y0,__m256i *y1,__m256i *y2,
+-			      __m256i *tw1,__m256i *tw2)
++                              __m256i *y0,__m256i *y1,__m256i *y2,
++                              __m256i *tw1,__m256i *tw2)
+ { 
+ 
+   __m256i tmpre,tmpim,x1_2,x2_2;
+@@ -885,12 +885,12 @@ static inline void ibfly3_256(__m256i *x0,__m256i *x1,__m256i *x2,
+ #endif
+ #elif defined(__arm__) || defined(__aarch64__)
+ static inline void ibfly3(int16x8_t *x0,int16x8_t *x1,int16x8_t *x2,
+-			  int16x8_t *y0,int16x8_t *y1,int16x8_t *y2,
+-			  int16x8_t *tw1,int16x8_t *tw2) __attribute__((always_inline));
++                          int16x8_t *y0,int16x8_t *y1,int16x8_t *y2,
++                          int16x8_t *tw1,int16x8_t *tw2) __attribute__((always_inline));
+ 
+ static inline void ibfly3(int16x8_t *x0,int16x8_t *x1,int16x8_t *x2,
+-			  int16x8_t *y0,int16x8_t *y1,int16x8_t *y2,
+-			  int16x8_t *tw1,int16x8_t *tw2)
++                          int16x8_t *y0,int16x8_t *y1,int16x8_t *y2,
++                          int16x8_t *tw1,int16x8_t *tw2)
+ {
+ 
+   int32x4_t tmpre,tmpim;
+@@ -932,10 +932,10 @@ static inline void bfly3_tw1(__m128i *x0,__m128i *x1,__m128i *x2,
+ }
+ 
+ static inline void bfly3_tw1_256(__m256i *x0,__m256i *x1,__m256i *x2,
+-				 __m256i *y0,__m256i *y1,__m256i *y2) __attribute__((always_inline));
++                                 __m256i *y0,__m256i *y1,__m256i *y2) __attribute__((always_inline));
+ 
+ static inline void bfly3_tw1_256(__m256i *x0,__m256i *x1,__m256i *x2,
+-				 __m256i *y0,__m256i *y1,__m256i *y2)
++                                 __m256i *y0,__m256i *y1,__m256i *y2)
+ {
+ 
+   __m256i tmpre,tmpim;
+@@ -1018,12 +1018,12 @@ static inline void bfly4(__m128i *x0,__m128i *x1,__m128i *x2,__m128i *x3,
+ }
+ 
+ static inline void bfly4_256(__m256i *x0,__m256i *x1,__m256i *x2,__m256i *x3,
+-			     __m256i *y0,__m256i *y1,__m256i *y2,__m256i *y3,
+-			     __m256i *tw1,__m256i *tw2,__m256i *tw3)__attribute__((always_inline));
++                             __m256i *y0,__m256i *y1,__m256i *y2,__m256i *y3,
++                             __m256i *tw1,__m256i *tw2,__m256i *tw3)__attribute__((always_inline));
+ 
+ static inline void bfly4_256(__m256i *x0,__m256i *x1,__m256i *x2,__m256i *x3,
+-			     __m256i *y0,__m256i *y1,__m256i *y2,__m256i *y3,
+-			     __m256i *tw1,__m256i *tw2,__m256i *tw3)
++                             __m256i *y0,__m256i *y1,__m256i *y2,__m256i *y3,
++                             __m256i *tw1,__m256i *tw2,__m256i *tw3)
+ {
+ 
+   __m256i x1r_2,x1i_2,x2r_2,x2i_2,x3r_2,x3i_2,dy0r,dy0i,dy1r,dy1i,dy2r,dy2i,dy3r,dy3i;
+@@ -1135,12 +1135,12 @@ static inline void ibfly4(__m128i *x0,__m128i *x1,__m128i *x2,__m128i *x3,
+ }
+ #endif
+ static inline void ibfly4_256(__m256i *x0,__m256i *x1,__m256i *x2,__m256i *x3,
+-			      __m256i *y0,__m256i *y1,__m256i *y2,__m256i *y3,
+-			      __m256i *tw1,__m256i *tw2,__m256i *tw3)__attribute__((always_inline));
++                              __m256i *y0,__m256i *y1,__m256i *y2,__m256i *y3,
++                              __m256i *tw1,__m256i *tw2,__m256i *tw3)__attribute__((always_inline));
+ 
+ static inline void ibfly4_256(__m256i *x0,__m256i *x1,__m256i *x2,__m256i *x3,
+-			      __m256i *y0,__m256i *y1,__m256i *y2,__m256i *y3,
+-			      __m256i *tw1,__m256i *tw2,__m256i *tw3)
++                              __m256i *y0,__m256i *y1,__m256i *y2,__m256i *y3,
++                              __m256i *tw1,__m256i *tw2,__m256i *tw3)
+ {
+ 
+   __m256i x1r_2,x1i_2,x2r_2,x2i_2,x3r_2,x3i_2,dy0r,dy0i,dy1r,dy1i,dy2r,dy2i,dy3r,dy3i;
+@@ -1233,10 +1233,10 @@ static inline void bfly4_tw1(__m128i *x0,__m128i *x1,__m128i *x2,__m128i *x3,
+   */
+ }
+ static inline void bfly4_tw1_256(__m256i *x0,__m256i *x1,__m256i *x2,__m256i *x3,
+-				 __m256i *y0,__m256i *y1,__m256i *y2,__m256i *y3)__attribute__((always_inline));
++                                 __m256i *y0,__m256i *y1,__m256i *y2,__m256i *y3)__attribute__((always_inline));
+ 
+ static inline void bfly4_tw1_256(__m256i *x0,__m256i *x1,__m256i *x2,__m256i *x3,
+-				 __m256i *y0,__m256i *y1,__m256i *y2,__m256i *y3)
++                                 __m256i *y0,__m256i *y1,__m256i *y2,__m256i *y3)
+ {
+   register __m256i x1_flip,x3_flip,x02t,x13t;
+   register __m256i complex_shuffle = simde_mm256_set_epi8(29,28,31,30,25,24,27,26,21,20,23,22,17,16,19,18,13,12,15,14,9,8,11,10,5,4,7,6,1,0,3,2);
+@@ -1304,10 +1304,10 @@ static inline void ibfly4_tw1(__m128i *x0,__m128i *x1,__m128i *x2,__m128i *x3,
+ #elif defined(__arm__) || defined(__aarch64__)
+ #if 0
+ static inline void ibfly4_tw1(int16x8_t *x0,int16x8_t *x1,int16x8_t *x2,int16x8_t *x3,
+-			      int16x8_t *y0,int16x8_t *y1,int16x8_t *y2,int16x8_t *y3)__attribute__((always_inline));
++                              int16x8_t *y0,int16x8_t *y1,int16x8_t *y2,int16x8_t *y3)__attribute__((always_inline));
+ 
+ static inline void ibfly4_tw1(int16x8_t *x0,int16x8_t *x1,int16x8_t *x2,int16x8_t *x3,
+-			      int16x8_t *y0,int16x8_t *y1,int16x8_t *y2,int16x8_t *y3)
++                              int16x8_t *y0,int16x8_t *y1,int16x8_t *y2,int16x8_t *y3)
+ {
+ 
+   register int16x8_t x1_flip,x3_flip;
+@@ -1373,14 +1373,14 @@ static inline void bfly4_16(__m128i *x0,__m128i *x1,__m128i *x2,__m128i *x3,
+ }
+ #endif
+ static inline void bfly4_16_256(__m256i *x0,__m256i *x1,__m256i *x2,__m256i *x3,
+-				__m256i *y0,__m256i *y1,__m256i *y2,__m256i *y3,
+-				__m256i *tw1,__m256i *tw2,__m256i *tw3,
+-				__m256i *tw1b,__m256i *tw2b,__m256i *tw3b)__attribute__((always_inline));
++                                __m256i *y0,__m256i *y1,__m256i *y2,__m256i *y3,
++                                __m256i *tw1,__m256i *tw2,__m256i *tw3,
++                                __m256i *tw1b,__m256i *tw2b,__m256i *tw3b)__attribute__((always_inline));
+ 
+ static inline void bfly4_16_256(__m256i *x0,__m256i *x1,__m256i *x2,__m256i *x3,
+-				__m256i *y0,__m256i *y1,__m256i *y2,__m256i *y3,
+-				__m256i *tw1,__m256i *tw2,__m256i *tw3,
+-				__m256i *tw1b,__m256i *tw2b,__m256i *tw3b)
++                                __m256i *y0,__m256i *y1,__m256i *y2,__m256i *y3,
++                                __m256i *tw1,__m256i *tw2,__m256i *tw3,
++                                __m256i *tw1b,__m256i *tw2b,__m256i *tw3b)
+ {
+ 
+   register __m256i x1t,x2t,x3t,x02t,x13t;
+@@ -1497,14 +1497,14 @@ static inline void ibfly4_16(__m128i *x0,__m128i *x1,__m128i *x2,__m128i *x3,
+ }
+ #endif
+ static inline void ibfly4_16_256(__m256i *x0,__m256i *x1,__m256i *x2,__m256i *x3,
+-				 __m256i *y0,__m256i *y1,__m256i *y2,__m256i *y3,
+-				 __m256i *tw1,__m256i *tw2,__m256i *tw3,
+-				 __m256i *tw1b,__m256i *tw2b,__m256i *tw3b)__attribute__((always_inline));
++                                 __m256i *y0,__m256i *y1,__m256i *y2,__m256i *y3,
++                                 __m256i *tw1,__m256i *tw2,__m256i *tw3,
++                                 __m256i *tw1b,__m256i *tw2b,__m256i *tw3b)__attribute__((always_inline));
+ 
+ static inline void ibfly4_16_256(__m256i *x0,__m256i *x1,__m256i *x2,__m256i *x3,
+-				 __m256i *y0,__m256i *y1,__m256i *y2,__m256i *y3,
+-				 __m256i *tw1,__m256i *tw2,__m256i *tw3,
+-				 __m256i *tw1b,__m256i *tw2b,__m256i *tw3b)
++                                 __m256i *y0,__m256i *y1,__m256i *y2,__m256i *y3,
++                                 __m256i *tw1,__m256i *tw2,__m256i *tw3,
++                                 __m256i *tw1b,__m256i *tw2b,__m256i *tw3b)
+ {
+ 
+   register __m256i x1t,x2t,x3t,x02t,x13t;
+@@ -1538,14 +1538,14 @@ static inline void ibfly4_16_256(__m256i *x0,__m256i *x1,__m256i *x2,__m256i *x3
+ #elif defined(__arm__) || defined(__aarch64__)
+ #if 0
+ static inline void ibfly4_16(int16x8_t *x0,int16x8_t *x1,int16x8_t *x2,int16x8_t *x3,
+-			     int16x8_t *y0,int16x8_t *y1,int16x8_t *y2,int16x8_t *y3,
+-			     int16x8_t *tw1,int16x8_t *tw2,int16x8_t *tw3,
+-			     int16x8_t *tw1b,int16x8_t *tw2b,int16x8_t *tw3b)__attribute__((always_inline));
++                             int16x8_t *y0,int16x8_t *y1,int16x8_t *y2,int16x8_t *y3,
++                             int16x8_t *tw1,int16x8_t *tw2,int16x8_t *tw3,
++                             int16x8_t *tw1b,int16x8_t *tw2b,int16x8_t *tw3b)__attribute__((always_inline));
+ 
+ static inline void ibfly4_16(int16x8_t *x0,int16x8_t *x1,int16x8_t *x2,int16x8_t *x3,
+-			     int16x8_t *y0,int16x8_t *y1,int16x8_t *y2,int16x8_t *y3,
+-			     int16x8_t *tw1,int16x8_t *tw2,int16x8_t *tw3,
+-			     int16x8_t *tw1b,int16x8_t *tw2b,int16x8_t *tw3b)
++                             int16x8_t *y0,int16x8_t *y1,int16x8_t *y2,int16x8_t *y3,
++                             int16x8_t *tw1,int16x8_t *tw2,int16x8_t *tw3,
++                             int16x8_t *tw1b,int16x8_t *tw2b,int16x8_t *tw3b)
+ {
+ 
+   register int16x8_t x1t,x2t,x3t,x02t,x13t;
+@@ -1621,12 +1621,12 @@ static inline void bfly5(__m128i *x0, __m128i *x1, __m128i *x2, __m128i *x3,__m1
+ }
+ #if 0
+ static inline void bfly5_256(__m256i *x0, __m256i *x1, __m256i *x2, __m256i *x3,__m256i *x4,
+-			     __m256i *y0, __m256i *y1, __m256i *y2, __m256i *y3,__m256i *y4,
+-			     __m256i *tw1,__m256i *tw2,__m256i *tw3,__m256i *tw4)__attribute__((always_inline));
++                             __m256i *y0, __m256i *y1, __m256i *y2, __m256i *y3,__m256i *y4,
++                             __m256i *tw1,__m256i *tw2,__m256i *tw3,__m256i *tw4)__attribute__((always_inline));
+ 
+ static inline void bfly5_256(__m256i *x0, __m256i *x1, __m256i *x2, __m256i *x3,__m256i *x4,
+-			     __m256i *y0, __m256i *y1, __m256i *y2, __m256i *y3,__m256i *y4,
+-			     __m256i *tw1,__m256i *tw2,__m256i *tw3,__m256i *tw4)
++                             __m256i *y0, __m256i *y1, __m256i *y2, __m256i *y3,__m256i *y4,
++                             __m256i *tw1,__m256i *tw2,__m256i *tw3,__m256i *tw4)
+ {
+ 
+ 
+@@ -1763,10 +1763,10 @@ static inline void bfly5_tw1(__m128i *x0, __m128i *x1, __m128i *x2, __m128i *x3,
+ }
+ #if 0
+ static inline void bfly5_tw1_256(__m256i *x0, __m256i *x1, __m256i *x2, __m256i *x3,__m256i *x4,
+-				 __m256i *y0, __m256i *y1, __m256i *y2, __m256i *y3,__m256i *y4) __attribute__((always_inline));
++                                 __m256i *y0, __m256i *y1, __m256i *y2, __m256i *y3,__m256i *y4) __attribute__((always_inline));
+ 
+ static inline void bfly5_tw1_256(__m256i *x0, __m256i *x1, __m256i *x2, __m256i *x3,__m256i *x4,
+-				 __m256i *y0, __m256i *y1, __m256i *y2, __m256i *y3,__m256i *y4)
++                                 __m256i *y0, __m256i *y1, __m256i *y2, __m256i *y3,__m256i *y4)
+ {
+ 
+   __m256i tmpre,tmpim;
+@@ -2001,13 +2001,13 @@ const static int16_t tw16c[24] __attribute__((aligned(32))) = { 0,32767,12540,30
+                                                  };
+ 
+ const static int16_t tw16rep[48] __attribute__((aligned(32))) = { 32767,0,30272,-12540,23169 ,-23170,12539 ,-30273,32767,0,30272,-12540,23169 ,-23170,12539 ,-30273,
+-						     32767,0,23169,-23170,0     ,-32767,-23170,-23170,32767,0,23169,-23170,0     ,-32767,-23170,-23170,
+-						     32767,0,12539,-30273,-23170,-23170,-30273,12539,32767,0,12539,-30273,-23170,-23170,-30273,12539
++                                                     32767,0,23169,-23170,0     ,-32767,-23170,-23170,32767,0,23169,-23170,0     ,-32767,-23170,-23170,
++                                                     32767,0,12539,-30273,-23170,-23170,-30273,12539,32767,0,12539,-30273,-23170,-23170,-30273,12539
+                                                    };
+ 
+ const static int16_t tw16arep[48] __attribute__((aligned(32))) = {32767,0,30272,12540,23169 ,23170,12539 ,30273,32767,0,30272,12540,23169 ,23170,12539 ,30273,
+-						     32767,0,23169,23170,0     ,32767,-23170,23170,32767,0,23169,23170,0     ,32767,-23170,23170,
+-						     32767,0,12539,30273,-23170,23170,-30273,-12539,32767,0,12539,30273,-23170,23170,-30273,-12539
++                                                     32767,0,23169,23170,0     ,32767,-23170,23170,32767,0,23169,23170,0     ,32767,-23170,23170,
++                                                     32767,0,12539,30273,-23170,23170,-30273,-12539,32767,0,12539,30273,-23170,23170,-30273,-12539
+                                                     }; 
+ 
+ const static int16_t tw16brep[48] __attribute__((aligned(32))) = { 0,32767,-12540,30272,-23170,23169 ,-30273,12539,0,32767,-12540,30272,-23170,23169 ,-30273,12539,
+@@ -2016,8 +2016,8 @@ const static int16_t tw16brep[48] __attribute__((aligned(32))) = { 0,32767,-1254
+                                                     };
+ 
+ const static int16_t tw16crep[48] __attribute__((aligned(32))) = { 0,32767,12540,30272,23170,23169 ,30273 ,12539,0,32767,12540,30272,23170,23169 ,30273 ,12539,
+-						      0,32767,23170,23169,32767,0     ,23170 ,-23170,0,32767,23170,23169,32767,0     ,23170 ,-23170,
+-						      0,32767,30273,12539,23170,-23170,-12539,-30273,0,32767,30273,12539,23170,-23170,-12539,-30273
++                                                      0,32767,23170,23169,32767,0     ,23170 ,-23170,0,32767,23170,23169,32767,0     ,23170 ,-23170,
++                                                      0,32767,30273,12539,23170,-23170,-12539,-30273,0,32767,30273,12539,23170,-23170,-12539,-30273
+                                                     };
+ #if 0
+ const static int16_t tw16a[24] __attribute__((aligned(32))) = {32767,0,30272,12540,23169 ,23170,12539 ,30273,
+@@ -2571,10 +2571,10 @@ void dft64(int16_t *x,int16_t *y,unsigned char scale)
+   xintl1 = simde_mm256_permutevar8x32_epi32(x256[1],perm_mask);  // x8  x12 x9  x13 x10 x14 x11 x15
+   xintl2 = simde_mm256_permutevar8x32_epi32(x256[2],perm_mask);  // x16 x20 x17 x21 x18 x22 x19 x23
+   xintl3 = simde_mm256_permutevar8x32_epi32(x256[3],perm_mask);  // x24 x28 x25 x29 x26 x30 x27 x31
+-  xintl4 = simde_mm256_permutevar8x32_epi32(x256[4],perm_mask);  // x32 x28 x25 x29 x26 x30 x27 x31
+-  xintl5 = simde_mm256_permutevar8x32_epi32(x256[5],perm_mask);  // x40 x28 x25 x29 x26 x30 x27 x31
+-  xintl6 = simde_mm256_permutevar8x32_epi32(x256[6],perm_mask);  // x48 x28 x25 x29 x26 x30 x27 x31
+-  xintl7 = simde_mm256_permutevar8x32_epi32(x256[7],perm_mask);  // x56 x28 x25 x29 x26 x30 x27 x31
++  xintl4 = simde_mm256_permutevar8x32_epi32(x256[4],perm_mask);  // x32 x36 x33 x37 x34 x38 x35 x39
++  xintl5 = simde_mm256_permutevar8x32_epi32(x256[5],perm_mask);  // x40 x44 x41 x45 x42 x46 x43 x47
++  xintl6 = simde_mm256_permutevar8x32_epi32(x256[6],perm_mask);  // x48 x52 x49 x53 x50 x54 x51 x55
++  xintl7 = simde_mm256_permutevar8x32_epi32(x256[7],perm_mask);  // x56 x60 x57 x61 x58 x62 x59 x63
+   /*
+   print_shorts256("xintl0",(int16_t*)&xintl0);
+   print_shorts256("xintl1",(int16_t*)&xintl1);
+@@ -2632,18 +2632,18 @@ void dft64(int16_t *x,int16_t *y,unsigned char scale)
+ 
+ 
+   bfly4_16_256(ytmp,ytmp+2,ytmp+4,ytmp+6,
+-	       y256,y256+2,y256+4,y256+6,
+-	       tw64a_256,tw64a_256+2,tw64a_256+4,
+-	       tw64b_256,tw64b_256+2,tw64b_256+4);
++               y256,y256+2,y256+4,y256+6,
++               tw64a_256,tw64a_256+2,tw64a_256+4,
++               tw64b_256,tw64b_256+2,tw64b_256+4);
+   // [y0  y1  y2  y3  y4  y5  y6  y7]
+   // [y16 y17 y18 y19 y20 y21 y22 y23]
+   // [y32 y33 y34 y35 y36 y37 y38 y39]
+   // [y48 y49 y50 y51 y52 y53 y54 y55]
+ 
+   bfly4_16_256(ytmp+1,ytmp+3,ytmp+5,ytmp+7,
+-	       y256+1,y256+3,y256+5,y256+7,
+-	       tw64a_256+1,tw64a_256+3,tw64a_256+5,
+-	       tw64b_256+1,tw64b_256+3,tw64b_256+5);
++               y256+1,y256+3,y256+5,y256+7,
++               tw64a_256+1,tw64a_256+3,tw64a_256+5,
++               tw64b_256+1,tw64b_256+3,tw64b_256+5);
+   // [y8  y9  y10 y11 y12 y13 y14 y15]
+   // [y24 y25 y26 y27 y28 y29 y30 y31]
+   // [y40 y41 y42 y43 y44 y45 y46 y47]
+@@ -2708,10 +2708,10 @@ void idft64(int16_t *x,int16_t *y,unsigned char scale)
+   xintl1 = simde_mm256_permutevar8x32_epi32(x256[1],perm_mask);  // x8  x12 x9  x13 x10 x14 x11 x15
+   xintl2 = simde_mm256_permutevar8x32_epi32(x256[2],perm_mask);  // x16 x20 x17 x21 x18 x22 x19 x23
+   xintl3 = simde_mm256_permutevar8x32_epi32(x256[3],perm_mask);  // x24 x28 x25 x29 x26 x30 x27 x31
+-  xintl4 = simde_mm256_permutevar8x32_epi32(x256[4],perm_mask);  // x24 x28 x25 x29 x26 x30 x27 x31
+-  xintl5 = simde_mm256_permutevar8x32_epi32(x256[5],perm_mask);  // x24 x28 x25 x29 x26 x30 x27 x31
+-  xintl6 = simde_mm256_permutevar8x32_epi32(x256[6],perm_mask);  // x24 x28 x25 x29 x26 x30 x27 x31
+-  xintl7 = simde_mm256_permutevar8x32_epi32(x256[7],perm_mask);  // x24 x28 x25 x29 x26 x30 x27 x31
++  xintl4 = simde_mm256_permutevar8x32_epi32(x256[4],perm_mask);  // x32 x36 x33 x37 x34 x38 x35 x39
++  xintl5 = simde_mm256_permutevar8x32_epi32(x256[5],perm_mask);  // x40 x44 x41 x45 x42 x46 x43 x47
++  xintl6 = simde_mm256_permutevar8x32_epi32(x256[6],perm_mask);  // x48 x52 x49 x53 x50 x54 x51 x55
++  xintl7 = simde_mm256_permutevar8x32_epi32(x256[7],perm_mask);  // x56 x60 x57 x61 x58 x62 x59 x63
+ 
+   xtmp[0] = simde_mm256_unpacklo_epi64(xintl0,xintl1);        // x0  x4  x8  x12 x1  x5  x9  x13
+   xtmp[4] = simde_mm256_unpackhi_epi64(xintl0,xintl1);        // x2  x6  x10 x14 x3  x7  x11 x15
+@@ -2742,18 +2742,18 @@ void idft64(int16_t *x,int16_t *y,unsigned char scale)
+ 
+ 
+   ibfly4_16_256(ytmp,ytmp+2,ytmp+4,ytmp+6,
+-		y256,y256+2,y256+4,y256+6,
+-		tw64a_256,tw64a_256+2,tw64a_256+4,
+-		tw64b_256,tw64b_256+2,tw64b_256+4);
++                y256,y256+2,y256+4,y256+6,
++                tw64a_256,tw64a_256+2,tw64a_256+4,
++                tw64b_256,tw64b_256+2,tw64b_256+4);
+   // [y0  y1  y2  y3  y4  y5  y6  y7]
+   // [y16 y17 y18 y19 y20 y21 y22 y23]
+   // [y32 y33 y34 y35 y36 y37 y38 y39]
+   // [y48 y49 y50 y51 y52 y53 y54 y55]
+ 
+   ibfly4_16_256(ytmp+1,ytmp+3,ytmp+5,ytmp+7,
+-		y256+1,y256+3,y256+5,y256+7,
+-		tw64a_256+1,tw64a_256+3,tw64a_256+5,
+-		tw64b_256+1,tw64b_256+3,tw64b_256+5);
++                y256+1,y256+3,y256+5,y256+7,
++                tw64a_256+1,tw64a_256+3,tw64a_256+5,
++                tw64b_256+1,tw64b_256+3,tw64b_256+5);
+   // [y8  y9  y10 y11 y12 y13 y14 y15]
+   // [y24 y25 y26 y27 y28 y29 y30 y31]
+   // [y40 y41 y42 y43 y44 y45 y46 y47]
+@@ -2824,9 +2824,9 @@ void dft128(int16_t *x,int16_t *y,unsigned char scale)
+ #endif
+   for (i=0; i<8; i++) {
+     bfly2_16_256(ytmpp,ytmpp+8,
+-		 y256p,y256p+8,
+-		 tw128a_256p,
+-		 tw128b_256p);
++                 y256p,y256p+8,
++                 tw128a_256p,
++                 tw128b_256p);
+     tw128a_256p++;
+     tw128b_256p++;
+     y256p++;
+@@ -2887,8 +2887,8 @@ void idft128(int16_t *x,int16_t *y,unsigned char scale)
+ 
+   for (i=0; i<8; i++) {
+     ibfly2_256(ytmpp,ytmpp+8,
+-	       y256p,y256p+8,
+-	       tw128_256p);
++               y256p,y256p+8,
++               tw128_256p);
+     tw128_256p++;
+     y256p++;
+     ytmpp++;
+@@ -2961,37 +2961,37 @@ void dft256(int16_t *x,int16_t *y,unsigned char scale)
+ 
+ 
+   bfly4_16_256(ytmpp,ytmpp+8,ytmpp+16,ytmpp+24,
+-	       y256p,y256p+8,y256p+16,y256p+24,
+-	       tw256a_256p,tw256a_256p+8,tw256a_256p+16,
+-	       tw256b_256p,tw256b_256p+8,tw256b_256p+16);
++               y256p,y256p+8,y256p+16,y256p+24,
++               tw256a_256p,tw256a_256p+8,tw256a_256p+16,
++               tw256b_256p,tw256b_256p+8,tw256b_256p+16);
+   bfly4_16_256(ytmpp+1,ytmpp+9,ytmpp+17,ytmpp+25,
+-	       y256p+1,y256p+9,y256p+17,y256p+25,
+-	       tw256a_256p+1,tw256a_256p+9,tw256a_256p+17,
+-	       tw256b_256p+1,tw256b_256p+9,tw256b_256p+17);
++               y256p+1,y256p+9,y256p+17,y256p+25,
++               tw256a_256p+1,tw256a_256p+9,tw256a_256p+17,
++               tw256b_256p+1,tw256b_256p+9,tw256b_256p+17);
+   bfly4_16_256(ytmpp+2,ytmpp+10,ytmpp+18,ytmpp+26,
+-	       y256p+2,y256p+10,y256p+18,y256p+26,
+-	       tw256a_256p+2,tw256a_256p+10,tw256a_256p+18,
+-	       tw256b_256p+2,tw256b_256p+10,tw256b_256p+18);
++               y256p+2,y256p+10,y256p+18,y256p+26,
++               tw256a_256p+2,tw256a_256p+10,tw256a_256p+18,
++               tw256b_256p+2,tw256b_256p+10,tw256b_256p+18);
+   bfly4_16_256(ytmpp+3,ytmpp+11,ytmpp+19,ytmpp+27,
+-	       y256p+3,y256p+11,y256p+19,y256p+27,
+-	       tw256a_256p+3,tw256a_256p+11,tw256a_256p+19,
+-	       tw256b_256p+3,tw256b_256p+11,tw256b_256p+19);
++               y256p+3,y256p+11,y256p+19,y256p+27,
++               tw256a_256p+3,tw256a_256p+11,tw256a_256p+19,
++               tw256b_256p+3,tw256b_256p+11,tw256b_256p+19);
+   bfly4_16_256(ytmpp+4,ytmpp+12,ytmpp+20,ytmpp+28,
+-	       y256p+4,y256p+12,y256p+20,y256p+28,
+-	       tw256a_256p+4,tw256a_256p+12,tw256a_256p+20,
+-	       tw256b_256p+4,tw256b_256p+12,tw256b_256p+20);
++               y256p+4,y256p+12,y256p+20,y256p+28,
++               tw256a_256p+4,tw256a_256p+12,tw256a_256p+20,
++               tw256b_256p+4,tw256b_256p+12,tw256b_256p+20);
+   bfly4_16_256(ytmpp+5,ytmpp+13,ytmpp+21,ytmpp+29,
+-	       y256p+5,y256p+13,y256p+21,y256p+29,
+-	       tw256a_256p+5,tw256a_256p+13,tw256a_256p+21,
+-	       tw256b_256p+5,tw256b_256p+13,tw256b_256p+21);
++               y256p+5,y256p+13,y256p+21,y256p+29,
++               tw256a_256p+5,tw256a_256p+13,tw256a_256p+21,
++               tw256b_256p+5,tw256b_256p+13,tw256b_256p+21);
+   bfly4_16_256(ytmpp+6,ytmpp+14,ytmpp+22,ytmpp+30,
+-	       y256p+6,y256p+14,y256p+22,y256p+30,
+-	       tw256a_256p+6,tw256a_256p+14,tw256a_256p+22,
+-	       tw256b_256p+6,tw256b_256p+14,tw256b_256p+22);
++               y256p+6,y256p+14,y256p+22,y256p+30,
++               tw256a_256p+6,tw256a_256p+14,tw256a_256p+22,
++               tw256b_256p+6,tw256b_256p+14,tw256b_256p+22);
+   bfly4_16_256(ytmpp+7,ytmpp+15,ytmpp+23,ytmpp+31,
+-	       y256p+7,y256p+15,y256p+23,y256p+31,
+-	       tw256a_256p+7,tw256a_256p+15,tw256a_256p+23,
+-	       tw256b_256p+7,tw256b_256p+15,tw256b_256p+23);
++               y256p+7,y256p+15,y256p+23,y256p+31,
++               tw256a_256p+7,tw256a_256p+15,tw256a_256p+23,
++               tw256b_256p+7,tw256b_256p+15,tw256b_256p+23);
+ 
+   if (scale>0) {
+ 
+@@ -3046,36 +3046,36 @@ void idft256(int16_t *x,int16_t *y,unsigned char scale)
+   
+   
+   ibfly4_256(ytmpp,ytmpp+8,ytmpp+16,ytmpp+24,
+-	     y256p,y256p+8,y256p+16,y256p+24,
+-	     tw256_256p,tw256_256p+8,tw256_256p+16);
++             y256p,y256p+8,y256p+16,y256p+24,
++             tw256_256p,tw256_256p+8,tw256_256p+16);
+ 
+   ibfly4_256(ytmpp+1,ytmpp+9,ytmpp+17,ytmpp+25,
+-	     y256p+1,y256p+9,y256p+17,y256p+25,
+-	     tw256_256p+1,tw256_256p+9,tw256_256p+17);
++             y256p+1,y256p+9,y256p+17,y256p+25,
++             tw256_256p+1,tw256_256p+9,tw256_256p+17);
+ 
+   ibfly4_256(ytmpp+2,ytmpp+10,ytmpp+18,ytmpp+26,
+-	     y256p+2,y256p+10,y256p+18,y256p+26,
+-	     tw256_256p+2,tw256_256p+10,tw256_256p+18);
++             y256p+2,y256p+10,y256p+18,y256p+26,
++             tw256_256p+2,tw256_256p+10,tw256_256p+18);
+ 
+   ibfly4_256(ytmpp+3,ytmpp+11,ytmpp+19,ytmpp+27,
+-	     y256p+3,y256p+11,y256p+19,y256p+27,
+-	     tw256_256p+3,tw256_256p+11,tw256_256p+19);
++             y256p+3,y256p+11,y256p+19,y256p+27,
++             tw256_256p+3,tw256_256p+11,tw256_256p+19);
+ 
+   ibfly4_256(ytmpp+4,ytmpp+12,ytmpp+20,ytmpp+28,
+-	     y256p+4,y256p+12,y256p+20,y256p+28,
+-	     tw256_256p+4,tw256_256p+12,tw256_256p+20);
++             y256p+4,y256p+12,y256p+20,y256p+28,
++             tw256_256p+4,tw256_256p+12,tw256_256p+20);
+ 
+   ibfly4_256(ytmpp+5,ytmpp+13,ytmpp+21,ytmpp+29,
+-	     y256p+5,y256p+13,y256p+21,y256p+29,
+-	     tw256_256p+5,tw256_256p+13,tw256_256p+21);
++             y256p+5,y256p+13,y256p+21,y256p+29,
++             tw256_256p+5,tw256_256p+13,tw256_256p+21);
+ 
+   ibfly4_256(ytmpp+6,ytmpp+14,ytmpp+22,ytmpp+30,
+-	     y256p+6,y256p+14,y256p+22,y256p+30,
+-	     tw256_256p+6,tw256_256p+14,tw256_256p+22);
++             y256p+6,y256p+14,y256p+22,y256p+30,
++             tw256_256p+6,tw256_256p+14,tw256_256p+22);
+ 
+   ibfly4_256(ytmpp+7,ytmpp+15,ytmpp+23,ytmpp+31,
+-	     y256p+7,y256p+15,y256p+23,y256p+31,
+-	     tw256_256p+7,tw256_256p+15,tw256_256p+23);
++             y256p+7,y256p+15,y256p+23,y256p+31,
++             tw256_256p+7,tw256_256p+15,tw256_256p+23);
+ 
+   
+   if (scale>0) {
+@@ -3176,8 +3176,8 @@ void dft512(int16_t *x,int16_t *y,unsigned char scale)
+ 
+   for (i=0; i<32; i++) {
+     bfly2_256(ytmpp,ytmpp+32,
+-	      y256p,y256p+32,
+-	      tw512_256p);
++              y256p,y256p+32,
++              tw512_256p);
+     tw512_256p++;
+     y256p++;
+     ytmpp++;
+@@ -3258,8 +3258,8 @@ void idft512(int16_t *x,int16_t *y,unsigned char scale)
+ 
+   for (i=0; i<32; i++) {
+     ibfly2_256(ytmpp,ytmpp+32,
+-	       y256p,y256p+32,
+-	       tw512_256p);
++               y256p,y256p+32,
++               tw512_256p);
+     tw512_256p++;
+     y256p++;
+     ytmpp++;
+@@ -3311,8 +3311,8 @@ void dft1024(int16_t *x,int16_t *y,unsigned char scale)
+ 
+   for (i=0; i<32; i++) {
+     bfly4_256(ytmpp,ytmpp+32,ytmpp+64,ytmpp+96,
+-	      y256p,y256p+32,y256p+64,y256p+96,
+-	      tw1024_256p,tw1024_256p+32,tw1024_256p+64);
++              y256p,y256p+32,y256p+64,y256p+96,
++              tw1024_256p,tw1024_256p+32,tw1024_256p+64);
+     tw1024_256p++;
+     y256p++;
+     ytmpp++;
+@@ -3367,8 +3367,8 @@ void idft1024(int16_t *x,int16_t *y,unsigned char scale)
+ 
+   for (i=0; i<32; i++) {
+     ibfly4_256(ytmpp,ytmpp+32,ytmpp+64,ytmpp+96,
+-	       y256p,y256p+32,y256p+64,y256p+96,
+-	       tw1024_256p,tw1024_256p+32,tw1024_256p+64);
++               y256p,y256p+32,y256p+64,y256p+96,
++               tw1024_256p,tw1024_256p+32,tw1024_256p+64);
+     tw1024_256p++;
+     y256p++;
+     ytmpp++;
+@@ -3461,8 +3461,8 @@ void dft2048(int16_t *x,int16_t *y,unsigned char scale)
+ 
+   for (i=0; i<128; i++) {
+     bfly2_256(ytmpp,ytmpp+128,
+-	      y256p,y256p+128,
+-	      tw2048_256p);
++              y256p,y256p+128,
++              tw2048_256p);
+     tw2048_256p++;
+     y256p++;
+     ytmpp++;
+@@ -3551,8 +3551,8 @@ void idft2048(int16_t *x,int16_t *y,unsigned char scale)
+ 
+   for (i=0; i<128; i++) {
+     ibfly2_256(ytmpp,ytmpp+128,
+-	       y256p,y256p+128,
+-	       tw2048_256p);
++               y256p,y256p+128,
++               tw2048_256p);
+     tw2048_256p++;
+     y256p++;
+     ytmpp++;
+@@ -3608,8 +3608,8 @@ void dft4096(int16_t *x,int16_t *y,unsigned char scale)
+ 
+   for (i=0; i<128; i++) {
+     bfly4_256(ytmpp,ytmpp+128,ytmpp+256,ytmpp+384,
+-	      y256p,y256p+128,y256p+256,y256p+384,
+-	      tw4096_256p,tw4096_256p+128,tw4096_256p+256);
++              y256p,y256p+128,y256p+256,y256p+384,
++              tw4096_256p,tw4096_256p+128,tw4096_256p+256);
+     tw4096_256p++;
+     y256p++;
+     ytmpp++;
+@@ -3664,8 +3664,8 @@ void idft4096(int16_t *x,int16_t *y,unsigned char scale)
+ 
+   for (i=0; i<128; i++) {
+     ibfly4_256(ytmpp,ytmpp+128,ytmpp+256,ytmpp+384,
+-	       y256p,y256p+128,y256p+256,y256p+384,
+-	       tw4096_256p,tw4096_256p+128,tw4096_256p+256);
++               y256p,y256p+128,y256p+256,y256p+384,
++               tw4096_256p,tw4096_256p+128,tw4096_256p+256);
+     tw4096_256p++;
+     y256p++;
+     ytmpp++;
+@@ -3758,8 +3758,8 @@ void dft8192(int16_t *x,int16_t *y,unsigned char scale)
+ 
+   for (i=0; i<512; i++) {
+     bfly2_256(ytmpp,ytmpp+512,
+-	      y256p,y256p+512,
+-	      tw8192_256p);
++              y256p,y256p+512,
++              tw8192_256p);
+     tw8192_256p++;
+     y256p++;
+     ytmpp++;
+@@ -3848,8 +3848,8 @@ void idft8192(int16_t *x,int16_t *y,unsigned char scale)
+ 
+   for (i=0; i<512; i++) {
+     ibfly2_256(ytmpp,ytmpp+512,
+-	       y256p,y256p+512,
+-	       tw8192_256p);
++               y256p,y256p+512,
++               tw8192_256p);
+     tw8192_256p++;
+     y256p++;
+     ytmpp++;
+@@ -3905,8 +3905,8 @@ void dft16384(int16_t *x,int16_t *y,unsigned char scale)
+ 
+   for (i=0; i<512; i++) {
+     bfly4_256(ytmpp,ytmpp+512,ytmpp+1024,ytmpp+1536,
+-	      y256p,y256p+512,y256p+1024,y256p+1536,
+-	      tw16384_256p,tw16384_256p+512,tw16384_256p+1024);
++              y256p,y256p+512,y256p+1024,y256p+1536,
++              tw16384_256p,tw16384_256p+512,tw16384_256p+1024);
+     tw16384_256p++;
+     y256p++;
+     ytmpp++;
+@@ -3961,8 +3961,8 @@ void idft16384(int16_t *x,int16_t *y,unsigned char scale)
+ 
+   for (i=0; i<512; i++) {
+     ibfly4_256(ytmpp,ytmpp+512,ytmpp+1024,ytmpp+1536,
+-	       y256p,y256p+512,y256p+1024,y256p+1536,
+-	       tw16384_256p,tw16384_256p+512,tw16384_256p+1024);
++               y256p,y256p+512,y256p+1024,y256p+1536,
++               tw16384_256p,tw16384_256p+512,tw16384_256p+1024);
+     tw16384_256p++;
+     y256p++;
+     ytmpp++;
+@@ -4055,8 +4055,8 @@ void dft32768(int16_t *x,int16_t *y,unsigned char scale)
+ 
+   for (i=0; i<2048; i++) {
+     bfly2_256(ytmpp,ytmpp+2048,
+-	      y256p,y256p+2048,
+-	      tw32768_256p);
++              y256p,y256p+2048,
++              tw32768_256p);
+     tw32768_256p++;
+     y256p++;
+     ytmpp++;
+@@ -4145,8 +4145,8 @@ void idft32768(int16_t *x,int16_t *y,unsigned char scale)
+ 
+   for (i=0; i<2048; i++) {
+     ibfly2_256(ytmpp,ytmpp+2048,
+-	       y256p,y256p+2048,
+-	       tw32768_256p);
++               y256p,y256p+2048,
++               tw32768_256p);
+     tw32768_256p++;
+     y256p++;
+     ytmpp++;
+@@ -4552,8 +4552,8 @@ void idft6144(int16_t *input, int16_t *output,unsigned char scale)
+ #endif
+   for (i=0,i2=0; i<4096; i+=8,i2+=4)  {
+     ibfly3((simd_q15_t*)(&tmpo[0][i2]),(simd_q15_t*)(&tmpo[1][i2]),((simd_q15_t*)&tmpo[2][i2]),
+-	   (simd_q15_t*)(output+i),(simd_q15_t*)(output+4096+i),(simd_q15_t*)(output+8192+i),
+-	   (simd_q15_t*)(twa6144+i),(simd_q15_t*)(twb6144+i));
++           (simd_q15_t*)(output+i),(simd_q15_t*)(output+4096+i),(simd_q15_t*)(output+8192+i),
++           (simd_q15_t*)(twa6144+i),(simd_q15_t*)(twb6144+i));
+   }
+ 
+ 
+@@ -4860,8 +4860,8 @@ void idft18432(int16_t *input, int16_t *output,unsigned char scale) {
+ 
+   for (i=0,i2=0; i<12288; i+=8,i2+=4)  {
+     ibfly3((simd_q15_t*)(&tmpo[0][i2]),(simd_q15_t*)(&tmpo[1][i2]),(simd_q15_t*)(&tmpo[2][i2]),
+-	   (simd_q15_t*)(output+i),(simd_q15_t*)(output+12288+i),(simd_q15_t*)(output+24576+i),
+-	   (simd_q15_t*)(twa18432+i),(simd_q15_t*)(twb18432+i));
++           (simd_q15_t*)(output+i),(simd_q15_t*)(output+12288+i),(simd_q15_t*)(output+24576+i),
++           (simd_q15_t*)(twa18432+i),(simd_q15_t*)(twb18432+i));
+   }
+   if (scale==1) {
+     for (i=0; i<288; i++) {
+@@ -5204,8 +5204,8 @@ void idft49152(int16_t *input, int16_t *output,uint8_t scale) {
+ 
+   for (i=0,i2=0; i<32768; i+=8,i2+=4)  {
+     ibfly3((simd_q15_t*)(&tmpo[0][i2]),(simd_q15_t*)(&tmpo[1][i2]),((simd_q15_t*)&tmpo[2][i2]),
+-	   (simd_q15_t*)(output+i),(simd_q15_t*)(output+32768+i),(simd_q15_t*)(output+65536+i),
+-	   (simd_q15_t*)(twa49152+i),(simd_q15_t*)(twb49152+i));
++           (simd_q15_t*)(output+i),(simd_q15_t*)(output+32768+i),(simd_q15_t*)(output+65536+i),
++           (simd_q15_t*)(twa49152+i),(simd_q15_t*)(twb49152+i));
+   }
+   if (scale==1) {
+     for (i=0; i<768; i++) {
+@@ -5375,8 +5375,8 @@ void idft98304(int16_t *input, int16_t *output,uint8_t scale) {
+ 
+   for (i=0,i2=0; i<65536; i+=8,i2+=4)  {
+     ibfly3((simd_q15_t*)(&tmpo[0][i2]),(simd_q15_t*)(&tmpo[1][i2]),((simd_q15_t*)&tmpo[2][i2]),
+-	   (simd_q15_t*)(output+i),(simd_q15_t*)(output+65536+i),(simd_q15_t*)(output+131072+i),
+-	   (simd_q15_t*)(twa98304+i),(simd_q15_t*)(twb98304+i));
++           (simd_q15_t*)(output+i),(simd_q15_t*)(output+65536+i),(simd_q15_t*)(output+131072+i),
++           (simd_q15_t*)(twa98304+i),(simd_q15_t*)(twb98304+i));
+   }
+   if (scale==1) {
+     for (i=0; i<1536; i++) {
+@@ -5602,54 +5602,54 @@ simd256_q15_t *W6_12_256=(simd256_q15_t *)W6_12s_256;
+ 
+ 
+ static inline void dft12f_simd256(simd256_q15_t *x0,
+-				  simd256_q15_t *x1,
+-				  simd256_q15_t *x2,
+-				  simd256_q15_t *x3,
+-				  simd256_q15_t *x4,
+-				  simd256_q15_t *x5,
+-				  simd256_q15_t *x6,
+-				  simd256_q15_t *x7,
+-				  simd256_q15_t *x8,
+-				  simd256_q15_t *x9,
+-				  simd256_q15_t *x10,
+-				  simd256_q15_t *x11,
+-				  simd256_q15_t *y0,
+-				  simd256_q15_t *y1,
+-				  simd256_q15_t *y2,
+-				  simd256_q15_t *y3,
+-				  simd256_q15_t *y4,
+-				  simd256_q15_t *y5,
+-				  simd256_q15_t *y6,
+-				  simd256_q15_t *y7,
+-				  simd256_q15_t *y8,
+-				  simd256_q15_t *y9,
+-				  simd256_q15_t *y10,
+-				  simd256_q15_t *y11) __attribute__((always_inline));
++                                  simd256_q15_t *x1,
++                                  simd256_q15_t *x2,
++                                  simd256_q15_t *x3,
++                                  simd256_q15_t *x4,
++                                  simd256_q15_t *x5,
++                                  simd256_q15_t *x6,
++                                  simd256_q15_t *x7,
++                                  simd256_q15_t *x8,
++                                  simd256_q15_t *x9,
++                                  simd256_q15_t *x10,
++                                  simd256_q15_t *x11,
++                                  simd256_q15_t *y0,
++                                  simd256_q15_t *y1,
++                                  simd256_q15_t *y2,
++                                  simd256_q15_t *y3,
++                                  simd256_q15_t *y4,
++                                  simd256_q15_t *y5,
++                                  simd256_q15_t *y6,
++                                  simd256_q15_t *y7,
++                                  simd256_q15_t *y8,
++                                  simd256_q15_t *y9,
++                                  simd256_q15_t *y10,
++                                  simd256_q15_t *y11) __attribute__((always_inline));
+ 
+ static inline void dft12f_simd256(simd256_q15_t *x0,
+-				  simd256_q15_t *x1,
+-				  simd256_q15_t *x2,
+-				  simd256_q15_t *x3,
+-				  simd256_q15_t *x4,
+-				  simd256_q15_t *x5,
+-				  simd256_q15_t *x6,
+-				  simd256_q15_t *x7,
+-				  simd256_q15_t *x8,
+-				  simd256_q15_t *x9,
+-				  simd256_q15_t *x10,
+-				  simd256_q15_t *x11,
+-				  simd256_q15_t *y0,
+-				  simd256_q15_t *y1,
+-				  simd256_q15_t *y2,
+-				  simd256_q15_t *y3,
+-				  simd256_q15_t *y4,
+-				  simd256_q15_t *y5,
+-				  simd256_q15_t *y6,
+-				  simd256_q15_t *y7,
+-				  simd256_q15_t *y8,
+-				  simd256_q15_t *y9,
+-				  simd256_q15_t *y10,
+-				  simd256_q15_t *y11)
++                                  simd256_q15_t *x1,
++                                  simd256_q15_t *x2,
++                                  simd256_q15_t *x3,
++                                  simd256_q15_t *x4,
++                                  simd256_q15_t *x5,
++                                  simd256_q15_t *x6,
++                                  simd256_q15_t *x7,
++                                  simd256_q15_t *x8,
++                                  simd256_q15_t *x9,
++                                  simd256_q15_t *x10,
++                                  simd256_q15_t *x11,
++                                  simd256_q15_t *y0,
++                                  simd256_q15_t *y1,
++                                  simd256_q15_t *y2,
++                                  simd256_q15_t *y3,
++                                  simd256_q15_t *y4,
++                                  simd256_q15_t *y5,
++                                  simd256_q15_t *y6,
++                                  simd256_q15_t *y7,
++                                  simd256_q15_t *y8,
++                                  simd256_q15_t *y9,
++                                  simd256_q15_t *y10,
++                                  simd256_q15_t *y11)
+ {
+ 
+ 
+@@ -5660,75 +5660,75 @@ static inline void dft12f_simd256(simd256_q15_t *x0,
+   // msg("dft12\n");
+ 
+   bfly4_tw1_256(x0,
+-		x3,
+-		x6,
+-		x9,
+-		tmp_dft12_ptr,
+-		tmp_dft12_ptr+3,
+-		tmp_dft12_ptr+6,
+-		tmp_dft12_ptr+9);
++                x3,
++                x6,
++                x9,
++                tmp_dft12_ptr,
++                tmp_dft12_ptr+3,
++                tmp_dft12_ptr+6,
++                tmp_dft12_ptr+9);
+ 
+ 
+   bfly4_tw1_256(x1,
+-		x4,
+-		x7,
+-		x10,
+-		tmp_dft12_ptr+1,
+-		tmp_dft12_ptr+4,
+-		tmp_dft12_ptr+7,
+-		tmp_dft12_ptr+10);
++                x4,
++                x7,
++                x10,
++                tmp_dft12_ptr+1,
++                tmp_dft12_ptr+4,
++                tmp_dft12_ptr+7,
++                tmp_dft12_ptr+10);
+   
+ 
+   bfly4_tw1_256(x2,
+-		x5,
+-		x8,
+-		x11,
+-		tmp_dft12_ptr+2,
+-		tmp_dft12_ptr+5,
+-		tmp_dft12_ptr+8,
+-		tmp_dft12_ptr+11);
++                x5,
++                x8,
++                x11,
++                tmp_dft12_ptr+2,
++                tmp_dft12_ptr+5,
++                tmp_dft12_ptr+8,
++                tmp_dft12_ptr+11);
+   
+   //  k2=0;
+   bfly3_tw1_256(tmp_dft12_ptr,
+-		tmp_dft12_ptr+1,
+-		tmp_dft12_ptr+2,
+-		y0,
+-		y4,
+-		y8);
++                tmp_dft12_ptr+1,
++                tmp_dft12_ptr+2,
++                y0,
++                y4,
++                y8);
+   
+   
+   
+   //  k2=1;
+   bfly3_256(tmp_dft12_ptr+3,
+-	    tmp_dft12_ptr+4,
+-	    tmp_dft12_ptr+5,
+-	    y1,
+-	    y5,
+-	    y9,
+-	    W1_12_256,
+-	    W2_12_256);
++            tmp_dft12_ptr+4,
++            tmp_dft12_ptr+5,
++            y1,
++            y5,
++            y9,
++            W1_12_256,
++            W2_12_256);
+   
+   
+   
+   //  k2=2;
+   bfly3_256(tmp_dft12_ptr+6,
+-	    tmp_dft12_ptr+7,
+-	    tmp_dft12_ptr+8,
+-	    y2,
+-	    y6,
+-	    y10,
+-	    W2_12_256,
+-	    W4_12_256);
++            tmp_dft12_ptr+7,
++            tmp_dft12_ptr+8,
++            y2,
++            y6,
++            y10,
++            W2_12_256,
++            W4_12_256);
+   
+   //  k2=3;
+   bfly3_256(tmp_dft12_ptr+9,
+-	    tmp_dft12_ptr+10,
+-	    tmp_dft12_ptr+11,
+-	    y3,
+-	    y7,
+-	    y11,
+-	    W3_12_256,
+-	    W6_12_256);
++            tmp_dft12_ptr+10,
++            tmp_dft12_ptr+11,
++            y3,
++            y7,
++            y11,
++            W3_12_256,
++            W6_12_256);
+   
+ }
+ 
+@@ -5740,29 +5740,29 @@ void dft12_simd256(int16_t *x,int16_t *y)
+ 
+   simd256_q15_t *x256 = (simd256_q15_t *)x,*y256 = (simd256_q15_t *)y;
+   dft12f_simd256(&x256[0],
+-		 &x256[1],
+-		 &x256[2],
+-		 &x256[3],
+-		 &x256[4],
+-		 &x256[5],
+-		 &x256[6],
+-		 &x256[7],
+-		 &x256[8],
+-		 &x256[9],
+-		 &x256[10],
+-		 &x256[11],
+-		 &y256[0],
+-		 &y256[1],
+-		 &y256[2],
+-		 &y256[3],
+-		 &y256[4],
+-		 &y256[5],
+-		 &y256[6],
+-		 &y256[7],
+-		 &y256[8],
+-		 &y256[9],
+-		 &y256[10],
+-		 &y256[11]);
++                 &x256[1],
++                 &x256[2],
++                 &x256[3],
++                 &x256[4],
++                 &x256[5],
++                 &x256[6],
++                 &x256[7],
++                 &x256[8],
++                 &x256[9],
++                 &x256[10],
++                 &x256[11],
++                 &y256[0],
++                 &y256[1],
++                 &y256[2],
++                 &y256[3],
++                 &y256[4],
++                 &y256[5],
++                 &y256[6],
++                 &y256[7],
++                 &y256[8],
++                 &y256[9],
++                 &y256[10],
++                 &y256[11]);
+   
+   _mm_empty();
+   _m_empty();
+@@ -9051,7 +9051,7 @@ int dfts_autoinit(void)
+ #ifndef MR_MAIN
+ 
+ void dft(uint8_t sizeidx, int16_t *input,int16_t *output,unsigned char scale_flag){
+-	AssertFatal((sizeidx >= 0 && sizeidx<DFT_SIZE_IDXTABLESIZE),"Invalid dft size index %i\n",sizeidx);
++        AssertFatal((sizeidx >= 0 && sizeidx<DFT_SIZE_IDXTABLESIZE),"Invalid dft size index %i\n",sizeidx);
+         int algn=0xF;
+         if ( (dft_ftab[sizeidx].size%3) != 0 ) // there is no AVX2 implementation for multiples of 3 DFTs
+           algn=0x1F;
+@@ -9069,9 +9069,9 @@ void dft(uint8_t sizeidx, int16_t *input,int16_t *output,unsigned char scale_fla
+ };
+ 
+ void idft(uint8_t sizeidx, int16_t *input,int16_t *output,unsigned char scale_flag){
+-	AssertFatal((sizeidx>=0 && sizeidx<DFT_SIZE_IDXTABLESIZE),"Invalid idft size index %i\n",sizeidx);
++        AssertFatal((sizeidx>=0 && sizeidx<DFT_SIZE_IDXTABLESIZE),"Invalid idft size index %i\n",sizeidx);
+         int algn=0xF;
+-	algn=0x1F;
++        algn=0x1F;
+         AssertFatal( ((intptr_t)output&algn)==0,"Buffers should be 16 bytes aligned %p",output);
+         if (((intptr_t)input)&algn ) {  
+           LOG_D(PHY, "DFT called with input not aligned, add a memcpy\n");

@@ -1,0 +1,48 @@
+diff --git a/openair1/PHY/LTE_ESTIMATION/adjust_gain.c b/openair1/PHY/LTE_ESTIMATION/adjust_gain.c
+index 27e6c10686..a22cba1db0 100644
+--- a/openair1/PHY/LTE_ESTIMATION/adjust_gain.c
++++ b/openair1/PHY/LTE_ESTIMATION/adjust_gain.c
+@@ -27,10 +27,16 @@ void
+ phy_adjust_gain (PHY_VARS_UE *ue, uint32_t rx_power_fil_dB, uint8_t eNB_id)
+ {
+ 
++  // Check bounds to prevent heap buffer overflow
++  if (eNB_id >= NUMBER_OF_CONNECTED_eNB_MAX) {
++    LOG_E(PHY, "Invalid eNB_id %d, should be less than %d\n", eNB_id, NUMBER_OF_CONNECTED_eNB_MAX);
++    return;
++  }
++
+   LOG_D(PHY,"Gain control: rssi %d (%d,%d)\n",
+-	rx_power_fil_dB,
+-	ue->measurements.rssi,
+-	ue->measurements.rx_power_avg_dB[eNB_id]
++        rx_power_fil_dB,
++        ue->measurements.rssi,
++        ue->measurements.rx_power_avg_dB[eNB_id]
+         );
+ 
+   // Gain control with hysterisis
+diff --git a/openair1/PHY/NR_UE_ESTIMATION/nr_adjust_gain.c b/openair1/PHY/NR_UE_ESTIMATION/nr_adjust_gain.c
+index 6f3466e436..1a8b5e665d 100644
+--- a/openair1/PHY/NR_UE_ESTIMATION/nr_adjust_gain.c
++++ b/openair1/PHY/NR_UE_ESTIMATION/nr_adjust_gain.c
+@@ -26,10 +26,16 @@ void
+ phy_adjust_gain_nr (PHY_VARS_NR_UE *ue, uint32_t rx_power_fil_dB, uint8_t eNB_id)
+ {
+ 
++  // Check bounds to prevent heap buffer overflow
++  if (eNB_id >= NUMBER_OF_CONNECTED_gNB_MAX) {
++    LOG_E(PHY, "Invalid gNB_id %d, should be less than %d\n", eNB_id, NUMBER_OF_CONNECTED_gNB_MAX);
++    return;
++  }
++
+   LOG_D(PHY,"Gain control: rssi %d (%d,%d)\n",
+-	rx_power_fil_dB,
+-	ue->measurements.rssi,
+-	ue->measurements.rx_power_avg_dB[eNB_id]
++        rx_power_fil_dB,
++        ue->measurements.rssi,
++        ue->measurements.rx_power_avg_dB[eNB_id]
+         );
+ 
+   // Gain control with hysterisis

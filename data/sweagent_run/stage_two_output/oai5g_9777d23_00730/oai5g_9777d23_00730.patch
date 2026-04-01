@@ -1,0 +1,26 @@
+diff --git a/openair1/PHY/NR_REFSIG/dmrs_nr.c b/openair1/PHY/NR_REFSIG/dmrs_nr.c
+index 4d5ed0fe63..7e4151b291 100644
+--- a/openair1/PHY/NR_REFSIG/dmrs_nr.c
++++ b/openair1/PHY/NR_REFSIG/dmrs_nr.c
+@@ -199,7 +199,7 @@ void lte_gold_new(LTE_DL_FRAME_PARMS *frame_parms, uint32_t lte_gold_table[20][2
+   uint32_t *dmrs_sequence =  calloc(CELL_DMRS_LENGTH, sizeof(uint32_t));
+   if (dmrs_sequence == NULL) {
+     msg("Fatal error: memory allocation problem \n");
+-  	assert(0);
++        assert(0);
+   }
+   else
+   {
+@@ -231,7 +231,11 @@ void lte_gold_new(LTE_DL_FRAME_PARMS *frame_parms, uint32_t lte_gold_table[20][2
+       for (int i=0; i<14; i++) {
+         dmrs_bitmap[ns][l][i] = 0;
+         for (; j < k + 32; j++) {
+-          dmrs_bitmap[ns][l][i] |= (dmrs_sequence[j]<<j);
++          if (j >= CELL_DMRS_LENGTH) {
++            printf("Error: Accessing dmrs_sequence out of bounds at index %d\n", j);
++            assert(0);
++          }
++          dmrs_bitmap[ns][l][i] |= (dmrs_sequence[j]<<(j-k));
+         }
+         k = j;
+       }

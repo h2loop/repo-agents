@@ -1,0 +1,9 @@
+{
+  "run_id": "s00047_1b6f84",
+  "pr_text": "## Title: Fix missing error propagation in NAS security header setup\n\n### Summary\nThe function `_emm_as_set_header()` in the NAS EMM SAP layer can return NULL when a security context exists but the integrity key is not available. However, three call sites in `emm_as.c` were not checking for this NULL return value, causing silent failures where execution would continue with an invalid pointer or skip critical message processing. This could lead to undefined behavior or security-related messages b",
+  "trajectory_path": "data/raw/s00047_1b6f84_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00047_1b6f84_p2.diff",
+  "patch_lines": 17,
+  "trajectory_steps": 81,
+  "timestamp": "2026-02-10T10:54:45Z"
+}

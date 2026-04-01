@@ -1,0 +1,32 @@
+{
+  "run_id": "s00245_43a635",
+  "function": {
+    "name": "measurcmd_display_phycpu",
+    "file": "common/utils/telnetsrv/telnetsrv_5Gue_measurements.c",
+    "start_line": 89,
+    "end_line": 103,
+    "body_lines": 15,
+    "signature": "void measurcmd_display_phycpu(telnet_printfunc_t prnt)",
+    "subsystem": "common/utils/telnetsrv",
+    "token_estimate": 55
+  },
+  "bug": {
+    "bug_id": "telecom_state_machine_missing_validation",
+    "description": "missing state validation before processing a protocol message",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a missing state validation before processing a protocol message downstream of function measurcmd_display_phycpu in the common/utils/telnetsrv subsystem.\nThe function is located at common/utils/telnetsrv/telnetsrv_5Gue_measurements.c:89.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00245_43a635_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00245_43a635_p1.diff",
+  "patch_lines": 24,
+  "trajectory_steps": 39,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:42:53Z"
+}

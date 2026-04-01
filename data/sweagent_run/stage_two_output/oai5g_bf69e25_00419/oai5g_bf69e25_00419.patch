@@ -1,0 +1,33 @@
+diff --git a/openair1/PHY/LTE_TRANSPORT/prach.c b/openair1/PHY/LTE_TRANSPORT/prach.c
+index 90c9d63925..6c8ebe6554 100644
+--- a/openair1/PHY/LTE_TRANSPORT/prach.c
++++ b/openair1/PHY/LTE_TRANSPORT/prach.c
+@@ -43,8 +43,8 @@
+ 
+ void rx_prach0(PHY_VARS_eNB *eNB,
+                RU_t *ru,
+-	       int frame_prach,
+-	       int subframe,
++               int frame_prach,
++               int subframe,
+                uint16_t *max_preamble,
+                uint16_t *max_preamble_energy,
+                uint16_t *max_preamble_delay,
+@@ -107,7 +107,7 @@ void rx_prach0(PHY_VARS_eNB *eNB,
+     prach_ConfigIndex   = fp->prach_emtc_config_common.prach_ConfigInfo.prach_ConfigIndex[ce_level];
+     Ncs_config          = fp->prach_emtc_config_common.prach_ConfigInfo.zeroCorrelationZoneConfig;
+     restricted_set      = fp->prach_emtc_config_common.prach_ConfigInfo.highSpeedFlag;
+-    n_ra_prb            = get_prach_prb_offset(fp->frame_type,fp->tdd_config,fp->N_RB_UL,fp->prach_emtc_config_common.prach_ConfigInfo.prach_ConfigIndex[ce_level],
++    n_ra_prb            = get_prach_prb_offset(fp->frame_type,fp->tdd_config,fp->N_RB_UL,prach_ConfigIndex,
+                           fp->prach_emtc_config_common.prach_ConfigInfo.prach_FreqOffset[ce_level],
+                           tdd_mapindex,Nf);
+     // update pointers to results for ce_level
+@@ -119,7 +119,7 @@ void rx_prach0(PHY_VARS_eNB *eNB,
+     prach_ConfigIndex   = fp->prach_config_common.prach_ConfigInfo.prach_ConfigIndex;
+     Ncs_config          = fp->prach_config_common.prach_ConfigInfo.zeroCorrelationZoneConfig;
+     restricted_set      = fp->prach_config_common.prach_ConfigInfo.highSpeedFlag;
+-    n_ra_prb            = get_prach_prb_offset(fp->frame_type,fp->tdd_config,fp->N_RB_UL,fp->prach_config_common.prach_ConfigInfo.prach_ConfigIndex,
++    n_ra_prb            = get_prach_prb_offset(fp->frame_type,fp->tdd_config,fp->N_RB_UL,prach_ConfigIndex,
+                           fp->prach_config_common.prach_ConfigInfo.prach_FreqOffset,
+                           tdd_mapindex,Nf);
+   }

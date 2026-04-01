@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix resource cleanup on early return paths in OTG initialization\n\n### Summary\nThe OTG traffic generator initialization functions (`tarmaInitStream`, `tarmaInitVideo`, `backgroundStreamInit`) allocated memory with `malloc` but did not check for allocation failures. When memory was exhausted, these functions would continue with NULL pointers, leading to segmentation faults when downstream functions accessed the structures.\n\nThis issue could be triggered when running simulations with many concurrent traffic streams, causing the process to crash with a segfault in functions that eventually call `tarmaPrintProc` or related debugging functions.\n\n### Changes\n- `openair2/UTIL/OTG/otg_models.c`: Added NULL checks after `malloc` calls in initialization functions to properly handle allocation failures.\n\n"
+}

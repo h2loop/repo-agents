@@ -1,0 +1,9 @@
+{
+  "run_id": "s00123_0d0a8b",
+  "pr_text": "## Title: Add mutex protection for shared state in config response unpacking\n\n### Summary\nFix a race condition in the nFAPI P5 configuration response handling by adding optional mutex protection around the TLV unpacking critical section. The `unpack_config_response` function accesses shared state through callbacks invoked by `unpack_tlv_list`, but previously lacked synchronization when called from multiple threads. This could lead to data corruption or inconsistent state updates.\n\nThis change in",
+  "trajectory_path": "data/raw/s00123_0d0a8b_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00123_0d0a8b_p2.diff",
+  "patch_lines": 20,
+  "trajectory_steps": 38,
+  "timestamp": "2026-02-10T11:24:52Z"
+}

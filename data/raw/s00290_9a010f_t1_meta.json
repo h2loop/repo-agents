@@ -1,0 +1,33 @@
+{
+  "run_id": "s00290_9a010f",
+  "function": {
+    "name": "ngap_gNB_handle_overload_start",
+    "file": "openair3/NGAP/ngap_gNB_overload.c",
+    "start_line": 37,
+    "end_line": 41,
+    "body_lines": 5,
+    "signature": "int ngap_gNB_handle_overload_start(sctp_assoc_t assoc_id, uint32_t stream, NGAP_NGAP_PDU_t *pdu)",
+    "subsystem": "openair3/NGAP",
+    "token_estimate": 12
+  },
+  "bug": {
+    "bug_id": "c_signed_unsigned_mismatch",
+    "description": "signed/unsigned integer comparison mismatch leading to incorrect branch",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a signed/unsigned integer comparison mismatch leading to incorrect branch downstream of function ngap_gNB_handle_overload_start in the openair3/NGAP subsystem.\nThe function is located at openair3/NGAP/ngap_gNB_overload.c:37.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00290_9a010f_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00290_9a010f_p1.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 43,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:24:17Z"
+}

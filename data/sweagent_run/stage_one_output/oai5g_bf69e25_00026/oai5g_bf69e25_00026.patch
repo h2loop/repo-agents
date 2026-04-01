@@ -1,0 +1,149 @@
+diff --git a/radio/rfsimulator/simulator.c b/radio/rfsimulator/simulator.c
+index e524097898..dc926fe9d2 100644
+--- a/radio/rfsimulator/simulator.c
++++ b/radio/rfsimulator/simulator.c
+@@ -105,7 +105,7 @@ typedef enum { SIMU_ROLE_SERVER = 1, SIMU_ROLE_CLIENT } simuRole;
+ /*   optname                     helpstr                     paramflags           XXXptr                               defXXXval                          type         numelt  */
+ /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+ #define simOpt PARAMFLAG_NOFREE|PARAMFLAG_CMDLINE_NOPREFIXENABLED
+-#define RFSIMULATOR_PARAMS_DESC {					\
++#define RFSIMULATOR_PARAMS_DESC {                                       \
+     {"serveraddr",             "<ip address to connect to>\n",        simOpt,  .strptr=&rfsimulator->ip,               .defstrval="127.0.0.1",           TYPE_STRING,    0 },\
+     {"serverport",             "<port to connect to>\n",              simOpt,  .u16ptr=&(rfsimulator->port),           .defuintval=PORT,                 TYPE_UINT16,    0 },\
+     {RFSIMU_OPTIONS_PARAMNAME, RFSIM_CONFIG_HELP_OPTIONS,             0,       .strlistptr=NULL,                       .defstrlistval=NULL,              TYPE_STRINGLIST,0 },\
+@@ -164,6 +164,7 @@ typedef struct {
+   uint16_t port;
+   int saveIQfile;
+   buffer_t buf[MAX_FD_RFSIMU];
++  int fd_to_buf_map[MAX_FD_RFSIMU]; // Map file descriptor to buffer index
+   int rx_num_channels;
+   int tx_num_channels;
+   double sample_rate;
+@@ -181,10 +182,33 @@ typedef struct {
+ 
+ static int allocCirBuf(rfsimulator_state_t *bridge, int sock)
+ {
+-  buffer_t *ptr=&bridge->buf[sock];
++  // Find a free buffer slot
++  int buf_index = -1;
++  for (int i = 0; i < MAX_FD_RFSIMU; i++) {
++    if (bridge->buf[i].conn_sock == -1) {
++      buf_index = i;
++      break;
++    }
++  }
++  
++  if (buf_index == -1) {
++    LOG_E(HW, "No free buffer slot available for new client\n");
++    return -1;
++  }
++  
++  // Create mapping from fd to buffer index
++  if (sock >= MAX_FD_RFSIMU) {
++    LOG_E(HW, "File descriptor %d is too large (max %d)\n", sock, MAX_FD_RFSIMU - 1);
++    return -1;
++  }
++  
++  bridge->fd_to_buf_map[sock] = buf_index;
++  buffer_t *ptr = &bridge->buf[buf_index];
++  
+   ptr->circularBuf = calloc(1, sampleToByte(CirSize, 1));
+   if (ptr->circularBuf == NULL) {
+     LOG_E(HW, "malloc(%lu) failed\n", sampleToByte(CirSize, 1));
++    bridge->fd_to_buf_map[sock] = -1; // Clear mapping on failure
+     return -1;
+   }
+   ptr->circularBufEnd=((char *)ptr->circularBuf)+sampleToByte(CirSize,1);
+@@ -197,6 +221,10 @@ static int allocCirBuf(rfsimulator_state_t *bridge, int sock)
+   int sendbuff = SEND_BUFF_SIZE;
+   if (setsockopt(sock, SOL_SOCKET, SO_SNDBUF, &sendbuff, sizeof(sendbuff)) != 0) {
+     LOG_E(HW, "setsockopt(SO_SNDBUF) failed\n");
++    free(ptr->circularBuf);
++    ptr->circularBuf = NULL;
++    ptr->conn_sock = -1;
++    bridge->fd_to_buf_map[sock] = -1; // Clear mapping on failure
+     return -1;
+   }
+   struct epoll_event ev= {0};
+@@ -238,26 +266,43 @@ static int allocCirBuf(rfsimulator_state_t *bridge, int sock)
+ }
+ 
+ static void removeCirBuf(rfsimulator_state_t *bridge, int sock) {
++  // Get buffer index from mapping
++  if (sock >= MAX_FD_RFSIMU || bridge->fd_to_buf_map[sock] == -1) {
++    LOG_E(HW, "Invalid socket %d for removeCirBuf\n", sock);
++    return;
++  }
++  
++  int buf_index = bridge->fd_to_buf_map[sock];
++  buffer_t *ptr = &bridge->buf[buf_index];
++  
+   if (epoll_ctl(bridge->epollfd, EPOLL_CTL_DEL, sock, NULL) != 0) {
+     LOG_E(HW, "epoll_ctl(EPOLL_CTL_DEL) failed\n");
+   }
+   close(sock);
+-  free(bridge->buf[sock].circularBuf);
+-  // Fixme: no free_channel_desc_scm(bridge->buf[sock].channel_model) implemented
++  free(ptr->circularBuf);
++  // Fixme: no free_channel_desc_scm(ptr->channel_model) implemented
+   // a lot of mem leaks
+-  //free(bridge->buf[sock].channel_model);
+-  memset(&bridge->buf[sock], 0, sizeof(buffer_t));
+-  bridge->buf[sock].conn_sock=-1;
++  //free(ptr->channel_model);
++  memset(ptr, 0, sizeof(buffer_t));
++  ptr->conn_sock=-1;
++  
++  // Clear the mapping
++  bridge->fd_to_buf_map[sock] = -1;
++  
+   nb_ue--;
+ }
+ 
+ static void socketError(rfsimulator_state_t *bridge, int sock) {
+-  if (bridge->buf[sock].conn_sock!=-1) {
+-    LOG_W(HW, "Lost socket\n");
+-    removeCirBuf(bridge, sock);
+-
+-    if (bridge->role == SIMU_ROLE_CLIENT)
+-      exit(1);
++  // Check if socket has a valid mapping
++  if (sock < MAX_FD_RFSIMU && bridge->fd_to_buf_map[sock] != -1) {
++    int buf_index = bridge->fd_to_buf_map[sock];
++    if (bridge->buf[buf_index].conn_sock!=-1) {
++      LOG_W(HW, "Lost socket\n");
++      removeCirBuf(bridge, sock);
++
++      if (bridge->role == SIMU_ROLE_CLIENT)
++        exit(1);
++    }
+   }
+ }
+ 
+@@ -714,7 +759,13 @@ static bool flushInput(rfsimulator_state_t *t, int timeout, int nsamps_for_initi
+         continue;
+       }
+ 
+-      buffer_t *b=&t->buf[fd];
++      // Get buffer using mapping
++      if (fd >= MAX_FD_RFSIMU || t->fd_to_buf_map[fd] == -1) {
++        LOG_E(HW, "Received data on invalid socket %d\n", fd);
++        continue;
++      }
++      int buf_index = t->fd_to_buf_map[fd];
++      buffer_t *b=&t->buf[buf_index];
+ 
+       if ( b->circularBuf == NULL ) {
+         LOG_E(HW, "Received data on not connected socket %d\n", events[nbEv].data.fd);
+@@ -1013,8 +1064,10 @@ int device_init(openair0_device *device, openair0_config_t *openair0_cfg) {
+   device->priv = rfsimulator;
+   device->trx_write_init = rfsimulator_write_init;
+ 
+-  for (int i = 0; i < MAX_FD_RFSIMU; i++)
++  for (int i = 0; i < MAX_FD_RFSIMU; i++) {
+     rfsimulator->buf[i].conn_sock=-1;
++    rfsimulator->fd_to_buf_map[i] = -1; // -1 means no mapping
++  }
+ 
+   AssertFatal((rfsimulator->epollfd = epoll_create1(0)) != -1, "epoll_create1() failed, errno(%d)", errno);
+   // we need to call randominit() for telnet server (use gaussdouble=>uniformrand)

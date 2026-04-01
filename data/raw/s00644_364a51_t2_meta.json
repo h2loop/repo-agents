@@ -1,0 +1,9 @@
+{
+  "run_id": "s00644_364a51",
+  "pr_text": "## Title: Fix unreachable code paths and improve error handling in detach procedure\n\n### Summary\nThe EPS bearer context deactivation logic in the UE NAS stack contained unreachable code due to improperly structured conditional statements. The `is_local` code path had a premature return that prevented the network-initiated deactivation path from ever executing, even when intended. Additionally, the detach accept procedure failed to check return codes from critical operations, potentially masking ",
+  "trajectory_path": "data/raw/s00644_364a51_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00644_364a51_p2.diff",
+  "patch_lines": 40,
+  "trajectory_steps": 28,
+  "timestamp": "2026-02-10T19:41:38Z"
+}

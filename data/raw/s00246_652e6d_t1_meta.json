@@ -1,0 +1,30 @@
+{
+  "run_id": "s00246_652e6d",
+  "function": {
+    "name": "ngap_gNB_handle_sctp_data_ind",
+    "file": "openair3/NGAP/ngap_gNB.c",
+    "start_line": 265,
+    "end_line": 278,
+    "body_lines": 14,
+    "signature": "static void ngap_gNB_handle_sctp_data_ind(sctp_data_ind_t *sctp_data_ind)",
+    "subsystem": "openair3/NGAP",
+    "token_estimate": 37
+  },
+  "bug": {
+    "bug_id": "telecom_interface_f1ap_error",
+    "description": "F1AP interface handling error between CU and DU causing message loss or corruption",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/LAYER2/MAC",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a F1AP interface handling error between CU and DU causing message loss or corruption downstream of function ngap_gNB_handle_sctp_data_ind in the openair3/NGAP subsystem.\nThe function is located at openair3/NGAP/ngap_gNB.c:265.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00246_652e6d_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00246_652e6d_p1.diff",
+  "patch_lines": 7,
+  "trajectory_steps": 18,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:43:00Z"
+}

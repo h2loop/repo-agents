@@ -1,0 +1,9 @@
+{
+  "run_id": "s00321_f86100",
+  "pr_text": "## Title: Fix missed scheduling opportunity by adding RSSI.indication callback\n\n### Summary\nThe nFAPI PNF component was missing a callback mechanism for RSSI.indication messages, causing UEs with pending data to not be scheduled downstream of the `unpack_rssi_indication` function. When an RSSI.indication arrived, there was no hook for the client to trigger immediate UE scheduling, resulting in missed scheduling opportunities and potential latency issues.\n\nThis change adds a complete callback cha",
+  "trajectory_path": "data/raw/s00321_f86100_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00321_f86100_p2.diff",
+  "patch_lines": 78,
+  "trajectory_steps": 85,
+  "timestamp": "2026-02-10T12:45:25Z"
+}

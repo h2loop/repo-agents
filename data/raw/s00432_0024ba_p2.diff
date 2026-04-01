@@ -1,0 +1,19 @@
+diff --git a/openair2/F1AP/f1ap_du_interface_management.c b/openair2/F1AP/f1ap_du_interface_management.c
+index 053e302f13..f3078a620b 100644
+--- a/openair2/F1AP/f1ap_du_interface_management.c
++++ b/openair2/F1AP/f1ap_du_interface_management.c
+@@ -713,11 +713,10 @@ int DU_send_gNB_DU_CONFIGURATION_UPDATE(instance_t instance,
+       ul_supportedSULFreqBandItem->freqBandIndicatorNr = 777L;
+       /* >>> DL NRFreqInfo */
+       fDD_Info->dL_NRFreqInfo.nRARFCN = 666L;
+-      asn1cSequenceAdd(dl_freqBandNrItem->supportedSULBandList.list, F1AP_FreqBandNrItem_t, dl_freqBandNrItem);
++      asn1cSequenceAdd(fDD_Info->dL_NRFreqInfo.freqBandListNr.list, F1AP_FreqBandNrItem_t, dl_freqBandNrItem);
+       dl_freqBandNrItem->freqBandIndicatorNr = 555L;
+-      F1AP_SupportedSULFreqBandItem_t dl_supportedSULFreqBandItem;
+-      memset((void *)&dl_supportedSULFreqBandItem, 0, sizeof(F1AP_SupportedSULFreqBandItem_t));
+-      dl_supportedSULFreqBandItem.freqBandIndicatorNr = 444L;
++      asn1cSequenceAdd(dl_freqBandNrItem->supportedSULBandList.list, F1AP_SupportedSULFreqBandItem_t, dl_supportedSULFreqBandItem);
++      dl_supportedSULFreqBandItem->freqBandIndicatorNr = 444L;
+       /* >>> UL Transmission Bandwidth */
+       fDD_Info->uL_Transmission_Bandwidth.nRSCS = F1AP_NRSCS_scs15;
+       fDD_Info->uL_Transmission_Bandwidth.nRNRB = F1AP_NRNRB_nrb11;

@@ -1,0 +1,555 @@
+'{"env":{"deployment":{"image":"oai5g-sera:776ca25","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_776ca25_00093","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix pack_config_request() num_tlv counting issue\n\n### Summary\nThe `pack_config_request()`
+  function in nfapi_p5.c was not properly counting the number of valid TLVs before
+  packing, causing mismatch between the reported count and actual packed TLVs. This
+  led to unpacking errors on the receiving end.\n\n### Changes\n- `nfapi/open-nFAPI/nfapi/src/nfapi_p5.c`:
+  Added logic to count valid TLVs by checking if each TLV''s tag matches the expected
+  value, then updating `pNfapiMsg->num_tlv` with this count before pushing it\n- Also
+  fixed the same issue in `pack_nr_config_request()` for consistency\n\n### Reproduction\nWhen
+  calling `pack_config_request()` with partially populated TLVs, the function would
+  push an incorrect `num_tlv` value that didn''t match the actual number of TLVs that
+  were packed (since `pack_tlv` only packs TLVs with valid tags). This caused the
+  receiving end to either read garbage data or miss TLVs entirely when unpacking.\n\nTo
+  reproduce:\n1. Create a `nfapi_config_request_t` structure\n2. Set only a subset
+  of TLVs with proper tag values\n3. Call `pack_config_request()` \n4. Observe that
+  `num_tlv` pushed doesn''t match actual packed TLVs\n5. On unpacking side, incorrect
+  number of TLVs are processed\n\nThe fix ensures that `num_tlv` accurately reflects
+  the number of TLVs that will actually be packed by checking each TLV''s tag before
+  incrementing the count.\n","extra_fields":{"bug_description":"incorrect protocol
+  state machine transition that violates 3GPP specification","bug_id":"telecom_state_machine_invalid_transition","stage_one_patch":"diff
+  --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c\nindex
+  d8d9858eeb..ebfe67e9ce 100644\n--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c\n+++
+  b/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c\n@@ -586,6 +586,114 @@ static uint8_t pack_nr_param_response(void
+  *msg, uint8_t **ppWritePackedMsg, uin\n \n static uint8_t pack_config_request(void
+  *msg, uint8_t **ppWritePackedMsg, uint8_t *end, nfapi_p4_p5_codec_config_t *config)
+  {\n   nfapi_config_request_t *pNfapiMsg = (nfapi_config_request_t *)msg;\n+  \n+  //
+  Count the number of valid TLVs\n+  uint8_t num_valid_tlvs = 0;\n+  \n+  // Check
+  each TLV to see if it''s valid (tag is set to expected value)\n+  if(pNfapiMsg->subframe_config.duplex_mode.tag
+  == NFAPI_SUBFRAME_CONFIG_DUPLEX_MODE_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->subframe_config.pcfich_power_offset.tag
+  == NFAPI_SUBFRAME_CONFIG_PCFICH_POWER_OFFSET_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->subframe_config.pb.tag
+  == NFAPI_SUBFRAME_CONFIG_PB_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->subframe_config.dl_cyclic_prefix_type.tag
+  == NFAPI_SUBFRAME_CONFIG_DL_CYCLIC_PREFIX_TYPE_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->subframe_config.ul_cyclic_prefix_type.tag
+  == NFAPI_SUBFRAME_CONFIG_UL_CYCLIC_PREFIX_TYPE_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->rf_config.dl_channel_bandwidth.tag
+  == NFAPI_RF_CONFIG_DL_CHANNEL_BANDWIDTH_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->rf_config.ul_channel_bandwidth.tag
+  == NFAPI_RF_CONFIG_UL_CHANNEL_BANDWIDTH_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->rf_config.reference_signal_power.tag
+  == NFAPI_RF_CONFIG_REFERENCE_SIGNAL_POWER_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->rf_config.tx_antenna_ports.tag
+  == NFAPI_RF_CONFIG_TX_ANTENNA_PORTS_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->rf_config.rx_antenna_ports.tag
+  == NFAPI_RF_CONFIG_RX_ANTENNA_PORTS_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->phich_config.phich_resource.tag
+  == NFAPI_PHICH_CONFIG_PHICH_RESOURCE_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->phich_config.phich_duration.tag
+  == NFAPI_PHICH_CONFIG_PHICH_DURATION_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->phich_config.phich_power_offset.tag
+  == NFAPI_PHICH_CONFIG_PHICH_POWER_OFFSET_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->sch_config.primary_synchronization_signal_epre_eprers.tag
+  == NFAPI_SCH_CONFIG_PRIMARY_SYNCHRONIZATION_SIGNAL_EPRE_EPRERS_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->sch_config.secondary_synchronization_signal_epre_eprers.tag
+  == NFAPI_SCH_CONFIG_SECONDARY_SYNCHRONIZATION_SIGNAL_EPRE_EPRERS_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->sch_config.physical_cell_id.tag
+  == NFAPI_SCH_CONFIG_PHYSICAL_CELL_ID_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->prach_config.configuration_index.tag
+  == NFAPI_PRACH_CONFIG_CONFIGURATION_INDEX_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->prach_config.root_sequence_index.tag
+  == NFAPI_PRACH_CONFIG_ROOT_SEQUENCE_INDEX_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->prach_config.zero_correlation_zone_configuration.tag
+  == NFAPI_PRACH_CONFIG_ZERO_CORRELATION_ZONE_CONFIGURATION_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->prach_config.high_speed_flag.tag
+  == NFAPI_PRACH_CONFIG_HIGH_SPEED_FLAG_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->prach_config.frequency_offset.tag
+  == NFAPI_PRACH_CONFIG_FREQUENCY_OFFSET_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->pusch_config.hopping_mode.tag
+  == NFAPI_PUSCH_CONFIG_HOPPING_MODE_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->pusch_config.hopping_offset.tag
+  == NFAPI_PUSCH_CONFIG_HOPPING_OFFSET_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->pusch_config.number_of_subbands.tag
+  == NFAPI_PUSCH_CONFIG_NUMBER_OF_SUBBANDS_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->pucch_config.delta_pucch_shift.tag
+  == NFAPI_PUCCH_CONFIG_DELTA_PUCCH_SHIFT_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->pucch_config.n_cqi_rb.tag
+  == NFAPI_PUCCH_CONFIG_N_CQI_RB_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->pucch_config.n_an_cs.tag
+  == NFAPI_PUCCH_CONFIG_N_AN_CS_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->pucch_config.n1_pucch_an.tag
+  == NFAPI_PUCCH_CONFIG_N1_PUCCH_AN_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->srs_config.bandwidth_configuration.tag
+  == NFAPI_SRS_CONFIG_BANDWIDTH_CONFIGURATION_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->srs_config.max_up_pts.tag
+  == NFAPI_SRS_CONFIG_MAX_UP_PTS_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->srs_config.srs_subframe_configuration.tag
+  == NFAPI_SRS_CONFIG_SRS_SUBFRAME_CONFIGURATION_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->srs_config.srs_acknack_srs_simultaneous_transmission.tag
+  == NFAPI_SRS_CONFIG_SRS_ACKNACK_SRS_SIMULTANEOUS_TRANSMISSION_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->uplink_reference_signal_config.uplink_rs_hopping.tag
+  == NFAPI_UPLINK_REFERENCE_SIGNAL_CONFIG_UPLINK_RS_HOPPING_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->uplink_reference_signal_config.group_assignment.tag
+  == NFAPI_UPLINK_REFERENCE_SIGNAL_CONFIG_GROUP_ASSIGNMENT_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->uplink_reference_signal_config.cyclic_shift_1_for_drms.tag
+  == NFAPI_UPLINK_REFERENCE_SIGNAL_CONFIG_CYCLIC_SHIFT_1_FOR_DRMS_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->laa_config.ed_threshold_lbt_pdsch.tag
+  == NFAPI_LAA_CONFIG_ED_THRESHOLD_FOR_LBT_FOR_PDSCH_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->laa_config.ed_threshold_lbt_drs.tag
+  == NFAPI_LAA_CONFIG_ED_THRESHOLD_FOR_LBT_FOR_DRS_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->laa_config.pd_threshold.tag
+  == NFAPI_LAA_CONFIG_PD_THRESHOLD_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->laa_config.multi_carrier_type.tag
+  == NFAPI_LAA_CONFIG_MULTI_CARRIER_TYPE_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->laa_config.multi_carrier_tx.tag
+  == NFAPI_LAA_CONFIG_MULTI_CARRIER_TX_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->laa_config.multi_carrier_freeze.tag
+  == NFAPI_LAA_CONFIG_MULTI_CARRIER_FREEZE_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->laa_config.tx_antenna_ports_drs.tag
+  == NFAPI_LAA_CONFIG_TX_ANTENNA_PORTS_FOR_DRS_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->laa_config.tx_power_drs.tag
+  == NFAPI_LAA_CONFIG_TRANSMISSION_POWER_FOR_DRS_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.pbch_repetitions_enable_r13.tag
+  == NFAPI_EMTC_CONFIG_PBCH_REPETITIONS_ENABLE_R13_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_catm_root_sequence_index.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CATM_ROOT_SEQUENCE_INDEX_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_catm_zero_correlation_zone_configuration.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CATM_ZERO_CORRELATION_ZONE_CONFIGURATION_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_catm_high_speed_flag.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CATM_HIGH_SPEED_FLAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_0_enable.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_0_ENABLE_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_0_configuration_index.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_0_CONFIGURATION_INDEX_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_0_frequency_offset.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_0_FREQUENCY_OFFSET_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_0_number_of_repetitions_per_attempt.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_0_NUMBER_OF_REPETITIONS_PER_ATTEMPT_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_0_starting_subframe_periodicity.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_0_STARTING_SUBFRAME_PERIODICITY_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_0_hopping_enable.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_0_HOPPING_ENABLE_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_0_hopping_offset.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_0_HOPPING_OFFSET_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_1_enable.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_1_ENABLE_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_1_configuration_index.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_1_CONFIGURATION_INDEX_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_1_frequency_offset.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_1_FREQUENCY_OFFSET_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_1_number_of_repetitions_per_attempt.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_1_NUMBER_OF_REPETITIONS_PER_ATTEMPT_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_1_starting_subframe_periodicity.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_1_STARTING_SUBFRAME_PERIODICITY_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_1_hopping_enable.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_1_HOPPING_ENABLE_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_1_hopping_offset.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_1_HOPPING_OFFSET_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_2_enable.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_2_ENABLE_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_2_configuration_index.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_2_CONFIGURATION_INDEX_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_2_frequency_offset.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_2_FREQUENCY_OFFSET_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_2_number_of_repetitions_per_attempt.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_2_NUMBER_OF_REPETITIONS_PER_ATTEMPT_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_2_starting_subframe_periodicity.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_2_STARTING_SUBFRAME_PERIODICITY_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_2_hopping_enable.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_2_HOPPING_ENABLE_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_2_hopping_offset.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_2_HOPPING_OFFSET_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_3_enable.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_3_ENABLE_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_3_configuration_index.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_3_CONFIGURATION_INDEX_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_3_frequency_offset.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_3_FREQUENCY_OFFSET_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_3_number_of_repetitions_per_attempt.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_3_NUMBER_OF_REPETITIONS_PER_ATTEMPT_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_3_starting_subframe_periodicity.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_3_STARTING_SUBFRAME_PERIODICITY_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_3_hopping_enable.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_3_HOPPING_ENABLE_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.prach_ce_level_3_hopping_offset.tag
+  == NFAPI_EMTC_CONFIG_PRACH_CE_LEVEL_3_HOPPING_OFFSET_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.pucch_interval_ulhoppingconfigcommonmodea.tag
+  == NFAPI_EMTC_CONFIG_PUCCH_INTERVAL_ULHOPPINGCONFIGCOMMONMODEA_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->emtc_config.pucch_interval_ulhoppingconfigcommonmodeb.tag
+  == NFAPI_EMTC_CONFIG_PUCCH_INTERVAL_ULHOPPINGCONFIGCOMMONMODEB_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->tdd_frame_structure_config.subframe_assignment.tag
+  == NFAPI_TDD_FRAME_STRUCTURE_SUBFRAME_ASSIGNMENT_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->tdd_frame_structure_config.special_subframe_patterns.tag
+  == NFAPI_TDD_FRAME_STRUCTURE_SPECIAL_SUBFRAME_PATTERNS_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->l23_config.data_report_mode.tag
+  == NFAPI_L23_CONFIG_DATA_REPORT_MODE_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->l23_config.sfnsf.tag
+  == NFAPI_L23_CONFIG_SFNSF_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->nfapi_config.p7_vnf_address_ipv4.tag
+  == NFAPI_NFAPI_P7_VNF_ADDRESS_IPV4_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->nfapi_config.p7_vnf_address_ipv6.tag
+  == NFAPI_NFAPI_P7_VNF_ADDRESS_IPV6_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->nfapi_config.p7_vnf_port.tag
+  == NFAPI_NFAPI_P7_VNF_PORT_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->nfapi_config.p7_pnf_address_ipv4.tag
+  == NFAPI_NFAPI_P7_PNF_ADDRESS_IPV4_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->nfapi_config.p7_pnf_address_ipv6.tag
+  == NFAPI_NFAPI_P7_PNF_ADDRESS_IPV6_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->nfapi_config.p7_pnf_port.tag
+  == NFAPI_NFAPI_P7_PNF_PORT_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->nfapi_config.dl_ue_per_sf.tag
+  == NFAPI_NFAPI_DOWNLINK_UES_PER_SUBFRAME_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->nfapi_config.ul_ue_per_sf.tag
+  == NFAPI_NFAPI_UPLINK_UES_PER_SUBFRAME_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->nfapi_config.rf_bands.tag
+  == NFAPI_PHY_RF_BANDS_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->nfapi_config.timing_window.tag
+  == NFAPI_NFAPI_TIMING_WINDOW_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->nfapi_config.timing_info_mode.tag
+  == NFAPI_NFAPI_TIMING_INFO_MODE_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->nfapi_config.timing_info_period.tag
+  == NFAPI_NFAPI_TIMING_INFO_PERIOD_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->nfapi_config.max_transmit_power.tag
+  == NFAPI_NFAPI_MAXIMUM_TRANSMIT_POWER_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->nfapi_config.earfcn.tag
+  == NFAPI_NFAPI_EARFCN_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->nfapi_config.nmm_gsm_frequency_bands.tag
+  == NFAPI_NFAPI_NMM_GSM_FREQUENCY_BANDS_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->nfapi_config.nmm_umts_frequency_bands.tag
+  == NFAPI_NFAPI_NMM_UMTS_FREQUENCY_BANDS_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->nfapi_config.nmm_lte_frequency_bands.tag
+  == NFAPI_NFAPI_NMM_LTE_FREQUENCY_BANDS_TAG) num_valid_tlvs++;\n+  if(pNfapiMsg->nfapi_config.nmm_uplink_rssi_supported.tag
+  == NFAPI_NFAPI_NMM_UPLINK_RSSI_SUPPORTED_TAG) num_valid_tlvs++;\n+  \n+  // Update
+  the num_tlv field to reflect the actual count\n+  pNfapiMsg->num_tlv = num_valid_tlvs;\n+  \n   return
+  ( push8(pNfapiMsg->num_tlv, ppWritePackedMsg, end) &&\n            // Do we check
+  the phy state and then just fill those sepecified, however\n            // we do
+  not know the duplex mode, so just attempt to pack all and assumme\n@@ -704,69 +812,125
+  @@ static uint8_t pack_config_request(void *msg, uint8_t **ppWritePackedMsg, uint8_\n
+  static uint8_t pack_nr_config_request(void *msg, uint8_t **ppWritePackedMsg, uint8_t
+  *end, nfapi_p4_p5_codec_config_t* config)\n {\n \n-\tnfapi_nr_config_request_scf_t
+  *pNfapiMsg = (nfapi_nr_config_request_scf_t*)msg;\n-\n-\tfor(int i = 0; i<40; i++){
+  //packing tdd slot config\n-\t\tfor(int symbol = 0; symbol<14;symbol++){\n-\t\t\tpush8(pNfapiMsg->tdd_table.max_tdd_periodicity_list[i].max_num_of_symbol_per_slot_list[symbol].slot_config.value,
+  ppWritePackedMsg,end);\n-\t\t}\n-\t}\n-\n-\treturn (push8(pNfapiMsg->num_tlv, ppWritePackedMsg,
+  end) &&\n-\t\t    pack_tlv(NFAPI_NR_CONFIG_DL_BANDWIDTH_TAG, &(pNfapiMsg->carrier_config.dl_bandwidth),
+  ppWritePackedMsg, end, &pack_uint16_tlv_value) &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_DL_FREQUENCY_TAG,
+  &(pNfapiMsg->carrier_config.dl_frequency), ppWritePackedMsg, end, &pack_uint32_tlv_value)
+  &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_DL_GRID_SIZE_TAG, &(pNfapiMsg->carrier_config.dl_grid_size[1]),
+  ppWritePackedMsg, end, &pack_uint16_tlv_value) &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_DL_K0_TAG,
+  &(pNfapiMsg->carrier_config.dl_k0[1]), ppWritePackedMsg, end, &pack_uint16_tlv_value)
+  &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_NUM_RX_ANT_TAG, &(pNfapiMsg->carrier_config.num_rx_ant),
+  ppWritePackedMsg, end, &pack_uint16_tlv_value) &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_NUM_TX_ANT_TAG,
+  &(pNfapiMsg->carrier_config.num_tx_ant), ppWritePackedMsg, end, &pack_uint16_tlv_value)
+  &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_UL_GRID_SIZE_TAG, &(pNfapiMsg->carrier_config.ul_grid_size[1]),
+  ppWritePackedMsg, end, &pack_uint16_tlv_value) &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_UL_K0_TAG,
+  &(pNfapiMsg->carrier_config.ul_k0[1]), ppWritePackedMsg, end, &pack_uint16_tlv_value)
+  &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_UPLINK_BANDWIDTH_TAG, &(pNfapiMsg->carrier_config.uplink_bandwidth),
+  ppWritePackedMsg, end, &pack_uint16_tlv_value) &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_UPLINK_FREQUENCY_TAG,
+  &(pNfapiMsg->carrier_config.uplink_frequency), ppWritePackedMsg, end, &pack_uint32_tlv_value)
+  &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_FREQUENCY_SHIFT_7P5KHZ_TAG, &(pNfapiMsg->carrier_config.frequency_shift_7p5khz),
+  ppWritePackedMsg, end, &pack_uint8_tlv_value) &&\n-\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_FRAME_DUPLEX_TYPE_TAG,
+  &(pNfapiMsg->cell_config.frame_duplex_type), ppWritePackedMsg, end, &pack_uint8_tlv_value)
+  &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_PHY_CELL_ID_TAG, &(pNfapiMsg->cell_config.phy_cell_id),
+  ppWritePackedMsg, end, &pack_uint16_tlv_value) &&\n-\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_PRACH_MULTIPLE_CARRIERS_IN_A_BAND_TAG,
+  &(pNfapiMsg->prach_config.prach_multiple_carriers_in_a_band), ppWritePackedMsg,
+  end, &pack_uint8_tlv_value) &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_PRACH_CONFIG_INDEX_TAG,
+  &(pNfapiMsg->prach_config.prach_ConfigurationIndex), ppWritePackedMsg, end, &pack_uint8_tlv_value)
+  &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_NUM_PRACH_FD_OCCASIONS_TAG, &(pNfapiMsg->prach_config.num_prach_fd_occasions),
+  ppWritePackedMsg, end, &pack_uint8_tlv_value) &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_PRACH_SEQUENCE_LENGTH_TAG,
+  &(pNfapiMsg->prach_config.prach_sequence_length), ppWritePackedMsg, end, &pack_uint8_tlv_value)
+  &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_RESTRICTED_SET_CONFIG_TAG, &(pNfapiMsg->prach_config.restricted_set_config),
+  ppWritePackedMsg, end, &pack_uint8_tlv_value) &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_SSB_PER_RACH_TAG,
+  &(pNfapiMsg->prach_config.ssb_per_rach), ppWritePackedMsg, end, &pack_uint8_tlv_value)
+  &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_PRACH_SUB_C_SPACING_TAG, &(pNfapiMsg->prach_config.prach_sub_c_spacing),
+  ppWritePackedMsg, end, &pack_uint8_tlv_value) &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_PRACH_ROOT_SEQUENCE_INDEX_TAG,
+  &(pNfapiMsg->prach_config.num_prach_fd_occasions_list[0].prach_root_sequence_index),
+  ppWritePackedMsg, end, &pack_uint16_tlv_value) &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_K1_TAG,
+  &(pNfapiMsg->prach_config.num_prach_fd_occasions_list[0].k1), ppWritePackedMsg,
+  end, &pack_uint16_tlv_value) &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_PRACH_ZERO_CORR_CONF_TAG,
+  &(pNfapiMsg->prach_config.num_prach_fd_occasions_list[0].prach_zero_corr_conf),
+  ppWritePackedMsg, end, &pack_uint8_tlv_value) &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_NUM_ROOT_SEQUENCES_TAG,
+  &(pNfapiMsg->prach_config.num_prach_fd_occasions_list[0].num_root_sequences), ppWritePackedMsg,
+  end, &pack_uint8_tlv_value) &&\n-\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_SCS_COMMON_TAG,
+  &(pNfapiMsg->ssb_config.scs_common), ppWritePackedMsg, end, &pack_uint8_tlv_value)
+  &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_BCH_PAYLOAD_TAG, &(pNfapiMsg->ssb_config.bch_payload),
+  ppWritePackedMsg, end, &pack_uint8_tlv_value) &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_SS_PBCH_POWER_TAG,
+  &(pNfapiMsg->ssb_config.ss_pbch_power), ppWritePackedMsg, end, &pack_uint32_tlv_value)
+  &&\n-\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_BETA_PSS_TAG, &(pNfapiMsg->ssb_table.beta_pss),
+  ppWritePackedMsg, end, &pack_uint8_tlv_value) &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_MIB_TAG,
+  &(pNfapiMsg->ssb_table.MIB), ppWritePackedMsg, end, &pack_uint32_tlv_value) &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_SSB_MASK_TAG,
+  &(pNfapiMsg->ssb_table.ssb_mask_list[0].ssb_mask), ppWritePackedMsg, end, &pack_uint32_tlv_value)
+  &&\n-\t\t\t// TODO: Not sure what''s going on, ssb_mask_list[1] packing below seems
+  to match unpack, but is causing problems\n-\t\t\t// pack_tlv(NFAPI_NR_CONFIG_SSB_MASK_TAG,
+  &(pNfapiMsg->ssb_table.ssb_mask_list[1].ssb_mask), ppWritePackedMsg, end, &pack_uint32_tlv_value)
+  &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_BEAM_ID_TAG, &(pNfapiMsg->ssb_table.ssb_beam_id_list[0].beam_id),
+  ppWritePackedMsg, end, &pack_uint8_tlv_value) &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_SSB_OFFSET_POINT_A_TAG,
+  &(pNfapiMsg->ssb_table.ssb_offset_point_a), ppWritePackedMsg, end, &pack_uint16_tlv_value)
+  &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_SSB_PERIOD_TAG, &(pNfapiMsg->ssb_table.ssb_period),
+  ppWritePackedMsg, end, &pack_uint8_tlv_value) &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_SSB_SUBCARRIER_OFFSET_TAG,
+  &(pNfapiMsg->ssb_table.ssb_subcarrier_offset), ppWritePackedMsg, end, &pack_uint8_tlv_value)
+  &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_SS_PBCH_MULTIPLE_CARRIERS_IN_A_BAND_TAG, &(pNfapiMsg->ssb_table.ss_pbch_multiple_carriers_in_a_band),
+  ppWritePackedMsg, end, &pack_uint8_tlv_value) &&\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_MULTIPLE_CELLS_SS_PBCH_IN_A_CARRIER_TAG,
+  &(pNfapiMsg->ssb_table.multiple_cells_ss_pbch_in_a_carrier), ppWritePackedMsg, end,
+  &pack_uint8_tlv_value) &&\n-\n-\t\t\tpack_tlv(NFAPI_NR_CONFIG_TDD_PERIOD_TAG, &(pNfapiMsg->tdd_table.tdd_period),
+  ppWritePackedMsg, end, &pack_uint8_tlv_value) &&\n-\n-\t\t\tpack_tlv(NFAPI_NR_NFAPI_P7_VNF_ADDRESS_IPV4_TAG,
+  &(pNfapiMsg->nfapi_config.p7_vnf_address_ipv4), ppWritePackedMsg, end, &pack_ipv4_address_value)
+  &&\n-\t\t\tpack_tlv(NFAPI_NR_NFAPI_P7_VNF_ADDRESS_IPV6_TAG, &(pNfapiMsg->nfapi_config.p7_vnf_address_ipv6),
+  ppWritePackedMsg, end, &pack_ipv6_address_value) &&\n-\t\t\tpack_tlv(NFAPI_NR_NFAPI_P7_VNF_PORT_TAG,
+  &(pNfapiMsg->nfapi_config.p7_vnf_port), ppWritePackedMsg, end, &pack_uint16_tlv_value)
+  &&\n-\t\t\tpack_tlv(NFAPI_NR_NFAPI_P7_PNF_ADDRESS_IPV4_TAG, &(pNfapiMsg->nfapi_config.p7_pnf_address_ipv4),
+  ppWritePackedMsg, end, &pack_ipv4_address_value) &&\n-\t\t\tpack_tlv(NFAPI_NR_NFAPI_P7_PNF_ADDRESS_IPV6_TAG,
+  &(pNfapiMsg->nfapi_config.p7_pnf_address_ipv6), ppWritePackedMsg, end, &pack_ipv6_address_value)
+  &&\n-\t\t\tpack_tlv(NFAPI_NR_NFAPI_P7_PNF_PORT_TAG, &(pNfapiMsg->nfapi_config.p7_pnf_port),
+  ppWritePackedMsg, end, &pack_uint16_tlv_value) &&\n-\t\t\tpack_tlv(NFAPI_NR_NFAPI_TIMING_WINDOW_TAG,
+  &(pNfapiMsg->nfapi_config.timing_window), ppWritePackedMsg, end, &pack_uint8_tlv_value)
+  &&\n-\t\t\tpack_tlv(NFAPI_NR_NFAPI_TIMING_INFO_MODE_TAG, &(pNfapiMsg->nfapi_config.timing_info_mode),
+  ppWritePackedMsg, end, &pack_uint8_tlv_value) &&\n-\t\t\tpack_tlv(NFAPI_NR_NFAPI_TIMING_INFO_PERIOD_TAG,
+  &(pNfapiMsg->nfapi_config.timing_info_period), ppWritePackedMsg, end, &pack_uint8_tlv_value));\n+        nfapi_nr_config_request_scf_t
+  *pNfapiMsg = (nfapi_nr_config_request_scf_t*)msg;\n+\n+        for(int i = 0; i<40;
+  i++){ //packing tdd slot config\n+                for(int symbol = 0; symbol<14;symbol++){\n+                        push8(pNfapiMsg->tdd_table.max_tdd_periodicity_list[i].max_num_of_symbol_per_slot_list[symbol].slot_config.value,
+  ppWritePackedMsg,end);\n+                }\n+        }\n+        \n+        // Count
+  the number of valid TLVs\n+        uint8_t num_valid_tlvs = 0;\n+        \n+        //
+  Check each TLV to see if it''s valid (tag is set to expected value)\n+        if(pNfapiMsg->carrier_config.dl_bandwidth.tag
+  == NFAPI_NR_CONFIG_DL_BANDWIDTH_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->carrier_config.dl_frequency.tag
+  == NFAPI_NR_CONFIG_DL_FREQUENCY_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->carrier_config.dl_grid_size[1].tag
+  == NFAPI_NR_CONFIG_DL_GRID_SIZE_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->carrier_config.dl_k0[1].tag
+  == NFAPI_NR_CONFIG_DL_K0_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->carrier_config.num_rx_ant.tag
+  == NFAPI_NR_CONFIG_NUM_RX_ANT_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->carrier_config.num_tx_ant.tag
+  == NFAPI_NR_CONFIG_NUM_TX_ANT_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->carrier_config.ul_grid_size[1].tag
+  == NFAPI_NR_CONFIG_UL_GRID_SIZE_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->carrier_config.ul_k0[1].tag
+  == NFAPI_NR_CONFIG_UL_K0_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->carrier_config.uplink_bandwidth.tag
+  == NFAPI_NR_CONFIG_UPLINK_BANDWIDTH_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->carrier_config.uplink_frequency.tag
+  == NFAPI_NR_CONFIG_UPLINK_FREQUENCY_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->carrier_config.frequency_shift_7p5khz.tag
+  == NFAPI_NR_CONFIG_FREQUENCY_SHIFT_7P5KHZ_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->cell_config.frame_duplex_type.tag
+  == NFAPI_NR_CONFIG_FRAME_DUPLEX_TYPE_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->cell_config.phy_cell_id.tag
+  == NFAPI_NR_CONFIG_PHY_CELL_ID_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->prach_config.prach_multiple_carriers_in_a_band.tag
+  == NFAPI_NR_CONFIG_PRACH_MULTIPLE_CARRIERS_IN_A_BAND_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->prach_config.prach_ConfigurationIndex.tag
+  == NFAPI_NR_CONFIG_PRACH_CONFIG_INDEX_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->prach_config.num_prach_fd_occasions.tag
+  == NFAPI_NR_CONFIG_NUM_PRACH_FD_OCCASIONS_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->prach_config.prach_sequence_length.tag
+  == NFAPI_NR_CONFIG_PRACH_SEQUENCE_LENGTH_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->prach_config.restricted_set_config.tag
+  == NFAPI_NR_CONFIG_RESTRICTED_SET_CONFIG_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->prach_config.ssb_per_rach.tag
+  == NFAPI_NR_CONFIG_SSB_PER_RACH_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->prach_config.prach_sub_c_spacing.tag
+  == NFAPI_NR_CONFIG_PRACH_SUB_C_SPACING_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->prach_config.num_prach_fd_occasions_list[0].prach_root_sequence_index.tag
+  == NFAPI_NR_CONFIG_PRACH_ROOT_SEQUENCE_INDEX_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->prach_config.num_prach_fd_occasions_list[0].k1.tag
+  == NFAPI_NR_CONFIG_K1_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->prach_config.num_prach_fd_occasions_list[0].prach_zero_corr_conf.tag
+  == NFAPI_NR_CONFIG_PRACH_ZERO_CORR_CONF_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->prach_config.num_prach_fd_occasions_list[0].num_root_sequences.tag
+  == NFAPI_NR_CONFIG_NUM_ROOT_SEQUENCES_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->ssb_config.scs_common.tag
+  == NFAPI_NR_CONFIG_SCS_COMMON_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->ssb_config.bch_payload.tag
+  == NFAPI_NR_CONFIG_BCH_PAYLOAD_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->ssb_config.ss_pbch_power.tag
+  == NFAPI_NR_CONFIG_SS_PBCH_POWER_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->ssb_table.beta_pss.tag
+  == NFAPI_NR_CONFIG_BETA_PSS_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->ssb_table.MIB.tag
+  == NFAPI_NR_CONFIG_MIB_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->ssb_table.ssb_mask_list[0].ssb_mask.tag
+  == NFAPI_NR_CONFIG_SSB_MASK_TAG) num_valid_tlvs++;\n+        // TODO: Not sure what''s
+  going on, ssb_mask_list[1] packing below seems to match unpack, but is causing problems\n+        //
+  if(pNfapiMsg->ssb_table.ssb_mask_list[1].ssb_mask.tag == NFAPI_NR_CONFIG_SSB_MASK_TAG)
+  num_valid_tlvs++;\n+        if(pNfapiMsg->ssb_table.ssb_beam_id_list[0].beam_id.tag
+  == NFAPI_NR_CONFIG_BEAM_ID_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->ssb_table.ssb_offset_point_a.tag
+  == NFAPI_NR_CONFIG_SSB_OFFSET_POINT_A_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->ssb_table.ssb_period.tag
+  == NFAPI_NR_CONFIG_SSB_PERIOD_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->ssb_table.ssb_subcarrier_offset.tag
+  == NFAPI_NR_CONFIG_SSB_SUBCARRIER_OFFSET_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->ssb_table.ss_pbch_multiple_carriers_in_a_band.tag
+  == NFAPI_NR_CONFIG_SS_PBCH_MULTIPLE_CARRIERS_IN_A_BAND_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->ssb_table.multiple_cells_ss_pbch_in_a_carrier.tag
+  == NFAPI_NR_CONFIG_MULTIPLE_CELLS_SS_PBCH_IN_A_CARRIER_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->tdd_table.tdd_period.tag
+  == NFAPI_NR_CONFIG_TDD_PERIOD_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->nfapi_config.p7_vnf_address_ipv4.tag
+  == NFAPI_NR_NFAPI_P7_VNF_ADDRESS_IPV4_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->nfapi_config.p7_vnf_address_ipv6.tag
+  == NFAPI_NR_NFAPI_P7_VNF_ADDRESS_IPV6_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->nfapi_config.p7_vnf_port.tag
+  == NFAPI_NR_NFAPI_P7_VNF_PORT_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->nfapi_config.p7_pnf_address_ipv4.tag
+  == NFAPI_NR_NFAPI_P7_PNF_ADDRESS_IPV4_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->nfapi_config.p7_pnf_address_ipv6.tag
+  == NFAPI_NR_NFAPI_P7_PNF_ADDRESS_IPV6_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->nfapi_config.p7_pnf_port.tag
+  == NFAPI_NR_NFAPI_P7_PNF_PORT_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->nfapi_config.timing_window.tag
+  == NFAPI_NR_NFAPI_TIMING_WINDOW_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->nfapi_config.timing_info_mode.tag
+  == NFAPI_NR_NFAPI_TIMING_INFO_MODE_TAG) num_valid_tlvs++;\n+        if(pNfapiMsg->nfapi_config.timing_info_period.tag
+  == NFAPI_NR_NFAPI_TIMING_INFO_PERIOD_TAG) num_valid_tlvs++;\n+        \n+        //
+  Update the num_tlv field to reflect the actual count\n+        pNfapiMsg->num_tlv
+  = num_valid_tlvs;\n+\n+        return (push8(pNfapiMsg->num_tlv, ppWritePackedMsg,
+  end) &&\n+                    pack_tlv(NFAPI_NR_CONFIG_DL_BANDWIDTH_TAG, &(pNfapiMsg->carrier_config.dl_bandwidth),
+  ppWritePackedMsg, end, &pack_uint16_tlv_value) &&\n+                        pack_tlv(NFAPI_NR_CONFIG_DL_FREQUENCY_TAG,
+  &(pNfapiMsg->carrier_config.dl_frequency), ppWritePackedMsg, end, &pack_uint32_tlv_value)
+  &&\n+                        pack_tlv(NFAPI_NR_CONFIG_DL_GRID_SIZE_TAG, &(pNfapiMsg->carrier_config.dl_grid_size[1]),
+  ppWritePackedMsg, end, &pack_uint16_tlv_value) &&\n+                        pack_tlv(NFAPI_NR_CONFIG_DL_K0_TAG,
+  &(pNfapiMsg->carrier_config.dl_k0[1]), ppWritePackedMsg, end, &pack_uint16_tlv_value)
+  &&\n+                        pack_tlv(NFAPI_NR_CONFIG_NUM_RX_ANT_TAG, &(pNfapiMsg->carrier_config.num_rx_ant),
+  ppWritePackedMsg, end, &pack_uint16_tlv_value) &&\n+                        pack_tlv(NFAPI_NR_CONFIG_NUM_TX_ANT_TAG,
+  &(pNfapiMsg->carrier_config.num_tx_ant), ppWritePackedMsg, end, &pack_uint16_tlv_value)
+  &&\n+                        pack_tlv(NFAPI_NR_CONFIG_UL_GRID_SIZE_TAG, &(pNfapiMsg->carrier_config.ul_grid_size[1]),
+  ppWritePackedMsg, end, &pack_uint16_tlv_value) &&\n+                        pack_tlv(NFAPI_NR_CONFIG_UL_K0_TAG,
+  &(pNfapiMsg->carrier_config.ul_k0[1]), ppWritePackedMsg, end, &pack_uint16_tlv_value)
+  &&\n+                        pack_tlv(NFAPI_NR_CONFIG_UPLINK_BANDWIDTH_TAG, &(pNfapiMsg->carrier_config.uplink_bandwidth),
+  ppWritePackedMsg, end, &pack_uint16_tlv_value) &&\n+                        pack_tlv(NFAPI_NR_CONFIG_UPLINK_FREQUENCY_TAG,
+  &(pNfapiMsg->carrier_config.uplink_frequency), ppWritePackedMsg, end, &pack_uint32_tlv_value)
+  &&\n+                        pack_tlv(NFAPI_NR_CONFIG_FREQUENCY_SHIFT_7P5KHZ_TAG,
+  &(pNfapiMsg->carrier_config.frequency_shift_7p5khz), ppWritePackedMsg, end, &pack_uint8_tlv_value)
+  &&\n+\n+                        pack_tlv(NFAPI_NR_CONFIG_FRAME_DUPLEX_TYPE_TAG,
+  &(pNfapiMsg->cell_config.frame_duplex_type), ppWritePackedMsg, end, &pack_uint8_tlv_value)
+  &&\n+                        pack_tlv(NFAPI_NR_CONFIG_PHY_CELL_ID_TAG, &(pNfapiMsg->cell_config.phy_cell_id),
+  ppWritePackedMsg, end, &pack_uint16_tlv_value) &&\n+\n+                        pack_tlv(NFAPI_NR_CONFIG_PRACH_MULTIPLE_CARRIERS_IN_A_BAND_TAG,
+  &(pNfapiMsg->prach_config.prach_multiple_carriers_in_a_band), ppWritePackedMsg,
+  end, &pack_uint8_tlv_value) &&\n+                        pack_tlv(NFAPI_NR_CONFIG_PRACH_CONFIG_INDEX_TAG,
+  &(pNfapiMsg->prach_config.prach_ConfigurationIndex), ppWritePackedMsg, end, &pack_uint8_tlv_value)
+  &&\n+                        pack_tlv(NFAPI_NR_CONFIG_NUM_PRACH_FD_OCCASIONS_TAG,
+  &(pNfapiMsg->prach_config.num_prach_fd_occasions), ppWritePackedMsg, end, &pack_uint8_tlv_value)
+  &&\n+                        pack_tlv(NFAPI_NR_CONFIG_PRACH_SEQUENCE_LENGTH_TAG,
+  &(pNfapiMsg->prach_config.prach_sequence_length), ppWritePackedMsg, end, &pack_uint8_tlv_value)
+  &&\n+                        pack_tlv(NFAPI_NR_CONFIG_RESTRICTED_SET_CONFIG_TAG,
+  &(pNfapiMsg->prach_config.restricted_set_config), ppWritePackedMsg, end, &pack_uint8_tlv_value)
+  &&\n+                        pack_tlv(NFAPI_NR_CONFIG_SSB_PER_RACH_TAG, &(pNfapiMsg->prach_config.ssb_per_rach),
+  ppWritePackedMsg, end, &pack_uint8_tlv_value) &&\n+                        pack_tlv(NFAPI_NR_CONFIG_PRACH_SUB_C_SPACING_TAG,
+  &(pNfapiMsg->prach_config.prach_sub_c_spacing), ppWritePackedMsg, end, &pack_uint8_tlv_value)
+  &&\n+                        pack_tlv(NFAPI_NR_CONFIG_PRACH_ROOT_SEQUENCE_INDEX_TAG,
+  &(pNfapiMsg->prach_config.num_prach_fd_occasions_list[0].prach_root_sequence_index),
+  ppWritePackedMsg, end, &pack_uint16_tlv_value) &&\n+                        pack_tlv(NFAPI_NR_CONFIG_K1_TAG,
+  &(pNfapiMsg->prach_config.num_prach_fd_occasions_list[0].k1), ppWritePackedMsg,
+  end, &pack_uint16_tlv_value) &&\n+                        pack_tlv(NFAPI_NR_CONFIG_PRACH_ZERO_CORR_CONF_TAG,
+  &(pNfapiMsg->prach_config.num_prach_fd_occasions_list[0].prach_zero_corr_conf),
+  ppWritePackedMsg, end, &pack_uint8_tlv_value) &&\n+                        pack_tlv(NFAPI_NR_CONFIG_NUM_ROOT_SEQUENCES_TAG,
+  &(pNfapiMsg->prach_config.num_prach_fd_occasions_list[0].num_root_sequences), ppWritePackedMsg,
+  end, &pack_uint8_tlv_value) &&\n+\n+                        pack_tlv(NFAPI_NR_CONFIG_SCS_COMMON_TAG,
+  &(pNfapiMsg->ssb_config.scs_common), ppWritePackedMsg, end, &pack_uint8_tlv_value)
+  &&\n+                        pack_tlv(NFAPI_NR_CONFIG_BCH_PAYLOAD_TAG, &(pNfapiMsg->ssb_config.bch_payload),
+  ppWritePackedMsg, end, &pack_uint8_tlv_value) &&\n+                        pack_tlv(NFAPI_NR_CONFIG_SS_PBCH_POWER_TAG,
+  &(pNfapiMsg->ssb_config.ss_pbch_power), ppWritePackedMsg, end, &pack_uint32_tlv_value)
+  &&\n+\n+                        pack_tlv(NFAPI_NR_CONFIG_BETA_PSS_TAG, &(pNfapiMsg->ssb_table.beta_pss),
+  ppWritePackedMsg, end, &pack_uint8_tlv_value) &&\n+                        pack_tlv(NFAPI_NR_CONFIG_MIB_TAG,
+  &(pNfapiMsg->ssb_table.MIB), ppWritePackedMsg, end, &pack_uint32_tlv_value) &&\n+                        pack_tlv(NFAPI_NR_CONFIG_SSB_MASK_TAG,
+  &(pNfapiMsg->ssb_table.ssb_mask_list[0].ssb_mask), ppWritePackedMsg, end, &pack_uint32_tlv_value)
+  &&\n+                        // TODO: Not sure what''s going on, ssb_mask_list[1]
+  packing below seems to match unpack, but is causing problems\n+                        //
+  pack_tlv(NFAPI_NR_CONFIG_SSB_MASK_TAG, &(pNfapiMsg->ssb_table.ssb_mask_list[1].ssb_mask),
+  ppWritePackedMsg, end, &pack_uint32_tlv_value) &&\n+                        pack_tlv(NFAPI_NR_CONFIG_BEAM_ID_TAG,
+  &(pNfapiMsg->ssb_table.ssb_beam_id_list[0].beam_id), ppWritePackedMsg, end, &pack_uint8_tlv_value)
+  &&\n+                        pack_tlv(NFAPI_NR_CONFIG_SSB_OFFSET_POINT_A_TAG, &(pNfapiMsg->ssb_table.ssb_offset_point_a),
+  ppWritePackedMsg, end, &pack_uint16_tlv_value) &&\n+                        pack_tlv(NFAPI_NR_CONFIG_SSB_PERIOD_TAG,
+  &(pNfapiMsg->ssb_table.ssb_period), ppWritePackedMsg, end, &pack_uint8_tlv_value)
+  &&\n+                        pack_tlv(NFAPI_NR_CONFIG_SSB_SUBCARRIER_OFFSET_TAG,
+  &(pNfapiMsg->ssb_table.ssb_subcarrier_offset), ppWritePackedMsg, end, &pack_uint8_tlv_value)
+  &&\n+                        pack_tlv(NFAPI_NR_CONFIG_SS_PBCH_MULTIPLE_CARRIERS_IN_A_BAND_TAG,
+  &(pNfapiMsg->ssb_table.ss_pbch_multiple_carriers_in_a_band), ppWritePackedMsg, end,
+  &pack_uint8_tlv_value) &&\n+                        pack_tlv(NFAPI_NR_CONFIG_MULTIPLE_CELLS_SS_PBCH_IN_A_CARRIER_TAG,
+  &(pNfapiMsg->ssb_table.multiple_cells_ss_pbch_in_a_carrier), ppWritePackedMsg, end,
+  &pack_uint8_tlv_value) &&\n+\n+                        pack_tlv(NFAPI_NR_CONFIG_TDD_PERIOD_TAG,
+  &(pNfapiMsg->tdd_table.tdd_period), ppWritePackedMsg, end, &pack_uint8_tlv_value)
+  &&\n+\n+                        pack_tlv(NFAPI_NR_NFAPI_P7_VNF_ADDRESS_IPV4_TAG,
+  &(pNfapiMsg->nfapi_config.p7_vnf_address_ipv4), ppWritePackedMsg, end, &pack_ipv4_address_value)
+  &&\n+                        pack_tlv(NFAPI_NR_NFAPI_P7_VNF_ADDRESS_IPV6_TAG, &(pNfapiMsg->nfapi_config.p7_vnf_address_ipv6),
+  ppWritePackedMsg, end, &pack_ipv6_address_value) &&\n+                        pack_tlv(NFAPI_NR_NFAPI_P7_VNF_PORT_TAG,
+  &(pNfapiMsg->nfapi_config.p7_vnf_port), ppWritePackedMsg, end, &pack_uint16_tlv_value)
+  &&\n+                        pack_tlv(NFAPI_NR_NFAPI_P7_PNF_ADDRESS_IPV4_TAG, &(pNfapiMsg->nfapi_config.p7_pnf_address_ipv4),
+  ppWritePackedMsg, end, &pack_ipv4_address_value) &&\n+                        pack_tlv(NFAPI_NR_NFAPI_P7_PNF_ADDRESS_IPV6_TAG,
+  &(pNfapiMsg->nfapi_config.p7_pnf_address_ipv6), ppWritePackedMsg, end, &pack_ipv6_address_value)
+  &&\n+                        pack_tlv(NFAPI_NR_NFAPI_P7_PNF_PORT_TAG, &(pNfapiMsg->nfapi_config.p7_pnf_port),
+  ppWritePackedMsg, end, &pack_uint16_tlv_value) &&\n+                        pack_tlv(NFAPI_NR_NFAPI_TIMING_WINDOW_TAG,
+  &(pNfapiMsg->nfapi_config.timing_window), ppWritePackedMsg, end, &pack_uint8_tlv_value)
+  &&\n+                        pack_tlv(NFAPI_NR_NFAPI_TIMING_INFO_MODE_TAG, &(pNfapiMsg->nfapi_config.timing_info_mode),
+  ppWritePackedMsg, end, &pack_uint8_tlv_value) &&\n+                        pack_tlv(NFAPI_NR_NFAPI_TIMING_INFO_PERIOD_TAG,
+  &(pNfapiMsg->nfapi_config.timing_info_period), ppWritePackedMsg, end, &pack_uint8_tlv_value));\n
+  }\n \n static uint8_t pack_nr_config_response(void *msg, uint8_t **ppWritePackedMsg,
+  uint8_t *end, nfapi_p4_p5_codec_config_t *config) {\n@@ -1718,82 +1882,82 @@ static
+  uint8_t unpack_config_request(uint8_t **ppReadPackedMsg, uint8_t *end, vo\n \n static
+  uint8_t unpack_nr_config_request(uint8_t **ppReadPackedMsg, uint8_t *end, void *msg,
+  nfapi_p4_p5_codec_config_t* config)\n {\n-\tnfapi_nr_config_request_scf_t *pNfapiMsg
+  = (nfapi_nr_config_request_scf_t*)msg;\n-\n-\tpNfapiMsg->tdd_table.max_tdd_periodicity_list
+  = (nfapi_nr_max_tdd_periodicity_t*) malloc(40*sizeof(nfapi_nr_max_tdd_periodicity_t));\n-\n-\tfor(int
+  i=0;i<40;i++)\n-\t\tpNfapiMsg->tdd_table.max_tdd_periodicity_list[i].max_num_of_symbol_per_slot_list
+  = (nfapi_nr_max_num_of_symbol_per_slot_t*) malloc(14*sizeof(nfapi_nr_max_num_of_symbol_per_slot_t));\n-\n-\n-\tfor(int
+  i = 0; i < 40; i++){ //unpacking tdd slot config\n-\t\tfor(int symbol = 0; symbol<14;symbol++){\n-\t\t\tpull8(ppReadPackedMsg,&pNfapiMsg->tdd_table.max_tdd_periodicity_list[i].max_num_of_symbol_per_slot_list[symbol].slot_config.value,
+  end);\n-\t\t}\n-\t}\n-\tpNfapiMsg->prach_config.num_prach_fd_occasions_list=(nfapi_nr_num_prach_fd_occasions_t
+  *) malloc(sizeof(nfapi_nr_num_prach_fd_occasions_t));\n-\n-\tunpack_tlv_t unpack_fns[]
+  =\n-\t{\n-\t\t{ NFAPI_NR_CONFIG_DL_BANDWIDTH_TAG,  &(pNfapiMsg->carrier_config.dl_bandwidth),  &unpack_uint16_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_DL_FREQUENCY_TAG,  &(pNfapiMsg->carrier_config.dl_frequency),  &unpack_uint32_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_DL_GRID_SIZE_TAG,  &(pNfapiMsg->carrier_config.dl_grid_size[1]),  &unpack_uint16_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_DL_K0_TAG,  &(pNfapiMsg->carrier_config.dl_k0[1]),  &unpack_uint16_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_NUM_RX_ANT_TAG,  &(pNfapiMsg->carrier_config.num_rx_ant),  &unpack_uint16_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_NUM_TX_ANT_TAG,  &(pNfapiMsg->carrier_config.num_tx_ant),  &unpack_uint16_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_UL_GRID_SIZE_TAG,  &(pNfapiMsg->carrier_config.ul_grid_size[1]),  &unpack_uint16_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_UL_K0_TAG,  &(pNfapiMsg->carrier_config.ul_k0[1]),  &unpack_uint16_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_UPLINK_BANDWIDTH_TAG,  &(pNfapiMsg->carrier_config.uplink_bandwidth),  &unpack_uint16_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_UPLINK_FREQUENCY_TAG,  &(pNfapiMsg->carrier_config.uplink_frequency),  &unpack_uint32_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_FREQUENCY_SHIFT_7P5KHZ_TAG,  &(pNfapiMsg->carrier_config.frequency_shift_7p5khz),  &unpack_uint8_tlv_value},\n-\n-\t\t{
+  NFAPI_NR_CONFIG_FRAME_DUPLEX_TYPE_TAG,  &(pNfapiMsg->cell_config.frame_duplex_type),  &unpack_uint8_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_PHY_CELL_ID_TAG,  &(pNfapiMsg->cell_config.phy_cell_id),  &unpack_uint16_tlv_value},\n-\n-\t\t{
+  NFAPI_NR_CONFIG_PRACH_MULTIPLE_CARRIERS_IN_A_BAND_TAG,  &(pNfapiMsg->prach_config.prach_multiple_carriers_in_a_band),  &unpack_uint8_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_PRACH_CONFIG_INDEX_TAG,  &(pNfapiMsg->prach_config.prach_ConfigurationIndex),  &unpack_uint8_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_NUM_PRACH_FD_OCCASIONS_TAG,  &(pNfapiMsg->prach_config.num_prach_fd_occasions),  &unpack_uint8_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_PRACH_SEQUENCE_LENGTH_TAG,  &(pNfapiMsg->prach_config.prach_sequence_length),  &unpack_uint8_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_RESTRICTED_SET_CONFIG_TAG,  &(pNfapiMsg->prach_config.restricted_set_config),  &unpack_uint8_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_SSB_PER_RACH_TAG,  &(pNfapiMsg->prach_config.ssb_per_rach),  &unpack_uint8_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_PRACH_SUB_C_SPACING_TAG,  &(pNfapiMsg->prach_config.prach_sub_c_spacing),  &unpack_uint8_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_PRACH_ROOT_SEQUENCE_INDEX_TAG,  &(pNfapiMsg->prach_config.num_prach_fd_occasions_list[0].prach_root_sequence_index),  &unpack_uint16_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_K1_TAG,  &(pNfapiMsg->prach_config.num_prach_fd_occasions_list[0].k1),  &unpack_uint16_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_PRACH_ZERO_CORR_CONF_TAG,  &(pNfapiMsg->prach_config.num_prach_fd_occasions_list[0].prach_zero_corr_conf),  &unpack_uint8_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_NUM_ROOT_SEQUENCES_TAG,  &(pNfapiMsg->prach_config.num_prach_fd_occasions_list[0].num_root_sequences),  &unpack_uint8_tlv_value},\n-\n-\t\t{
+  NFAPI_NR_CONFIG_SCS_COMMON_TAG,  &(pNfapiMsg->ssb_config.scs_common),  &unpack_uint8_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_BCH_PAYLOAD_TAG,  &(pNfapiMsg->ssb_config.bch_payload),  &unpack_uint8_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_SS_PBCH_POWER_TAG,  &(pNfapiMsg->ssb_config.ss_pbch_power),  &unpack_uint32_tlv_value},\n-\n-\t\t{
+  NFAPI_NR_CONFIG_BETA_PSS_TAG,  &(pNfapiMsg->ssb_table.beta_pss),  &unpack_uint8_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_MIB_TAG,  &(pNfapiMsg->ssb_table.MIB),  &unpack_uint32_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_SSB_MASK_TAG,  &(pNfapiMsg->ssb_table.ssb_mask_list[0].ssb_mask),  &unpack_uint32_tlv_value},\n-\t\t//
+  TODO: Not sure what''s going on, ssb_mask_list[1] unpacking below seems to match
+  pack, but is causing problems\n-\t\t// { NFAPI_NR_CONFIG_SSB_MASK_TAG,  &(pNfapiMsg->ssb_table.ssb_mask_list[1].ssb_mask),  &unpack_uint32_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_BEAM_ID_TAG,  &(pNfapiMsg->ssb_table.ssb_beam_id_list[0].beam_id),  &unpack_uint8_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_SSB_OFFSET_POINT_A_TAG,  &(pNfapiMsg->ssb_table.ssb_offset_point_a),  &unpack_uint16_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_SSB_PERIOD_TAG,  &(pNfapiMsg->ssb_table.ssb_period),  &unpack_uint8_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_SSB_SUBCARRIER_OFFSET_TAG,  &(pNfapiMsg->ssb_table.ssb_subcarrier_offset),  &unpack_uint8_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_SS_PBCH_MULTIPLE_CARRIERS_IN_A_BAND_TAG,  &(pNfapiMsg->ssb_table.ss_pbch_multiple_carriers_in_a_band),  &unpack_uint8_tlv_value},\n-\t\t{
+  NFAPI_NR_CONFIG_MULTIPLE_CELLS_SS_PBCH_IN_A_CARRIER_TAG,  &(pNfapiMsg->ssb_table.multiple_cells_ss_pbch_in_a_carrier),  &unpack_uint8_tlv_value},\n-\n-\t\t{
+  NFAPI_NR_CONFIG_TDD_PERIOD_TAG,  &(pNfapiMsg->tdd_table.tdd_period),  &unpack_uint8_tlv_value},\n-\n-\t\t{
+  NFAPI_NR_NFAPI_P7_VNF_ADDRESS_IPV4_TAG,  &(pNfapiMsg->nfapi_config.p7_vnf_address_ipv4),  &unpack_ipv4_address_value},\n-\t\t{
+  NFAPI_NR_NFAPI_P7_VNF_ADDRESS_IPV6_TAG,  &(pNfapiMsg->nfapi_config.p7_vnf_address_ipv6),  &unpack_ipv6_address_value},\n-\t\t{
+  NFAPI_NR_NFAPI_P7_VNF_PORT_TAG,  &(pNfapiMsg->nfapi_config.p7_vnf_port),  &unpack_uint16_tlv_value},\n-\t\t{
+  NFAPI_NR_NFAPI_P7_PNF_ADDRESS_IPV4_TAG,  &(pNfapiMsg->nfapi_config.p7_pnf_address_ipv4),  &unpack_ipv4_address_value},\n-\t\t{
+  NFAPI_NR_NFAPI_P7_PNF_ADDRESS_IPV6_TAG,  &(pNfapiMsg->nfapi_config.p7_pnf_address_ipv6),  &unpack_ipv6_address_value},\n-\t\t{
+  NFAPI_NR_NFAPI_P7_PNF_PORT_TAG,  &(pNfapiMsg->nfapi_config.p7_pnf_port),  &unpack_uint16_tlv_value},\n-\t\t{
+  NFAPI_NR_NFAPI_TIMING_WINDOW_TAG,  &(pNfapiMsg->nfapi_config.timing_window),  &unpack_uint8_tlv_value},\n-\t\t{
+  NFAPI_NR_NFAPI_TIMING_INFO_MODE_TAG,  &(pNfapiMsg->nfapi_config.timing_info_mode),  &unpack_uint8_tlv_value},\n-\t\t{
+  NFAPI_NR_NFAPI_TIMING_INFO_PERIOD_TAG,  &(pNfapiMsg->nfapi_config.timing_info_period),  &unpack_uint8_tlv_value},\n-\t};\n-\n-\treturn
+  ( pull8(ppReadPackedMsg, &pNfapiMsg->num_tlv, end) &&\n-\t\t\t unpack_tlv_list(unpack_fns,
+  sizeof(unpack_fns)/sizeof(unpack_tlv_t), ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension));\n-\t\t\n+        nfapi_nr_config_request_scf_t
+  *pNfapiMsg = (nfapi_nr_config_request_scf_t*)msg;\n+\n+        pNfapiMsg->tdd_table.max_tdd_periodicity_list
+  = (nfapi_nr_max_tdd_periodicity_t*) malloc(40*sizeof(nfapi_nr_max_tdd_periodicity_t));\n+\n+        for(int
+  i=0;i<40;i++)\n+                pNfapiMsg->tdd_table.max_tdd_periodicity_list[i].max_num_of_symbol_per_slot_list
+  = (nfapi_nr_max_num_of_symbol_per_slot_t*) malloc(14*sizeof(nfapi_nr_max_num_of_symbol_per_slot_t));\n+\n+\n+        for(int
+  i = 0; i < 40; i++){ //unpacking tdd slot config\n+                for(int symbol
+  = 0; symbol<14;symbol++){\n+                        pull8(ppReadPackedMsg,&pNfapiMsg->tdd_table.max_tdd_periodicity_list[i].max_num_of_symbol_per_slot_list[symbol].slot_config.value,
+  end);\n+                }\n+        }\n+        pNfapiMsg->prach_config.num_prach_fd_occasions_list=(nfapi_nr_num_prach_fd_occasions_t
+  *) malloc(sizeof(nfapi_nr_num_prach_fd_occasions_t));\n+\n+        unpack_tlv_t
+  unpack_fns[] =\n+        {\n+                { NFAPI_NR_CONFIG_DL_BANDWIDTH_TAG,  &(pNfapiMsg->carrier_config.dl_bandwidth),  &unpack_uint16_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_DL_FREQUENCY_TAG,  &(pNfapiMsg->carrier_config.dl_frequency),  &unpack_uint32_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_DL_GRID_SIZE_TAG,  &(pNfapiMsg->carrier_config.dl_grid_size[1]),  &unpack_uint16_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_DL_K0_TAG,  &(pNfapiMsg->carrier_config.dl_k0[1]),  &unpack_uint16_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_NUM_RX_ANT_TAG,  &(pNfapiMsg->carrier_config.num_rx_ant),  &unpack_uint16_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_NUM_TX_ANT_TAG,  &(pNfapiMsg->carrier_config.num_tx_ant),  &unpack_uint16_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_UL_GRID_SIZE_TAG,  &(pNfapiMsg->carrier_config.ul_grid_size[1]),  &unpack_uint16_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_UL_K0_TAG,  &(pNfapiMsg->carrier_config.ul_k0[1]),  &unpack_uint16_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_UPLINK_BANDWIDTH_TAG,  &(pNfapiMsg->carrier_config.uplink_bandwidth),  &unpack_uint16_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_UPLINK_FREQUENCY_TAG,  &(pNfapiMsg->carrier_config.uplink_frequency),  &unpack_uint32_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_FREQUENCY_SHIFT_7P5KHZ_TAG,  &(pNfapiMsg->carrier_config.frequency_shift_7p5khz),  &unpack_uint8_tlv_value},\n+\n+                {
+  NFAPI_NR_CONFIG_FRAME_DUPLEX_TYPE_TAG,  &(pNfapiMsg->cell_config.frame_duplex_type),  &unpack_uint8_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_PHY_CELL_ID_TAG,  &(pNfapiMsg->cell_config.phy_cell_id),  &unpack_uint16_tlv_value},\n+\n+                {
+  NFAPI_NR_CONFIG_PRACH_MULTIPLE_CARRIERS_IN_A_BAND_TAG,  &(pNfapiMsg->prach_config.prach_multiple_carriers_in_a_band),  &unpack_uint8_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_PRACH_CONFIG_INDEX_TAG,  &(pNfapiMsg->prach_config.prach_ConfigurationIndex),  &unpack_uint8_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_NUM_PRACH_FD_OCCASIONS_TAG,  &(pNfapiMsg->prach_config.num_prach_fd_occasions),  &unpack_uint8_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_PRACH_SEQUENCE_LENGTH_TAG,  &(pNfapiMsg->prach_config.prach_sequence_length),  &unpack_uint8_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_RESTRICTED_SET_CONFIG_TAG,  &(pNfapiMsg->prach_config.restricted_set_config),  &unpack_uint8_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_SSB_PER_RACH_TAG,  &(pNfapiMsg->prach_config.ssb_per_rach),  &unpack_uint8_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_PRACH_SUB_C_SPACING_TAG,  &(pNfapiMsg->prach_config.prach_sub_c_spacing),  &unpack_uint8_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_PRACH_ROOT_SEQUENCE_INDEX_TAG,  &(pNfapiMsg->prach_config.num_prach_fd_occasions_list[0].prach_root_sequence_index),  &unpack_uint16_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_K1_TAG,  &(pNfapiMsg->prach_config.num_prach_fd_occasions_list[0].k1),  &unpack_uint16_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_PRACH_ZERO_CORR_CONF_TAG,  &(pNfapiMsg->prach_config.num_prach_fd_occasions_list[0].prach_zero_corr_conf),  &unpack_uint8_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_NUM_ROOT_SEQUENCES_TAG,  &(pNfapiMsg->prach_config.num_prach_fd_occasions_list[0].num_root_sequences),  &unpack_uint8_tlv_value},\n+\n+                {
+  NFAPI_NR_CONFIG_SCS_COMMON_TAG,  &(pNfapiMsg->ssb_config.scs_common),  &unpack_uint8_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_BCH_PAYLOAD_TAG,  &(pNfapiMsg->ssb_config.bch_payload),  &unpack_uint8_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_SS_PBCH_POWER_TAG,  &(pNfapiMsg->ssb_config.ss_pbch_power),  &unpack_uint32_tlv_value},\n+\n+                {
+  NFAPI_NR_CONFIG_BETA_PSS_TAG,  &(pNfapiMsg->ssb_table.beta_pss),  &unpack_uint8_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_MIB_TAG,  &(pNfapiMsg->ssb_table.MIB),  &unpack_uint32_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_SSB_MASK_TAG,  &(pNfapiMsg->ssb_table.ssb_mask_list[0].ssb_mask),  &unpack_uint32_tlv_value},\n+                //
+  TODO: Not sure what''s going on, ssb_mask_list[1] unpacking below seems to match
+  pack, but is causing problems\n+                // { NFAPI_NR_CONFIG_SSB_MASK_TAG,  &(pNfapiMsg->ssb_table.ssb_mask_list[1].ssb_mask),  &unpack_uint32_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_BEAM_ID_TAG,  &(pNfapiMsg->ssb_table.ssb_beam_id_list[0].beam_id),  &unpack_uint8_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_SSB_OFFSET_POINT_A_TAG,  &(pNfapiMsg->ssb_table.ssb_offset_point_a),  &unpack_uint16_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_SSB_PERIOD_TAG,  &(pNfapiMsg->ssb_table.ssb_period),  &unpack_uint8_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_SSB_SUBCARRIER_OFFSET_TAG,  &(pNfapiMsg->ssb_table.ssb_subcarrier_offset),  &unpack_uint8_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_SS_PBCH_MULTIPLE_CARRIERS_IN_A_BAND_TAG,  &(pNfapiMsg->ssb_table.ss_pbch_multiple_carriers_in_a_band),  &unpack_uint8_tlv_value},\n+                {
+  NFAPI_NR_CONFIG_MULTIPLE_CELLS_SS_PBCH_IN_A_CARRIER_TAG,  &(pNfapiMsg->ssb_table.multiple_cells_ss_pbch_in_a_carrier),  &unpack_uint8_tlv_value},\n+\n+                {
+  NFAPI_NR_CONFIG_TDD_PERIOD_TAG,  &(pNfapiMsg->tdd_table.tdd_period),  &unpack_uint8_tlv_value},\n+\n+                {
+  NFAPI_NR_NFAPI_P7_VNF_ADDRESS_IPV4_TAG,  &(pNfapiMsg->nfapi_config.p7_vnf_address_ipv4),  &unpack_ipv4_address_value},\n+                {
+  NFAPI_NR_NFAPI_P7_VNF_ADDRESS_IPV6_TAG,  &(pNfapiMsg->nfapi_config.p7_vnf_address_ipv6),  &unpack_ipv6_address_value},\n+                {
+  NFAPI_NR_NFAPI_P7_VNF_PORT_TAG,  &(pNfapiMsg->nfapi_config.p7_vnf_port),  &unpack_uint16_tlv_value},\n+                {
+  NFAPI_NR_NFAPI_P7_PNF_ADDRESS_IPV4_TAG,  &(pNfapiMsg->nfapi_config.p7_pnf_address_ipv4),  &unpack_ipv4_address_value},\n+                {
+  NFAPI_NR_NFAPI_P7_PNF_ADDRESS_IPV6_TAG,  &(pNfapiMsg->nfapi_config.p7_pnf_address_ipv6),  &unpack_ipv6_address_value},\n+                {
+  NFAPI_NR_NFAPI_P7_PNF_PORT_TAG,  &(pNfapiMsg->nfapi_config.p7_pnf_port),  &unpack_uint16_tlv_value},\n+                {
+  NFAPI_NR_NFAPI_TIMING_WINDOW_TAG,  &(pNfapiMsg->nfapi_config.timing_window),  &unpack_uint8_tlv_value},\n+                {
+  NFAPI_NR_NFAPI_TIMING_INFO_MODE_TAG,  &(pNfapiMsg->nfapi_config.timing_info_mode),  &unpack_uint8_tlv_value},\n+                {
+  NFAPI_NR_NFAPI_TIMING_INFO_PERIOD_TAG,  &(pNfapiMsg->nfapi_config.timing_info_period),  &unpack_uint8_tlv_value},\n+        };\n+\n+        return
+  ( pull8(ppReadPackedMsg, &pNfapiMsg->num_tlv, end) &&\n+                         unpack_tlv_list(unpack_fns,
+  sizeof(unpack_fns)/sizeof(unpack_tlv_t), ppReadPackedMsg, end, config, &pNfapiMsg->vendor_extension));\n+                \n
+  }\n \n static uint8_t unpack_config_response(uint8_t **ppReadPackedMsg, uint8_t
+  *end, void *msg, nfapi_p4_p5_codec_config_t *config) {\n","start_fn":"pack_config_request","start_fn_file":"nfapi/open-nFAPI/nfapi/src/nfapi_p5.c","subsystem":"nfapi/open-nFAPI/nfapi"},"type":"text","id":"oai5g_776ca25_00093"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

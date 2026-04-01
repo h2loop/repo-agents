@@ -1,0 +1,17 @@
+diff --git a/subsys/bluetooth/controller/ll_sw/ull_adv_aux.c b/subsys/bluetooth/controller/ll_sw/ull_adv_aux.c
+index 0b37613a..b5298f53 100644
+--- a/subsys/bluetooth/controller/ll_sw/ull_adv_aux.c
++++ b/subsys/bluetooth/controller/ll_sw/ull_adv_aux.c
+@@ -1443,8 +1443,12 @@ int ull_adv_aux_init(void)
+ int ull_adv_aux_reset_finalize(void)
+ {
+ 	int err;
++	uint32_t key;
+ 
++	key = arch_irq_lock();
+ 	err = init_reset();
++	arch_irq_unlock(key);
++
+ 	if (err) {
+ 		return err;
+ 	}

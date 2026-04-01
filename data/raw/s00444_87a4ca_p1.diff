@@ -1,0 +1,85 @@
+diff --git a/openair1/PHY/LTE_TRANSPORT/dlsch_modulation.c b/openair1/PHY/LTE_TRANSPORT/dlsch_modulation.c
+index b9d4fbc906..72897665e9 100644
+--- a/openair1/PHY/LTE_TRANSPORT/dlsch_modulation.c
++++ b/openair1/PHY/LTE_TRANSPORT/dlsch_modulation.c
+@@ -3557,8 +3557,11 @@ int dlsch_modulation(PHY_VARS_eNB* phy_vars_eNB,
+           allocate_REs = allocate_REs_in_RB_pilots_QPSK_siso; 
+ 	}
+ 	else if (dlsch0->harq_processes[harq_pid]->mimo_mode == ALAMOUTI) {
+-          qam_table_s0 = (int16_t*)qam4_tm2_p2_b0[dlsch0->pa][dlsch0->pb];
+-          qam_table_s1 = (int16_t*)qam4_tm2_p2_b1[dlsch0->pa][dlsch0->pb];
++          // Add bounds checking for pa and pb to prevent array overflow
++          int pa_idx = (dlsch0->pa >= 0 && dlsch0->pa < 8) ? dlsch0->pa : 0;
++          int pb_idx = (dlsch0->pb >= 0 && dlsch0->pb < 4) ? dlsch0->pb : 0;
++          qam_table_s0 = (int16_t*)qam4_tm2_p2_b0[pa_idx][pb_idx];
++          qam_table_s1 = (int16_t*)qam4_tm2_p2_b1[pa_idx][pb_idx];
+ 	  P2_SHIFT[0]=nushiftmod3;
+           allocate_REs = allocate_REs_in_RB_pilots_QPSK_tm2;
+ 	}
+@@ -3569,8 +3572,10 @@ int dlsch_modulation(PHY_VARS_eNB* phy_vars_eNB,
+           allocate_REs = allocate_REs_in_RB_no_pilots_QPSK_siso;
+ 	}
+ 	else if (dlsch0->harq_processes[harq_pid]->mimo_mode == ALAMOUTI) {
+-          qam_table_s0 = (int16_t*)qam4_tm2_p2_0[dlsch0->pa];
+-          qam_table_s1 = (int16_t*)qam4_tm2_p2_1[dlsch0->pa];
++          // Add bounds checking for pa to prevent array overflow
++          int pa_idx = (dlsch0->pa >= 0 && dlsch0->pa < 8) ? dlsch0->pa : 0;
++          qam_table_s0 = (int16_t*)qam4_tm2_p2_0[pa_idx];
++          qam_table_s1 = (int16_t*)qam4_tm2_p2_1[pa_idx];
+ 	  allocate_REs = allocate_REs_in_RB_no_pilots_QPSK_tm2;
+ 	}
+       }
+@@ -3582,8 +3587,11 @@ int dlsch_modulation(PHY_VARS_eNB* phy_vars_eNB,
+           allocate_REs = allocate_REs_in_RB_pilots_16QAM_siso;
+         }
+         else if (dlsch0->harq_processes[harq_pid]->mimo_mode == ALAMOUTI) {
+-          qam_table_s0 = (int16_t*)qam16_tm2_p2_b0[dlsch0->pa][dlsch0->pb];
+-          qam_table_s1 = (int16_t*)qam16_tm2_p2_b1[dlsch0->pa][dlsch0->pb];
++          // Add bounds checking for pa and pb to prevent array overflow
++          int pa_idx = (dlsch0->pa >= 0 && dlsch0->pa < 8) ? dlsch0->pa : 0;
++          int pb_idx = (dlsch0->pb >= 0 && dlsch0->pb < 4) ? dlsch0->pb : 0;
++          qam_table_s0 = (int16_t*)qam16_tm2_p2_b0[pa_idx][pb_idx];
++          qam_table_s1 = (int16_t*)qam16_tm2_p2_b1[pa_idx][pb_idx];
+ 	  P2_SHIFT[0]=nushiftmod3;
+           allocate_REs = allocate_REs_in_RB_pilots_16QAM_tm2;
+ 	}
+@@ -3594,8 +3602,10 @@ int dlsch_modulation(PHY_VARS_eNB* phy_vars_eNB,
+           allocate_REs = allocate_REs_in_RB_no_pilots_16QAM_siso;
+ 	}
+ 	else if (dlsch0->harq_processes[harq_pid]->mimo_mode == ALAMOUTI) {
+-          qam_table_s0 = (int16_t*)qam16_tm2_p2_0[dlsch0->pa];
+-          qam_table_s1 = (int16_t*)qam16_tm2_p2_1[dlsch0->pa];
++          // Add bounds checking for pa to prevent array overflow
++          int pa_idx = (dlsch0->pa >= 0 && dlsch0->pa < 8) ? dlsch0->pa : 0;
++          qam_table_s0 = (int16_t*)qam16_tm2_p2_0[pa_idx];
++          qam_table_s1 = (int16_t*)qam16_tm2_p2_1[pa_idx];
+ 	  allocate_REs = allocate_REs_in_RB_no_pilots_16QAM_tm2;
+ 	}
+       }
+@@ -3608,8 +3618,11 @@ int dlsch_modulation(PHY_VARS_eNB* phy_vars_eNB,
+           allocate_REs = allocate_REs_in_RB_pilots_64QAM_siso;
+         }
+ 	else if (dlsch0->harq_processes[harq_pid]->mimo_mode == ALAMOUTI) {
+-          qam_table_s0 = (int16_t*)qam64_tm2_p2_b0[dlsch0->pa][dlsch0->pb];
+-          qam_table_s1 = (int16_t*)qam64_tm2_p2_b1[dlsch0->pa][dlsch0->pb];
++          // Add bounds checking for pa and pb to prevent array overflow
++          int pa_idx = (dlsch0->pa >= 0 && dlsch0->pa < 8) ? dlsch0->pa : 0;
++          int pb_idx = (dlsch0->pb >= 0 && dlsch0->pb < 4) ? dlsch0->pb : 0;
++          qam_table_s0 = (int16_t*)qam64_tm2_p2_b0[pa_idx][pb_idx];
++          qam_table_s1 = (int16_t*)qam64_tm2_p2_b1[pa_idx][pb_idx];
+ 	  P2_SHIFT[0]=nushiftmod3;
+           allocate_REs = allocate_REs_in_RB_pilots_64QAM_tm2;
+         }
+@@ -3621,8 +3634,10 @@ int dlsch_modulation(PHY_VARS_eNB* phy_vars_eNB,
+ 	}
+ 	else if (dlsch0->harq_processes[harq_pid]->mimo_mode == ALAMOUTI) {
+ 	  LOG_D(PHY,"Calling qam64_tm2 modulation no CS-RS pa %d\n",dlsch0->pa);
+-          qam_table_s0 = (int16_t*)qam64_tm2_p2_0[dlsch0->pa];
+-          qam_table_s1 = (int16_t*)qam64_tm2_p2_1[dlsch0->pa];
++          // Add bounds checking for pa to prevent array overflow
++          int pa_idx = (dlsch0->pa >= 0 && dlsch0->pa < 8) ? dlsch0->pa : 0;
++          qam_table_s0 = (int16_t*)qam64_tm2_p2_0[pa_idx];
++          qam_table_s1 = (int16_t*)qam64_tm2_p2_1[pa_idx];
+ 	  allocate_REs = allocate_REs_in_RB_no_pilots_64QAM_tm2;
+ 	}
+       }

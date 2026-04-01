@@ -1,0 +1,37 @@
+diff --git a/openair2/E1AP/lib/e1ap_bearer_context_management.c b/openair2/E1AP/lib/e1ap_bearer_context_management.c
+index f2593f103c..0b44f99932 100644
+--- a/openair2/E1AP/lib/e1ap_bearer_context_management.c
++++ b/openair2/E1AP/lib/e1ap_bearer_context_management.c
+@@ -37,6 +37,7 @@
+ #include "e1ap_lib_common.h"
+ #include "e1ap_bearer_context_management.h"
+ #include "e1ap_lib_includes.h"
++#include "openair2/COMMON/e1ap_messages_types.h"
+ 
+ /** @brief Encode E1AP_SecurityIndication_t (3GPP TS 38.463 9.3.1.23) */
+ static E1AP_SecurityIndication_t e1_encode_security_indication(const security_indication_t *in)
+@@ -1911,6 +1912,24 @@ bool decode_E1_bearer_context_mod_request(const E1AP_E1AP_PDU_t *pdu, e1ap_beare
+ static DRB_nGRAN_to_mod_t cp_drb_to_mod_item(const DRB_nGRAN_to_mod_t *msg)
+ {
+   DRB_nGRAN_to_mod_t cp = {0};
++  
++  // Check for NULL pointer
++  if (msg == NULL) {
++    PRINT_ERROR("NULL pointer provided for DRB_nGRAN_to_mod_t\n");
++    return cp;
++  }
++  
++  // Validate array bounds
++  if (msg->numDlUpParam > E1AP_MAX_NUM_UP_PARAM) {
++    PRINT_ERROR("Invalid numDlUpParam: %d exceeds maximum %d\n", msg->numDlUpParam, E1AP_MAX_NUM_UP_PARAM);
++    return cp;
++  }
++  
++  if (msg->numQosFlow2Setup > E1AP_MAX_NUM_QOS_FLOWS) {
++    PRINT_ERROR("Invalid numQosFlow2Setup: %d exceeds maximum %d\n", msg->numQosFlow2Setup, E1AP_MAX_NUM_QOS_FLOWS);
++    return cp;
++  }
++  
+   // shallow copy
+   cp = *msg;
+   _E1_CP_OPTIONAL_IE(&cp, msg, sdap_config);

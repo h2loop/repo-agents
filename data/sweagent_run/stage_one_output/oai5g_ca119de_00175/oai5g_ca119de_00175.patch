@@ -1,0 +1,87 @@
+diff --git a/openair3/NAS/COMMON/IES/FGSMobileIdentity.c b/openair3/NAS/COMMON/IES/FGSMobileIdentity.c
+index c0b60f101f..1fae9319ef 100644
+--- a/openair3/NAS/COMMON/IES/FGSMobileIdentity.c
++++ b/openair3/NAS/COMMON/IES/FGSMobileIdentity.c
+@@ -38,6 +38,7 @@
+ #include "FGSMobileIdentity.h"
+ 
+ static int decode_guti_5gs_mobile_identity(Guti5GSMobileIdentity_t *guti, const uint8_t *buffer);
++static int decode_imeisv_5gs_mobile_identity(Imeisv5GSMobileIdentity_t *imeisv, const uint8_t *buffer);
+ 
+ static int encode_guti_5gs_mobile_identity(Guti5GSMobileIdentity_t *guti, uint8_t *buffer);
+ static int encode_suci_5gs_mobile_identity(Suci5GSMobileIdentity_t *suci, uint8_t *buffer);
+@@ -64,6 +65,9 @@ int decode_5gs_mobile_identity(FGSMobileIdentity *fgsmobileidentity, uint8_t iei
+   if (typeofidentity == FGS_MOBILE_IDENTITY_5G_GUTI) {
+     decoded_rc = decode_guti_5gs_mobile_identity(&fgsmobileidentity->guti,
+                  buffer + decoded);
++  } else if (typeofidentity == FGS_MOBILE_IDENTITY_IMEISV) {
++    decoded_rc = decode_imeisv_5gs_mobile_identity(&fgsmobileidentity->imeisv,
++                 buffer + decoded);
+   } else {
+     AssertFatal(false, "Mobile Identity encoding of type %d not implemented\n", typeofidentity);
+   }
+@@ -75,6 +79,55 @@ int decode_5gs_mobile_identity(FGSMobileIdentity *fgsmobileidentity, uint8_t iei
+   return (decoded + decoded_rc);
+ }
+ 
++static int decode_imeisv_5gs_mobile_identity(Imeisv5GSMobileIdentity_t *imeisv, const uint8_t *buffer)
++{
++  int decoded = 0;
++  
++  imeisv->digittac01 = *(buffer + decoded) & 0xf;
++  imeisv->oddeven = (*(buffer + decoded) >> 4) & 0x1;
++  imeisv->typeofidentity = (*(buffer + decoded) >> 5) & 0x7;
++  
++  if (imeisv->typeofidentity != FGS_MOBILE_IDENTITY_IMEISV) {
++    return (TLV_DECODE_VALUE_DOESNT_MATCH);
++  }
++  
++  decoded++;
++  
++  imeisv->digittac02 = *(buffer + decoded) & 0xf;
++  imeisv->digittac03 = (*(buffer + decoded) >> 4) & 0xf;
++  decoded++;
++  
++  imeisv->digittac04 = *(buffer + decoded) & 0xf;
++  imeisv->digittac05 = (*(buffer + decoded) >> 4) & 0xf;
++  decoded++;
++  
++  imeisv->digittac06 = *(buffer + decoded) & 0xf;
++  imeisv->digittac07 = (*(buffer + decoded) >> 4) & 0xf;
++  decoded++;
++  
++  imeisv->digittac08 = *(buffer + decoded) & 0xf;
++  imeisv->digit09 = (*(buffer + decoded) >> 4) & 0xf;
++  decoded++;
++  
++  imeisv->digit10 = *(buffer + decoded) & 0xf;
++  imeisv->digit11 = (*(buffer + decoded) >> 4) & 0xf;
++  decoded++;
++  
++  imeisv->digit12 = *(buffer + decoded) & 0xf;
++  imeisv->digit13 = (*(buffer + decoded) >> 4) & 0xf;
++  decoded++;
++  
++  imeisv->digit14 = *(buffer + decoded) & 0xf;
++  imeisv->digitsv1 = (*(buffer + decoded) >> 4) & 0xf;
++  decoded++;
++  
++  imeisv->digitsv2 = *(buffer + decoded) & 0xf;
++  imeisv->spare = (*(buffer + decoded) >> 4) & 0xf;
++  decoded++;
++
++  return decoded;
++}
++
+ int encode_5gs_mobile_identity(FGSMobileIdentity *fgsmobileidentity, uint8_t iei, uint8_t *buffer, uint32_t len)
+ {
+   int encoded_rc = TLV_ENCODE_VALUE_DOESNT_MATCH;
+@@ -240,7 +293,7 @@ static int encode_suci_5gs_mobile_identity(Suci5GSMobileIdentity_t *suci, uint8_
+ static int encode_imeisv_5gs_mobile_identity(Imeisv5GSMobileIdentity_t *imeisv, uint8_t *buffer)
+ {
+   uint32_t encoded = 0;
+-  *(buffer + encoded) = 0x00 | (imeisv->digittac01 << 4) | (imeisv->oddeven << 3) | (imeisv->typeofidentity);
++  *(buffer + encoded) = 0x00 | (imeisv->typeofidentity << 5) | (imeisv->oddeven << 4) | (imeisv->digittac01);
+   encoded++;
+   *(buffer + encoded) = 0x00 | (imeisv->digittac03 << 4) | (imeisv->digittac02);
+   encoded++;

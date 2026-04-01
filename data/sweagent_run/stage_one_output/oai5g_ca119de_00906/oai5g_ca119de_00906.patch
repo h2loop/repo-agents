@@ -1,0 +1,51 @@
+diff --git a/openair3/NAS/COMMON/IES/LcsClientIdentity.c b/openair3/NAS/COMMON/IES/LcsClientIdentity.c
+index 89014ce46c..5593d96cac 100644
+--- a/openair3/NAS/COMMON/IES/LcsClientIdentity.c
++++ b/openair3/NAS/COMMON/IES/LcsClientIdentity.c
+@@ -22,6 +22,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <stdint.h>
++#include <string.h>
+ 
+ 
+ #include "TLVEncoder.h"
+@@ -83,13 +84,37 @@ int encode_lcs_client_identity(LcsClientIdentity *lcsclientidentity, uint8_t iei
+ 
+ void dump_lcs_client_identity_xml(LcsClientIdentity *lcsclientidentity, uint8_t iei)
+ {
++  char *octet_string_xml;
++  char *line_start;
++  char *line_end;
++  
+   printf("<Lcs Client Identity>\n");
+ 
+   if (iei > 0)
+     /* Don't display IEI if = 0 */
+     printf("    <IEI>0x%X</IEI>\n", iei);
+ 
+-  printf("%s",dump_octet_string_xml(&lcsclientidentity->lcsclientidentityvalue));
++  /* Get the octet string XML and properly format it with indentation */
++  octet_string_xml = dump_octet_string_xml(&lcsclientidentity->lcsclientidentityvalue);
++  
++  /* Process each line and add proper indentation */
++  line_start = octet_string_xml;
++  while (line_start && *line_start) {
++    line_end = strchr(line_start, '\n');
++    if (line_end) {
++      *line_end = '\0';
++      if (strlen(line_start) > 0) {
++        printf("    %s\n", line_start);
++      }
++      line_start = line_end + 1;
++    } else {
++      if (strlen(line_start) > 0) {
++        printf("    %s\n", line_start);
++      }
++      break;
++    }
++  }
++  
+   printf("</Lcs Client Identity>\n");
+ }
+ 

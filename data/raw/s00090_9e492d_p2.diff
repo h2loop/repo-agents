@@ -1,0 +1,47 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+index 45d5f15ffe..4c278c3afb 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+@@ -2054,10 +2054,31 @@ static uint8_t pack_tx_data_pdu_list_value(void *tlv, uint8_t **ppWritePackedMsg
+         break;
+       }
+ 
+-      default: {
+-        NFAPI_TRACE(NFAPI_TRACE_ERROR, "FIXME : Invalid tag value %d \n", value->TLVs[i].tag);
++      case 2:
++      case 3:
++      case 4:
++      case 5:
++      case 6:
++      case 7:
++      case 8:
++      case 9:
++      case 10: {
++        NFAPI_TRACE(NFAPI_TRACE_INFO, "%s(): Packing power control TLV tag %d, length %d\n", __FUNCTION__, value->TLVs[i].tag, value->TLVs[i].length);
++        if (!pusharray32(value->TLVs[i].value.direct,
++                         (value->TLVs[i].length + 3) / 4,
++                         (value->TLVs[i].length + 3) / 4,
++                         ppWritePackedMsg,
++                         end)) {
++          NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s():%d. Failed to pack power control TLV tag %d, length %d \n", __FUNCTION__, __LINE__, value->TLVs[i].tag, value->TLVs[i].length);
++          return 0;
++        }
+         break;
+       }
++
++      default: {
++        NFAPI_TRACE(NFAPI_TRACE_ERROR, "Invalid tag value %d \n", value->TLVs[i].tag);
++        return 0;
++      }
+     }
+   }
+ 
+@@ -5944,7 +5965,7 @@ static uint8_t unpack_tx_data_pdu_list_value(uint8_t **ppReadPackedMsg, uint8_t
+ 
+       default: {
+         NFAPI_TRACE(NFAPI_TRACE_ERROR, "FIXME : Invalid tag value %d \n", pNfapiMsg->TLVs[i].tag );
+-        break;
++        return 0;
+       }
+     }
+   }

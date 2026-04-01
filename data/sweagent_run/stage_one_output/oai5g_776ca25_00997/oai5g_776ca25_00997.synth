@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix null pointer dereference in pnf_handle_vendor_extension when vendor callbacks are null\n\n### Summary\nThe `pnf_handle_vendor_extension` function in the PNF codebase had several null pointer dereference issues when vendor extension callbacks were not properly configured. This caused crashes when processing vendor extension messages.\n\nThis fix adds proper null checks and early returns to prevent crashes.\n\n### Changes\n- `nfapi/open-nFAPI/pnf/src/pnf.c`: Added null checks for vendor extension callbacks and proper early returns.\n\n### Reproduction\nTo reproduce the issue:\n1. Configure PNF without vendor extension callbacks\n2. Send a vendor extension message to the PNF\n3. Observe segmentation fault due to null pointer dereference\n\nThe fix ensures the function handles null callbacks gracefully by checking them before use and returning early when they're not configured.\n"
+}

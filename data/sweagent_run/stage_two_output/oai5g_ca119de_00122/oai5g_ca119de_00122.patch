@@ -1,0 +1,70 @@
+diff --git a/openair2/RRC/NR_UE/rrc_UE.c b/openair2/RRC/NR_UE/rrc_UE.c
+index 53364b0768..af7b007b26 100644
+--- a/openair2/RRC/NR_UE/rrc_UE.c
++++ b/openair2/RRC/NR_UE/rrc_UE.c
+@@ -188,12 +188,25 @@ static void nr_rrc_ue_process_rrcReconfiguration(NR_UE_RRC_INST_t *rrc,
+         if (ie->nonCriticalExtension->dedicatedNAS_MessageList) {
+           struct NR_RRCReconfiguration_v1530_IEs__dedicatedNAS_MessageList *tmp = ext->dedicatedNAS_MessageList;
+           for (int i = 0; i < tmp->list.count; i++) {
+-            MessageDef *ittiMsg = itti_alloc_new_message(TASK_RRC_NRUE, rrc->ue_id, NAS_CONN_ESTABLI_CNF);
+-            nas_establish_cnf_t *msg = &NAS_CONN_ESTABLI_CNF(ittiMsg);
+-            msg->errCode = AS_SUCCESS;
+-            msg->nasMsg.length = tmp->list.array[i]->size;
+-            msg->nasMsg.nas_data = tmp->list.array[i]->buf;
+-            itti_send_msg_to_task(TASK_NAS_NRUE, rrc->ue_id, ittiMsg);
++            if (tmp->list.array[i]->size > 0 && tmp->list.array[i]->buf != NULL) {
++              MessageDef *ittiMsg = itti_alloc_new_message(TASK_RRC_NRUE, rrc->ue_id, NAS_DOWNLINK_DATA_IND);
++              if (ittiMsg != NULL) {
++                dl_info_transfer_ind_t *msg = &NAS_DOWNLINK_DATA_IND(ittiMsg);
++                msg->UEid = rrc->ue_id;
++                msg->nasMsg.length = tmp->list.array[i]->size;
++                msg->nasMsg.nas_data = malloc(msg->nasMsg.length);
++                if (msg->nasMsg.nas_data != NULL) {
++                  memcpy(msg->nasMsg.nas_data, tmp->list.array[i]->buf, msg->nasMsg.length);
++                  itti_send_msg_to_task(TASK_NAS_NRUE, rrc->ue_id, ittiMsg);
++                  tmp->list.array[i]->buf = NULL; // to keep the buffer, up to NAS to free it
++                } else {
++                  LOG_E(NR_RRC, "Failed to allocate memory for NAS message\n");
++                  itti_free_msg_content(ittiMsg);
++                }
++              } else {
++                LOG_E(NR_RRC, "Failed to allocate ITTI message for NAS\n");
++              }
++            }
+           }
+           tmp->list.count = 0; // to prevent the automatic free by ASN1_FREE
+         }
+@@ -1849,11 +1862,11 @@ void *rrc_nrue(void *notUsed)
+ 
+   case NR_RRC_MAC_RA_IND:
+     LOG_D(NR_RRC,
+-	  "[UE %ld] Received %s: frame %d RA %s\n",
+-	  rrc->ue_id,
+-	  ITTI_MSG_NAME(msg_p),
+-	  NR_RRC_MAC_RA_IND(msg_p).frame,
+-	  NR_RRC_MAC_RA_IND(msg_p).RA_succeeded ? "successful" : "failed");
++          "[UE %ld] Received %s: frame %d RA %s\n",
++          rrc->ue_id,
++          ITTI_MSG_NAME(msg_p),
++          NR_RRC_MAC_RA_IND(msg_p).frame,
++          NR_RRC_MAC_RA_IND(msg_p).RA_succeeded ? "successful" : "failed");
+     nr_rrc_handle_ra_indication(rrc, NR_RRC_MAC_RA_IND(msg_p).RA_succeeded);
+     break;
+ 
+@@ -1881,11 +1894,11 @@ void *rrc_nrue(void *notUsed)
+ 
+   case NR_RRC_DCCH_DATA_IND:
+     nr_rrc_ue_decode_dcch(rrc,
+-			  NR_RRC_DCCH_DATA_IND(msg_p).dcch_index,
+-			  NR_RRC_DCCH_DATA_IND(msg_p).sdu_p,
+-			  NR_RRC_DCCH_DATA_IND(msg_p).sdu_size,
+-			  NR_RRC_DCCH_DATA_IND(msg_p).gNB_index,
+-			  &NR_RRC_DCCH_DATA_IND(msg_p).msg_integrity);
++                          NR_RRC_DCCH_DATA_IND(msg_p).dcch_index,
++                          NR_RRC_DCCH_DATA_IND(msg_p).sdu_p,
++                          NR_RRC_DCCH_DATA_IND(msg_p).sdu_size,
++                          NR_RRC_DCCH_DATA_IND(msg_p).gNB_index,
++                          &NR_RRC_DCCH_DATA_IND(msg_p).msg_integrity);
+     /* this is allocated by itti_malloc in PDCP task (deliver_sdu_srb)
+        then passed to the RRC task and freed after use */
+     free(NR_RRC_DCCH_DATA_IND(msg_p).sdu_p);

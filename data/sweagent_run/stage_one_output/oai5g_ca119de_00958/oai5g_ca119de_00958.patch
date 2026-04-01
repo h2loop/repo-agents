@@ -1,0 +1,32 @@
+diff --git a/openair1/PHY/LTE_UE_TRANSPORT/dlsch_llr_computation.c b/openair1/PHY/LTE_UE_TRANSPORT/dlsch_llr_computation.c
+index 094b1ef8d5..5412ade272 100644
+--- a/openair1/PHY/LTE_UE_TRANSPORT/dlsch_llr_computation.c
++++ b/openair1/PHY/LTE_UE_TRANSPORT/dlsch_llr_computation.c
+@@ -162,12 +162,12 @@ int dlsch_qpsk_llr(LTE_DL_FRAME_PARMS *frame_parms,
+ 
+ 
+   LOG_D(PHY,"[p %d : symb %d / FirstSym %d / Length %d]: @LLR Buff %p, @LLR Buff(symb) %p \n",
+-	frame_parms->nb_antenna_ports_eNB,
+-	symbol,
+-	first_symbol_flag,
+-	len,
+-	dlsch_llr,
+-	llr32);
++        frame_parms->nb_antenna_ports_eNB,
++        symbol,
++        first_symbol_flag,
++        len,
++        dlsch_llr,
++        llr32);
+ 
+ 
+   qpsk_llr((short *)rxF,
+@@ -384,7 +384,7 @@ void qam16_llr(int16_t *stream0_in,
+     llr128[0] = simde_mm_unpacklo_epi32(rxF_128[i],xmm0);
+     llr128[1] = simde_mm_unpackhi_epi32(rxF_128[i],xmm0);
+     llr32[0] = simde_mm_extract_epi32(llr128[0],0); //((uint32_t *)&llr128[0])[0];
+-    llr32[1] = simde_mm_extract_epi32(llr128[0],1); //((uint32_t *)&llr128[0])[0];
++    llr32[1] = simde_mm_extract_epi32(llr128[0],1); //((uint32_t *)&llr128[0])[1];
+     llr32[2] = simde_mm_extract_epi32(llr128[0],2); //((uint32_t *)&llr128[0])[2];
+     llr32[3] = simde_mm_extract_epi32(llr128[0],3); //((uint32_t *)&llr128[0])[3];
+     llr32[4] = simde_mm_extract_epi32(llr128[1],0); //((uint32_t *)&llr128[1])[0];

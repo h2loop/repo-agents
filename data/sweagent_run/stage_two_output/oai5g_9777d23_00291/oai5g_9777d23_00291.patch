@@ -1,0 +1,14 @@
+diff --git a/openair3/NAS/COMMON/IES/EpsUpdateType.c b/openair3/NAS/COMMON/IES/EpsUpdateType.c
+index 309031dcee..aeca9ffe49 100644
+--- a/openair3/NAS/COMMON/IES/EpsUpdateType.c
++++ b/openair3/NAS/COMMON/IES/EpsUpdateType.c
+@@ -80,7 +80,9 @@ uint8_t encode_u8_eps_update_type(EpsUpdateType *epsupdatetype)
+   uint8_t *buffer = &bufferReturn;
+   uint8_t encoded = 0;
+   uint8_t iei = 0;
++#if defined (NAS_DEBUG)
+   dump_eps_update_type_xml(epsupdatetype, 0);
++#endif
+   *(buffer + encoded) = 0x00 | (iei & 0xf0) |
+                         ((epsupdatetype->activeflag & 0x1) << 3) |
+                         (epsupdatetype->epsupdatetypevalue & 0x7);

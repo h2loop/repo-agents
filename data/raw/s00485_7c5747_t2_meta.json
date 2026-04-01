@@ -1,0 +1,9 @@
+{
+  "run_id": "s00485_7c5747",
+  "pr_text": "## Title: Fix invalid PLMN initialization causing NAS protocol state machine violations\n\n### Summary\nThe `make_plmn_from_conf()` function initializes PLMN structures with `memset(&plmn, 0xff, sizeof(plmn))`, which fills all digits with invalid BCD values. According to 3GPP TS 24.008, PLMN digits must be BCD-encoded (0-9), and 0xFF is not a valid digit. When these malformed PLMNs are used in NAS protocol state machines, they cause specification violations and unpredictable state transitions. Addi",
+  "trajectory_path": "data/raw/s00485_7c5747_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00485_7c5747_p2.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 18,
+  "timestamp": "2026-02-10T13:35:59Z"
+}

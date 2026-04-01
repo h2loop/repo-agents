@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix nr_mac_rrc_data_req_ue implementation in PSBCH simulation\n\n### Summary\nThe `nr_mac_rrc_data_req_ue` function in the PSBCH simulation was just a stub that returned 0 for all requests. This caused unexpected behavior when the function was called during sidelink operations. The fix implements proper handling for SL_DISCOVERY SRB requests.\n\n### Changes\n- `openair1/SIMULATION/NR_PHY/psbchsim.c`: Replaced stub implementation with proper handling for SL_DISCOVERY SRB requests, generating test data and returning appropriate size values.\n\n### Reproduction\nWhen running PSBCH simulations that involve sidelink discovery procedures, the simulation would not properly handle RRC data requests, leading to missing or incorrect sidelink discovery message transmission. With this fix, the function now properly returns test data for SL_DISCOVERY SRB requests, enabling correct simulation behavior.\n\n"
+}

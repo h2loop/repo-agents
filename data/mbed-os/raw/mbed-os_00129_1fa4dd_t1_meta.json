@@ -1,0 +1,26 @@
+{
+  "run_id": "mbed-os_00129_1fa4dd",
+  "function": {
+    "name": "HAL_UARTEx_EnableStopMode",
+    "file": "targets/TARGET_STM/TARGET_STM32L5/STM32Cube_FW/STM32L5xx_HAL_Driver/stm32l5xx_hal_uart_ex.c",
+    "start_line": 480,
+    "end_line": 492,
+    "body_lines": 13,
+    "signature": "HAL_StatusTypeDef HAL_UARTEx_EnableStopMode(UART_HandleTypeDef *huart)",
+    "subsystem": "targets/TARGET_STM/TARGET_STM32L5",
+    "token_estimate": 24
+  },
+  "bug": {
+    "bug_id": "c_missing_error_propagation",
+    "description": "missing error propagation where a failure is silently ignored",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a missing error propagation where a failure is silently ignored downstream of function HAL_UARTEx_EnableStopMode in the targets/TARGET_STM/TARGET_STM32L5 subsystem.\nThe function is located at targets/TARGET_STM/TARGET_STM32L5/STM32Cube_FW/STM32L5xx_HAL_Driver/stm32l5xx_hal_uart_ex.c:480.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 17,
+  "trajectory_steps": 22,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T15:58:05Z"
+}

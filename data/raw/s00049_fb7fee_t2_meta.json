@@ -1,0 +1,9 @@
+{
+  "run_id": "s00049_fb7fee",
+  "pr_text": "## Title: Fix buffer overflow in NSSAI parsing loop\n\n### Summary\nThe `parse_allowed_nssai` function in the NAS UE message parser extracts NSSAI (Network Slice Selection Assistance Information) entries from a network message into a fixed-size array of 8 elements. The while loop condition only verified that the buffer pointer remained within bounds but failed to check the array index, allowing potential writes beyond the allocated `nssaiList[8]` array if the message contained more than 8 NSSAI ent",
+  "trajectory_path": "data/raw/s00049_fb7fee_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00049_fb7fee_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 20,
+  "timestamp": "2026-02-11T09:27:25Z"
+}

@@ -1,0 +1,49 @@
+diff --git a/openair2/E1AP/e1ap.c b/openair2/E1AP/e1ap.c
+index 168366f351..0186549279 100644
+--- a/openair2/E1AP/e1ap.c
++++ b/openair2/E1AP/e1ap.c
+@@ -230,23 +230,28 @@ int e1apCUUP_handle_SETUP_RESPONSE(sctp_assoc_t assoc_id, e1ap_upcp_inst_t *inst
+ int e1apCUUP_handle_SETUP_FAILURE(sctp_assoc_t assoc_id, e1ap_upcp_inst_t *inst, const E1AP_E1AP_PDU_t *pdu)
+ {
+   LOG_D(E1AP, "CU-UP: Decoding E1AP Setup Failure...\n");
+-  E1AP_GNB_CU_UP_E1SetupFailureIEs_t *ie;
+-  DevAssert(pdu != NULL);
+-  E1AP_GNB_CU_UP_E1SetupFailure_t *in = &pdu->choice.unsuccessfulOutcome->value.choice.GNB_CU_UP_E1SetupFailure;
+-  /* Transaction ID */
+-  F1AP_FIND_PROTOCOLIE_BY_ID(E1AP_GNB_CU_UP_E1SetupFailureIEs_t, ie, in, E1AP_ProtocolIE_ID_id_TransactionID, true);
+-  long transaction_id;
++  
++  // Decode E1 Setup Failure
++  e1ap_setup_fail_t setup_fail = {0};
++  if (!decode_e1ap_cuup_setup_failure(pdu, &setup_fail)) {
++    LOG_E(E1AP, "Failed to decode E1 Setup Failure\n");
++    free_e1ap_cuup_setup_failure(&setup_fail);
++    return -1;
++  }
++  
+   long old_transaction_id = inst->cuup.setupReq.transac_id;
+-  transaction_id = ie->value.choice.TransactionID;
+-  if (old_transaction_id != transaction_id)
+-    LOG_E(E1AP, "Transaction IDs do not match %ld != %ld\n", old_transaction_id, transaction_id);
+-  E1AP_free_transaction_identifier(transaction_id);
+-
+-  /* Cause */
+-  F1AP_FIND_PROTOCOLIE_BY_ID(E1AP_GNB_CU_UP_E1SetupFailureIEs_t, ie, in, E1AP_ProtocolIE_ID_id_Cause, true);
+-
+-  LOG_E(E1AP, "received E1 Setup Failure, please check the CU-CP output and the CU-UP parameters\n");
+-  exit(1);
++  if (old_transaction_id != setup_fail.transac_id)
++    LOG_E(E1AP, "Transaction IDs do not match %ld != %ld\n", old_transaction_id, setup_fail.transac_id);
++  
++  LOG_E(E1AP, "Received E1 Setup Failure with cause type %d value %d\n", setup_fail.cause.type, setup_fail.cause.value);
++  
++  // Create ITTI message to notify other components
++  MessageDef *msg_p = itti_alloc_new_message(TASK_CUUP_E1, 0, E1AP_SETUP_FAIL);
++  E1AP_SETUP_FAIL(msg_p) = cp_e1ap_cuup_setup_failure(&setup_fail);
++  msg_p->ittiMsgHeader.originInstance = assoc_id;
++  itti_send_msg_to_task(TASK_RRC_GNB, 0, msg_p);
++  
++  free_e1ap_cuup_setup_failure(&setup_fail);
+   return 0;
+ }
+ 

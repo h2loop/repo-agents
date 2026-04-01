@@ -1,0 +1,131 @@
+diff --git a/openair3/TEST/test_secu_knas_encrypt_eia2.c b/openair3/TEST/test_secu_knas_encrypt_eia2.c
+index 9a9b7e102e..d2621dd364 100644
+--- a/openair3/TEST/test_secu_knas_encrypt_eia2.c
++++ b/openair3/TEST/test_secu_knas_encrypt_eia2.c
+@@ -23,10 +23,96 @@
+ #include <stdio.h>
+ #include <stdint.h>
+ #include <unistd.h>
+-
+-#include "test_util.h"
++#include <string.h>
++#include <stdarg.h>
+ 
+ #include "secu_defs.h"
++#include "nas_stream_eia2.h"
++
++// Helper functions for hex string conversion and buffer comparison
++static uint8_t hex_char_to_int(char c)
++{
++  if (c >= '0' && c <= '9') return c - '0';
++  if (c >= 'A' && c <= 'F') return c - 'A' + 10;
++  if (c >= 'a' && c <= 'f') return c - 'a' + 10;
++  return 0;
++}
++
++static uint8_t* decode_hex_dup(const char* hex_string)
++{
++  size_t len = strlen(hex_string);
++  // Count actual hex characters (excluding spaces)
++  size_t hex_len = 0;
++  for (size_t i = 0; i < len; i++) {
++    if (hex_string[i] != ' ') {
++      hex_len++;
++    }
++  }
++  
++  size_t out_len = hex_len / 2;
++  uint8_t* result = malloc(out_len);
++  
++  size_t hex_index = 0;
++  for (size_t i = 0; i < len && hex_index < hex_len; i++) {
++    if (hex_string[i] != ' ') {
++      if (hex_index % 2 == 0) {
++        result[hex_index / 2] = hex_char_to_int(hex_string[i]) << 4;
++      } else {
++        result[hex_index / 2] |= hex_char_to_int(hex_string[i]);
++      }
++      hex_index++;
++    }
++  }
++  
++  return result;
++}
++
++static uint32_t decode_hex_length(const char* hex_string)
++{
++  return strlen(hex_string) / 2;
++}
++
++static int compare_buffer(uint8_t *buffer, uint32_t length_buffer,
++                          uint8_t *pattern, uint32_t length_pattern)
++{
++  int i;
++
++  if (length_buffer != length_pattern) {
++    printf("Length mismatch, expecting %u bytes, got %u bytes\n", length_pattern,
++           length_buffer);
++    for (i = 0; i < length_buffer; i++) {
++      printf("%02x ", buffer[i]);
++    }
++    printf("\n");
++    return -1;
++  }
++
++  for (i = 0; i < length_buffer; i++) {
++    if (pattern[i] != buffer[i]) {
++      for (int j = 0; j < length_buffer; j++) {
++        printf("%02x ", buffer[j]);
++      }
++      printf("\nMismatch found in byte %d\nExpecting 0x%02x, got 0x%02x\n",
++             i, pattern[i], buffer[i]);
++      return -1;
++    }
++  }
++
++  return 0;
++}
++
++#define H(x)  decode_hex_dup(x)
++#define HL(x) decode_hex_dup(x), decode_hex_length(x)
++
++// Macro for failing tests
++static void fail(const char* format, ...)
++{
++  va_list args;
++  va_start(args, format);
++  vprintf(format, args);
++  va_end(args);
++  exit(1);
++}
+ 
+ static
+ void eia2_encrypt(uint8_t direction, uint32_t count,
+@@ -38,19 +124,22 @@ void eia2_encrypt(uint8_t direction, uint32_t count,
+ 
+   nas_cipher.direction  = direction;
+   nas_cipher.count      = count;
+-  nas_cipher.key        = key;
+-  nas_cipher.key_length = key_length;
+   nas_cipher.bearer     = bearer;
+   nas_cipher.blength    = length;
+   nas_cipher.message    = message;
++  
++  // Initialize the context
++  nas_cipher.context = stream_integrity_init_eia2(key);
+ 
+-  if (nas_stream_encrypt_eia2(&nas_cipher, result) != 0) {
+-    fail("Fail: nas_stream_encrypt_eia2\n");
+-  }
++  nas_stream_encrypt_eia2(&nas_cipher, result);
+ 
+   if (compare_buffer(result, 4, expected, length_expected) != 0) {
++    stream_integrity_free_eia2((stream_security_context_t *)nas_cipher.context);
+     fail("Fail: eia2_encrypt\n");
+   }
++  
++  // Clean up the context
++  stream_integrity_free_eia2((stream_security_context_t *)nas_cipher.context);
+ }
+ 
+ void doit (void)

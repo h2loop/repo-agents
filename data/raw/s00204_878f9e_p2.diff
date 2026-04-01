@@ -1,0 +1,26 @@
+diff --git a/openair3/NAS/COMMON/UTIL/TLVEncoder.h b/openair3/NAS/COMMON/UTIL/TLVEncoder.h
+index cd63a3d315..54d4b5cd2e 100644
+--- a/openair3/NAS/COMMON/UTIL/TLVEncoder.h
++++ b/openair3/NAS/COMMON/UTIL/TLVEncoder.h
+@@ -23,6 +23,7 @@
+ #define TLV_ENCODER_H_
+ 
+ #include <arpa/inet.h>  // htonl, htons
++#include <string.h>     // memcpy
+ 
+ #define ENCODE_U8(buffer, value, size)    \
+     *(uint8_t*)(buffer) = value;    \
+@@ -33,8 +34,11 @@
+    size += sizeof(uint16_t)
+ 
+ #define ENCODE_U24(buffer, value, size)   \
+-    *(uint32_t*)(buffer) = htonl(value);  \
+-    size += sizeof(uint8_t) + sizeof(uint16_t)
++  {                                       \
++    uint32_t tmp = htonl(value);          \
++    memcpy(buffer, ((uint8_t*)&tmp) + 1, 3); \
++  }                                       \
++  size += 3
+ 
+ #define ENCODE_U32(buffer, value, size) \
+   {                                     \

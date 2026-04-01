@@ -1,0 +1,26 @@
+{
+  "run_id": "zephyr_00072_d1cb80",
+  "function": {
+    "name": "nxp_wifi_set_twt",
+    "file": "drivers/wifi/nxp/nxp_wifi_drv.c",
+    "start_line": 1856,
+    "end_line": 1889,
+    "body_lines": 34,
+    "signature": "static int nxp_wifi_set_twt(const struct device *dev, struct wifi_twt_params *params)",
+    "subsystem": "drivers/wifi/nxp",
+    "token_estimate": 101
+  },
+  "bug": {
+    "bug_id": "c_incorrect_loop_bounds",
+    "description": "incorrect loop bounds causing iteration over invalid indices",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a incorrect loop bounds causing iteration over invalid indices downstream of function nxp_wifi_set_twt in the drivers/wifi/nxp subsystem.\nThe function is located at drivers/wifi/nxp/nxp_wifi_drv.c:1856.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 19,
+  "trajectory_steps": 30,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:12:17Z"
+}

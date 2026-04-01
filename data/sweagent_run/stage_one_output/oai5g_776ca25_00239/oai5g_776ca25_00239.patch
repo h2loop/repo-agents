@@ -1,0 +1,100 @@
+diff --git a/openair2/PHY_INTERFACE/phy_stub_UE.c b/openair2/PHY_INTERFACE/phy_stub_UE.c
+index 3c0640cd5e..d0c1dec8b1 100644
+--- a/openair2/PHY_INTERFACE/phy_stub_UE.c
++++ b/openair2/PHY_INTERFACE/phy_stub_UE.c
+@@ -371,11 +371,11 @@ void fill_ulsch_harq_indication_UE_MAC(
+ }
+ 
+ void fill_uci_harq_indication_UE_MAC(int Mod_id,
+-			      int frame,
+-			      int subframe,
+-			      UL_IND_t *UL_INFO,
+-			      nfapi_ul_config_harq_information *harq_information,
+-			      uint16_t rnti,
++                              int frame,
++                              int subframe,
++                              UL_IND_t *UL_INFO,
++                              nfapi_ul_config_harq_information *harq_information,
++                              uint16_t rnti,
+             nfapi_ul_config_request_t *ul_config_req) {
+   pthread_mutex_lock(&fill_ul_mutex.harq_mutex);
+ 
+@@ -956,24 +956,24 @@ void dl_config_req_UE_MAC_mch(int sfn,
+ 
+   for (int ue_id = 0; ue_id < num_ue; ue_id++) {
+     if (UE_mac_inst[ue_id].UE_mode[0] == NOT_SYNCHED){
+-	 LOG_D(MAC,
++         LOG_D(MAC,
+             "%s(): Received MCH in NOT_SYNCHED: UE_mode: %d, sfn/sf: %d.%d\n",
+             __func__,
+             UE_mac_inst[ue_id].UE_mode[0],
+             sfn,
+             sf);
+-	return;
++        return;
+ 
+     } else {
+-	 const int pdu_index = mch->mch_pdu.mch_pdu_rel8.pdu_index;
+-	if (pdu_index < 0 || pdu_index >= tx_req_pdu_list->num_pdus) {
+-    	LOG_E(MAC,
++         const int pdu_index = mch->mch_pdu.mch_pdu_rel8.pdu_index;
++        if (pdu_index < 0 || pdu_index >= tx_req_pdu_list->num_pdus) {
++        LOG_E(MAC,
+           "%s(): Problem with receiving data: "
+           "sfn/sf:%d.%d PDU size:%d, TX_PDU index: %d\n",
+           __func__,
+           sfn, sf, mch->pdu_size, mch->mch_pdu.mch_pdu_rel8.pdu_index);
+-    	return;
+-  	}
++        return;
++        }
+         ue_send_mch_sdu(ue_id, 0, sfn,
+             tx_req_pdu_list->pdus[pdu_index].segments[0].segment_data,
+             tx_req_pdu_list->pdus[pdu_index].segments[0].segment_length,
+@@ -1101,8 +1101,8 @@ static bool is_my_hi_dci0_req(nfapi_hi_dci0_request_t *hi_dci0_req)
+ }
+ 
+ int memcpy_hi_dci0_req (L1_rxtx_proc_t *proc,
+-			nfapi_pnf_p7_config_t* pnf_p7,
+-			nfapi_hi_dci0_request_t* req) {
++                        nfapi_pnf_p7_config_t* pnf_p7,
++                        nfapi_hi_dci0_request_t* req) {
+ 
+   if (!is_my_hi_dci0_req(req))
+   {
+@@ -1110,7 +1110,7 @@ int memcpy_hi_dci0_req (L1_rxtx_proc_t *proc,
+     return 0;
+   }
+   nfapi_hi_dci0_request_t *p = (nfapi_hi_dci0_request_t *)malloc(sizeof(nfapi_hi_dci0_request_t));
+-	//if(req!=0){
++        //if(req!=0){
+ 
+ 
+   p->sfn_sf = req->sfn_sf;
+@@ -1700,12 +1700,20 @@ static void print_rx_ind(nfapi_rx_indication_t *p)
+ 
+   void send_standalone_dummy()
+   {
+-    static const uint16_t dummy[] = {0, 0};
+-    if (send(ue_tx_sock_descriptor, dummy, sizeof(dummy), 0) < 0)
+-    {
+-      LOG_E(MAC, "send dummy to OAI UE failed: %s\n", strerror(errno));
+-      return;
+-    }
++    // Instead of sending dummy data, send a proper empty CRC indication
++    // This maintains the expected NFAPI message flow without false CRC errors
++    UL_IND_t empty_ind;
++    memset(&empty_ind, 0, sizeof(UL_IND_t));
++    
++    // Initialize the CRC indication structure
++    empty_ind.crc_ind.header.message_id = NFAPI_CRC_INDICATION;
++    empty_ind.crc_ind.crc_indication_body.tl.tag = NFAPI_CRC_INDICATION_BODY_TAG;
++    empty_ind.crc_ind.crc_indication_body.number_of_crcs = 0;
++    // Set a default sfn_sf value (0.0) when no actual frame/subframe info is available
++    empty_ind.crc_ind.sfn_sf = 0;
++    
++    // Send the properly formatted empty CRC indication
++    send_standalone_msg(&empty_ind, NFAPI_CRC_INDICATION);
+   }
+ 
+ const char *dl_pdu_type_to_string(uint8_t pdu_type)

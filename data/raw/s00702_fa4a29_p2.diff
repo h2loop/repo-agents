@@ -1,0 +1,31 @@
+diff --git a/openair1/SIMULATION/TOOLS/taus.c b/openair1/SIMULATION/TOOLS/taus.c
+index 5280cceafb..c4cffb7ff2 100644
+--- a/openair1/SIMULATION/TOOLS/taus.c
++++ b/openair1/SIMULATION/TOOLS/taus.c
+@@ -50,14 +50,24 @@ void set_taus_seed(unsigned int seed_init)
+ 
+   struct drand48_data buffer;
+   unsigned long result = 0;
++  unsigned int seed_value = seed_init;
+ 
+-  if (seed_init == 0) {
++  /* Ensure seed fits within long int range (max 2^31-1 = 2147483647).
++   * On 32-bit/LP64 systems, casting unsigned int > 2147483647 to long int
++   * produces negative values, causing undefined behavior in srand48_r().
++   * If seed exceeds the valid range, reduce it using modulo 2^31 to
++   * preserve randomness properties while ensuring deterministic behavior. */
++  if (seed_value > 2147483647U) {
++    seed_value = seed_value % 2147483648U;
++  }
++
++  if (seed_value == 0) {
+     fill_random(&s0, sizeof(s0));
+     fill_random(&s1, sizeof(s1));
+     fill_random(&s2, sizeof(s2));
+   } else {
+     /* Use reentrant version of rand48 to ensure that no conflicts with other generators occur */
+-    srand48_r((long int)seed_init, &buffer);
++    srand48_r((long int)seed_value, &buffer);
+     mrand48_r(&buffer, (long int *)&result);
+     s0 = result;
+     mrand48_r(&buffer, (long int *)&result);

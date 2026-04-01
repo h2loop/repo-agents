@@ -1,0 +1,33 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/config_ue.c b/openair2/LAYER2/NR_MAC_UE/config_ue.c
+index 65612872d6..fe67f50517 100644
+--- a/openair2/LAYER2/NR_MAC_UE/config_ue.c
++++ b/openair2/LAYER2/NR_MAC_UE/config_ue.c
+@@ -706,7 +706,7 @@ static uint32_t nr_get_pbr(long prioritizedbitrate)  // returns Bps
+       pbr = UINT_MAX;
+       break;
+     default:
+-      AssertFatal(false, "The proritized bit rate value is not one of the enum values\n");
++      AssertFatal(false, "The prioritized bit rate value is not one of the enum values\n");
+   }
+   uint32_t pbr_bytes =
+       (prioritizedbitrate < NR_LogicalChannelConfig__ul_SpecificParameters__prioritisedBitRate_infinity) ? pbr * 1000 : pbr;
+@@ -723,7 +723,9 @@ static uint32_t get_lc_bucket_size(long prioritisedBitRate, long bucketSizeDurat
+   else
+     bsd = nr_get_ms_bucketsizeduration(bucketSizeDuration);
+ 
+-  return pbr * bsd;
++  // Convert from (bytes/second * milliseconds) to bytes
++  // bytes/second * milliseconds / 1000 = bytes
++  return (pbr * bsd) / 1000;
+ }
+ 
+ // default configuration as per 38.331 section 9.2.1
+@@ -1793,7 +1795,7 @@ static void configure_maccellgroup(NR_UE_MAC_INST_t *mac, const NR_MAC_CellGroup
+         NR_SchedulingRequestToAddMod_t *sr = src->schedulingRequestToAddModList->list.array[i];
+         nr_sr_info_t *sr_info = &si->sr_info[sr->schedulingRequestId];
+         sr_info->active_SR_ID = true;
+-        // NR_SchedulingRequestToAddMod__sr_TransMax_n4	= 0 and so on
++        // NR_SchedulingRequestToAddMod__sr_TransMax_n4 = 0 and so on
+         // to obtain the value to configure we need to right shift 4 by the RRC parameter
+         sr_info->maxTransmissions = 4 << sr->sr_TransMax;
+         int target_ms = 0;

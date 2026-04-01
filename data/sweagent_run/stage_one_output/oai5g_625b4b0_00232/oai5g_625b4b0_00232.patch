@@ -1,0 +1,52 @@
+diff --git a/nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c b/nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c
+index fa0ed1bd8f..a9694bdd7c 100644
+--- a/nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c
++++ b/nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c
+@@ -862,17 +862,20 @@ static uint8_t pack_ul_tti_request_srs_parameters_v4(nfapi_v4_srs_parameters_t *
+   if (!(push16(srsParameters->srs_bandwidth_size, ppWritePackedMsg, end))) {
+     return 0;
+   }
+-  for (int symbol_idx = 0; symbol_idx < num_symbols; ++symbol_idx) {
++#ifdef ENABLE_AERIAL
++  // For Aerial, we always pack the 4 reported symbols, not only the ones indicated by num_symbols
++  for (int symbol_idx = 0; symbol_idx < 4; ++symbol_idx) {
+     const nfapi_v4_srs_parameters_symbols_t *symbol = &srsParameters->symbol_list[symbol_idx];
+     if (!(push16(symbol->srs_bandwidth_start, ppWritePackedMsg, end) && push8(symbol->sequence_group, ppWritePackedMsg, end)
+           && push8(symbol->sequence_number, ppWritePackedMsg, end))) {
+       return 0;
+     }
+   }
+-#ifdef ENABLE_AERIAL
+-  // For Aerial, we always pack/unpack the 4 reported symbols, not only the ones indicated by num_symbols
+-  for (int symbol_idx = num_symbols; symbol_idx < 4; ++symbol_idx) {
+-    if (!(push16(0, ppWritePackedMsg, end) && push8(0, ppWritePackedMsg, end) && push8(0, ppWritePackedMsg, end))) {
++#else
++  for (int symbol_idx = 0; symbol_idx < num_symbols; ++symbol_idx) {
++    const nfapi_v4_srs_parameters_symbols_t *symbol = &srsParameters->symbol_list[symbol_idx];
++    if (!(push16(symbol->srs_bandwidth_start, ppWritePackedMsg, end) && push8(symbol->sequence_group, ppWritePackedMsg, end)
++          && push8(symbol->sequence_number, ppWritePackedMsg, end))) {
+       return 0;
+     }
+   }
+@@ -1184,16 +1187,17 @@ static uint8_t unpack_ul_tti_request_srs_parameters_v4(nfapi_v4_srs_parameters_t
+     return 0;
+   }
+ 
+-  for (int symbol_idx = 0; symbol_idx < num_symbols; ++symbol_idx) {
++#ifdef ENABLE_AERIAL
++  // For Aerial, we always unpack the 4 reported symbols, not only the ones indicated by num_symbols
++  for (int symbol_idx = 0; symbol_idx < 4; ++symbol_idx) {
+     nfapi_v4_srs_parameters_symbols_t *symbol = &srsParameters->symbol_list[symbol_idx];
+     if (!(pull16(ppReadPackedMsg, &symbol->srs_bandwidth_start, end) && pull8(ppReadPackedMsg, &symbol->sequence_group, end)
+           && pull8(ppReadPackedMsg, &symbol->sequence_number, end))) {
+       return 0;
+     }
+   }
+-#ifdef ENABLE_AERIAL
+-  // For Aerial, we always pack/unpack the 4 reported symbols, not only the ones indicated by num_symbols
+-  for (int symbol_idx = num_symbols; symbol_idx < 4; ++symbol_idx) {
++#else
++  for (int symbol_idx = 0; symbol_idx < num_symbols; ++symbol_idx) {
+     nfapi_v4_srs_parameters_symbols_t *symbol = &srsParameters->symbol_list[symbol_idx];
+     if (!(pull16(ppReadPackedMsg, &symbol->srs_bandwidth_start, end) && pull8(ppReadPackedMsg, &symbol->sequence_group, end)
+           && pull8(ppReadPackedMsg, &symbol->sequence_number, end))) {

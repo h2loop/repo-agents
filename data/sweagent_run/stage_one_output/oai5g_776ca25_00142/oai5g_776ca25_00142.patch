@@ -1,0 +1,65 @@
+diff --git a/openair2/UTIL/OTG/otg_tx.c b/openair2/UTIL/OTG/otg_tx.c
+index a43160ccd8..2bb378831e 100644
+--- a/openair2/UTIL/OTG/otg_tx.c
++++ b/openair2/UTIL/OTG/otg_tx.c
+@@ -696,21 +696,28 @@ void header_size_gen(
+   unsigned int size_header=0;
+ 
+   if (otg_info->header_size_app[src_instance][dst_instance][application]==0) {
++    otg_info->header_type_app[src_instance][dst_instance][application] = NO_HEADER; // Initialize header type
++    
+     if (g_otg->ip_v[src_instance][dst_instance][application]==1) {
+       size_header+=HDR_IP_v4_MIN;
+-      otg_info->header_type_app[src_instance][dst_instance][application]+=0;
+-    } else if  (g_otg->ip_v[src_instance][dst_instance][application]==2) {
++      // For IPv4
++      if (g_otg->trans_proto[src_instance][dst_instance][application]==1) {
++        // UDP over IPv4
++        otg_info->header_type_app[src_instance][dst_instance][application] = UDP_IPV4;
++      } else if (g_otg->trans_proto[src_instance][dst_instance][application]==2) {
++        // TCP over IPv4
++        otg_info->header_type_app[src_instance][dst_instance][application] = TCP_IPV4;
++      }
++    } else if (g_otg->ip_v[src_instance][dst_instance][application]==2) {
+       size_header+=HDR_IP_v6;
+-      otg_info->header_type_app[src_instance][dst_instance][application]+=2;
+-
+-    }
+-
+-    if (g_otg->trans_proto[src_instance][dst_instance][application]==1) {
+-      size_header+= HDR_UDP ;
+-      otg_info->header_type_app[src_instance][dst_instance][application]+=1;
+-    } else if (g_otg->trans_proto[src_instance][dst_instance][application]==2) {
+-      size_header+= HDR_TCP;
+-      otg_info->header_type_app[src_instance][dst_instance][application]+=2;
++      // For IPv6
++      if (g_otg->trans_proto[src_instance][dst_instance][application]==1) {
++        // UDP over IPv6
++        otg_info->header_type_app[src_instance][dst_instance][application] = UDP_IPV6;
++      } else if (g_otg->trans_proto[src_instance][dst_instance][application]==2) {
++        // TCP over IPv6
++        otg_info->header_type_app[src_instance][dst_instance][application] = TCP_IPV6;
++      }
+     }
+ 
+     if ((g_otg->application_type[src_instance][dst_instance][application]==VOIP_G711)||(g_otg->application_type[src_instance][dst_instance][application]==VOIP_G729))
+@@ -1816,14 +1823,14 @@ void init_predef_traffic(
+ #endif
+ 
+           break;
+-	  
+-	case FULL_BUFFER:
+-	  LOG_E(OTG, "Full buffer is not yet supported\n");
+-	default:
++          
++        case FULL_BUFFER:
++          LOG_E(OTG, "Full buffer is not yet supported\n");
++        default:
+           LOG_D(OTG, "[SRC %d][DST %d] Unknown traffic type\n", i, j);
+           /* TO ADD: 3GPP TSG-RAN WG1 Meeting #71: Low-cost MTC Traffic Models and Characteristics */
+ 
+-	  
++          
+         }
+       }
+     }

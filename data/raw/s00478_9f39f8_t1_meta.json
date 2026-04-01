@@ -1,0 +1,33 @@
+{
+  "run_id": "s00478_9f39f8",
+  "function": {
+    "name": "prepare_a2_event_report",
+    "file": "openair2/RRC/NR/rrc_gNB.c",
+    "start_line": 700,
+    "end_line": 728,
+    "body_lines": 29,
+    "signature": "static NR_ReportConfigToAddMod_t *prepare_a2_event_report(const nr_a2_event_t *a2_event)",
+    "subsystem": "openair2/RRC/NR",
+    "token_estimate": 87
+  },
+  "bug": {
+    "bug_id": "c_deadlock",
+    "description": "deadlock caused by inconsistent lock acquisition ordering",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a deadlock caused by inconsistent lock acquisition ordering downstream of function prepare_a2_event_report in the openair2/RRC/NR subsystem.\nThe function is located at openair2/RRC/NR/rrc_gNB.c:700.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00478_9f39f8_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00478_9f39f8_p1.diff",
+  "patch_lines": 9,
+  "trajectory_steps": 95,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:36:58Z"
+}

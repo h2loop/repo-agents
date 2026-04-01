@@ -1,0 +1,9 @@
+{
+  "run_id": "s00236_814548",
+  "pr_text": "## Title: Fix uninitialized vendor extension in NR Start Request unpacker\n\n### Summary\nThe `unpack_nr_start_request` function in the nFAPI P5 protocol layer fails to initialize the `vendor_extension` field when unpacking incoming messages. This causes configuration mismatches and inconsistent downstream behavior, as uninitialized memory values may be interpreted as valid TLV tags or lengths, leading to potential parsing errors or segmentation faults.\n\nThe root cause is missing initialization of ",
+  "trajectory_path": "data/raw/s00236_814548_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00236_814548_p2.diff",
+  "patch_lines": 7,
+  "trajectory_steps": 48,
+  "timestamp": "2026-02-11T13:44:16Z"
+}

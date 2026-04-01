@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix NULL pointer dereference in pack_pnf_phy_rf_config_value\n\n### Summary\nWhen calling `pack_pnf_phy_rf_config_value()` with a NULL pointer, the function would crash instead of gracefully handling the error. This adds proper NULL checks to both pack and unpack functions.\n\n### Changes\n- `nfapi/open-nFAPI/nfapi/src/nfapi_p5.c`: Added NULL pointer validation in `pack_pnf_phy_rf_config_value` and `unpack_pnf_phy_rf_config_value` functions.\n\n### Reproduction Steps\n1. Call `pack_pnf_phy_rf_config_value(NULL, ...)` \n2. Observe segmentation fault\n\nWith fix:\n1. Call `pack_pnf_phy_rf_config_value(NULL, ...)`  \n2. Function returns 0 and logs error message\n\n"
+}

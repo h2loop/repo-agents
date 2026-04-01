@@ -1,0 +1,124 @@
+diff --git a/openair1/PHY/CODING/crc.h b/openair1/PHY/CODING/crc.h
+index b65eacf0bb..bfdbaf151e 100644
+--- a/openair1/PHY/CODING/crc.h
++++ b/openair1/PHY/CODING/crc.h
+@@ -167,11 +167,21 @@ uint32_t crc32_calc_lut(const uint8_t *data,
+                 return crc;
+ 
+         while (data_len--)
+-                crc = lut[(crc >> 24) ^ *data++] ^ (crc << 8);
++                crc = (crc << 8) ^ lut[(*data++ ^ (crc >> 24))];
+ 
+         return crc;
+ }
+ 
++/**
++ * @brief Calculates 32 bit CRC using table method.
++ *
++ * @param inptr pointer to data block to calculate CRC for
++ * @param bitlen size of data block in bits
++ *
++ * @return CRC value
++ */
++uint32_t crc32(unsigned char* inptr, int bitlen);
++
+ /**
+  * @brief Initializes look up tables for slice-By-2 method.
+  *
+@@ -310,7 +320,7 @@ simde__m128i crc32_folding_round(const simde__m128i data_block,
+   simde__m128i tmp = _mm_clmulepi64_si128(fold, k1_k2, 0x11);
+ 
+   return simde_mm_xor_si128(_mm_clmulepi64_si128(fold, k1_k2, 0x00), simde_mm_xor_si128(data_block, tmp));
+-#else	
++#else   
+         simde__m128i tmp = simde_mm_clmulepi64_si128(fold, k1_k2, 0x11);
+ 
+         return simde_mm_xor_si128(simde_mm_clmulepi64_si128(fold, k1_k2, 0x00),
+@@ -371,7 +381,7 @@ crc32_reduce_64_to_32(simde__m128i fold, const simde__m128i k3_q, const simde__m
+                                     k3_q, 0x10 /* Q */);
+         temp = simde_mm_srli_si128(simde_mm_xor_si128(temp, fold), 4);
+         temp = simde_mm_clmulepi64_si128(temp, p_res, 0 /* P */);
+-#endif	
++#endif  
+         return simde_mm_extract_epi32(simde_mm_xor_si128(temp, fold), 0);
+ }
+ 
+diff --git a/openair1/PHY/CODING/crc_byte.c b/openair1/PHY/CODING/crc_byte.c
+index dd5712519a..b6fc4581b1 100644
+--- a/openair1/PHY/CODING/crc_byte.c
++++ b/openair1/PHY/CODING/crc_byte.c
+@@ -87,6 +87,20 @@ uint32_t crcbit(unsigned char* inputptr, int octetlen, uint32_t poly)
+ 
+ /*********************************************************
+ 
++Implementation of crc32_init_lut function
++
++*********************************************************/
++void crc32_init_lut(const uint32_t poly, uint32_t *lut)
++{
++  unsigned char c = 0;
++
++  do {
++    lut[c] = crcbit(&c, 1, poly);
++  } while (++c);
++}
++
++/*********************************************************
++
+ crc table initialization
+ 
+ *********************************************************/
+@@ -98,6 +112,7 @@ static uint32_t crc12Table[256];
+ static uint32_t crc11Table[256];
+ static uint32_t crc8Table[256];
+ static uint32_t crc6Table[256];
++static uint32_t crc32Table[256];
+ 
+ #if USE_INTEL_CRC
+ static const struct crc_pclmulqdq_ctx lte_crc24a_pclmulqdq __attribute__((aligned(16))) = {
+@@ -130,10 +145,11 @@ void crcTableInit (void)
+     crc11Table[c] = crcbit(&c, 1, poly11) >> 16;
+     crc8Table[c] = crcbit(&c, 1, poly8) >> 24;
+     crc6Table[c] = crcbit(&c, 1, poly6) >> 24;
++    crc32Table[c] = crcbit(&c, 1, 0x04C11DB7) >> 0;
+   } while (++c);
+ #if defined(__SSE4_1__) || defined(__aarch64__) 
+     crc_xmm_be_le_swap128 = simde_mm_setr_epi32(0x0c0d0e0f, 0x08090a0b,
+-				    	        0x04050607, 0x00010203);
++                                                0x04050607, 0x00010203);
+ 
+ #endif
+ }
+@@ -311,6 +327,23 @@ uint32_t crc6(unsigned char* inptr, int bitlen)
+   return crc;
+ }
+ 
++uint32_t crc32(unsigned char* inptr, int bitlen)
++{
++  int             octetlen, resbit;
++  uint32_t crc = 0;
++  octetlen = bitlen / 8;        /* Change in octets */
++  resbit = (bitlen % 8);
++
++  while (octetlen-- > 0) {
++    crc = (crc << 8) ^ crc32Table[(*inptr++) ^ (crc >> 24)];
++  }
++
++  if (resbit > 0)
++    crc = (crc << resbit) ^ crc32Table[((*inptr) >> (8 - resbit)) ^ (crc >> (32 - resbit))];
++
++  return crc;
++}
++
+ int check_crc(uint8_t* decoded_bytes, uint32_t n, uint8_t crc_type)
+ {
+   uint32_t crc=0,oldcrc=0;
+@@ -342,7 +375,7 @@ int check_crc(uint8_t* decoded_bytes, uint32_t n, uint8_t crc_type)
+   case CRC24_A:
+     oldcrc&=0x00ffffff;
+     crc = crc24a(decoded_bytes,
+-		 n-24)>>8;
++                 n-24)>>8;
+     
+     break;
+     

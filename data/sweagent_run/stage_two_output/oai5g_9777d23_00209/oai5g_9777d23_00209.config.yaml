@@ -1,0 +1,180 @@
+'{"env":{"deployment":{"image":"oai5g-sera:9777d23","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_9777d23_00209","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix M2AP SCTP data handling memory management and error reporting\n\n###
+  Summary\nWhen processing M2AP messages over SCTP, the `m2ap_eNB_handle_sctp_data_ind`
+  function was using an incorrect task identifier when freeing received message buffers.
+  This caused memory management issues and potential crashes under load.\n\nAdditionally,
+  the function did not check the return value from `m2ap_eNB_handle_message`, leading
+  to silent failures when message processing failed.\n\n### Changes\n- `openair2/M2AP/m2ap_eNB.c`:
+  \n  - Changed `itti_free(TASK_UNKNOWN, sctp_data_ind->buffer)` to `itti_free(TASK_M2AP_ENB,
+  sctp_data_ind->buffer)` in `m2ap_eNB_handle_sctp_data_ind`\n  - Added error checking
+  for `m2ap_eNB_handle_message` return value with proper logging\n  - Various whitespace
+  changes due to editor formatting (no functional impact)\n\n### Reproduction\nUnder
+  heavy M2AP traffic conditions, observe memory corruption errors or crashes in the
+  M2AP task. Error logs may show \"Failed to free memory\" messages when the incorrect
+  task identifier is used for buffer deallocation.\n\nThe issue is most reproducible
+  when the eNB is handling multiple M2 connections simultaneously and processing a
+  high volume of M2AP messages.\n","extra_fields":{"bug_description":"integer truncation
+  when assigning a wider type to a narrower type","bug_id":"c_integer_truncation","stage_one_patch":"diff
+  --git a/openair2/M2AP/m2ap_eNB.c b/openair2/M2AP/m2ap_eNB.c\nindex c492778603..3e25ffb379
+  100644\n--- a/openair2/M2AP/m2ap_eNB.c\n+++ b/openair2/M2AP/m2ap_eNB.c\n@@ -93,9
+  +93,11 @@ static\n void m2ap_eNB_handle_sctp_data_ind(instance_t instance, sctp_data_ind_t
+  *sctp_data_ind) {\n   int result;\n   DevAssert(sctp_data_ind != NULL);\n-  m2ap_eNB_handle_message(instance,
+  sctp_data_ind->assoc_id, sctp_data_ind->stream,\n-                          sctp_data_ind->buffer,
+  sctp_data_ind->buffer_length);\n-  result = itti_free(TASK_UNKNOWN, sctp_data_ind->buffer);\n+  if
+  (m2ap_eNB_handle_message(instance, sctp_data_ind->assoc_id, sctp_data_ind->stream,\n+                          sctp_data_ind->buffer,
+  sctp_data_ind->buffer_length) == -1) {\n+    M2AP_ERROR(\"Failed to handle M2AP
+  message\\n\");\n+  }\n+  result = itti_free(TASK_M2AP_ENB, sctp_data_ind->buffer);\n   AssertFatal
+  (result == EXIT_SUCCESS, \"Failed to free memory (%d)!\\n\", result);\n }\n \n@@
+  -143,20 +145,20 @@ void m2ap_eNB_handle_sctp_association_resp(instance_t instance,
+  sctp_new_associa\n     //m2ap_handle_m2_setup_message(instance_p, m2ap_enb_data_p,\n     //                             sctp_new_association_resp->sctp_state
+  == SCTP_STATE_SHUTDOWN);\n \n-\t  sleep(4);\n-\t  int index;\n-\t  /* Trying to
+  connect to the provided list of eNB ip address */\n-\t  for (index = 0; index <
+  instance_p->nb_m2; index++) {\n-\t    //M2AP_INFO(\"eNB[%d] eNB id %u acting as
+  an initiator (client)\\n\",\n-\t     //         instance_id, instance->eNB_id);\n-\t    m2ap_eNB_register_eNB(instance_p,\n-\t\t\t\t  &instance_p->target_mce_m2_ip_address[index],\n-\t\t\t\t  &instance_p->enb_m2_ip_address,\n-\t\t\t\t  instance_p->sctp_in_streams,\n-\t\t\t\t  instance_p->sctp_out_streams,\n-\t\t\t\t  instance_p->enb_port_for_M2C,\n-\t\t\t\t  instance_p->multi_sd);\n-\t  }\n+          sleep(4);\n+          int
+  index;\n+          /* Trying to connect to the provided list of eNB ip address */\n+          for
+  (index = 0; index < instance_p->nb_m2; index++) {\n+            //M2AP_INFO(\"eNB[%d]
+  eNB id %u acting as an initiator (client)\\n\",\n+             //         instance_id,
+  instance->eNB_id);\n+            m2ap_eNB_register_eNB(instance_p,\n+                                  &instance_p->target_mce_m2_ip_address[index],\n+                                  &instance_p->enb_m2_ip_address,\n+                                  instance_p->sctp_in_streams,\n+                                  instance_p->sctp_out_streams,\n+                                  instance_p->enb_port_for_M2C,\n+                                  instance_p->multi_sd);\n+          }\n
+  \n     return;\n   }\n@@ -354,11 +356,11 @@ void m2ap_eNB_handle_register_eNB(instance_t
+  instance,\n \n     new_instance->num_mbms_configuration_data_list = m2ap_register_eNB->num_mbms_configuration_data_list;\n     for(int
+  j=0; j < m2ap_register_eNB->num_mbms_configuration_data_list;j++){\n-\t    new_instance->mbms_configuration_data_list[j].num_mbms_service_area_list
+  = m2ap_register_eNB->mbms_configuration_data_list[j].num_mbms_service_area_list;\n-\t    for(int
+  i=0; i <  m2ap_register_eNB->mbms_configuration_data_list[j].num_mbms_service_area_list;
+  i++ ){\n-\t\t//strcpy(&new_instance->mbms_configuration_data_list[j].mbms_service_area_list[i],&m2ap_register_eNB->mbms_configuration_data_list[j].mbms_service_area_list[i]);\n-\t\tnew_instance->mbms_configuration_data_list[j].mbms_service_area_list[i]=m2ap_register_eNB->mbms_configuration_data_list[j].mbms_service_area_list[i];\n-\t    }\n+            new_instance->mbms_configuration_data_list[j].num_mbms_service_area_list
+  = m2ap_register_eNB->mbms_configuration_data_list[j].num_mbms_service_area_list;\n+            for(int
+  i=0; i <  m2ap_register_eNB->mbms_configuration_data_list[j].num_mbms_service_area_list;
+  i++ ){\n+                //strcpy(&new_instance->mbms_configuration_data_list[j].mbms_service_area_list[i],&m2ap_register_eNB->mbms_configuration_data_list[j].mbms_service_area_list[i]);\n+                new_instance->mbms_configuration_data_list[j].mbms_service_area_list[i]=m2ap_register_eNB->mbms_configuration_data_list[j].mbms_service_area_list[i];\n+            }\n     }\n
+  \n     /* Add the new instance to the list of eNB (meaningfull in virtual mode)
+  */\n@@ -547,10 +549,10 @@ void *m2ap_eNB_task(void *arg) {\n \n     switch (ITTI_MSG_ID(received_msg))
+  {\n       case MESSAGE_TEST:\n-\tLOG_D(M2AP,\"eNB Received MESSAGE_TEST Message
+  %s\\n\",itti_get_task_name(ITTI_MSG_ORIGIN_ID(received_msg)));\n-\t//MessageDef
+  * message_p = itti_alloc_new_message(TASK_M2AP_ENB, 0, MESSAGE_TEST);\n+        LOG_D(M2AP,\"eNB
+  Received MESSAGE_TEST Message %s\\n\",itti_get_task_name(ITTI_MSG_ORIGIN_ID(received_msg)));\n+        //MessageDef
+  * message_p = itti_alloc_new_message(TASK_M2AP_ENB, 0, MESSAGE_TEST);\n         //itti_send_msg_to_task(TASK_M3AP,
+  1/*ctxt_pP->module_id*/, message_p);\n-\tbreak;\n+        break;\n       case TERMINATE_MESSAGE:\n         M2AP_WARN(\"
+  *** Exiting M2AP thread\\n\");\n         itti_exit_task();\n@@ -561,99 +563,99 @@
+  void *m2ap_eNB_task(void *arg) {\n         break;\n \n       case M2AP_REGISTER_ENB_REQ:\n-\tLOG_I(M2AP,\"eNB
+  Received M2AP_REGISTER_ENB_REQ Message\\n\");\n+        LOG_I(M2AP,\"eNB Received
+  M2AP_REGISTER_ENB_REQ Message\\n\");\n         m2ap_eNB_handle_register_eNB(ITTI_MSG_DESTINATION_INSTANCE(received_msg),\n                                      &M2AP_REGISTER_ENB_REQ(received_msg));\n         break;\n
+  \n \n       case M2AP_MBMS_SCHEDULING_INFORMATION_RESP:\n-\tLOG_I(M2AP,\"eNB M2AP_MBMS_SCHEDULING_INFORMATION_RESP
+  Message\\n\");\n+        LOG_I(M2AP,\"eNB M2AP_MBMS_SCHEDULING_INFORMATION_RESP
+  Message\\n\");\n         eNB_send_MBMS_SCHEDULING_INFORMATION_RESPONSE(ITTI_MSG_DESTINATION_INSTANCE(received_msg),\n                                      &M2AP_MBMS_SCHEDULING_INFORMATION_RESP(received_msg));\n-\tbreak;\n+        break;\n       case
+  M2AP_MBMS_SESSION_START_RESP:\n-\tLOG_I(M2AP,\"eNB M2AP_MBMS_SESSION_START_RESP
+  Message\\n\");\n+        LOG_I(M2AP,\"eNB M2AP_MBMS_SESSION_START_RESP Message\\n\");\n         eNB_send_MBMS_SESSION_START_RESPONSE(ITTI_MSG_DESTINATION_INSTANCE(received_msg),\n                                      &M2AP_MBMS_SESSION_START_RESP(received_msg));\n-\tbreak;\n+        break;\n       case
+  M2AP_MBMS_SESSION_START_FAILURE:\n-\tLOG_I(M2AP,\"eNB M2AP_MBMS_SESSION_START_FAILURE
+  Message\\n\");\n+        LOG_I(M2AP,\"eNB M2AP_MBMS_SESSION_START_FAILURE Message\\n\");\n         eNB_send_MBMS_SESSION_START_FAILURE(ITTI_MSG_DESTINATION_INSTANCE(received_msg),\n                                      &M2AP_MBMS_SESSION_START_FAILURE(received_msg));\n-\tbreak;\n+        break;\n       case
+  M2AP_MBMS_SESSION_STOP_RESP:\n-\tLOG_I(M2AP,\"eNB M2AP_MBMS_SESSION_STOP_RESP Message\\n\");\n+        LOG_I(M2AP,\"eNB
+  M2AP_MBMS_SESSION_STOP_RESP Message\\n\");\n         eNB_send_MBMS_SESSION_STOP_RESPONSE(ITTI_MSG_DESTINATION_INSTANCE(received_msg),\n                                      &M2AP_MBMS_SESSION_STOP_RESP(received_msg));\n-\tbreak;\n+        break;\n       case
+  M2AP_ENB_CONFIGURATION_UPDATE:\n-\tLOG_I(M2AP,\"eNB M2AP_ENB_CONFIGURATION_UPDATE
+  Message\\n\");\n+        LOG_I(M2AP,\"eNB M2AP_ENB_CONFIGURATION_UPDATE Message\\n\");\n         eNB_send_eNB_CONFIGURATION_UPDATE(ITTI_MSG_DESTINATION_INSTANCE(received_msg),\n                                      &M2AP_ENB_CONFIGURATION_UPDATE(received_msg));\n-\tbreak;\n+        break;\n       case
+  M2AP_MCE_CONFIGURATION_UPDATE_ACK:\n-\tLOG_I(M2AP,\"eNB M2AP_MCE_CONFIGURATION_UPDATE_ACK
+  Message\\n\");\n+        LOG_I(M2AP,\"eNB M2AP_MCE_CONFIGURATION_UPDATE_ACK Message\\n\");\n         //eNB_send_MCE_CONFIGURATION_UPDATE_ACKNOWLEDGE(ITTI_MSG_DESTINATION_INSTANCE(received_msg),\n          //                            &M2AP_MCE_CONFIGURATION_UPDATE_ACK(received_msg));\n-\tbreak;\n+        break;\n       case
+  M2AP_MCE_CONFIGURATION_UPDATE_FAILURE:\n-\tLOG_I(M2AP,\"eNB M2AP_MCE_CONFIGURATION_UPDATE_FAILURE
+  Message\\n\");\n+        LOG_I(M2AP,\"eNB M2AP_MCE_CONFIGURATION_UPDATE_FAILURE
+  Message\\n\");\n         //(ITTI_MSG_DESTINATION_INSTANCE(received_msg),\n                                      //&M2AP_MCE_CONFIGURATION_UPDATE_FAILURE(received_msg));\n-\tbreak;\n+        break;\n       case
+  M2AP_MBMS_SESSION_UPDATE_RESP:\n-\tLOG_I(M2AP,\"eNB M2AP_MBMS_SESSION_UPDATE_RESP
+  Message\\n\");\n+        LOG_I(M2AP,\"eNB M2AP_MBMS_SESSION_UPDATE_RESP Message\\n\");\n         eNB_send_MBMS_SESSION_UPDATE_RESPONSE(ITTI_MSG_DESTINATION_INSTANCE(received_msg),\n                                      &M2AP_MBMS_SESSION_UPDATE_RESP(received_msg));\n-\tbreak;\n+        break;\n       case
+  M2AP_MBMS_SESSION_UPDATE_FAILURE:\n-\tLOG_I(M2AP,\"eNB M2AP_MBMS_SESSION_UPDATE_FAILURE
+  Message\\n\");\n+        LOG_I(M2AP,\"eNB M2AP_MBMS_SESSION_UPDATE_FAILURE Message\\n\");\n         eNB_send_MBMS_SESSION_UPDATE_FAILURE(ITTI_MSG_DESTINATION_INSTANCE(received_msg),\n                                      &M2AP_MBMS_SESSION_UPDATE_FAILURE(received_msg));\n-\tbreak;\n+        break;\n       case
+  M2AP_MBMS_SERVICE_COUNTING_REPORT:\n-\tLOG_I(M2AP,\"eNB M2AP_MBMS_SERVICE_COUNTING_REPORT
+  Message\\n\");\n+        LOG_I(M2AP,\"eNB M2AP_MBMS_SERVICE_COUNTING_REPORT Message\\n\");\n         eNB_send_MBMS_SERVICE_COUNTING_REPORT(ITTI_MSG_DESTINATION_INSTANCE(received_msg),\n                                      &M2AP_MBMS_SERVICE_COUNTING_REPORT(received_msg));\n-\tbreak;\n+        break;\n       case
+  M2AP_MBMS_OVERLOAD_NOTIFICATION:\n-\tLOG_I(M2AP,\"eNB M2AP_MBMS_OVERLOAD_NOTIFICATION
+  Message\\n\");\n+        LOG_I(M2AP,\"eNB M2AP_MBMS_OVERLOAD_NOTIFICATION Message\\n\");\n         eNB_send_MBMS_OVERLOAD_NOTIFICATION(ITTI_MSG_DESTINATION_INSTANCE(received_msg),\n                                      &M2AP_MBMS_OVERLOAD_NOTIFICATION(received_msg));\n-\tbreak;\n+        break;\n       case
+  M2AP_MBMS_SERVICE_COUNTING_RESP:\n-\tLOG_I(M2AP,\"eNB M2AP_MBMS_SERVICE_COUNTING_RESP
+  Message\\n\");\n+        LOG_I(M2AP,\"eNB M2AP_MBMS_SERVICE_COUNTING_RESP Message\\n\");\n         eNB_send_MBMS_SERVICE_COUNTING_RESP(ITTI_MSG_DESTINATION_INSTANCE(received_msg),\n                                      &M2AP_MBMS_SERVICE_COUNTING_RESP(received_msg));\n-\tbreak;\n+        break;\n       case
+  M2AP_MBMS_SERVICE_COUNTING_FAILURE:\n-\tLOG_I(M2AP,\"eNB  Message\\n\");\n+        LOG_I(M2AP,\"eNB  Message\\n\");\n         eNB_send_MBMS_SERVICE_COUNTING_FAILURE(ITTI_MSG_DESTINATION_INSTANCE(received_msg),\n                                      &M2AP_MBMS_SERVICE_COUNTING_FAILURE(received_msg));\n-\tbreak;\n+        break;\n
+  \n \n       case SCTP_INIT_MSG_MULTI_CNF:\n-\tLOG_I(M2AP,\"eNB Received SCTP_INIT_MSG_MULTI_CNF
+  Message\\n\");\n+        LOG_I(M2AP,\"eNB Received SCTP_INIT_MSG_MULTI_CNF Message\\n\");\n         m2ap_eNB_handle_sctp_init_msg_multi_cnf(ITTI_MSG_DESTINATION_INSTANCE(received_msg),\n                                                 &received_msg->ittiMsg.sctp_init_msg_multi_cnf);\n         break;\n
+  \n       case SCTP_NEW_ASSOCIATION_RESP:\n-\tLOG_I(M2AP,\"eNB Received SCTP_NEW_ASSOCIATION_RESP
+  Message\\n\");\n+        LOG_I(M2AP,\"eNB Received SCTP_NEW_ASSOCIATION_RESP Message\\n\");\n         m2ap_eNB_handle_sctp_association_resp(ITTI_MSG_DESTINATION_INSTANCE(received_msg),\n                                               &received_msg->ittiMsg.sctp_new_association_resp);\n         break;\n
+  \n       case SCTP_NEW_ASSOCIATION_IND:\n-\tLOG_I(M2AP,\"eNB Received SCTP_NEW_ASSOCIATION
+  Message\\n\");\n+        LOG_I(M2AP,\"eNB Received SCTP_NEW_ASSOCIATION Message\\n\");\n         m2ap_eNB_handle_sctp_association_ind(ITTI_MSG_DESTINATION_INSTANCE(received_msg),\n                                              &received_msg->ittiMsg.sctp_new_association_ind);\n         break;\n
+  \n       case SCTP_DATA_IND:\n-\tLOG_I(M2AP,\"eNB Received SCTP_DATA_IND Message\\n\");\n+        LOG_I(M2AP,\"eNB
+  Received SCTP_DATA_IND Message\\n\");\n         m2ap_eNB_handle_sctp_data_ind(ITTI_MSG_DESTINATION_INSTANCE(received_msg),\n                                       &received_msg->ittiMsg.sctp_data_ind);\n         break;\n","start_fn":"m2ap_eNB_handle_sctp_data_ind","start_fn_file":"openair2/M2AP/m2ap_eNB.c","subsystem":"openair2/M2AP"},"type":"text","id":"oai5g_9777d23_00209"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

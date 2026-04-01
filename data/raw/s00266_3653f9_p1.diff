@@ -1,0 +1,13 @@
+diff --git a/openair3/NAS/UE/EMM/SAP/emm_send.c b/openair3/NAS/UE/EMM/SAP/emm_send.c
+index 56708eded3..659a0c81be 100644
+--- a/openair3/NAS/UE/EMM/SAP/emm_send.c
++++ b/openair3/NAS/UE/EMM/SAP/emm_send.c
+@@ -776,7 +776,7 @@ int emm_send_authentication_response(const emm_as_security_t *msg,
+ 
+   /* Mandatory - Authentication response parameter */
+   size += AUTHENTICATION_RESPONSE_PARAMETER_MAXIMUM_LENGTH;
+-  emm_msg->authenticationresponseparameter.res = *msg->res;
++  DUP_OCTET_STRING(*msg->res, emm_msg->authenticationresponseparameter.res);
+ 
+   LOG_FUNC_RETURN (size);
+ }

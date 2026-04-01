@@ -1,0 +1,22 @@
+diff --git a/openair3/NAS/TEST/AS_SIMULATOR/nas_data.c b/openair3/NAS/TEST/AS_SIMULATOR/nas_data.c
+index ff5421c892..d179826991 100644
+--- a/openair3/NAS/TEST/AS_SIMULATOR/nas_data.c
++++ b/openair3/NAS/TEST/AS_SIMULATOR/nas_data.c
+@@ -904,7 +904,7 @@ ssize_t ipv4Addr(char* buffer, size_t len, const OctetString* addr)
+  */
+ ssize_t ipv6Addr(char* buffer, size_t len, const OctetString* addr)
+ {
+-  return snprintf(buffer, len, "%x%.2x:%x%.2x:%x%.2x:%x%.2x",
++  return snprintf(buffer, len, "%02x%02x:%02x%02x:%02x%02x:%02x%02x",
+                   addr->value[0], addr->value[1],
+                   addr->value[2], addr->value[3],
+                   addr->value[4], addr->value[5],
+@@ -918,7 +918,7 @@ ssize_t ipv6Addr(char* buffer, size_t len, const OctetString* addr)
+  */
+ ssize_t ipv4v6Addr(char* buffer, size_t len, const OctetString* addr)
+ {
+-  return snprintf(buffer, len, "%u.%u.%u.%u / %x%.2x:%x%.2x:%x%.2x:%x%.2x",
++  return snprintf(buffer, len, "%u.%u.%u.%u / %02x%02x:%02x%02x:%02x%02x:%02x%02x",
+                   addr->value[0], addr->value[1],
+                   addr->value[2], addr->value[3],
+                   addr->value[4], addr->value[5],

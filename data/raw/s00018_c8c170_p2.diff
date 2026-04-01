@@ -1,0 +1,12 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
+index 8ae9c3dcc5..15b4256b36 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
+@@ -2604,6 +2604,7 @@ void create_dl_harq_list(NR_UE_sched_ctrl_t *sched_ctrl, const NR_UE_ServingCell
+       add_tail_nr_list(&sched_ctrl->available_dl_harq, harq);
+     resize_nr_list(&sched_ctrl->feedback_dl_harq, nrofHARQ);
+     resize_nr_list(&sched_ctrl->retrans_dl_harq, nrofHARQ);
++    reset_dl_harq_list(sched_ctrl);
+   }
+ }
+ 

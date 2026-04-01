@@ -1,0 +1,30 @@
+{
+  "run_id": "s00048_2c1945",
+  "function": {
+    "name": "cucp_cuup_bearer_context_setup_e1ap",
+    "file": "openair2/RRC/NR/cucp_cuup_e1ap.c",
+    "start_line": 31,
+    "end_line": 39,
+    "body_lines": 9,
+    "signature": "static void cucp_cuup_bearer_context_setup_e1ap(sctp_assoc_t assoc_id, const e1ap_bearer_setup_req_t *req)",
+    "subsystem": "openair2/RRC/NR",
+    "token_estimate": 36
+  },
+  "bug": {
+    "bug_id": "telecom_interface_f1ap_error",
+    "description": "F1AP interface handling error between CU and DU causing message loss or corruption",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/LAYER2/MAC",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a F1AP interface handling error between CU and DU causing message loss or corruption downstream of function cucp_cuup_bearer_context_setup_e1ap in the openair2/RRC/NR subsystem.\nThe function is located at openair2/RRC/NR/cucp_cuup_e1ap.c:31.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00048_2c1945_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00048_2c1945_p1.diff",
+  "patch_lines": 58,
+  "trajectory_steps": 31,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T09:26:31Z"
+}

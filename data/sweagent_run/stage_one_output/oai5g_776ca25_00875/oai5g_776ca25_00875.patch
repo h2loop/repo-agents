@@ -1,0 +1,62 @@
+diff --git a/openair3/NGAP/ngap_common.c b/openair3/NGAP/ngap_common.c
+index 53b04e09eb..d598142fe9 100644
+--- a/openair3/NGAP/ngap_common.c
++++ b/openair3/NGAP/ngap_common.c
+@@ -28,9 +28,11 @@
+  */
+ 
+ #include <stdint.h>
++#include <string.h>
+ 
+ #include "ngap_common.h"
+ #include "NGAP_NGAP-PDU.h"
++#include "conversions.h"
+ 
+ 
+ int asn1_xer_print = 0;
+@@ -39,3 +41,28 @@ int asn1_xer_print = 0;
+ void ngap_handle_criticality(NGAP_Criticality_t criticality)
+ {
+ }
++
++int decode_ngap_nssai(ngap_allowed_NSSAI_t *nssai, void *asn_nssai_item)
++{
++  NGAP_AllowedNSSAI_Item_t *allowed_nssai_item_p = (NGAP_AllowedNSSAI_Item_t *)asn_nssai_item;
++  
++  if (nssai == NULL || allowed_nssai_item_p == NULL) {
++    return -1;
++  }
++  
++  // Decode SST (Single Slice Type)
++  OCTET_STRING_TO_INT8(&allowed_nssai_item_p->s_NSSAI.sST, nssai->sST);
++  
++  // Decode SD (Slice Differentiator) if present
++  if (allowed_nssai_item_p->s_NSSAI.sD != NULL) {
++    nssai->sD_flag = 1;
++    nssai->sD[0] = allowed_nssai_item_p->s_NSSAI.sD->buf[0];
++    nssai->sD[1] = allowed_nssai_item_p->s_NSSAI.sD->buf[1];
++    nssai->sD[2] = allowed_nssai_item_p->s_NSSAI.sD->buf[2];
++  } else {
++    nssai->sD_flag = 0;
++    memset(nssai->sD, 0, 3);
++  }
++  
++  return 0;
++}
+diff --git a/openair3/NGAP/ngap_common.h b/openair3/NGAP/ngap_common.h
+index 41f6093c08..4022048a4f 100644
+--- a/openair3/NGAP/ngap_common.h
++++ b/openair3/NGAP/ngap_common.h
+@@ -139,4 +139,12 @@ typedef int (*ngap_message_decoded_callback)(
+  **/
+ void ngap_handle_criticality(NGAP_Criticality_t criticality);
+ 
++/** \brief Decode NSSAI information from ASN.1 structure
++ \param nssai Pointer to the destination NSSAI structure
++ \param asn_nssai Pointer to the source ASN.1 NSSAI structure
++ \returns 0 on success, -1 on failure
++ **/
++int decode_ngap_nssai(ngap_allowed_NSSAI_t *nssai, void *asn_nssai_item)
++__attribute__ ((warn_unused_result));
++
+ #endif /* NGAP_COMMON_H_ */

@@ -1,0 +1,24 @@
+diff --git a/openair2/RRC/NR/rrc_gNB.c b/openair2/RRC/NR/rrc_gNB.c
+index 6b914c27e9..0b517525ff 100644
+--- a/openair2/RRC/NR/rrc_gNB.c
++++ b/openair2/RRC/NR/rrc_gNB.c
+@@ -242,8 +242,17 @@ static void rrc_deliver_ue_ctxt_release_cmd(void *deliver_pdu_data, ue_id_t ue_i
+ {
+   DevAssert(deliver_pdu_data != NULL);
+   deliver_ue_ctxt_release_data_t *data = deliver_pdu_data;
+-  byte_array_t rrc_cont = {.buf = (uint8_t *)buf, .len = size};
+-  data->release_cmd->rrc_container = &rrc_cont;
++  
++  // Allocate memory for the byte_array_t and copy the buffer data
++  // The receiving function is responsible for freeing this memory
++  byte_array_t *rrc_cont = malloc(sizeof(byte_array_t));
++  AssertFatal(rrc_cont != NULL, "Failed to allocate memory for rrc_container\n");
++  rrc_cont->buf = malloc(size);
++  AssertFatal(rrc_cont->buf != NULL, "Failed to allocate memory for rrc_container buffer\n");
++  memcpy(rrc_cont->buf, buf, size);
++  rrc_cont->len = size;
++  
++  data->release_cmd->rrc_container = rrc_cont;
+   data->rrc->mac_rrc.ue_context_release_command(data->assoc_id, data->release_cmd);
+ }
+ 

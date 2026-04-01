@@ -1,0 +1,28 @@
+diff --git a/openair1/SIMULATION/NR_PHY/psbchsim.c b/openair1/SIMULATION/NR_PHY/psbchsim.c
+index f56735809d..7d6345b815 100644
+--- a/openair1/SIMULATION/NR_PHY/psbchsim.c
++++ b/openair1/SIMULATION/NR_PHY/psbchsim.c
+@@ -77,6 +77,23 @@ int8_t nr_mac_rrc_data_req_ue(const module_id_t Mod_idP,
+                               const rb_id_t Srb_id,
+                               uint8_t *buffer_pP)
+ {
++  // For PSBCH simulation, we mainly care about SL sidelink discovery
++  if (Srb_id == SL_DISCOVERY) {
++    // Generate some test data for SL discovery
++    // This is a minimal implementation for simulation purposes
++    static uint8_t sl_discovery_data[] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
++    int data_size = sizeof(sl_discovery_data);
++    
++    // Copy the test data to the buffer
++    memcpy(buffer_pP, sl_discovery_data, data_size);
++    
++    // Log that we're sending SL discovery data
++    printf("[PSBCHSIM] Sending SL Discovery data, size %d bytes\n", data_size);
++    
++    return data_size;
++  }
++  
++  // For other SRBs, return 0 (no data)
+   return 0;
+ }
+ 

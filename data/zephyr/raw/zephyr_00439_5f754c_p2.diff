@@ -1,0 +1,62 @@
+diff --git a/include/zephyr/shell/shell.h b/include/zephyr/shell/shell.h
+index cce85b10..18b60be3 100644
+--- a/include/zephyr/shell/shell.h
++++ b/include/zephyr/shell/shell.h
+@@ -78,6 +78,14 @@ extern "C" {
+  * @version 1.0.0
+  * @ingroup os_services
+  * @{
++ *
++ * @note The shell subsystem's command completion functionality can consume
++ * significant stack memory, especially in applications with complex command
++ * structures. The default stack size is set to 4096 bytes for multithreaded
++ * configurations. If your application uses complex command hierarchies with
++ * many nested subcommands, you may need to increase CONFIG_SHELL_STACK_SIZE
++ * further. For simple applications with few commands, a smaller stack size
++ * may be sufficient.
+  */
+ 
+ struct shell_static_entry;
+diff --git a/subsys/shell/Kconfig b/subsys/shell/Kconfig
+index 4bbc1aef..169a21e5 100644
+--- a/subsys/shell/Kconfig
++++ b/subsys/shell/Kconfig
+@@ -47,10 +47,19 @@ config SHELL_STACK_SIZE
+ 	int "Shell thread stack size"
+ 	default 3168 if OPENTHREAD_SHELL
+ 	default 3072 if 64BIT
+-	default 2048 if MULTITHREADING
++	default 4096 if MULTITHREADING
+ 	default 0 if !MULTITHREADING
+ 	help
+ 	  Stack size for thread created for each instance.
++	  
++	  The shell completion functionality can consume significant stack memory,
++	  especially in applications with complex command structures. The default
++	  stack size has been increased from 2048 to 4096 bytes for multithreaded
++	  configurations to prevent stack overflow crashes.
++	  
++	  If your application uses complex command hierarchies with many nested
++	  subcommands, you may need to increase this value further. For simple
++	  applications with few commands, a smaller stack size may be sufficient.
+ 
+ config SHELL_BACKSPACE_MODE_DELETE
+ 	bool "Default escape code for backspace is DELETE (0x7F)"
+diff --git a/subsys/shell/shell.c b/subsys/shell/shell.c
+index b86806a1..ef97c313 100644
+--- a/subsys/shell/shell.c
++++ b/subsys/shell/shell.c
+@@ -336,6 +336,13 @@ static void find_completion_candidates(const struct shell *sh,
+ 	size_t incompl_cmd_len;
+ 	size_t idx = 0;
+ 
++	/* This function can consume significant stack memory when processing
++	 * complex command hierarchies due to recursive command structure traversal
++	 * and temporary storage of command entries. Ensure adequate stack size
++	 * is configured via CONFIG_SHELL_STACK_SIZE, especially for applications
++	 * with deeply nested command structures.
++	 */
++
+ 	incompl_cmd_len = z_shell_strlen(incompl_cmd);
+ 	*longest = 0U;
+ 	*cnt = 0;

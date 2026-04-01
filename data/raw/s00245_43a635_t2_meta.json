@@ -1,0 +1,9 @@
+{
+  "run_id": "s00245_43a635",
+  "pr_text": "## Title: Add NULL state validation in telnet measurement commands\n\n### Summary\nThe telnet measurement commands `measurcmd_display_phycpu` and `measurcmd_display_phyta` directly dereference the global UE state pointer `PHY_vars_UE_g[0][0]` without validating that the underlying data structures are initialized. When these telnet commands are invoked before the PHY layer completes initialization, this causes segmentation faults and crashes.\n\nThe fix adds comprehensive NULL checks at all three leve",
+  "trajectory_path": "data/raw/s00245_43a635_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00245_43a635_p2.diff",
+  "patch_lines": 30,
+  "trajectory_steps": 22,
+  "timestamp": "2026-02-11T13:43:45Z"
+}

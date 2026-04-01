@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix buffer underflow in append_string function\n\n### Summary\nThe `append_string()` function in IF_Module.c had a critical bug where it would unconditionally decrement the buffer size counter, causing a buffer underflow when called on an empty buffer. This could lead to memory corruption and segmentation faults.\n\n### Changes\n- `openair2/PHY_INTERFACE/IF_Module.c`: Modified the `append_string()` function to only decrement the size counter when the buffer already contains data, preventing underflow when appending to an empty buffer.\n\n### Reproduction\nWhen DUMP_FAPI is enabled and the debug functions are used, calling `append_string()` on an empty buffer would cause `size` to become -1, leading to invalid memory access when `put()` tries to write to `s[size++]`. This manifests as segmentation faults during UL indication processing.\n"
+}

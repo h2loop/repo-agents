@@ -1,0 +1,12 @@
+diff --git a/openair2/RRC/NR/rrc_gNB_NGAP.c b/openair2/RRC/NR/rrc_gNB_NGAP.c
+index f0a7f3b90f..08a0c171d9 100644
+--- a/openair2/RRC/NR/rrc_gNB_NGAP.c
++++ b/openair2/RRC/NR/rrc_gNB_NGAP.c
+@@ -1155,6 +1155,7 @@ int rrc_gNB_process_NGAP_UE_CONTEXT_RELEASE_COMMAND(MessageDef *msg_p, instance_
+   PROTOCOL_CTXT_SET_BY_INSTANCE(&ctxt, instance, GNB_FLAG_YES, UE->rnti, 0, 0);
+   ctxt.eNB_index = 0;
+   rrc_gNB_generate_RRCRelease(&ctxt, ue_context_p);
++  rrc_gNB_send_NGAP_UE_CONTEXT_RELEASE_COMPLETE(instance, gNB_ue_ngap_id);
+   return 0;
+ }
+ 

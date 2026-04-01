@@ -1,0 +1,9 @@
+{
+  "run_id": "s00245_1f5483",
+  "pr_text": "## Title: Fix heap buffer overflow in SRS beamforming report packing\n\n### Summary\nThe `pack_nr_srs_beamforming_report` function in the nFAPI layer is vulnerable to a heap buffer overflow when packing SRS beamforming reports. The function iterates over `num_reported_symbols` and `num_prgs` fields from the incoming message without validating these values against reasonable bounds. Malformed or corrupted messages with excessively large values could cause the packing logic to write far beyond the al",
+  "trajectory_path": "data/raw/s00245_1f5483_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00245_1f5483_p2.diff",
+  "patch_lines": 10,
+  "trajectory_steps": 31,
+  "timestamp": "2026-02-10T12:08:19Z"
+}

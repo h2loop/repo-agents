@@ -1,0 +1,84 @@
+diff --git a/openair1/PHY/CODING/crc.h b/openair1/PHY/CODING/crc.h
+index b65eacf0bb..656d165609 100644
+--- a/openair1/PHY/CODING/crc.h
++++ b/openair1/PHY/CODING/crc.h
+@@ -134,7 +134,7 @@ uint16_t crc16_calc_lut(const uint8_t *data,
+                 return crc;
+ 
+         while (data_len--)
+-                crc = lut[(crc >> 8) ^ *data++] ^ (crc << 8);
++                crc = (crc << 8) ^ lut[(crc >> 8) ^ *data++];
+ 
+         return crc;
+ }
+@@ -310,7 +310,7 @@ simde__m128i crc32_folding_round(const simde__m128i data_block,
+   simde__m128i tmp = _mm_clmulepi64_si128(fold, k1_k2, 0x11);
+ 
+   return simde_mm_xor_si128(_mm_clmulepi64_si128(fold, k1_k2, 0x00), simde_mm_xor_si128(data_block, tmp));
+-#else	
++#else   
+         simde__m128i tmp = simde_mm_clmulepi64_si128(fold, k1_k2, 0x11);
+ 
+         return simde_mm_xor_si128(simde_mm_clmulepi64_si128(fold, k1_k2, 0x00),
+@@ -371,7 +371,7 @@ crc32_reduce_64_to_32(simde__m128i fold, const simde__m128i k3_q, const simde__m
+                                     k3_q, 0x10 /* Q */);
+         temp = simde_mm_srli_si128(simde_mm_xor_si128(temp, fold), 4);
+         temp = simde_mm_clmulepi64_si128(temp, p_res, 0 /* P */);
+-#endif	
++#endif  
+         return simde_mm_extract_epi32(simde_mm_xor_si128(temp, fold), 0);
+ }
+ 
+diff --git a/openair1/PHY/CODING/crc_byte.c b/openair1/PHY/CODING/crc_byte.c
+index dd5712519a..750004e602 100644
+--- a/openair1/PHY/CODING/crc_byte.c
++++ b/openair1/PHY/CODING/crc_byte.c
+@@ -43,6 +43,30 @@
+ /* the highest degree is set by default */
+ 
+ 
++/**
++ * @brief Initializes look-up-table (LUT) for given 16 bit polynomial
++ *
++ * @param poly CRC polynomial
++ * @param lut pointer to 256x16bits look-up-table to be initialized
++ */
++void crc16_init_lut(const uint16_t poly, uint16_t *lut)
++{
++        uint16_t i, j;
++        uint16_t crc;
++
++        for (i = 0; i < 256; i++) {
++                crc = (uint16_t)i << 8;
++                for (j = 0; j < 8; j++) {
++                        if (crc & 0x8000)
++                                crc = (crc << 1) ^ poly;
++                        else
++                                crc <<= 1;
++                }
++                lut[i] = crc;
++        }
++}
++
++
+ static const uint32_t poly24a =
+     0x864cfb00; // 1000 0110 0100 1100 1111 1011
+                 // D^24 + D^23 + D^18 + D^17 + D^14 + D^11 + D^10 + D^7 + D^6 + D^5 + D^4 + D^3 + D + 1
+@@ -133,7 +157,7 @@ void crcTableInit (void)
+   } while (++c);
+ #if defined(__SSE4_1__) || defined(__aarch64__) 
+     crc_xmm_be_le_swap128 = simde_mm_setr_epi32(0x0c0d0e0f, 0x08090a0b,
+-				    	        0x04050607, 0x00010203);
++                                                0x04050607, 0x00010203);
+ 
+ #endif
+ }
+@@ -342,7 +366,7 @@ int check_crc(uint8_t* decoded_bytes, uint32_t n, uint8_t crc_type)
+   case CRC24_A:
+     oldcrc&=0x00ffffff;
+     crc = crc24a(decoded_bytes,
+-		 n-24)>>8;
++                 n-24)>>8;
+     
+     break;
+     

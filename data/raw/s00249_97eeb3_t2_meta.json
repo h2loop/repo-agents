@@ -1,0 +1,9 @@
+{
+  "run_id": "s00249_97eeb3",
+  "pr_text": "## Title: Fix unreachable code path in UL config request PDU removal\n\n### Summary\nFix a synchronization bug in `oai_nfapi_ul_config_req()` where the local variable `num_pdus` becomes stale after calling `remove_ul_config_req_pdu()`. The helper function decrements `ul_config_req->ul_config_request_body.number_of_pdus` internally by shifting PDU entries, but the caller also decrements its local `num_pdus` copy. This divergence causes incorrect loop conditions and unreachable code paths when proces",
+  "trajectory_path": "data/raw/s00249_97eeb3_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00249_97eeb3_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 10,
+  "timestamp": "2026-02-11T13:44:59Z"
+}

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect output ordering in ibfly4_256 inverse FFT butterfly function\n\n### Summary\nThe `ibfly4_256` function in the OAI 5G PHY layer was producing incorrect results due to outputs being assigned in the wrong order. The function is used in inverse FFT computations for 256-bit SIMD operations.\n\nThe bug was caused by the output assignments being in order y0, y3, y2, y1 instead of the correct mathematical order y0, y1, y2, y3. This mismatch caused signal corruption during inverse FFT operations, particularly noticeable in downlink processing where incorrect frequency-domain to time-domain transformations led to degraded PDSCH decoding performance.\n\n### Changes\n- `openair1/PHY/TOOLS/oai_dfts.c`: Corrected output assignment order in `ibfly4_256` function to match the forward FFT butterfly implementation.\n\n"
+}

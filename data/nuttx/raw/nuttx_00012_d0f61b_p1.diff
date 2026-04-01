@@ -1,0 +1,222 @@
+diff --git a/boards/arm/xmc4/xmc4700-relax/src/xmc4700-relax.h b/boards/arm/xmc4/xmc4700-relax/src/xmc4700-relax.h
+index bb8583b9..f6dddfe1 100644
+--- a/boards/arm/xmc4/xmc4700-relax/src/xmc4700-relax.h
++++ b/boards/arm/xmc4/xmc4700-relax/src/xmc4700-relax.h
+@@ -93,5 +93,15 @@
+ 
+ int xmc4_bringup(void);
+ 
++/****************************************************************************
++ * Name: xmc4_bringdown
++ *
++ * Description:
++ *   Bring down board features
++ *
++ ****************************************************************************/
++
++int xmc4_bringdown(void);
++
+ #endif /* __ASSEMBLY__ */
+ #endif /* __BOARDS_ARM_XMC4_XMC4700_RELAX_SRC_XMC4700_RELAX_H */
+diff --git a/boards/arm/xmc4/xmc4700-relax/src/xmc4_bringup.c b/boards/arm/xmc4/xmc4700-relax/src/xmc4_bringup.c
+index daedfd5e..b30467e1 100644
+--- a/boards/arm/xmc4/xmc4700-relax/src/xmc4_bringup.c
++++ b/boards/arm/xmc4/xmc4700-relax/src/xmc4_bringup.c
+@@ -81,3 +81,28 @@ int xmc4_bringup(void)
+ 
+   return ret;
+ }
++
++/****************************************************************************
++ * Name: xmc4_bringdown
++ *
++ * Description:
++ *   Bring down board features
++ *
++ ****************************************************************************/
++
++int xmc4_bringdown(void)
++{
++  int ret = OK;
++
++#ifdef CONFIG_USERLED
++  /* Unregister the LED driver */
++
++  ret = userled_lower_uninitialize("/dev/userleds");
++  if (ret < 0)
++    {
++      syslog(LOG_ERR, "ERROR: userled_lower_uninitialize() failed: %d\n", ret);
++    }
++#endif
++
++  return ret;
++}
+diff --git a/drivers/leds/userled_lower.c b/drivers/leds/userled_lower.c
+index 52985f25..1423e6d9 100644
+--- a/drivers/leds/userled_lower.c
++++ b/drivers/leds/userled_lower.c
+@@ -151,4 +151,18 @@ int userled_lower_initialize(FAR const char *devname)
+   return userled_register(devname, &g_userled_lower);
+ }
+ 
++/****************************************************************************
++ * Name: userled_lower_uninitialize
++ *
++ * Description:
++ *   Uninitialize the generic LED lower half driver and unregister
++ *   it from the upper half LED driver.
++ *
++ ****************************************************************************/
++
++int userled_lower_uninitialize(FAR const char *devname)
++{
++  return userled_unregister(devname);
++}
++
+ #endif /* CONFIG_USERLED_LOWER */
+diff --git a/drivers/leds/userled_upper.c b/drivers/leds/userled_upper.c
+index 1dcbda5d..3669bf9d 100644
+--- a/drivers/leds/userled_upper.c
++++ b/drivers/leds/userled_upper.c
+@@ -493,6 +493,46 @@ static int userled_ioctl(FAR struct file *filep, int cmd, unsigned long arg)
+   return ret;
+ }
+ 
++/****************************************************************************
++ * Private Functions
++ ****************************************************************************/
++
++/****************************************************************************
++ * Name: userled_unbind
++ *
++ * Description:
++ *   Unbind the user LED driver and free resources.
++ *
++ * Input Parameters:
++ *   priv - Pointer to the upper half driver structure
++ *
++ * Returned Value:
++ *   None
++ *
++ ****************************************************************************/
++
++static void userled_unbind(FAR struct userled_upperhalf_s *priv)
++{
++  FAR struct userled_open_s *opriv;
++  FAR struct userled_open_s *next;
++
++  /* Close all open instances */
++
++  for (opriv = priv->lu_open; opriv; opriv = next)
++    {
++      next = opriv->bo_flink;
++      kmm_free(opriv);
++    }
++
++  /* Destroy the mutex */
++
++  nxmutex_destroy(&priv->lu_lock);
++
++  /* Free the driver structure */
++
++  kmm_free(priv);
++}
++
+ /****************************************************************************
+  * Public Functions
+  ****************************************************************************/
+@@ -564,3 +604,48 @@ errout_with_priv:
+   kmm_free(priv);
+   return ret;
+ }
++
++/****************************************************************************
++ * Name: userled_unregister
++ *
++ * Description:
++ *   Unregister the user LED driver and free all allocated resources.
++ *
++ * Input Parameters:
++ *   devname - The name of the LED device to be unregistered.
++ *
++ * Returned Value:
++ *   Zero (OK) is returned on success.  Otherwise a negated errno value is
++ *   returned to indicate the nature of the failure.
++ *
++ ****************************************************************************/
++
++int userled_unregister(FAR const char *devname)
++{
++  FAR struct inode *node;
++  FAR struct userled_upperhalf_s *priv;
++  int ret;
++
++  /* Find the inode for the driver */
++
++  node = find_inode(devname);
++  if (!node || !node->i_private)
++    {
++      return -ENODEV;
++    }
++
++  priv = (FAR struct userled_upperhalf_s *)node->i_private;
++
++  /* Unregister the driver */
++
++  ret = unregister_driver(devname);
++  if (ret < 0)
++    {
++      return ret;
++    }
++
++  /* Free the allocated resources */
++
++  userled_unbind(priv);
++  return OK;
++}
+diff --git a/include/nuttx/leds/userled.h b/include/nuttx/leds/userled.h
+index 12442df3..9f846cb5 100644
+--- a/include/nuttx/leds/userled.h
++++ b/include/nuttx/leds/userled.h
+@@ -241,6 +241,23 @@ extern "C"
+ int userled_register(FAR const char *devname,
+                      FAR const struct userled_lowerhalf_s *lower);
+ 
++/****************************************************************************
++ * Name: userled_unregister
++ *
++ * Description:
++ *   Unregister the user LED driver and free all allocated resources.
++ *
++ * Input Parameters:
++ *   devname - The name of the LED device to be unregistered.
++ *
++ * Returned Value:
++ *   Zero (OK) is returned on success.  Otherwise a negated errno value is
++ *   returned to indicate the nature of the failure.
++ *
++ ****************************************************************************/
++
++int userled_unregister(FAR const char *devname);
++
+ /****************************************************************************
+  * Name: userled_lower_initialize
+  *
+@@ -252,6 +269,17 @@ int userled_register(FAR const char *devname,
+ 
+ #ifdef CONFIG_USERLED_LOWER
+ int userled_lower_initialize(FAR const char *devname);
++
++/****************************************************************************
++ * Name: userled_lower_uninitialize
++ *
++ * Description:
++ *   Uninitialize the generic LED lower half driver and unregister
++ *   it from the upper half LED driver.
++ *
++ ****************************************************************************/
++
++int userled_lower_uninitialize(FAR const char *devname);
+ #endif
+ 
+ #undef EXTERN

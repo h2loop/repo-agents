@@ -1,0 +1,130 @@
+diff --git a/openair1/PHY/LTE_TRANSPORT/ulsch_decoding.c b/openair1/PHY/LTE_TRANSPORT/ulsch_decoding.c
+index b9331a283e..4722320b3d 100644
+--- a/openair1/PHY/LTE_TRANSPORT/ulsch_decoding.c
++++ b/openair1/PHY/LTE_TRANSPORT/ulsch_decoding.c
+@@ -254,19 +254,19 @@ void processULSegment(void * arg) {
+       LOG_E(PHY,"Adding HARQ data for segment: %d\n", r);
+       // Store the result of HARQ combining in the last emtc repetitions of sequence 0,2,3,1
+       for (int nn=0; nn<max_Ncb; nn++)
+-	ulsch_harq->pusch_rep_buffer[r][nn] += ulsch_harq->w[r][nn] ;
++        ulsch_harq->pusch_rep_buffer[r][nn] += ulsch_harq->w[r][nn] ;
+     }
+ 
+     if (ulsch_harq->repetition_number == ulsch_harq->total_number_of_repetitions) {
+       LOG_E(PHY,"Will use HARQ data sum up for segment: %d\n", r);
+       for (int nn=0; nn<max_Ncb; nn++) 
+-	ulsch_harq->w[r][nn] =  ulsch_harq->pusch_rep_buffer[r][nn] ;
++        ulsch_harq->w[r][nn] =  ulsch_harq->pusch_rep_buffer[r][nn] ;
+     }
+   }
+   int16_t soft_bits[3*8*6144+12+96] __attribute__((aligned(32)));
+   sub_block_deinterleaving_turbo(4+rdata->Kr,
+-				 soft_bits+96,
+-				 ulsch_harq->w[r]);
++                                 soft_bits+96,
++                                 ulsch_harq->w[r]);
+   stop_meas(&eNB->ulsch_deinterleaving_stats);
+   rdata->decodeIterations = rdata->function(soft_bits + 96,
+                                             NULL,
+@@ -359,7 +359,7 @@ static int ulsch_decoding_data(PHY_VARS_eNB *eNB, L1_rxtx_proc_t *proc, int UE_i
+     proc->nbDecode++;
+     LOG_D(PHY,"Added a block to decode, in pipe: %d\n",proc->nbDecode);
+     r_offset+=E;
+-    offset+=sz;	    
++    offset+=sz;     
+   }
+   return(ret);
+ }
+@@ -495,15 +495,18 @@ unsigned int  ulsch_decoding(PHY_VARS_eNB *eNB,
+   //if (ulsch_harq->round == 0) { // delete for RB shortage pattern
+   // This is a new packet, so compute quantities regarding segmentation
+   ulsch_harq->B = A+24;
+-  lte_segmentation(NULL,
+-                   NULL,
+-                   ulsch_harq->B,
+-                   &ulsch_harq->C,
+-                   &ulsch_harq->Cplus,
+-                   &ulsch_harq->Cminus,
+-                   &ulsch_harq->Kplus,
+-                   &ulsch_harq->Kminus,
+-                   &ulsch_harq->F);
++  if (lte_segmentation(NULL,
++                       NULL,
++                       ulsch_harq->B,
++                       &ulsch_harq->C,
++                       &ulsch_harq->Cplus,
++                       &ulsch_harq->Cminus,
++                       &ulsch_harq->Kplus,
++                       &ulsch_harq->Kminus,
++                       &ulsch_harq->F)<0) {
++    LOG_E(PHY,"ulsch_decoding: lte_segmentation failed (B %d)\n",ulsch_harq->B);
++    return(-1);
++  }
+   //  CLEAR LLR's HERE for first packet in process
+   //}
+   //  printf("after segmentation c[%d] = %p\n",0,ulsch_harq->c[0]);
+@@ -531,11 +534,11 @@ unsigned int  ulsch_decoding(PHY_VARS_eNB *eNB,
+   // Compute Q_ri
+   Qprime = ulsch_harq->O_RI*ulsch_harq->Msc_initial*ulsch_harq->Nsymb_initial * ulsch->beta_offset_ri_times8;
+   LOG_D(PHY, "Qprime %d, O_RI %d, Msc %d, Nym %d beta %d\n",
+-		  Qprime,
+-		  ulsch_harq->O_RI,
+-		  ulsch_harq->Msc_initial,
+-		  ulsch_harq->Nsymb_initial,
+-		  ulsch->beta_offset_ri_times8);
++                  Qprime,
++                  ulsch_harq->O_RI,
++                  ulsch_harq->Msc_initial,
++                  ulsch_harq->Nsymb_initial,
++                  ulsch->beta_offset_ri_times8);
+ 
+   if (Qprime > 0 ) {
+     if ((Qprime % (8*sumKr)) > 0)
+@@ -1109,11 +1112,11 @@ void dump_ulsch_stats(FILE *fd,PHY_VARS_eNB *eNB,int frame) {
+       stroff+=sprintf(output+stroff,"ULSCH RNTI %x:  current_Qm %d, current_G %d, current_TBS %d, current_rate %f,current_RI %d, timing_offset %d, total_bytes RX/SCHED %d/%d\n",
+             eNB->ulsch_stats[i].rnti,
+             eNB->ulsch_stats[i].current_Qm,
+-	    eNB->ulsch_stats[i].current_G,
+-	    eNB->ulsch_stats[i].current_TBS,
+-	    (double)eNB->ulsch_stats[i].current_G/eNB->ulsch_stats[i].current_TBS,
++            eNB->ulsch_stats[i].current_G,
++            eNB->ulsch_stats[i].current_TBS,
++            (double)eNB->ulsch_stats[i].current_G/eNB->ulsch_stats[i].current_TBS,
+             eNB->ulsch_stats[i].current_RI,
+-	    eNB->ulsch_stats[i].timing_offset,
++            eNB->ulsch_stats[i].timing_offset,
+             eNB->ulsch_stats[i].total_bytes_rx,
+             eNB->ulsch_stats[i].total_bytes_tx);
+     }
+diff --git a/openair1/PHY/LTE_UE_TRANSPORT/dlsch_decoding.c b/openair1/PHY/LTE_UE_TRANSPORT/dlsch_decoding.c
+index a89588050f..fdeb8e4f2b 100644
+--- a/openair1/PHY/LTE_UE_TRANSPORT/dlsch_decoding.c
++++ b/openair1/PHY/LTE_UE_TRANSPORT/dlsch_decoding.c
+@@ -229,15 +229,18 @@ uint32_t dlsch_decoding(PHY_VARS_UE *phy_vars_ue,
+   if (harq_process->round == 0) {
+     // This is a new packet, so compute quantities regarding segmentation
+     harq_process->B = A+24;
+-    lte_segmentation(NULL,
+-                     NULL,
+-                     harq_process->B,
+-                     &harq_process->C,
+-                     &harq_process->Cplus,
+-                     &harq_process->Cminus,
+-                     &harq_process->Kplus,
+-                     &harq_process->Kminus,
+-                     &harq_process->F);
++    if (lte_segmentation(NULL,
++                         NULL,
++                         harq_process->B,
++                         &harq_process->C,
++                         &harq_process->Cplus,
++                         &harq_process->Cminus,
++                         &harq_process->Kplus,
++                         &harq_process->Kminus,
++                         &harq_process->F)<0) {
++      LOG_E(PHY,"dlsch_decoding: lte_segmentation failed (B %d)\n",harq_process->B);
++      return(dlsch->max_turbo_iterations);
++    }
+     //  CLEAR LLR's HERE for first packet in process
+   }
+ 

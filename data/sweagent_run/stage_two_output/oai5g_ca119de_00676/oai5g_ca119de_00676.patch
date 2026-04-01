@@ -1,0 +1,69 @@
+diff --git a/openair3/NAS/UE/API/USER/at_response.c b/openair3/NAS/UE/API/USER/at_response.c
+index 28b6c0425a..a4428ca97d 100644
+--- a/openair3/NAS/UE/API/USER/at_response.c
++++ b/openair3/NAS/UE/API/USER/at_response.c
+@@ -200,6 +200,12 @@ static int _at_response_encode_cgsn(char* buffer, const at_response_t* data)
+         }
+ 
+         offset += sprintf(buffer+offset, "+CGSN: %s\r\n", cgsn->sn);
++    } else if (data->type == AT_COMMAND_TST) {
++        if (at_response_format_v1) {
++            offset += sprintf(buffer, "\r\n");
++        }
++
++        offset += sprintf(buffer+offset, "+CGSN: ()\r\n");
+     }
+ 
+     LOG_FUNC_RETURN (offset);
+@@ -234,6 +240,12 @@ static int _at_response_encode_cgmi(char* buffer, const at_response_t* data)
+         }
+ 
+         offset += sprintf(buffer+offset, "+CGMI: %s\r\n", cgmi->manufacturer);
++    } else if (data->type == AT_COMMAND_TST) {
++        if (at_response_format_v1) {
++            offset += sprintf(buffer, "\r\n");
++        }
++
++        offset += sprintf(buffer+offset, "+CGMI: ()\r\n");
+     }
+ 
+     LOG_FUNC_RETURN (offset);
+@@ -268,6 +280,12 @@ static int _at_response_encode_cgmm(char* buffer, const at_response_t* data)
+         }
+ 
+         offset += sprintf(buffer+offset, "+CGMM: %s\r\n", cgmm->model);
++    } else if (data->type == AT_COMMAND_TST) {
++        if (at_response_format_v1) {
++            offset += sprintf(buffer, "\r\n");
++        }
++
++        offset += sprintf(buffer+offset, "+CGMM: ()\r\n");
+     }
+ 
+     LOG_FUNC_RETURN (offset);
+@@ -302,6 +320,12 @@ static int _at_response_encode_cgmr(char* buffer, const at_response_t* data)
+         }
+ 
+         offset += sprintf(buffer+offset, "+CGMR: %s\r\n", cgmr->revision);
++    } else if (data->type == AT_COMMAND_TST) {
++        if (at_response_format_v1) {
++            offset += sprintf(buffer, "\r\n");
++        }
++
++        offset += sprintf(buffer+offset, "+CGMR: ()\r\n");
+     }
+ 
+     LOG_FUNC_RETURN (offset);
+@@ -336,6 +360,12 @@ static int _at_response_encode_cimi(char* buffer, const at_response_t* data)
+         }
+ 
+         offset += sprintf(buffer+offset, "+CIMI: %s\r\n", cimi->IMSI);
++    } else if (data->type == AT_COMMAND_TST) {
++        if (at_response_format_v1) {
++            offset += sprintf(buffer, "\r\n");
++        }
++
++        offset += sprintf(buffer+offset, "+CIMI: ()\r\n");
+     }
+ 
+     LOG_FUNC_RETURN (offset);

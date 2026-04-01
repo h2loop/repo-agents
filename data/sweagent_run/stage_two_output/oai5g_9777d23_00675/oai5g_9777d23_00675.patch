@@ -1,0 +1,438 @@
+diff --git a/openair2/RRC/LTE/rrc_UE.c b/openair2/RRC/LTE/rrc_UE.c
+index 0cdac830d0..6e524c481a 100644
+--- a/openair2/RRC/LTE/rrc_UE.c
++++ b/openair2/RRC/LTE/rrc_UE.c
+@@ -207,7 +207,7 @@ rrc_ue_process_MBMSCountingRequest(
+   const protocol_ctxt_t *const ctxt_pP,
+   LTE_MBMSCountingRequest_r10_t *MBMSCountingRequest,
+   uint8_t eNB_index
+-		);
++                );
+ 
+ static void process_nr_nsa_msg(nsa_msg_t *msg, int msg_len);
+ static void nsa_sendmsg_to_nrue(const void *message, size_t msg_len, Rrc_Msg_Type_t msg_type);
+@@ -3157,26 +3157,95 @@ int decode_SIB1_MBMS( const protocol_ctxt_t *const ctxt_pP, const uint8_t eNB_in
+ //-----------------------------------------------------------------------------
+ int decode_SIB1( const protocol_ctxt_t *const ctxt_pP, const uint8_t eNB_index, const uint8_t rsrq, const uint8_t rsrp ) {
+   LTE_SystemInformationBlockType1_t *sib1 = UE_rrc_inst[ctxt_pP->module_id].sib1[eNB_index];
++  
++  // Check if sib1 is valid
++  if (sib1 == NULL) {
++    LOG_E(RRC, "[UE %d] Error: sib1 is NULL\n", ctxt_pP->module_id);
++    return -1;
++  }
++  
+   VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME( VCD_SIGNAL_DUMPER_FUNCTIONS_RRC_UE_DECODE_SIB1, VCD_FUNCTION_IN );
+   LOG_I( RRC, "[UE %d] : Dumping SIB 1\n", ctxt_pP->module_id );
++  
++  // Validate PLMN identity list
++  if (sib1->cellAccessRelatedInfo.plmn_IdentityList.list.array == NULL) {
++    LOG_E(RRC, "[UE %d] Error: plmn_IdentityList array is NULL\n", ctxt_pP->module_id);
++    return -1;
++  }
++  
+   const int n = sib1->cellAccessRelatedInfo.plmn_IdentityList.list.count;
++  if (n <= 0 || n > sib1->cellAccessRelatedInfo.plmn_IdentityList.list.size) {
++    LOG_E(RRC, "[UE %d] Error: Invalid plmn_IdentityList count: %d\n", ctxt_pP->module_id, n);
++    return -1;
++  }
++  
+   for (int i = 0; i < n; ++i) {
++    // Check array bounds
++    if (i >= sib1->cellAccessRelatedInfo.plmn_IdentityList.list.size || 
++        sib1->cellAccessRelatedInfo.plmn_IdentityList.list.array[i] == NULL) {
++      LOG_E(RRC, "[UE %d] Error: plmn_IdentityList array[%d] is NULL or out of bounds\n", ctxt_pP->module_id, i);
++      continue;
++    }
++    
+     LTE_PLMN_Identity_t *PLMN_identity = &sib1->cellAccessRelatedInfo.plmn_IdentityList.list.array[i]->plmn_Identity;
++    
++    // Check MCC validity
++    if (PLMN_identity->mcc == NULL || PLMN_identity->mcc->list.array == NULL) {
++      LOG_E(RRC, "[UE %d] Error: MCC is NULL or invalid\n", ctxt_pP->module_id);
++      continue;
++    }
++    
+     int mccdigits = PLMN_identity->mcc->list.count;
++    if (mccdigits < 2 || mccdigits > 3 || mccdigits > PLMN_identity->mcc->list.size) {
++      LOG_E(RRC, "[UE %d] Error: Invalid MCC digit count: %d\n", ctxt_pP->module_id, mccdigits);
++      mccdigits = 3; // Use default fallback
++    }
++    
++    // Check MNC validity
+     int mncdigits = PLMN_identity->mnc.list.count;
+-
+-    int mcc;
+-    if (mccdigits == 2) {
+-      mcc = *PLMN_identity->mcc->list.array[0]*10 + *PLMN_identity->mcc->list.array[1];
+-    } else {
+-      mcc = *PLMN_identity->mcc->list.array[0]*100 + *PLMN_identity->mcc->list.array[1]*10 + *PLMN_identity->mcc->list.array[2];
++    if (mncdigits < 2 || mncdigits > 3 || mncdigits > PLMN_identity->mnc.list.size) {
++      LOG_E(RRC, "[UE %d] Error: Invalid MNC digit count: %d\n", ctxt_pP->module_id, mncdigits);
++      mncdigits = 2; // Use default fallback
+     }
+-
+-    int mnc;
+-    if (mncdigits == 2) {
+-      mnc = *PLMN_identity->mnc.list.array[0]*10 + *PLMN_identity->mnc.list.array[1];
+-    } else {
+-      mnc = *PLMN_identity->mnc.list.array[0]*100 + *PLMN_identity->mnc.list.array[1]*10 + *PLMN_identity->mnc.list.array[2];
++    
++    // Validate MCC digit array access
++    int mcc = 0;
++    if (mccdigits >= 2) {
++      if (PLMN_identity->mcc->list.array[0] == NULL || PLMN_identity->mcc->list.array[1] == NULL) {
++        LOG_E(RRC, "[UE %d] Error: MCC digit array elements are NULL\n", ctxt_pP->module_id);
++        mcc = 0;
++      } else {
++        if (mccdigits == 2) {
++          mcc = *PLMN_identity->mcc->list.array[0] * 10 + *PLMN_identity->mcc->list.array[1];
++        } else if (mccdigits >= 3) {
++          if (PLMN_identity->mcc->list.array[2] == NULL) {
++            LOG_E(RRC, "[UE %d] Error: MCC third digit is NULL\n", ctxt_pP->module_id);
++            mcc = *PLMN_identity->mcc->list.array[0] * 100 + *PLMN_identity->mcc->list.array[1] * 10;
++          } else {
++            mcc = *PLMN_identity->mcc->list.array[0] * 100 + *PLMN_identity->mcc->list.array[1] * 10 + *PLMN_identity->mcc->list.array[2];
++          }
++        }
++      }
++    }
++    
++    // Validate MNC digit array access
++    int mnc = 0;
++    if (mncdigits >= 2) {
++      if (PLMN_identity->mnc.list.array[0] == NULL || PLMN_identity->mnc.list.array[1] == NULL) {
++        LOG_E(RRC, "[UE %d] Error: MNC digit array elements are NULL\n", ctxt_pP->module_id);
++        mnc = 0;
++      } else {
++        if (mncdigits == 2) {
++          mnc = *PLMN_identity->mnc.list.array[0] * 10 + *PLMN_identity->mnc.list.array[1];
++        } else if (mncdigits >= 3) {
++          if (PLMN_identity->mnc.list.array[2] == NULL) {
++            LOG_E(RRC, "[UE %d] Error: MNC third digit is NULL\n", ctxt_pP->module_id);
++            mnc = *PLMN_identity->mnc.list.array[0] * 100 + *PLMN_identity->mnc.list.array[1] * 10;
++          } else {
++            mnc = *PLMN_identity->mnc.list.array[0] * 100 + *PLMN_identity->mnc.list.array[1] * 10 + *PLMN_identity->mnc.list.array[2];
++          }
++        }
++      }
+     }
+ 
+     LOG_I( RRC, "PLMN %d MCC %0*d, MNC %0*d\n", i + 1, mccdigits, mcc, mncdigits, mnc);
+@@ -3195,30 +3264,62 @@ int decode_SIB1( const protocol_ctxt_t *const ctxt_pP, const uint8_t eNB_index,
+       }
+     }
+   }
+-  LOG_I( RRC, "TAC 0x%04x\n",
+-         ((sib1->cellAccessRelatedInfo.trackingAreaCode.size == 2)?((sib1->cellAccessRelatedInfo.trackingAreaCode.buf[0]<<8) + sib1->cellAccessRelatedInfo.trackingAreaCode.buf[1]):0));
+-  LOG_I( RRC, "cellReservedForOperatorUse                 : raw:%ld decoded:%s\n", sib1->cellAccessRelatedInfo.plmn_IdentityList.list.array[0]->cellReservedForOperatorUse,
+-         SIBreserved(sib1->cellAccessRelatedInfo.plmn_IdentityList.list.array[0]->cellReservedForOperatorUse) );
++  
++  // Validate tracking area code
++  if (sib1->cellAccessRelatedInfo.trackingAreaCode.size < 2 || 
++      sib1->cellAccessRelatedInfo.trackingAreaCode.buf == NULL) {
++    LOG_E(RRC, "[UE %d] Error: Invalid tracking area code\n", ctxt_pP->module_id);
++  } else {
++    LOG_I( RRC, "TAC 0x%04x\n",
++           ((sib1->cellAccessRelatedInfo.trackingAreaCode.size == 2)?
++            ((sib1->cellAccessRelatedInfo.trackingAreaCode.buf[0]<<8) + 
++             sib1->cellAccessRelatedInfo.trackingAreaCode.buf[1]):0));
++  }
++  
++  // Validate first PLMN entry for cellReservedForOperatorUse
++  if (sib1->cellAccessRelatedInfo.plmn_IdentityList.list.count > 0 &&
++      sib1->cellAccessRelatedInfo.plmn_IdentityList.list.size > 0 &&
++      sib1->cellAccessRelatedInfo.plmn_IdentityList.list.array[0] != NULL) {
++    LOG_I( RRC, "cellReservedForOperatorUse                 : raw:%ld decoded:%s\n", 
++           sib1->cellAccessRelatedInfo.plmn_IdentityList.list.array[0]->cellReservedForOperatorUse,
++           SIBreserved(sib1->cellAccessRelatedInfo.plmn_IdentityList.list.array[0]->cellReservedForOperatorUse) );
++  } else {
++    LOG_W( RRC, "cellReservedForOperatorUse                 : not available due to invalid PLMN list\n");
++  }
+ 
+-  LOG_I( RRC, "cellAccessRelatedInfo.cellIdentity         : raw:%"PRIu32" decoded:%02x.%02x.%02x.%02x\n",
+-         BIT_STRING_to_uint32( &sib1->cellAccessRelatedInfo.cellIdentity ),
+-         sib1->cellAccessRelatedInfo.cellIdentity.buf[0],
+-         sib1->cellAccessRelatedInfo.cellIdentity.buf[1],
+-         sib1->cellAccessRelatedInfo.cellIdentity.buf[2],
+-         sib1->cellAccessRelatedInfo.cellIdentity.buf[3] >> sib1->cellAccessRelatedInfo.cellIdentity.bits_unused);
+-  LOG_I( RRC, "cellAccessRelatedInfo.cellBarred           : raw:%ld decoded:%s\n", sib1->cellAccessRelatedInfo.cellBarred, SIBbarred(sib1->cellAccessRelatedInfo.cellBarred) );
+-  LOG_I( RRC, "cellAccessRelatedInfo.intraFreqReselection : raw:%ld decoded:%s\n", sib1->cellAccessRelatedInfo.intraFreqReselection, SIBallowed(sib1->cellAccessRelatedInfo.intraFreqReselection) );
+-  LOG_I( RRC, "cellAccessRelatedInfo.csg_Indication       : %d\n", sib1->cellAccessRelatedInfo.csg_Indication );
++  // Validate cell identity
++  if (sib1->cellAccessRelatedInfo.cellIdentity.buf != NULL) {
++    LOG_I( RRC, "cellAccessRelatedInfo.cellIdentity         : raw:%"PRIu32" decoded:%02x.%02x.%02x.%02x\n",
++           BIT_STRING_to_uint32( &sib1->cellAccessRelatedInfo.cellIdentity ),
++           sib1->cellAccessRelatedInfo.cellIdentity.buf[0],
++           sib1->cellAccessRelatedInfo.cellIdentity.buf[1],
++           sib1->cellAccessRelatedInfo.cellIdentity.buf[2],
++           sib1->cellAccessRelatedInfo.cellIdentity.buf[3] >> sib1->cellAccessRelatedInfo.cellIdentity.bits_unused);
++  } else {
++    LOG_E(RRC, "[UE %d] Error: cellIdentity buffer is NULL\n", ctxt_pP->module_id);
++  }
++  
++  LOG_I( RRC, "cellAccessRelatedInfo.cellBarred           : raw:%ld decoded:%s\n", 
++         sib1->cellAccessRelatedInfo.cellBarred, 
++         SIBbarred(sib1->cellAccessRelatedInfo.cellBarred) );
++  LOG_I( RRC, "cellAccessRelatedInfo.intraFreqReselection : raw:%ld decoded:%s\n", 
++         sib1->cellAccessRelatedInfo.intraFreqReselection, 
++         SIBallowed(sib1->cellAccessRelatedInfo.intraFreqReselection) );
++  LOG_I( RRC, "cellAccessRelatedInfo.csg_Indication       : %d\n", 
++         sib1->cellAccessRelatedInfo.csg_Indication );
+ 
+   if (sib1->cellAccessRelatedInfo.csg_Identity)
+-    LOG_I( RRC, "cellAccessRelatedInfo.csg_Identity         : %"PRIu32"\n", BIT_STRING_to_uint32(sib1->cellAccessRelatedInfo.csg_Identity) );
++    LOG_I( RRC, "cellAccessRelatedInfo.csg_Identity         : %"PRIu32"\n", 
++           BIT_STRING_to_uint32(sib1->cellAccessRelatedInfo.csg_Identity) );
+   else
+     LOG_I( RRC, "cellAccessRelatedInfo.csg_Identity         : not defined\n" );
+ 
+-  LOG_I( RRC, "cellSelectionInfo.q_RxLevMin               : %ld\n", sib1->cellSelectionInfo.q_RxLevMin );
++  LOG_I( RRC, "cellSelectionInfo.q_RxLevMin               : %ld\n", 
++         sib1->cellSelectionInfo.q_RxLevMin );
+ 
+   if (sib1->cellSelectionInfo.q_RxLevMinOffset)
+-    LOG_I( RRC, "cellSelectionInfo.q_RxLevMinOffset         : %ld\n", *sib1->cellSelectionInfo.q_RxLevMinOffset );
++    LOG_I( RRC, "cellSelectionInfo.q_RxLevMinOffset         : %ld\n", 
++           *sib1->cellSelectionInfo.q_RxLevMinOffset );
+   else
+     LOG_I( RRC, "cellSelectionInfo.q_RxLevMinOffset         : not defined\n" );
+ 
+@@ -3227,17 +3328,59 @@ int decode_SIB1( const protocol_ctxt_t *const ctxt_pP, const uint8_t eNB_index,
+   else
+     LOG_I( RRC, "p_Max                                      : not defined\n" );
+ 
+-  LOG_I( RRC, "freqBandIndicator                          : %ld\n", sib1->freqBandIndicator );
++  LOG_I( RRC, "freqBandIndicator                          : %ld\n", 
++         sib1->freqBandIndicator );
+ 
++  // Validate scheduling info list
++  if (sib1->schedulingInfoList.list.array == NULL) {
++    LOG_E(RRC, "[UE %d] Error: schedulingInfoList array is NULL\n", ctxt_pP->module_id);
++    return -1;
++  }
++  
+   if (sib1->schedulingInfoList.list.count > 0) {
++    if (sib1->schedulingInfoList.list.count > sib1->schedulingInfoList.list.size) {
++      LOG_E(RRC, "[UE %d] Error: Invalid schedulingInfoList count: %d\n", ctxt_pP->module_id, 
++            sib1->schedulingInfoList.list.count);
++      return -1;
++    }
++    
+     for (int i=0; i<sib1->schedulingInfoList.list.count; i++) {
+-      LOG_I( RRC, "si_Periodicity[%d]                          : %s\n", i, SIBPeriod[min(sib1->schedulingInfoList.list.array[i]->si_Periodicity,7)]);
+-
+-      if (sib1->schedulingInfoList.list.array[i]->sib_MappingInfo.list.count > 0) {
++      // Check array bounds
++      if (i >= sib1->schedulingInfoList.list.size || 
++          sib1->schedulingInfoList.list.array[i] == NULL) {
++        LOG_E(RRC, "[UE %d] Error: schedulingInfoList array[%d] is NULL or out of bounds\n", 
++              ctxt_pP->module_id, i);
++        continue;
++      }
++      
++      LOG_I( RRC, "si_Periodicity[%d]                          : %s\n", i, 
++             SIBPeriod[min(sib1->schedulingInfoList.list.array[i]->si_Periodicity,7)]);
++
++      // Validate sib_MappingInfo
++      if (sib1->schedulingInfoList.list.array[i]->sib_MappingInfo.list.array != NULL &&
++          sib1->schedulingInfoList.list.array[i]->sib_MappingInfo.list.count > 0) {
++        
++        if (sib1->schedulingInfoList.list.array[i]->sib_MappingInfo.list.count > 
++            sib1->schedulingInfoList.list.array[i]->sib_MappingInfo.list.size) {
++          LOG_E(RRC, "[UE %d] Error: Invalid sib_MappingInfo count: %d\n", ctxt_pP->module_id, 
++                sib1->schedulingInfoList.list.array[i]->sib_MappingInfo.list.count);
++          continue;
++        }
++        
+         char temp[32 * sizeof(SIBType[0])] = {0}; // maxSIB==32
+ 
+         for (int j=0; j<sib1->schedulingInfoList.list.array[i]->sib_MappingInfo.list.count; j++) {
+-          sprintf( temp + j*sizeof(SIBType[0]), "%*s ", (int)sizeof(SIBType[0])-1, SIBType[min(*sib1->schedulingInfoList.list.array[i]->sib_MappingInfo.list.array[0],11)] );
++          // Check array bounds
++          if (j >= sib1->schedulingInfoList.list.array[i]->sib_MappingInfo.list.size || 
++              sib1->schedulingInfoList.list.array[i]->sib_MappingInfo.list.array[j] == NULL) {
++            LOG_E(RRC, "[UE %d] Error: sib_MappingInfo array[%d] is NULL or out of bounds\n", 
++                  ctxt_pP->module_id, j);
++            continue;
++          }
++          
++          // Use correct array index for sib_MappingInfo instead of always using [0]
++          sprintf( temp + j*sizeof(SIBType[0]), "%*s ", (int)sizeof(SIBType[0])-1, 
++                   SIBType[min(*sib1->schedulingInfoList.list.array[i]->sib_MappingInfo.list.array[j],11)] );
+         }
+ 
+         LOG_I( RRC, "siSchedulingInfoSIBType[%d]                 : %s\n", i, temp );
+@@ -3251,14 +3394,31 @@ int decode_SIB1( const protocol_ctxt_t *const ctxt_pP, const uint8_t eNB_index,
+   }
+ 
+   if (sib1->tdd_Config) {
+-    LOG_I( RRC, "TDD subframeAssignment                     : %ld\n", sib1->tdd_Config->subframeAssignment );
+-    LOG_I( RRC, "TDD specialSubframePatterns                : %ld\n", sib1->tdd_Config->specialSubframePatterns );
++    LOG_I( RRC, "TDD subframeAssignment                     : %ld\n", 
++           sib1->tdd_Config->subframeAssignment );
++    LOG_I( RRC, "TDD specialSubframePatterns                : %ld\n", 
++           sib1->tdd_Config->specialSubframePatterns );
+   }
+ 
+-  LOG_I( RRC, "siWindowLength                             : %s\n", siWindowLength[min(sib1->si_WindowLength,8)] );
+-  LOG_I( RRC, "systemInfoValueTag                         : %ld\n", sib1->systemInfoValueTag );
+-  UE_rrc_inst[ctxt_pP->module_id].Info[eNB_index].SIperiod     = siPeriod_int[sib1->schedulingInfoList.list.array[0]->si_Periodicity];
+-  UE_rrc_inst[ctxt_pP->module_id].Info[eNB_index].SIwindowsize = siWindowLength_int[sib1->si_WindowLength];
++  LOG_I( RRC, "siWindowLength                             : %s\n", 
++         siWindowLength[min(sib1->si_WindowLength,8)] );
++  LOG_I( RRC, "systemInfoValueTag                         : %ld\n", 
++         sib1->systemInfoValueTag );
++         
++  // Set SI period and window size with validation
++  if (sib1->schedulingInfoList.list.count > 0 && 
++      sib1->schedulingInfoList.list.size > 0 && 
++      sib1->schedulingInfoList.list.array[0] != NULL) {
++    UE_rrc_inst[ctxt_pP->module_id].Info[eNB_index].SIperiod = 
++      siPeriod_int[sib1->schedulingInfoList.list.array[0]->si_Periodicity];
++  } else {
++    UE_rrc_inst[ctxt_pP->module_id].Info[eNB_index].SIperiod = 0; // Default fallback
++    LOG_W(RRC, "[UE %d] Warning: Using default SI period due to invalid schedulingInfoList\n", ctxt_pP->module_id);
++  }
++  
++  UE_rrc_inst[ctxt_pP->module_id].Info[eNB_index].SIwindowsize = 
++    siWindowLength_int[sib1->si_WindowLength];
++    
+   LOG_I( RRC, "[FRAME unknown][RRC_UE][MOD %02"PRIu8"][][--- MAC_CONFIG_REQ (SIB1 params eNB %"PRIu8") --->][MAC_UE][MOD %02"PRIu8"][]\n",
+          ctxt_pP->module_id, eNB_index, ctxt_pP->module_id );
+   /* pointers to  SIperiod inthe Info struct points to a packed structure
+@@ -3304,17 +3464,62 @@ int decode_SIB1( const protocol_ctxt_t *const ctxt_pP, const uint8_t eNB_index,
+     if (sib1->cellAccessRelatedInfo.cellBarred == LTE_SystemInformationBlockType1__cellAccessRelatedInfo__cellBarred_notBarred) {
+       /* Cell is not barred */
+       int plmn;
+-      int plmn_number;
+-      plmn_number = sib1->cellAccessRelatedInfo.plmn_IdentityList.list.count;
++      int plmn_number = sib1->cellAccessRelatedInfo.plmn_IdentityList.list.count;
++      
++      // Validate plmn_number and array bounds
++      if (plmn_number <= 0 || plmn_number > sib1->cellAccessRelatedInfo.plmn_IdentityList.list.size) {
++        LOG_E(RRC, "[UE %d] Error: Invalid plmn_IdentityList count for EPC mode: %d\n", ctxt_pP->module_id, plmn_number);
++        plmn_number = 0;
++      }
+ 
+       /* Compare requested PLMN and PLMNs from SIB1*/
+       for (plmn = 0; plmn < plmn_number; plmn++) {
++        // Check array bounds
++        if (plmn >= sib1->cellAccessRelatedInfo.plmn_IdentityList.list.size || 
++            sib1->cellAccessRelatedInfo.plmn_IdentityList.list.array[plmn] == NULL) {
++          LOG_E(RRC, "[UE %d] Error: plmn_IdentityList array[%d] is NULL or out of bounds in EPC mode\n", ctxt_pP->module_id, plmn);
++          continue;
++        }
++        
+         LTE_PLMN_Identity_t *plmn_Identity;
+         plmn_Identity = &sib1->cellAccessRelatedInfo.plmn_IdentityList.list.array[plmn]->plmn_Identity;
++        
++        // Validate MCC and MNC before accessing their arrays
++        int mcc_valid = 1;
++        int mnc_valid = 1;
++        
++        // Check MCC validity
++        if (plmn_Identity->mcc == NULL || plmn_Identity->mcc->list.array == NULL) {
++          mcc_valid = 0;
++        } else if (plmn_Identity->mcc->list.count < 3 || plmn_Identity->mcc->list.size < 3) {
++          mcc_valid = 0;
++        } else if (plmn_Identity->mcc->list.array[0] == NULL || 
++                   plmn_Identity->mcc->list.array[1] == NULL || 
++                   plmn_Identity->mcc->list.array[2] == NULL) {
++          mcc_valid = 0;
++        }
++        
++        // Check MNC validity
++        if (plmn_Identity->mnc.list.array == NULL) {
++          mnc_valid = 0;
++        } else if (plmn_Identity->mnc.list.count < 2 || plmn_Identity->mnc.list.size < 2) {
++          mnc_valid = 0;
++        } else if (plmn_Identity->mnc.list.array[0] == NULL || 
++                   plmn_Identity->mnc.list.array[1] == NULL) {
++          mnc_valid = 0;
++        }
++        
++        // For 3-digit MNC, check third digit
++        int mnc_three_digit = (plmn_Identity->mnc.list.count >= 3);
++        if (mnc_three_digit) {
++          if (plmn_Identity->mnc.list.size < 3 || plmn_Identity->mnc.list.array[2] == NULL) {
++            mnc_valid = 0;
++          }
++        }
+ 
+         if (
+           (
+-            (plmn_Identity->mcc == NULL)
++            (!mcc_valid)
+             ||
+             (
+               (UE_rrc_inst[ctxt_pP->module_id].plmnID.MCCdigit1 == *(plmn_Identity->mcc->list.array[0])) &&
+@@ -3323,14 +3528,17 @@ int decode_SIB1( const protocol_ctxt_t *const ctxt_pP, const uint8_t eNB_index,
+             )
+           )
+           &&
+-          (UE_rrc_inst[ctxt_pP->module_id].plmnID.MNCdigit1 == *(plmn_Identity->mnc.list.array[0]))
++          (mnc_valid ? (UE_rrc_inst[ctxt_pP->module_id].plmnID.MNCdigit1 == *(plmn_Identity->mnc.list.array[0])) : 1)
+           &&
+-          (UE_rrc_inst[ctxt_pP->module_id].plmnID.MNCdigit2 == *(plmn_Identity->mnc.list.array[1]))
++          (mnc_valid ? (UE_rrc_inst[ctxt_pP->module_id].plmnID.MNCdigit2 == *(plmn_Identity->mnc.list.array[1])) : 1)
+           &&
+           (
+-            ((UE_rrc_inst[ctxt_pP->module_id].plmnID.MNCdigit3 == 0xf) && (plmn_Identity->mnc.list.count == 2))
+-            ||
+-            (UE_rrc_inst[ctxt_pP->module_id].plmnID.MNCdigit3 == *(plmn_Identity->mnc.list.array[2]))
++            !mnc_valid || 
++            (
++              ((UE_rrc_inst[ctxt_pP->module_id].plmnID.MNCdigit3 == 0xf) && (plmn_Identity->mnc.list.count == 2))
++              ||
++              (mnc_three_digit ? (UE_rrc_inst[ctxt_pP->module_id].plmnID.MNCdigit3 == *(plmn_Identity->mnc.list.array[2])) : 1)
++            )
+           )
+         ) {
+           /* PLMN match, send a confirmation to NAS */
+@@ -4745,23 +4953,23 @@ int decode_MCCH_Message( const protocol_ctxt_t *const ctxt_pP, const uint8_t eNB
+       LOG_D(RRC,"[UE %d] Found mcch message \n",
+             ctxt_pP->module_id);
+         if(mcch->message.choice.later.present == LTE_MCCH_MessageType__later_PR_c2){
+-		if(mcch->message.choice.later.choice.c2.present == LTE_MCCH_MessageType__later__c2_PR_mbmsCountingRequest_r10){
+-        		LOG_I(RRC,"[UE %d] Frame %d : Found MBMSCountingRequest from eNB %d %p\n",
+-              			ctxt_pP->module_id,
+-              			ctxt_pP->frame,
+-              			eNB_index,&mcch->message.choice.later.choice.c2.choice.mbmsCountingRequest_r10);
++                if(mcch->message.choice.later.choice.c2.present == LTE_MCCH_MessageType__later__c2_PR_mbmsCountingRequest_r10){
++                        LOG_I(RRC,"[UE %d] Frame %d : Found MBMSCountingRequest from eNB %d %p\n",
++                                ctxt_pP->module_id,
++                                ctxt_pP->frame,
++                                eNB_index,&mcch->message.choice.later.choice.c2.choice.mbmsCountingRequest_r10);
+ 
+-  			rrc_ue_process_MBMSCountingRequest(ctxt_pP,&mcch->message.choice.later.choice.c2.choice.mbmsCountingRequest_r10,eNB_index);
++                        rrc_ue_process_MBMSCountingRequest(ctxt_pP,&mcch->message.choice.later.choice.c2.choice.mbmsCountingRequest_r10,eNB_index);
+ 
+-			decode_MBMSCountingRequest(
+-          			ctxt_pP->module_id,
+-          			eNB_index,
+-          			ctxt_pP->frame,
+-          			mbsfn_sync_area);
++                        decode_MBMSCountingRequest(
++                                ctxt_pP->module_id,
++                                eNB_index,
++                                ctxt_pP->frame,
++                                mbsfn_sync_area);
+ 
+ 
+-		}
+-	}
++                }
++        }
+     }
+ 
+   }
+@@ -4820,7 +5028,7 @@ void decode_MBSFNAreaConfiguration( module_id_t ue_mod_idP, uint8_t eNB_index, f
+                         (LTE_MBSFN_AreaInfoList_r9_t *)NULL
+                        );
+   if(1/*UE_rrc_inst[ue_mod_idP].Info[eNB_index].State >= RRC_CONNECTED*/ /*|| UE_rrc_inst[ue_mod_idP].Info[eNB_index].State == RRC_RECONFIGURED*/)
+-  	UE_rrc_inst[ue_mod_idP].Info[eNB_index].MCCHStatus[mbsfn_sync_area] = 1;
++        UE_rrc_inst[ue_mod_idP].Info[eNB_index].MCCHStatus[mbsfn_sync_area] = 1;
+   PROTOCOL_CTXT_SET_BY_MODULE_ID(&ctxt, ue_mod_idP, ENB_FLAG_NO, UE_rrc_inst[ue_mod_idP].Info[eNB_index].rnti, frameP, 0,eNB_index);
+   // Config Radio Bearer for MBMS user data (similar way to configure for eNB side in init_MBMS function)
+   rrc_pdcp_config_asn1_req(&ctxt,

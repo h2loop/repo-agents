@@ -1,0 +1,44 @@
+diff --git a/common/utils/LOG/vcd_signal_dumper.c b/common/utils/LOG/vcd_signal_dumper.c
+index 841f2889b6..dbe65f8373 100644
+--- a/common/utils/LOG/vcd_signal_dumper.c
++++ b/common/utils/LOG/vcd_signal_dumper.c
+@@ -53,6 +53,9 @@
+ // Global variable. If the VCD option is set at execution time, output VCD trace. Otherwise this module has no effect.
+ int ouput_vcd = 0;
+ 
++// Mutex to protect FIFO access
++pthread_mutex_t vcd_mutex = PTHREAD_MUTEX_INITIALIZER;
++
+ struct vcd_module_s {
+   const char     *name;
+   int             number_of_signals;
+@@ -907,12 +910,14 @@ void vcd_signal_dumper_dump_variable_by_name(vcd_signal_dump_variables variable_
+ 
+   if (ouput_vcd) {
+ #if defined(ENABLE_VCD_FIFO)
++    pthread_mutex_lock(&vcd_mutex);
+     uint32_t write_index = vcd_get_write_index();
+ 
+     vcd_fifo.user_data[write_index].time = vcd_get_time();
+     vcd_fifo.user_data[write_index].data.variable.variable_name = variable_name;
+     vcd_fifo.user_data[write_index].data.variable.value = value;
+     vcd_fifo.user_data[write_index].module = VCD_SIGNAL_DUMPER_MODULE_VARIABLES; // Set when all other fields are set to validate the user_data
++    pthread_mutex_unlock(&vcd_mutex);
+ #else
+     char binary_string[(sizeof (uint64_t) * BYTE_SIZE) + 1];
+ 
+@@ -937,12 +942,14 @@ void vcd_signal_dumper_dump_function_by_name(vcd_signal_dump_functions  function
+ 
+   if (ouput_vcd) {
+ #if defined(ENABLE_VCD_FIFO)
++    pthread_mutex_lock(&vcd_mutex);
+     uint32_t write_index = vcd_get_write_index();
+ 
+     vcd_fifo.user_data[write_index].time = vcd_get_time();
+     vcd_fifo.user_data[write_index].data.function.function_name = function_name;
+     vcd_fifo.user_data[write_index].data.function.in_out = in_out;
+     vcd_fifo.user_data[write_index].module = VCD_SIGNAL_DUMPER_MODULE_FUNCTIONS; // Set when all other fields are set to validate the user_data
++    pthread_mutex_unlock(&vcd_mutex);
+ #else
+ 
+     if (vcd_fd != NULL) {

@@ -1,0 +1,178 @@
+diff --git a/common/utils/telnetsrv/telnetsrv_ciUE.c b/common/utils/telnetsrv/telnetsrv_ciUE.c
+index 457ba77b4b..4cc35e3c39 100644
+--- a/common/utils/telnetsrv/telnetsrv_ciUE.c
++++ b/common/utils/telnetsrv/telnetsrv_ciUE.c
+@@ -40,6 +40,7 @@
+ #include "openair1/PHY/defs_nr_common.h"
+ #include "openair1/PHY/defs_nr_UE.h"
+ #include "openair3/NAS/NR_UE/nr_nas_msg.h"
++#include "executables/nr-uesoftmodem.h"
+ 
+ #define TELNETSERVERCODE
+ #include "telnetsrv.h"
+@@ -57,10 +58,12 @@ const char* NR_UE_L2_STATE_STR[] = {
+ 
+ static int get_default_ue_id(void)
+ {
+-  NR_UE_RRC_INST_t *rrc = get_NR_UE_rrc_inst(0);
+-  if (!rrc)
+-    return -1;
+-  return rrc->ue_id;
++  for (int i = 0; i < MAX_NUM_NR_UE_INST; i++) {
++    NR_UE_RRC_INST_t *rrc = get_NR_UE_rrc_inst(i);
++    if (rrc)
++      return rrc->ue_id;
++  }
++  return -1;
+ }
+ 
+ /**
+@@ -75,7 +78,9 @@ int get_sync_state(char *buf, int debug, telnet_printfunc_t prnt)
+ {
+   int ue_id = -1;
+   if (!buf) {
+-    ERROR_MSG_RET("no UE ID provided to telnet command\n");
++    ue_id = get_default_ue_id();
++    if (ue_id < 0)
++      ERROR_MSG_RET("No default UE context found\n");
+   } else {
+     ue_id = strtol(buf, NULL, 10);
+     if (ue_id < 0)
+@@ -92,7 +97,21 @@ int get_sync_state(char *buf, int debug, telnet_printfunc_t prnt)
+  */
+ int force_rlf(char *buf, int debug, telnet_printfunc_t prnt)
+ {
+-  NR_UE_RRC_INST_t *rrc = get_NR_UE_rrc_inst(0);
++  int ue_id = -1;
++  if (buf) {
++    ue_id = strtol(buf, NULL, 10);
++    if (ue_id < 0)
++      ERROR_MSG_RET("UE ID needs to be positive\n");
++  } else {
++    ue_id = get_default_ue_id();
++    if (ue_id < 0)
++      ERROR_MSG_RET("No default UE context found\n");
++  }
++
++  NR_UE_RRC_INST_t *rrc = get_NR_UE_rrc_inst(ue_id);
++  if (!rrc)
++    ERROR_MSG_RET("No RRC context found for UE_ID %d\n", ue_id);
++  
+   handle_rlf_detection(rrc);
+   return 0;
+ }
+@@ -102,7 +121,21 @@ int force_rlf(char *buf, int debug, telnet_printfunc_t prnt)
+  */
+ int force_RRC_IDLE(char *buf, int debug, telnet_printfunc_t prnt)
+ {
+-  NR_UE_RRC_INST_t *rrc = get_NR_UE_rrc_inst(0);
++  int ue_id = -1;
++  if (buf) {
++    ue_id = strtol(buf, NULL, 10);
++    if (ue_id < 0)
++      ERROR_MSG_RET("UE ID needs to be positive\n");
++  } else {
++    ue_id = get_default_ue_id();
++    if (ue_id < 0)
++      ERROR_MSG_RET("No default UE context found\n");
++  }
++
++  NR_UE_RRC_INST_t *rrc = get_NR_UE_rrc_inst(ue_id);
++  if (!rrc)
++    ERROR_MSG_RET("No RRC context found for UE_ID %d\n", ue_id);
++  
+   nr_rrc_going_to_IDLE(rrc, OTHER, NULL);
+   return 0;
+ }
+@@ -110,33 +143,69 @@ int force_RRC_IDLE(char *buf, int debug, telnet_printfunc_t prnt)
+ /** @brief Trigger RA with Msg3 C-RNTI */
+ int force_crnti_ra(char *buf, int debug, telnet_printfunc_t prnt)
+ {
+-  NR_UE_MAC_INST_t *mac = get_mac_inst(0);
++  int ue_id = -1;
++  if (buf) {
++    ue_id = strtol(buf, NULL, 10);
++    if (ue_id < 0)
++      ERROR_MSG_RET("UE ID needs to be positive\n");
++  } else {
++    ue_id = get_default_ue_id();
++    if (ue_id < 0)
++      ERROR_MSG_RET("No default UE context found\n");
++  }
++
++  NR_UE_MAC_INST_t *mac = get_mac_inst(ue_id);
++  if (!mac)
++    ERROR_MSG_RET("No MAC context found for UE_ID %d\n", ue_id);
++  
+   trigger_MAC_UE_RA(mac, NULL);
+   return 0;
+ }
+ 
+ static int force_deregistration(char *buf, int debug, telnet_printfunc_t prnt)
+ {
++  int ue_id = -1;
++  if (buf) {
++    ue_id = strtol(buf, NULL, 10);
++    if (ue_id < 0)
++      ERROR_MSG_RET("UE ID needs to be positive\n");
++  } else {
++    ue_id = get_default_ue_id();
++    if (ue_id < 0)
++      ERROR_MSG_RET("No default UE context found\n");
++  }
++
+   MessageDef *msg = itti_alloc_new_message(TASK_NAS_NRUE, 0, NAS_DEREGISTRATION_REQ);
+   NAS_DEREGISTRATION_REQ(msg).cause = AS_DETACH;
+-  itti_send_msg_to_task(TASK_NAS_NRUE, 0, msg);
++  itti_send_msg_to_task(TASK_NAS_NRUE, ue_id, msg);
+   return 0;
+ }
+ 
+ extern float get_prs_max_dl_toa(prs_meas_t *prs_meas);
+ static int get_dl_toa(char *buf, int debug, telnet_printfunc_t prnt)
+ {
++  int ue_id = -1;
++  if (buf) {
++    ue_id = strtol(buf, NULL, 10);
++    if (ue_id < 0)
++      ERROR_MSG_RET("UE ID needs to be positive\n");
++  } else {
++    ue_id = get_default_ue_id();
++    if (ue_id < 0)
++      ERROR_MSG_RET("No default UE context found\n");
++  }
++
+   // TODO multiple antennas, resources, gNBs?
+   int gNB_id = 0;
+   int rsc_id = 0;
+   int ant = 0;
+ 
+-  PHY_VARS_NR_UE *UE = PHY_vars_UE_g[0][0];
++  PHY_VARS_NR_UE *UE = PHY_vars_UE_g[ue_id][0];
+   if (!UE || !UE->prs_vars[gNB_id])
+-    ERROR_MSG_RET("no UE/prs_vars found!\n");
++    ERROR_MSG_RET("no UE/prs_vars found for UE_ID %d!\n", ue_id);
+   NR_PRS_RESOURCE_t *prs_res = &UE->prs_vars[gNB_id]->prs_resource[rsc_id];
+   if (!prs_res->prs_meas || !prs_res->prs_meas[ant])
+-    ERROR_MSG_RET("prs_meas not initialized!\n");
++    ERROR_MSG_RET("prs_meas not initialized for UE_ID %d!\n", ue_id);
+ 
+   float max = get_prs_max_dl_toa(prs_res->prs_meas[ant]);
+   prnt("UE max PRS DL ToA %.3f\n", max);
+@@ -184,11 +253,11 @@ static int add_pdu_session(char *buf, int debug, telnet_printfunc_t prnt)
+ /* Telnet shell command definitions */
+ static telnetshell_cmddef_t cicmds[] = {
+   {"sync_state", "[UE_ID(int,opt)]", get_sync_state},
+-  {"force_rlf", "", force_rlf},
+-  {"force_RRC_IDLE", "", force_RRC_IDLE},
+-  {"force_crnti_ra", "", force_crnti_ra},
+-  {"deregistration", "", force_deregistration},
+-  {"get_max_dl_toa", "[ant]", get_dl_toa},
++  {"force_rlf", "[UE_ID(int,opt)]", force_rlf},
++  {"force_RRC_IDLE", "[UE_ID(int,opt)]", force_RRC_IDLE},
++  {"force_crnti_ra", "[UE_ID(int,opt)]", force_crnti_ra},
++  {"deregistration", "[UE_ID(int,opt)]", force_deregistration},
++  {"get_max_dl_toa", "[UE_ID(int,opt),ant]", get_dl_toa},
+   {"add_pdu_session", "[PDUSessionID(int)],[UE_ID(int,opt)]", add_pdu_session},
+   {"", "", NULL},
+ };

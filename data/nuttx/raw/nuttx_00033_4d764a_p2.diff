@@ -1,0 +1,75 @@
+diff --git a/arch/renesas/src/rx65n/rx65n_usbhost.c b/arch/renesas/src/rx65n/rx65n_usbhost.c
+index 040821bb..fc210c25 100644
+--- a/arch/renesas/src/rx65n/rx65n_usbhost.c
++++ b/arch/renesas/src/rx65n/rx65n_usbhost.c
+@@ -296,6 +296,15 @@ static void rx65n_usbhost_setbit(volatile short *regadd,
+ static void rx65n_usbhost_clearbit(volatile short *regadd,
+                                    uint16_t clearbitval);
+ 
++/* Watchdog *****************************************************************/
++
++static void rx65n_wdt_service(void)
++{
++  /* Service the watchdog timer to prevent timeout during long operations */
++  WDT.WDTRR = 0x00;
++  WDT.WDTRR = 0xFF;
++}
++
+ /* Semaphores ***************************************************************/
+ 
+ /* Byte stream access helper functions **************************************/
+@@ -3878,6 +3887,12 @@ static void usb_cstd_set_nak(uint16_t pipe)
+ 
+   for (n = 0; n < 0xffffu; ++n)
+     {
++      /* Service watchdog every 256 iterations to prevent timeout */
++      if ((n & 0xFF) == 0)
++        {
++          rx65n_wdt_service();
++        }
++
+       /* PIPE control reg read */
+ 
+       buf = hw_usb_read_pipectr(pipe);
+@@ -3940,6 +3955,7 @@ static uint16_t usb_cstd_is_set_frdy(uint16_t pipe, uint16_t fifosel,
+ void usb_cstd_chg_curpipe(uint16_t pipe, uint16_t fifosel, uint16_t isel)
+ {
+   uint16_t buffer;
++  uint16_t count;
+ 
+   /* Select FIFO */
+ 
+@@ -3956,8 +3972,16 @@ void usb_cstd_chg_curpipe(uint16_t pipe, uint16_t fifosel, uint16_t isel)
+ 
+       /* WAIT_LOOP */
+ 
++      count = 0;
+       do
+         {
++          /* Service watchdog every 256 iterations */
++          if ((count & 0xFF) == 0)
++            {
++              rx65n_wdt_service();
++            }
++          count++;
++
+           buffer = hw_usb_read_fifosel(USB_CUSE);
+         }
+ 
+@@ -3981,8 +4005,16 @@ void usb_cstd_chg_curpipe(uint16_t pipe, uint16_t fifosel, uint16_t isel)
+ 
+       /* WAIT_LOOP */
+ 
++      count = 0;
+       do
+         {
++          /* Service watchdog every 256 iterations */
++          if ((count & 0xFF) == 0)
++            {
++              rx65n_wdt_service();
++            }
++          count++;
++
+           buffer = hw_usb_read_fifosel(fifosel);
+         }
+       while ((buffer & USB_CURPIPE) != pipe);

@@ -1,0 +1,19 @@
+diff --git a/openair2/RRC/LTE/MESSAGES/asn1_msg.c b/openair2/RRC/LTE/MESSAGES/asn1_msg.c
+index 6ab23569af..50a1b41913 100644
+--- a/openair2/RRC/LTE/MESSAGES/asn1_msg.c
++++ b/openair2/RRC/LTE/MESSAGES/asn1_msg.c
+@@ -3591,6 +3591,14 @@ uint16_t do_RRCConnectionReconfiguration_BR(const protocol_ctxt_t        *const
+                                    buffer_size);
+   AssertFatal (enc_rval.encoded > 0, "ASN1 message encoding failed %s, %lu!\n",
+                enc_rval.failed_type->name, enc_rval.encoded);
++  
++  /* Check for buffer overflow - ensure encoded data fits in buffer */
++  if ((enc_rval.encoded + 7) / 8 > buffer_size) {
++    LOG_E(RRC, "Buffer overflow detected! Encoded size %zu bytes exceeds buffer size %zu bytes\n",
++          (enc_rval.encoded + 7) / 8, buffer_size);
++    return 0;
++  }
++  
+   if ( LOG_DEBUGFLAG(DEBUG_ASN1) ) {
+     xer_fprint(stdout,&asn_DEF_LTE_DL_DCCH_Message,(void *)&dl_dcch_msg);
+   }

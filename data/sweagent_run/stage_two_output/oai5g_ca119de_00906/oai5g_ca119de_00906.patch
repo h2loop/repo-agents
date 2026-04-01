@@ -1,0 +1,40 @@
+diff --git a/openair1/PHY/NR_UE_TRANSPORT/nr_ulsch_ue.c b/openair1/PHY/NR_UE_TRANSPORT/nr_ulsch_ue.c
+index 1fddf83964..7ad216d68e 100644
+--- a/openair1/PHY/NR_UE_TRANSPORT/nr_ulsch_ue.c
++++ b/openair1/PHY/NR_UE_TRANSPORT/nr_ulsch_ue.c
+@@ -64,7 +64,8 @@ void nr_pusch_codeword_scrambling_uci(uint8_t *in,
+                                       uint32_t* out)
+ {
+   uint8_t reset, b_idx;
+-  uint32_t x1 = 0, x2 = 0, s = 0, temp_out = 0;
++  uint32_t x1 = 0, x2 = 0, s = 0;
++  uint32_t prev_bit = 0;
+ 
+   reset = 1;
+   x2 = (n_RNTI<<15) + Nid;
+@@ -82,15 +83,17 @@ void nr_pusch_codeword_scrambling_uci(uint8_t *in,
+     else if (in[i]==NR_PUSCH_y){
+       if (b_idx!=0)
+         *out ^= (*out & (1<<(b_idx-1)))<<1;
+-      else{
+-
+-        temp_out = *(out-1);
+-        *out ^= temp_out>>31;
+-
+-      }
++      else
++        *out ^= prev_bit<<b_idx;
++    }
++    else {
++      uint32_t bit_val = (((in[i])&1) ^ ((s>>b_idx)&1));
++      *out ^= bit_val<<b_idx;
++      prev_bit = bit_val;
+     }
+-    else
+-      *out ^= (((in[i])&1) ^ ((s>>b_idx)&1))<<b_idx;
++    // Update prev_bit for the next iteration unless we're dealing with NR_PUSCH_y at b_idx=0
++    if (!(in[i]==NR_PUSCH_y && b_idx==0))
++      prev_bit = (*out >> b_idx) & 1;
+     //printf("i %d b_idx %d in %d s 0x%08x out 0x%08x\n", i, b_idx, in[i], s, *out);
+   }
+ }

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix clipping rectangle validation in x_draw_clipped_string\n\n### Summary\nThe `x_draw_clipped_string` function in the tracer GUI was not properly validating clipping rectangle parameters, leading to unexpected behavior when invalid rectangles were passed. This caused text to sometimes be drawn outside of intended boundaries or not at all in certain edge cases.\n\nThe issue was particularly noticeable when widgets were resized to very small dimensions or when negative coordinates were used for positioning.\n\n### Changes\n- `common/utils/T/tracer/gui/x.c`: Added validation for NULL/empty strings, zero/negative width/height, and negative coordinate handling in clipping rectangle\n- The function now gracefully handles edge cases by adjusting clipping rectangles or returning early when parameters are invalid\n\n"
+}

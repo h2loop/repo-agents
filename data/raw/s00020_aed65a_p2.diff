@@ -1,0 +1,38 @@
+diff --git a/openair3/NAS/COMMON/IES/MobileIdentity.c b/openair3/NAS/COMMON/IES/MobileIdentity.c
+index fbe6d93e47..4f1764eebc 100644
+--- a/openair3/NAS/COMMON/IES/MobileIdentity.c
++++ b/openair3/NAS/COMMON/IES/MobileIdentity.c
+@@ -37,7 +37,7 @@ static int decode_no_mobile_identity(NoMobileIdentity_t *no_id, uint8_t *buffer)
+ 
+ static int encode_imsi_mobile_identity(ImsiMobileIdentity_t *imsi, uint8_t *buffer);
+ static int encode_imei_mobile_identity(ImeiMobileIdentity_t *imei, uint8_t *buffer);
+-static int encode_imeisv_mobile_identity(ImeisvMobileIdentity_t *imeisv, uint8_t *buffer);
++static int encode_imeisv_mobile_identity(ImeisvMobileIdentity_t *imeisv, uint8_t *buffer, uint32_t len);
+ static int encode_tmsi_mobile_identity(TmsiMobileIdentity_t *tmsi, uint8_t *buffer);
+ static int encode_tmgi_mobile_identity(TmgiMobileIdentity_t *tmgi, uint8_t *buffer);
+ static int encode_no_mobile_identity(NoMobileIdentity_t *no_id, uint8_t *buffer);
+@@ -120,7 +120,7 @@ int encode_mobile_identity(MobileIdentity *mobileidentity, uint8_t iei, uint8_t
+                    buffer + encoded);
+     } else if (mobileidentity->imeisv.typeofidentity == MOBILE_IDENTITY_IMEISV) {
+       encoded_rc = encode_imeisv_mobile_identity(&mobileidentity->imeisv,
+-                   buffer + encoded);
++                   buffer + encoded, len - encoded);
+     } else if (mobileidentity->tmsi.typeofidentity == MOBILE_IDENTITY_TMSI) {
+       encoded_rc = encode_tmsi_mobile_identity(&mobileidentity->tmsi,
+                    buffer + encoded);
+@@ -572,11 +572,14 @@ static int encode_imei_mobile_identity(ImeiMobileIdentity_t *imei, uint8_t *buff
+   return encoded;
+ }
+ 
+-static int encode_imeisv_mobile_identity(ImeisvMobileIdentity_t *imeisv, uint8_t *buffer)
++static int encode_imeisv_mobile_identity(ImeisvMobileIdentity_t *imeisv, uint8_t *buffer, uint32_t len)
+ {
+   uint32_t encoded = 0;
+   LOG_TRACE(INFO,"SECURITY MODE COMMAND COMPLETE: encode_imeisv_mobile_identity \n");
+ 
++  /* Check buffer length is sufficient for IMEISV encoding (9 bytes) */
++  CHECK_PDU_POINTER_AND_LENGTH_ENCODER(buffer, 9, len);
++
+   *(buffer + encoded) = 0x00 | (imeisv->digit1 << 4) | (imeisv->oddeven << 3) |
+                         (imeisv->typeofidentity);
+   encoded++;

@@ -1,0 +1,39 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c b/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
+index 1fc6f4b6e8..12838d5893 100644
+--- a/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
++++ b/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
+@@ -483,7 +483,10 @@ void ra_preambles_config(NR_PRACH_RESOURCES_t *prach_resources, NR_UE_MAC_INST_t
+ 
+   /* Msg3 has not been transmitted yet */
+   if (ra->first_Msg3) {
+-    if(ra->ra_PreambleIndex < 0 || ra->ra_PreambleIndex > 63) {
++    // For contention-based RA, check if preamble index needs to be selected
++    // For CFRA, the preamble index is already configured and should not be changed
++    // Valid preamble index range is 0-255 according to 3GPP TS 38.321
++    if (!ra->cfra && (ra->ra_PreambleIndex < 0 || ra->ra_PreambleIndex > 255)) {
+       if (noGroupB) {
+         // use Group A preamble
+         ra->ra_PreambleIndex = ra->starting_preamble_nb + (rand_r(&seed) % ra->cb_preambles_per_ssb);
+@@ -502,12 +505,16 @@ void ra_preambles_config(NR_PRACH_RESOURCES_t *prach_resources, NR_UE_MAC_INST_t
+       }
+     }
+   } else { // Msg3 is being retransmitted
+-    if (ra->RA_usedGroupA && noGroupB) {
+-      ra->ra_PreambleIndex = ra->starting_preamble_nb + (rand_r(&seed) % ra->cb_preambles_per_ssb);
+-    } else if (ra->RA_usedGroupA && !noGroupB){
+-      ra->ra_PreambleIndex = ra->starting_preamble_nb + (rand_r(&seed) % sizeOfRA_PreamblesGroupA);
+-    } else {
+-      ra->ra_PreambleIndex = ra->starting_preamble_nb + sizeOfRA_PreamblesGroupA + (rand_r(&seed) % (ra->cb_preambles_per_ssb - sizeOfRA_PreamblesGroupA));
++    // For contention-based RA, select new preamble for retransmission
++    // For CFRA, keep the configured preamble index
++    if (!ra->cfra) {
++      if (ra->RA_usedGroupA && noGroupB) {
++        ra->ra_PreambleIndex = ra->starting_preamble_nb + (rand_r(&seed) % ra->cb_preambles_per_ssb);
++      } else if (ra->RA_usedGroupA && !noGroupB){
++        ra->ra_PreambleIndex = ra->starting_preamble_nb + (rand_r(&seed) % sizeOfRA_PreamblesGroupA);
++      } else {
++        ra->ra_PreambleIndex = ra->starting_preamble_nb + sizeOfRA_PreamblesGroupA + (rand_r(&seed) % (ra->cb_preambles_per_ssb - sizeOfRA_PreamblesGroupA));
++      }
+     }
+   }
+ }

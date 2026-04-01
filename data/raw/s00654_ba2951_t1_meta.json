@@ -1,0 +1,30 @@
+{
+  "run_id": "s00654_ba2951",
+  "function": {
+    "name": "gen_IF4p5_ul_header",
+    "file": "openair1/PHY/LTE_TRANSPORT/if4_tools.c",
+    "start_line": 442,
+    "end_line": 453,
+    "body_lines": 12,
+    "signature": "void gen_IF4p5_ul_header(IF4p5_header_t *ul_packet, uint16_t packet_subtype, int frame, int subframe)",
+    "subsystem": "openair1/PHY/LTE_TRANSPORT",
+    "token_estimate": 33
+  },
+  "bug": {
+    "bug_id": "telecom_asn1_encoding_error",
+    "description": "ASN.1 encoding error producing malformed protocol message",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a ASN.1 encoding error producing malformed protocol message downstream of function gen_IF4p5_ul_header in the openair1/PHY/LTE_TRANSPORT subsystem.\nThe function is located at openair1/PHY/LTE_TRANSPORT/if4_tools.c:442.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00654_ba2951_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00654_ba2951_p1.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 27,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T22:15:05Z"
+}

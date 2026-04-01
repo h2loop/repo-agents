@@ -1,0 +1,16 @@
+diff --git a/openair1/PHY/LTE_UE_TRANSPORT/dlsch_decoding.c b/openair1/PHY/LTE_UE_TRANSPORT/dlsch_decoding.c
+index 995e3222ec..6db96ba31e 100644
+--- a/openair1/PHY/LTE_UE_TRANSPORT/dlsch_decoding.c
++++ b/openair1/PHY/LTE_UE_TRANSPORT/dlsch_decoding.c
+@@ -110,6 +110,11 @@ LTE_UE_DLSCH_t *new_ue_dlsch(uint8_t Kmimo,uint8_t Mdlharq,uint32_t Nsoft,uint8_
+         memset(dlsch->harq_processes[i],0,sizeof(LTE_DL_UE_HARQ_t));
+         init_abort(&dlsch->harq_processes[i]->abort_decode);
+ 
++        // Initialize mandatory fields
++        dlsch->harq_processes[i]->status = SCH_IDLE;
++        dlsch->harq_processes[i]->Nl = 1;
++        dlsch->harq_processes[i]->mimo_mode = SISO;
++
+         dlsch->harq_processes[i]->first_tx=1;
+         dlsch->harq_processes[i]->b = (uint8_t *)malloc16(MAX_DLSCH_PAYLOAD_BYTES/bw_scaling);
+ 

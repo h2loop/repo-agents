@@ -1,0 +1,14 @@
+diff --git a/openair3/NAS/COMMON/IES/NasMessageContainer.c b/openair3/NAS/COMMON/IES/NasMessageContainer.c
+index cccb8f7543..8a6779ed32 100644
+--- a/openair3/NAS/COMMON/IES/NasMessageContainer.c
++++ b/openair3/NAS/COMMON/IES/NasMessageContainer.c
+@@ -34,6 +34,9 @@ int decode_nas_message_container(NasMessageContainer *nasmessagecontainer, uint8
+   uint8_t ielen = 0;
+   int decode_result;
+ 
++  /* Checking IEI and pointer */
++  CHECK_PDU_POINTER_AND_LENGTH_DECODER(buffer, NAS_MESSAGE_CONTAINER_MINIMUM_LENGTH, len);
++
+   if (iei > 0) {
+     CHECK_IEI_DECODER(iei, *buffer);
+     decoded++;

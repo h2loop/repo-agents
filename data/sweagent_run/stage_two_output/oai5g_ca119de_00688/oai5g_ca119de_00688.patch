@@ -1,0 +1,90 @@
+diff --git a/openair2/RRC/LTE/rrc_UE.c b/openair2/RRC/LTE/rrc_UE.c
+index b9d2551fcb..51af170892 100644
+--- a/openair2/RRC/LTE/rrc_UE.c
++++ b/openair2/RRC/LTE/rrc_UE.c
+@@ -206,7 +206,7 @@ rrc_ue_process_MBMSCountingRequest(
+   const protocol_ctxt_t *const ctxt_pP,
+   LTE_MBMSCountingRequest_r10_t *MBMSCountingRequest,
+   uint8_t eNB_index
+-		);
++                );
+ 
+ static void process_nr_nsa_msg(nsa_msg_t *msg, int msg_len);
+ static void nsa_sendmsg_to_nrue(const void *message, size_t msg_len, Rrc_Msg_Type_t msg_type);
+@@ -3543,14 +3543,25 @@ void dump_sib2( LTE_SystemInformationBlockType2_t *sib2 ) {
+ }
+ 
+ //-----------------------------------------------------------------------------
++// q_Hyst mapping according to 3GPP TS 36.331 (values 0-15 map to dB: 0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24)
++static const int q_Hyst_dB_map[16] = {0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24};
++
++// Speed state scaling factors mapping according to 3GPP TS 36.331 (values 0-3 map to dB: -6, -4, -2, 0)
++static const int sf_dB_map[4] = {-6, -4, -2, 0};
++
+ void dump_sib3( LTE_SystemInformationBlockType3_t *sib3 ) {
+   LOG_I( RRC, "Dumping SIB3 (see TS36.331 V8.21.0)\n" );
+-  int q_Hyst_dB = sib3->cellReselectionInfoCommon.q_Hyst; // sib3->cellReselectionInfoCommon.q_Hyst is a enumerated value
+-
+-  if (q_Hyst_dB > 6)
+-    q_Hyst_dB = (q_Hyst_dB-6) * 2 + 6;
++  long q_Hyst_raw = sib3->cellReselectionInfoCommon.q_Hyst;
++  int q_Hyst_dB = 0;
++  
++  if (q_Hyst_raw >= 0 && q_Hyst_raw <= 15) {
++    q_Hyst_dB = q_Hyst_dB_map[q_Hyst_raw];
++  } else {
++    LOG_W(RRC, "Invalid q_Hyst value: %ld\n", q_Hyst_raw);
++    q_Hyst_dB = q_Hyst_raw; // fallback to raw value
++  }
+ 
+-  LOG_I( RRC, "cellReselectionInfoCommon.q_Hyst : raw:%ld  decoded:%d dB\n", sib3->cellReselectionInfoCommon.q_Hyst, q_Hyst_dB );
++  LOG_I( RRC, "cellReselectionInfoCommon.q_Hyst : raw:%ld  decoded:%d dB\n", q_Hyst_raw, q_Hyst_dB );
+ 
+   if (sib3->cellReselectionInfoCommon.speedStateReselectionPars) {
+     LOG_I( RRC, "cellReselectionInfoCommon.speedStateReselectionPars->mobilityStateParameters.t_Evaluation : %ld\n",
+@@ -4700,23 +4711,23 @@ int decode_MCCH_Message( const protocol_ctxt_t *const ctxt_pP, const uint8_t eNB
+       LOG_D(RRC,"[UE %d] Found mcch message \n",
+             ctxt_pP->module_id);
+         if(mcch->message.choice.later.present == LTE_MCCH_MessageType__later_PR_c2){
+-		if(mcch->message.choice.later.choice.c2.present == LTE_MCCH_MessageType__later__c2_PR_mbmsCountingRequest_r10){
+-        		LOG_I(RRC,"[UE %d] Frame %d : Found MBMSCountingRequest from eNB %d %p\n",
+-              			ctxt_pP->module_id,
+-              			ctxt_pP->frame,
+-              			eNB_index,&mcch->message.choice.later.choice.c2.choice.mbmsCountingRequest_r10);
++                if(mcch->message.choice.later.choice.c2.present == LTE_MCCH_MessageType__later__c2_PR_mbmsCountingRequest_r10){
++                        LOG_I(RRC,"[UE %d] Frame %d : Found MBMSCountingRequest from eNB %d %p\n",
++                                ctxt_pP->module_id,
++                                ctxt_pP->frame,
++                                eNB_index,&mcch->message.choice.later.choice.c2.choice.mbmsCountingRequest_r10);
+ 
+-  			rrc_ue_process_MBMSCountingRequest(ctxt_pP,&mcch->message.choice.later.choice.c2.choice.mbmsCountingRequest_r10,eNB_index);
++                        rrc_ue_process_MBMSCountingRequest(ctxt_pP,&mcch->message.choice.later.choice.c2.choice.mbmsCountingRequest_r10,eNB_index);
+ 
+-			decode_MBMSCountingRequest(
+-          			ctxt_pP->module_id,
+-          			eNB_index,
+-          			ctxt_pP->frame,
+-          			mbsfn_sync_area);
++                        decode_MBMSCountingRequest(
++                                ctxt_pP->module_id,
++                                eNB_index,
++                                ctxt_pP->frame,
++                                mbsfn_sync_area);
+ 
+ 
+-		}
+-	}
++                }
++        }
+     }
+ 
+   }
+@@ -4775,7 +4786,7 @@ void decode_MBSFNAreaConfiguration( module_id_t ue_mod_idP, uint8_t eNB_index, f
+                         (LTE_MBSFN_AreaInfoList_r9_t *)NULL
+                        );
+   if(1/*UE_rrc_inst[ue_mod_idP].Info[eNB_index].State >= RRC_CONNECTED*/ /*|| UE_rrc_inst[ue_mod_idP].Info[eNB_index].State == RRC_RECONFIGURED*/)
+-  	UE_rrc_inst[ue_mod_idP].Info[eNB_index].MCCHStatus[mbsfn_sync_area] = 1;
++        UE_rrc_inst[ue_mod_idP].Info[eNB_index].MCCHStatus[mbsfn_sync_area] = 1;
+   PROTOCOL_CTXT_SET_BY_MODULE_ID(&ctxt, ue_mod_idP, ENB_FLAG_NO, UE_rrc_inst[ue_mod_idP].Info[eNB_index].rnti, frameP, 0,eNB_index);
+   // Config Radio Bearer for MBMS user data (similar way to configure for eNB side in init_MBMS function)
+   rrc_pdcp_config_asn1_req(&ctxt,

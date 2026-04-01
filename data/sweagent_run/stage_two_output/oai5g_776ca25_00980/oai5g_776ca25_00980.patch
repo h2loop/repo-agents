@@ -1,0 +1,137 @@
+diff --git a/openair3/NAS/COMMON/ESM/MSG/ModifyEpsBearerContextReject.c b/openair3/NAS/COMMON/ESM/MSG/ModifyEpsBearerContextReject.c
+index 71e05c06e6..08bb35be3e 100644
+--- a/openair3/NAS/COMMON/ESM/MSG/ModifyEpsBearerContextReject.c
++++ b/openair3/NAS/COMMON/ESM/MSG/ModifyEpsBearerContextReject.c
+@@ -29,6 +29,16 @@
+ #include "TLVDecoder.h"
+ #include "ModifyEpsBearerContextReject.h"
+ 
++void free_modify_eps_bearer_context_reject(modify_eps_bearer_context_reject_msg *modify_eps_bearer_context_reject)
++{
++  if (modify_eps_bearer_context_reject) {
++    if ((modify_eps_bearer_context_reject->presencemask & MODIFY_EPS_BEARER_CONTEXT_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT)
++        == MODIFY_EPS_BEARER_CONTEXT_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT) {
++      free_protocol_configuration_options(&modify_eps_bearer_context_reject->protocolconfigurationoptions);
++    }
++  }
++}
++
+ int decode_modify_eps_bearer_context_reject(modify_eps_bearer_context_reject_msg *modify_eps_bearer_context_reject, uint8_t *buffer, uint32_t len)
+ {
+   uint32_t decoded = 0;
+@@ -53,6 +63,12 @@ int decode_modify_eps_bearer_context_reject(modify_eps_bearer_context_reject_msg
+ 
+     switch(ieiDecoded) {
+     case MODIFY_EPS_BEARER_CONTEXT_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_IEI:
++      // Free existing protocol configuration options before decoding new ones
++      if ((modify_eps_bearer_context_reject->presencemask & MODIFY_EPS_BEARER_CONTEXT_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT)
++          == MODIFY_EPS_BEARER_CONTEXT_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT) {
++        free_protocol_configuration_options(&modify_eps_bearer_context_reject->protocolconfigurationoptions);
++      }
++      
+       if ((decoded_result =
+              decode_protocol_configuration_options(&modify_eps_bearer_context_reject->protocolconfigurationoptions,
+                  MODIFY_EPS_BEARER_CONTEXT_REJECT_PROTOCOL_CONFIGURATION_OPTIONS_IEI,
+diff --git a/openair3/NAS/COMMON/ESM/MSG/ModifyEpsBearerContextReject.h b/openair3/NAS/COMMON/ESM/MSG/ModifyEpsBearerContextReject.h
+index b2d7cc56b7..d77a71952a 100644
+--- a/openair3/NAS/COMMON/ESM/MSG/ModifyEpsBearerContextReject.h
++++ b/openair3/NAS/COMMON/ESM/MSG/ModifyEpsBearerContextReject.h
+@@ -74,5 +74,7 @@ int decode_modify_eps_bearer_context_reject(modify_eps_bearer_context_reject_msg
+ 
+ int encode_modify_eps_bearer_context_reject(modify_eps_bearer_context_reject_msg *modifyepsbearercontextreject, uint8_t *buffer, uint32_t len);
+ 
++void free_modify_eps_bearer_context_reject(modify_eps_bearer_context_reject_msg *modifyepsbearercontextreject);
++
+ #endif /* ! defined(MODIFY_EPS_BEARER_CONTEXT_REJECT_H_) */
+ 
+diff --git a/openair3/NAS/COMMON/IES/ProtocolConfigurationOptions.c b/openair3/NAS/COMMON/IES/ProtocolConfigurationOptions.c
+index f4bd3e5e2c..577da6255b 100644
+--- a/openair3/NAS/COMMON/IES/ProtocolConfigurationOptions.c
++++ b/openair3/NAS/COMMON/IES/ProtocolConfigurationOptions.c
+@@ -32,6 +32,7 @@ int decode_protocol_configuration_options(ProtocolConfigurationOptions *protocol
+   uint32_t decoded = 0;
+   uint8_t ielen = 0;
+   int decode_result;
++  uint8_t saved_num_protocol_id_or_container_id = 0;
+ 
+   if (iei > 0) {
+     CHECK_IEI_DECODER(iei, *buffer);
+@@ -56,15 +57,34 @@ int decode_protocol_configuration_options(ProtocolConfigurationOptions *protocol
+   protocolconfigurationoptions->configurationprotol = (*(buffer + decoded) >> 1) & 0x7;
+   decoded++;
+ 
++  // Save the current count in case we need to rollback
++  saved_num_protocol_id_or_container_id = protocolconfigurationoptions->num_protocol_id_or_container_id;
++  
+   //IES_DECODE_U16(protocolconfigurationoptions->protocolid, *(buffer + decoded));
+-  protocolconfigurationoptions->num_protocol_id_or_container_id = 0;
+   while ((len - decoded) > 0) {
++    if (protocolconfigurationoptions->num_protocol_id_or_container_id >= PROTOCOL_CONFIGURATION_OPTIONS_MAXIMUM_PROTOCOL_ID_OR_CONTAINER_ID) {
++      // Too many entries, clean up and return error
++      int i;
++      for (i = saved_num_protocol_id_or_container_id; i < protocolconfigurationoptions->num_protocol_id_or_container_id; i++) {
++        FREE_OCTET_STRING(protocolconfigurationoptions->protocolidcontents[i]);
++      }
++      protocolconfigurationoptions->num_protocol_id_or_container_id = saved_num_protocol_id_or_container_id;
++      errorCodeDecoder = TLV_DECODE_VALUE_DOESNT_MATCH;
++      return TLV_DECODE_VALUE_DOESNT_MATCH;
++    }
++    
+     IES_DECODE_U16(buffer, decoded, protocolconfigurationoptions->protocolid[protocolconfigurationoptions->num_protocol_id_or_container_id]);
+     DECODE_U8(buffer + decoded, protocolconfigurationoptions->lengthofprotocolid[protocolconfigurationoptions->num_protocol_id_or_container_id], decoded);
+ 
+     if (protocolconfigurationoptions->lengthofprotocolid[protocolconfigurationoptions->num_protocol_id_or_container_id] > 0) {
+       if ((decode_result = decode_octet_string(&protocolconfigurationoptions->protocolidcontents[protocolconfigurationoptions->num_protocol_id_or_container_id],
+                          protocolconfigurationoptions->lengthofprotocolid[protocolconfigurationoptions->num_protocol_id_or_container_id], buffer + decoded, len - decoded)) < 0) {
++        // Free any previously allocated entries in this call
++        int i;
++        for (i = saved_num_protocol_id_or_container_id; i < protocolconfigurationoptions->num_protocol_id_or_container_id; i++) {
++          FREE_OCTET_STRING(protocolconfigurationoptions->protocolidcontents[i]);
++        }
++        protocolconfigurationoptions->num_protocol_id_or_container_id = saved_num_protocol_id_or_container_id;
+         return decode_result;
+       } else {
+         decoded += decode_result;
+@@ -81,6 +101,18 @@ int decode_protocol_configuration_options(ProtocolConfigurationOptions *protocol
+ #endif
+   return decoded;
+ }
++
++void free_protocol_configuration_options(ProtocolConfigurationOptions *protocolconfigurationoptions)
++{
++  int i;
++  
++  if (protocolconfigurationoptions) {
++    for (i = 0; i < protocolconfigurationoptions->num_protocol_id_or_container_id; i++) {
++      FREE_OCTET_STRING(protocolconfigurationoptions->protocolidcontents[i]);
++    }
++    protocolconfigurationoptions->num_protocol_id_or_container_id = 0;
++  }
++}
+ int encode_protocol_configuration_options(ProtocolConfigurationOptions *protocolconfigurationoptions, uint8_t iei, uint8_t *buffer, uint32_t len)
+ {
+   uint8_t *lenPtr;
+@@ -111,8 +143,8 @@ int encode_protocol_configuration_options(ProtocolConfigurationOptions *protocol
+     encoded++;
+ 
+     if ((encode_result = encode_octet_string(&protocolconfigurationoptions->protocolidcontents[num_protocol_id_or_container_id],
+-    		buffer + encoded,
+-    		len - encoded)) < 0)
++                buffer + encoded,
++                len - encoded)) < 0)
+       return encode_result;
+     else
+       encoded += encode_result;
+diff --git a/openair3/NAS/COMMON/IES/ProtocolConfigurationOptions.h b/openair3/NAS/COMMON/IES/ProtocolConfigurationOptions.h
+index cbdeaaed0e..8ccf766aa7 100644
+--- a/openair3/NAS/COMMON/IES/ProtocolConfigurationOptions.h
++++ b/openair3/NAS/COMMON/IES/ProtocolConfigurationOptions.h
+@@ -66,6 +66,8 @@ int encode_protocol_configuration_options(ProtocolConfigurationOptions *protocol
+ 
+ int decode_protocol_configuration_options(ProtocolConfigurationOptions *protocolconfigurationoptions, uint8_t iei, uint8_t *buffer, uint32_t len);
+ 
++void free_protocol_configuration_options(ProtocolConfigurationOptions *protocolconfigurationoptions);
++
+ void dump_protocol_configuration_options_xml(ProtocolConfigurationOptions *protocolconfigurationoptions, uint8_t iei);
+ 
+ #endif /* PROTOCOL CONFIGURATION OPTIONS_H_ */

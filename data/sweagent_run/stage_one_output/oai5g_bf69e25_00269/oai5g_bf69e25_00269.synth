@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix TDD special subframe detection for configurations 3, 4, and 5\n\n### Summary\nThe `is_S_sf()` function in the eNB scheduler was not correctly identifying subframe 6 as a special subframe for TDD configurations 3, 4, and 5. This caused incorrect scheduling behavior in these TDD configurations where subframe 6 should be treated as a special subframe containing both DL and UL components.\n\nThe issue manifested as unexpected timing behavior in the downlink resource allocation, particularly affecting the CCE allocation logic which uses the special subframe detection to determine the maximum number of OFDM symbols to use.\n\n### Changes\n- `openair2/LAYER2/MAC/eNB_scheduler_primitives.c`: Modified `is_S_sf()` function to correctly identify subframe 6 as special for all TDD configurations (0-6) instead of only configurations 0, 1, 2, and 6.\n"
+}

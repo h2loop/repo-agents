@@ -1,0 +1,18 @@
+diff --git a/executables/lte-ue.c b/executables/lte-ue.c
+index 2d7338c410..e849f3e57e 100644
+--- a/executables/lte-ue.c
++++ b/executables/lte-ue.c
+@@ -432,6 +432,13 @@ static void *UE_thread_synch(void *arg) {
+   sprintf(threadname, "sync UE %d\n", UE->Mod_id);
+   init_thread(100000, 500000, FIFO_PRIORITY-1, &cpuset, threadname);
+   printf("starting UE synch thread (IC %d)\n",UE->proc.instance_cnt_synch);
++  
++  /* Validate UE state before processing protocol messages downstream */
++  if (UE->mode == no_L2_connect) {
++    LOG_W(PHY, "UE %d in no_L2_connect mode, skipping protocol message processing\n", UE->Mod_id);
++    return &UE_thread_synch_retval;
++  }
++  
+   ind = 0;
+   found = 0;
+ 

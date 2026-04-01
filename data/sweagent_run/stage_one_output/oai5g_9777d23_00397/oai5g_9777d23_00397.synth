@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix uninitialized frequency arrays causing unpredictable cell parameter values\n\n### Summary\nThe NR UE initialization code was using uninitialized global arrays for frequency parameters, causing `nrue_get_cell()` to return cell structures with garbage frequency values. This led to unpredictable behavior during cell configuration and RU initialization.\n\nThe issue occurred because `downlink_frequency`, `uplink_frequency_offset`, and `sidelink_frequency` arrays were declared but never initialized, so they contained random memory values. These arrays were then used to initialize the default cell parameters when no configuration was provided.\n\nThis fix initializes these arrays to zero, ensuring predictable behavior when `nrue_get_cell()` is called.\n\n### Changes\n- `executables/nr-uesoftmodem.c`: Initialize frequency arrays to zero to prevent use of uninitialized memory\n\n"
+}

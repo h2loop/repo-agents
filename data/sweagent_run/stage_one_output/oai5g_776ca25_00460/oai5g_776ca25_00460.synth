@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix PDCCH DCI decoding for system information RNTI\n\n### Summary\nThe UE was not properly detecting PDCCH DCI messages intended for SI-RNTI due to incorrect conditional logic that only monitored for system information when actively decoding SIBs.\n\n### Changes\n- `openair1/PHY/LTE_UE_TRANSPORT/dci_ue.c`: Replaced all instances of conditional SI-RNTI passing `((ue->decode_SIB == 1) ? SI_RNTI : 0)` with direct `SI_RNTI` parameter in `dci_decoding_procedure0()` calls\n\n### Reproduction\nUEs may miss system information updates and fail to properly acquire network configuration, leading to connection failures or dropped connections when system information changes. This can be observed when the UE does not respond to paging or fails to perform cell reselection properly.\n\n"
+}

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect MRC implementation in PDCCH detection\n\n### Summary\nThe NR UE PDCCH detection contained a bug in the Maximum Ratio Combining (MRC) implementation that caused incorrect signal combining when using multiple receive antennas. The bug manifested as poor PDCCH detection performance and missed DCI detections in multi-antenna configurations.\n\nThe issue was in the `nr_pdcch_detection_mrc` function where the MRC operation was overwriting the result in each antenna iteration instead of properly accumulating contributions from all antennas.\n\n### Changes\n- `openair1/PHY/NR_UE_TRANSPORT/dci_nr.c`: Fixed MRC implementation to properly accumulate signals from all receive antennas by first scaling the initial antenna and then adding scaled contributions from subsequent antennas.\n"
+}

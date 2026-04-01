@@ -1,0 +1,35 @@
+{
+  "run_id": "s00480_ce08de",
+  "function": {
+    "name": "quantize4bit",
+    "file": "openair1/PHY/CODING/TESTBENCH/ldpctest.c",
+    "start_line": 48,
+    "end_line": 60,
+    "body_lines": 13,
+    "signature": "int8_t quantize4bit(double D, double x)",
+    "subsystem": "openair1/PHY/CODING",
+    "token_estimate": 33
+  },
+  "bug": {
+    "bug_id": "c_missing_error_propagation",
+    "description": "missing error propagation where a failure is silently ignored",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a missing error propagation where a failure is silently ignored downstream of function quantize4bit in the openair1/PHY/CODING subsystem.\nThe function is located at openair1/PHY/CODING/TESTBENCH/ldpctest.c:48.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00480_ce08de_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00480_ce08de_p1.diff",
+  "patch_lines": 28,
+  "trajectory_steps": 70,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:36:47Z"
+}

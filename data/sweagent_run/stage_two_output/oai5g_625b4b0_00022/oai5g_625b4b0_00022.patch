@@ -1,0 +1,74 @@
+diff --git a/openair3/ocp-gtpu/gtp_itf.cpp b/openair3/ocp-gtpu/gtp_itf.cpp
+index 9fb8f159fe..b7b8c756d7 100644
+--- a/openair3/ocp-gtpu/gtp_itf.cpp
++++ b/openair3/ocp-gtpu/gtp_itf.cpp
+@@ -801,10 +801,19 @@ int newGtpuDeleteOneTunnel(instance_t instance, ue_id_t ue_id, int rb_id)
+   int teid = rb_it->second.teid_incoming;
+   globGtp.te2ue_mapping.erase(teid);
+   ue_it->second.bearers.erase(rb_id);
+-  pthread_mutex_unlock(&globGtp.gtp_lock);
+-  LOG_I(GTPU, "Deleted tunnel TEID %d (RB %d) for ue id %ld, remaining bearers:\n", teid, rb_id, ue_id);
+-  for (auto b: ue_it->second.bearers)
+-    LOG_I(GTPU, "bearer %ld\n", b.first);
++  
++  // Check if this was the last bearer for the UE and clean up UE entry if so
++  if (ue_it->second.bearers.empty()) {
++    // No more tunnels on this UE, erase the UE entry
++    inst->ue2te_mapping.erase(ue_it);
++    pthread_mutex_unlock(&globGtp.gtp_lock);
++    LOG_I(GTPU, "Deleted tunnel TEID %d (RB %d) for ue id %ld and removed UE entry (no more bearers)\n", teid, rb_id, ue_id);
++  } else {
++    pthread_mutex_unlock(&globGtp.gtp_lock);
++    LOG_I(GTPU, "Deleted tunnel TEID %d (RB %d) for ue id %ld, remaining bearers:\n", teid, rb_id, ue_id);
++    for (auto b: ue_it->second.bearers)
++      LOG_I(GTPU, "bearer %ld\n", b.first);
++  }
+   return !GTPNOK;
+ }
+ 
+@@ -1062,20 +1071,20 @@ static int Gtpv1uHandleGpdu(int h,
+       extension_header_length = msgBuf[offset];
+       switch (next_extension_header_type) {
+         case PDU_SESSION_CONTAINER: {
+-	  if (offset + sizeof(PDUSessionContainerT) > msgBufLen ) {
+-	    LOG_E(GTPU, "gtp-u received header is malformed, ignore gtp packet\n");
+-	    return GTPNOK;
+-	  }
++          if (offset + sizeof(PDUSessionContainerT) > msgBufLen ) {
++            LOG_E(GTPU, "gtp-u received header is malformed, ignore gtp packet\n");
++            return GTPNOK;
++          }
+           PDUSessionContainerT *pdusession_cntr = (PDUSessionContainerT *)(msgBuf + offset + 1);
+           qfi = pdusession_cntr->QFI;
+           rqi = pdusession_cntr->Reflective_QoS_activation;
+           break;
+         }
+         case NR_RAN_CONTAINER: {
+-	  if (offset + 1 > msgBufLen ) {
+-	    LOG_E(GTPU, "gtp-u received header is malformed, ignore gtp packet\n");
+-	    return GTPNOK;
+-	  }
++          if (offset + 1 > msgBufLen ) {
++            LOG_E(GTPU, "gtp-u received header is malformed, ignore gtp packet\n");
++            return GTPNOK;
++          }
+           uint8_t PDU_type = (msgBuf[offset+1]>>4) & 0x0f;
+           if (PDU_type == 0){ //DL USER Data Format
+             int additional_offset = 6; //Additional offset capturing the first non-mandatory octet (TS 38.425, Figure 5.5.2.1-1)
+@@ -1102,13 +1111,13 @@ static int Gtpv1uHandleGpdu(int h,
+         }
+         default:
+           LOG_W(GTPU, "unhandled extension 0x%2.2x, skipping\n", next_extension_header_type);
+-	  break;
++          break;
+       }
+ 
+       offset += extension_header_length * EXT_HDR_LNTH_OCTET_UNITS;
+       if (offset > msgBufLen ) {
+-	LOG_E(GTPU, "gtp-u received header is malformed, ignore gtp packet\n");
+-	return GTPNOK;
++        LOG_E(GTPU, "gtp-u received header is malformed, ignore gtp packet\n");
++        return GTPNOK;
+       }
+       next_extension_header_type = msgBuf[offset - 1];
+     }

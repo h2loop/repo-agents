@@ -1,0 +1,23 @@
+diff --git a/openair3/SECU/nas_stream_eea0.c b/openair3/SECU/nas_stream_eea0.c
+index e4be5c7508..2ae1ff697a 100644
+--- a/openair3/SECU/nas_stream_eea0.c
++++ b/openair3/SECU/nas_stream_eea0.c
+@@ -29,7 +29,10 @@
+ void nas_stream_encrypt_eea0(nas_stream_cipher_t const *stream_cipher, uint8_t *out)
+ {
+   DevAssert(stream_cipher != NULL);
++  DevAssert(stream_cipher->message != NULL);
+   DevAssert(out != NULL);
++  DevAssert(stream_cipher->blength > 7);
++  DevAssert((stream_cipher->blength & 0x07) == 0);
+ 
+   LOG_D(OSA,
+         "Entering stream_encrypt_eea0, bits length %u, bearer %u, "
+@@ -39,6 +42,6 @@ void nas_stream_encrypt_eea0(nas_stream_cipher_t const *stream_cipher, uint8_t *
+         stream_cipher->count,
+         stream_cipher->direction == SECU_DIRECTION_DOWNLINK ? "Downlink" : "Uplink");
+ 
+-  uint32_t byte_length = (stream_cipher->blength + 7) >> 3;
++  const uint32_t byte_length = stream_cipher->blength >> 3;
+   memcpy(out, stream_cipher->message, byte_length);
+ }

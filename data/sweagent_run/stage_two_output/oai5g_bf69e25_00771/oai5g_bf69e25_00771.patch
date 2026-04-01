@@ -1,0 +1,167 @@
+diff --git a/radio/LMSSDR/sodera_lib.cpp b/radio/LMSSDR/sodera_lib.cpp
+index 39b2811005..caeebec61b 100644
+--- a/radio/LMSSDR/sodera_lib.cpp
++++ b/radio/LMSSDR/sodera_lib.cpp
+@@ -236,15 +236,15 @@ static int trx_sodera_read(openair0_device_t *device, openair0_timestamp_t *ptim
+ 
+      for (int b=0;b<buffsize<<2;b+=stepSize) {
+        for (int ch=0;ch<s->channelscount;ch++) {
+-	 // I sample
+-	 sampleI = (pktStart[b + 1 + 3*ch]&0x0F)<<8;
+-	 sampleI |= (pktStart[b + 3*ch]&0xFF);
+-	 sampleI = (sampleI<<4)>>4;
+-	 // Q sample
+-	 sampleQ = (pktStart[b + 2 + 3*ch]&0x0F)<<8;
+-	 sampleQ |= (pktStart[b + 1 + 3*ch]&0xFF);
+-	 sampleQ = (sampleQ<<4)>>4;
+-	 ((uint32_t*)buff[ch])[ind] = ((uint32_t)sampleI) | (((uint32_t)sampleQ)<<16);
++         // I sample
++         sampleI = (pktStart[b + 1 + 3*ch]&0x0F)<<8;
++         sampleI |= (pktStart[b + 3*ch]&0xFF);
++         sampleI = (sampleI<<4)>>4;
++         // Q sample
++         sampleQ = (pktStart[b + 2 + 3*ch]&0x0F)<<8;
++         sampleQ |= (pktStart[b + 1 + 3*ch]&0xFF);
++         sampleQ = (sampleQ<<4)>>4;
++         ((uint32_t*)buff[ch])[ind] = ((uint32_t)sampleI) | (((uint32_t)sampleQ)<<16);
+        }
+        ind++;
+      }
+@@ -306,10 +306,10 @@ static int trx_sodera_read(openair0_device_t *device, openair0_timestamp_t *ptim
+      }
+      else { // check the timestamp
+        if (i==0) {
+-	 if ((s->rx_timestamp + ind) != p->counter) {
+-	   printf("Error, RX timestamp error, got %lu, should be %llu\n",p->counter,s->rx_timestamp+ind);
+-	   return(ind);
+-	 }
++         if ((s->rx_timestamp + ind) != p->counter) {
++           printf("Error, RX timestamp error, got %lu, should be %llu\n",p->counter,s->rx_timestamp+ind);
++           return(ind);
++         }
+        }
+        *ptimestamp = s->rx_timestamp;
+        s->rx_timestamp+=nsamps;
+@@ -317,17 +317,17 @@ static int trx_sodera_read(openair0_device_t *device, openair0_timestamp_t *ptim
+      pktStart = p->data;
+      for (uint16_t b=0;b<sizeof(p->data);b+=stepSize) {
+        for (int ch=0;ch < s->channelscount;ch++) {
+-	 // I sample
+-	 sampleI = (pktStart[b + 1 + 3*ch]&0x0F)<<8;
+-	 sampleI |= (pktStart[b + 3*ch]&0xFF);
+-	 sampleI = (sampleI<<4)>>4;
+-	 // Q sample
+-	 sampleQ = (pktStart[b + 2 + 3*ch]&0x0F)<<8;
+-	 sampleQ |= (pktStart[b + 1 + 3*ch]&0xFF);
+-	 sampleQ = (sampleQ<<4)>>4;
+-	 ((uint32_t*)buff[ch])[ind] = ((uint32_t)sampleI) | (((uint32_t)sampleQ)<<16);
++         // I sample
++         sampleI = (pktStart[b + 1 + 3*ch]&0x0F)<<8;
++         sampleI |= (pktStart[b + 3*ch]&0xFF);
++         sampleI = (sampleI<<4)>>4;
++         // Q sample
++         sampleQ = (pktStart[b + 2 + 3*ch]&0x0F)<<8;
++         sampleQ |= (pktStart[b + 1 + 3*ch]&0xFF);
++         sampleQ = (sampleQ<<4)>>4;
++         ((uint32_t*)buff[ch])[ind] = ((uint32_t)sampleI) | (((uint32_t)sampleQ)<<16);
+        }
+-       ind++;	        
++       ind++;           
+      }
+      samples_received+=spp;
+      // schedule a new transmission for this index
+@@ -350,12 +350,24 @@ static bool is_equal(double a, double b)
+   return fabs(a-b) < 1e-6;
+ }
+ 
+-int trx_sodera_set_freq(openair0_device_t *device, openair0_config_t *openair0_cfg, int dummy)
++int trx_sodera_set_freq(openair0_device_t *device, openair0_config_t *openair0_cfg)
+ {
+   sodera_t *s = (sodera_t*)device->priv;
++  liblms7_status opStatus;
+ 
+-  //  s->usrp->set_tx_freq(openair0_cfg[0].tx_freq[0]);
+-  //  s->usrp->set_rx_freq(openair0_cfg[0].rx_freq[0]);
++  // Set TX frequency
++  opStatus = s->lmsControl.SetFrequencySX(LMS7002M::Tx, openair0_cfg[0].tx_freq[0]/1e6, 30.72);
++  if (opStatus != LIBLMS7_SUCCESS) {
++    printf("Cannot set TX frequency %f MHz\n", openair0_cfg[0].tx_freq[0]/1e6);
++    return (-1);
++  }
++
++  // Set RX frequency
++  opStatus = s->lmsControl.SetFrequencySX(LMS7002M::Rx, openair0_cfg[0].rx_freq[0]/1e6, 30.72);
++  if (opStatus != LIBLMS7_SUCCESS) {
++    printf("Cannot set RX frequency %f MHz\n", openair0_cfg[0].rx_freq[0]/1e6);
++    return (-1);
++  }
+ 
+   return (0);
+ }
+@@ -386,7 +398,7 @@ int trx_sodera_set_gains(openair0_device_t *device, openair0_config_t *openair0_
+   /* if (openair0_cfg[0].rx_gain[0]-openair0_cfg[0].rx_gain_offset[0] > gain_range.stop()) {
+     
+     printf("RX Gain 0 too high, reduce by %f dB\n",
+-	   openair0_cfg[0].rx_gain[0]-openair0_cfg[0].rx_gain_offset[0] - gain_range.stop());	   
++           openair0_cfg[0].rx_gain[0]-openair0_cfg[0].rx_gain_offset[0] - gain_range.stop());      
+     exit(-1);
+   }
+   s->usrp->set_rx_gain(openair0_cfg[0].rx_gain[0]-openair0_cfg[0].rx_gain_offset[0]);
+@@ -441,9 +453,9 @@ void set_rx_gain_offset(openair0_config_t *openair0_cfg, int chain_index,int bw_
+   while (openair0_cfg->rx_gain_calib_table[i].freq>0) {
+     diff = fabs(openair0_cfg->rx_freq[chain_index] - openair0_cfg->rx_gain_calib_table[i].freq);
+     printf("cal %d: freq %f, offset %f, diff %f\n",
+-	   i,
+-	   openair0_cfg->rx_gain_calib_table[i].freq,
+-	   openair0_cfg->rx_gain_calib_table[i].offset,diff);
++           i,
++           openair0_cfg->rx_gain_calib_table[i].freq,
++           openair0_cfg->rx_gain_calib_table[i].offset,diff);
+     if (min_diff > diff) {
+       min_diff = diff;
+       openair0_cfg->rx_gain_offset[chain_index] = openair0_cfg->rx_gain_calib_table[i].offset+gain_adj;
+@@ -481,10 +493,10 @@ int openair0_dev_init_sodera(openair0_device_t *device, openair0_config_t *opena
+     }
+     LMSinfo devInfo = s->Port.GetInfo();
+     printf("Device %s, HW: %d, FW: %d, Protocol %d\n",
+-	   GetDeviceName(devInfo.device),
+-	   (int)devInfo.hardware,
+-	   (int)devInfo.firmware,
+-	   (int)devInfo.protocol);
++           GetDeviceName(devInfo.device),
++           (int)devInfo.hardware,
++           (int)devInfo.firmware,
++           (int)devInfo.protocol);
+     
+     printf("Configuring Si5351C\n");
+     s->Si.Initialize(&s->Port);
+@@ -497,8 +509,8 @@ int openair0_dev_init_sodera(openair0_device_t *device, openair0_config_t *opena
+     Si5351C::Status status = s->Si.ConfigureClocks();
+     if (status != Si5351C::SUCCESS)
+       {
+-	printf("Failed to configure Si5351C");
+-	exit(-1);
++        printf("Failed to configure Si5351C");
++        exit(-1);
+       }
+     status = s->Si.UploadConfiguration();
+     if (status != Si5351C::SUCCESS)
+@@ -630,14 +642,14 @@ int openair0_dev_init_sodera(openair0_device_t *device, openair0_config_t *opena
+       ::uhd::gain_range_t gain_range = s->usrp->get_rx_gain_range(i);
+       // limit to maximum gain
+       if (openair0_cfg[0].rx_gain[i]-openair0_cfg[0].rx_gain_offset[i] > gain_range.stop()) {
+-	
++        
+         printf("RX Gain %lu too high, lower by %f dB\n",i,openair0_cfg[0].rx_gain[i]-openair0_cfg[0].rx_gain_offset[i] - gain_range.stop());
+-	exit(-1);
++        exit(-1);
+       }
+       s->usrp->set_rx_gain(openair0_cfg[0].rx_gain[i]-openair0_cfg[0].rx_gain_offset[i],i);
+       printf("RX Gain %lu %f (%f) => %f (max %f)\n",i,
+-	     openair0_cfg[0].rx_gain[i],openair0_cfg[0].rx_gain_offset[i],
+-	     openair0_cfg[0].rx_gain[i]-openair0_cfg[0].rx_gain_offset[i],gain_range.stop());
++             openair0_cfg[0].rx_gain[i],openair0_cfg[0].rx_gain_offset[i],
++             openair0_cfg[0].rx_gain[i]-openair0_cfg[0].rx_gain_offset[i],gain_range.stop());
+     }
+   }
+   for(i=0;i<s->usrp->get_tx_num_channels();i++) {

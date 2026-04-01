@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect SRS indication FDD REL11 tag value in NFAPI messages\n\n### Summary\nThe NFAPI SRS indication message contained an incorrect tag value for the FDD REL11 information element. The tag was set to 0x2053 which is out of sequence with other SRS indication tags (0x2034-0x2037 range). This caused interoperability issues with some VNF implementations that strictly validate tag sequences.\n\nThe incorrect tag value caused the receiving end to either drop the SRS indication message or process it with missing FDD REL11 data.\n\n### Changes\n- `nfapi/open-nFAPI/nfapi/public_inc/nfapi_interface.h`: Changed NFAPI_SRS_INDICATION_FDD_REL11_TAG from 0x2053 to 0x203c to maintain proper tag sequencing\n\n"
+}

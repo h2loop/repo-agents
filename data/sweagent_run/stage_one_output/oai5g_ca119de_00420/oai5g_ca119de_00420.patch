@@ -1,0 +1,49 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c b/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c
+index 783ae0489f..322ec89d97 100644
+--- a/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c
++++ b/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c
+@@ -244,7 +244,7 @@ void nr_ue_decode_mib(NR_UE_MAC_INST_t *mac, int cc_id)
+   for (int i = 0; i < 4; i++)
+     frame_number_4lsb |= ((extra_bits >> i) & 1) << (3 - i);
+ 
+-  uint8_t ssb_subcarrier_offset_msb = (extra_bits >> 5) & 0x1;    //	extra bits[5]
++  uint8_t ssb_subcarrier_offset_msb = (extra_bits >> 5) & 0x1;    //extra bits[5]
+   uint8_t ssb_subcarrier_offset = (uint8_t)mac->mib->ssb_SubcarrierOffset;
+ 
+   frame = frame << 4;
+@@ -258,7 +258,7 @@ void nr_ue_decode_mib(NR_UE_MAC_INST_t *mac, int cc_id)
+   }
+ 
+ #ifdef DEBUG_MIB
+-  uint8_t half_frame_bit = (extra_bits >> 4) & 0x1; //	extra bits[4]
++  uint8_t half_frame_bit = (extra_bits >> 4) & 0x1; //extra bits[4]
+   LOG_I(MAC,"system frame number(6 MSB bits): %d\n",  mac->mib->systemFrameNumber.buf[0]);
+   LOG_I(MAC,"system frame number(with LSB): %d\n", (int) mac->mib_frame);
+   LOG_I(MAC,"subcarrier spacing (0=15or60, 1=30or120): %d\n", (int)mac->mib->subCarrierSpacingCommon);
+@@ -377,7 +377,7 @@ static inline int writeBit(uint8_t *bitmap, int offset, int value, int size)
+ // 38.214 Section 5.1.3.1
+ static uint8_t get_dlsch_mcs_table(nr_dci_format_t format,
+                                    nr_rnti_type_t rnti_type,
+-                                   int ss_type,
++                                   long ss_type,
+                                    long *mcs_Table,
+                                    long *sps_mcs_Table,
+                                    bool sps_transmission,
+@@ -846,7 +846,7 @@ static int nr_ue_process_dci_dl_10(NR_UE_MAC_INST_t *mac,
+   /* MCS TABLE INDEX */
+   dlsch_pdu->mcs_table = get_dlsch_mcs_table(NR_DL_DCI_FORMAT_1_0,
+                                              rnti_type,
+-                                             dci_ind->ss_type,
++                                             (long)dci_ind->ss_type,
+                                              pdsch_config ? pdsch_config->mcs_Table : NULL,
+                                              NULL, // SPS not implemented,
+                                              false, // as above
+@@ -1304,7 +1304,7 @@ static int nr_ue_process_dci_dl_11(NR_UE_MAC_INST_t *mac,
+ 
+   dlsch_pdu->mcs_table = get_dlsch_mcs_table(NR_DL_DCI_FORMAT_1_1,
+                                              rnti_type,
+-                                             dci_ind->ss_type,
++                                             (long)dci_ind->ss_type,
+                                              pdsch_Config ? pdsch_Config->mcs_Table : NULL,
+                                              NULL, // SPS not implemented,
+                                              false, // as above

@@ -1,0 +1,24 @@
+diff --git a/openair2/UTIL/OTG/otg_form.c b/openair2/UTIL/OTG/otg_form.c
+index 928e8efeaf..7dbb83ff34 100644
+--- a/openair2/UTIL/OTG/otg_form.c
++++ b/openair2/UTIL/OTG/otg_form.c
+@@ -38,7 +38,7 @@
+ extern uint16_t NB_UE_INST;
+ 
+ FD_otg *form_dl, *form_ul;
+-FL_FORM *fclock;
++FL_FORM *fclock = NULL;
+ unsigned int clear_cmpt_ul=0;
+ unsigned int clear_cmpt_dl=0;
+ 
+@@ -105,8 +105,8 @@ void show_otg_form() {
+     fl_set_xyplot_ybounds(form_ul->throughput,0,1000);
+   }
+ 
+-  //create_form_clock();
+-  //fl_show_form(fclock, FL_PLACE_CENTER,FL_TRANSIENT,"clocks");
++  create_form_clock();
++  fl_show_form(fclock, FL_PLACE_CENTER,FL_TRANSIENT,"clocks");
+   //fl_do_forms();
+   fl_check_forms();
+ }

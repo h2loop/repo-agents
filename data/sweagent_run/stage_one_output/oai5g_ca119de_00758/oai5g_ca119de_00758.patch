@@ -1,0 +1,108 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c
+index 820eba2b5b..7d67a0a522 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c
+@@ -1516,13 +1516,8 @@ static void nr_ue_max_mcs_min_rb(int mu,
+   update_ul_ue_R_Qm(*mcs, ul_bwp->mcs_table, ul_bwp->pusch_Config, &R, &Qm);
+ 
+   long *deltaMCS = ul_bwp->pusch_Config ? ul_bwp->pusch_Config->pusch_PowerControl->deltaMCS : NULL;
+-  tbs_bits = nr_compute_tbs(Qm, R, *Rb,
+-                              sched_pusch->tda_info.nrOfSymbols,
+-                              sched_pusch->dmrs_info.N_PRB_DMRS * sched_pusch->dmrs_info.num_dmrs_symb,
+-                              0, // nb_rb_oh
+-                              0,
+-                              sched_pusch->nrOfLayers);
+-
++  
++  // Calculate initial tx_power based on target TBS
+   int tx_power = compute_ph_factor(mu,
+                                    tbs_bits,
+                                    *Rb,
+@@ -1532,25 +1527,39 @@ static void nr_ue_max_mcs_min_rb(int mu,
+                                    deltaMCS,
+                                    true);
+ 
++  // First try to reduce RBs while maintaining target TBS
+   while (ph_limit < tx_power && *Rb > minRb) {
+-    (*Rb)--;
+-    tbs_bits = nr_compute_tbs(Qm, R, *Rb,
+-                              sched_pusch->tda_info.nrOfSymbols,
+-                              sched_pusch->dmrs_info.N_PRB_DMRS * sched_pusch->dmrs_info.num_dmrs_symb,
+-                              0, // nb_rb_oh
+-                              0,
+-                              sched_pusch->nrOfLayers);
+-    tx_power = compute_ph_factor(mu,
+-                                 tbs_bits,
+-                                 *Rb,
+-                                 sched_pusch->nrOfLayers,
+-                                 sched_pusch->tda_info.nrOfSymbols,
+-                                 sched_pusch->dmrs_info.N_PRB_DMRS * sched_pusch->dmrs_info.num_dmrs_symb,
+-                                 deltaMCS,
+-                                 true);
+-    LOG_D(NR_MAC, "Checking %d RBs, MCS %d, ph_limit %d, tx_power %d\n",*Rb,*mcs,ph_limit,tx_power);
++    uint16_t test_Rb = *Rb - 1;
++    
++    // Calculate TBS with reduced RBs using same MCS
++    int test_tbs_bits = nr_compute_tbs(Qm, R, test_Rb,
++                                       sched_pusch->tda_info.nrOfSymbols,
++                                       sched_pusch->dmrs_info.N_PRB_DMRS * sched_pusch->dmrs_info.num_dmrs_symb,
++                                       0, // nb_rb_oh
++                                       0,
++                                       sched_pusch->nrOfLayers);
++    
++    // Calculate power with reduced RBs
++    int test_tx_power = compute_ph_factor(mu,
++                                          test_tbs_bits,
++                                          test_Rb,
++                                          sched_pusch->nrOfLayers,
++                                          sched_pusch->tda_info.nrOfSymbols,
++                                          sched_pusch->dmrs_info.N_PRB_DMRS * sched_pusch->dmrs_info.num_dmrs_symb,
++                                          deltaMCS,
++                                          true);
++    
++    // Update to new configuration
++    *Rb = test_Rb;
++    tx_power = test_tx_power;
++    
++    // If power is now within limit, we're done with RB reduction
++    if (tx_power <= ph_limit) {
++      break;
++    }
+   }
+ 
++  // If still over power limit, reduce MCS
+   while (ph_limit < tx_power && *mcs > 0) {
+     (*mcs)--;
+     update_ul_ue_R_Qm(*mcs, ul_bwp->mcs_table, ul_bwp->pusch_Config, &R, &Qm);
+@@ -1577,14 +1586,14 @@ static void nr_ue_max_mcs_min_rb(int mu,
+ }
+ 
+ static bool allocate_ul_retransmission(gNB_MAC_INST *nrmac,
+-				       frame_t frame,
+-				       sub_frame_t slot,
+-				       uint16_t *rballoc_mask,
+-				       int *n_rb_sched,
+-				       NR_UE_info_t* UE,
+-				       int harq_pid,
+-				       const NR_ServingCellConfigCommon_t *scc,
+-				       const int tda)
++                                       frame_t frame,
++                                       sub_frame_t slot,
++                                       uint16_t *rballoc_mask,
++                                       int *n_rb_sched,
++                                       NR_UE_info_t* UE,
++                                       int harq_pid,
++                                       const NR_ServingCellConfigCommon_t *scc,
++                                       const int tda)
+ {
+   const int CC_id = 0;
+   NR_UE_sched_ctrl_t *sched_ctrl = &UE->UE_sched_ctrl;
+@@ -2103,7 +2112,7 @@ static bool nr_fr1_ulsch_preprocessor(module_id_t module_id, frame_t frame, sub_
+     NR_UE_sched_ctrl_t *sched_ctrl = &UE2->UE_sched_ctrl;
+     AssertFatal(K2 == get_K2(tdaList, tda, mu, scc),
+                 "Different K2, %d(UE%d) != %ld(UE%04x)\n",
+-		K2, 0, get_K2(tdaList, tda, mu, scc), UE2->rnti);
++                K2, 0, get_K2(tdaList, tda, mu, scc), UE2->rnti);
+     sched_ctrl->sched_pusch.slot = sched_slot;
+     sched_ctrl->sched_pusch.frame = sched_frame;
+   }

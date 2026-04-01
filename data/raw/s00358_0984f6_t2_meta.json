@@ -1,0 +1,9 @@
+{
+  "run_id": "s00358_0984f6",
+  "pr_text": "## Title: Fix errno corruption in vnf_send_p5_msg error path\n\n### Summary\nIn `vnf_send_p5_msg()`, when `sctp_sendmsg` fails, the error handling code logs the errno value after calling `NFAPI_TRACE`. Since `NFAPI_TRACE` may perform operations that modify errno, the logged error code could be incorrect, leading to misleading debug information and complicating failure diagnosis in nFAPI VNF P5 interface issues.\n\nThis patch saves errno immediately after the `sctp_sendmsg` failure to a local variable",
+  "trajectory_path": "data/raw/s00358_0984f6_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00358_0984f6_p2.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 13,
+  "timestamp": "2026-02-10T12:49:47Z"
+}

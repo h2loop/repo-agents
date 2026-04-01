@@ -1,0 +1,46 @@
+diff --git a/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.c b/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.c
+index ef23bf2fd4..255fa7a0b2 100644
+--- a/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.c
++++ b/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.c
+@@ -40,11 +40,27 @@ static ngran_node_t get_e2_node_type(void)
+   ngran_node_t node_type = 0;
+ 
+ #if defined(NGRAN_GNB_DU) && defined(NGRAN_GNB_CUUP) && defined(NGRAN_GNB_CUCP)
++  // Check if RC.nrrrc[0] is valid before dereferencing
++  if (RC.nrrrc[0] == NULL) {
++    fprintf(stderr, "Error: RC.nrrrc[0] is NULL in get_e2_node_type()\n");
++    assert(false && "RC.nrrrc[0] is NULL");
++  }
+   node_type = RC.nrrrc[0]->node_type;
+ #elif defined (NGRAN_GNB_CUUP)
+   node_type =  ngran_gNB_CUUP;
++#else
++  // If no compile flags are defined, this is an error condition
++  // We should not silently return an invalid node type
++  fprintf(stderr, "Error: No NGRAN node type defined in get_e2_node_type()\n");
++  assert(false && "No NGRAN node type defined");
+ #endif
+ 
++  // Validate that node_type is within valid range
++  if (node_type >= END_NGRAN_NODE_TYPE) {
++    fprintf(stderr, "Error: Invalid node_type %d in get_e2_node_type()\n", node_type);
++    assert(false && "Invalid node_type value");
++  }
++
+   return node_type;
+ }
+ 
+@@ -468,6 +484,13 @@ void read_rc_setup_sm(void* data)
+   // RAN Function Name is already filled in fill_ran_function_name() in rc_sm_agent.c
+ 
+   const ngran_node_t node_type = get_e2_node_type();
++  
++  // Check if the function pointer is valid before calling it
++  if (ran_def_rc[node_type] == NULL) {
++    fprintf(stderr, "Error: NULL RAN function definition for node type %d\n", node_type);
++    assert(false && "NULL RAN function definition");
++  }
++  
+   rc->ran_func_def = ran_def_rc[node_type]();
+ 
+   // E2 Setup Request is sent periodically until the connection is established

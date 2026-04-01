@@ -1,0 +1,9 @@
+{
+  "run_id": "s00247_d79888",
+  "pr_text": "## Title: Fix CRC errors in ESM timer initialization due to message length field ordering\n\n### Summary\nThe ESM (EPS Session Management) timer initialization in the NAS UE layer contained a critical initialization order bug that caused downstream CRC computation errors. Specifically, in `esm_pt_start_timer()`, the `ctx->args->msg.length` field was being set to 0 *after* the message buffer allocation, but before the actual length was assigned. If memory allocation failed, the length field could re",
+  "trajectory_path": "data/raw/s00247_d79888_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00247_d79888_p2.diff",
+  "patch_lines": 15,
+  "trajectory_steps": 22,
+  "timestamp": "2026-02-11T13:45:50Z"
+}

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix buffer overrun in M2AP MBMS scheduling information handling\n\n### Summary\nThe MCE application contained a potential buffer overrun when handling M2AP MBMS scheduling information messages. The issue occurred due to uninitialized fields in the `m2ap_mbms_scheduling_information_t` structure being copied through the ITTI messaging system to downstream M2AP processing functions.\n\nUnder certain network conditions with multiple MBMS sessions, uninitialized memory containing arbitrary data could be interpreted as valid configuration parameters, leading to memory corruption and potential segfaults in the M2AP message encoding functions.\n\n### Changes\n- `openair2/MCE_APP/mce_config.c`: Added proper initialization of all structure fields in both `RCconfig_m2_scheduling()` and `RCconfig_M2_SCHEDULING()` functions to prevent uninitialized data from propagating through the system.\n\n"
+}

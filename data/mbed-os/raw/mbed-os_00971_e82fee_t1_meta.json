@@ -1,0 +1,26 @@
+{
+  "run_id": "mbed-os_00971_e82fee",
+  "function": {
+    "name": "LL_TIM_Init",
+    "file": "targets/TARGET_STM/TARGET_STM32G4/STM32Cube_FW/STM32G4xx_HAL_Driver/stm32g4xx_ll_tim.c",
+    "start_line": 334,
+    "end_line": 377,
+    "body_lines": 44,
+    "signature": "ErrorStatus LL_TIM_Init(TIM_TypeDef *TIMx, LL_TIM_InitTypeDef *TIM_InitStruct)",
+    "subsystem": "targets/TARGET_STM/TARGET_STM32G4",
+    "token_estimate": 108
+  },
+  "bug": {
+    "bug_id": "c_use_after_free",
+    "description": "use-after-free vulnerability where freed memory is subsequently accessed",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a use-after-free vulnerability where freed memory is subsequently accessed downstream of function LL_TIM_Init in the targets/TARGET_STM/TARGET_STM32G4 subsystem.\nThe function is located at targets/TARGET_STM/TARGET_STM32G4/STM32Cube_FW/STM32G4xx_HAL_Driver/stm32g4xx_ll_tim.c:334.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 70,
+  "trajectory_steps": 69,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:05:53Z"
+}

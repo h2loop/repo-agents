@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect AMF selection in ngap_gNB_nnsf_select_amf_by_amf_setid function\n\n### Summary\nThe `ngap_gNB_nnsf_select_amf_by_amf_setid` function in the NGAP NAS node selection code had a logic error that could cause incorrect AMF selection. The function was comparing PLMN identity and AMF set ID from potentially different GUAMI entries, leading to selection of an AMF that doesn't actually serve the requested combination.\n\nThis issue manifested as UEs being directed to incorrect AMF instances during S-TMSI based registration, causing registration failures or routing to wrong AMF pools.\n\n### Changes\n- `openair3/NGAP/ngap_gNB_nnsf.c`: Fixed type mismatch for amf_setid parameter (uint8_t -> uint16_t) and corrected logic to ensure both PLMN and AMF set ID matches occur within the same GUAMI\n- `openair3/NGAP/ngap_gNB_nnsf.h`: Updated function declaration to match the corrected parameter type\n\n"
+}

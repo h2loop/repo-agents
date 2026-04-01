@@ -1,0 +1,9 @@
+{
+  "run_id": "s00437_c80747",
+  "pr_text": "## Title: Fix integer overflow in UE RX resynchronization loops\n\n### Summary\nThe UE RX resynchronization logic in `syncInFrame()` uses a 32-bit `int` for the loop counter when iterating over sample offsets. When `rx_offset` (an `openair0_timestamp`, typically 64-bit) exceeds INT_MAX, storing it in a 32-bit integer causes overflow, leading to incorrect loop behavior and potential system instability. This affects both IQ player/recorder modes and normal operation paths. I promote the loop variable",
+  "trajectory_path": "data/raw/s00437_c80747_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00437_c80747_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 21,
+  "timestamp": "2026-02-10T13:19:36Z"
+}

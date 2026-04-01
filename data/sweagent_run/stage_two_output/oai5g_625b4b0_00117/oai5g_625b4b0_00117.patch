@@ -1,0 +1,108 @@
+diff --git a/openair3/NAS/NR_UE/5GS/5GMM/MSG/fgs_service_request.c b/openair3/NAS/NR_UE/5GS/5GMM/MSG/fgs_service_request.c
+index 4603db55c5..fa0cde2d74 100644
+--- a/openair3/NAS/NR_UE/5GS/5GMM/MSG/fgs_service_request.c
++++ b/openair3/NAS/NR_UE/5GS/5GMM/MSG/fgs_service_request.c
+@@ -23,6 +23,7 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include <stdint.h>
++#include <limits.h>
+ 
+ #include "TLVEncoder.h"
+ #include "TLVDecoder.h"
+@@ -32,7 +33,8 @@
+ #include "ServiceType.h"
+ 
+ #define LEN_FGS_MOBILE_ID_CONTENTS_SIZE 2 // octets
+-#define MIN_LEN_FGS_SERVICE_REQUEST 10 // octets
++#define LEN_5G_FGS_TMSI_IE 9 // octets
++#define MIN_LEN_FGS_SERVICE_REQUEST 12 // octets (1 byte service+ksi + 2 bytes length + 9 bytes 5G-S-TMSI)
+ #define IEI_NULL 0x00
+ 
+ /**
+@@ -50,14 +52,29 @@ int encode_fgs_service_request(uint8_t *buffer, const fgs_service_request_msg_t
+   *buffer = ((encode_nas_key_set_identifier(&service_request->naskeysetidentifier, IEI_NULL) & 0x0f) << 4)
+             | (service_request->serviceType & 0x0f);
+   encoded++;
+-  len -= encoded;
+-
+-  // 5GS Mobile Identity (M) type 5G-S-TMSI (9 octets)
+-  encoded += LEN_FGS_MOBILE_ID_CONTENTS_SIZE; // skip "Length of 5GS mobile identity contents" IE
+-  len -= encoded;
+-  encoded += encode_stmsi_5gs_mobile_identity(buffer + encoded, &service_request->fiveg_s_tmsi, len);
+-  // encode length of 5GS mobile identity contents
+-  uint16_t tmp = htons(encoded - LEN_FGS_MOBILE_ID_CONTENTS_SIZE - 1);
++  
++  // Reserve space for the length field (2 bytes)
++  encoded += LEN_FGS_MOBILE_ID_CONTENTS_SIZE;
++  
++  // Make sure we have enough space left for at least the minimum mobile identity size
++  if (len < encoded + LEN_5G_FGS_TMSI_IE) {
++    return -1;
++  }
++  
++  // Encode 5GS Mobile Identity (M) type 5G-S-TMSI (9 octets)
++  int mobile_identity_encoded = encode_stmsi_5gs_mobile_identity(buffer + encoded, &service_request->fiveg_s_tmsi, len - encoded);
++  if (mobile_identity_encoded < 0) {
++    return mobile_identity_encoded;
++  }
++  encoded += mobile_identity_encoded;
++  
++  // Check for potential overflow in length field (max 16-bit value)
++  if (mobile_identity_encoded > UINT16_MAX) {
++    return -1;
++  }
++  
++  // Encode length of 5GS mobile identity contents
++  uint16_t tmp = htons(mobile_identity_encoded);
+   memcpy(buffer + 1, &tmp, sizeof(tmp));
+ 
+   return encoded;
+@@ -68,6 +85,10 @@ int encode_fgs_service_request(uint8_t *buffer, const fgs_service_request_msg_t
+  */
+ int decode_fgs_service_request(fgs_service_request_msg_t *sr, const uint8_t *buffer, uint32_t len)
+ {
++  // Check minimum length at function entry
++  if (len < MIN_LEN_FGS_SERVICE_REQUEST)
++    return -1;
++    
+   uint32_t decoded = 0;
+   int decoded_rc = 0;
+ 
+@@ -79,11 +100,34 @@ int decode_fgs_service_request(fgs_service_request_msg_t *sr, const uint8_t *buf
+   }
+   decoded++;
+ 
++  // Read "Length of 5GS mobile identity contents" IE (2 bytes)
++  if (len - decoded < LEN_FGS_MOBILE_ID_CONTENTS_SIZE) {
++    return -1; // Not enough bytes for length field
++  }
++  
++  uint16_t mobile_identity_length;
++  memcpy(&mobile_identity_length, buffer + decoded, sizeof(mobile_identity_length));
++  mobile_identity_length = ntohs(mobile_identity_length);
++  decoded += LEN_FGS_MOBILE_ID_CONTENTS_SIZE;
++  
++  // Bounds checking before decoding mobile identity contents
++  if (len - decoded < mobile_identity_length) {
++    return -1; // Not enough bytes for mobile identity data
++  }
++  
++  if (mobile_identity_length < LEN_5G_FGS_TMSI_IE) {
++    return -1; // Length too small for a valid 5G-S-TMSI
++  }
++
+   // 5GS Mobile Identity (M) type 5G-S-TMSI (9 octets) (M)
+-  decoded += LEN_FGS_MOBILE_ID_CONTENTS_SIZE; // skip "Length of 5GS mobile identity contents" IE
+-  if ((decoded_rc = decode_stmsi_5gs_mobile_identity(&sr->fiveg_s_tmsi, buffer + decoded, len - decoded)) < 0) {
++  if ((decoded_rc = decode_stmsi_5gs_mobile_identity(&sr->fiveg_s_tmsi, buffer + decoded, mobile_identity_length)) < 0) {
+     return decoded_rc;
+   }
++  
++  // Check for potential integer overflow
++  if (decoded > UINT32_MAX - decoded_rc) {
++    return -1;
++  }
+   decoded += decoded_rc;
+ 
+   return decoded;

@@ -1,0 +1,32 @@
+diff --git a/common/utils/telnetsrv/telnetsrv_5Gue_measurements.c b/common/utils/telnetsrv/telnetsrv_5Gue_measurements.c
+index bdf508e6ef..3bcc8ac413 100644
+--- a/common/utils/telnetsrv/telnetsrv_5Gue_measurements.c
++++ b/common/utils/telnetsrv/telnetsrv_5Gue_measurements.c
+@@ -46,6 +46,7 @@
+ 
+ #include "common/utils/LOG/log.h"
+ #include "common/config/config_userapi.h"
++#include "common/utils/assertions.h"
+ #include "telnetsrv_measurements.h"
+ #include "telnetsrv_ltemeasur_def.h"
+ #include "telnetsrv_cpumeasur_def.h"
+@@ -85,6 +86,9 @@ int get_measurgroups(telnet_measurgroupdef_t **measurgroups) {
+ 
+ 
+ void measurcmd_display_phycpu(telnet_printfunc_t prnt) {
++  AssertFatal(PHY_vars_UE_g!=NULL,"PHY_vars_UE_g is null\n");
++  AssertFatal(PHY_vars_UE_g[0]!=NULL,"PHY_vars_UE_g[0] is null\n");
++  AssertFatal(PHY_vars_UE_g[0][0]!=NULL,"PHY_vars_UE_g[0][0] is null\n");
+   PHY_VARS_NR_UE *UE = PHY_vars_UE_g[0][0];
+   telnet_cpumeasurdef_t  cpumeasur[]=CPU_PHYNRUE_MEASURE;
+   prnt("%s cpu (%1.1g GHz) measurements: PHY (cpustats %s) %s\n",HDR,cpufreq,
+@@ -93,6 +97,9 @@ void measurcmd_display_phycpu(telnet_printfunc_t prnt) {
+ }
+ void measurcmd_display_phyta(telnet_printfunc_t prnt)
+ {
++  AssertFatal(PHY_vars_UE_g!=NULL,"PHY_vars_UE_g is null\n");
++  AssertFatal(PHY_vars_UE_g[0]!=NULL,"PHY_vars_UE_g[0] is null\n");
++  AssertFatal(PHY_vars_UE_g[0][0]!=NULL,"PHY_vars_UE_g[0][0] is null\n");
+   PHY_VARS_NR_UE *UE = PHY_vars_UE_g[0][0];
+   prnt("%s PHY TA stats\n", HDR);
+   prnt("N_TA_offset %d\n", UE->N_TA_offset);

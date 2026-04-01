@@ -1,0 +1,22 @@
+diff --git a/nfapi/open-nFAPI/pnf/src/pnf.c b/nfapi/open-nFAPI/pnf/src/pnf.c
+index 1c851ce277..eb314c42fe 100644
+--- a/nfapi/open-nFAPI/pnf/src/pnf.c
++++ b/nfapi/open-nFAPI/pnf/src/pnf.c
+@@ -205,7 +205,7 @@ void pnf_handle_pnf_config_request(pnf_t* pnf, void *pRecvMsg, int recvMsgLen)
+ 				if (req.pnf_phy_rf_config.tl.tag == NFAPI_PNF_PHY_RF_TAG)
+ 				{
+ 					int i = 0;
+-					for(i = 0; i < req.pnf_phy_rf_config.number_phy_rf_config_info; ++i)
++					for(i = 0; i < req.pnf_phy_rf_config.number_phy_rf_config_info && i < NFAPI_MAX_PHY_RF_INSTANCES; ++i)
+ 					{
+ 						nfapi_pnf_phy_config_t* phy = (nfapi_pnf_phy_config_t*)malloc(sizeof(nfapi_pnf_phy_config_t));
+ 						memset(phy, 0, sizeof(nfapi_pnf_phy_config_t));
+@@ -272,7 +272,7 @@ void pnf_nr_handle_pnf_config_request(pnf_t* pnf, void *pRecvMsg, int recvMsgLen
+ 				if (req.pnf_phy_rf_config.tl.tag == NFAPI_PNF_PHY_RF_TAG)
+ 				{
+ 					int i = 0;
+-					for(i = 0; i < req.pnf_phy_rf_config.number_phy_rf_config_info; ++i)
++					for(i = 0; i < req.pnf_phy_rf_config.number_phy_rf_config_info && i < NFAPI_MAX_PHY_RF_INSTANCES; ++i)
+ 					{
+ 						nfapi_pnf_phy_config_t* phy = (nfapi_pnf_phy_config_t*)malloc(sizeof(nfapi_pnf_phy_config_t));
+ 						memset(phy, 0, sizeof(nfapi_pnf_phy_config_t));

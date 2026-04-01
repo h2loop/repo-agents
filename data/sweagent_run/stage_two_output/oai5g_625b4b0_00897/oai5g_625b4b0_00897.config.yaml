@@ -1,0 +1,181 @@
+'{"env":{"deployment":{"image":"oai5g-sera:625b4b0","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_625b4b0_00897","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix use-after-free in user_plmns_free due to uninitialized struct\n\n###
+  Summary\nThe NAS configuration parser had a use-after-free vulnerability in the
+  `user_plmns_free` function. The `user_plmns_t` struct was declared uninitialized
+  in `conf_parser.c`, causing garbage pointers to be freed when `user_plmns_free`
+  was called.\n\nThis bug would manifest as crashes or memory corruption when processing
+  UE configuration files with certain PLMN configurations. The issue was particularly
+  prevalent when PLMN sections were missing or malformed in the configuration.\n\n###
+  Changes\n- `openair3/NAS/TOOLS/conf_parser.c`: Initialize `user_plmns` struct to
+  zero before use\n- `openair3/NAS/TOOLS/conf_user_plmn.c`: Add NULL checks in `user_plmns_free`
+  for defensive programming\n\n","extra_fields":{"bug_description":"use-after-free
+  vulnerability where freed memory is subsequently accessed","bug_id":"c_use_after_free","stage_one_patch":"diff
+  --git a/openair3/NAS/TOOLS/conf_parser.c b/openair3/NAS/TOOLS/conf_parser.c\nindex
+  3ea1e29554..f1ae96dfff 100644\n--- a/openair3/NAS/TOOLS/conf_parser.c\n+++ b/openair3/NAS/TOOLS/conf_parser.c\n@@
+  -7,7 +7,7 @@\n #include \"conf_user_plmn.h\"\n \n bool parse_config_file(const char
+  *output_dir, const char *conf_filename, int output_flags) {\n-\tint rc = true;\n+        int
+  rc = true;\n     int ret;\n     int ue_nb = 0;\n     config_setting_t *root_setting
+  = NULL;\n@@ -16,7 +16,7 @@ bool parse_config_file(const char *output_dir, const
+  char *conf_filename, int ou\n     char user[100];\n     config_t cfg;\n \n-\tnetworks_t
+  networks;;\n+        networks_t networks;;\n \n     ret = get_config_from_file(conf_filename,
+  &cfg);\n     if (ret == false) {\n@@ -37,15 +37,15 @@ bool parse_config_file(const
+  char *output_dir, const char *conf_filename, int ou\n     }\n \n     for (int i
+  = 0; i < ue_nb; i++) {\n-\t    emm_nvdata_t emm_data;\n+            emm_nvdata_t
+  emm_data;\n \n-\t    user_nvdata_t user_data;\n-\t    user_data_conf_t user_data_conf;\n+            user_nvdata_t
+  user_data;\n+            user_data_conf_t user_data_conf;\n \n-\t    usim_data_t
+  usim_data;\n-\t    usim_data_conf_t usim_data_conf;\n+            usim_data_t usim_data;\n+            usim_data_conf_t
+  usim_data_conf;\n \n-\t\tuser_plmns_t user_plmns;\n+                user_plmns_t
+  user_plmns = {0};\n \n         sprintf(user, \"%s%d\", UE, i);\n \n@@ -88,13 +88,13
+  @@ bool parse_config_file(const char *output_dir, const char *conf_filename, int
+  ou\n             write_emm_data(output_dir, i, &emm_data);\n         }\n \n-\t\tuser_plmns_free(&user_plmns);\n+                user_plmns_free(&user_plmns);\n
+  \n      }\n     free(networks.items);\n-\tnetworks.size=0;\n+        networks.size=0;\n     config_destroy(&cfg);\n-\treturn(true);\n+        return(true);\n
+  }\n \n bool get_config_from_file(const char *filename, config_t *config) {\ndiff
+  --git a/openair3/NAS/TOOLS/conf_user_plmn.c b/openair3/NAS/TOOLS/conf_user_plmn.c\nindex
+  3b3c6dd3e6..cfce8be193 100644\n--- a/openair3/NAS/TOOLS/conf_user_plmn.c\n+++ b/openair3/NAS/TOOLS/conf_user_plmn.c\n@@
+  -5,77 +5,92 @@\n bool parse_user_plmns_conf(config_setting_t *ue_setting, int user_id,\n                           user_plmns_t
+  *user_plmns, const char **h,\n                           const networks_t networks)
+  {\n-\tint nb_errors = 0;\n-\tconst char *hplmn;\n+        int nb_errors = 0;\n+        const
+  char *hplmn;\n \n-\tif ( config_setting_lookup_string(ue_setting, HPLMN, h) != 1
+  ) {\n-\t\tprintf(\"Check HPLMN section for UE%d. Exiting\\n\", user_id);\n-\t\treturn
+  false;\n-\t}\n-\thplmn = *h;\n-\tif (get_plmn_index(hplmn, networks) == -1) {\n-\t\tprintf(\"HPLMN
+  for UE%d is not defined in PLMN section. Exiting\\n\",\n-\t\t\t\tuser_id);\n-\t\treturn
+  false;\n-\t}\n+        if ( config_setting_lookup_string(ue_setting, HPLMN, h) !=
+  1 ) {\n+                printf(\"Check HPLMN section for UE%d. Exiting\\n\", user_id);\n+                return
+  false;\n+        }\n+        hplmn = *h;\n+        if (get_plmn_index(hplmn, networks)
+  == -1) {\n+                printf(\"HPLMN for UE%d is not defined in PLMN section.
+  Exiting\\n\",\n+                                user_id);\n+                return
+  false;\n+        }\n \n-\tif ( parse_Xplmn(ue_setting, UCPLMN, user_id, &user_plmns->users_controlled,
+  networks) == false )\n-\t\tnb_errors++;\n-\tif ( parse_Xplmn(ue_setting, OPLMN,
+  user_id, &user_plmns->operators, networks) == false )\n-\t\tnb_errors++;\n-\tif
+  ( parse_Xplmn(ue_setting, OCPLMN, user_id, &user_plmns->operators_controlled, networks)
+  == false )\n-\t\tnb_errors++;\n-\tif ( parse_Xplmn(ue_setting, FPLMN, user_id, &user_plmns->forbiddens,
+  networks) == false )\n-\t\tnb_errors++;\n-\tif ( parse_Xplmn(ue_setting, EHPLMN,
+  user_id, &user_plmns->equivalents_home, networks) == false )\n-\t\tnb_errors++;\n+        if
+  ( parse_Xplmn(ue_setting, UCPLMN, user_id, &user_plmns->users_controlled, networks)
+  == false )\n+                nb_errors++;\n+        if ( parse_Xplmn(ue_setting,
+  OPLMN, user_id, &user_plmns->operators, networks) == false )\n+                nb_errors++;\n+        if
+  ( parse_Xplmn(ue_setting, OCPLMN, user_id, &user_plmns->operators_controlled, networks)
+  == false )\n+                nb_errors++;\n+        if ( parse_Xplmn(ue_setting,
+  FPLMN, user_id, &user_plmns->forbiddens, networks) == false )\n+                nb_errors++;\n+        if
+  ( parse_Xplmn(ue_setting, EHPLMN, user_id, &user_plmns->equivalents_home, networks)
+  == false )\n+                nb_errors++;\n \n-\tif ( nb_errors > 0 )\n-\t\treturn
+  false;\n-\treturn true;\n+        if ( nb_errors > 0 )\n+                return
+  false;\n+        return true;\n }\n \n bool parse_Xplmn(config_setting_t *ue_setting,
+  const char *section,\n                int user_id, plmns_list *plmns, const networks_t
+  networks) {\n-\tint rc;\n-\tint item_count;\n-\tconfig_setting_t *setting;\n+        int
+  rc;\n+        int item_count;\n+        config_setting_t *setting;\n \n-\tsetting
+  = config_setting_get_member(ue_setting, section);\n-\tif (setting == NULL) {\n-\t\tprintf(\"Check
+  %s section for UE%d. Exiting\\n\", section, user_id);\n-\t\treturn false;\n-\t}\n+        setting
+  = config_setting_get_member(ue_setting, section);\n+        if (setting == NULL)
+  {\n+                printf(\"Check %s section for UE%d. Exiting\\n\", section, user_id);\n+                return
+  false;\n+        }\n \n-\titem_count = config_setting_length(setting);\n-\tint *datas
+  = malloc(item_count * sizeof(int));\n-\tfor (int i = 0; i < item_count; i++) {\n-\t\tconst
+  char *mccmnc = config_setting_get_string_elem(setting, i);\n-\t\tif (mccmnc == NULL)
+  {\n-\t\t\tprintf(\"Check %s section for UE%d. Exiting\\n\", section, user_id);\n-\t\t\tfree(datas);\n-\t\t\treturn
+  false;\n-\t\t}\n-\t\trc = get_plmn_index(mccmnc, networks);\n-\t\tif (rc == -1)
+  {\n-\t\t\tprintf(\"The PLMN %s is not defined in PLMN section. Exiting...\\n\",\n-\t\t\t\t\tmccmnc);\n-\t\t\tfree(datas);\n-\t\t\treturn
+  false;\n-\t\t}\n-\t\tdatas[i] = rc;\n-\t}\n+        item_count = config_setting_length(setting);\n+        int
+  *datas = malloc(item_count * sizeof(int));\n+        for (int i = 0; i < item_count;
+  i++) {\n+                const char *mccmnc = config_setting_get_string_elem(setting,
+  i);\n+                if (mccmnc == NULL) {\n+                        printf(\"Check
+  %s section for UE%d. Exiting\\n\", section, user_id);\n+                        free(datas);\n+                        return
+  false;\n+                }\n+                rc = get_plmn_index(mccmnc, networks);\n+                if
+  (rc == -1) {\n+                        printf(\"The PLMN %s is not defined in PLMN
+  section. Exiting...\\n\",\n+                                        mccmnc);\n+                        free(datas);\n+                        return
+  false;\n+                }\n+                datas[i] = rc;\n+        }\n \n-\tplmns->size
+  = item_count;\n-\tplmns->items = datas;\n-\treturn true;\n+        plmns->size =
+  item_count;\n+        plmns->items = datas;\n+        return true;\n }\n \n void
+  user_plmns_free(user_plmns_t *user_plmns) {\n-\tfree(user_plmns->users_controlled.items);\n-\tfree(user_plmns->operators.items);\n-\tfree(user_plmns->operators_controlled.items);\n-\tfree(user_plmns->forbiddens.items);\n-\tfree(user_plmns->equivalents_home.items);\n-\tmemset(user_plmns,
+  0, sizeof(user_plmns_t));\n+        if (user_plmns->users_controlled.items) {\n+                free(user_plmns->users_controlled.items);\n+                user_plmns->users_controlled.items
+  = NULL;\n+        }\n+        if (user_plmns->operators.items) {\n+                free(user_plmns->operators.items);\n+                user_plmns->operators.items
+  = NULL;\n+        }\n+        if (user_plmns->operators_controlled.items) {\n+                free(user_plmns->operators_controlled.items);\n+                user_plmns->operators_controlled.items
+  = NULL;\n+        }\n+        if (user_plmns->forbiddens.items) {\n+                free(user_plmns->forbiddens.items);\n+                user_plmns->forbiddens.items
+  = NULL;\n+        }\n+        if (user_plmns->equivalents_home.items) {\n+                free(user_plmns->equivalents_home.items);\n+                user_plmns->equivalents_home.items
+  = NULL;\n+        }\n+        memset(user_plmns, 0, sizeof(user_plmns_t));\n }\n","start_fn":"user_plmns_free","start_fn_file":"openair3/NAS/TOOLS/conf_user_plmn.c","subsystem":"openair3/NAS/TOOLS"},"type":"text","id":"oai5g_625b4b0_00897"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

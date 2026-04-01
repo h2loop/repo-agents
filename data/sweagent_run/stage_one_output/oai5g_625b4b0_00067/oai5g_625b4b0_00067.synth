@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix integer overflow in LDPC encoder memory allocation\n\n### Summary\nThe LDPC encoder in the OAI 5G stack suffers from an integer overflow when processing Zc=384 configurations. The memory allocation formula in `ldpc_encode_parity_check.c` underestimates the required buffer size for SIMD versions of the encoder, leading to out-of-bounds memory accesses in `ldpc384_simd512_byte.c` and related files.\n\nThis issue manifests as incorrect LDPC encoding results and potential memory corruption during 5G NR data transmission. The problem is most pronounced with AVX-512 optimizations enabled.\n\n### Changes\n- `openair1/PHY/CODING/nrLDPC_encoder/ldpc_encode_parity_check.c`: Increased memory allocation for Zc=384 cases with SIMD-specific multipliers (64x for AVX-512, 16x for AVX2, 4x for SSE) and updated memcpy operations to use the new allocation size.\n\n"
+}

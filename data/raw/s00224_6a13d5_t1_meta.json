@@ -1,0 +1,35 @@
+{
+  "run_id": "s00224_6a13d5",
+  "function": {
+    "name": "pack_nr_uci_pucch_2_3_4",
+    "file": "nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c",
+    "start_line": 1898,
+    "end_line": 1956,
+    "body_lines": 59,
+    "signature": "static uint8_t pack_nr_uci_pucch_2_3_4(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end)",
+    "subsystem": "nfapi/open-nFAPI/fapi",
+    "token_estimate": 207
+  },
+  "bug": {
+    "bug_id": "c_missing_cleanup",
+    "description": "missing cleanup of allocated resources on early return or error path",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a missing cleanup of allocated resources on early return or error path downstream of function pack_nr_uci_pucch_2_3_4 in the nfapi/open-nFAPI/fapi subsystem.\nThe function is located at nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c:1898.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00224_6a13d5_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00224_6a13d5_p1.diff",
+  "patch_lines": 16,
+  "trajectory_steps": 31,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:28:32Z"
+}

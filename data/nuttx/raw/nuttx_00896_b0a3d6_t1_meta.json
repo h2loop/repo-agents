@@ -1,0 +1,26 @@
+{
+  "run_id": "nuttx_00896_b0a3d6",
+  "function": {
+    "name": "veml6070_read",
+    "file": "drivers/sensors/veml6070.c",
+    "start_line": 163,
+    "end_line": 226,
+    "body_lines": 64,
+    "signature": "static ssize_t veml6070_read(FAR struct file *filep, FAR char *buffer, size_t buflen)",
+    "subsystem": "drivers/sensors",
+    "token_estimate": 176
+  },
+  "bug": {
+    "bug_id": "c_memory_leak",
+    "description": "memory leak where allocated memory is never freed on certain code paths",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a memory leak where allocated memory is never freed on certain code paths downstream of function veml6070_read in the drivers/sensors subsystem.\nThe function is located at drivers/sensors/veml6070.c:163.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 74,
+  "trajectory_steps": 31,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:33:26Z"
+}

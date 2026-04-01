@@ -1,0 +1,124 @@
+diff --git a/openair2/COMMON/e1ap_messages_types.h b/openair2/COMMON/e1ap_messages_types.h
+index f2fd64252c..0b9355af9b 100644
+--- a/openair2/COMMON/e1ap_messages_types.h
++++ b/openair2/COMMON/e1ap_messages_types.h
+@@ -270,22 +270,34 @@ typedef struct qos_flow_setup_s {
+   long qfi;
+ } qos_flow_setup_t;
+ 
++typedef struct qos_flow_failed_s {
++  long qfi;
++  long cause_type;
++  long cause;
++} qos_flow_failed_t;
++
+ typedef struct DRB_nGRAN_setup_s {
+   long id;
+   int numUpParam;
+   up_params_t UpParamList[E1AP_MAX_NUM_UP_PARAM];
+   int numQosFlowSetup;
+   qos_flow_setup_t qosFlows[E1AP_MAX_NUM_QOS_FLOWS];
++  int numQosFlowFailed;
++  qos_flow_failed_t qosFlowsFailed[E1AP_MAX_NUM_QOS_FLOWS];
+ } DRB_nGRAN_setup_t;
+ 
+ typedef struct DRB_nGRAN_modified_s {
+   long id;
++  int numQosFlowFailed;
++  qos_flow_failed_t qosFlowsFailed[E1AP_MAX_NUM_QOS_FLOWS];
+ } DRB_nGRAN_modified_t;
+ 
+ typedef struct DRB_nGRAN_failed_s {
+   long id;
+   long cause_type;
+   long cause;
++  int numQosFlowFailed;
++  qos_flow_failed_t qosFlowsFailed[E1AP_MAX_NUM_QOS_FLOWS];
+ } DRB_nGRAN_failed_t;
+ 
+ typedef struct pdu_session_setup_s {
+diff --git a/openair2/E1AP/e1ap.c b/openair2/E1AP/e1ap.c
+index 1e28ebd52a..2fe3b0e39c 100644
+--- a/openair2/E1AP/e1ap.c
++++ b/openair2/E1AP/e1ap.c
+@@ -1128,6 +1128,39 @@ void extract_BEARER_CONTEXT_SETUP_RESPONSE(const E1AP_E1AP_PDU_t *pdu, e1ap_bear
+               E1AP_QoS_Flow_Item_t *in_qosflowSetup = drb->flow_Setup_List.list.array[q];
+               qosflowSetup->qfi = in_qosflowSetup->qoS_Flow_Identifier;
+             }
++            
++            // Handle QoS flow failed list if present
++            if (drb->flow_Failed_List != NULL) {
++              drbSetup->numQosFlowFailed = drb->flow_Failed_List->list.count;
++              for (int q = 0; q < drb->flow_Failed_List->list.count; q++) {
++                qos_flow_failed_t *qosFlowFailed = &drbSetup->qosFlowsFailed[q];
++                E1AP_QoS_Flow_Failed_Item_t *in_qosFlowFailed = drb->flow_Failed_List->list.array[q];
++                qosFlowFailed->qfi = in_qosFlowFailed->qoS_Flow_Identifier;
++                qosFlowFailed->cause_type = in_qosFlowFailed->cause.present;
++                switch (in_qosFlowFailed->cause.present) {
++                  case E1AP_Cause_PR_radioNetwork:
++                    qosFlowFailed->cause = in_qosFlowFailed->cause.choice.radioNetwork;
++                    break;
++                  case E1AP_Cause_PR_transport:
++                    qosFlowFailed->cause = in_qosFlowFailed->cause.choice.transport;
++                    break;
++                  case E1AP_Cause_PR_protocol:
++                    qosFlowFailed->cause = in_qosFlowFailed->cause.choice.protocol;
++                    break;
++                  case E1AP_Cause_PR_misc:
++                    qosFlowFailed->cause = in_qosFlowFailed->cause.choice.misc;
++                    break;
++                  case E1AP_Cause_PR_nas:
++                    qosFlowFailed->cause = in_qosFlowFailed->cause.choice.nas;
++                    break;
++                  default:
++                    qosFlowFailed->cause = 0;
++                    break;
++                }
++              }
++            } else {
++              drbSetup->numQosFlowFailed = 0;
++            }
+           }
+         }
+         break;
+@@ -1494,7 +1527,39 @@ static void extract_BEARER_CONTEXT_MODIFICATION_RESPONSE(const E1AP_E1AP_PDU_t *
+             AssertFatal(drb->uL_UP_Transport_Parameters == NULL, "not implemented\n");
+             AssertFatal(drb->pDCP_SN_Status_Information == NULL, "not implemented\n");
+             AssertFatal(drb->flow_Setup_List == NULL, "not implemented\n");
+-            AssertFatal(drb->flow_Failed_List == NULL, "not implemented\n");
++            
++            // Handle QoS flow failed list
++            if (drb->flow_Failed_List != NULL) {
++              drbModified->numQosFlowFailed = drb->flow_Failed_List->list.count;
++              for (int q = 0; q < drb->flow_Failed_List->list.count; q++) {
++                qos_flow_failed_t *qosFlowFailed = &drbModified->qosFlowsFailed[q];
++                E1AP_QoS_Flow_Failed_Item_t *in_qosFlowFailed = drb->flow_Failed_List->list.array[q];
++                qosFlowFailed->qfi = in_qosFlowFailed->qoS_Flow_Identifier;
++                qosFlowFailed->cause_type = in_qosFlowFailed->cause.present;
++                switch (in_qosFlowFailed->cause.present) {
++                  case E1AP_Cause_PR_radioNetwork:
++                    qosFlowFailed->cause = in_qosFlowFailed->cause.choice.radioNetwork;
++                    break;
++                  case E1AP_Cause_PR_transport:
++                    qosFlowFailed->cause = in_qosFlowFailed->cause.choice.transport;
++                    break;
++                  case E1AP_Cause_PR_protocol:
++                    qosFlowFailed->cause = in_qosFlowFailed->cause.choice.protocol;
++                    break;
++                  case E1AP_Cause_PR_misc:
++                    qosFlowFailed->cause = in_qosFlowFailed->cause.choice.misc;
++                    break;
++                  case E1AP_Cause_PR_nas:
++                    qosFlowFailed->cause = in_qosFlowFailed->cause.choice.nas;
++                    break;
++                  default:
++                    qosFlowFailed->cause = 0;
++                    break;
++                }
++              }
++            } else {
++              drbModified->numQosFlowFailed = 0;
++            }
+           }
+         }
+         break;

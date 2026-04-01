@@ -1,0 +1,9 @@
+{
+  "run_id": "s00251_2ea397",
+  "pr_text": "## Title: Fix uninitialized memory read in OMG mobility update loop\n\n### Summary\nThe OMG (OpenAirInterface Mobility Generator) module in `openair2/UTIL/OMG/omg.c` contains a bug where the `update_nodes` function iterates through all mobility types, including SUMO, regardless of whether `SUMO_IF` is defined. When `SUMO_IF` is not defined, the `job_vector[SUMO]` entry remains uninitialized, but the loop still performs a null check on it (`job_vector[i] != NULL`). This reads uninitialized memory, c",
+  "trajectory_path": "data/raw/s00251_2ea397_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00251_2ea397_p2.diff",
+  "patch_lines": 12,
+  "trajectory_steps": 37,
+  "timestamp": "2026-02-11T13:49:34Z"
+}

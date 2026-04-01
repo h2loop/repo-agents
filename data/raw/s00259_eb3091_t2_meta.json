@@ -1,0 +1,9 @@
+{
+  "run_id": "s00259_eb3091",
+  "pr_text": "## Title: Fix NULL pointer dereference in GUI event compression\n\n### Summary\nThe GUI event compression logic in `compress_event_list()` contained a missing NULL pointer check that caused segmentation faults when processing DIRTY or REPACK events. The function iterates through the event list using the condition `cur->item != last` without first verifying that `cur` itself is non-NULL. If the event list becomes corrupted or traversal reaches an unexpected NULL pointer, dereferencing `cur->item` tr",
+  "trajectory_path": "data/raw/s00259_eb3091_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00259_eb3091_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 7,
+  "timestamp": "2026-02-11T13:51:57Z"
+}

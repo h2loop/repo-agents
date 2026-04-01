@@ -1,0 +1,292 @@
+diff --git a/nfapi/oai_integration/aerial/fapi_vnf_p7.c b/nfapi/oai_integration/aerial/fapi_vnf_p7.c
+index 2f8d001d50..b75c89df76 100644
+--- a/nfapi/oai_integration/aerial/fapi_vnf_p7.c
++++ b/nfapi/oai_integration/aerial/fapi_vnf_p7.c
+@@ -32,6 +32,7 @@
+ 
+ #include "fapi_vnf_p7.h"
+ #include "nr_nfapi_p7.h"
++#include "nr_fapi_p7_utils.h"
+ 
+ #include "openair2/LAYER2/NR_MAC_gNB/mac_proto.h" // for handle_nr_srs_measurements()
+ 
+@@ -166,9 +167,14 @@ int aerial_phy_nr_uci_indication(nfapi_nr_uci_indication_t *ind)
+     uci_ind->uci_list[i] = ind->uci_list[i];
+ 
+     switch (uci_ind->uci_list[i].pdu_type) {
+-      case NFAPI_NR_UCI_PUSCH_PDU_TYPE:
+-        LOG_E(MAC, "%s(): unhandled NFAPI_NR_UCI_PUSCH_PDU_TYPE\n", __func__);
++      case NFAPI_NR_UCI_PUSCH_PDU_TYPE: {
++        nfapi_nr_uci_pusch_pdu_t *uci_ind_pdu = &uci_ind->uci_list[i].pusch_pdu;
++        nfapi_nr_uci_pusch_pdu_t *ind_pdu = &ind->uci_list[i].pusch_pdu;
++        if (copy_uci_indication_PUSCH(uci_ind_pdu, ind_pdu) != 0) {
++            LOG_E(MAC, "%s(): Failed to copy NFAPI_NR_UCI_PUSCH_PDU_TYPE\n", __func__);
++        }
+         break;
++      }
+ 
+       case NFAPI_NR_UCI_FORMAT_0_1_PDU_TYPE: {
+ //          nfapi_nr_uci_pucch_pdu_format_0_1_t *uci_ind_pdu = &uci_ind->uci_list[i].pucch_pdu_format_0_1;
+@@ -243,6 +249,11 @@ int aerial_phy_nr_uci_indication(nfapi_nr_uci_indication_t *ind)
+ //            uci_ind->uci_list[i].pucch_pdu_format_0_1.sr = NULL;
+ //          }
+       }
++      if (uci_ind->uci_list[i].pdu_type == NFAPI_NR_UCI_PUSCH_PDU_TYPE) {
++        free(uci_ind->uci_list[i].pusch_pdu.harq.harq_payload);
++        free(uci_ind->uci_list[i].pusch_pdu.csi_part1.csi_part1_payload);
++        free(uci_ind->uci_list[i].pusch_pdu.csi_part2.csi_part2_payload);
++      }
+       if (uci_ind->uci_list[i].pdu_type == NFAPI_NR_UCI_FORMAT_2_3_4_PDU_TYPE) {
+         free(uci_ind->uci_list[i].pucch_pdu_format_2_3_4.harq.harq_payload);
+         free(uci_ind->uci_list[i].pucch_pdu_format_2_3_4.csi_part1.csi_part1_payload);
+diff --git a/nfapi/oai_integration/nfapi_vnf.c b/nfapi/oai_integration/nfapi_vnf.c
+index c742a7088a..1c0d690d11 100644
+--- a/nfapi/oai_integration/nfapi_vnf.c
++++ b/nfapi/oai_integration/nfapi_vnf.c
+@@ -37,6 +37,8 @@
+ #include "nfapi.h"
+ #include "vendor_ext.h"
+ 
++#include "nr_fapi_p7_utils.h"
++
+ #include "PHY/defs_eNB.h"
+ #include "PHY/LTE_TRANSPORT/transport_proto.h"
+ #include "openair2/LAYER2/MAC/mac.h"
+@@ -770,9 +772,14 @@ int phy_nr_uci_indication(nfapi_nr_uci_indication_t *ind)
+       uci_ind->uci_list[i] = ind->uci_list[i];
+ 
+       switch (uci_ind->uci_list[i].pdu_type) {
+-        case NFAPI_NR_UCI_PUSCH_PDU_TYPE:
+-          LOG_E(MAC, "%s(): unhandled NFAPI_NR_UCI_PUSCH_PDU_TYPE\n", __func__);
++        case NFAPI_NR_UCI_PUSCH_PDU_TYPE: {
++          nfapi_nr_uci_pusch_pdu_t *uci_ind_pdu = &uci_ind->uci_list[i].pusch_pdu;
++          nfapi_nr_uci_pusch_pdu_t *ind_pdu = &ind->uci_list[i].pusch_pdu;
++          if (copy_uci_indication_PUSCH(uci_ind_pdu, ind_pdu) != 0) {
++              LOG_E(MAC, "%s(): Failed to copy NFAPI_NR_UCI_PUSCH_PDU_TYPE\n", __func__);
++          }
+           break;
++        }
+ 
+         case NFAPI_NR_UCI_FORMAT_0_1_PDU_TYPE: {
+           //nfapi_nr_uci_pucch_pdu_format_0_1_t *uci_ind_pdu = &uci_ind->uci_list[i].pucch_pdu_format_0_1;
+@@ -818,6 +825,12 @@ int phy_nr_uci_indication(nfapi_nr_uci_indication_t *ind)
+           if (uci_ind->uci_list[i].pdu_type == NFAPI_NR_UCI_FORMAT_0_1_PDU_TYPE)
+           {
+           }
++          if (uci_ind->uci_list[i].pdu_type == NFAPI_NR_UCI_PUSCH_PDU_TYPE)
++          {
++            free(uci_ind->uci_list[i].pusch_pdu.harq.harq_payload);
++            free(uci_ind->uci_list[i].pusch_pdu.csi_part1.csi_part1_payload);
++            free(uci_ind->uci_list[i].pusch_pdu.csi_part2.csi_part2_payload);
++          }
+           if (uci_ind->uci_list[i].pdu_type == NFAPI_NR_UCI_FORMAT_2_3_4_PDU_TYPE)
+           {
+             free(uci_ind->uci_list[i].pucch_pdu_format_2_3_4.harq.harq_payload);
+diff --git a/nfapi/open-nFAPI/Makefile.am b/nfapi/open-nFAPI/Makefile.am
+index 900cf2bbcf..9be88c88c5 100644
+--- a/nfapi/open-nFAPI/Makefile.am
++++ b/nfapi/open-nFAPI/Makefile.am
+@@ -1,15 +1,16 @@
+ ACLOCAL_AMFLAGS = -I m4
+ 
+ SUBDIRS =common/ \
+-	 sim_common/ \
+-	 nfapi/ \
+-	 pnf/ \
+-	 vnf/ \
+-	 nfapi/tests \
+-	 pnf/tests \
+-	 vnf/tests \
+-	 pnf_sim/ \
+-	 vnf_sim/ \
+-	 integration_tests/ \
+-	 docs/ \
+-	 $(NULL)
++         sim_common/ \
++         nfapi/ \
++         fapi/ \
++         pnf/ \
++         vnf/ \
++         nfapi/tests \
++         pnf/tests \
++         vnf/tests \
++         pnf_sim/ \
++         vnf_sim/ \
++         integration_tests/ \
++         docs/ \
++         $(NULL)
+diff --git a/nfapi/open-nFAPI/fapi/CMakeLists.txt b/nfapi/open-nFAPI/fapi/CMakeLists.txt
+index 1e2208172f..75ebed618d 100644
+--- a/nfapi/open-nFAPI/fapi/CMakeLists.txt
++++ b/nfapi/open-nFAPI/fapi/CMakeLists.txt
+@@ -7,3 +7,9 @@ target_link_libraries(nr_fapi_p5 PUBLIC nfapi_common)
+ if(OAI_AERIAL)
+     target_compile_definitions(nr_fapi_p5 PRIVATE ENABLE_AERIAL)
+ endif()
++
++add_library(nr_fapi_p7_utils
++        src/nr_fapi_p7_utils.c
++)
++target_include_directories(nr_fapi_p7_utils PUBLIC inc)
++target_link_libraries(nr_fapi_p7_utils PUBLIC nfapi_common)
+diff --git a/nfapi/open-nFAPI/fapi/Makefile.am b/nfapi/open-nFAPI/fapi/Makefile.am
+new file mode 100644
+index 0000000000..9f3c356ae1
+--- /dev/null
++++ b/nfapi/open-nFAPI/fapi/Makefile.am
+@@ -0,0 +1,30 @@
++#
++# Copyright 2019-2021 OpenAirInterface (OAI) Software Alliance
++# 
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++# 
++# http://www.apache.org/licenses/LICENSE-2.0
++# 
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++# 
++
++AUTOMAKE_OPTIONS=subdir-objects
++
++AM_CPPFLAGS = -I$(top_srcdir)/fapi/inc\
++                          -I$(top_srcdir)/nfapi/public_inc\
++                          -I$(top_srcdir)/common/public_inc\
++                          -Wall -Werror -g
++
++noinst_LIBRARIES = libnfapi_fapi.a
++
++libnfapi_fapi_a_SOURCES = src/nr_fapi_p5.c\
++                          src/nr_fapi_p5_utils.c\
++                          src/nr_fapi_p7_utils.c
++
++libnfapi_fapi_a_CFLAGS =$(AM_CFLAGS)
+\ No newline at end of file
+diff --git a/nfapi/open-nFAPI/fapi/inc/nr_fapi_p7_utils.h b/nfapi/open-nFAPI/fapi/inc/nr_fapi_p7_utils.h
+new file mode 100644
+index 0000000000..1ad78bb3ad
+--- /dev/null
++++ b/nfapi/open-nFAPI/fapi/inc/nr_fapi_p7_utils.h
+@@ -0,0 +1,38 @@
++/*
++ * Copyright 2019-2021 OpenAirInterface (OAI) Software Alliance
++ * 
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++#ifndef _NR_FAPI_P7_UTILS_H_
++#define _NR_FAPI_P7_UTILS_H_
++
++#include "nfapi_nr_interface_scf.h"
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++/** Copy UCI indication PUSCH PDU with proper memory allocation for dynamic payloads
++ *
++ * @param dest Destination PUSCH PDU
++ * @param src Source PUSCH PDU
++ * @return 0 on success, -1 on failure
++ */
++int copy_uci_indication_PUSCH(nfapi_nr_uci_pusch_pdu_t *dest, const nfapi_nr_uci_pusch_pdu_t *src);
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif /* _NR_FAPI_P7_UTILS_H_ */
+\ No newline at end of file
+diff --git a/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c b/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c
+new file mode 100644
+index 0000000000..71f5ae4f1d
+--- /dev/null
++++ b/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c
+@@ -0,0 +1,72 @@
++/*
++ * Copyright 2019-2021 OpenAirInterface (OAI) Software Alliance
++ * 
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++#include <stdlib.h>
++#include <string.h>
++#include "nr_fapi_p7_utils.h"
++
++int copy_uci_indication_PUSCH(nfapi_nr_uci_pusch_pdu_t *dest, const nfapi_nr_uci_pusch_pdu_t *src)
++{
++    if (!dest || !src) {
++        return -1;
++    }
++
++    // Shallow copy first
++    *dest = *src;
++
++    // Handle HARQ payload
++    if (src->harq.harq_payload && src->harq.harq_bit_len > 0) {
++        dest->harq.harq_payload = malloc(sizeof(uint8_t) * ((src->harq.harq_bit_len + 7) / 8));
++        if (!dest->harq.harq_payload) {
++            return -1;
++        }
++        memcpy(dest->harq.harq_payload, src->harq.harq_payload, sizeof(uint8_t) * ((src->harq.harq_bit_len + 7) / 8));
++    }
++
++    // Handle CSI Part 1 payload
++    if (src->csi_part1.csi_part1_payload && src->csi_part1.csi_part1_bit_len > 0) {
++        dest->csi_part1.csi_part1_payload = malloc(sizeof(uint8_t) * ((src->csi_part1.csi_part1_bit_len + 7) / 8));
++        if (!dest->csi_part1.csi_part1_payload) {
++            // Free previously allocated memory
++            if (dest->harq.harq_payload) {
++                free(dest->harq.harq_payload);
++                dest->harq.harq_payload = NULL;
++            }
++            return -1;
++        }
++        memcpy(dest->csi_part1.csi_part1_payload, src->csi_part1.csi_part1_payload, sizeof(uint8_t) * ((src->csi_part1.csi_part1_bit_len + 7) / 8));
++    }
++
++    // Handle CSI Part 2 payload
++    if (src->csi_part2.csi_part2_payload && src->csi_part2.csi_part2_bit_len > 0) {
++        dest->csi_part2.csi_part2_payload = malloc(sizeof(uint8_t) * ((src->csi_part2.csi_part2_bit_len + 7) / 8));
++        if (!dest->csi_part2.csi_part2_payload) {
++            // Free previously allocated memory
++            if (dest->harq.harq_payload) {
++                free(dest->harq.harq_payload);
++                dest->harq.harq_payload = NULL;
++            }
++            if (dest->csi_part1.csi_part1_payload) {
++                free(dest->csi_part1.csi_part1_payload);
++                dest->csi_part1.csi_part1_payload = NULL;
++            }
++            return -1;
++        }
++        memcpy(dest->csi_part2.csi_part2_payload, src->csi_part2.csi_part2_payload, sizeof(uint8_t) * ((src->csi_part2.csi_part2_bit_len + 7) / 8));
++    }
++
++    return 0;
++}
+\ No newline at end of file

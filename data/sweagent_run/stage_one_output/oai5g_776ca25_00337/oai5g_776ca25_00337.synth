@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect R_sqrt indexing and uninitialized free_flags in fill_channel_desc\n\n### Summary\nThe `fill_channel_desc` function in the random channel simulator had two critical issues:\n\n1. When an external R_sqrt matrix was provided, all channel taps were incorrectly assigned the same pointer instead of individual slices\n2. The `free_flags` field was never initialized to zero, causing incorrect memory management flags to accumulate on descriptor reuse\n\nThese issues caused unpredictable channel modeling behavior and potential memory corruption during simulation runs.\n\n### Changes\n- `openair1/SIMULATION/TOOLS/random_channel.c`: \n  - Fixed R_sqrt indexing to properly slice the correlation matrix per tap\n  - Initialized free_flags field to prevent flag accumulation\n"
+}

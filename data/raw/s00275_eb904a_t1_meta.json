@@ -1,0 +1,33 @@
+{
+  "run_id": "s00275_eb904a",
+  "function": {
+    "name": "nfapi_vnf_p7_config_create",
+    "file": "nfapi/open-nFAPI/vnf/src/vnf_p7_interface.c",
+    "start_line": 37,
+    "end_line": 57,
+    "body_lines": 21,
+    "signature": "nfapi_vnf_p7_config_t* nfapi_vnf_p7_config_create()",
+    "subsystem": "nfapi/open-nFAPI/vnf",
+    "token_estimate": 48
+  },
+  "bug": {
+    "bug_id": "c_integer_overflow",
+    "description": "integer overflow leading to incorrect computation or wraparound",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a integer overflow leading to incorrect computation or wraparound downstream of function nfapi_vnf_p7_config_create in the nfapi/open-nFAPI/vnf subsystem.\nThe function is located at nfapi/open-nFAPI/vnf/src/vnf_p7_interface.c:37.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00275_eb904a_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00275_eb904a_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 33,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:18:23Z"
+}

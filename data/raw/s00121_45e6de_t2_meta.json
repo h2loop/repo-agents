@@ -1,0 +1,9 @@
+{
+  "run_id": "s00121_45e6de",
+  "pr_text": "## Title: Fix memory leak in PDCCH testbench main function\n\n### Summary\nThe PDCCH testbench (`pdcch_test.c`) allocates three heap structures at the start of `main()`: `PHY_config`, `PHY_vars`, and `mac_xface`. These resources were never freed before program exit, causing a memory leak that triggers static analysis tools and memory checkers like Valgrind. While the leak is small and occurs only once per process invocation, it violates proper resource management principles and can mask genuine mem",
+  "trajectory_path": "data/raw/s00121_45e6de_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00121_45e6de_p2.diff",
+  "patch_lines": 14,
+  "trajectory_steps": 27,
+  "timestamp": "2026-02-11T12:07:19Z"
+}

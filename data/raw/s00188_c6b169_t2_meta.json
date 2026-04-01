@@ -1,0 +1,9 @@
+{
+  "run_id": "s00188_c6b169",
+  "pr_text": "## Title: Fix stack buffer overflow in telnet server process stats command\n\n### Summary\nThe telnet server's process stats command contained a stack buffer overflow vulnerability when parsing `/proc/[pid]/stat` files. The `process_command` function used unsafe `sprintf()` calls to format process information into a fixed-size 1024-byte stack buffer (`prntline`) without bounds checking. Malicious or unusually long process names and stat fields could overflow the buffer, corrupting the stack and pot",
+  "trajectory_path": "data/raw/s00188_c6b169_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00188_c6b169_p2.diff",
+  "patch_lines": 48,
+  "trajectory_steps": 51,
+  "timestamp": "2026-02-10T11:50:26Z"
+}

@@ -1,0 +1,18 @@
+diff --git a/openair3/NAS/COMMON/IES/EsmInformationTransferFlag.c b/openair3/NAS/COMMON/IES/EsmInformationTransferFlag.c
+index 5b4358499b..5c914ca894 100644
+--- a/openair3/NAS/COMMON/IES/EsmInformationTransferFlag.c
++++ b/openair3/NAS/COMMON/IES/EsmInformationTransferFlag.c
+@@ -48,6 +48,13 @@ int decode_esm_information_transfer_flag(EsmInformationTransferFlag *esminformat
+ int decode_u8_esm_information_transfer_flag(EsmInformationTransferFlag *esminformationtransferflag, uint8_t iei, uint8_t value, uint32_t len)
+ {
+   int decoded = 0;
++  
++  /* Manual length validation with explicit unsigned comparison to avoid signed/unsigned mismatch */
++  if (len < (uint32_t)ESM_INFORMATION_TRANSFER_FLAG_MINIMUM_LENGTH) {
++    errorCodeDecoder = TLV_DECODE_BUFFER_TOO_SHORT;
++    LOG_FUNC_RETURN(TLV_DECODE_BUFFER_TOO_SHORT);
++  }
++  
+   uint8_t *buffer = &value;
+   *esminformationtransferflag = *buffer & 0x1;
+   decoded++;

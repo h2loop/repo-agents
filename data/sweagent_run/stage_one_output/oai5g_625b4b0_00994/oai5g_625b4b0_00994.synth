@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix segmentation fault in nr_mac_clean_cellgroup when rlc_BearerToAddModList is NULL\n\n### Summary\nThe `nr_mac_clean_cellgroup` function in `gNB_scheduler_primitives.c` was accessing `cell_group->rlc_BearerToAddModList->list.count` without first checking if `rlc_BearerToAddModList` was NULL. This caused a segmentation fault when the function was called with a CellGroupConfig that had a NULL `rlc_BearerToAddModList` field.\n\nThe issue occurred during UE reconfiguration procedures where the CellGroup might not always have RLC bearers to add or modify.\n\n### Changes\n- `openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c`: Added NULL check before accessing `rlc_BearerToAddModList` in `nr_mac_clean_cellgroup` function.\n\n"
+}

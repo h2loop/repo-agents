@@ -1,0 +1,80 @@
+diff --git a/openair2/ENB_APP/enb_app.c b/openair2/ENB_APP/enb_app.c
+index 4fcebc957e..11ab37e00a 100644
+--- a/openair2/ENB_APP/enb_app.c
++++ b/openair2/ENB_APP/enb_app.c
+@@ -111,31 +111,59 @@ static uint32_t eNB_app_register_m2(uint32_t enb_id_start, uint32_t enb_id_end)
+ 
+ /***************************  M2AP ENB handle **********************************/
+ static uint32_t eNB_app_handle_m2ap_mbms_scheduling_information(instance_t instance){
+-        //uint32_t         mce_id=0;
+-        MessageDef      *msg_p;
+-        msg_p = itti_alloc_new_message (TASK_ENB_APP, 0, M2AP_MBMS_SCHEDULING_INFORMATION_RESP);
+-        itti_send_msg_to_task (TASK_M2AP_ENB, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);
++        /* 
++         * This function previously sent M2AP_MBMS_SCHEDULING_INFORMATION_RESP directly,
++         * but this created a deadlock scenario. The RRC layer processes these messages
++         * while holding cell_info_mutex and sends its own responses. Having both ENB_APP
++         * and RRC send responses creates a race condition with inconsistent lock ordering.
++         * 
++         * The fix: ENB_APP now only logs the message and returns, letting RRC be the sole
++         * authority for sending M2AP responses. This eliminates the duplicate response
++         * path and prevents the deadlock.
++         */
++        LOG_I(ENB_APP, "M2AP_MBMS_SCHEDULING_INFORMATION forwarded to RRC for processing\n");
+         return 0;
+ }
+ static uint32_t eNB_app_handle_m2ap_mbms_session_start_req(instance_t instance){
+-        //uint32_t         mce_id=0;
+-        MessageDef      *msg_p;
+-        msg_p = itti_alloc_new_message (TASK_ENB_APP, 0, M2AP_MBMS_SESSION_START_RESP);
+-        itti_send_msg_to_task (TASK_M2AP_ENB, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);
++        /* 
++         * This function previously sent M2AP_MBMS_SESSION_START_RESP directly,
++         * but this created a deadlock scenario. The RRC layer processes these messages
++         * while holding cell_info_mutex and sends its own responses. Having both ENB_APP
++         * and RRC send responses creates a race condition with inconsistent lock ordering.
++         * 
++         * The fix: ENB_APP now only logs the message and returns, letting RRC be the sole
++         * authority for sending M2AP responses. This eliminates the duplicate response
++         * path and prevents the deadlock.
++         */
++        LOG_I(ENB_APP, "M2AP_MBMS_SESSION_START_REQ forwarded to RRC for processing\n");
+         return 0;
+ }
+ static uint32_t eNB_app_handle_m2ap_mbms_session_stop_req(instance_t instance){
+-        //uint32_t         mce_id=0;
+-        MessageDef      *msg_p;
+-        msg_p = itti_alloc_new_message (TASK_ENB_APP, 0, M2AP_MBMS_SESSION_STOP_RESP);
+-        itti_send_msg_to_task (TASK_M2AP_ENB, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);
++        /* 
++         * This function previously sent M2AP_MBMS_SESSION_STOP_RESP directly,
++         * but this created a deadlock scenario. The RRC layer processes these messages
++         * while holding cell_info_mutex and sends its own responses. Having both ENB_APP
++         * and RRC send responses creates a race condition with inconsistent lock ordering.
++         * 
++         * The fix: ENB_APP now only logs the message and returns, letting RRC be the sole
++         * authority for sending M2AP responses. This eliminates the duplicate response
++         * path and prevents the deadlock.
++         */
++        LOG_I(ENB_APP, "M2AP_MBMS_SESSION_STOP_REQ forwarded to RRC for processing\n");
+         return 0;
+ }
+ static uint32_t eNB_app_handle_m2ap_mbms_session_update_req(instance_t instance){
+-        //uint32_t         mce_id=0;
+-        MessageDef      *msg_p;
+-        msg_p = itti_alloc_new_message (TASK_ENB_APP, 0, M2AP_MBMS_SESSION_UPDATE_RESP);
+-        itti_send_msg_to_task (TASK_M2AP_ENB, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);
++        /* 
++         * This function previously sent M2AP_MBMS_SESSION_UPDATE_RESP directly,
++         * but this created a deadlock scenario. The RRC layer processes these messages
++         * while holding cell_info_mutex and sends its own responses. Having both ENB_APP
++         * and RRC send responses creates a race condition with inconsistent lock ordering.
++         * 
++         * The fix: ENB_APP now only logs the message and returns, letting RRC be the sole
++         * authority for sending M2AP responses. This eliminates the duplicate response
++         * path and prevents the deadlock.
++         */
++        LOG_I(ENB_APP, "M2AP_MBMS_SESSION_UPDATE_REQ forwarded to RRC for processing\n");
+         return 0;
+ }
+ 

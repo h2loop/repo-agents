@@ -1,0 +1,44 @@
+diff --git a/drivers/adc/adc_lmp90xxx.c b/drivers/adc/adc_lmp90xxx.c
+index 914bcad7..2a417fd5 100644
+--- a/drivers/adc/adc_lmp90xxx.c
++++ b/drivers/adc/adc_lmp90xxx.c
+@@ -181,6 +181,7 @@ static int lmp90xxx_read_reg(const struct device *dev, uint8_t addr,
+ 	int dummy = 0;
+ 	int i = 0;
+ 	int err;
++	unsigned int key;
+ 
+ 	if (len == 0) {
+ 		LOG_ERR("attempt to read 0 bytes from register 0x%02x", addr);
+@@ -222,7 +223,11 @@ static int lmp90xxx_read_reg(const struct device *dev, uint8_t addr,
+ 	rx.buffers = rx_buf;
+ 	rx.count = 2;
+ 
++	/* Lock interrupts to prevent DRDYB interrupt from preempting SPI transactions */
++	key = irq_lock();
+ 	err = spi_transceive_dt(&config->bus, &tx, &rx);
++	irq_unlock(key);
++
+ 	if (!err) {
+ 		data->ura = ura;
+ 	} else {
+@@ -254,6 +259,7 @@ static int lmp90xxx_write_reg(const struct device *dev, uint8_t addr,
+ 	struct spi_buf_set tx;
+ 	int i = 0;
+ 	int err;
++	unsigned int key;
+ 
+ 	if (len == 0) {
+ 		LOG_ERR("attempt write 0 bytes to register 0x%02x", addr);
+@@ -288,7 +294,11 @@ static int lmp90xxx_write_reg(const struct device *dev, uint8_t addr,
+ 	tx.buffers = tx_buf;
+ 	tx.count = i;
+ 
++	/* Lock interrupts to prevent DRDYB interrupt from preempting SPI transactions */
++	key = irq_lock();
+ 	err = spi_write_dt(&config->bus, &tx);
++	irq_unlock(key);
++
+ 	if (!err) {
+ 		data->ura = ura;
+ 	} else {

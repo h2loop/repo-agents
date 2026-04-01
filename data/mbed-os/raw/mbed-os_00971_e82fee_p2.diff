@@ -1,0 +1,200 @@
+diff --git a/targets/TARGET_STM/TARGET_STM32G4/STM32Cube_FW/STM32G4xx_HAL_Driver/stm32g4xx_ll_tim.c b/targets/TARGET_STM/TARGET_STM32G4/STM32Cube_FW/STM32G4xx_HAL_Driver/stm32g4xx_ll_tim.c
+index f6f42da9..d3ef8ef4 100644
+--- a/targets/TARGET_STM/TARGET_STM32G4/STM32Cube_FW/STM32G4xx_HAL_Driver/stm32g4xx_ll_tim.c
++++ b/targets/TARGET_STM/TARGET_STM32G4/STM32Cube_FW/STM32G4xx_HAL_Driver/stm32g4xx_ll_tim.c
+@@ -337,6 +337,13 @@ ErrorStatus LL_TIM_Init(TIM_TypeDef *TIMx, LL_TIM_InitTypeDef *TIM_InitStruct)
+ 
+   /* Check the parameters */
+   assert_param(IS_TIM_INSTANCE(TIMx));
++  
++  /* Check for NULL pointer */
++  if (TIM_InitStruct == NULL)
++  {
++    return ERROR;
++  }
++  
+   assert_param(IS_LL_TIM_COUNTERMODE(TIM_InitStruct->CounterMode));
+   assert_param(IS_LL_TIM_CLOCKDIVISION(TIM_InitStruct->ClockDivision));
+ 
+@@ -528,6 +535,13 @@ ErrorStatus LL_TIM_ENCODER_Init(TIM_TypeDef *TIMx, LL_TIM_ENCODER_InitTypeDef *T
+ 
+   /* Check the parameters */
+   assert_param(IS_TIM_ENCODER_INTERFACE_INSTANCE(TIMx));
++  
++  /* Check for NULL pointer */
++  if (TIM_EncoderInitStruct == NULL)
++  {
++    return ERROR;
++  }
++  
+   assert_param(IS_LL_TIM_ENCODERMODE(TIM_EncoderInitStruct->EncoderMode));
+   assert_param(IS_LL_TIM_IC_POLARITY_ENCODER(TIM_EncoderInitStruct->IC1Polarity));
+   assert_param(IS_LL_TIM_ACTIVEINPUT(TIM_EncoderInitStruct->IC1ActiveInput));
+@@ -621,6 +635,13 @@ ErrorStatus LL_TIM_HALLSENSOR_Init(TIM_TypeDef *TIMx, LL_TIM_HALLSENSOR_InitType
+ 
+   /* Check the parameters */
+   assert_param(IS_TIM_HALL_SENSOR_INTERFACE_INSTANCE(TIMx));
++  
++  /* Check for NULL pointer */
++  if (TIM_HallSensorInitStruct == NULL)
++  {
++    return ERROR;
++  }
++  
+   assert_param(IS_LL_TIM_IC_POLARITY_ENCODER(TIM_HallSensorInitStruct->IC1Polarity));
+   assert_param(IS_LL_TIM_ICPSC(TIM_HallSensorInitStruct->IC1Prescaler));
+   assert_param(IS_LL_TIM_IC_FILTER(TIM_HallSensorInitStruct->IC1Filter));
+@@ -730,6 +751,13 @@ ErrorStatus LL_TIM_BDTR_Init(TIM_TypeDef *TIMx, LL_TIM_BDTR_InitTypeDef *TIM_BDT
+ 
+   /* Check the parameters */
+   assert_param(IS_TIM_BREAK_INSTANCE(TIMx));
++  
++  /* Check for NULL pointer */
++  if (TIM_BDTRInitStruct == NULL)
++  {
++    return ERROR;
++  }
++  
+   assert_param(IS_LL_TIM_OSSR_STATE(TIM_BDTRInitStruct->OSSRState));
+   assert_param(IS_LL_TIM_OSSI_STATE(TIM_BDTRInitStruct->OSSIState));
+   assert_param(IS_LL_TIM_LOCK_LEVEL(TIM_BDTRInitStruct->LockLevel));
+@@ -804,6 +832,13 @@ static ErrorStatus OC1Config(TIM_TypeDef *TIMx, LL_TIM_OC_InitTypeDef *TIM_OCIni
+ 
+   /* Check the parameters */
+   assert_param(IS_TIM_CC1_INSTANCE(TIMx));
++  
++  /* Check for NULL pointer */
++  if (TIM_OCInitStruct == NULL)
++  {
++    return ERROR;
++  }
++  
+   assert_param(IS_LL_TIM_OCMODE(TIM_OCInitStruct->OCMode));
+   assert_param(IS_LL_TIM_OCSTATE(TIM_OCInitStruct->OCState));
+   assert_param(IS_LL_TIM_OCPOLARITY(TIM_OCInitStruct->OCPolarity));
+@@ -883,6 +918,13 @@ static ErrorStatus OC2Config(TIM_TypeDef *TIMx, LL_TIM_OC_InitTypeDef *TIM_OCIni
+ 
+   /* Check the parameters */
+   assert_param(IS_TIM_CC2_INSTANCE(TIMx));
++  
++  /* Check for NULL pointer */
++  if (TIM_OCInitStruct == NULL)
++  {
++    return ERROR;
++  }
++  
+   assert_param(IS_LL_TIM_OCMODE(TIM_OCInitStruct->OCMode));
+   assert_param(IS_LL_TIM_OCSTATE(TIM_OCInitStruct->OCState));
+   assert_param(IS_LL_TIM_OCPOLARITY(TIM_OCInitStruct->OCPolarity));
+@@ -962,6 +1004,13 @@ static ErrorStatus OC3Config(TIM_TypeDef *TIMx, LL_TIM_OC_InitTypeDef *TIM_OCIni
+ 
+   /* Check the parameters */
+   assert_param(IS_TIM_CC3_INSTANCE(TIMx));
++  
++  /* Check for NULL pointer */
++  if (TIM_OCInitStruct == NULL)
++  {
++    return ERROR;
++  }
++  
+   assert_param(IS_LL_TIM_OCMODE(TIM_OCInitStruct->OCMode));
+   assert_param(IS_LL_TIM_OCSTATE(TIM_OCInitStruct->OCState));
+   assert_param(IS_LL_TIM_OCPOLARITY(TIM_OCInitStruct->OCPolarity));
+@@ -1041,6 +1090,13 @@ static ErrorStatus OC4Config(TIM_TypeDef *TIMx, LL_TIM_OC_InitTypeDef *TIM_OCIni
+ 
+   /* Check the parameters */
+   assert_param(IS_TIM_CC4_INSTANCE(TIMx));
++  
++  /* Check for NULL pointer */
++  if (TIM_OCInitStruct == NULL)
++  {
++    return ERROR;
++  }
++  
+   assert_param(IS_LL_TIM_OCMODE(TIM_OCInitStruct->OCMode));
+   assert_param(IS_LL_TIM_OCSTATE(TIM_OCInitStruct->OCState));
+   assert_param(IS_LL_TIM_OCPOLARITY(TIM_OCInitStruct->OCPolarity));
+@@ -1119,6 +1175,13 @@ static ErrorStatus OC5Config(TIM_TypeDef *TIMx, LL_TIM_OC_InitTypeDef *TIM_OCIni
+ 
+   /* Check the parameters */
+   assert_param(IS_TIM_CC5_INSTANCE(TIMx));
++  
++  /* Check for NULL pointer */
++  if (TIM_OCInitStruct == NULL)
++  {
++    return ERROR;
++  }
++  
+   assert_param(IS_LL_TIM_OCMODE(TIM_OCInitStruct->OCMode));
+   assert_param(IS_LL_TIM_OCSTATE(TIM_OCInitStruct->OCState));
+   assert_param(IS_LL_TIM_OCPOLARITY(TIM_OCInitStruct->OCPolarity));
+@@ -1180,6 +1243,13 @@ static ErrorStatus OC6Config(TIM_TypeDef *TIMx, LL_TIM_OC_InitTypeDef *TIM_OCIni
+ 
+   /* Check the parameters */
+   assert_param(IS_TIM_CC6_INSTANCE(TIMx));
++  
++  /* Check for NULL pointer */
++  if (TIM_OCInitStruct == NULL)
++  {
++    return ERROR;
++  }
++  
+   assert_param(IS_LL_TIM_OCMODE(TIM_OCInitStruct->OCMode));
+   assert_param(IS_LL_TIM_OCSTATE(TIM_OCInitStruct->OCState));
+   assert_param(IS_LL_TIM_OCPOLARITY(TIM_OCInitStruct->OCPolarity));
+@@ -1237,6 +1307,13 @@ static ErrorStatus IC1Config(TIM_TypeDef *TIMx, LL_TIM_IC_InitTypeDef *TIM_ICIni
+ {
+   /* Check the parameters */
+   assert_param(IS_TIM_CC1_INSTANCE(TIMx));
++  
++  /* Check for NULL pointer */
++  if (TIM_ICInitStruct == NULL)
++  {
++    return ERROR;
++  }
++  
+   assert_param(IS_LL_TIM_IC_POLARITY(TIM_ICInitStruct->ICPolarity));
+   assert_param(IS_LL_TIM_ACTIVEINPUT(TIM_ICInitStruct->ICActiveInput));
+   assert_param(IS_LL_TIM_ICPSC(TIM_ICInitStruct->ICPrescaler));
+@@ -1270,6 +1347,13 @@ static ErrorStatus IC2Config(TIM_TypeDef *TIMx, LL_TIM_IC_InitTypeDef *TIM_ICIni
+ {
+   /* Check the parameters */
+   assert_param(IS_TIM_CC2_INSTANCE(TIMx));
++  
++  /* Check for NULL pointer */
++  if (TIM_ICInitStruct == NULL)
++  {
++    return ERROR;
++  }
++  
+   assert_param(IS_LL_TIM_IC_POLARITY(TIM_ICInitStruct->ICPolarity));
+   assert_param(IS_LL_TIM_ACTIVEINPUT(TIM_ICInitStruct->ICActiveInput));
+   assert_param(IS_LL_TIM_ICPSC(TIM_ICInitStruct->ICPrescaler));
+@@ -1303,6 +1387,13 @@ static ErrorStatus IC3Config(TIM_TypeDef *TIMx, LL_TIM_IC_InitTypeDef *TIM_ICIni
+ {
+   /* Check the parameters */
+   assert_param(IS_TIM_CC3_INSTANCE(TIMx));
++  
++  /* Check for NULL pointer */
++  if (TIM_ICInitStruct == NULL)
++  {
++    return ERROR;
++  }
++  
+   assert_param(IS_LL_TIM_IC_POLARITY(TIM_ICInitStruct->ICPolarity));
+   assert_param(IS_LL_TIM_ACTIVEINPUT(TIM_ICInitStruct->ICActiveInput));
+   assert_param(IS_LL_TIM_ICPSC(TIM_ICInitStruct->ICPrescaler));
+@@ -1336,6 +1427,13 @@ static ErrorStatus IC4Config(TIM_TypeDef *TIMx, LL_TIM_IC_InitTypeDef *TIM_ICIni
+ {
+   /* Check the parameters */
+   assert_param(IS_TIM_CC4_INSTANCE(TIMx));
++  
++  /* Check for NULL pointer */
++  if (TIM_ICInitStruct == NULL)
++  {
++    return ERROR;
++  }
++  
+   assert_param(IS_LL_TIM_IC_POLARITY(TIM_ICInitStruct->ICPolarity));
+   assert_param(IS_LL_TIM_ACTIVEINPUT(TIM_ICInitStruct->ICActiveInput));
+   assert_param(IS_LL_TIM_ICPSC(TIM_ICInitStruct->ICPrescaler));

@@ -1,0 +1,38 @@
+diff --git a/common/utils/T/tracer/gui/textarea.c b/common/utils/T/tracer/gui/textarea.c
+index da84f850ca..e156734963 100644
+--- a/common/utils/T/tracer/gui/textarea.c
++++ b/common/utils/T/tracer/gui/textarea.c
+@@ -9,10 +9,17 @@ static void paint(gui *_gui, widget *_w)
+ {
+   struct gui *g = _gui;
+   struct textarea_widget *t = _w;
+-  LOGD("PAINT textarea '%s'\n", t->t);
++  
+   x_fill_rectangle(g->x, g->xwin, BACKGROUND_COLOR,
+       t->common.x, t->common.y,
+       t->common.width, t->common.height);
++  
++  if (t->t == NULL) {
++    LOGD("PAINT textarea with NULL text\n");
++    return;
++  }
++  
++  LOGD("PAINT textarea '%s'\n", t->t);
+   x_draw_clipped_string(g->x, g->xwin, DEFAULT_FONT, t->color,
+       t->common.x + t->common.width - t->text_width,
+       t->common.y + t->baseline, t->t,
+@@ -23,7 +30,13 @@ static void paint(gui *_gui, widget *_w)
+ static void hints(gui *_gui, widget *_w, int *width, int *height)
+ {
+   struct textarea_widget *t = _w;
+-  LOGD("HINTS textarea '%s'\n", t->t);
++  
++  if (t->t == NULL) {
++    LOGD("HINTS textarea with NULL text\n");
++  } else {
++    LOGD("HINTS textarea '%s'\n", t->t);
++  }
++  
+   *width = t->wanted_width;
+   *height = t->wanted_height;
+ }

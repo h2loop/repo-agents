@@ -1,0 +1,158 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/mac_defs.h b/openair2/LAYER2/NR_MAC_UE/mac_defs.h
+index 10a89adc89..9ccce454d4 100644
+--- a/openair2/LAYER2/NR_MAC_UE/mac_defs.h
++++ b/openair2/LAYER2/NR_MAC_UE/mac_defs.h
+@@ -581,7 +581,7 @@ typedef struct NR_UE_MAC_INST_s {
+ 
+   nr_csi_report_t csi_report_template[MAX_CSI_REPORTCONFIG];
+ 
+-  ////	FAPI-like interface message
++  ////  FAPI-like interface message
+   fapi_nr_ul_config_request_t *ul_config_request;
+   fapi_nr_dl_config_request_t *dl_config_request;
+ 
+@@ -643,12 +643,12 @@ typedef struct NR_UE_MAC_INST_s {
+ 
+ static inline int GET_NTN_UE_K_OFFSET(const fapi_nr_ntn_config_t *ntn_ta, int scs)
+ {
+-  return (int)ntn_ta->cell_specific_k_offset << scs;
++  return (int)ntn_ta->cell_specific_k_offset;
+ }
+ 
+ static inline long GET_DURATION_RX_TO_TX(const fapi_nr_ntn_config_t *ntn_ta, int scs)
+ {
+-  return NR_UE_CAPABILITY_SLOT_RX_TO_TX + (ntn_ta->cell_specific_k_offset << scs);
++  return NR_UE_CAPABILITY_SLOT_RX_TO_TX + ntn_ta->cell_specific_k_offset;
+ }
+ 
+ /*@}*/
+diff --git a/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c b/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
+index 47277f8a66..040ff82aa2 100644
+--- a/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
++++ b/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
+@@ -813,7 +813,7 @@ static void setup_ra_response_window(NR_UE_MAC_INST_t *mac,
+       LOG_E(NR_MAC, "RA-ResponseWindow need to be configured to a value lower than or equal to 10 ms\n");
+   }
+ 
+-  const int ntn_ue_koffset = GET_NTN_UE_K_OFFSET(&mac->phy_config.config_req.ntn_config, mac->current_UL_BWP->scs);
++  const int ntn_ue_koffset = mac->phy_config.config_req.ntn_config.cell_specific_k_offset;
+   ra->response_window_setup_time = respwind_value + ntn_ue_koffset;
+ }
+ 
+@@ -1027,7 +1027,7 @@ void nr_Msg3_transmitted(NR_UE_MAC_INST_t *mac, uint8_t CC_id, frame_t frameP, s
+ {
+   RA_config_t *ra = &mac->ra;
+   NR_RACH_ConfigCommon_t *nr_rach_ConfigCommon = mac->current_UL_BWP->rach_ConfigCommon;
+-  const int ntn_ue_koffset = GET_NTN_UE_K_OFFSET(&mac->phy_config.config_req.ntn_config, mac->current_UL_BWP->scs);
++  const int ntn_ue_koffset = mac->phy_config.config_req.ntn_config.cell_specific_k_offset;
+   const int slots_per_ms = mac->frame_structure.numb_slots_frame / 10;
+ 
+   // start contention resolution timer
+diff --git a/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c b/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c
+index 672bc3c3a2..38e9a298c9 100644
+--- a/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c
++++ b/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c
+@@ -190,7 +190,7 @@ void nr_ue_decode_mib(NR_UE_MAC_INST_t *mac, int cc_id)
+   for (int i = 0; i < 4; i++)
+     frame_number_4lsb |= ((extra_bits >> i) & 1) << (3 - i);
+ 
+-  uint8_t ssb_subcarrier_offset_msb = (extra_bits >> 5) & 0x1;    //	extra bits[5]
++  uint8_t ssb_subcarrier_offset_msb = (extra_bits >> 5) & 0x1;    //    extra bits[5]
+   uint8_t ssb_subcarrier_offset = (uint8_t)mac->mib->ssb_SubcarrierOffset;
+ 
+   frame = frame << 4;
+@@ -201,7 +201,7 @@ void nr_ue_decode_mib(NR_UE_MAC_INST_t *mac, int cc_id)
+   }
+ 
+ #ifdef DEBUG_MIB
+-  uint8_t half_frame_bit = (extra_bits >> 4) & 0x1; //	extra bits[4]
++  uint8_t half_frame_bit = (extra_bits >> 4) & 0x1; //  extra bits[4]
+   LOG_I(MAC,"system frame number(6 MSB bits): %d\n",  mac->mib->systemFrameNumber.buf[0]);
+   LOG_I(MAC,"system frame number(with LSB): %d\n", (int) mac->mib_frame);
+   LOG_I(MAC,"subcarrier spacing (0=15or60, 1=30or120): %d\n", (int)mac->mib->subCarrierSpacingCommon);
+@@ -566,7 +566,7 @@ static int nr_ue_process_dci_ul_00(NR_UE_MAC_INST_t *mac,
+ 
+   frame_t frame_tx;
+   int slot_tx;
+-  const int ntn_ue_koffset = GET_NTN_UE_K_OFFSET(&mac->phy_config.config_req.ntn_config, mac->current_UL_BWP->scs);
++  const int ntn_ue_koffset = mac->phy_config.config_req.ntn_config.cell_specific_k_offset;
+   if (-1 == nr_ue_pusch_scheduler(mac, 0, frame, slot, &frame_tx, &slot_tx, tda_info.k2 + ntn_ue_koffset)) {
+     LOG_E(MAC, "Cannot schedule PUSCH\n");
+     return -1;
+@@ -664,7 +664,7 @@ static int nr_ue_process_dci_ul_01(NR_UE_MAC_INST_t *mac,
+     tda_info.k2 = csi_K2;
+   }
+ 
+-  const int ntn_ue_koffset = GET_NTN_UE_K_OFFSET(&mac->phy_config.config_req.ntn_config, mac->current_UL_BWP->scs);
++  const int ntn_ue_koffset = mac->phy_config.config_req.ntn_config.cell_specific_k_offset;
+   if (-1 == nr_ue_pusch_scheduler(mac, 0, frame, slot, &frame_tx, &slot_tx, tda_info.k2 + ntn_ue_koffset)) {
+     LOG_E(MAC, "Cannot schedule PUSCH\n");
+     return -1;
+@@ -1001,7 +1001,7 @@ static int nr_ue_process_dci_dl_10(NR_UE_MAC_INST_t *mac,
+ 
+   /* PDSCH_TO_HARQ_FEEDBACK_TIME_IND */
+   // according to TS 38.213 9.2.3
+-  const int ntn_ue_koffset = GET_NTN_UE_K_OFFSET(&mac->phy_config.config_req.ntn_config, dlsch_pdu->SubcarrierSpacing);
++  const int ntn_ue_koffset = mac->phy_config.config_req.ntn_config.cell_specific_k_offset;
+   uint16_t feedback_ti = 0;
+ 
+   if (rnti_type == TYPE_RA_RNTI_) {
+@@ -1009,17 +1009,17 @@ static int nr_ue_process_dci_dl_10(NR_UE_MAC_INST_t *mac,
+     // that can process the MSG3. Also assume that RAR is sent in the same slot as DCI (k0 == 0)
+     // This is not perfect as the MSG3 might end up being scheduled later, so we could be
+     // halting the UL scheduler for a longer time than necessary.
+-    feedback_ti = max(1 + GET_DURATION_RX_TO_TX(&mac->phy_config.config_req.ntn_config, dlsch_pdu->SubcarrierSpacing),
++    feedback_ti = max(1 + mac->phy_config.config_req.ntn_config.cell_specific_k_offset + NR_UE_CAPABILITY_SLOT_RX_TO_TX,
+                       get_delta_for_k2(mac->current_UL_BWP->scs) + get_j_for_k2(mac->current_UL_BWP->scs));
+   }
+ 
+   if (rnti_type != TYPE_RA_RNTI_ && rnti_type != TYPE_SI_RNTI_) {
+     if (!get_FeedbackDisabled(mac->sc_info.downlinkHARQ_FeedbackDisabled_r17, dci->harq_pid.val)) {
+       feedback_ti = 1 + dci->pdsch_to_harq_feedback_timing_indicator.val + ntn_ue_koffset;
+-      AssertFatal(feedback_ti >= GET_DURATION_RX_TO_TX(&mac->phy_config.config_req.ntn_config, dlsch_pdu->SubcarrierSpacing),
++      AssertFatal(feedback_ti >= (NR_UE_CAPABILITY_SLOT_RX_TO_TX + mac->phy_config.config_req.ntn_config.cell_specific_k_offset),
+                   "PDSCH to HARQ feedback time (%d) needs to be higher than DURATION_RX_TO_TX (%ld).\n",
+                   feedback_ti,
+-                  GET_DURATION_RX_TO_TX(&mac->phy_config.config_req.ntn_config, dlsch_pdu->SubcarrierSpacing));
++                  (NR_UE_CAPABILITY_SLOT_RX_TO_TX + mac->phy_config.config_req.ntn_config.cell_specific_k_offset));
+       // set the harq status at MAC for feedback
+       const int tpc[] = {-1, 0, 1, 3};
+       set_harq_status(mac,
+@@ -1315,16 +1315,16 @@ static int nr_ue_process_dci_dl_11(NR_UE_MAC_INST_t *mac,
+ 
+   /* PDSCH_TO_HARQ_FEEDBACK_TIME_IND */
+   // according to TS 38.213 Table 9.2.3-1
+-  const int ntn_ue_koffset = GET_NTN_UE_K_OFFSET(&mac->phy_config.config_req.ntn_config, dlsch_pdu->SubcarrierSpacing);
++  const int ntn_ue_koffset = mac->phy_config.config_req.ntn_config.cell_specific_k_offset;
+   uint16_t feedback_ti = 0;
+ 
+   if (!get_FeedbackDisabled(mac->sc_info.downlinkHARQ_FeedbackDisabled_r17, dci->harq_pid.val)) {
+     feedback_ti = pucch_Config->dl_DataToUL_ACK->list.array[dci->pdsch_to_harq_feedback_timing_indicator.val][0] + ntn_ue_koffset;
+-    AssertFatal(feedback_ti >= GET_DURATION_RX_TO_TX(&mac->phy_config.config_req.ntn_config, dlsch_pdu->SubcarrierSpacing),
++    AssertFatal(feedback_ti >= (NR_UE_CAPABILITY_SLOT_RX_TO_TX + mac->phy_config.config_req.ntn_config.cell_specific_k_offset),
+                 "PDSCH to HARQ feedback time (%d) needs to be higher than DURATION_RX_TO_TX (%ld). Min feedback time set in config "
+                 "file (min_rxtxtime).\n",
+                 feedback_ti,
+-                GET_DURATION_RX_TO_TX(&mac->phy_config.config_req.ntn_config, dlsch_pdu->SubcarrierSpacing));
++                (NR_UE_CAPABILITY_SLOT_RX_TO_TX + mac->phy_config.config_req.ntn_config.cell_specific_k_offset));
+ 
+     // set the harq status at MAC for feedback
+     const int tpc[] = {-1, 0, 1, 3};
+@@ -3064,7 +3064,7 @@ static void set_time_alignment(NR_UE_MAC_INST_t *mac, int ta, ta_type_t type, in
+   NR_UL_TIME_ALIGNMENT_t *ul_time_alignment = &mac->ul_time_alignment;
+   ul_time_alignment->ta_command = ta;
+   ul_time_alignment->ta_apply = type;
+-  const int ntn_ue_koffset = GET_NTN_UE_K_OFFSET(&mac->phy_config.config_req.ntn_config, mac->current_UL_BWP->scs);
++  const int ntn_ue_koffset = mac->phy_config.config_req.ntn_config.cell_specific_k_offset;
+   const int n_slots_frame = mac->frame_structure.numb_slots_frame;
+   ul_time_alignment->frame = (frame + (slot + ntn_ue_koffset) / n_slots_frame) % MAX_FRAME_NUMBER;
+   ul_time_alignment->slot = (slot + ntn_ue_koffset) % n_slots_frame;
+@@ -3112,7 +3112,7 @@ static void handle_rar_reception(NR_UE_MAC_INST_t *mac, NR_MAC_RAR *rar, frame_t
+   }
+   frame_t frame_tx = 0;
+   int slot_tx = 0;
+-  const int ntn_ue_koffset = GET_NTN_UE_K_OFFSET(&mac->phy_config.config_req.ntn_config, mac->current_UL_BWP->scs);
++  const int ntn_ue_koffset = mac->phy_config.config_req.ntn_config.cell_specific_k_offset;
+   int ret = nr_ue_pusch_scheduler(mac, 1, frame, slot, &frame_tx, &slot_tx, tda_info.k2 + ntn_ue_koffset);
+ 
+   // TA command

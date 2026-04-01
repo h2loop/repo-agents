@@ -1,0 +1,24 @@
+diff --git a/openair1/SCHED/phy_procedures_lte_eNb.c b/openair1/SCHED/phy_procedures_lte_eNb.c
+index a9cba05d4d..132bb44b31 100644
+--- a/openair1/SCHED/phy_procedures_lte_eNb.c
++++ b/openair1/SCHED/phy_procedures_lte_eNb.c
+@@ -49,6 +49,10 @@
+ #include "common/ran_context.h"
+ extern RAN_CONTEXT_t RC;
+ 
++/* Constants for beamforming modes used in get_G() function */
++#define BEAMFORMING_MODE_TM7 7
++#define BEAMFORMING_MODE_NONE 0
++
+ 
+ int16_t get_hundred_times_delta_IF_eNB(PHY_VARS_eNB *eNB,uint16_t ULSCH_id,uint8_t harq_pid, uint8_t bw_factor) {
+   uint32_t Nre,sumKr,MPR_x100,Kr,r;
+@@ -333,7 +337,7 @@ bool dlsch_procedures(PHY_VARS_eNB *eNB,
+                 dlsch_harq->pdsch_start,
+                 frame,
+                 subframe,
+-                dlsch_harq->mimo_mode==TM7?7:0),
++                dlsch_harq->mimo_mode==TM7?BEAMFORMING_MODE_TM7:BEAMFORMING_MODE_NONE),
+           dlsch_harq->nb_rb,
+           dlsch_harq->rb_alloc[0],
+           dlsch_harq->rb_alloc[1],

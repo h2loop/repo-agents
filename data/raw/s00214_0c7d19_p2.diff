@@ -1,0 +1,21 @@
+diff --git a/openair1/PHY/TOOLS/log2_approx.c b/openair1/PHY/TOOLS/log2_approx.c
+index 4b95fc7978..025701f8e2 100644
+--- a/openair1/PHY/TOOLS/log2_approx.c
++++ b/openair1/PHY/TOOLS/log2_approx.c
+@@ -55,11 +55,12 @@ unsigned char log2_approx64(unsigned long long int x)
+   if (!x)
+     return 0;
+ 
+-  int l2 = simde_x_clz64(x);
+-  if (x > (round_val >> l2))
+-    l2 = 64 - l2;
++  int leading_zeros = simde_x_clz64(x);
++  int l2;
++  if (x > (round_val >> leading_zeros))
++    l2 = 64 - leading_zeros;
+   else
+-    l2 = 63 - l2;
++    l2 = 63 - leading_zeros;
+ 
+   return l2;
+ }

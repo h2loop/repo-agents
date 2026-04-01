@@ -1,0 +1,28 @@
+{
+  "run_id": "s00041_21943a",
+  "function": {
+    "name": "mac_init_cell_params",
+    "file": "openair2/LAYER2/MAC/main.c",
+    "start_line": 221,
+    "end_line": 240,
+    "body_lines": 20,
+    "signature": "void mac_init_cell_params(int Mod_idP, int CC_idP)",
+    "subsystem": "openair2/LAYER2/MAC",
+    "token_estimate": 47
+  },
+  "bug": {
+    "bug_id": "telecom_sched_incorrect_rb_allocation",
+    "description": "incorrect resource block allocation violating scheduling constraints",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a incorrect resource block allocation violating scheduling constraints downstream of function mac_init_cell_params in the openair2/LAYER2/MAC subsystem.\nThe function is located at openair2/LAYER2/MAC/main.c:221.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00041_21943a_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00041_21943a_p1.diff",
+  "patch_lines": 13,
+  "trajectory_steps": 31,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T09:23:07Z"
+}

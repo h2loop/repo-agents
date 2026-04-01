@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix uninitialized mobility timing parameters in trace-based mobility model\n\n### Summary\nThe trace-based mobility model in OMG had uninitialized timing parameters that caused incorrect speed calculations and unpredictable node movement patterns. The issue occurred when nodes with zero speed in trace files were processed, leading to division by zero errors and NaN position updates.\n\nThe root cause was that `start_journey` and `target_time` fields in the mobility structure were left uninitialized in `place_trace_node()`, causing downstream functions to operate on garbage values.\n\n### Changes\n- `openair2/UTIL/OMG/trace.c`: Initialize `start_journey` and `target_time` parameters in `place_trace_node()` function to ensure proper speed calculations for zero-speed trace entries.\n\n"
+}

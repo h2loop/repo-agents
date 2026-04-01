@@ -1,0 +1,15 @@
+diff --git a/common/utils/LOG/vcd_signal_dumper.c b/common/utils/LOG/vcd_signal_dumper.c
+index 841f2889b6..7ff2d55c07 100644
+--- a/common/utils/LOG/vcd_signal_dumper.c
++++ b/common/utils/LOG/vcd_signal_dumper.c
+@@ -768,6 +768,10 @@ void vcd_signal_dumper_init(char *filename)
+     if (pthread_create(&vcd_dumper_thread, NULL, vcd_dumper_thread_rt, NULL) < 0) {
+       fprintf(stderr, "vcd_signal_dumper_init: Failed to create thread: %s\n",
+               strerror(errno));
++      if (vcd_fd != NULL) {
++        fclose(vcd_fd);
++        vcd_fd = NULL;
++      }
+       ouput_vcd = 0;
+       return;
+     }

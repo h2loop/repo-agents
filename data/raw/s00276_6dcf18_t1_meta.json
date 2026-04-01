@@ -1,0 +1,32 @@
+{
+  "run_id": "s00276_6dcf18",
+  "function": {
+    "name": "update_cellgroup_for_reestablishment",
+    "file": "openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c",
+    "start_line": 663,
+    "end_line": 688,
+    "body_lines": 26,
+    "signature": "static void update_cellgroup_for_reestablishment(NR_UE_info_t *UE, NR_CellGroupConfig_t *new_CellGroup)",
+    "subsystem": "openair2/LAYER2/NR_MAC_gNB",
+    "token_estimate": 102
+  },
+  "bug": {
+    "bug_id": "telecom_config_range_check_missing",
+    "description": "missing range validation on configuration parameter allowing out-of-spec values",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a missing range validation on configuration parameter allowing out-of-spec values downstream of function update_cellgroup_for_reestablishment in the openair2/LAYER2/NR_MAC_gNB subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c:663.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00276_6dcf18_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00276_6dcf18_p1.diff",
+  "patch_lines": 34,
+  "trajectory_steps": 56,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:19:28Z"
+}

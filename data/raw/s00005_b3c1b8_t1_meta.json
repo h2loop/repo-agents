@@ -1,0 +1,31 @@
+{
+  "run_id": "s00005_b3c1b8",
+  "function": {
+    "name": "ngap_gNB_handle_sctp_data_ind",
+    "file": "openair3/NGAP/ngap_gNB.c",
+    "start_line": 265,
+    "end_line": 278,
+    "body_lines": 14,
+    "signature": "static void ngap_gNB_handle_sctp_data_ind(sctp_data_ind_t *sctp_data_ind)",
+    "subsystem": "openair3/NGAP",
+    "token_estimate": 37
+  },
+  "bug": {
+    "bug_id": "telecom_timer_race",
+    "description": "race condition between timer expiry handler and normal message processing",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a race condition between timer expiry handler and normal message processing downstream of function ngap_gNB_handle_sctp_data_ind in the openair3/NGAP subsystem.\nThe function is located at openair3/NGAP/ngap_gNB.c:265.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00005_b3c1b8_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00005_b3c1b8_p1.diff",
+  "patch_lines": 22,
+  "trajectory_steps": 55,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:37:06Z"
+}

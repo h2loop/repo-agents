@@ -1,0 +1,32 @@
+{
+  "run_id": "s00007_0848cd",
+  "function": {
+    "name": "lte_eNB_I0_measurements",
+    "file": "openair1/PHY/LTE_ESTIMATION/lte_eNB_measurements.c",
+    "start_line": 58,
+    "end_line": 142,
+    "body_lines": 85,
+    "signature": "void lte_eNB_I0_measurements(PHY_VARS_eNB *eNB, int subframe, module_id_t eNB_id, unsigned char clear)",
+    "subsystem": "openair1/PHY/LTE_ESTIMATION",
+    "token_estimate": 239
+  },
+  "bug": {
+    "bug_id": "c_unreachable_code",
+    "description": "unreachable code path due to incorrect conditional logic",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/NAS",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a unreachable code path due to incorrect conditional logic downstream of function lte_eNB_I0_measurements in the openair1/PHY/LTE_ESTIMATION subsystem.\nThe function is located at openair1/PHY/LTE_ESTIMATION/lte_eNB_measurements.c:58.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00007_0848cd_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00007_0848cd_p1.diff",
+  "patch_lines": 0,
+  "trajectory_steps": 18,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:29:10Z"
+}

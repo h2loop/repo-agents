@@ -1,0 +1,30 @@
+{
+  "run_id": "s00651_0ce539",
+  "function": {
+    "name": "dft18432",
+    "file": "openair1/PHY/TOOLS/oai_dfts.c",
+    "start_line": 3670,
+    "end_line": 3716,
+    "body_lines": 47,
+    "signature": "__attribute__((aligned(32))); // 6144 x 3 void dft18432(int16_t *input, int16_t *output,unsigned char scale)",
+    "subsystem": "openair1/PHY/TOOLS",
+    "token_estimate": 117
+  },
+  "bug": {
+    "bug_id": "telecom_asn1_encoding_error",
+    "description": "ASN.1 encoding error producing malformed protocol message",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a ASN.1 encoding error producing malformed protocol message downstream of function dft18432 in the openair1/PHY/TOOLS subsystem.\nThe function is located at openair1/PHY/TOOLS/oai_dfts.c:3670.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00651_0ce539_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00651_0ce539_p1.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 47,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T17:39:58Z"
+}

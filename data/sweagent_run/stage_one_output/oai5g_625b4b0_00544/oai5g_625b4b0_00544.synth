@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix buffer overflow in SR indication packing function\n\n### Summary\nThe `pack_sr_indication_body_value` function in the NFAPI P7 packing module contains a critical buffer overflow vulnerability. When processing SR indication messages, the function directly accesses `sr_pdu_list[i]` without validating that `number_of_srs` does not exceed the maximum allowed value (`NFAPI_SR_IND_MAX_PDU` = 100).\n\nThis can lead to out-of-bounds memory access when a malicious or malformed SR indication contains a large `number_of_srs` value, potentially causing segmentation faults or arbitrary code execution.\n\n### Changes\n- `nfapi/open-nFAPI/nfapi/src/nfapi_p7.c`: Added bounds checking in `pack_sr_indication_body_value` to validate `number_of_srs` against `NFAPI_SR_IND_MAX_PDU` before accessing the PDU list array.\n"
+}

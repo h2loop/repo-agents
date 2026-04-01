@@ -1,0 +1,18 @@
+diff --git a/openair1/PHY/NR_UE_TRANSPORT/nr_ulsch_ue.c b/openair1/PHY/NR_UE_TRANSPORT/nr_ulsch_ue.c
+index bef7724e5d..e9d2906224 100644
+--- a/openair1/PHY/NR_UE_TRANSPORT/nr_ulsch_ue.c
++++ b/openair1/PHY/NR_UE_TRANSPORT/nr_ulsch_ue.c
+@@ -780,10 +780,10 @@ void nr_ue_ulsch_procedures(PHY_VARS_NR_UE *UE,
+                      neg_length * sizeof(c16_t));
+               memcpy(&txdataF[ap][l * frame_parms->ofdm_symbol_size],
+                      &tx_precoding[ap][l * frame_parms->ofdm_symbol_size],
+-                     pos_length * sizeof(int32_t));
++                     pos_length * sizeof(c16_t));
+             } else {
+-              memset(&txdataF[ap][l * frame_parms->ofdm_symbol_size + k], 0, neg_length * sizeof(int32_t));
+-              memset(&txdataF[ap][l * frame_parms->ofdm_symbol_size], 0, pos_length * sizeof(int32_t));
++              memset(&txdataF[ap][l * frame_parms->ofdm_symbol_size + k], 0, neg_length * sizeof(c16_t));
++              memset(&txdataF[ap][l * frame_parms->ofdm_symbol_size], 0, pos_length * sizeof(c16_t));
+             }
+           }
+           k += NR_NB_SC_PER_RB;

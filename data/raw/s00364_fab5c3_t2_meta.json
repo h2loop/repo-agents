@@ -1,0 +1,9 @@
+{
+  "run_id": "s00364_fab5c3",
+  "pr_text": "## Title: Fix incorrect segment buffer cleanup in P7 reassembly queue\n\n### Summary\nThe P7 reassembly queue cleanup functions incorrectly iterate using a hardcoded maximum of 128 segments when freeing segment buffers. Per the nFAPI specification (derived from 3GPP requirements), `num_segments_expected` is a conditionally mandatory field that indicates the actual number of segments allocated for a message. Using the hardcoded value instead of this field can lead to:\n- Accessing uninitialized memor",
+  "trajectory_path": "data/raw/s00364_fab5c3_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00364_fab5c3_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 40,
+  "timestamp": "2026-02-11T18:53:35Z"
+}

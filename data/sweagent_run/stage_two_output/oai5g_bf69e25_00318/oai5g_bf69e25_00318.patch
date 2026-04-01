@@ -1,0 +1,287 @@
+diff --git a/openair3/NGAP/ngap_gNB_mobility_management.c b/openair3/NGAP/ngap_gNB_mobility_management.c
+index 95290f7bc3..f8c1e3ab46 100644
+--- a/openair3/NGAP/ngap_gNB_mobility_management.c
++++ b/openair3/NGAP/ngap_gNB_mobility_management.c
+@@ -37,11 +37,38 @@
+  *         (9.2.3.1 of 3GPP TS 38.413) NG-RAN node → AMF */
+ NGAP_NGAP_PDU_t *encode_ng_handover_required(const ngap_handover_required_t *msg)
+ {
+-  NGAP_NGAP_PDU_t *pdu = calloc_or_fail(1, sizeof(*pdu));
++  // Add input validation for NULL message and source2target pointers
++  if (msg == NULL) {
++    LOG_E(NGAP, "encode_ng_handover_required: NULL message pointer\n");
++    return NULL;
++  }
++
++  if (msg->source2target == NULL) {
++    LOG_E(NGAP, "encode_ng_handover_required: NULL source2target pointer\n");
++    return NULL;
++  }
++
++  // Check array size consistency to prevent buffer overflow
++  if (msg->nb_of_pdusessions > msg->source2target->nb_pdu_session_resource) {
++    LOG_E(NGAP, "encode_ng_handover_required: mismatch between nb_of_pdusessions (%d) and source2target->nb_pdu_session_resource (%d)\n",
++          msg->nb_of_pdusessions, msg->source2target->nb_pdu_session_resource);
++    return NULL;
++  }
++
++  NGAP_NGAP_PDU_t *pdu = calloc(1, sizeof(*pdu));
++  if (pdu == NULL) {
++    LOG_E(NGAP, "encode_ng_handover_required: failed to allocate pdu\n");
++    return NULL;
++  }
+ 
+   /* Prepare the NGAP message to encode */
+   pdu->present = NGAP_NGAP_PDU_PR_initiatingMessage;
+   asn1cCalloc(pdu->choice.initiatingMessage, head);
++  if (head == NULL) {
++    LOG_E(NGAP, "encode_ng_handover_required: failed to allocate initiatingMessage\n");
++    free(pdu);
++    return NULL;
++  }
+   head->procedureCode = NGAP_ProcedureCode_id_HandoverPreparation;
+   head->criticality = NGAP_Criticality_reject;
+   head->value.present = NGAP_InitiatingMessage__value_PR_HandoverRequired;
+@@ -49,6 +76,11 @@ NGAP_NGAP_PDU_t *encode_ng_handover_required(const ngap_handover_required_t *msg
+ 
+   // AMF UE NGAP ID (M)
+   asn1cSequenceAdd(out->protocolIEs.list, NGAP_HandoverRequiredIEs_t, ie1);
++  if (ie1 == NULL) {
++    LOG_E(NGAP, "encode_ng_handover_required: failed to allocate protocol IE\n");
++    ASN_STRUCT_FREE(asn_DEF_NGAP_NGAP_PDU, pdu);
++    return NULL;
++  }
+   ie1->id = NGAP_ProtocolIE_ID_id_AMF_UE_NGAP_ID;
+   ie1->criticality = NGAP_Criticality_reject;
+   ie1->value.present = NGAP_HandoverRequiredIEs__value_PR_AMF_UE_NGAP_ID;
+@@ -56,6 +88,11 @@ NGAP_NGAP_PDU_t *encode_ng_handover_required(const ngap_handover_required_t *msg
+ 
+   // RAN UE NGAP ID (M)
+   asn1cSequenceAdd(out->protocolIEs.list, NGAP_HandoverRequiredIEs_t, ie2);
++  if (ie2 == NULL) {
++    LOG_E(NGAP, "encode_ng_handover_required: failed to allocate protocol IE\n");
++    ASN_STRUCT_FREE(asn_DEF_NGAP_NGAP_PDU, pdu);
++    return NULL;
++  }
+   ie2->id = NGAP_ProtocolIE_ID_id_RAN_UE_NGAP_ID;
+   ie2->criticality = NGAP_Criticality_reject;
+   ie2->value.present = NGAP_HandoverRequiredIEs__value_PR_RAN_UE_NGAP_ID;
+@@ -63,6 +100,11 @@ NGAP_NGAP_PDU_t *encode_ng_handover_required(const ngap_handover_required_t *msg
+ 
+   // Handover Type (M)
+   asn1cSequenceAdd(out->protocolIEs.list, NGAP_HandoverRequiredIEs_t, ie3);
++  if (ie3 == NULL) {
++    LOG_E(NGAP, "encode_ng_handover_required: failed to allocate protocol IE\n");
++    ASN_STRUCT_FREE(asn_DEF_NGAP_NGAP_PDU, pdu);
++    return NULL;
++  }
+   ie3->id = NGAP_ProtocolIE_ID_id_HandoverType;
+   ie3->criticality = NGAP_Criticality_reject;
+   ie3->value.present = NGAP_HandoverRequiredIEs__value_PR_HandoverType;
+@@ -70,6 +112,11 @@ NGAP_NGAP_PDU_t *encode_ng_handover_required(const ngap_handover_required_t *msg
+ 
+   // Cause (M)
+   asn1cSequenceAdd(out->protocolIEs.list, NGAP_HandoverRequiredIEs_t, ie4);
++  if (ie4 == NULL) {
++    LOG_E(NGAP, "encode_ng_handover_required: failed to allocate protocol IE\n");
++    ASN_STRUCT_FREE(asn_DEF_NGAP_NGAP_PDU, pdu);
++    return NULL;
++  }
+   ie4->id = NGAP_ProtocolIE_ID_id_Cause;
+   ie4->criticality = NGAP_Criticality_ignore;
+   ie4->value.present = NGAP_HandoverRequiredIEs__value_PR_Cause;
+@@ -77,15 +124,30 @@ NGAP_NGAP_PDU_t *encode_ng_handover_required(const ngap_handover_required_t *msg
+ 
+   // Target ID (M)
+   asn1cSequenceAdd(out->protocolIEs.list, NGAP_HandoverRequiredIEs_t, ie5);
++  if (ie5 == NULL) {
++    LOG_E(NGAP, "encode_ng_handover_required: failed to allocate protocol IE\n");
++    ASN_STRUCT_FREE(asn_DEF_NGAP_NGAP_PDU, pdu);
++    return NULL;
++  }
+   encode_ngap_target_id(ie5, &msg->target_gnb_id);
+ 
+   // PDU Session Resource List (M)
+   asn1cSequenceAdd(out->protocolIEs.list, NGAP_HandoverRequiredIEs_t, ie6);
++  if (ie6 == NULL) {
++    LOG_E(NGAP, "encode_ng_handover_required: failed to allocate protocol IE\n");
++    ASN_STRUCT_FREE(asn_DEF_NGAP_NGAP_PDU, pdu);
++    return NULL;
++  }
+   ie6->id = NGAP_ProtocolIE_ID_id_PDUSessionResourceListHORqd;
+   ie6->criticality = NGAP_Criticality_reject;
+   ie6->value.present = NGAP_HandoverRequiredIEs__value_PR_PDUSessionResourceListHORqd;
+   for (int i = 0; i < msg->nb_of_pdusessions; ++i) {
+     asn1cSequenceAdd(ie6->value.choice.PDUSessionResourceListHORqd.list, NGAP_PDUSessionResourceItemHORqd_t, hoRequiredPduSession);
++    if (hoRequiredPduSession == NULL) {
++      LOG_E(NGAP, "encode_ng_handover_required: failed to allocate pdu session resource item\n");
++      ASN_STRUCT_FREE(asn_DEF_NGAP_NGAP_PDU, pdu);
++      return NULL;
++    }
+     // PDU Session ID (M)
+     hoRequiredPduSession->pDUSessionID = msg->pdusessions[i].pdusession_id;
+     // Handover Required Transfer (M) - ASN.1 encoding of empty transfer structure
+@@ -100,8 +162,19 @@ NGAP_NGAP_PDU_t *encode_ng_handover_required(const ngap_handover_required_t *msg
+                                                     &hoRequiredTransfer,
+                                                     ho_req_transfer_transparent_container_buffer,
+                                                     128);
+-    AssertFatal(enc_rval.encoded > 0, "ASN1 message encoding failed (%s, %lu)!\n", enc_rval.failed_type->name, enc_rval.encoded);
++    // Replaced AssertFatal with proper error handling that returns NULL on failure
++    if (enc_rval.encoded <= 0) {
++      LOG_E(NGAP, "encode_ng_handover_required: ASN1 message encoding failed (%s, %lu)!\n",
++            enc_rval.failed_type ? enc_rval.failed_type->name : "unknown", enc_rval.encoded);
++      ASN_STRUCT_FREE(asn_DEF_NGAP_NGAP_PDU, pdu);
++      return NULL;
++    }
+     hoRequiredPduSession->handoverRequiredTransfer.buf = CALLOC(1, (enc_rval.encoded + 7) / 8);
++    if (hoRequiredPduSession->handoverRequiredTransfer.buf == NULL) {
++      LOG_E(NGAP, "encode_ng_handover_required: Failed to allocate memory for transfer buffer\n");
++      ASN_STRUCT_FREE(asn_DEF_NGAP_NGAP_PDU, pdu);
++      return NULL;
++    }
+     memcpy(hoRequiredPduSession->handoverRequiredTransfer.buf,
+            ho_req_transfer_transparent_container_buffer,
+            (enc_rval.encoded + 7) / 8);
+@@ -112,29 +185,63 @@ NGAP_NGAP_PDU_t *encode_ng_handover_required(const ngap_handover_required_t *msg
+ 
+   // Source NG-RAN Node to Target NG-RAN Node Transparent Container (M)
+   asn1cSequenceAdd(out->protocolIEs.list, NGAP_HandoverRequiredIEs_t, ie);
++  if (ie == NULL) {
++    LOG_E(NGAP, "encode_ng_handover_required: failed to allocate protocol IE\n");
++    ASN_STRUCT_FREE(asn_DEF_NGAP_NGAP_PDU, pdu);
++    return NULL;
++  }
+   ie->id = NGAP_ProtocolIE_ID_id_SourceToTarget_TransparentContainer;
+   ie->criticality = NGAP_Criticality_reject;
+   ie->value.present = NGAP_HandoverRequiredIEs__value_PR_SourceToTarget_TransparentContainer;
+ 
+-  NGAP_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer_t *source2target = calloc_or_fail(1, sizeof(*source2target));
++  NGAP_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer_t *source2target = calloc(1, sizeof(*source2target));
++  if (source2target == NULL) {
++    LOG_E(NGAP, "encode_ng_handover_required: failed to allocate source2target\n");
++    ASN_STRUCT_FREE(asn_DEF_NGAP_NGAP_PDU, pdu);
++    return NULL;
++  }
+ 
+   // RRC Container (M) (HandoverPreparationInformation)
+   source2target->rRCContainer.size = msg->source2target->handoverInfo.len;
+-  source2target->rRCContainer.buf = malloc_or_fail(msg->source2target->handoverInfo.len);
++  source2target->rRCContainer.buf = malloc(msg->source2target->handoverInfo.len);
++  if (source2target->rRCContainer.buf == NULL && msg->source2target->handoverInfo.len > 0) {
++    LOG_E(NGAP, "encode_ng_handover_required: failed to allocate rrc container buffer\n");
++    ASN_STRUCT_FREE(asn_DEF_NGAP_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer, source2target);
++    ASN_STRUCT_FREE(asn_DEF_NGAP_NGAP_PDU, pdu);
++    return NULL;
++  }
+   memcpy(source2target->rRCContainer.buf, msg->source2target->handoverInfo.buf, source2target->rRCContainer.size);
+ 
+   // PDU Session Resource Information List (O)
+   asn1cCalloc(source2target->pDUSessionResourceInformationList, pduSessionList);
++  if (pduSessionList == NULL) {
++    LOG_E(NGAP, "encode_ng_handover_required: failed to allocate pdu session list\n");
++    ASN_STRUCT_FREE(asn_DEF_NGAP_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer, source2target);
++    ASN_STRUCT_FREE(asn_DEF_NGAP_NGAP_PDU, pdu);
++    return NULL;
++  }
+   for (uint16_t i = 0; i < msg->nb_of_pdusessions; ++i) {
+     const pdusession_resource_t *pduSession = &msg->pdusessions[i];
+     NGAP_DEBUG("Handover Required: preparing PDU Session Resource Information List for PDU Session ID %d\n",
+                pduSession->pdusession_id);
+     asn1cSequenceAdd(pduSessionList->list, NGAP_PDUSessionResourceInformationItem_t, item);
++    if (item == NULL) {
++      LOG_E(NGAP, "encode_ng_handover_required: failed to allocate pdu session information item\n");
++      ASN_STRUCT_FREE(asn_DEF_NGAP_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer, source2target);
++      ASN_STRUCT_FREE(asn_DEF_NGAP_NGAP_PDU, pdu);
++      return NULL;
++    }
+     // PDU Session ID (M)
+     item->pDUSessionID = msg->source2target->pdu_session_resource[i].pdusession_id;
+     // QoS Flow Information List (M)
+     for (int q = 0; q < msg->source2target->pdu_session_resource[i].nb_of_qos_flow; ++q) {
+       asn1cSequenceAdd(item->qosFlowInformationList.list, NGAP_QosFlowInformationItem_t, qosFlowInfo);
++      if (qosFlowInfo == NULL) {
++        LOG_E(NGAP, "encode_ng_handover_required: failed to allocate qos flow info\n");
++        ASN_STRUCT_FREE(asn_DEF_NGAP_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer, source2target);
++        ASN_STRUCT_FREE(asn_DEF_NGAP_NGAP_PDU, pdu);
++        return NULL;
++      }
+       qosFlowInfo->qosFlowIdentifier = msg->source2target->pdu_session_resource[i].qos_flow_info[q].qfi;
+     }
+   }
+@@ -142,26 +249,52 @@ NGAP_NGAP_PDU_t *encode_ng_handover_required(const ngap_handover_required_t *msg
+   // Target Cell ID (NG-RAN CGI) (M)
+   source2target->targetCell_ID.present = NGAP_NGRAN_CGI_PR_nR_CGI;
+   asn1cCalloc(source2target->targetCell_ID.choice.nR_CGI, tNrCGI);
++  if (tNrCGI == NULL) {
++    LOG_E(NGAP, "encode_ng_handover_required: failed to allocate nR_CGI\n");
++    ASN_STRUCT_FREE(asn_DEF_NGAP_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer, source2target);
++    ASN_STRUCT_FREE(asn_DEF_NGAP_NGAP_PDU, pdu);
++    return NULL;
++  }
+   encode_ngap_nr_cgi(tNrCGI, &msg->target_gnb_id.plmn_identity, msg->source2target->targetCellId.nrCellIdentity);
+ 
+   // UE history Information (M)
+   asn1cSequenceAdd(source2target->uEHistoryInformation.list, NGAP_LastVisitedCellItem_t, lastVisitedCell);
++  if (lastVisitedCell == NULL) {
++    LOG_E(NGAP, "encode_ng_handover_required: failed to allocate last visited cell\n");
++    ASN_STRUCT_FREE(asn_DEF_NGAP_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer, source2target);
++    ASN_STRUCT_FREE(asn_DEF_NGAP_NGAP_PDU, pdu);
++    return NULL;
++  }
+   lastVisitedCell->iE_Extensions = NULL;
+   // Last Visited Cell Information (M)
+   lastVisitedCell->lastVisitedCellInformation.present = NGAP_LastVisitedCellInformation_PR_nGRANCell;
+   // CHOICE (M): NG-RAN Cell
+   asn1cCalloc(lastVisitedCell->lastVisitedCellInformation.choice.nGRANCell, lastVisitedNR);
++  if (lastVisitedNR == NULL) {
++    LOG_E(NGAP, "encode_ng_handover_required: failed to allocate nGRANCell\n");
++    ASN_STRUCT_FREE(asn_DEF_NGAP_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer, source2target);
++    ASN_STRUCT_FREE(asn_DEF_NGAP_NGAP_PDU, pdu);
++    return NULL;
++  }
+   // Cell Type (M)
+   lastVisitedNR->cellType.cellSize = msg->source2target->ue_history_info.type;
+   // Global Cell ID (M)
+   lastVisitedNR->globalCellID.present = NGAP_NGRAN_CGI_PR_nR_CGI;
+   asn1cCalloc(lastVisitedNR->globalCellID.choice.nR_CGI, lastVisitedNrCGI);
++  if (lastVisitedNrCGI == NULL) {
++    LOG_E(NGAP, "encode_ng_handover_required: failed to allocate nR_CGI for global cell id\n");
++    ASN_STRUCT_FREE(asn_DEF_NGAP_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer, source2target);
++    ASN_STRUCT_FREE(asn_DEF_NGAP_NGAP_PDU, pdu);
++    return NULL;
++  }
+   cell_id_t *cell = &msg->source2target->ue_history_info.id;
+   encode_ngap_nr_cgi(lastVisitedNrCGI, &cell->plmn_identity, cell->nrCellIdentity);
+   // HO Cause Value (O)
+   if (msg->source2target->ue_history_info.cause) {
+     asn1cCalloc(lastVisitedNR->hOCauseValue, lastVisitedCause);
+-    encode_ngap_cause(lastVisitedCause, msg->source2target->ue_history_info.cause);
++    if (lastVisitedCause != NULL) {
++      encode_ngap_cause(lastVisitedCause, msg->source2target->ue_history_info.cause);
++    }
+   }
+   // Time UE Stayed in Cell (M)
+   lastVisitedNR->timeUEStayedInCell = msg->source2target->ue_history_info.time_in_cell;
+@@ -177,10 +310,10 @@ NGAP_NGAP_PDU_t *encode_ng_handover_required(const ngap_handover_required_t *msg
+                                                   16384);
+   ASN_STRUCT_FREE(asn_DEF_NGAP_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer, source2target);
+   if (enc_rval.encoded < 0) {
+-    AssertFatal(enc_rval.encoded > 0,
+-                "HO LOG: Source to Transparent ASN1 message encoding failed (%s, %lu)!\n",
+-                enc_rval.failed_type->name,
+-                enc_rval.encoded);
++    // Replaced AssertFatal with proper error handling that returns NULL on failure
++    LOG_E(NGAP, "encode_ng_handover_required: Source to Transparent ASN1 message encoding failed (%s, %lu)!\n",
++          enc_rval.failed_type ? enc_rval.failed_type->name : "unknown", enc_rval.encoded);
++    ASN_STRUCT_FREE(asn_DEF_NGAP_NGAP_PDU, pdu);
+     return NULL;
+   }
+ 
+@@ -190,6 +323,7 @@ NGAP_NGAP_PDU_t *encode_ng_handover_required(const ngap_handover_required_t *msg
+                                  total_bytes);
+   if (ret != 0) {
+     LOG_E(NR_RRC, "HO LOG: Can not perform OCTET_STRING_fromBuf for the SourceToTarget_TransparentContainer");
++    ASN_STRUCT_FREE(asn_DEF_NGAP_NGAP_PDU, pdu);
+     return NULL;
+   }
+ 

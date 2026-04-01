@@ -1,0 +1,30 @@
+{
+  "run_id": "s00289_85a0a6",
+  "function": {
+    "name": "nr_start_if",
+    "file": "executables/nr-ru.c",
+    "start_line": 1240,
+    "end_line": 1247,
+    "body_lines": 8,
+    "signature": "int nr_start_if(struct RU_t_s *ru, struct PHY_VARS_gNB_s *gNB)",
+    "subsystem": "executables",
+    "token_estimate": 31
+  },
+  "bug": {
+    "bug_id": "telecom_cross_layer_mismatch",
+    "description": "cross-layer parameter mismatch between PHY, MAC, and RRC causing inconsistent operation",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC"
+    ]
+  },
+  "prompt": "There is a cross-layer parameter mismatch between PHY, MAC, and RRC causing inconsistent operation downstream of function nr_start_if in the executables subsystem.\nThe function is located at executables/nr-ru.c:1240.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00289_85a0a6_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00289_85a0a6_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 33,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:23:35Z"
+}

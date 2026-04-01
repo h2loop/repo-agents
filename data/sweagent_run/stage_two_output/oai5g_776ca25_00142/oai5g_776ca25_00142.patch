@@ -1,0 +1,306 @@
+diff --git a/openair2/RRC/LTE/rrc_eNB.c b/openair2/RRC/LTE/rrc_eNB.c
+index 6b78e27f63..28763fa022 100644
+--- a/openair2/RRC/LTE/rrc_eNB.c
++++ b/openair2/RRC/LTE/rrc_eNB.c
+@@ -6144,22 +6144,58 @@ is_ul_64QAM_supported(
+ )
+ //-----------------------------------------------------------------------------
+ {
+-  return c != NULL  // R8
+-         && c->NCE != NULL // R92
+-         && c->NCE->NCE != NULL // R94
+-         && c->NCE->NCE->NCE != NULL // R102
+-         && c->NCE->NCE->NCE->NCE != NULL // R106
+-         && c->NCE->NCE->NCE->NCE->NCE != NULL // R109
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R113
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R117
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R118
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R11a
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R125
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250 != NULL
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250 != NULL
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array != NULL
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array[0]->ul_64QAM_r12 != NULL
+-         && *c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array[0]->ul_64QAM_r12==LTE_SupportedBandEUTRA_v1250__ul_64QAM_r12_supported;
++  // Check if UE supports UL 64QAM based on EUTRA capabilities (Rel 12 feature)
++  LTE_UE_EUTRA_Capability_v920_IEs_t                        *v920 = NULL;
++  LTE_UE_EUTRA_Capability_v940_IEs_t                        *v940 = NULL;
++  LTE_UE_EUTRA_Capability_v1020_IEs_t                       *v1020 = NULL;
++  LTE_UE_EUTRA_Capability_v1060_IEs_t                       *v1060 = NULL;
++  LTE_UE_EUTRA_Capability_v1090_IEs_t                       *v1090 = NULL;
++  LTE_UE_EUTRA_Capability_v1130_IEs_t                       *v1130 = NULL;
++  LTE_UE_EUTRA_Capability_v1170_IEs_t                       *v1170 = NULL;
++  LTE_UE_EUTRA_Capability_v1180_IEs_t                       *v1180 = NULL;
++  LTE_UE_EUTRA_Capability_v11a0_IEs_t                       *v11a0 = NULL;
++  LTE_UE_EUTRA_Capability_v1250_IEs_t                       *v1250 = NULL;
++
++  if (c == NULL) return 0;
++
++  v920 = c->NCE;
++  if (v920 == NULL) return 0;
++
++  v940 = v920->NCE;
++  if (v940 == NULL) return 0;
++
++  v1020 = v940->NCE;
++  if (v1020 == NULL) return 0;
++
++  v1060 = v1020->NCE;
++  if (v1060 == NULL) return 0;
++
++  v1090 = v1060->NCE;
++  if (v1090 == NULL) return 0;
++
++  v1130 = v1090->NCE;
++  if (v1130 == NULL) return 0;
++
++  v1170 = v1130->NCE;
++  if (v1170 == NULL) return 0;
++
++  v1180 = v1170->NCE;
++  if (v1180 == NULL) return 0;
++
++  v11a0 = v1180->NCE;
++  if (v11a0 == NULL) return 0;
++
++  v1250 = v11a0->NCE;
++  if (v1250 == NULL) return 0;
++
++  if (v1250->rf_Parameters_v1250 == NULL) return 0;
++  if (v1250->rf_Parameters_v1250->supportedBandListEUTRA_v1250 == NULL) return 0;
++  if (v1250->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.count == 0) return 0;
++  if (v1250->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array == NULL) return 0;
++  if (v1250->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array[0] == NULL) return 0;
++  if (v1250->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array[0]->ul_64QAM_r12 == NULL) return 0;
++
++  return *v1250->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array[0]->ul_64QAM_r12 == LTE_SupportedBandEUTRA_v1250__ul_64QAM_r12_supported;
+ }
+ 
+ static int
+@@ -6168,58 +6204,162 @@ is_dl_256QAM_supported(
+ )
+ //-----------------------------------------------------------------------------
+ {
+-  return c != NULL  // R8
+-         && c->NCE != NULL // R92
+-         && c->NCE->NCE != NULL // R94
+-         && c->NCE->NCE->NCE != NULL // R102
+-         && c->NCE->NCE->NCE->NCE != NULL // R106
+-         && c->NCE->NCE->NCE->NCE->NCE != NULL // R109
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R113
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R117
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R118
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R11a
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R125
+-	 && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250 != NULL
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250 != NULL
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array != NULL
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array[0]->dl_256QAM_r12 != NULL
+-         && *c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array[0]->dl_256QAM_r12==LTE_SupportedBandEUTRA_v1250__dl_256QAM_r12_supported;
++  // Check if UE supports DL 256QAM based on EUTRA capabilities (Rel 12 feature)
++  LTE_UE_EUTRA_Capability_v920_IEs_t                        *v920 = NULL;
++  LTE_UE_EUTRA_Capability_v940_IEs_t                        *v940 = NULL;
++  LTE_UE_EUTRA_Capability_v1020_IEs_t                       *v1020 = NULL;
++  LTE_UE_EUTRA_Capability_v1060_IEs_t                       *v1060 = NULL;
++  LTE_UE_EUTRA_Capability_v1090_IEs_t                       *v1090 = NULL;
++  LTE_UE_EUTRA_Capability_v1130_IEs_t                       *v1130 = NULL;
++  LTE_UE_EUTRA_Capability_v1170_IEs_t                       *v1170 = NULL;
++  LTE_UE_EUTRA_Capability_v1180_IEs_t                       *v1180 = NULL;
++  LTE_UE_EUTRA_Capability_v11a0_IEs_t                       *v11a0 = NULL;
++  LTE_UE_EUTRA_Capability_v1250_IEs_t                       *v1250 = NULL;
+ 
++  if (c == NULL) return 0;
++
++  v920 = c->NCE;
++  if (v920 == NULL) return 0;
++
++  v940 = v920->NCE;
++  if (v940 == NULL) return 0;
++
++  v1020 = v940->NCE;
++  if (v1020 == NULL) return 0;
++
++  v1060 = v1020->NCE;
++  if (v1060 == NULL) return 0;
++
++  v1090 = v1060->NCE;
++  if (v1090 == NULL) return 0;
++
++  v1130 = v1090->NCE;
++  if (v1130 == NULL) return 0;
++
++  v1170 = v1130->NCE;
++  if (v1170 == NULL) return 0;
++
++  v1180 = v1170->NCE;
++  if (v1180 == NULL) return 0;
++
++  v11a0 = v1180->NCE;
++  if (v11a0 == NULL) return 0;
++
++  v1250 = v11a0->NCE;
++  if (v1250 == NULL) return 0;
++
++  if (v1250->rf_Parameters_v1250 == NULL) return 0;
++  if (v1250->rf_Parameters_v1250->supportedBandListEUTRA_v1250 == NULL) return 0;
++  if (v1250->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.count == 0) return 0;
++  if (v1250->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array == NULL) return 0;
++  if (v1250->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array[0] == NULL) return 0;
++  if (v1250->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array[0]->dl_256QAM_r12 == NULL) return 0;
++
++  return *v1250->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array[0]->dl_256QAM_r12 == LTE_SupportedBandEUTRA_v1250__dl_256QAM_r12_supported;
+ }
++
+ static int
+ is_ul_256QAM_supported(
+   LTE_UE_EUTRA_Capability_t *c
+ )
+ //-----------------------------------------------------------------------------
+ {
+-  return c != NULL  // R8
+-         && c->NCE != NULL // R92
+-         && c->NCE->NCE != NULL // R94
+-         && c->NCE->NCE->NCE != NULL // R102
+-         && c->NCE->NCE->NCE->NCE != NULL // R106
+-         && c->NCE->NCE->NCE->NCE->NCE != NULL // R109
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R113
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R117
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R118
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R11a
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R125
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R126
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // 127
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // 128
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL //131
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL //132
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL //133
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL //134
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL //135
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL //136
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL //143
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1430 != NULL
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1430->supportedBandCombination_v1430 != NULL
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1430->supportedBandCombination_v1430->list.array != NULL
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1430->supportedBandCombination_v1430->list.array[0]->bandParameterList_v1430 != NULL
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1430->supportedBandCombination_v1430->list.array[0]->bandParameterList_v1430->list.array != NULL
+-         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1430->supportedBandCombination_v1430->list.array[0]->bandParameterList_v1430->list.array[0]->ul_256QAM_r14!=NULL
+-         && *c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1430->supportedBandCombination_v1430->list.array[0]->bandParameterList_v1430->list.array[0]->ul_256QAM_r14==LTE_BandParameters_v1430__ul_256QAM_r14_supported;
++  // Check if UE supports UL 256QAM based on EUTRA capabilities (Rel 14 feature)
++  LTE_UE_EUTRA_Capability_v920_IEs_t                        *v920 = NULL;
++  LTE_UE_EUTRA_Capability_v940_IEs_t                        *v940 = NULL;
++  LTE_UE_EUTRA_Capability_v1020_IEs_t                       *v1020 = NULL;
++  LTE_UE_EUTRA_Capability_v1060_IEs_t                       *v1060 = NULL;
++  LTE_UE_EUTRA_Capability_v1090_IEs_t                       *v1090 = NULL;
++  LTE_UE_EUTRA_Capability_v1130_IEs_t                       *v1130 = NULL;
++  LTE_UE_EUTRA_Capability_v1170_IEs_t                       *v1170 = NULL;
++  LTE_UE_EUTRA_Capability_v1180_IEs_t                       *v1180 = NULL;
++  LTE_UE_EUTRA_Capability_v11a0_IEs_t                       *v11a0 = NULL;
++  LTE_UE_EUTRA_Capability_v1250_IEs_t                       *v1250 = NULL;
++  LTE_UE_EUTRA_Capability_v1260_IEs_t                       *v1260 = NULL;
++  LTE_UE_EUTRA_Capability_v1270_IEs_t                       *v1270 = NULL;
++  LTE_UE_EUTRA_Capability_v1280_IEs_t                       *v1280 = NULL;
++  LTE_UE_EUTRA_Capability_v1310_IEs_t                       *v1310 = NULL;
++  LTE_UE_EUTRA_Capability_v1320_IEs_t                       *v1320 = NULL;
++  LTE_UE_EUTRA_Capability_v1330_IEs_t                       *v1330 = NULL;
++  LTE_UE_EUTRA_Capability_v1340_IEs_t                       *v1340 = NULL;
++  LTE_UE_EUTRA_Capability_v1350_IEs_t                       *v1350 = NULL;
++  LTE_UE_EUTRA_Capability_v1360_IEs_t                       *v1360 = NULL;
++  LTE_UE_EUTRA_Capability_v1430_IEs_t                       *v1430 = NULL;
++
++  if (c == NULL) return 0;
++
++  v920 = c->NCE;
++  if (v920 == NULL) return 0;
++
++  v940 = v920->NCE;
++  if (v940 == NULL) return 0;
++
++  v1020 = v940->NCE;
++  if (v1020 == NULL) return 0;
++
++  v1060 = v1020->NCE;
++  if (v1060 == NULL) return 0;
++
++  v1090 = v1060->NCE;
++  if (v1090 == NULL) return 0;
++
++  v1130 = v1090->NCE;
++  if (v1130 == NULL) return 0;
++
++  v1170 = v1130->NCE;
++  if (v1170 == NULL) return 0;
++
++  v1180 = v1170->NCE;
++  if (v1180 == NULL) return 0;
++
++  v11a0 = v1180->NCE;
++  if (v11a0 == NULL) return 0;
++
++  v1250 = v11a0->NCE;
++  if (v1250 == NULL) return 0;
++
++  v1260 = v1250->NCE;
++  if (v1260 == NULL) return 0;
++
++  v1270 = v1260->NCE;
++  if (v1270 == NULL) return 0;
++
++  v1280 = v1270->NCE;
++  if (v1280 == NULL) return 0;
++
++  v1310 = v1280->NCE;
++  if (v1310 == NULL) return 0;
++
++  v1320 = v1310->NCE;
++  if (v1320 == NULL) return 0;
++
++  v1330 = v1320->NCE;
++  if (v1330 == NULL) return 0;
++
++  v1340 = v1330->NCE;
++  if (v1340 == NULL) return 0;
++
++  v1350 = v1340->NCE;
++  if (v1350 == NULL) return 0;
++
++  v1360 = v1350->NCE;
++  if (v1360 == NULL) return 0;
++
++  v1430 = v1360->NCE;
++  if (v1430 == NULL) return 0;
++
++  if (v1430->rf_Parameters_v1430 == NULL) return 0;
++  if (v1430->rf_Parameters_v1430->supportedBandCombination_v1430 == NULL) return 0;
++  if (v1430->rf_Parameters_v1430->supportedBandCombination_v1430->list.count == 0) return 0;
++  if (v1430->rf_Parameters_v1430->supportedBandCombination_v1430->list.array == NULL) return 0;
++  if (v1430->rf_Parameters_v1430->supportedBandCombination_v1430->list.array[0] == NULL) return 0;
++  if (v1430->rf_Parameters_v1430->supportedBandCombination_v1430->list.array[0]->bandParameterList_v1430 == NULL) return 0;
++  if (v1430->rf_Parameters_v1430->supportedBandCombination_v1430->list.array[0]->bandParameterList_v1430->list.count == 0) return 0;
++  if (v1430->rf_Parameters_v1430->supportedBandCombination_v1430->list.array[0]->bandParameterList_v1430->list.array == NULL) return 0;
++  if (v1430->rf_Parameters_v1430->supportedBandCombination_v1430->list.array[0]->bandParameterList_v1430->list.array[0] == NULL) return 0;
++  if (v1430->rf_Parameters_v1430->supportedBandCombination_v1430->list.array[0]->bandParameterList_v1430->list.array[0]->ul_256QAM_r14 == NULL) return 0;
++
++  return *v1430->rf_Parameters_v1430->supportedBandCombination_v1430->list.array[0]->bandParameterList_v1430->list.array[0]->ul_256QAM_r14 == LTE_BandParameters_v1430__ul_256QAM_r14_supported;
+ }
+ 
+ int to_nr_rsrpq(long rsrpq_result,int nr_band) {
+@@ -6497,7 +6637,7 @@ rrc_eNB_decode_dcch(
+                   ue_context_p->ue_context.enb_gtp_ebi[i]  = 0;
+                 }
+               }
+-	      gtpv1u_delete_s1u_tunnel(ctxt_pP->instance, &delete_tunnels);
++              gtpv1u_delete_s1u_tunnel(ctxt_pP->instance, &delete_tunnels);
+               //S1AP_E_RAB_RELEASE_RESPONSE
+               rrc_eNB_send_S1AP_E_RAB_RELEASE_RESPONSE(ctxt_pP,
+                   ue_context_p,
+@@ -7230,8 +7370,8 @@ void rrc_subframe_process(protocol_ctxt_t *const ctxt_pP, const int CC_id) {
+           get_ue_Category(ue_context_p->ue_context.UE_Capability,&catDL,&catUL);
+           fprintf(fd,"RRC UE cap: CatDL %ld, CatUL %ld, 64QAM UL %s, 256 QAM DL %s, 256 QAM UL %s, ENDC %s,\n",
+                 catDL,catUL,
+-		is_ul_64QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
+-		is_dl_256QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
++                is_ul_64QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
++                is_dl_256QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
+                 is_ul_256QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
+                 is_en_dc_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no");
+         }

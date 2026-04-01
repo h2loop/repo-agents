@@ -1,0 +1,56 @@
+diff --git a/openair2/RRC/LTE/rrc_eNB.c b/openair2/RRC/LTE/rrc_eNB.c
+index c26a57cd44..199bf297b7 100644
+--- a/openair2/RRC/LTE/rrc_eNB.c
++++ b/openair2/RRC/LTE/rrc_eNB.c
+@@ -3454,10 +3454,8 @@ rrc_eNB_process_MeasurementReport(
+         X2AP_ENDC_SGNB_ADDITION_REQ(msg).rrc_buffer_size = enc_size;
+ 
+         X2AP_ENDC_SGNB_ADDITION_REQ(msg).target_physCellId
+-          //= measResults2->measResultNeighCells->choice.measResultNeighCellListNR_r15.list.array[0]->pci_r15;
+-          = measResults2->measResultNeighCells->choice.measResultListEUTRA.list.array[0]->physCellId;
++          = measResults2->measResultNeighCells->choice.measResultNeighCellListNR_r15.list.array[0]->pci_r15;
+ 
+-        X2AP_ENDC_SGNB_ADDITION_REQ(msg).target_physCellId = 0;
+         //For the moment we have a single E-RAB which will be the one to be added to the gNB
+         //Not sure how to select bearers to be added if there are multiple.
+         X2AP_ENDC_SGNB_ADDITION_REQ(msg).nb_e_rabs_tobeadded = 1;
+@@ -3496,8 +3494,8 @@ rrc_eNB_process_MeasurementReport(
+     if (measNeighCellNR0->measResultRS_IndexList_r15) {
+        if (!ueCtxtMeasResultCellNR_r15->measResultRS_IndexList_r15) {
+           ueCtxtMeasResultCellNR_r15->measResultRS_IndexList_r15 = calloc(1,sizeof(*ueCtxtMeasResultCellNR_r15->measResultRS_IndexList_r15));
+-          ueCtxtMeasResultCellNR_r15->measResultRS_IndexList_r15->list.array = calloc(1, sizeof(ueCtxtMeasResultCellNR_r15->measResultRS_IndexList_r15->list.array));
+-          ueCtxtMeasResultCellNR_r15->measResultRS_IndexList_r15->list.array[0] = calloc(1, sizeof(*ueCtxtMeasResultCellNR_r15->measResultRS_IndexList_r15->list.array));
++          ueCtxtMeasResultCellNR_r15->measResultRS_IndexList_r15->list.array = calloc(1, sizeof(*ueCtxtMeasResultCellNR_r15->measResultRS_IndexList_r15->list.array));
++          ueCtxtMeasResultCellNR_r15->measResultRS_IndexList_r15->list.array[0] = calloc(1, sizeof(*ueCtxtMeasResultCellNR_r15->measResultRS_IndexList_r15->list.array[0]));
+           ueCtxtMeasResultCellNR_r15->measResultRS_IndexList_r15->list.count = 1;
+        }
+       ueCtxtMeasResultCellNR_r15->measResultRS_IndexList_r15->list.array[0]->ssb_Index_r15 = measNeighCellNR0->measResultRS_IndexList_r15->list.array[0]->ssb_Index_r15;
+@@ -6175,7 +6173,7 @@ is_dl_256QAM_supported(
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R118
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R11a
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R125
+-	 && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250 != NULL
++         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250 != NULL
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250 != NULL
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array != NULL
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array[0]->dl_256QAM_r12 != NULL
+@@ -6493,7 +6491,7 @@ rrc_eNB_decode_dcch(
+                   ue_context_p->ue_context.enb_gtp_ebi[i]  = 0;
+                 }
+               }
+-	      gtpv1u_delete_s1u_tunnel(ctxt_pP->instance, &delete_tunnels);
++              gtpv1u_delete_s1u_tunnel(ctxt_pP->instance, &delete_tunnels);
+               //S1AP_E_RAB_RELEASE_RESPONSE
+               rrc_eNB_send_S1AP_E_RAB_RELEASE_RESPONSE(ctxt_pP,
+                   ue_context_p,
+@@ -7222,8 +7220,8 @@ void rrc_subframe_process(protocol_ctxt_t *const ctxt_pP, const int CC_id) {
+           get_ue_Category(ue_context_p->ue_context.UE_Capability,&catDL,&catUL);
+           fprintf(fd,"RRC UE cap: CatDL %ld, CatUL %ld, 64QAM UL %s, 256 QAM DL %s, 256 QAM UL %s, ENDC %s,\n",
+                 catDL,catUL,
+-		is_ul_64QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
+-		is_dl_256QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
++                is_ul_64QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
++                is_dl_256QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
+                 is_ul_256QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
+                 is_en_dc_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no");
+         }

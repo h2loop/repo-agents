@@ -1,0 +1,14 @@
+diff --git a/openair3/NAS/UE/EMM/Attach.c b/openair3/NAS/UE/EMM/Attach.c
+index 52f7ebce44..b3b217c67d 100644
+--- a/openair3/NAS/UE/EMM/Attach.c
++++ b/openair3/NAS/UE/EMM/Attach.c
+@@ -857,6 +857,9 @@ int emm_proc_attach_release(void *args)
+ 
+   LOG_TRACE(WARNING, "EMM-PROC  - NAS signalling connection released");
+ 
++  /* Initialize the EMM-SAP structure */
++  memset(&emm_sap, 0, sizeof(emm_sap_t));
++
+   /* Execute abnormal case attach procedure */
+   _emm_attach_abnormal_cases_bcd(user, &emm_sap);
+ 

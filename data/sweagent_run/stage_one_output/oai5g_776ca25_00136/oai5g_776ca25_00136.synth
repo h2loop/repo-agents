@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix NULL pointer dereference in unpack_pnf_phy_info function\n\n### Summary\nThe `unpack_pnf_phy_info` function in the nfapi P5 codec can crash with a segmentation fault when called with NULL parameters. This occurs because the function directly dereferences the input pointers without validating them first. The issue manifests during PNF parameter exchange procedures when invalid or corrupted messages are processed.\n\nThe fix adds proper NULL pointer checks at the beginning of the function to prevent crashes and provide meaningful error logging when invalid parameters are passed.\n\n### Changes\n- `nfapi/open-nFAPI/nfapi/src/nfapi_p5.c`: Added NULL pointer validation for `elem`, `ppReadPackedMsg`, and `*ppReadPackedMsg` parameters in `unpack_pnf_phy_info` function.\n"
+}

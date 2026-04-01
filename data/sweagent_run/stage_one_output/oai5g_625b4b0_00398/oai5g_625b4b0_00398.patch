@@ -1,0 +1,49 @@
+diff --git a/radio/fhi_72/oran-config.c b/radio/fhi_72/oran-config.c
+index ddee538dfd..62997c152f 100644
+--- a/radio/fhi_72/oran-config.c
++++ b/radio/fhi_72/oran-config.c
+@@ -886,3 +886,29 @@ bool set_fh_config(int ru_idx, int num_rus, const openair0_config_t *oai0, struc
+ 
+   return true;
+ }
++
++void free_fh_init(struct xran_fh_init *fh_init)
++{
++  if (fh_init == NULL) return;
++  
++  // Free the filePrefix allocated with strdup
++  if (fh_init->filePrefix) {
++    free(fh_init->filePrefix);
++    fh_init->filePrefix = NULL;
++  }
++  
++  // Free the dpdk_dev strings allocated with strdup
++  for (int i = 0; i < fh_init->io_cfg.num_vfs && i < 16; ++i) {
++    if (fh_init->io_cfg.dpdk_dev[i]) {
++      free(fh_init->io_cfg.dpdk_dev[i]);
++      fh_init->io_cfg.dpdk_dev[i] = NULL;
++    }
++  }
++}
++
++void free_fh_config(struct xran_fh_config *fh_config)
++{
++  // Currently no dynamic allocations in fh_config that need to be freed
++  // This function is provided for API completeness and future use
++  (void)fh_config; // Prevent unused parameter warning
++}
+diff --git a/radio/fhi_72/oran-config.h b/radio/fhi_72/oran-config.h
+index 77f04d8e0c..9bf9ae227f 100644
+--- a/radio/fhi_72/oran-config.h
++++ b/radio/fhi_72/oran-config.h
+@@ -27,8 +27,10 @@
+ 
+ struct xran_fh_init;
+ void print_fh_init(const struct xran_fh_init *fh_init);
++void free_fh_init(struct xran_fh_init *fh_init);
+ struct xran_fh_config;
+ void print_fh_config(const struct xran_fh_config *fh_config);
++void free_fh_config(struct xran_fh_config *fh_config);
+ 
+ bool set_fh_init(struct xran_fh_init *fh_init);
+ struct openair0_config;

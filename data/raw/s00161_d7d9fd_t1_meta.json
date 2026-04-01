@@ -1,0 +1,30 @@
+{
+  "run_id": "s00161_d7d9fd",
+  "function": {
+    "name": "fill_msg3_crnti_pdu",
+    "file": "openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c",
+    "start_line": 1044,
+    "end_line": 1057,
+    "body_lines": 14,
+    "signature": "static uint8_t *fill_msg3_crnti_pdu(RA_config_t *ra, uint8_t *pdu, uint16_t crnti)",
+    "subsystem": "openair2/LAYER2/NR_MAC_UE",
+    "token_estimate": 74
+  },
+  "bug": {
+    "bug_id": "telecom_interface_f1ap_error",
+    "description": "F1AP interface handling error between CU and DU causing message loss or corruption",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/LAYER2/MAC",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a F1AP interface handling error between CU and DU causing message loss or corruption downstream of function fill_msg3_crnti_pdu in the openair2/LAYER2/NR_MAC_UE subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c:1044.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00161_d7d9fd_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00161_d7d9fd_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 35,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:35:53Z"
+}

@@ -1,0 +1,43 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
+index 8ae9c3dcc5..90b08256cb 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
+@@ -373,8 +373,8 @@ NR_ControlResourceSet_t *get_coreset(gNB_MAC_INST *nrmac,
+     }
+ 
+     if (coreset) AssertFatal(coreset_id == coreset->controlResourceSetId,
+-			     "ID of common ss coreset does not correspond to id set in the "
+-			     "search space\n");
++                             "ID of common ss coreset does not correspond to id set in the "
++                             "search space\n");
+     return coreset;
+   } else {
+     const int n = ((NR_BWP_DownlinkDedicated_t*)bwp)->pdcch_Config->choice.setup->controlResourceSetToAddModList->list.count;
+@@ -796,7 +796,7 @@ void config_uldci(const NR_UE_ServingCell_Info_t *sc_info,
+   NR_PUSCH_Config_t *pusch_Config = ul_bwp->pusch_Config;
+ 
+   if (pusch_Config) AssertFatal(pusch_Config->resourceAllocation == NR_PUSCH_Config__resourceAllocation_resourceAllocationType1,
+-			"Only frequency resource allocation type 1 is currently supported\n");
++                        "Only frequency resource allocation type 1 is currently supported\n");
+   switch (dci_format) {
+     case NR_UL_DCI_FORMAT_0_0:
+       dci_pdu_rel15->format_indicator = 0;
+@@ -3230,6 +3230,18 @@ void process_addmod_bearers_cellGroupConfig(NR_UE_sched_ctrl_t *sched_ctrl, cons
+     const NR_RLC_BearerConfig_t *conf = addmod->list.array[i];
+     int lcid = conf->logicalChannelIdentity;
+     nr_lc_config_t c = {.lcid = lcid};
++
++    // Extract priority from logical channel configuration if available
++    if (conf->mac_LogicalChannelConfig != NULL &&
++        conf->mac_LogicalChannelConfig->ul_SpecificParameters != NULL) {
++      c.priority = conf->mac_LogicalChannelConfig->ul_SpecificParameters->priority;
++      LOG_D(NR_MAC, "Setting LCID %d priority to %d from logical channel config\n", lcid, c.priority);
++    } else {
++      // Default to lowest priority (highest numerical value) if not specified
++      c.priority = 16; // According to 38.321, priority values are 1-16, with 1 being highest
++      LOG_D(NR_MAC, "Setting LCID %d priority to default value %d\n", lcid, c.priority);
++    }
++
+     nr_mac_add_lcid(sched_ctrl, &c);
+   }
+ }

@@ -1,0 +1,29 @@
+{
+  "run_id": "s00488_ee2c0f",
+  "function": {
+    "name": "configure_periodic_srs",
+    "file": "openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c",
+    "start_line": 680,
+    "end_line": 751,
+    "body_lines": 72,
+    "signature": "static struct NR_SRS_Resource__resourceType__periodic *configure_periodic_srs(const NR_ServingCellConfigCommon_t *scc, const int uid)",
+    "subsystem": "openair2/LAYER2/NR_MAC_gNB",
+    "token_estimate": 250
+  },
+  "bug": {
+    "bug_id": "telecom_crc_error",
+    "description": "CRC computation or checking error causing false positive or missed error detection",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a CRC computation or checking error causing false positive or missed error detection downstream of function configure_periodic_srs in the openair2/LAYER2/NR_MAC_gNB subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c:680.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00488_ee2c0f_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00488_ee2c0f_p1.diff",
+  "patch_lines": 15,
+  "trajectory_steps": 40,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:38:48Z"
+}

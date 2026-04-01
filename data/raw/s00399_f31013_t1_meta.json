@@ -1,0 +1,32 @@
+{
+  "run_id": "s00399_f31013",
+  "function": {
+    "name": "init_nr_pdcp_data_ind_queue",
+    "file": "openair2/LAYER2/nr_pdcp/nr_pdcp_oai_api.c",
+    "start_line": 314,
+    "end_line": 325,
+    "body_lines": 12,
+    "signature": "static void init_nr_pdcp_data_ind_queue(void)",
+    "subsystem": "openair2/LAYER2/nr_pdcp",
+    "token_estimate": 27
+  },
+  "bug": {
+    "bug_id": "telecom_config_layer_mismatch",
+    "description": "configuration mismatch between protocol layers causing inconsistent behavior",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC"
+    ]
+  },
+  "prompt": "There is a configuration mismatch between protocol layers causing inconsistent behavior downstream of function init_nr_pdcp_data_ind_queue in the openair2/LAYER2/nr_pdcp subsystem.\nThe function is located at openair2/LAYER2/nr_pdcp/nr_pdcp_oai_api.c:314.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00399_f31013_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00399_f31013_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 49,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:06:21Z"
+}

@@ -1,0 +1,24 @@
+diff --git a/openair3/NAS/UE/nas_proc.c b/openair3/NAS/UE/nas_proc.c
+index 3fdef5ce73..a44eec42f2 100644
+--- a/openair3/NAS/UE/nas_proc.c
++++ b/openair3/NAS/UE/nas_proc.c
+@@ -47,7 +47,7 @@ Description NAS procedure call manager
+ #include "esm_main.h"
+ #include "esm_sap.h"
+ 
+-#include <stdio.h>  // sprintf
++#include <stdio.h>  // snprintf
+ 
+ /****************************************************************************/
+ /****************  E X T E R N A L    D E F I N I T I O N S  ****************/
+@@ -545,8 +545,8 @@ int nas_proc_get_loc_info(nas_user_t *user, char *tac, char *ci, int *AcT)
+ {
+   LOG_FUNC_IN;
+ 
+-  sprintf(tac, "%.4x", emm_main_get_plmn_tac(user->emm_data));  // two byte
+-  sprintf(ci, "%.8x", emm_main_get_plmn_ci(user->emm_data));    // four byte
++  snprintf(tac, 5, "%.4x", emm_main_get_plmn_tac(user->emm_data));  // two byte
++  snprintf(ci, 9, "%.8x", emm_main_get_plmn_ci(user->emm_data));    // four byte
+   *AcT = emm_main_get_plmn_rat(user->emm_data);             // E-UTRAN
+ 
+   LOG_FUNC_RETURN (RETURNok);

@@ -1,0 +1,30 @@
+diff --git a/openair2/F1AP/lib/f1ap_interface_management.c b/openair2/F1AP/lib/f1ap_interface_management.c
+index 2253493832..1fdfabf4ce 100644
+--- a/openair2/F1AP/lib/f1ap_interface_management.c
++++ b/openair2/F1AP/lib/f1ap_interface_management.c
+@@ -591,12 +591,23 @@ static F1AP_GNB_DU_System_Information_t *encode_system_info(const f1ap_gnb_du_sy
+     return NULL; /* optional: can be NULL */
+ 
+   F1AP_GNB_DU_System_Information_t *enc_sys_info = calloc_or_fail(1, sizeof(*enc_sys_info));
++  int ret;
+ 
+   AssertFatal(sys_info->mib != NULL, "MIB must be present in DU sys info\n");
+-  OCTET_STRING_fromBuf(&enc_sys_info->mIB_message, (const char *)sys_info->mib, sys_info->mib_length);
++  ret = OCTET_STRING_fromBuf(&enc_sys_info->mIB_message, (const char *)sys_info->mib, sys_info->mib_length);
++  if (ret != 0) {
++    free(enc_sys_info);
++    return NULL;
++  }
+ 
+   AssertFatal(sys_info->sib1 != NULL, "SIB1 must be present in DU sys info\n");
+-  OCTET_STRING_fromBuf(&enc_sys_info->sIB1_message, (const char *)sys_info->sib1, sys_info->sib1_length);
++  ret = OCTET_STRING_fromBuf(&enc_sys_info->sIB1_message, (const char *)sys_info->sib1, sys_info->sib1_length);
++  if (ret != 0) {
++    // Free the first OCTET_STRING content and the structure
++    free(enc_sys_info->mIB_message.buf);
++    free(enc_sys_info);
++    return NULL;
++  }
+ 
+   return enc_sys_info;
+ }

@@ -1,0 +1,14 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+index 45d5f15ffe..786001c0ee 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+@@ -7186,7 +7186,9 @@ static uint8_t unpack_rach_indication_body_value(void *tlv, uint8_t **ppReadPack
+     value->preamble_list = (nfapi_preamble_pdu_t *)nfapi_p7_allocate(sizeof(nfapi_preamble_pdu_t) * value->number_of_preambles, config);
+ 
+     if(value->preamble_list == NULL) {
++      int saved_errno = errno;  // Save errno before NFAPI_TRACE
+       NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s failed to allocate preamble pdu list (count:%d)\n", __FUNCTION__, value->number_of_preambles);
++      errno = saved_errno;  // Restore errno after NFAPI_TRACE
+       return 0;
+     }
+   } else {

@@ -1,0 +1,37 @@
+{
+  "run_id": "s00484_899c1d",
+  "function": {
+    "name": "new_rlc_entity_um",
+    "file": "openair2/LAYER2/rlc_v2/rlc_entity.c",
+    "start_line": 94,
+    "end_line": 144,
+    "body_lines": 51,
+    "signature": "rlc_entity_t *new_rlc_entity_um( int rx_maxsize, int tx_maxsize, void (*deliver_sdu)(void *deliver_sdu_data, struct rlc_entity_t *entity, char *buf, int size), void *deliver_sdu_data, int t_reordering, int sn_field_length)",
+    "subsystem": "openair2/LAYER2/rlc_v2",
+    "token_estimate": 120
+  },
+  "bug": {
+    "bug_id": "c_missing_null_check_after_alloc",
+    "description": "missing NULL check after memory allocation that can fail",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a missing NULL check after memory allocation that can fail downstream of function new_rlc_entity_um in the openair2/LAYER2/rlc_v2 subsystem.\nThe function is located at openair2/LAYER2/rlc_v2/rlc_entity.c:94.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00484_899c1d_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00484_899c1d_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 22,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:35:29Z"
+}

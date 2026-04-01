@@ -1,0 +1,13 @@
+diff --git a/openair1/SCHED/fapi_l1.c b/openair1/SCHED/fapi_l1.c
+index 6f435eceeb..348d933c99 100644
+--- a/openair1/SCHED/fapi_l1.c
++++ b/openair1/SCHED/fapi_l1.c
+@@ -163,7 +163,7 @@ void handle_nfapi_mch_pdu(PHY_VARS_eNB *eNB,int frame,int subframe,L1_rxtx_proc_
+     //  dlsch->rnti   = M_RNTI;
+   dlsch->harq_processes[0]->mcs   = rel8->modulation;
+   //  dlsch->harq_processes[0]->Ndi   = ndi;
+-  dlsch->harq_processes[0]->rvidx = 0;//rvidx;
++  dlsch->harq_processes[0]->rvidx = rel8->redundancy_version;
+   dlsch->harq_processes[0]->Nl    = 1;
+   dlsch->harq_processes[0]->TBS   = TBStable[get_I_TBS(dlsch->harq_processes[0]->mcs)][frame_parms->N_RB_DL-1];
+   //  dlsch->harq_ids[subframe]       = 0;

@@ -1,0 +1,78 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c b/openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c
+index b95597a0ba..ef361dd6cb 100644
+--- a/openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c
++++ b/openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c
+@@ -2115,6 +2115,73 @@ static void nr_ue_prach_scheduler(NR_UE_MAC_INST_t *mac, frame_t frameP, slot_t
+ 
+   if (is_ul_slot(slotP, &mac->frame_structure)) {
+     if (slotP == prach_occasion_info->slot) {
++      // For TDD mixed slots, we need to check that PRACH symbols are within the UL portion
++      if (mac->frame_structure.frame_type == TDD) {
++        // Get PRACH duration based on format
++        int prach_duration = 0;
++        int format = prach_occasion_info->format;
++        switch (format) { // single PRACH format
++          case 0:  // PRACH format 0 -> FAPI format 0 -> duration 2
++            prach_duration = 2;
++            break;
++          case 1:  // PRACH format 1 -> FAPI format 1 -> duration 4
++            prach_duration = 4;
++            break;
++          case 2:  // PRACH format 2 -> FAPI format 2 -> duration 6
++            prach_duration = 6;
++            break;
++          case 3:  // PRACH format 3 -> FAPI format 3 -> duration 12
++            prach_duration = 12;
++            break;
++          case 0xa1:  // PRACH format A1 -> FAPI format 4 -> duration 2
++            prach_duration = 2;
++            break;
++          case 0xa2:  // PRACH format A2 -> FAPI format 5 -> duration 4
++            prach_duration = 4;
++            break;
++          case 0xa3:  // PRACH format A3 -> FAPI format 6 -> duration 6
++            prach_duration = 6;
++            break;
++          case 0xb1:  // PRACH format B1 -> FAPI format 7 -> duration 2
++            prach_duration = 2;
++            break;
++          case 0xb4:  // PRACH format B4 -> FAPI format 8 -> duration 12
++            prach_duration = 12;
++            break;
++          case 0xc0:  // PRACH format C0 -> FAPI format 9 -> duration 2
++            prach_duration = 2;
++            break;
++          case 0xc2:  // PRACH format C2 -> FAPI format 10 -> duration 6
++            prach_duration = 6;
++            break;
++          default:
++            AssertFatal(false, "Invalid PRACH format %d", format);
++        }
++        
++        int start_symbol = prach_occasion_info->start_symbol;
++        int end_symbol = start_symbol + prach_duration;
++        
++        // For mixed slots, check if PRACH symbols are within UL portion
++        if (is_mixed_slot(slotP, &mac->frame_structure)) {
++          slot_t s = get_slot_idx_in_period(slotP, &mac->frame_structure);
++          tdd_bitmap_t *bitmap = &mac->frame_structure.period_cfg.tdd_slot_bitmap[s];
++          if (bitmap->num_ul_symbols > 0) {
++            int ul_start = NR_NUMBER_OF_SYMBOLS_PER_SLOT - bitmap->num_ul_symbols;
++            int ul_end = NR_NUMBER_OF_SYMBOLS_PER_SLOT - 1;
++            // If PRACH symbols are not within UL portion, skip scheduling
++            if (start_symbol < ul_start || end_symbol > ul_end) {
++              LOG_W(NR_MAC, "PRACH symbols [%d-%d] not within UL portion [%d-%d] of mixed slot %d\n", 
++                    start_symbol, end_symbol, ul_start, ul_end, slotP);
++              return;
++            }
++          } else {
++            // No UL symbols in mixed slot, can't schedule PRACH
++            LOG_W(NR_MAC, "No UL symbols in mixed slot %d for PRACH scheduling\n", slotP);
++            return;
++          }
++        }
++      }
++      
+       fapi_nr_ul_config_request_pdu_t *pdu = lockGet_ul_config(mac, frameP, slotP, FAPI_NR_UL_CONFIG_TYPE_PRACH);
+       if (!pdu) {
+         LOG_E(NR_MAC, "Error in PRACH allocation\n");

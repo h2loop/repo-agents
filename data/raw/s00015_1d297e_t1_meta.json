@@ -1,0 +1,31 @@
+{
+  "run_id": "s00015_1d297e",
+  "function": {
+    "name": "bps",
+    "file": "common/utils/T/tracer/utils.c",
+    "start_line": 51,
+    "end_line": 62,
+    "body_lines": 12,
+    "signature": "void bps(char *out, float v, char *suffix)",
+    "subsystem": "common/utils/T",
+    "token_estimate": 50
+  },
+  "bug": {
+    "bug_id": "c_integer_underflow",
+    "description": "integer underflow producing an unexpectedly large unsigned value",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "common"
+    ]
+  },
+  "prompt": "There is a integer underflow producing an unexpectedly large unsigned value downstream of function bps in the common/utils/T subsystem.\nThe function is located at common/utils/T/tracer/utils.c:51.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00015_1d297e_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00015_1d297e_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 9,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T07:36:38Z"
+}

@@ -1,0 +1,42 @@
+diff --git a/common/utils/nr/nr_common.h b/common/utils/nr/nr_common.h
+index e62d66658c..52ed565ee4 100644
+--- a/common/utils/nr/nr_common.h
++++ b/common/utils/nr/nr_common.h
+@@ -50,6 +50,11 @@
+ #define NR_NB_SC_PER_RB 12
+ #define NR_MAX_NUM_LCID 32
+ #define NR_MAX_NUM_QFI 64
++#define NR_maxNrofCSI_ResourceConfigurations 112
++#define NR_maxNrofCSI_ReportConfigurations 48
++#define NR_maxNrofCSI_IM_Resources 32
++#define NR_maxNrofCSI_IM_ResourceSets 64
++#define NR_maxNrofCSI_SSB_ResourceSets 64
+ #define RNTI_NAMES /* see 38.321  Table 7.1-2  RNTI usage */      \
+   R(TYPE_C_RNTI_) /* Cell RNTI */                                  \
+   R(TYPE_CS_RNTI_) /* Configured Scheduling RNTI */                \
+diff --git a/openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c b/openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c
+index fcc977d9e5..89761c100d 100644
+--- a/openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c
++++ b/openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c
+@@ -1223,7 +1223,9 @@ static void nr_schedule_csirs_reception(NR_UE_MAC_INST_t *mac, int frame, int sl
+     NR_NZP_CSI_RS_Resource_t *nzpcsi = csi_measconfig->nzp_CSI_RS_ResourceToAddModList->list.array[id];
+     int period, offset;
+     csi_period_offset(NULL, nzpcsi->periodicityAndOffset, &period, &offset);
+-    if((frame * mac->frame_structure.numb_slots_frame + slot-offset) % period != 0)
++    int slot_index = frame * mac->frame_structure.numb_slots_frame + slot;
++    int diff = slot_index - offset;
++    if(((diff % period) + period) % period != 0)
+       continue;
+     NR_CSI_ResourceConfigId_t csi_res_id = find_CSI_resourceconfig(csi_measconfig, dl_bwp_id, nzpcsi->nzp_CSI_RS_ResourceId);
+     // do not schedule reseption of this CSI-RS if not associated with current BWP
+@@ -1276,7 +1278,9 @@ static void nr_schedule_csi_for_im(NR_UE_MAC_INST_t *mac, int frame, int slot)
+   for (int id = 0; id < csi_measconfig->csi_IM_ResourceToAddModList->list.count; id++){
+     imcsi = csi_measconfig->csi_IM_ResourceToAddModList->list.array[id];
+     csi_period_offset(NULL,imcsi->periodicityAndOffset,&period,&offset);
+-    if((frame * mac->frame_structure.numb_slots_frame + slot - offset ) %period != 0)
++    int slot_index = frame * mac->frame_structure.numb_slots_frame + slot;
++    int diff = slot_index - offset;
++    if(((diff % period) + period) % period != 0)
+       continue;
+     fapi_nr_dl_config_csiim_pdu_rel15_t *csiim_config_pdu = &dl_config->dl_config_list[dl_config->number_pdus].csiim_config_pdu.csiim_config_rel15;
+     csiim_config_pdu->bwp_size = bwp_size;

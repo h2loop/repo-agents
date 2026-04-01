@@ -1,0 +1,37 @@
+{
+  "run_id": "s00280_6352b6",
+  "function": {
+    "name": "_nas_timer_add",
+    "file": "openair3/NAS/COMMON/UTIL/nas_timer.c",
+    "start_line": 668,
+    "end_line": 678,
+    "body_lines": 11,
+    "signature": "static void _nas_timer_add(const struct timeval *a, const struct timeval *b, struct timeval *result)",
+    "subsystem": "openair3/NAS/COMMON",
+    "token_estimate": 35
+  },
+  "bug": {
+    "bug_id": "c_missing_null_check_after_alloc",
+    "description": "missing NULL check after memory allocation that can fail",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a missing NULL check after memory allocation that can fail downstream of function _nas_timer_add in the openair3/NAS/COMMON subsystem.\nThe function is located at openair3/NAS/COMMON/UTIL/nas_timer.c:668.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00280_6352b6_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00280_6352b6_p1.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 51,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T14:03:13Z"
+}

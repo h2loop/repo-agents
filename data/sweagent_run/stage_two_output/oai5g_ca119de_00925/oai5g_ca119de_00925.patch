@@ -1,0 +1,145 @@
+diff --git a/openair2/RRC/LTE/rrc_eNB_S1AP.c b/openair2/RRC/LTE/rrc_eNB_S1AP.c
+index 1124cc8dd9..2e375707bf 100644
+--- a/openair2/RRC/LTE/rrc_eNB_S1AP.c
++++ b/openair2/RRC/LTE/rrc_eNB_S1AP.c
+@@ -2085,12 +2085,12 @@ int rrc_eNB_process_S1AP_PATH_SWITCH_REQ_ACK (MessageDef *msg_p,
+       /* TBD: release the DRB not admitted */
+       //rrc_eNB_generate_dedicatedRRCConnectionReconfiguration(&ctxt, ue_context_p, 0);
+       if ( ue_context_p->ue_context.ue_release_timer_rrc > 0 &&
+-	   (ue_context_p->ue_context.handover_info == NULL ||
+-	    (ue_context_p->ue_context.handover_info->state != HO_RELEASE &&
+-	     ue_context_p->ue_context.handover_info->state != HO_CANCEL
+-	     )
+-	    )
+-	   )
++           (ue_context_p->ue_context.handover_info == NULL ||
++            (ue_context_p->ue_context.handover_info->state != HO_RELEASE &&
++             ue_context_p->ue_context.handover_info->state != HO_CANCEL
++             )
++            )
++           )
+       ue_context_p->ue_context.ue_release_timer_rrc = ue_context_p->ue_context.ue_release_timer_thres_rrc;
+   }
+   
+@@ -2157,51 +2157,89 @@ int rrc_eNB_send_E_RAB_Modification_Indication(const protocol_ctxt_t *const ctxt
+   int e_rab_modify_index = 0;
+   int e_rab_notmodify_index = 0;
+ 
+-  uint8_t inde_list[ue_context_pP->ue_context.nb_of_e_rabs];
+-  memset(inde_list, 0, ue_context_pP->ue_context.nb_of_e_rabs*sizeof(uint8_t));
++  if (ue_context_pP->ue_context.nb_of_modify_endc_e_rabs == 0) {
++    LOG_D(RRC, "No E-RABs to modify for UE RNTI %x\n", ue_context_pP->ue_context.rnti);
++    return 0;
++  }
+ 
+   msg_p = itti_alloc_new_message (TASK_RRC_ENB, 0, S1AP_E_RAB_MODIFICATION_IND);
+-
++  
++  if (msg_p == NULL) {
++    LOG_E(RRC, "Failed to allocate memory for S1AP_E_RAB_MODIFICATION_IND message\n");
++    return -1;
++  }
+ 
+   S1AP_E_RAB_MODIFICATION_IND (msg_p).eNB_ue_s1ap_id = ue_context_pP->ue_context.eNB_ue_s1ap_id;
+   S1AP_E_RAB_MODIFICATION_IND (msg_p).mme_ue_s1ap_id = ue_context_pP->ue_context.mme_ue_s1ap_id;
++  S1AP_E_RAB_MODIFICATION_IND (msg_p).ue_initial_id = ue_context_pP->ue_context.ue_initial_id; // Use the UE context's initial ID
++  
++  if (ue_context_pP->ue_context.ue_initial_id == UE_INITIAL_ID_INVALID) {
++    LOG_W(RRC, "UE initial ID is invalid for UE RNTI %x\n", ue_context_pP->ue_context.rnti);
++  }
+ 
+-  LOG_I (RRC,"E-RAB modification indication: nb nb_of_e_rabs %u status %u\n",
++  LOG_I (RRC,"E-RAB modification indication for UE RNTI %x: total e_rabs %u, e_rabs to modify %u\n",
++         ue_context_pP->ue_context.rnti,
+          ue_context_pP->ue_context.nb_of_e_rabs,
+-         ue_context_pP->ue_context.e_rab[e_rab].status);
++         ue_context_pP->ue_context.nb_of_modify_endc_e_rabs);
+ 
+-  if (ue_context_pP->ue_context.nb_of_modify_endc_e_rabs > 0){
+-	  S1AP_E_RAB_MODIFICATION_IND (msg_p).nb_of_e_rabs_tobemodified = ue_context_pP->ue_context.nb_of_modify_endc_e_rabs;
+-	  for (e_rab = 0; e_rab <  ue_context_pP->ue_context.setup_e_rabs ; e_rab++) {
+-		  //Add E-RAB in the list of E-RABs to be modified
+-		  if (ue_context_pP->ue_context.e_rab[e_rab].status == E_RAB_STATUS_TOMODIFY) {
+-			  S1AP_E_RAB_MODIFICATION_IND (msg_p).e_rabs_tobemodified[e_rab_modify_index].e_rab_id = ue_context_pP->ue_context.e_rab[e_rab].param.e_rab_id;
+-			  memcpy(S1AP_E_RAB_MODIFICATION_IND (msg_p).e_rabs_tobemodified[e_rab_modify_index].eNB_addr.buffer,
+-					  ue_context_pP->ue_context.gnb_gtp_endc_addrs[e_rab].buffer,
+-					  ue_context_pP->ue_context.gnb_gtp_endc_addrs[e_rab].length);
+-			  S1AP_E_RAB_MODIFICATION_IND (msg_p).e_rabs_tobemodified[e_rab_modify_index].eNB_addr.length = ue_context_pP->ue_context.gnb_gtp_endc_addrs[e_rab].length;
+-			  S1AP_E_RAB_MODIFICATION_IND (msg_p).e_rabs_tobemodified[e_rab_modify_index].gtp_teid = ue_context_pP->ue_context.gnb_gtp_endc_teid[e_rab];
+-			  e_rab_modify_index++;
+-		  }
+-		  //Add E-RAB in the list of E-RABs NOT to be modified
+-		  else{
+-			  S1AP_E_RAB_MODIFICATION_IND (msg_p).e_rabs_nottobemodified[e_rab_notmodify_index].e_rab_id = ue_context_pP->ue_context.e_rab[e_rab].param.e_rab_id;
+-			  memcpy(S1AP_E_RAB_MODIFICATION_IND (msg_p).e_rabs_nottobemodified[e_rab_notmodify_index].eNB_addr.buffer,
+-					  ue_context_pP->ue_context.gnb_gtp_endc_addrs[e_rab].buffer,
+-					  ue_context_pP->ue_context.gnb_gtp_endc_addrs[e_rab].length);
+-			  S1AP_E_RAB_MODIFICATION_IND (msg_p).e_rabs_nottobemodified[e_rab_notmodify_index].eNB_addr.length = ue_context_pP->ue_context.gnb_gtp_endc_addrs[e_rab].length;
+-			  S1AP_E_RAB_MODIFICATION_IND (msg_p).e_rabs_nottobemodified[e_rab_notmodify_index].gtp_teid = ue_context_pP->ue_context.gnb_gtp_endc_teid[e_rab];
+-			  e_rab_notmodify_index++;
+-		  }
+-	  }
+-	  S1AP_E_RAB_MODIFICATION_IND (msg_p).nb_of_e_rabs_nottobemodified = e_rab_notmodify_index;
++  S1AP_E_RAB_MODIFICATION_IND (msg_p).nb_of_e_rabs_tobemodified = 0;
++  S1AP_E_RAB_MODIFICATION_IND (msg_p).nb_of_e_rabs_nottobemodified = 0;
++  
++  // Iterate through ALL E-RABs, not just setup E-RABs
++  for (e_rab = 0; e_rab < ue_context_pP->ue_context.nb_of_e_rabs; e_rab++) {
++    // Validate E-RAB index to prevent out-of-bounds access
++    if (e_rab >= NB_RB_MAX || e_rab >= S1AP_MAX_E_RAB) {
++      LOG_E(RRC, "E-RAB index %d exceeds maximum allowed (NB_RB_MAX: %d, S1AP_MAX_E_RAB: %d)\n", 
++            e_rab, NB_RB_MAX-1, S1AP_MAX_E_RAB-1);
++      break;
++    }
++    
++    // Add E-RAB in the list of E-RABs to be modified
++    if (ue_context_pP->ue_context.e_rab[e_rab].status == E_RAB_STATUS_TOMODIFY) {
++      // Check bounds to prevent overflow
++      if (e_rab_modify_index >= S1AP_MAX_E_RAB) {
++        LOG_E(RRC, "Too many E-RABs to be modified, max allowed %d\n", S1AP_MAX_E_RAB);
++        break;
++      }
++      
++      S1AP_E_RAB_MODIFICATION_IND (msg_p).e_rabs_tobemodified[e_rab_modify_index].e_rab_id = ue_context_pP->ue_context.e_rab[e_rab].param.e_rab_id;
++      memcpy(S1AP_E_RAB_MODIFICATION_IND (msg_p).e_rabs_tobemodified[e_rab_modify_index].eNB_addr.buffer,
++             ue_context_pP->ue_context.gnb_gtp_endc_addrs[e_rab].buffer,
++             ue_context_pP->ue_context.gnb_gtp_endc_addrs[e_rab].length);
++      S1AP_E_RAB_MODIFICATION_IND (msg_p).e_rabs_tobemodified[e_rab_modify_index].eNB_addr.length = ue_context_pP->ue_context.gnb_gtp_endc_addrs[e_rab].length;
++      S1AP_E_RAB_MODIFICATION_IND (msg_p).e_rabs_tobemodified[e_rab_modify_index].gtp_teid = ue_context_pP->ue_context.gnb_gtp_endc_teid[e_rab];
++      e_rab_modify_index++;
++    }
++    // Add E-RAB in the list of E-RABs NOT to be modified
++    else if (ue_context_pP->ue_context.e_rab[e_rab].status == E_RAB_STATUS_ESTABLISHED ||
++             ue_context_pP->ue_context.e_rab[e_rab].status == E_RAB_STATUS_DONE) {
++      // Check bounds to prevent overflow
++      if (e_rab_notmodify_index >= S1AP_MAX_E_RAB) {
++        LOG_E(RRC, "Too many E-RABs not to be modified, max allowed %d\n", S1AP_MAX_E_RAB);
++        break;
++      }
++      
++      S1AP_E_RAB_MODIFICATION_IND (msg_p).e_rabs_nottobemodified[e_rab_notmodify_index].e_rab_id = ue_context_pP->ue_context.e_rab[e_rab].param.e_rab_id;
++      memcpy(S1AP_E_RAB_MODIFICATION_IND (msg_p).e_rabs_nottobemodified[e_rab_notmodify_index].eNB_addr.buffer,
++             ue_context_pP->ue_context.gnb_gtp_endc_addrs[e_rab].buffer,
++             ue_context_pP->ue_context.gnb_gtp_endc_addrs[e_rab].length);
++      S1AP_E_RAB_MODIFICATION_IND (msg_p).e_rabs_nottobemodified[e_rab_notmodify_index].eNB_addr.length = ue_context_pP->ue_context.gnb_gtp_endc_addrs[e_rab].length;
++      S1AP_E_RAB_MODIFICATION_IND (msg_p).e_rabs_nottobemodified[e_rab_notmodify_index].gtp_teid = ue_context_pP->ue_context.gnb_gtp_endc_teid[e_rab];
++      e_rab_notmodify_index++;
++    }
+   }
++  
++  S1AP_E_RAB_MODIFICATION_IND (msg_p).nb_of_e_rabs_tobemodified = e_rab_modify_index;
++  S1AP_E_RAB_MODIFICATION_IND (msg_p).nb_of_e_rabs_nottobemodified = e_rab_notmodify_index;
+ 
+   if (e_rab_modify_index > 0) {
+-    LOG_I(RRC,"S1AP_E_RAB_MODIFICATION_IND: sending the message: nb_of_erabstobemodified %d, total e_rabs %d, index %d\n",
+-    		S1AP_E_RAB_MODIFICATION_IND (msg_p).nb_of_e_rabs_tobemodified, ue_context_pP->ue_context.setup_e_rabs, e_rab);
++    LOG_I(RRC,"Sending S1AP_E_RAB_MODIFICATION_IND for UE RNTI %x: e_rabs to be modified %d, total e_rabs %d\n",
++                ue_context_pP->ue_context.rnti,
++                S1AP_E_RAB_MODIFICATION_IND (msg_p).nb_of_e_rabs_tobemodified, 
++                ue_context_pP->ue_context.nb_of_e_rabs);
+     itti_send_msg_to_task (TASK_S1AP, ctxt_pP->instance, msg_p);
+   } else {
++    LOG_W(RRC, "No E-RABs to be modified found for UE RNTI %x, discarding message\n", ue_context_pP->ue_context.rnti);
+     itti_free(ITTI_MSG_ORIGIN_ID(msg_p), msg_p);
+   }
+ 

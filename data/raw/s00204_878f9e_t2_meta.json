@@ -1,0 +1,9 @@
+{
+  "run_id": "s00204_878f9e",
+  "pr_text": "## Title: Fix ENCODE_U24 macro buffer overflow and size miscalculation\n\n### Summary\nThe `ENCODE_U24` macro in the NAS TLV encoder was writing 4 bytes to the buffer while only incrementing the size counter by 3 bytes. This mismatch caused buffer overflows and type confusion when encoding 24-bit fields in NAS messages, particularly affecting mobile identity encoding paths like `encode_tmgi_mobile_identity()`. The macro cast the buffer to `uint32_t*` and used `htonl()`, which writes a full 32-bit w",
+  "trajectory_path": "data/raw/s00204_878f9e_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00204_878f9e_p2.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 20,
+  "timestamp": "2026-02-10T11:52:48Z"
+}

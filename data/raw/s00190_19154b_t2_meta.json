@@ -1,0 +1,9 @@
+{
+  "run_id": "s00190_19154b",
+  "pr_text": "## Title: Fix uninitialized EMM-SAP primitive memory in NAS UE lower layer\n\n### Summary\nThe NAS UE lower layer functions were passing uninitialized stack memory to the EMM-SAP interface, causing undefined behavior. The `emm_sap_t` primitives in `lowerlayer_success()`, `lowerlayer_failure()`, and `lowerlayer_release()` were allocated on the stack without zero-initialization before field assignment. This allowed garbage values in padding bytes and unused struct members to be interpreted as flags/b",
+  "trajectory_path": "data/raw/s00190_19154b_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00190_19154b_p2.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 17,
+  "timestamp": "2026-02-10T11:47:26Z"
+}

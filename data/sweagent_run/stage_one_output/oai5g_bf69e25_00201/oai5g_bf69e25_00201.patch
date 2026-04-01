@@ -1,0 +1,13 @@
+diff --git a/openair2/UTIL/OMG/static.c b/openair2/UTIL/OMG/static.c
+index 361fa969e9..f7474ef2ef 100644
+--- a/openair2/UTIL/OMG/static.c
++++ b/openair2/UTIL/OMG/static.c
+@@ -72,7 +72,7 @@ start_static_generator (omg_global_param omg_param_list)
+ void
+ place_static_node (node_struct * node)
+ {
+-  if (omg_param_list[node->type].user_fixed && node->type == eNB) {
++  if (omg_param_list[node->type].user_fixed) {
+     if (omg_param_list[node->type].fixed_x <=
+         omg_param_list[node->type].max_x
+         && omg_param_list[node->type].fixed_x >=

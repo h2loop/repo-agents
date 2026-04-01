@@ -1,0 +1,84 @@
+diff --git a/openair2/M2AP/m2ap_eNB_management_procedures.c b/openair2/M2AP/m2ap_eNB_management_procedures.c
+index 59d91afb74..f929830bc9 100644
+--- a/openair2/M2AP/m2ap_eNB_management_procedures.c
++++ b/openair2/M2AP/m2ap_eNB_management_procedures.c
+@@ -39,6 +39,11 @@
+ #include "m2ap_eNB_defs.h"
+ #include "m2ap_eNB.h"
+ 
++/* Define maximum number of component carriers if not already defined */
++#ifndef MAX_NUM_CCs
++#define MAX_NUM_CCs 4
++#endif
++
+ 
+ #define M2AP_DEBUG_LIST
+ #ifdef M2AP_DEBUG_LIST
+@@ -123,8 +128,8 @@ printf("---------------------------------------------\n");
+ }
+ 
+ struct m2ap_eNB_data_s *m2ap_get_eNB(m2ap_eNB_instance_t *instance_p,
+-				     int32_t assoc_id,
+-				     uint16_t cnx_id)
++                                     int32_t assoc_id,
++                                     uint16_t cnx_id)
+ {
+   struct m2ap_eNB_data_s  temp;
+   struct m2ap_eNB_data_s *found;
+@@ -210,15 +215,46 @@ m2ap_eNB_data_t  * m2ap_is_eNB_pci_in_list (const uint32_t pci)
+   m2ap_eNB_instance_t    *inst;
+   struct m2ap_eNB_data_s *elm;
+ 
++  /* Validate PCI range - PCI values should be in range 0-503 according to 3GPP specs */
++  if (pci > 503) {
++    M2AP_WARN("[m2ap] Invalid PCI value %u, should be in range 0-503\n", pci);
++    return NULL;
++  }
++
++  M2AP_DEBUG("[m2ap] Searching for eNB with PCI %u\n", pci);
++
+   STAILQ_FOREACH(inst, &m2ap_eNB_internal_data.m2ap_eNB_instances_head, m2ap_eNB_entries) {
+     RB_FOREACH(elm, m2ap_enb_map, &inst->m2ap_enb_head) {
+-      for (int i = 0; i<elm->num_cc; i++) {
++      /* Validate num_cc bounds before iterating */
++      if (elm->num_cc < 0 || elm->num_cc > MAX_NUM_CCs) {
++        M2AP_WARN("[m2ap] Invalid num_cc value %d for eNB (should be 0-%d)\n", elm->num_cc, MAX_NUM_CCs);
++        continue;
++      }
++      
++      M2AP_DEBUG("[m2ap] Checking eNB %s with %d component carriers\n", 
++                 elm->eNB_name ? elm->eNB_name : "Unknown", elm->num_cc);
++                 
++      for (int i = 0; i < elm->num_cc; i++) {
++        /* Additional bounds check for array access */
++        if (i >= MAX_NUM_CCs) {
++          M2AP_WARN("[m2ap] Array index %d exceeds MAX_NUM_CCs %d\n", i, MAX_NUM_CCs);
++          break;
++        }
++        
++        M2AP_DEBUG("[m2ap] Comparing PCI %u with Nid_cell[%d] = %u\n", pci, i, elm->Nid_cell[i]);
++        
++        /* Note: Nid_cell values might need interpretation depending on context
++         * In some implementations, Nid_cell might represent different values
++         * Check if this needs adjustment based on actual usage */
+         if (elm->Nid_cell[i] == pci) {
++          M2AP_DEBUG("[m2ap] Found matching eNB for PCI %u\n", pci);
+           return elm;
+         }
+       }
+     }
+   }
++  
++  M2AP_DEBUG("[m2ap] No eNB found with PCI %u\n", pci);
+   return NULL;
+ }
+ 
+@@ -249,7 +285,7 @@ m2ap_eNB_data_t  * m2ap_is_eNB_assoc_id_in_list (const uint32_t sctp_assoc_id)
+     found = RB_FIND(m2ap_enb_map, &inst->m2ap_enb_head, &temp);
+     if (found != NULL){
+       if (found->assoc_id == sctp_assoc_id) {
+-	return found;
++        return found;
+       }
+     }
+   }

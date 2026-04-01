@@ -1,0 +1,9 @@
+{
+  "run_id": "s00246_f38c4d",
+  "pr_text": "## Title: Add NULL sentinel to mode descriptor array in PHY coding module\n\n### Summary\nThe `modedesc` string array in `coding_load.c` lacked a NULL terminator, creating a potential out-of-bounds read vulnerability when accessed with an invalid mode index. The array maps decoding mode constants to human-readable strings for logging, but without a sentinel value, any out-of-range access would read beyond allocated memory.\n\nThis fix adds a NULL sentinel as the final element of the `modedesc` array.",
+  "trajectory_path": "data/raw/s00246_f38c4d_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00246_f38c4d_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 19,
+  "timestamp": "2026-02-10T12:07:47Z"
+}

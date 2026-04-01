@@ -1,0 +1,28 @@
+{
+  "run_id": "s00367_966888",
+  "function": {
+    "name": "extract_00_tc_rnti",
+    "file": "openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c",
+    "start_line": 3470,
+    "end_line": 3490,
+    "body_lines": 21,
+    "signature": "static void extract_00_tc_rnti(dci_pdu_rel15_t *dci_pdu_rel15, const uint8_t *dci_pdu, int pos)",
+    "subsystem": "openair2/LAYER2/NR_MAC_UE",
+    "token_estimate": 74
+  },
+  "bug": {
+    "bug_id": "telecom_sched_incorrect_rb_allocation",
+    "description": "incorrect resource block allocation violating scheduling constraints",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a incorrect resource block allocation violating scheduling constraints downstream of function extract_00_tc_rnti in the openair2/LAYER2/NR_MAC_UE subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c:3470.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00367_966888_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00367_966888_p1.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 20,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T18:52:08Z"
+}

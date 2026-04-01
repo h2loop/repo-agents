@@ -1,0 +1,13 @@
+diff --git a/nfapi/oai_integration/nfapi_vnf.c b/nfapi/oai_integration/nfapi_vnf.c
+index 777da7c319..65c08abffa 100644
+--- a/nfapi/oai_integration/nfapi_vnf.c
++++ b/nfapi/oai_integration/nfapi_vnf.c
+@@ -2075,7 +2075,7 @@ int oai_nfapi_ul_config_req(nfapi_ul_config_request_t *ul_config_req) {
+     for (int j = i + 1; j < num_pdus; j++)
+     {
+       uint8_t pdu_type2 = pdu_list[j].pdu_type;
+-      if (pdu_type != pdu_type2)
++      if (pdu_type2 != NFAPI_UL_CONFIG_ULSCH_CQI_RI_PDU_TYPE)
+       {
+         continue;
+       }

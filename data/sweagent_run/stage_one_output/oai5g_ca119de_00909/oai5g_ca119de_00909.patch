@@ -1,0 +1,19 @@
+diff --git a/common/utils/T/tracer/database.c b/common/utils/T/tracer/database.c
+index 347ca7cfcf..9e1c04eebf 100644
+--- a/common/utils/T/tracer/database.c
++++ b/common/utils/T/tracer/database.c
+@@ -343,6 +343,14 @@ void *parse_database(char *filename)
+   free(p.name.data);
+   free(p.value.data);
+ 
++  /* Sort groups and IDs one final time to ensure proper order for binary search */
++  if (r->gsize > 0) {
++    qsort(r->g, r->gsize, sizeof(group), group_cmp);
++  }
++  if (r->isize > 0) {
++    qsort(r->i, r->isize, sizeof(id), id_cmp);
++  }
++
+   /* setup id_to_pos */
+   r->id_to_pos = malloc(sizeof(int) * r->isize);
+   if (r->id_to_pos == NULL) abort();

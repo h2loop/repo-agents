@@ -1,0 +1,35 @@
+{
+  "run_id": "s00045_7134bf",
+  "function": {
+    "name": "lte_gold_unscram",
+    "file": "openair1/PHY/LTE_TRANSPORT/ulsch_decoding.c",
+    "start_line": 376,
+    "end_line": 399,
+    "body_lines": 24,
+    "signature": "static inline unsigned int lte_gold_unscram(unsigned int *x1, unsigned int *x2, unsigned char reset)",
+    "subsystem": "openair1/PHY/LTE_TRANSPORT",
+    "token_estimate": 125
+  },
+  "bug": {
+    "bug_id": "c_race_condition",
+    "description": "race condition on shared data accessed from multiple threads without synchronization",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a race condition on shared data accessed from multiple threads without synchronization downstream of function lte_gold_unscram in the openair1/PHY/LTE_TRANSPORT subsystem.\nThe function is located at openair1/PHY/LTE_TRANSPORT/ulsch_decoding.c:376.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00045_7134bf_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00045_7134bf_p1.diff",
+  "patch_lines": 12,
+  "trajectory_steps": 36,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:49:59Z"
+}

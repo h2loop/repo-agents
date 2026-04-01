@@ -1,0 +1,32 @@
+{
+  "run_id": "s00186_cb44f3",
+  "function": {
+    "name": "dlsch_procedures",
+    "file": "openair1/SCHED/phy_procedures_lte_eNb.c",
+    "start_line": 313,
+    "end_line": 392,
+    "body_lines": 80,
+    "signature": "bool dlsch_procedures(PHY_VARS_eNB *eNB, L1_rxtx_proc_t *proc, int harq_pid, LTE_eNB_DLSCH_t *dlsch, LTE_eNB_UE_stats *ue_stats)",
+    "subsystem": "openair1/SCHED",
+    "token_estimate": 217
+  },
+  "bug": {
+    "bug_id": "c_magic_number",
+    "description": "magic number used without symbolic constant making intent unclear and maintenance error-prone",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a magic number used without symbolic constant making intent unclear and maintenance error-prone downstream of function dlsch_procedures in the openair1/SCHED subsystem.\nThe function is located at openair1/SCHED/phy_procedures_lte_eNb.c:313.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00186_cb44f3_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00186_cb44f3_p1.diff",
+  "patch_lines": 5,
+  "trajectory_steps": 43,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:02:28Z"
+}

@@ -1,0 +1,26 @@
+diff --git a/openair3/NAS/UE/ESM/esmData.h b/openair3/NAS/UE/ESM/esmData.h
+index 525f4ec00a..1468f5dc41 100644
+--- a/openair3/NAS/UE/ESM/esmData.h
++++ b/openair3/NAS/UE/ESM/esmData.h
+@@ -180,7 +180,7 @@ typedef struct esm_data_context_s {
+               * or the process to activate/deactivate the PDN
+               * connection is in progress           */
+     esm_pdn_t *data; /* Active PDN connection data          */
+-  } pdn[ESM_DATA_PDN_MAX+1];
++  } pdn[ESM_DATA_PDN_MAX];
+ 
+   esm_ebr_data_t ebr;
+   uint8_t send_buffer[ESM_SAP_BUFFER_SIZE];
+diff --git a/openair3/NAS/UE/ESM/esm_main.c b/openair3/NAS/UE/ESM/esm_main.c
+index 92b8075f24..1dc88a23bf 100644
+--- a/openair3/NAS/UE/ESM/esm_main.c
++++ b/openair3/NAS/UE/ESM/esm_main.c
+@@ -94,7 +94,7 @@ void esm_main_initialize(nas_user_t *user, esm_indication_callback_t cb)
+   /* List of active PDN connections */
+   esm_data->n_pdns = 0;
+ 
+-  for (i = 0; i < ESM_DATA_PDN_MAX + 1; i++) {
++  for (i = 0; i < ESM_DATA_PDN_MAX; i++) {
+     esm_data->pdn[i].pid = -1;
+     esm_data->pdn[i].is_active = false;
+     esm_data->pdn[i].data = NULL;

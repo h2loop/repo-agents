@@ -1,0 +1,69 @@
+diff --git a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+index 50c46b16e1..968e345225 100644
+--- a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
++++ b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+@@ -534,26 +534,37 @@ pdcchalloc2ulframe(COMMON_channels_t *ccP,
+                    uint8_t n)
+ //------------------------------------------------------------------------------
+ {
+-  uint32_t ul_frame = (frame + (n >= 6 ? 1 : 0));
++  uint8_t ul_subframe;
++  uint32_t ul_frame = frame;
+ 
++  // First calculate the UL subframe
+   if (ccP->tdd_Config) {
+-    if (ccP->tdd_Config->subframeAssignment == 1) {
+-      if (n == 1 || n == 6) {
+-        ul_frame = (frame + (n == 1 ? 0 : 1));
+-      }
+-    } else if (ccP->tdd_Config->subframeAssignment == 6) {
+-      if (n == 0 || n == 1 || n == 5 || n == 6) {
+-        ul_frame = (frame + (n >= 5 ? 1 : 0));
+-      } else if (n == 9) {
+-        ul_frame = (frame + 1);
+-      }
++    if (ccP->tdd_Config->subframeAssignment == 1 && (n == 1 || n == 6)) {
++      ul_subframe = ((n + 6) % 10);
++    } else if (ccP->tdd_Config->subframeAssignment == 6 && (n == 0 || n == 1 || n == 5 || n == 6)) {
++      ul_subframe = ((n + 7) % 10);
++    } else if (ccP->tdd_Config->subframeAssignment == 6 && n == 9) {
++      ul_subframe = ((n + 5) % 10);
++    } else {
++      ul_subframe = ((n + 4) % 10);
+     }
++  } else {
++    // FDD case
++    ul_subframe = ((n + 4) % 10);
+   }
+ 
+-  LOG_D(PHY, "frame %d subframe %d: PUSCH frame = %d\n",
++  // Calculate the UL frame based on subframe wraparound
++  if (ul_subframe < n) {
++    ul_frame = (frame + 1) & 1023;
++  } else {
++    ul_frame = frame;
++  }
++
++  LOG_D(PHY, "frame %d subframe %d: PUSCH frame = %d, PUSCH subframe = %d\n",
+         frame,
+         n,
+-        ul_frame);
++        ul_frame,
++        ul_subframe);
+   return ul_frame;
+ }
+ 
+@@ -565,11 +576,11 @@ pdcchalloc2ulsubframe(COMMON_channels_t *ccP,
+ {
+   uint8_t ul_subframe;
+ 
+-  if (ccP->tdd_Config && ccP->tdd_Config->subframeAssignment == 1 && (n == 1 || n == 6))  // tdd_config 0,1 SF 1,5
++  if (ccP->tdd_Config && ccP->tdd_Config->subframeAssignment == 1 && (n == 1 || n == 6))
+     ul_subframe = ((n + 6) % 10);
+   else if (ccP->tdd_Config && ccP->tdd_Config->subframeAssignment == 6 && (n == 0 || n == 1 || n == 5 || n == 6))
+     ul_subframe = ((n + 7) % 10);
+-  else if (ccP->tdd_Config && ccP->tdd_Config->subframeAssignment == 6 && n == 9) // tdd_config 6 SF 9
++  else if (ccP->tdd_Config && ccP->tdd_Config->subframeAssignment == 6 && n == 9)
+     ul_subframe = ((n + 5) % 10);
+   else
+     ul_subframe = ((n + 4) % 10);

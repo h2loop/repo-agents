@@ -1,0 +1,211 @@
+diff --git a/openair2/COMMON/f1ap_messages_types.h b/openair2/COMMON/f1ap_messages_types.h
+index 08cc03c4fa..b2f472f78d 100644
+--- a/openair2/COMMON/f1ap_messages_types.h
++++ b/openair2/COMMON/f1ap_messages_types.h
+@@ -330,6 +330,18 @@ typedef struct f1ap_up_tnl_s {
+   uint16_t port;
+ } f1ap_up_tnl_t;
+ 
++typedef struct f1ap_drb_qos_info_s {
++  long           fiveQI;
++  long           qCI; 
++  long           priority_level;
++  long           pre_emption_capability;
++  long           pre_emption_vulnerability;
++  long           gbr_dl;
++  long           gbr_ul;
++  long           mbr_dl;
++  long           mbr_ul;
++} f1ap_drb_qos_info_t;
++
+ typedef struct f1ap_drb_to_be_setup_s {
+   long           drb_id;
+   f1ap_up_tnl_t  up_ul_tnl[2];
+@@ -337,6 +349,7 @@ typedef struct f1ap_drb_to_be_setup_s {
+   f1ap_up_tnl_t  up_dl_tnl[2];
+   uint8_t        up_dl_tnl_length;
+   rlc_mode_t     rlc_mode;
++  f1ap_drb_qos_info_t drb_qos_info;
+ } f1ap_drb_to_be_setup_t;
+ 
+ typedef struct f1ap_srb_to_be_setup_s {
+diff --git a/openair2/F1AP/f1ap_du_ue_context_management.c b/openair2/F1AP/f1ap_du_ue_context_management.c
+index 05833e3fad..253faf4819 100644
+--- a/openair2/F1AP/f1ap_du_ue_context_management.c
++++ b/openair2/F1AP/f1ap_du_ue_context_management.c
+@@ -174,6 +174,87 @@ int DU_handle_UE_CONTEXT_SETUP_REQUEST(instance_t       instance,
+           drb_p->rlc_mode = RLC_MODE_TM;
+           break;
+       }
++      
++      /* Extract QoS Information if present */
++      if (drbs_tobesetup_item_p->qoSInformation.present == F1AP_QoSInformation_PR_choice_extension) {
++        /* Handle DRB_Information choice extension */
++        struct F1AP_ProtocolIE_SingleContainer *container = drbs_tobesetup_item_p->qoSInformation.choice.choice_extension;
++        if (container && container->value.present == F1AP_QoSInformation_ExtIEs__value_PR_DRB_Information) {
++          F1AP_DRB_Information_t *drb_info = &container->value.choice.DRB_Information;
++          
++          /* Extract QoS characteristics */
++          if (drb_info->dRB_QoS.qoS_Characteristics.present == F1AP_QoS_Characteristics_PR_non_Dynamic_5QI) {
++            F1AP_NonDynamic5QI_t *non_dyn_5qi = drb_info->dRB_QoS.qoS_Characteristics.choice.non_Dynamic_5QI;
++            if (non_dyn_5qi->fiveQI) {
++              drb_p->drb_qos_info.fiveQI = *non_dyn_5qi->fiveQI;
++            }
++          } else if (drb_info->dRB_QoS.qoS_Characteristics.present == F1AP_QoS_Characteristics_PR_dynamic_5QI) {
++            F1AP_Dynamic5QI_t *dyn_5qi = drb_info->dRB_QoS.qoS_Characteristics.choice.dynamic_5QI;
++            drb_p->drb_qos_info.fiveQI = dyn_5qi->fiveQI;
++            /* Extract dynamic QoS parameters as needed */
++          }
++          
++          /* Extract QoS flow mapping */
++          if (drb_info->qoSFlowMappingIndication) {
++            /* Process QoS flow mapping if needed */
++          }
++          
++          /* Extract NAS required QoS information */
++          if (drb_info->nas_Required_QoSID) {
++            drb_p->drb_qos_info.qCI = *drb_info->nas_Required_QoSID;
++          }
++          
++          /* Extract allocation and retention priority */
++          if (drb_info->dRB_QoS.allocationAndRetentionPriority.priorityLevel) {
++            drb_p->drb_qos_info.priority_level = *drb_info->dRB_QoS.allocationAndRetentionPriority.priorityLevel;
++          }
++          drb_p->drb_qos_info.pre_emption_capability = drb_info->dRB_QoS.allocationAndRetentionPriority.pre_emptionCapability;
++          drb_p->drb_qos_info.pre_emption_vulnerability = drb_info->dRB_QoS.allocationAndRetentionPriority.pre_emptionVulnerability;
++          
++          /* Extract GBR information if present */
++          if (drb_info->dRB_QoS.gbrQosInformation) {
++            F1AP_GBR_QosInformation_t *gbr_qos = drb_info->dRB_QoS.gbrQosInformation;
++            if (gbr_qos->e_RAB_MaximumBitrateDL.buf) {
++              OCTET_STRING_TO_INT32(&gbr_qos->e_RAB_MaximumBitrateDL, &drb_p->drb_qos_info.mbr_dl);
++            }
++            if (gbr_qos->e_RAB_MaximumBitrateUL.buf) {
++              OCTET_STRING_TO_INT32(&gbr_qos->e_RAB_MaximumBitrateUL, &drb_p->drb_qos_info.mbr_ul);
++            }
++            if (gbr_qos->e_RAB_GuaranteedBitrateDL.buf) {
++              OCTET_STRING_TO_INT32(&gbr_qos->e_RAB_GuaranteedBitrateDL, &drb_p->drb_qos_info.gbr_dl);
++            }
++            if (gbr_qos->e_RAB_GuaranteedBitrateUL.buf) {
++              OCTET_STRING_TO_INT32(&gbr_qos->e_RAB_GuaranteedBitrateUL, &drb_p->drb_qos_info.gbr_ul);
++            }
++          }
++        }
++      } else if (drbs_tobesetup_item_p->qoSInformation.present == F1AP_QoSInformation_PR_eUTRANQoS) {
++        /* Handle legacy eUTRAN QoS */
++        F1AP_EUTRANQoS_t *eutran_qos = drbs_tobesetup_item_p->qoSInformation.choice.eUTRANQoS;
++        drb_p->drb_qos_info.qCI = eutran_qos->qCI;
++        
++        /* Extract allocation and retention priority */
++        drb_p->drb_qos_info.priority_level = eutran_qos->allocationAndRetentionPriority.priorityLevel;
++        drb_p->drb_qos_info.pre_emption_capability = eutran_qos->allocationAndRetentionPriority.pre_emptionCapability;
++        drb_p->drb_qos_info.pre_emption_vulnerability = eutran_qos->allocationAndRetentionPriority.pre_emptionVulnerability;
++        
++        /* Extract GBR information if present */
++        if (eutran_qos->gbrQosInformation) {
++          F1AP_GBR_QosInformation_t *gbr_qos = eutran_qos->gbrQosInformation;
++          if (gbr_qos->e_RAB_MaximumBitrateDL.buf) {
++            OCTET_STRING_TO_INT32(&gbr_qos->e_RAB_MaximumBitrateDL, &drb_p->drb_qos_info.mbr_dl);
++          }
++          if (gbr_qos->e_RAB_MaximumBitrateUL.buf) {
++            OCTET_STRING_TO_INT32(&gbr_qos->e_RAB_MaximumBitrateUL, &drb_p->drb_qos_info.mbr_ul);
++          }
++          if (gbr_qos->e_RAB_GuaranteedBitrateDL.buf) {
++            OCTET_STRING_TO_INT32(&gbr_qos->e_RAB_GuaranteedBitrateDL, &drb_p->drb_qos_info.gbr_dl);
++          }
++          if (gbr_qos->e_RAB_GuaranteedBitrateUL.buf) {
++            OCTET_STRING_TO_INT32(&gbr_qos->e_RAB_GuaranteedBitrateUL, &drb_p->drb_qos_info.gbr_ul);
++          }
++        }
++      }
+     }
+   }
+ 
+@@ -912,6 +993,87 @@ int DU_handle_UE_CONTEXT_MODIFICATION_REQUEST(instance_t instance, uint32_t asso
+         drb_p->rlc_mode = RLC_MODE_TM;
+         break;
+       }
++      
++      /* Extract QoS Information if present */
++      if (drbs_tobesetupmod_item_p->qoSInformation.present == F1AP_QoSInformation_PR_choice_extension) {
++        /* Handle DRB_Information choice extension */
++        struct F1AP_ProtocolIE_SingleContainer *container = drbs_tobesetupmod_item_p->qoSInformation.choice.choice_extension;
++        if (container && container->value.present == F1AP_QoSInformation_ExtIEs__value_PR_DRB_Information) {
++          F1AP_DRB_Information_t *drb_info = &container->value.choice.DRB_Information;
++          
++          /* Extract QoS characteristics */
++          if (drb_info->dRB_QoS.qoS_Characteristics.present == F1AP_QoS_Characteristics_PR_non_Dynamic_5QI) {
++            F1AP_NonDynamic5QI_t *non_dyn_5qi = drb_info->dRB_QoS.qoS_Characteristics.choice.non_Dynamic_5QI;
++            if (non_dyn_5qi->fiveQI) {
++              drb_p->drb_qos_info.fiveQI = *non_dyn_5qi->fiveQI;
++            }
++          } else if (drb_info->dRB_QoS.qoS_Characteristics.present == F1AP_QoS_Characteristics_PR_dynamic_5QI) {
++            F1AP_Dynamic5QI_t *dyn_5qi = drb_info->dRB_QoS.qoS_Characteristics.choice.dynamic_5QI;
++            drb_p->drb_qos_info.fiveQI = dyn_5qi->fiveQI;
++            /* Extract dynamic QoS parameters as needed */
++          }
++          
++          /* Extract QoS flow mapping */
++          if (drb_info->qoSFlowMappingIndication) {
++            /* Process QoS flow mapping if needed */
++          }
++          
++          /* Extract NAS required QoS information */
++          if (drb_info->nas_Required_QoSID) {
++            drb_p->drb_qos_info.qCI = *drb_info->nas_Required_QoSID;
++          }
++          
++          /* Extract allocation and retention priority */
++          if (drb_info->dRB_QoS.allocationAndRetentionPriority.priorityLevel) {
++            drb_p->drb_qos_info.priority_level = *drb_info->dRB_QoS.allocationAndRetentionPriority.priorityLevel;
++          }
++          drb_p->drb_qos_info.pre_emption_capability = drb_info->dRB_QoS.allocationAndRetentionPriority.pre_emptionCapability;
++          drb_p->drb_qos_info.pre_emption_vulnerability = drb_info->dRB_QoS.allocationAndRetentionPriority.pre_emptionVulnerability;
++          
++          /* Extract GBR information if present */
++          if (drb_info->dRB_QoS.gbrQosInformation) {
++            F1AP_GBR_QosInformation_t *gbr_qos = drb_info->dRB_QoS.gbrQosInformation;
++            if (gbr_qos->e_RAB_MaximumBitrateDL.buf) {
++              OCTET_STRING_TO_INT32(&gbr_qos->e_RAB_MaximumBitrateDL, &drb_p->drb_qos_info.mbr_dl);
++            }
++            if (gbr_qos->e_RAB_MaximumBitrateUL.buf) {
++              OCTET_STRING_TO_INT32(&gbr_qos->e_RAB_MaximumBitrateUL, &drb_p->drb_qos_info.mbr_ul);
++            }
++            if (gbr_qos->e_RAB_GuaranteedBitrateDL.buf) {
++              OCTET_STRING_TO_INT32(&gbr_qos->e_RAB_GuaranteedBitrateDL, &drb_p->drb_qos_info.gbr_dl);
++            }
++            if (gbr_qos->e_RAB_GuaranteedBitrateUL.buf) {
++              OCTET_STRING_TO_INT32(&gbr_qos->e_RAB_GuaranteedBitrateUL, &drb_p->drb_qos_info.gbr_ul);
++            }
++          }
++        }
++      } else if (drbs_tobesetupmod_item_p->qoSInformation.present == F1AP_QoSInformation_PR_eUTRANQoS) {
++        /* Handle legacy eUTRAN QoS */
++        F1AP_EUTRANQoS_t *eutran_qos = drbs_tobesetupmod_item_p->qoSInformation.choice.eUTRANQoS;
++        drb_p->drb_qos_info.qCI = eutran_qos->qCI;
++        
++        /* Extract allocation and retention priority */
++        drb_p->drb_qos_info.priority_level = eutran_qos->allocationAndRetentionPriority.priorityLevel;
++        drb_p->drb_qos_info.pre_emption_capability = eutran_qos->allocationAndRetentionPriority.pre_emptionCapability;
++        drb_p->drb_qos_info.pre_emption_vulnerability = eutran_qos->allocationAndRetentionPriority.pre_emptionVulnerability;
++        
++        /* Extract GBR information if present */
++        if (eutran_qos->gbrQosInformation) {
++          F1AP_GBR_QosInformation_t *gbr_qos = eutran_qos->gbrQosInformation;
++          if (gbr_qos->e_RAB_MaximumBitrateDL.buf) {
++            OCTET_STRING_TO_INT32(&gbr_qos->e_RAB_MaximumBitrateDL, &drb_p->drb_qos_info.mbr_dl);
++          }
++          if (gbr_qos->e_RAB_MaximumBitrateUL.buf) {
++            OCTET_STRING_TO_INT32(&gbr_qos->e_RAB_MaximumBitrateUL, &drb_p->drb_qos_info.mbr_ul);
++          }
++          if (gbr_qos->e_RAB_GuaranteedBitrateDL.buf) {
++            OCTET_STRING_TO_INT32(&gbr_qos->e_RAB_GuaranteedBitrateDL, &drb_p->drb_qos_info.gbr_dl);
++          }
++          if (gbr_qos->e_RAB_GuaranteedBitrateUL.buf) {
++            OCTET_STRING_TO_INT32(&gbr_qos->e_RAB_GuaranteedBitrateUL, &drb_p->drb_qos_info.gbr_ul);
++          }
++        }
++      }
+     }
+   }
+   /* RRC Reconfiguration Complete indicator */

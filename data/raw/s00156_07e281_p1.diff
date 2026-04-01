@@ -1,0 +1,116 @@
+diff --git a/common/utils/ocp_itti/intertask_interface.cpp b/common/utils/ocp_itti/intertask_interface.cpp
+index b0d05c6aca..6197085325 100644
+--- a/common/utils/ocp_itti/intertask_interface.cpp
++++ b/common/utils/ocp_itti/intertask_interface.cpp
+@@ -318,7 +318,57 @@ extern "C" {
+                        void *(*start_routine)(void *),
+                        void *args_p) {
+     task_list_t *t=tasks[task_id];
+-    threadCreate (&t->thread, start_routine, args_p, (char *)itti_get_task_name(task_id),-1,OAI_PRIORITY_RT);
++    
++    /* Wrap threadCreate to catch errors and avoid AssertFatal */
++    pthread_attr_t attr;
++    int ret;
++    int settingPriority = 1;
++    
++    ret = pthread_attr_init(&attr);
++    if (ret != 0) {
++      LOG_E(ITTI, "pthread_attr_init failed: %d\n", ret);
++      return -1;
++    }
++    
++    size_t stacksize;
++    pthread_attr_getstacksize(&attr, &stacksize);
++    LOG_I(ITTI, "Creating thread %s with stacksize %d\n", itti_get_task_name(task_id), (int)stacksize);
++    
++    if (settingPriority) {
++      ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
++      if (ret != 0) {
++        LOG_E(ITTI, "pthread_attr_setinheritsched failed: %d\n", ret);
++        pthread_attr_destroy(&attr);
++        return -1;
++      }
++      
++      ret = pthread_attr_setschedpolicy(&attr, SCHED_RR);
++      if (ret != 0) {
++        LOG_E(ITTI, "pthread_attr_setschedpolicy failed: %d\n", ret);
++        pthread_attr_destroy(&attr);
++        return -1;
++      }
++      
++      struct sched_param sparam = {0};
++      sparam.sched_priority = OAI_PRIORITY_RT;
++      ret = pthread_attr_setschedparam(&attr, &sparam);
++      if (ret != 0) {
++        LOG_E(ITTI, "pthread_attr_setschedparam failed: %d\n", ret);
++        pthread_attr_destroy(&attr);
++        return -1;
++      }
++    }
++    
++    ret = pthread_create(&t->thread, &attr, start_routine, args_p);
++    if (ret != 0) {
++      LOG_E(ITTI, "pthread_create failed for thread %s: %d\n", itti_get_task_name(task_id), ret);
++      pthread_attr_destroy(&attr);
++      return -1;
++    }
++    
++    pthread_setname_np(t->thread, itti_get_task_name(task_id));
++    pthread_attr_destroy(&attr);
++    
+     LOG_I(ITTI,"Created Posix thread %s\n",  itti_get_task_name(task_id) );
+     return 0;
+   }
+@@ -344,12 +394,48 @@ extern "C" {
+     LOG_I(ITTI,"Starting itti queue: %s as task %d\n", taskInfo->name, newQueue);
+     pthread_mutex_init(&tasks[newQueue]->queue_cond_lock, NULL);
+     memcpy(&tasks[newQueue]->admin, taskInfo, sizeof(task_info_t));
+-    AssertFatal( ( tasks[newQueue]->epoll_fd = epoll_create1(0) ) >=0, "");
+-    AssertFatal( ( tasks[newQueue]->sem_fd = eventfd(0, EFD_SEMAPHORE) ) >=0, "");
++    
++    // Create file descriptors
++    tasks[newQueue]->epoll_fd = epoll_create1(0);
++    if (tasks[newQueue]->epoll_fd < 0) {
++      LOG_E(ITTI, "epoll_create1 failed: %s\n", strerror(errno));
++      pthread_mutex_destroy(&tasks[newQueue]->queue_cond_lock);
++      delete tasks[newQueue];
++      pthread_mutex_lock (&lock_nb_queues);
++      nb_queues--;
++      pthread_mutex_unlock (&lock_nb_queues);
++      return -1;
++    }
++    
++    tasks[newQueue]->sem_fd = eventfd(0, EFD_SEMAPHORE);
++    if (tasks[newQueue]->sem_fd < 0) {
++      LOG_E(ITTI, "eventfd failed: %s\n", strerror(errno));
++      close(tasks[newQueue]->epoll_fd);
++      pthread_mutex_destroy(&tasks[newQueue]->queue_cond_lock);
++      delete tasks[newQueue];
++      pthread_mutex_lock (&lock_nb_queues);
++      nb_queues--;
++      pthread_mutex_unlock (&lock_nb_queues);
++      return -1;
++    }
++    
+     itti_subscribe_event_fd((task_id_t)newQueue, tasks[newQueue]->sem_fd);
+ 
+-    if (tasks[newQueue]->admin.threadFunc != NULL)
+-      itti_create_task((task_id_t)newQueue, tasks[newQueue]->admin.threadFunc, NULL);
++    if (tasks[newQueue]->admin.threadFunc != NULL) {
++      int ret = itti_create_task((task_id_t)newQueue, tasks[newQueue]->admin.threadFunc, NULL);
++      if (ret < 0) {
++        LOG_E(ITTI, "Failed to create task for %s\n", taskInfo->name);
++        // Clean up resources on error
++        close(tasks[newQueue]->epoll_fd);
++        close(tasks[newQueue]->sem_fd);
++        pthread_mutex_destroy(&tasks[newQueue]->queue_cond_lock);
++        delete tasks[newQueue];
++        pthread_mutex_lock (&lock_nb_queues);
++        nb_queues--;
++        pthread_mutex_unlock (&lock_nb_queues);
++        return -1;
++      }
++    }
+ 
+     return newQueue;
+   }

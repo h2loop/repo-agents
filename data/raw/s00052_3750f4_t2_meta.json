@@ -1,0 +1,9 @@
+{
+  "run_id": "s00052_3750f4",
+  "pr_text": "## Title: Add null check for PUSCH config before computing precoding information\n\n### Summary\nThe `config_uldci()` function in the NR MAC gNB scheduler was calling `compute_precoding_information()` without validating that the `pusch_Config` pointer is non-NULL. This could lead to null pointer dereference and crashes when PUSCH configuration is not available during DCI preparation. This patch adds a defensive null check to ensure precoding information is only computed when the configuration is va",
+  "trajectory_path": "data/raw/s00052_3750f4_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00052_3750f4_p2.diff",
+  "patch_lines": 9,
+  "trajectory_steps": 9,
+  "timestamp": "2026-02-11T11:25:56Z"
+}

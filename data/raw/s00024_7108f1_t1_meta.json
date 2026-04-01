@@ -1,0 +1,31 @@
+{
+  "run_id": "s00024_7108f1",
+  "function": {
+    "name": "time_source_iq_add",
+    "file": "common/utils/time_manager/time_source.c",
+    "start_line": 241,
+    "end_line": 263,
+    "body_lines": 23,
+    "signature": "void time_source_iq_add(time_source_t *ts, uint64_t iq_samples_count, uint64_t iq_samples_per_second)",
+    "subsystem": "common/utils/time_manager",
+    "token_estimate": 47
+  },
+  "bug": {
+    "bug_id": "telecom_timer_incorrect_duration",
+    "description": "protocol timer configured with incorrect duration violating 3GPP timing requirements",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a protocol timer configured with incorrect duration violating 3GPP timing requirements downstream of function time_source_iq_add in the common/utils/time_manager subsystem.\nThe function is located at common/utils/time_manager/time_source.c:241.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00024_7108f1_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00024_7108f1_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 15,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:40:27Z"
+}

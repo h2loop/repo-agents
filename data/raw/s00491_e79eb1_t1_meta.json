@@ -1,0 +1,32 @@
+{
+  "run_id": "s00491_e79eb1",
+  "function": {
+    "name": "decode_protocol_configuration_options",
+    "file": "openair3/NAS/COMMON/IES/ProtocolConfigurationOptions.c",
+    "start_line": 30,
+    "end_line": 83,
+    "body_lines": 54,
+    "signature": "int decode_protocol_configuration_options(ProtocolConfigurationOptions *protocolconfigurationoptions, uint8_t iei, uint8_t *buffer, uint32_t len)",
+    "subsystem": "openair3/NAS/COMMON",
+    "token_estimate": 170
+  },
+  "bug": {
+    "bug_id": "c_dead_code",
+    "description": "dead code that is never executed and may mask intended logic",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a dead code that is never executed and may mask intended logic downstream of function decode_protocol_configuration_options in the openair3/NAS/COMMON subsystem.\nThe function is located at openair3/NAS/COMMON/IES/ProtocolConfigurationOptions.c:30.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00491_e79eb1_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00491_e79eb1_p1.diff",
+  "patch_lines": 0,
+  "trajectory_steps": 43,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:38:49Z"
+}

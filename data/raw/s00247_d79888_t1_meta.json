@@ -1,0 +1,29 @@
+{
+  "run_id": "s00247_d79888",
+  "function": {
+    "name": "esm_pt_start_timer",
+    "file": "openair3/NAS/UE/ESM/esm_pt.c",
+    "start_line": 238,
+    "end_line": 294,
+    "body_lines": 57,
+    "signature": "int esm_pt_start_timer(nas_user_t *user, int pti, const OctetString *msg, long sec, nas_timer_callback_t cb)",
+    "subsystem": "openair3/NAS/UE",
+    "token_estimate": 201
+  },
+  "bug": {
+    "bug_id": "telecom_crc_error",
+    "description": "CRC computation or checking error causing false positive or missed error detection",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a CRC computation or checking error causing false positive or missed error detection downstream of function esm_pt_start_timer in the openair3/NAS/UE subsystem.\nThe function is located at openair3/NAS/UE/ESM/esm_pt.c:238.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00247_d79888_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00247_d79888_p1.diff",
+  "patch_lines": 12,
+  "trajectory_steps": 27,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:44:45Z"
+}

@@ -1,0 +1,62 @@
+diff --git a/openair3/M3AP/m3ap_common.c b/openair3/M3AP/m3ap_common.c
+index 669d7eaa5e..d9a54a5080 100644
+--- a/openair3/M3AP/m3ap_common.c
++++ b/openair3/M3AP/m3ap_common.c
+@@ -64,7 +64,7 @@ ssize_t m3ap_generate_initiating_message(
+ }
+ 
+ 
+-ssize_t m3ap_generate_unsuccessfull_outcome(
++ssize_t m3ap_generate_successfull_outcome(
+   uint8_t               **buffer,
+   uint32_t               *length,
+   M3AP_ProcedureCode_t         procedureCode,
+@@ -75,7 +75,7 @@ ssize_t m3ap_generate_unsuccessfull_outcome(
+   M3AP_M3AP_PDU_t pdu;
+   ssize_t    encoded;
+   memset(&pdu, 0, sizeof(M3AP_M3AP_PDU_t));
+-  pdu.present = M3AP_M3AP_PDU_PR_unsuccessfulOutcome;
++  pdu.present = M3AP_M3AP_PDU_PR_successfulOutcome;
+   pdu.choice.successfulOutcome.procedureCode = procedureCode;
+   pdu.choice.successfulOutcome.criticality   = criticality;
+   ANY_fromType_aper((ANY_t *)&pdu.choice.successfulOutcome.value, td, sptr);
+@@ -96,6 +96,39 @@ ssize_t m3ap_generate_unsuccessfull_outcome(
+   return encoded;
+ }
+ 
++
++ssize_t m3ap_generate_unsuccessfull_outcome(
++  uint8_t               **buffer,
++  uint32_t               *length,
++  M3AP_ProcedureCode_t         procedureCode,
++  M3AP_Criticality_t           criticality,
++  asn_TYPE_descriptor_t  *td,
++  void                   *sptr)
++{
++  M3AP_M3AP_PDU_t pdu;
++  ssize_t    encoded;
++  memset(&pdu, 0, sizeof(M3AP_M3AP_PDU_t));
++  pdu.present = M3AP_M3AP_PDU_PR_unsuccessfulOutcome;
++  pdu.choice.unsuccessfulOutcome.procedureCode = procedureCode;
++  pdu.choice.unsuccessfulOutcome.criticality   = criticality;
++  ANY_fromType_aper((ANY_t *)&pdu.choice.unsuccessfulOutcome.value, td, sptr);
++
++  if (LOG_DEBUGFLAG(DEBUG_ASN1)) {
++    xer_fprint(stdout, &asn_DEF_M3AP_M3AP_PDU, (void *)&pdu);
++  }
++
++  /* We can safely free list of IE from sptr */
++  ASN_STRUCT_FREE_CONTENTS_ONLY(*td, sptr);
++
++  if ((encoded = aper_encode_to_new_buffer(&asn_DEF_M3AP_M3AP_PDU, 0, &pdu,
++                 (void **)buffer)) < 0) {
++    return -1;
++  }
++
++  *length = encoded;
++  return encoded;
++}
++
+ void m3ap_handle_criticality(M3AP_Criticality_t criticality)
+ {
+ 

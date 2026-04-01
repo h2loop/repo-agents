@@ -1,0 +1,54 @@
+diff --git a/radio/fhi_72/oran-config.c b/radio/fhi_72/oran-config.c
+index 2973fdc2b0..27fdc686ea 100644
+--- a/radio/fhi_72/oran-config.c
++++ b/radio/fhi_72/oran-config.c
+@@ -562,6 +562,11 @@ uint8_t *get_ether_addr(const char *addr, struct rte_ether_addr *ether_addr)
+ 
+ bool set_fh_init(struct xran_fh_init *fh_init)
+ {
++  if (fh_init == NULL) {
++    printf("Error: fh_init is NULL in set_fh_init\n");
++    return false;
++  }
++
+   memset(fh_init, 0, sizeof(*fh_init));
+ 
+   // verify oran section is present: we don't have a list but the below returns
+@@ -767,6 +772,11 @@ static bool set_maxmin_pd(const paramdef_t *pd, int num, const char *name, uint1
+ extern uint32_t to_nrarfcn(int nr_bandP, uint64_t dl_CarrierFreq, uint8_t scs_index, uint32_t bw);
+ bool set_fh_config(int ru_idx, int num_rus, const openair0_config_t *oai0, struct xran_fh_config *fh_config)
+ {
++  if (fh_config == NULL) {
++    printf("Error: fh_config is NULL in set_fh_config\n");
++    return false;
++  }
++
+   AssertFatal(num_rus == 1 || num_rus == 2, "only support 1 or 2 RUs as of now\n");
+   AssertFatal(ru_idx < num_rus, "illegal ru_idx %d: must be < %d\n", ru_idx, num_rus);
+   DevAssert(oai0->tx_num_channels > 0 && oai0->rx_num_channels > 0);
+diff --git a/radio/fhi_72/oran-config.h b/radio/fhi_72/oran-config.h
+index 77f04d8e0c..b94359d616 100644
+--- a/radio/fhi_72/oran-config.h
++++ b/radio/fhi_72/oran-config.h
+@@ -30,8 +30,21 @@ void print_fh_init(const struct xran_fh_init *fh_init);
+ struct xran_fh_config;
+ void print_fh_config(const struct xran_fh_config *fh_config);
+ 
++/**
++ * Set up the O-RAN fronthaul initialization
++ * @param fh_init Pointer to fronthaul initialization structure
++ * @return true on success, false on failure (including when fh_init is NULL)
++ */
+ bool set_fh_init(struct xran_fh_init *fh_init);
+ struct openair0_config;
++/**
++ * Set up the O-RAN fronthaul configuration
++ * @param ru_idx Radio Unit index
++ * @param num_rus Number of Radio Units
++ * @param oai0_cfg OpenAir configuration
++ * @param fh_config Pointer to fronthaul configuration structure
++ * @return true on success, false on failure (including when fh_config is NULL)
++ */
+ bool set_fh_config(int ru_idx, int num_rus, const struct openair0_config *oai0_cfg, struct xran_fh_config *fh_config);
+ 
+ // hack to workaround LiteOn limitation

@@ -1,0 +1,77 @@
+diff --git a/openair3/NAS/COMMON/IES/EsmMessageContainer.c b/openair3/NAS/COMMON/IES/EsmMessageContainer.c
+index e33c06c71d..99632a27e2 100644
+--- a/openair3/NAS/COMMON/IES/EsmMessageContainer.c
++++ b/openair3/NAS/COMMON/IES/EsmMessageContainer.c
+@@ -91,13 +91,25 @@ int encode_esm_message_container(EsmMessageContainer *esmmessagecontainer, uint8
+ 
+ void dump_esm_message_container_xml(EsmMessageContainer *esmmessagecontainer, uint8_t iei)
+ {
++  char *xml_output;
++
+   printf("<Esm Message Container>\n");
+ 
+   if (iei > 0)
+     /* Don't display IEI if = 0 */
+     printf("    <IEI>0x%X</IEI>\n", iei);
+ 
+-  printf("%s", dump_octet_string_xml(&esmmessagecontainer->esmmessagecontainercontents));
++  if (esmmessagecontainer != NULL) {
++    xml_output = dump_octet_string_xml(&esmmessagecontainer->esmmessagecontainercontents);
++    if (xml_output != NULL) {
++      printf("%s", xml_output);
++    } else {
++      printf("    <Error>Failed to generate XML output</Error>\n");
++    }
++  } else {
++    printf("    <Error>NULL ESM message container</Error>\n");
++  }
++
+   printf("</Esm Message Container>\n");
+ }
+ 
+diff --git a/openair3/NAS/COMMON/UTIL/OctetString.c b/openair3/NAS/COMMON/UTIL/OctetString.c
+index 2f1b7b2c32..c623029458 100644
+--- a/openair3/NAS/COMMON/UTIL/OctetString.c
++++ b/openair3/NAS/COMMON/UTIL/OctetString.c
+@@ -94,17 +94,39 @@ char* dump_octet_string_xml( const OctetString * const octetstring)
+   int size           = 0;
+   int size_print     = 0;
+ 
++  if (octetstring == NULL) {
++    snprintf(_dump_output, remaining_size, "<Error>NULL octet string</Error>\n");
++    return _dump_output;
++  }
++
+   size_print = snprintf(_dump_output, remaining_size, "<Length>%u</Length>\n\t<values>", octetstring->length);
++  if (size_print < 0) {
++    snprintf(_dump_output, remaining_size, "<Error>snprintf failure</Error>\n");
++    return _dump_output;
++  }
+   size += size_print;
+   remaining_size -= size_print;
+ 
+-  for (i = 0; i < octetstring->length; i++) {
++  for (i = 0; i < octetstring->length && remaining_size > 0; i++) {
+ 	size_print = snprintf(&_dump_output[size], remaining_size, "0x%x ", octetstring->value[i]);
++	if (size_print < 0) {
++      snprintf(_dump_output, DUMP_OUTPUT_SIZE, "<Error>snprintf failure in loop</Error>\n");
++      return _dump_output;
++    }
+ 	size += size_print;
+     remaining_size -= size_print;
+   }
+ 
+-  size_print = snprintf(&_dump_output[size], remaining_size, "</values>\n");
++  if (remaining_size > 0) {
++    size_print = snprintf(&_dump_output[size], remaining_size, "</values>\n");
++    if (size_print < 0) {
++      snprintf(_dump_output, DUMP_OUTPUT_SIZE, "<Error>snprintf failure at end</Error>\n");
++      return _dump_output;
++    }
++  } else {
++    snprintf(_dump_output, DUMP_OUTPUT_SIZE, "<Error>Buffer overflow prevented</Error>\n");
++  }
++
+   return _dump_output;
+ }
+ 

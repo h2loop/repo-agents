@@ -1,0 +1,26 @@
+{
+  "run_id": "zephyr_00712_9a1712",
+  "function": {
+    "name": "litex_clk_calc_phase",
+    "file": "drivers/clock_control/clock_control_litex.c",
+    "start_line": 1097,
+    "end_line": 1102,
+    "body_lines": 6,
+    "signature": "static int litex_clk_calc_phase(struct litex_clk_clkout *lcko)",
+    "subsystem": "drivers/clock_control",
+    "token_estimate": 10
+  },
+  "bug": {
+    "bug_id": "protocol_missing_timeout",
+    "description": "missing timeout handling on a protocol wait causing indefinite hang",
+    "domain": "protocol",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a missing timeout handling on a protocol wait causing indefinite hang downstream of function litex_clk_calc_phase in the drivers/clock_control subsystem.\nThe function is located at drivers/clock_control/clock_control_litex.c:1097.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 9,
+  "trajectory_steps": 27,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:09:57Z"
+}

@@ -1,0 +1,66 @@
+diff --git a/common/utils/telnetsrv/telnetsrv_o1.c b/common/utils/telnetsrv/telnetsrv_o1.c
+index 04cd008655..3817e5c0d7 100644
+--- a/common/utils/telnetsrv/telnetsrv_o1.c
++++ b/common/utils/telnetsrv/telnetsrv_o1.c
+@@ -280,8 +280,61 @@ static int set_config(char *buf, int debug, telnet_printfunc_t prnt)
+   pos += processed;
+   prnt("setting " STARTRB ":             %ld [len %d]\n", startrb, pos);
+ 
++  // Try to read optional UL parameters
++  long arfcnul = arfcn; // Default to DL value for TDD
++  processed = read_long(buf + pos, end, ARFCNUL, &arfcnul);
++  if (processed >= 0) {
++    pos += processed;
++    prnt("setting " ARFCNUL ":        %ld [len %d]\n", arfcnul, pos);
++  } else {
++    prnt("setting " ARFCNUL ":        %ld [default to ARFCNDL]\n", arfcnul);
++  }
++
++  long bwul = bwdl; // Default to DL value for TDD
++  processed = read_long(buf + pos, end, BWUL, &bwul);
++  if (processed >= 0) {
++    pos += processed;
++    prnt("setting " BWUL ":  %ld [len %d]\n", bwul, pos);
++  } else {
++    prnt("setting " BWUL ":  %ld [default to BWDL]\n", bwul);
++  }
++
+   int locationAndBandwidth = PRBalloc_to_locationandbandwidth0(numrbs, startrb, MAX_BWP_SIZE);
+   prnt("inferred locationAndBandwidth:       %d\n", locationAndBandwidth);
++
++  // Apply the configuration changes
++  gNB_MAC_INST *mac = RC.nrmac[0];
++  NR_ServingCellConfigCommon_t *scc = mac->common_channels[0].ServingCellConfigCommon;
++  NR_FrequencyInfoDL_t *frequencyInfoDL = scc->downlinkConfigCommon->frequencyInfoDL;
++  NR_BWP_t *initialDL = &scc->downlinkConfigCommon->initialDownlinkBWP->genericParameters;
++  NR_FrequencyInfoUL_t *frequencyInfoUL = scc->uplinkConfigCommon->frequencyInfoUL;
++  NR_BWP_t *initialUL = &scc->uplinkConfigCommon->initialUplinkBWP->genericParameters;
++
++  // Update the configuration with parsed values
++  *scc->downlinkConfigCommon->frequencyInfoDL->absoluteFrequencySSB = ssbfreq;
++  frequencyInfoDL->absoluteFrequencyPointA = arfcn;
++  frequencyInfoDL->scs_SpecificCarrierList.list.array[0]->carrierBandwidth = bwdl;
++  initialDL->locationAndBandwidth = locationAndBandwidth;
++  
++  // For UL, use parsed values or default to DL values (TDD mode)
++  if (frequencyInfoUL->absoluteFrequencyPointA) {
++    // FDD mode - use separate UL frequency
++    *frequencyInfoUL->absoluteFrequencyPointA = arfcnul;
++  }
++  // else TDD mode - UL frequency is the same as DL, so we don't set it
++  frequencyInfoUL->scs_SpecificCarrierList.list.array[0]->carrierBandwidth = bwul;
++  initialUL->locationAndBandwidth = locationAndBandwidth;
++
++  // Reinitialize MIB and SIB1 configurations
++  free(RC.nrmac[0]->sched_ctrlSIB1);
++  RC.nrmac[0]->sched_ctrlSIB1 = NULL;
++
++  free_MIB_NR(mac->common_channels[0].mib);
++  mac->common_channels[0].mib = get_new_MIB_NR(scc);
++
++  const f1ap_served_cell_info_t *info = &mac->f1_config.setup_req->cell[0].info;
++  nr_mac_configure_sib1(mac, &info->plmn, info->nr_cellid, *info->tac);
++
+   prnt("OK\n");
+   return 0;
+ }

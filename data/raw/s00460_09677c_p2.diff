@@ -1,0 +1,16 @@
+diff --git a/openair2/LAYER2/PDCP_v10.1.0/pdcp_sequence_manager.c b/openair2/LAYER2/PDCP_v10.1.0/pdcp_sequence_manager.c
+index 5aa5e33304..193b9af986 100644
+--- a/openair2/LAYER2/PDCP_v10.1.0/pdcp_sequence_manager.c
++++ b/openair2/LAYER2/PDCP_v10.1.0/pdcp_sequence_manager.c
+@@ -120,6 +120,11 @@ uint16_t pdcp_get_next_tx_seq_number(pdcp_t* pdcp_entity)
+ 
+ bool pdcp_advance_rx_window(pdcp_t* pdcp_entity)
+ {
++  if (pdcp_entity == NULL) {
++    LOG_E(PDCP, "pdcp_advance_rx_window: NULL PDCP entity pointer\n");
++    return false;
++  }
++
+   if (pdcp_is_seq_num_size_valid(pdcp_entity) == false) {
+     return false;
+   }

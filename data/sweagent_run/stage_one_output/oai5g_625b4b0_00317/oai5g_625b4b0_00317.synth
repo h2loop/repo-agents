@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect element skipping in match_crc_rx_pdu function\n\n### Summary\nThe `match_crc_rx_pdu` function in NR_IF_Module.c has a bug where elements are skipped during iteration when removing items from arrays. This leads to incorrect matching between CRC and RX indications, potentially causing data loss or incorrect processing.\n\nThis fix ensures all elements are properly checked by decrementing the loop counter after removal operations.\n\n### Changes\n- `openair2/NR_PHY_INTERFACE/NR_IF_Module.c`: Added `i--` after `remove_crc_pdu` and `remove_rx_pdu` calls to prevent element skipping during array iteration.\n\nWhen processing CRC and RX indications with mismatched sizes, some CRC or RX PDUs may not be properly matched and could be incorrectly queued or dropped. This can be observed as missing uplink data or incorrect CRC handling in the MAC layer.\n"
+}

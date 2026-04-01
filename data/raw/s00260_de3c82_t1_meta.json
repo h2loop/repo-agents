@@ -1,0 +1,32 @@
+{
+  "run_id": "s00260_de3c82",
+  "function": {
+    "name": "nr_rrc_set_sib1_timers_and_constants",
+    "file": "openair2/RRC/NR_UE/rrc_timers_and_constants.c",
+    "start_line": 415,
+    "end_line": 481,
+    "body_lines": 67,
+    "signature": "void nr_rrc_set_sib1_timers_and_constants(NR_UE_Timers_Constants_t *tac, NR_SIB1_t *sib1)",
+    "subsystem": "openair2/RRC/NR_UE",
+    "token_estimate": 173
+  },
+  "bug": {
+    "bug_id": "c_magic_number",
+    "description": "magic number used without symbolic constant making intent unclear and maintenance error-prone",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a magic number used without symbolic constant making intent unclear and maintenance error-prone downstream of function nr_rrc_set_sib1_timers_and_constants in the openair2/RRC/NR_UE subsystem.\nThe function is located at openair2/RRC/NR_UE/rrc_timers_and_constants.c:415.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00260_de3c82_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00260_de3c82_p1.diff",
+  "patch_lines": 27,
+  "trajectory_steps": 64,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:53:19Z"
+}

@@ -1,0 +1,76 @@
+diff --git a/radio/fhi_72/oran-config.c b/radio/fhi_72/oran-config.c
+index 8283b63a7d..e844aa691b 100644
+--- a/radio/fhi_72/oran-config.c
++++ b/radio/fhi_72/oran-config.c
+@@ -166,6 +166,22 @@ static void print_ether_addr(const char *pre, int num_ether, const struct rte_et
+   printf("]\n");
+ }
+ 
++static void print_ether_addr_safe(const char *pre, int num_ether, int max_ether, const struct rte_ether_addr *addrs)
++{
++  int safe_count = (num_ether < max_ether) ? num_ether : max_ether;
++  if (safe_count < 0) safe_count = 0;
++  
++  printf("%s [", pre);
++  for (int i = 0; i < safe_count; ++i) {
++    char buf[18];
++    rte_ether_format_addr(buf, 18, &addrs[i]);
++    printf("%s", buf);
++    if (i != safe_count - 1)
++      printf(", ");
++  }
++  printf("]\n");
++}
++
+ void print_fh_init(const struct xran_fh_init *fh_init)
+ {
+   printf("xran_fh_init:\n");
+@@ -176,16 +192,33 @@ void print_fh_init(const struct xran_fh_init *fh_init)
+   dpdkBasebandFecMode %d\n\
+   dpdkBasebandDevice %s\n\
+   filePrefix %s\n\
+-  mtu %d\n\
+-  p_o_du_addr %s\n",
++  mtu %d\n",
+       fh_init->xran_ports,
+       fh_init->dpdkBasebandFecMode,
+       fh_init->dpdkBasebandDevice,
+       fh_init->filePrefix,
+-      fh_init->mtu,
+-      fh_init->p_o_du_addr);
+-  if (fh_init->p_o_ru_addr) print_ether_addr("  p_o_ru_addr", fh_init->xran_ports * fh_init->io_cfg.num_vfs, (struct rte_ether_addr *)fh_init->p_o_ru_addr);
+-  else if (fh_init->p_o_du_addr) print_ether_addr("  p_o_du_addr", fh_init->xran_ports * fh_init->io_cfg.num_vfs, (struct rte_ether_addr *)fh_init->p_o_du_addr);
++      fh_init->mtu);
++  
++#ifdef OAI_MPLANE
++  // For M-Plane case, calculate the correct number of addresses
++  int num_ru_addr = (fh_init->io_cfg.one_vf_cu_plane) ? fh_init->xran_ports : 2*fh_init->xran_ports;
++  if (fh_init->p_o_ru_addr) 
++    print_ether_addr_safe("  p_o_ru_addr", num_ru_addr, fh_init->xran_ports * fh_init->io_cfg.num_vfs, (struct rte_ether_addr *)fh_init->p_o_ru_addr);
++#else
++  // For regular case, calculate the correct number of addresses based on the configuration
++  if (fh_init->p_o_ru_addr) {
++    // When p_o_ru_addr is allocated, we're configured as DU
++    // Number of RU addresses follows the same formula as M-Plane case
++    int num_ru_addr = (fh_init->io_cfg.one_vf_cu_plane) ? fh_init->xran_ports : 2*fh_init->xran_ports;
++    print_ether_addr_safe("  p_o_ru_addr", num_ru_addr, fh_init->xran_ports * fh_init->io_cfg.num_vfs, (struct rte_ether_addr *)fh_init->p_o_ru_addr);
++  } else if (fh_init->p_o_du_addr) {
++    // When p_o_du_addr is allocated, we're configured as RU
++    // Number of DU addresses equals the number of DU ports (which is xran_ports in RU configuration)
++    int num_du_addr = fh_init->xran_ports;
++    print_ether_addr_safe("  p_o_du_addr", num_du_addr, fh_init->xran_ports * fh_init->io_cfg.num_vfs, (struct rte_ether_addr *)fh_init->p_o_du_addr);
++  }
++#endif
++  
+   printf("\
+   totalBfWeights %d\n",
+       fh_init->totalBfWeights);
+@@ -663,7 +696,7 @@ static bool set_fh_init(void *mplane_api, struct xran_fh_init *fh_init, enum xra
+   paramdef_t fhip[] = ORAN_GLOBALPARAMS_DESC;
+   checkedparam_t fhip_CheckParams[] = ORAN_GLOBALPARAMS_CHECK_DESC;
+   static_assert(sizeofArray(fhip) == sizeofArray(fhip_CheckParams),
+-		"fhip and fhip_CheckParams should have the same size");
++"fhip and fhip_CheckParams should have the same size");
+   int nump = sizeofArray(fhip);
+   config_set_checkfunctions(fhip, fhip_CheckParams, nump);
+   int ret = config_get(config_get_if(), fhip, nump, CONFIG_STRING_ORAN);

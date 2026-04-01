@@ -1,0 +1,26 @@
+{
+  "run_id": "zephyr_00186_a464e9",
+  "function": {
+    "name": "bt_mesh_scan_disable",
+    "file": "subsys/bluetooth/mesh/adv.c",
+    "start_line": 404,
+    "end_line": 417,
+    "body_lines": 14,
+    "signature": "int bt_mesh_scan_disable(void)",
+    "subsystem": "subsys/bluetooth/mesh",
+    "token_estimate": 28
+  },
+  "bug": {
+    "bug_id": "c_race_condition",
+    "description": "race condition on shared data accessed from multiple threads without synchronization",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a race condition on shared data accessed from multiple threads without synchronization downstream of function bt_mesh_scan_disable in the subsys/bluetooth/mesh subsystem.\nThe function is located at subsys/bluetooth/mesh/adv.c:404.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 21,
+  "trajectory_steps": 27,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:33:27Z"
+}

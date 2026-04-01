@@ -1,0 +1,21 @@
+diff --git a/common/utils/T/tracer/multi.c b/common/utils/T/tracer/multi.c
+index 8e49ff43a1..b5216ff6cb 100644
+--- a/common/utils/T/tracer/multi.c
++++ b/common/utils/T/tracer/multi.c
+@@ -344,6 +344,7 @@ int main(int n, char **v)
+         case 0:
+           is_on_changed = 1;
+           if (fullread(s, &len, sizeof(int)) == -1) goto tracer_error;
++          if (len < 0 || len >= number_of_events) goto tracer_error;
+           for (l = 0; l < len; l++) {
+             if (fullread(s, &v, sizeof(int)) == -1) goto tracer_error;
+             if (v < 0 || v >= number_of_events) goto tracer_error;
+@@ -354,7 +355,7 @@ int main(int n, char **v)
+         case 1:
+           is_on_changed = 1;
+           if (fullread(s, &len, sizeof(int)) == -1) goto tracer_error;
+-          if (len < 0 || len > number_of_events) goto tracer_error;
++          if (len < 0 || len >= number_of_events) goto tracer_error;
+           for (l = 0; l < len; l++) {
+             if (fullread(s, &v, sizeof(int)) == -1) goto tracer_error;
+             if (v < 0 || v > 1) goto tracer_error;

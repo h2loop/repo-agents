@@ -1,0 +1,307 @@
+diff --git a/openair2/F1AP/CMakeLists.txt b/openair2/F1AP/CMakeLists.txt
+index e6490b96b0..1c0e7994d1 100644
+--- a/openair2/F1AP/CMakeLists.txt
++++ b/openair2/F1AP/CMakeLists.txt
+@@ -1,5 +1,53 @@
+ add_subdirectory(MESSAGES)
+ 
++set(F1AP_SRC
++  f1ap_common.c
++  f1ap_encoder.c
++  f1ap_handlers.c
++  f1ap_itti_messaging.c
++  f1ap_cu_interface_management.c
++  f1ap_du_interface_management.c
++  f1ap_cu_rrc_message_transfer.c
++  f1ap_du_rrc_message_transfer.c
++  f1ap_cu_task.c
++  f1ap_du_task.c
++  f1ap_cu_ue_context_management.c
++  f1ap_du_ue_context_management.c
++  f1ap_cu_paging.c
++  f1ap_du_paging.c
++  f1ap_ids.c
++  f1ap_cu_warning_message_transmission.c
++  f1ap_du_warning_message_transmission.c
++  f1ap_du_system_information.c
++  lib/f1ap_positioning.c
++  )
++
++set(F1AP_HDR
++  f1ap_common.h
++  f1ap_encoder.h
++  f1ap_handlers.h
++  f1ap_itti_messaging.h
++  f1ap_cu_interface_management.h
++  f1ap_du_interface_management.h
++  f1ap_cu_rrc_message_transfer.h
++  f1ap_du_rrc_message_transfer.h
++  f1ap_cu_task.h
++  f1ap_du_task.h
++  f1ap_cu_ue_context_management.h
++  f1ap_du_ue_context_management.h
++  f1ap_cu_paging.h
++  f1ap_du_paging.h
++  f1ap_ids.h
++  f1ap_cu_warning_message_transmission.h
++  f1ap_du_warning_message_transmission.h
++  f1ap_du_system_information.h
++  f1ap_default_values.h
++  lib/f1ap_positioning.h
++  )
++
++add_library(F1AP ${F1AP_SRC} ${F1AP_HDR})
++target_link_libraries(F1AP asn1)
++
+ if(ENABLE_TESTS)
+   add_executable(f1ap_ids_test f1ap_ids_test.c f1ap_ids.c)
+   target_link_libraries(f1ap_ids_test UTIL HASHTABLE minimal_lib)
+diff --git a/openair2/F1AP/f1ap_common.h b/openair2/F1AP/f1ap_common.h
+index 13f1d8f53b..fe35288548 100644
+--- a/openair2/F1AP/f1ap_common.h
++++ b/openair2/F1AP/f1ap_common.h
+@@ -363,6 +363,8 @@
+ 
+ #include "common/utils/LOG/log.h"
+ #include "f1ap_default_values.h"
++/* Include positioning functionality */
++#include "lib/f1ap_positioning.h"
+ #define F1AP_ERROR(x, args...) LOG_E(F1AP, x, ##args)
+ #define F1AP_WARN(x, args...)  LOG_W(F1AP, x, ##args)
+ #define F1AP_TRAF(x, args...)  LOG_I(F1AP, x, ##args)
+diff --git a/openair2/F1AP/f1ap_handlers.c b/openair2/F1AP/f1ap_handlers.c
+index ecdda72000..77ea69deaa 100644
+--- a/openair2/F1AP/f1ap_handlers.c
++++ b/openair2/F1AP/f1ap_handlers.c
+@@ -38,6 +38,7 @@
+ #include "f1ap_cu_ue_context_management.h"
+ #include "f1ap_du_ue_context_management.h"
+ #include "f1ap_du_paging.h"
++#include "lib/f1ap_positioning.h"
+ 
+ /* Handlers matrix. Only f1 related procedure present here */
+ static const f1ap_message_processing_t f1ap_messages_processing[][3] = {
+@@ -68,6 +69,7 @@ static const f1ap_message_processing_t f1ap_messages_processing[][3] = {
+     {0, 0, 0}, /* PWSCancel */
+     {0, 0, 0}, /* PWSRestartIndication */
+     {0, 0, 0}, /* PWSFailureIndication */
++    {f1ap_positioning_measurement_update, 0, 0}, /* PositioningMeasurementUpdate */
+ };
+ 
+ const char *f1ap_direction2String(int f1ap_dir) {
+diff --git a/openair2/F1AP/lib/f1ap_positioning.c b/openair2/F1AP/lib/f1ap_positioning.c
+new file mode 100644
+index 0000000000..f933ceb88e
+--- /dev/null
++++ b/openair2/F1AP/lib/f1ap_positioning.c
+@@ -0,0 +1,133 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++/*! \file f1ap_positioning.c
++ * \brief F1AP positioning procedures for both CU and DU
++ * \author Open Source Community
++ * \date 2023
++ * \version 0.1
++ * \company Open Source Community
++ * \email: contact@openairinterface.org
++ */
++
++#include "f1ap_positioning.h"
++#include "f1ap_common.h"
++
++// Since the ASN.1 generated files might not be present in all builds,
++// we'll use forward declarations and void pointers for now
++// In a real implementation with ASN.1 support, these would be the actual types
++
++#include "common/utils/LOG/log.h"
++
++// Structure to hold positioning measurement update data
++typedef struct {
++  void *transaction_id;
++  void *lmf_measurement_id;
++  void *ran_measurement_id;
++  void *srs_configuration;
++  // Add other fields as needed based on ASN.1 definitions
++} positioning_measurement_update_t;
++
++// Global list or context to store positioning measurement updates
++// In a real implementation, this would be more sophisticated
++static positioning_measurement_update_t *positioning_updates[100] = {NULL};
++static int positioning_updates_count = 0;
++
++int f1ap_positioning_measurement_update(
++    instance_t instance,
++    sctp_assoc_t assoc_id,
++    uint32_t stream,
++    F1AP_F1AP_PDU_t *pdu)
++{
++  DevAssert(pdu != NULL);
++
++  if (pdu->present != F1AP_F1AP_PDU_PR_initiatingMessage) {
++    F1AP_ERROR("PositioningMeasurementUpdate message is not initiating message\n");
++    return -1;
++  }
++
++  // Create a new positioning measurement update structure
++  positioning_measurement_update_t *update = calloc(1, sizeof(positioning_measurement_update_t));
++  if (update == NULL) {
++    F1AP_ERROR("Failed to allocate memory for positioning measurement update\n");
++    return -1;
++  }
++
++  // In a real implementation with ASN.1 support, we would parse the actual IEs here
++  // For now, we'll just create a placeholder implementation
++  
++  F1AP_INFO("PositioningMeasurementUpdate received - placeholder implementation\n");
++
++  // Store the update for later use
++  if (positioning_updates_count < 100) {
++    positioning_updates[positioning_updates_count] = update;
++    positioning_updates_count++;
++  } else {
++    F1AP_WARN("Positioning updates array is full, discarding update\n");
++    free_positioning_measurement_update(update);
++  }
++
++  F1AP_INFO("Successfully processed PositioningMeasurementUpdate (placeholder)\n");
++  return 0;
++}
++
++void free_positioning_measurement_update(positioning_measurement_update_t *update)
++{
++  if (update == NULL) {
++    return;
++  }
++
++  // Free all allocated fields
++  if (update->transaction_id) {
++    free(update->transaction_id);
++  }
++  
++  if (update->lmf_measurement_id) {
++    free(update->lmf_measurement_id);
++  }
++  
++  if (update->ran_measurement_id) {
++    free(update->ran_measurement_id);
++  }
++  
++  if (update->srs_configuration) {
++    // In a real implementation, we would need to properly free the SRS configuration
++    // For now, we just free the structure itself
++    free(update->srs_configuration);
++  }
++  
++  // Free the main structure
++  free(update);
++}
++
++// Function to free all positioning measurement updates
++void free_all_positioning_measurement_updates(void)
++{
++  for (int i = 0; i < positioning_updates_count; i++) {
++    if (positioning_updates[i] != NULL) {
++      free_positioning_measurement_update(positioning_updates[i]);
++      positioning_updates[i] = NULL;
++    }
++  }
++  positioning_updates_count = 0;
++}
++
++// Additional positioning functions can be added here as needed
+\ No newline at end of file
+diff --git a/openair2/F1AP/lib/f1ap_positioning.h b/openair2/F1AP/lib/f1ap_positioning.h
+new file mode 100644
+index 0000000000..4ed90b08a3
+--- /dev/null
++++ b/openair2/F1AP/lib/f1ap_positioning.h
+@@ -0,0 +1,69 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++/*! \file f1ap_positioning.h
++ * \brief F1AP positioning procedures for both CU and DU
++ * \author Open Source Community
++ * \date 2023
++ * \version 0.1
++ * \company Open Source Community
++ * \email: contact@openairinterface.org
++ */
++
++#ifndef F1AP_POSITIONING_H_
++#define F1AP_POSITIONING_H_
++
++#include "f1ap_common.h"
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++// Forward declaration
++typedef struct positioning_measurement_update_s positioning_measurement_update_t;
++
++/** \brief Handle a positioning measurement update message
++ * \param instance Instance of the F1AP
++ * \param assoc_id SCTP association ID
++ * \param stream SCTP stream
++ * \param pdu The F1AP PDU containing the positioning measurement update
++ * \return 0 on success, -1 on failure
++ **/
++int f1ap_positioning_measurement_update(
++    instance_t instance,
++    sctp_assoc_t assoc_id,
++    uint32_t stream,
++    F1AP_F1AP_PDU_t *pdu);
++
++/** \brief Free a positioning measurement update structure
++ * \param update The positioning measurement update structure to free
++ **/
++void free_positioning_measurement_update(positioning_measurement_update_t *update);
++
++/** \brief Free all positioning measurement updates
++ **/
++void free_all_positioning_measurement_updates(void);
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif /* F1AP_POSITIONING_H_ */
+\ No newline at end of file

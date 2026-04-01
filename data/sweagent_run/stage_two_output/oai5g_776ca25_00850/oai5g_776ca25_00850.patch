@@ -1,0 +1,18 @@
+diff --git a/openair2/F1AP/lib/f1ap_ue_context.c b/openair2/F1AP/lib/f1ap_ue_context.c
+index 728849d8e5..a73cfd6bb0 100644
+--- a/openair2/F1AP/lib/f1ap_ue_context.c
++++ b/openair2/F1AP/lib/f1ap_ue_context.c
+@@ -2317,6 +2317,13 @@ bool decode_ue_context_rel_cmd(const struct F1AP_F1AP_PDU *pdu, f1ap_ue_context_
+   memset(out, 0, sizeof(*out));
+ 
+   F1AP_UEContextReleaseCommand_t *in = &pdu->choice.initiatingMessage->value.choice.UEContextReleaseCommand;
++  
++  // Validate protocolIEs list count to prevent integer overflow
++  if (in->protocolIEs.list.count < 0 || in->protocolIEs.list.count > 32) {
++    PRINT_ERROR("Invalid protocolIEs list count: %ld\n", (long)in->protocolIEs.list.count);
++    return false;
++  }
++  
+   F1AP_UEContextReleaseCommandIEs_t *ie;
+   F1AP_LIB_FIND_IE(F1AP_UEContextReleaseCommandIEs_t, ie, &in->protocolIEs.list, F1AP_ProtocolIE_ID_id_gNB_CU_UE_F1AP_ID, true);
+   F1AP_LIB_FIND_IE(F1AP_UEContextReleaseCommandIEs_t, ie, &in->protocolIEs.list, F1AP_ProtocolIE_ID_id_gNB_DU_UE_F1AP_ID, true);

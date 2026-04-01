@@ -1,0 +1,99 @@
+diff --git a/openair3/NAS/UE/EMM/SAP/EmmDeregistered.c b/openair3/NAS/UE/EMM/SAP/EmmDeregistered.c
+index 71e2c4a49c..e437cd7592 100644
+--- a/openair3/NAS/UE/EMM/SAP/EmmDeregistered.c
++++ b/openair3/NAS/UE/EMM/SAP/EmmDeregistered.c
+@@ -54,6 +54,7 @@ Description Implements the EPS Mobility Management procedures executed
+ #include "nas_log.h"
+ 
+ #include "emm_proc.h"
++#include "emm_proc_defs.h"
+ #include "user_defs.h"
+ 
+ #include <assert.h>
+@@ -149,8 +150,18 @@ int EmmDeregistered(nas_user_t *user, const emm_reg_t *evt)
+     }
+ 
+     if (rc != RETURNerror) {
+-      /* Restart the attach procedure */
+-      rc = emm_proc_attach_restart(user);
++      /* Start the attach procedure directly with appropriate type */
++      emm_proc_attach_type_t attach_type;
++      
++      if (evt->u.attach.is_emergency) {
++        attach_type = EMM_ATTACH_TYPE_EMERGENCY;
++      } else if (user->emm_data->AttachWithImsi) {
++        attach_type = EMM_ATTACH_TYPE_IMSI;
++      } else {
++        attach_type = EMM_ATTACH_TYPE_EPS;
++      }
++      
++      rc = emm_proc_attach(user, attach_type);
+     }
+ 
+     break;
+diff --git a/openair3/NAS/UE/EMM/SAP/EmmDeregisteredAttemptingToAttach.c b/openair3/NAS/UE/EMM/SAP/EmmDeregisteredAttemptingToAttach.c
+index 3fa47094c7..296ef246e8 100644
+--- a/openair3/NAS/UE/EMM/SAP/EmmDeregisteredAttemptingToAttach.c
++++ b/openair3/NAS/UE/EMM/SAP/EmmDeregisteredAttemptingToAttach.c
+@@ -47,6 +47,7 @@ Description Implements the EPS Mobility Management procedures executed
+ #include "nas_log.h"
+ 
+ #include "emm_proc.h"
++#include "emm_proc_defs.h"
+ 
+ #include <assert.h>
+ 
+@@ -103,8 +104,18 @@ int EmmDeregisteredAttemptingToAttach(nas_user_t *user, const emm_reg_t *evt)
+     }
+ 
+     if (rc != RETURNerror) {
+-      /* Restart the attach procedure */
+-      rc = emm_proc_attach_restart(user);
++      /* Start the attach procedure directly with appropriate type */
++      emm_proc_attach_type_t attach_type;
++      
++      if (evt->u.attach.is_emergency) {
++        attach_type = EMM_ATTACH_TYPE_EMERGENCY;
++      } else if (user->emm_data->AttachWithImsi) {
++        attach_type = EMM_ATTACH_TYPE_IMSI;
++      } else {
++        attach_type = EMM_ATTACH_TYPE_EPS;
++      }
++      
++      rc = emm_proc_attach(user, attach_type);
+     }
+ 
+     break;
+diff --git a/openair3/NAS/UE/EMM/SAP/EmmRegisteredInitiated.c b/openair3/NAS/UE/EMM/SAP/EmmRegisteredInitiated.c
+index a770e08bab..ecd2f8cd5e 100644
+--- a/openair3/NAS/UE/EMM/SAP/EmmRegisteredInitiated.c
++++ b/openair3/NAS/UE/EMM/SAP/EmmRegisteredInitiated.c
+@@ -48,6 +48,7 @@ Description Implements the EPS Mobility Management procedures executed
+ #include "nas_log.h"
+ 
+ #include "emm_proc.h"
++#include "emm_proc_defs.h"
+ 
+ #include <assert.h>
+ 
+@@ -104,8 +105,18 @@ int EmmRegisteredInitiated(nas_user_t *user, const emm_reg_t *evt)
+     }
+ 
+     if (rc != RETURNerror) {
+-      /* Restart the attach procedure */
+-      rc = emm_proc_attach_restart(user);
++      /* Start the attach procedure directly with appropriate type */
++      emm_proc_attach_type_t attach_type;
++      
++      if (evt->u.attach.is_emergency) {
++        attach_type = EMM_ATTACH_TYPE_EMERGENCY;
++      } else if (user->emm_data->AttachWithImsi) {
++        attach_type = EMM_ATTACH_TYPE_IMSI;
++      } else {
++        attach_type = EMM_ATTACH_TYPE_EPS;
++      }
++      
++      rc = emm_proc_attach(user, attach_type);
+     }
+ 
+     break;

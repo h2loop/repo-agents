@@ -1,0 +1,27 @@
+diff --git a/common/utils/T/tracer/logger/throughputlog.c b/common/utils/T/tracer/logger/throughputlog.c
+index 8a2d46da91..d606c90caf 100644
+--- a/common/utils/T/tracer/logger/throughputlog.c
++++ b/common/utils/T/tracer/logger/throughputlog.c
+@@ -70,15 +70,17 @@ static void _tick_event(void *p, event e)
+   frame = e.e[l->tick_frame_arg].i;
+   subframe = e.e[l->tick_subframe_arg].i;
+ 
+-  for (i = 0; i < l->common.vsize; i++)
+-    l->common.v[i]->append(l->common.v[i], frame, subframe, (double)l->total);
++  /* Update last tick values first to prevent race conditions with data events */
++  l->last_tick_frame = frame;
++  l->last_tick_subframe = subframe;
+ 
+-  l->insert_point = (l->insert_point + 1) % 1000;
++  /* Properly manage circular buffer: clear slot before advancing pointer */
+   l->total -= l->bits[l->insert_point];
+   l->bits[l->insert_point] = 0;
++  l->insert_point = (l->insert_point + 1) % 1000;
+ 
+-  l->last_tick_frame = frame;
+-  l->last_tick_subframe = subframe;
++  for (i = 0; i < l->common.vsize; i++)
++    l->common.v[i]->append(l->common.v[i], frame, subframe, (double)l->total);
+ }
+ 
+ logger *new_throughputlog(event_handler *h, void *database,

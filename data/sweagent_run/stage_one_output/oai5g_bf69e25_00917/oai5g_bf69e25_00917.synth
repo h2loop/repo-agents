@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect DL config request filtering in UE stub\n\n### Summary\nThe UE stub implementation in the OAI 5G codebase contained a logic error in the `is_my_dl_config_req` function that caused it to incorrectly accept DL config requests. This led to UEs processing downlink transmissions that were not intended for them, resulting in incorrect behavior during network simulations.\n\nThe issue was in the filtering logic where the function would accept any DL config request containing non-DLSCH PDU types, rather than properly checking if the request was actually meant for the specific UE or was a broadcast message.\n\n### Changes\n- `openair2/PHY_INTERFACE/phy_stub_UE.c`: Fixed the `is_my_dl_config_req` function logic to properly filter DL config requests based on RNTI matching and broadcast detection.\n\n"
+}

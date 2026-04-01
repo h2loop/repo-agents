@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect length calculation in AUTN parameter encoding\n\n### Summary\nThe `encode_authentication_parameter_autn` function contained a complex arithmetic expression to calculate the length field that was functionally correct but unnecessarily obscure. This could lead to confusion during maintenance and potential misinterpretation of the intended logic.\n\nThe issue manifests when the function is called with valid parameters, where the length field calculation works correctly but in a non-obvious way that masks the simpler direct assignment approach.\n\n### Changes\n- `openair3/NAS/COMMON/IES/AuthenticationParameterAutn.c`: Simplified length field calculation from `encoded - 1 - ((iei > 0) ? 1 : 0)` to direct assignment of `authenticationparameterautn->autn.length`.\n\n"
+}

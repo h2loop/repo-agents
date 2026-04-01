@@ -1,0 +1,13 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
+index 64ec807d51..63a659f248 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
+@@ -1576,7 +1576,7 @@ int nfapi_p4_message_pack(void *pMessageBuf, uint32_t messageBufLen, void *pPack
+ 
+     default: {
+       if(pMessageHeader->message_id >= NFAPI_VENDOR_EXT_MSG_MIN &&
+-          pMessageHeader->message_id <= NFAPI_VENDOR_EXT_MSG_MIN) {
++          pMessageHeader->message_id <= NFAPI_VENDOR_EXT_MSG_MAX) {
+         if(config && config->pack_p4_p5_vendor_extension) {
+           result =(config->pack_p4_p5_vendor_extension)(pMessageHeader, &pWritePackedMessage, end, config);
+         } else {

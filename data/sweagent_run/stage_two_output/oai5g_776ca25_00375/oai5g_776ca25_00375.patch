@@ -1,0 +1,94 @@
+diff --git a/openair3/NAS/TEST/NETWORK/network_simulator.c b/openair3/NAS/TEST/NETWORK/network_simulator.c
+index 492a709463..cfffc2937d 100644
+--- a/openair3/NAS/TEST/NETWORK/network_simulator.c
++++ b/openair3/NAS/TEST/NETWORK/network_simulator.c
+@@ -222,6 +222,10 @@ static int _process_attach_complete(const attach_complete_msg* msg);
+ 
+ /* Functions used to process ESM NAS messages */
+ static int _process_esm_msg(ESM_msg* msg);
++/* Functions used to map channel quality to QCI */
++static int _map_channel_quality_to_cqi(int rsrp, int rsrq);
++static int _map_cqi_to_qci(int cqi);
++
+ static int _process_pdn_connectivity_request(const pdn_connectivity_request_msg* msg, ESM_msg* rsp);
+ static int _process_pdn_disconnect_request(const pdn_disconnect_request_msg* msg, ESM_msg* rsp);
+ static int _process_activate_default_eps_bearer_context_accept(const activate_default_eps_bearer_context_accept_msg* msg);
+@@ -988,6 +992,63 @@ static int _process_esm_msg(ESM_msg* msg)
+ 
+   return (bytes);
+ }
++/*
++ * Map RSRP/RSRQ values to CQI values
++ * This function converts the measured RSRP and RSRQ to a CQI value
++ * based on typical LTE performance mappings
++ */
++static int _map_channel_quality_to_cqi(int rsrp, int rsrq)
++{
++  int cqi = 1; // Default to lowest CQI
++  
++  // Convert RSRP (-140 to -44 dBm) to CQI scale (1-15)
++  if (rsrp >= 26) {
++    cqi = 15; // Excellent signal
++  } else if (rsrp >= 23) {
++    cqi = 12; // Good signal
++  } else if (rsrp >= 20) {
++    cqi = 9;  // Medium signal
++  } else if (rsrp >= 17) {
++    cqi = 6;  // Fair signal
++  } else if (rsrp >= 14) {
++    cqi = 3;  // Poor signal
++  } else {
++    cqi = 1;  // Very poor signal
++  }
++  
++  // Adjust based on RSRQ (-19.5dB to -3dB) if needed
++  if (rsrq < 10 && cqi > 3) {
++    cqi -= 2; // Reduce CQI for poor RSRQ
++  } else if (rsrq < 20 && cqi > 6) {
++    cqi -= 1; // Slightly reduce CQI for fair RSRQ
++  }
++  
++  // Ensure CQI is within valid range
++  if (cqi < 1) cqi = 1;
++  if (cqi > 15) cqi = 15;
++  
++  return cqi;
++}
++
++/*
++ * Map CQI values to appropriate QCI based on channel quality
++ * Lower QCI values typically indicate stricter QoS requirements (e.g., voice)
++ * Higher CQI indicates better channel quality, which can support stricter QoS
++ */
++static int _map_cqi_to_qci(int cqi)
++{
++  if (cqi >= 13) {
++    return 1; // Excellent channel quality -> Conversational Voice (QCI 1)
++  } else if (cqi >= 10) {
++    return 2; // Good channel quality -> Conversational Video (QCI 2)
++  } else if (cqi >= 7) {
++    return 3; // Medium channel quality -> Real-time Gaming (QCI 3)
++  } else if (cqi >= 4) {
++    return 4; // Fair channel quality -> Non-conversational Video (QCI 4)
++  } else {
++    return 5; // Poor channel quality -> Default internet access (QCI 5)
++  }
++}
+ 
+ /*
+  * Process PDN Connectivity Request ESM message
+@@ -1062,7 +1123,13 @@ static int _process_pdn_connectivity_request(const pdn_connectivity_request_msg*
+     /* Setup Activate Default EPS Bearer Request message */
+     activate_default_eps_bearer_context_request_msg* request = &rsp->activate_default_eps_bearer_context_request;
+     request->messagetype = ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REQUEST;
+-    request->epsqos.qci = 3;    /* GBR bearer for playback video */
++    
++    /* Use adaptive QCI selection based on channel quality */
++    int cqi = _map_channel_quality_to_cqi(DEFAULT_RSRP, DEFAULT_RSRQ);
++    request->epsqos.qci = _map_cqi_to_qci(cqi);
++    printf("INFO\t:\tAdaptive QCI selection: RSRP=%d, RSRQ=%d -> CQI=%d -> QCI=%d\n", 
++           DEFAULT_RSRP, DEFAULT_RSRQ, cqi, request->epsqos.qci);
++           
+     request->epsqos.bitRatesPresent = 1;
+     request->epsqos.bitRates.maxBitRateForUL = BIT_RATE_128K; /* 128K */
+     request->epsqos.bitRates.maxBitRateForDL = BIT_RATE_1024K;  /* 1M */

@@ -1,0 +1,80 @@
+diff --git a/openair2/RRC/NR/MESSAGES/asn1_msg.c b/openair2/RRC/NR/MESSAGES/asn1_msg.c
+index 68a8c49774..6833effa19 100644
+--- a/openair2/RRC/NR/MESSAGES/asn1_msg.c
++++ b/openair2/RRC/NR/MESSAGES/asn1_msg.c
+@@ -561,7 +561,7 @@ int do_NR_SecurityModeCommand(uint8_t *const buffer,
+   return((enc_rval.encoded+7)/8);
+ }
+ 
+-int do_NR_SA_UECapabilityEnquiry(uint8_t *const buffer, const uint8_t Transaction_id)
++int do_NR_SA_UECapabilityEnquiry(uint8_t *const buffer, size_t buffer_size, const uint8_t Transaction_id)
+ {
+   NR_UE_CapabilityRequestFilterNR_t *sa_band_filter;
+   NR_FreqBandList_t *sa_band_list;
+@@ -615,7 +615,7 @@ int do_NR_SA_UECapabilityEnquiry(uint8_t *const buffer, const uint8_t Transactio
+     xer_fprint(stdout, &asn_DEF_NR_DL_DCCH_Message, (void *)&dl_dcch_msg);
+   }
+ 
+-  asn_enc_rval_t enc_rval = uper_encode_to_buffer(&asn_DEF_NR_DL_DCCH_Message, NULL, (void *)&dl_dcch_msg, buffer, 100);
++  asn_enc_rval_t enc_rval = uper_encode_to_buffer(&asn_DEF_NR_DL_DCCH_Message, NULL, (void *)&dl_dcch_msg, buffer, buffer_size);
+ 
+   AssertFatal(enc_rval.encoded >0, "ASN1 message encoding failed (%s, %lu)!\n",
+               enc_rval.failed_type->name, enc_rval.encoded);
+@@ -825,7 +825,7 @@ int do_NR_RRCReconfigurationComplete_for_nsa(
+   rrc_complete_msg.criticalExtensions.choice.rrcReconfigurationComplete =
+         CALLOC(1, sizeof(*rrc_complete_msg.criticalExtensions.choice.rrcReconfigurationComplete));
+   rrc_complete_msg.criticalExtensions.present =
+-	NR_RRCReconfigurationComplete__criticalExtensions_PR_rrcReconfigurationComplete;
++        NR_RRCReconfigurationComplete__criticalExtensions_PR_rrcReconfigurationComplete;
+   rrc_complete_msg.criticalExtensions.choice.rrcReconfigurationComplete->nonCriticalExtension = NULL;
+   rrc_complete_msg.criticalExtensions.choice.rrcReconfigurationComplete->lateNonCriticalExtension = NULL;
+   if (0) {
+diff --git a/openair2/RRC/NR/MESSAGES/asn1_msg.h b/openair2/RRC/NR/MESSAGES/asn1_msg.h
+index 2f0b4febf8..1b29018036 100644
+--- a/openair2/RRC/NR/MESSAGES/asn1_msg.h
++++ b/openair2/RRC/NR/MESSAGES/asn1_msg.h
+@@ -86,7 +86,7 @@ int do_NR_SecurityModeCommand(uint8_t *const buffer,
+                               const uint8_t cipheringAlgorithm,
+                               NR_IntegrityProtAlgorithm_t integrityProtAlgorithm);
+ 
+-int do_NR_SA_UECapabilityEnquiry(uint8_t *const buffer, const uint8_t Transaction_id);
++int do_NR_SA_UECapabilityEnquiry(uint8_t *const buffer, size_t buffer_size, const uint8_t Transaction_id);
+ 
+ int do_NR_RRCRelease(uint8_t *buffer, size_t buffer_size, uint8_t Transaction_id);
+ 
+diff --git a/openair2/RRC/NR/MESSAGES/tests/test_asn1_msg.cpp b/openair2/RRC/NR/MESSAGES/tests/test_asn1_msg.cpp
+index 1b8d5ce4d8..d0171ad09c 100644
+--- a/openair2/RRC/NR/MESSAGES/tests/test_asn1_msg.cpp
++++ b/openair2/RRC/NR/MESSAGES/tests/test_asn1_msg.cpp
+@@ -38,7 +38,7 @@ TEST(nr_asn1, rrc_reject)
+ TEST(nr_asn1, sa_capability_enquiry)
+ {
+   unsigned char buf[1000];
+-  EXPECT_GT(do_NR_SA_UECapabilityEnquiry(buf, 0), 0);
++  EXPECT_GT(do_NR_SA_UECapabilityEnquiry(buf, 1000, 0), 0);
+ }
+ 
+ TEST(nr_asn1, rrc_reconfiguration_complete_for_nsa)
+diff --git a/openair2/RRC/NR/rrc_gNB.c b/openair2/RRC/NR/rrc_gNB.c
+index c018b8030a..0f7d4939ef 100644
+--- a/openair2/RRC/NR/rrc_gNB.c
++++ b/openair2/RRC/NR/rrc_gNB.c
+@@ -1644,15 +1644,16 @@ static void handle_rrcReconfigurationComplete(gNB_RRC_INST *rrc, gNB_RRC_UE_t *U
+ 
+ static void rrc_gNB_generate_UECapabilityEnquiry(gNB_RRC_INST *rrc, gNB_RRC_UE_t *ue)
+ {
+-  uint8_t buffer[100];
++  uint8_t buffer[NR_RRC_BUF_SIZE];
+ 
+   T(T_ENB_RRC_UE_CAPABILITY_ENQUIRY, T_INT(rrc->module_id), T_INT(0), T_INT(0), T_INT(ue->rrc_ue_id));
+   uint8_t xid = rrc_gNB_get_next_transaction_identifier(rrc->module_id);
+   ue->xids[xid] = RRC_UECAPABILITY_ENQUIRY;
+-  int size = do_NR_SA_UECapabilityEnquiry(buffer, xid);
++  int size = do_NR_SA_UECapabilityEnquiry(buffer, NR_RRC_BUF_SIZE, xid);
+   LOG_I(NR_RRC, "UE %d: Logical Channel DL-DCCH, Generate NR UECapabilityEnquiry (bytes %d, xid %d)\n", ue->rrc_ue_id, size, xid);
+ 
+   AssertFatal(!NODE_IS_DU(rrc->node_type), "illegal node type DU!\n");
++  AssertFatal(size > 0 && size <= NR_RRC_BUF_SIZE, "UECapabilityEnquiry encoding failed or buffer too small (size %d)\n", size);
+ 
+   nr_rrc_transfer_protected_rrc_message(rrc, ue, DCCH, buffer, size);
+ }

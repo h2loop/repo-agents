@@ -1,0 +1,13 @@
+diff --git a/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc_subs.h b/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc_subs.h
+index 1eb013c37c..04eac07dc2 100644
+--- a/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc_subs.h
++++ b/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc_subs.h
+@@ -42,7 +42,7 @@ typedef struct ric_req_id_s {
+ } rb_ric_req_id_t;
+ 
+ typedef struct {
+-  RB_HEAD(ric_id_2_param_id_trees, ric_req_id_s) rb[END_E2SM_RC_RAN_PARAM_ID];  //  1 RB tree = (1 RAN Parameter ID) : (n RIC Request ID) => m RB tree = (m RAN Parameter ID) : (n RIC Request ID)
++  RB_HEAD(ric_id_2_param_id_trees, ric_req_id_s) rb[RRC_STATE_CHANGED_TO_E2SM_RC_RAN_PARAM_ID + 1];  //  1 RB tree = (1 RAN Parameter ID) : (n RIC Request ID) => m RB tree = (m RAN Parameter ID) : (n RIC Request ID)
+   hash_table_t* htable;    // 1 Hash table = (n RIC Request ID) : (m RAN Parameter ID)
+ } rc_subs_data_t;
+ 

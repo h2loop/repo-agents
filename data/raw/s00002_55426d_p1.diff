@@ -1,0 +1,41 @@
+diff --git a/common/config/config_paramdesc.h b/common/config/config_paramdesc.h
+index 8ddd507ee6..2e6bccb5bb 100644
+--- a/common/config/config_paramdesc.h
++++ b/common/config/config_paramdesc.h
+@@ -163,7 +163,7 @@ typedef struct paramdef {
+ #define ANY_IPV4ADDR_STRING "0.0.0.0"
+ typedef struct paramlist_def {
+   char listname[MAX_OPTNAME_SIZE];
+-  paramdef_t **paramarray;
++  paramdef_t *paramarray;
+   int numelt ;
+ } paramlist_def_t;
+ 
+diff --git a/common/config/libconfig/config_libconfig.c b/common/config/libconfig/config_libconfig.c
+index 0770fb2af8..ecf3cd8184 100644
+--- a/common/config/libconfig/config_libconfig.c
++++ b/common/config/libconfig/config_libconfig.c
+@@ -524,18 +524,18 @@ int config_libconfig_getlist(configmodule_interface_t *cfg,
+   }
+ 
+   if (ParamList->numelt > 0 && params != NULL) {
+-    ParamList->paramarray = config_allocate_new(cfg, ParamList->numelt * sizeof(paramdef_t *), true);
++    ParamList->paramarray = config_allocate_new(cfg, ParamList->numelt * numparams * sizeof(paramdef_t), true);
+ 
+     for (i=0 ; i < ParamList->numelt ; i++) {
+-      ParamList->paramarray[i] = config_allocate_new(cfg, numparams * sizeof(paramdef_t), true);
+-      memcpy(ParamList->paramarray[i], params, sizeof(paramdef_t)*numparams);
++      paramdef_t *current_params = &ParamList->paramarray[i * numparams];
++      memcpy(current_params, params, sizeof(paramdef_t)*numparams);
+ 
+       for (j=0; j<numparams; j++) {
+-        ParamList->paramarray[i][j].strptr = NULL ;
++        current_params[j].strptr = NULL ;
+       }
+ 
+       sprintf(cfgpath,"%s.[%i]",listpath,i);
+-      config_libconfig_get(cfg, ParamList->paramarray[i], numparams, cfgpath);
++      config_libconfig_get(cfg, current_params, numparams, cfgpath);
+     } /* for i... */
+   } /* ParamList->numelt > 0 && params != NULL */
+ 

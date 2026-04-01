@@ -1,0 +1,315 @@
+diff --git a/openair2/COMMON/f1ap_messages_def.h b/openair2/COMMON/f1ap_messages_def.h
+index 7c67b22756..5c34001e45 100644
+--- a/openair2/COMMON/f1ap_messages_def.h
++++ b/openair2/COMMON/f1ap_messages_def.h
+@@ -48,6 +48,7 @@ MESSAGE_DEF(F1AP_UE_CONTEXT_SETUP_REQ,  MESSAGE_PRIORITY_MED, f1ap_ue_context_se
+ MESSAGE_DEF(F1AP_UE_CONTEXT_SETUP_RESP, MESSAGE_PRIORITY_MED, f1ap_ue_context_setup_t, f1ap_ue_context_setup_resp)
+ MESSAGE_DEF(F1AP_UE_CONTEXT_MODIFICATION_REQ, MESSAGE_PRIORITY_MED, f1ap_ue_context_modif_req_t, f1ap_ue_context_modification_req)
+ MESSAGE_DEF(F1AP_UE_CONTEXT_MODIFICATION_RESP, MESSAGE_PRIORITY_MED, f1ap_ue_context_modif_resp_t, f1ap_ue_context_modification_resp)
++MESSAGE_DEF(F1AP_UE_CONTEXT_MODIFICATION_FAIL, MESSAGE_PRIORITY_MED, f1ap_ue_context_modif_fail_t, f1ap_ue_context_modification_fail)
+ 
+ /* CU -> DU*/
+ MESSAGE_DEF(F1AP_PAGING_IND, MESSAGE_PRIORITY_MED, f1ap_paging_ind_t, f1ap_paging_ind)
+diff --git a/openair2/COMMON/f1ap_messages_types.h b/openair2/COMMON/f1ap_messages_types.h
+index 08cc03c4fa..33187a6eaf 100644
+--- a/openair2/COMMON/f1ap_messages_types.h
++++ b/openair2/COMMON/f1ap_messages_types.h
+@@ -410,6 +410,14 @@ typedef struct f1ap_ue_context_setup_s {
+   int      rrc_container_length;
+ } f1ap_ue_context_setup_t, f1ap_ue_context_modif_req_t, f1ap_ue_context_modif_resp_t;
+ 
++typedef struct f1ap_ue_context_modif_fail_s {
++  uint16_t      rnti;
++  f1ap_Cause_t  cause;
++  long          cause_value;
++  uint8_t      *rrc_container;
++  int           rrc_container_length;
++} f1ap_ue_context_modif_fail_t;
++
+ typedef enum F1ap_Cause_e {
+   F1AP_CAUSE_NOTHING,  /* No components present */
+   F1AP_CAUSE_RADIO_NETWORK,
+diff --git a/openair2/F1AP/f1ap_cu_ue_context_management.c b/openair2/F1AP/f1ap_cu_ue_context_management.c
+index 8fdee52abb..af1640b987 100644
+--- a/openair2/F1AP/f1ap_cu_ue_context_management.c
++++ b/openair2/F1AP/f1ap_cu_ue_context_management.c
+@@ -1725,7 +1725,57 @@ int CU_handle_UE_CONTEXT_MODIFICATION_FAILURE(instance_t       instance,
+     uint32_t         assoc_id,
+     uint32_t         stream,
+     F1AP_F1AP_PDU_t *pdu) {
+-  AssertFatal(1==0,"Not implemented yet\n");
++  
++  F1AP_UEContextModificationFailure_t *container;
++  F1AP_UEContextModificationFailureIEs_t *ie;
++  F1AP_GNB_CU_UE_F1AP_ID_t gNB_CU_UE_F1AP_ID;
++
++  if (pdu->present == F1AP_F1AP_PDU_PR_unsuccessfulOutcome) {
++    container = &pdu->choice.unsuccessfulOutcome->value.choice.UEContextModificationFailure;
++  } else {
++    AssertFatal(0, "pdu->present != unsuccessfulOutcome\n");
++  }
++
++  // Get GNB_CU_UE_F1AP_ID
++  F1AP_FIND_PROTOCOL_IE(container->protocolIEs, F1AP_ProtocolIE_ID_id_gNB_CU_UE_F1AP_ID, F1AP_UEContextModificationFailureIEs__value_PR_GNB_CU_UE_F1AP_ID, ie);
++  gNB_CU_UE_F1AP_ID = ie->value.choice.GNB_CU_UE_F1AP_ID;
++
++  MessageDef *msg_p = itti_alloc_new_message(TASK_CU_F1, 0, F1AP_UE_CONTEXT_MODIFICATION_FAIL);
++  f1ap_ue_context_modif_fail_t *fail_msg = &F1AP_UE_CONTEXT_MODIFICATION_FAIL(msg_p);
++
++  // Fill basic information
++  fail_msg->rnti = f1ap_get_rnti(CUtype, instance, gNB_CU_UE_F1AP_ID);
++
++  // Get cause
++  F1AP_FIND_PROTOCOL_IE(container->protocolIEs, F1AP_ProtocolIE_ID_id_Cause, F1AP_UEContextModificationFailureIEs__value_PR_Cause, ie);
++  switch (ie->value.choice.Cause.present) {
++    case F1AP_Cause_PR_radioNetwork:
++      fail_msg->cause = F1AP_CAUSE_RADIO_NETWORK;
++      fail_msg->cause_value = ie->value.choice.Cause.choice.radioNetwork;
++      break;
++    case F1AP_Cause_PR_transport:
++      fail_msg->cause = F1AP_CAUSE_TRANSPORT;
++      fail_msg->cause_value = ie->value.choice.Cause.choice.transport;
++      break;
++    case F1AP_Cause_PR_protocol:
++      fail_msg->cause = F1AP_CAUSE_PROTOCOL;
++      fail_msg->cause_value = ie->value.choice.Cause.choice.protocol;
++      break;
++    case F1AP_Cause_PR_misc:
++      fail_msg->cause = F1AP_CAUSE_MISC;
++      fail_msg->cause_value = ie->value.choice.Cause.choice.misc;
++      break;
++    default:
++      fail_msg->cause = F1AP_CAUSE_NOTHING;
++      fail_msg->cause_value = 0;
++      break;
++  }
++
++  // Optional: Handle Criticality Diagnostics if present
++  // Not implemented for now
++  
++  itti_send_msg_to_task(TASK_RRC_GNB, instance, msg_p);
++  return 0;
+ }
+ 
+ int CU_handle_UE_CONTEXT_MODIFICATION_REQUIRED(instance_t       instance,
+diff --git a/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c b/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c
+index 582420a0b4..cd8f41a4aa 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c
++++ b/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c
+@@ -271,6 +271,35 @@ void ue_context_release_command(const f1ap_ue_context_release_cmd_t *cmd)
+     free(cmd->rrc_container);
+ }
+ 
++void ue_context_modification_refuse(const f1ap_ue_context_modif_fail_t *fail)
++{
++  /* Handle UE context modification failure */
++  gNB_MAC_INST *mac = RC.nrmac[0];
++  
++  LOG_E(NR_MAC, "UE context modification failed for RNTI %04x, cause: %d, cause_value: %ld\n", 
++        fail->rnti, fail->cause, fail->cause_value);
++  
++  NR_SCHED_LOCK(&mac->sched_lock);
++  NR_UE_info_t *UE = find_nr_UE(&mac->UE_info, fail->rnti);
++  
++  if (UE != NULL) {
++    /* Mark the UE context modification as failed */
++    /* In a real implementation, we might want to rollback any partial changes */
++    /* For now, we just log the failure and notify upper layers if needed */
++    
++    /* TODO: Implement proper rollback mechanism if needed */
++    LOG_W(NR_MAC, "UE context modification rollback not implemented\n");
++  } else {
++    LOG_W(NR_MAC, "UE with RNTI %04x not found for context modification failure\n", fail->rnti);
++  }
++  
++  NR_SCHED_UNLOCK(&mac->sched_lock);
++  
++  /* Free any allocated RRC container */
++  if (fail->rrc_container)
++    free(fail->rrc_container);
++}
++
+ int dl_rrc_message(module_id_t module_id, const f1ap_dl_rrc_message_t *dl_rrc)
+ {
+   LOG_D(NR_MAC, "DL RRC Message Transfer with %d bytes for RNTI %04x SRB %d\n", dl_rrc->rrc_container_length, dl_rrc->rnti, dl_rrc->srb_id);
+diff --git a/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.h b/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.h
+index 808277a7f4..ea6304e740 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.h
++++ b/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.h
+@@ -27,6 +27,7 @@
+ 
+ void ue_context_setup_request(const f1ap_ue_context_setup_t *req);
+ void ue_context_modification_request(const f1ap_ue_context_modif_req_t *req);
++void ue_context_modification_refuse(const f1ap_ue_context_modif_fail_t *fail);
+ void ue_context_release_command(const f1ap_ue_context_release_cmd_t *cmd);
+ 
+ int dl_rrc_message(module_id_t module_id, const f1ap_dl_rrc_message_t *dl_rrc);
+diff --git a/openair2/LAYER2/NR_MAC_gNB/mac_rrc_ul.h b/openair2/LAYER2/NR_MAC_gNB/mac_rrc_ul.h
+index 5d7a7cd644..43725206d9 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/mac_rrc_ul.h
++++ b/openair2/LAYER2/NR_MAC_gNB/mac_rrc_ul.h
+@@ -28,6 +28,7 @@
+ typedef void (*ue_context_setup_response_func_t)(const f1ap_ue_context_setup_t* req, const f1ap_ue_context_setup_t *resp);
+ typedef void (*ue_context_modification_response_func_t)(const f1ap_ue_context_modif_req_t *req,
+                                                         const f1ap_ue_context_modif_resp_t *resp);
++typedef void (*ue_context_modification_refuse_func_t)(const f1ap_ue_context_modif_fail_t *fail);
+ typedef void (*ue_context_release_request_func_t)(const f1ap_ue_context_release_req_t* req);
+ typedef void (*ue_context_release_complete_func_t)(const f1ap_ue_context_release_complete_t *complete);
+ 
+diff --git a/openair2/LAYER2/NR_MAC_gNB/nr_mac_gNB.h b/openair2/LAYER2/NR_MAC_gNB/nr_mac_gNB.h
+index 1de725b6bc..5316cd9b7e 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/nr_mac_gNB.h
++++ b/openair2/LAYER2/NR_MAC_gNB/nr_mac_gNB.h
+@@ -624,6 +624,7 @@ typedef struct NR_mac_stats {
+ typedef struct nr_mac_rrc_ul_if_s {
+   ue_context_setup_response_func_t ue_context_setup_response;
+   ue_context_modification_response_func_t ue_context_modification_response;
++  ue_context_modification_refuse_func_t ue_context_modification_refuse;
+   ue_context_release_request_func_t ue_context_release_request;
+   ue_context_release_complete_func_t ue_context_release_complete;
+   initial_ul_rrc_message_transfer_func_t initial_ul_rrc_message_transfer;
+diff --git a/openair2/RRC/NR/mac_rrc_dl.h b/openair2/RRC/NR/mac_rrc_dl.h
+index 2728174603..17b62d64a0 100644
+--- a/openair2/RRC/NR/mac_rrc_dl.h
++++ b/openair2/RRC/NR/mac_rrc_dl.h
+@@ -27,6 +27,7 @@
+ 
+ typedef void (*ue_context_setup_request_func_t)(const f1ap_ue_context_setup_t *req);
+ typedef void (*ue_context_modification_request_func_t)(const f1ap_ue_context_modif_req_t *req);
++typedef void (*ue_context_modification_refuse_func_t)(const f1ap_ue_context_modif_fail_t *fail);
+ typedef void (*ue_context_release_command_func_t)(const f1ap_ue_context_release_cmd_t *cmd);
+ 
+ typedef void (*dl_rrc_message_transfer_func_t)(module_id_t module_id, const f1ap_dl_rrc_message_t *dl_rrc);
+diff --git a/openair2/RRC/NR/mac_rrc_dl_direct.c b/openair2/RRC/NR/mac_rrc_dl_direct.c
+index 2d436c19e3..b6a8b2c37e 100644
+--- a/openair2/RRC/NR/mac_rrc_dl_direct.c
++++ b/openair2/RRC/NR/mac_rrc_dl_direct.c
+@@ -35,6 +35,7 @@ void mac_rrc_dl_direct_init(nr_mac_rrc_dl_if_t *mac_rrc)
+ {
+   mac_rrc->ue_context_setup_request = ue_context_setup_request;
+   mac_rrc->ue_context_modification_request = ue_context_modification_request;
++  mac_rrc->ue_context_modification_refuse = ue_context_modification_refuse;
+   mac_rrc->ue_context_release_command = ue_context_release_command;
+   mac_rrc->dl_rrc_message_transfer = dl_rrc_message_transfer_direct;
+ }
+diff --git a/openair2/RRC/NR/mac_rrc_dl_f1ap.c b/openair2/RRC/NR/mac_rrc_dl_f1ap.c
+index 5bfeda2dc8..a4d632fe48 100644
+--- a/openair2/RRC/NR/mac_rrc_dl_f1ap.c
++++ b/openair2/RRC/NR/mac_rrc_dl_f1ap.c
+@@ -71,6 +71,20 @@ static void ue_context_modification_request_f1ap(const f1ap_ue_context_modif_req
+   itti_send_msg_to_task(TASK_CU_F1, 0, msg);
+ }
+ 
++static void ue_context_modification_refuse_f1ap(const f1ap_ue_context_modif_fail_t *fail)
++{
++  MessageDef *msg = itti_alloc_new_message(TASK_RRC_GNB, 0, F1AP_UE_CONTEXT_MODIFICATION_FAIL);
++  f1ap_ue_context_modif_fail_t *f1ap_msg = &F1AP_UE_CONTEXT_MODIFICATION_FAIL(msg);
++  *f1ap_msg = *fail;
++  if (fail->rrc_container_length > 0) {
++    f1ap_msg->rrc_container = calloc(fail->rrc_container_length, sizeof(*f1ap_msg->rrc_container));
++    AssertFatal(f1ap_msg->rrc_container != NULL, "out of memory\n");
++    f1ap_msg->rrc_container_length = fail->rrc_container_length;
++    memcpy(f1ap_msg->rrc_container, fail->rrc_container, fail->rrc_container_length);
++  }
++  itti_send_msg_to_task(TASK_CU_F1, 0, msg);
++}
++
+ static void ue_context_release_command_f1ap(const f1ap_ue_context_release_cmd_t *cmd)
+ {
+   MessageDef *message_p = itti_alloc_new_message (TASK_RRC_GNB, 0, F1AP_UE_CONTEXT_RELEASE_CMD);
+@@ -99,6 +113,7 @@ void mac_rrc_dl_f1ap_init(nr_mac_rrc_dl_if_t *mac_rrc)
+ {
+   mac_rrc->ue_context_setup_request = ue_context_setup_request_f1ap;
+   mac_rrc->ue_context_modification_request = ue_context_modification_request_f1ap;
++  mac_rrc->ue_context_modification_refuse = ue_context_modification_refuse_f1ap;
+   mac_rrc->ue_context_release_command = ue_context_release_command_f1ap;
+   mac_rrc->dl_rrc_message_transfer = dl_rrc_message_transfer_f1ap;
+ }
+diff --git a/openair2/RRC/NR/nr_rrc_defs.h b/openair2/RRC/NR/nr_rrc_defs.h
+index 51ef9d0f8d..1d570ea280 100644
+--- a/openair2/RRC/NR/nr_rrc_defs.h
++++ b/openair2/RRC/NR/nr_rrc_defs.h
+@@ -374,6 +374,7 @@ typedef struct {
+ typedef struct nr_mac_rrc_dl_if_s {
+   ue_context_setup_request_func_t ue_context_setup_request;
+   ue_context_modification_request_func_t ue_context_modification_request;
++  ue_context_modification_refuse_func_t ue_context_modification_refuse;
+   ue_context_release_command_func_t ue_context_release_command;
+   dl_rrc_message_transfer_func_t dl_rrc_message_transfer;
+ } nr_mac_rrc_dl_if_t;
+diff --git a/openair2/RRC/NR/rrc_gNB.c b/openair2/RRC/NR/rrc_gNB.c
+index f731ed0fbe..629ddf9f10 100644
+--- a/openair2/RRC/NR/rrc_gNB.c
++++ b/openair2/RRC/NR/rrc_gNB.c
+@@ -2130,8 +2130,8 @@ void rrc_gNB_process_f1_setup_req(f1ap_setup_req_t *f1_setup_req) {
+       if (rrc->configuration.mcc[0] == f1_setup_req->cell[i].mcc &&
+           rrc->configuration.mnc[0] == f1_setup_req->cell[i].mnc &&
+           rrc->nr_cellid == f1_setup_req->cell[i].nr_cellid) {
+-	//fixme: multi instance is not consistent here
+-	F1AP_SETUP_RESP (msg_p).gNB_CU_name  = rrc->node_name;
++        //fixme: multi instance is not consistent here
++        F1AP_SETUP_RESP (msg_p).gNB_CU_name  = rrc->node_name;
+         // check that CU rrc instance corresponds to mcc/mnc/cgi (normally cgi should be enough, but just in case)
+         LOG_W(NR_RRC, "instance %d sib1 length %d\n", i, f1_setup_req->sib1_length[i]);
+         AssertFatal(rrc->carrier.mib == NULL, "CU MIB is already initialized: double F1 setup request?\n");
+@@ -2164,12 +2164,12 @@ void rrc_gNB_process_f1_setup_req(f1ap_setup_req_t *f1_setup_req) {
+ 
+         rrc->carrier.physCellId = f1_setup_req->cell[i].nr_pci;
+ 
+-	F1AP_GNB_CU_CONFIGURATION_UPDATE (msg_p2).gNB_CU_name                                = rrc->node_name;
+-	F1AP_GNB_CU_CONFIGURATION_UPDATE (msg_p2).cells_to_activate[cu_cell_ind].mcc                           = rrc->configuration.mcc[0];
+-	F1AP_GNB_CU_CONFIGURATION_UPDATE (msg_p2).cells_to_activate[cu_cell_ind].mnc                           = rrc->configuration.mnc[0];
+-	F1AP_GNB_CU_CONFIGURATION_UPDATE (msg_p2).cells_to_activate[cu_cell_ind].mnc_digit_length              = rrc->configuration.mnc_digit_length[0];
+-	F1AP_GNB_CU_CONFIGURATION_UPDATE (msg_p2).cells_to_activate[cu_cell_ind].nr_cellid                     = rrc->nr_cellid;
+-	F1AP_GNB_CU_CONFIGURATION_UPDATE (msg_p2).cells_to_activate[cu_cell_ind].nrpci                         = f1_setup_req->cell[i].nr_pci;
++        F1AP_GNB_CU_CONFIGURATION_UPDATE (msg_p2).gNB_CU_name                                = rrc->node_name;
++        F1AP_GNB_CU_CONFIGURATION_UPDATE (msg_p2).cells_to_activate[cu_cell_ind].mcc                           = rrc->configuration.mcc[0];
++        F1AP_GNB_CU_CONFIGURATION_UPDATE (msg_p2).cells_to_activate[cu_cell_ind].mnc                           = rrc->configuration.mnc[0];
++        F1AP_GNB_CU_CONFIGURATION_UPDATE (msg_p2).cells_to_activate[cu_cell_ind].mnc_digit_length              = rrc->configuration.mnc_digit_length[0];
++        F1AP_GNB_CU_CONFIGURATION_UPDATE (msg_p2).cells_to_activate[cu_cell_ind].nr_cellid                     = rrc->nr_cellid;
++        F1AP_GNB_CU_CONFIGURATION_UPDATE (msg_p2).cells_to_activate[cu_cell_ind].nrpci                         = f1_setup_req->cell[i].nr_pci;
+         int num_SI= 0;
+ 
+         if (rrc->carrier.SIB23) {
+@@ -2180,8 +2180,8 @@ void rrc_gNB_process_f1_setup_req(f1ap_setup_req_t *f1_setup_req) {
+ 
+         F1AP_GNB_CU_CONFIGURATION_UPDATE (msg_p2).cells_to_activate[cu_cell_ind].num_SI = num_SI;
+         cu_cell_ind++;
+-	F1AP_GNB_CU_CONFIGURATION_UPDATE (msg_p2).num_cells_to_activate = cu_cell_ind;
+-	// send
++        F1AP_GNB_CU_CONFIGURATION_UPDATE (msg_p2).num_cells_to_activate = cu_cell_ind;
++        // send
+         break;
+       } else {// setup_req mcc/mnc match rrc internal list element
+         LOG_W(NR_RRC,"[Inst %d] No matching MCC/MNC: rrc->mcc/f1_setup_req->mcc %d/%d rrc->mnc/f1_setup_req->mnc %d/%d rrc->nr_cellid/f1_setup_req->nr_cellid %ld/%ld \n",
+@@ -2369,7 +2369,7 @@ static unsigned int get_dl_bw_mask(const gNB_RRC_INST *rrc, const NR_UE_NR_Capab
+                    bandNRinfo->channelBWs_DL->choice.fr1 &&
+                    bandNRinfo->channelBWs_DL->choice.fr1->scs_15kHz)
+                      return(mask_flip((unsigned int)*(uint16_t*)bandNRinfo->channelBWs_DL->choice.fr1->scs_15kHz->buf));
+- 	      break;
++              break;
+             case NR_SubcarrierSpacing_kHz30 :
+                if (bandNRinfo->channelBWs_DL &&
+                    bandNRinfo->channelBWs_DL->choice.fr1 &&
+@@ -2419,7 +2419,7 @@ static unsigned int get_ul_bw_mask(const gNB_RRC_INST *rrc, const NR_UE_NR_Capab
+                    bandNRinfo->channelBWs_UL->choice.fr1 &&
+                    bandNRinfo->channelBWs_UL->choice.fr1->scs_15kHz)
+                      return(mask_flip((unsigned int)*(uint16_t*)bandNRinfo->channelBWs_UL->choice.fr1->scs_15kHz->buf));
+- 	      break;
++              break;
+             case NR_SubcarrierSpacing_kHz30 :
+                if (bandNRinfo->channelBWs_UL &&
+                    bandNRinfo->channelBWs_UL->choice.fr1 &&
+@@ -2766,6 +2766,12 @@ void *rrc_gnb_task(void *args_p) {
+         rrc_CU_process_ue_context_modification_response(msg_p, instance);
+         break;
+ 
++      case F1AP_UE_CONTEXT_MODIFICATION_FAIL:
++        LOG_E(NR_RRC, "UE context modification failed for RNTI %04x\n", F1AP_UE_CONTEXT_MODIFICATION_FAIL(msg_p)->rnti);
++        if (RC.nrmac[0] && RC.nrmac[0]->mac_rrc.ue_context_modification_refuse)
++          RC.nrmac[0]->mac_rrc.ue_context_modification_refuse(F1AP_UE_CONTEXT_MODIFICATION_FAIL(msg_p));
++        break;
++
+       case F1AP_UE_CONTEXT_RELEASE_REQ:
+         rrc_CU_process_ue_context_release_request(msg_p);
+         break;

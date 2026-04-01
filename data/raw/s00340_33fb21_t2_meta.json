@@ -1,0 +1,9 @@
+{
+  "run_id": "s00340_33fb21",
+  "pr_text": "## Title: Fix scheduling priority inversion in PCAP logging\n\n### Summary\nThe PCAP_WritePDU function in the OPT probe subsystem was causing scheduling priority inversion by calling `fflush()` after every write. This forced synchronous disk I/O, causing the calling thread to block and allowing lower-priority traffic to preempt higher-priority processing. The blocking behavior violated real-time scheduling guarantees required for 5G protocol stack operations.\n\nThis fix removes the `fflush()` call f",
+  "trajectory_path": "data/raw/s00340_33fb21_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00340_33fb21_p2.diff",
+  "patch_lines": 0,
+  "trajectory_steps": 9,
+  "timestamp": "2026-02-10T12:41:47Z"
+}

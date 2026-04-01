@@ -1,0 +1,450 @@
+diff --git a/executables/nr-ru.c b/executables/nr-ru.c
+index 7d2b11cf65..8599f4e0a4 100644
+--- a/executables/nr-ru.c
++++ b/executables/nr-ru.c
+@@ -288,12 +288,12 @@ void fh_if5_south_out(RU_t *ru, int frame, int slot, uint64_t timestamp) {
+   LOG_D(PHY,"IF5 TX %d.%d, TS %llu, buffs[0] %p, buffs[1] %p ener0 %f dB, tx start %d\n",frame,slot,(unsigned long long)timestamp,buffs[0],buffs[1],
+   10*log10((double)signal_energy(buffs[0],ru->nr_frame_parms->get_samples_per_slot(slot,ru->nr_frame_parms))),(int)txmeas.tv_nsec);
+   ru->ifdevice.trx_write_func2(&ru->ifdevice,
+-  		               timestamp,
++                               timestamp,
+                                buffs,
+-			       0,
+-			       ru->nr_frame_parms->get_samples_per_slot(slot,ru->nr_frame_parms),
+-			       0,
+-			       ru->nb_tx); 
++                               0,
++                               ru->nr_frame_parms->get_samples_per_slot(slot,ru->nr_frame_parms),
++                               0,
++                               ru->nb_tx); 
+ 
+ }
+ 
+@@ -638,7 +638,7 @@ void rx_rf(RU_t *ru,int *frame,int *slot) {
+ 
+   start_meas(&ru->rx_fhaul);
+   for (i=0; i<ru->nb_rx; i++)
+-    rxp[i] = (void *)&ru->common.rxdata[i][fp->get_samples_slot_timestamp(*slot,fp,0)];
++    rxp[i] = (void *)&ru->common.rxdata[i][(int64_t)fp->get_samples_slot_timestamp(*slot,fp,0)];
+ 
+   VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME( VCD_SIGNAL_DUMPER_FUNCTIONS_TRX_READ, 1 );
+   old_ts = proc->timestamp_rx;
+@@ -688,8 +688,8 @@ void rx_rf(RU_t *ru,int *frame,int *slot) {
+         ru->idx,
+         0,
+         ts, //(unsigned long long int)(proc->timestamp_rx+ru->ts_offset),
+-	gps_sec,
+-	cfg->sample_rate,
++        gps_sec,
++        cfg->sample_rate,
+         proc->frame_rx,proc->tti_rx,proc->tti_tx,fp->slots_per_frame);
+ 
+   // dump VCD output for first RU in list
+@@ -778,7 +778,7 @@ void tx_rf(RU_t *ru,int frame,int slot, uint64_t timestamp) {
+   unsigned int txs;
+   int i;
+   T(T_ENB_PHY_OUTPUT_SIGNAL, T_INT(0), T_INT(0), T_INT(frame), T_INT(slot),
+-    T_INT(0), T_BUFFER(&ru->common.txdata[0][fp->get_samples_slot_timestamp(slot,fp,0)], fp->samples_per_subframe * 4));
++    T_INT(0), T_BUFFER(&ru->common.txdata[0][(int64_t)fp->get_samples_slot_timestamp(slot,fp,0)], fp->samples_per_subframe * 4));
+   int sf_extension = 0;
+   int siglen=fp->get_samples_per_slot(slot,fp);
+   radio_tx_burst_flag_t flags_burst = TX_BURST_INVALID;
+@@ -839,7 +839,7 @@ void tx_rf(RU_t *ru,int frame,int slot, uint64_t timestamp) {
+   VCD_SIGNAL_DUMPER_DUMP_VARIABLE_BY_NAME(VCD_SIGNAL_DUMPER_VARIABLES_TTI_NUMBER_TX0_RU, slot);
+ 
+   for (i = 0; i < ru->nb_tx; i++)
+-    txp[i] = (void *)&ru->common.txdata[i][fp->get_samples_slot_timestamp(slot, fp, 0)] - sf_extension * sizeof(int32_t);
++    txp[i] = (void *)&ru->common.txdata[i][(int64_t)fp->get_samples_slot_timestamp(slot, fp, 0)] - sf_extension * sizeof(int32_t);
+ 
+   VCD_SIGNAL_DUMPER_DUMP_VARIABLE_BY_NAME(VCD_SIGNAL_DUMPER_VARIABLES_TRX_TST,
+                                           (timestamp + ru->ts_offset - ru->openair0_cfg.tx_sample_advance) & 0xffffffff);
+@@ -1210,12 +1210,12 @@ void *ru_thread( void *param ) {
+ 
+   // This is a forever while loop, it loops over subframes which are scheduled by incoming samples from HW devices
+   struct timespec slot_start;
+-	clock_gettime(CLOCK_MONOTONIC, &slot_start);
++        clock_gettime(CLOCK_MONOTONIC, &slot_start);
+   
+   struct timespec slot_duration; 
+-	slot_duration.tv_sec = 0;
+-	//slot_duration.tv_nsec = 0.5e6;
+-	slot_duration.tv_nsec = 0.5e6;
++        slot_duration.tv_sec = 0;
++        //slot_duration.tv_nsec = 0.5e6;
++        slot_duration.tv_nsec = 0.5e6;
+ 
+   
+ 
+@@ -1230,9 +1230,9 @@ void *ru_thread( void *param ) {
+       struct timespec sleep_time;
+       
+       if((slot_start.tv_sec > curr_time.tv_sec) || (slot_start.tv_sec == curr_time.tv_sec && slot_start.tv_nsec > curr_time.tv_nsec)){
+-	sleep_time = timespec_sub(slot_start,curr_time);
+-	
+-	usleep(sleep_time.tv_nsec * 1e-3); 
++        sleep_time = timespec_sub(slot_start,curr_time);
++        
++        usleep(sleep_time.tv_nsec * 1e-3); 
+       }
+     }
+     
+@@ -1310,7 +1310,7 @@ void *ru_thread( void *param ) {
+           VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME( VCD_SIGNAL_DUMPER_FUNCTIONS_PHY_RU_PRACH_RX, 1 );
+ 
+           T(T_GNB_PHY_PRACH_INPUT_SIGNAL, T_INT(proc->frame_rx), T_INT(proc->tti_rx), T_INT(0),
+-            T_BUFFER(&ru->common.rxdata[0][fp->get_samples_slot_timestamp(proc->tti_rx-1,fp,0)]/*-ru->N_TA_offset*/, fp->get_samples_per_slot(proc->tti_rx,fp)*4*2));
++            T_BUFFER(&ru->common.rxdata[0][(int64_t)fp->get_samples_slot_timestamp(proc->tti_rx-1,fp,0)]/*-ru->N_TA_offset*/, fp->get_samples_per_slot(proc->tti_rx,fp)*4*2));
+           N_dur = get_nr_prach_duration(ru->prach_list[prach_id].fmt);
+ 
+           for (int prach_oc = 0; prach_oc<ru->prach_list[prach_id].num_prach_ocas; prach_oc++) {
+diff --git a/executables/nr-ue.c b/executables/nr-ue.c
+index 30e5c08ff4..788fd0943f 100644
+--- a/executables/nr-ue.c
++++ b/executables/nr-ue.c
+@@ -805,7 +805,7 @@ void readFrame(PHY_VARS_NR_UE *UE,  openair0_timestamp *timestamp, bool toTrash)
+         else
+           rxp[i] = ((void *)&UE->common_vars.rxdata[i][0]) +
+                    4*((x*fp->samples_per_subframe)+
+-                   fp->get_samples_slot_timestamp(slot,fp,0));
++                   (int64_t)fp->get_samples_slot_timestamp(slot,fp,0));
+       }
+ 
+       AssertFatal( fp->get_samples_per_slot(slot,fp) ==
+@@ -836,28 +836,28 @@ void syncInFrame(PHY_VARS_NR_UE *UE, openair0_timestamp *timestamp) {
+     if (IS_SOFTMODEM_IQPLAYER || IS_SOFTMODEM_IQRECORDER) {
+       // Resynchonize by slot (will work with numerology 1 only)
+       for ( int size=UE->rx_offset ; size > 0 ; size -= fp->samples_per_subframe/2 ) {
+-	int unitTransfer=size>fp->samples_per_subframe/2 ? fp->samples_per_subframe/2 : size ;
+-	AssertFatal(unitTransfer ==
+-		    UE->rfdevice.trx_read_func(&UE->rfdevice,
+-					       timestamp,
+-					       (void **)UE->common_vars.rxdata,
+-					       unitTransfer,
+-					       fp->nb_antennas_rx),"");
++        int unitTransfer=size>fp->samples_per_subframe/2 ? fp->samples_per_subframe/2 : size ;
++        AssertFatal(unitTransfer ==
++                    UE->rfdevice.trx_read_func(&UE->rfdevice,
++                                               timestamp,
++                                               (void **)UE->common_vars.rxdata,
++                                               unitTransfer,
++                                               fp->nb_antennas_rx),"");
+       }
+     } else {
+       *timestamp += fp->get_samples_per_slot(1,fp);
+       for ( int size=UE->rx_offset ; size > 0 ; size -= fp->samples_per_subframe ) {
+-	int unitTransfer=size>fp->samples_per_subframe ? fp->samples_per_subframe : size ;
+-	// we write before read because gNB waits for UE to write and both executions halt
+-	// this happens here as the read size is samples_per_subframe which is very much larger than samp_per_slot
+-	if (IS_SOFTMODEM_RFSIM) dummyWrite(UE,*timestamp, unitTransfer);
+-	AssertFatal(unitTransfer ==
+-		    UE->rfdevice.trx_read_func(&UE->rfdevice,
+-					       timestamp,
+-					       (void **)UE->common_vars.rxdata,
+-					       unitTransfer,
+-					       fp->nb_antennas_rx),"");
+-	*timestamp += unitTransfer; // this does not affect the read but needed for RFSIM write
++        int unitTransfer=size>fp->samples_per_subframe ? fp->samples_per_subframe : size ;
++        // we write before read because gNB waits for UE to write and both executions halt
++        // this happens here as the read size is samples_per_subframe which is very much larger than samp_per_slot
++        if (IS_SOFTMODEM_RFSIM) dummyWrite(UE,*timestamp, unitTransfer);
++        AssertFatal(unitTransfer ==
++                    UE->rfdevice.trx_read_func(&UE->rfdevice,
++                                               timestamp,
++                                               (void **)UE->common_vars.rxdata,
++                                               unitTransfer,
++                                               fp->nb_antennas_rx),"");
++        *timestamp += unitTransfer; // this does not affect the read but needed for RFSIM write
+       }
+     }
+ }
+@@ -948,16 +948,16 @@ void *UE_thread(void *arg)
+         delNotifiedFIFO_elt(res);
+         start_rx_stream=0;
+       } else {
+-	if (IS_SOFTMODEM_IQPLAYER || IS_SOFTMODEM_IQRECORDER) {
+-	  // For IQ recorder/player we force synchronization to happen in 280 ms
+-	  while (trashed_frames != 28) {
+-	    readFrame(UE, &timestamp, true);
+-	    trashed_frames+=2;
+-	  }
+-	} else {
+-	  readFrame(UE, &timestamp, true);
+-	  trashed_frames+=((UE->sl_mode)?SL_NR_PSBCH_REPETITION_IN_FRAMES:2);
+-	}
++        if (IS_SOFTMODEM_IQPLAYER || IS_SOFTMODEM_IQRECORDER) {
++          // For IQ recorder/player we force synchronization to happen in 280 ms
++          while (trashed_frames != 28) {
++            readFrame(UE, &timestamp, true);
++            trashed_frames+=2;
++          }
++        } else {
++          readFrame(UE, &timestamp, true);
++          trashed_frames+=((UE->sl_mode)?SL_NR_PSBCH_REPETITION_IN_FRAMES:2);
++        }
+         continue;
+       }
+     }
+@@ -1057,7 +1057,7 @@ void *UE_thread(void *arg)
+     int firstSymSamp = get_firstSymSamp(slot_nr, fp);
+     for (int i=0; i<fp->nb_antennas_rx; i++)
+       rxp[i] = (void *)&UE->common_vars.rxdata[i][firstSymSamp+
+-                            fp->get_samples_slot_timestamp(slot_nr,fp,0)];
++                            (int64_t)fp->get_samples_slot_timestamp(slot_nr,fp,0)];
+ 
+     int readBlockSize, writeBlockSize;
+ 
+@@ -1095,7 +1095,7 @@ void *UE_thread(void *arg)
+ 
+     // use previous timing_advance value to compute writeTimestamp
+     writeTimestamp = timestamp +
+-      fp->get_samples_slot_timestamp(slot_nr,fp,DURATION_RX_TO_TX)
++      (int64_t)fp->get_samples_slot_timestamp(slot_nr,fp,DURATION_RX_TO_TX)
+       - firstSymSamp - openair0_cfg[0].tx_sample_advance -
+       UE->N_TA_offset - timing_advance;
+ 
+diff --git a/openair1/PHY/NR_TRANSPORT/nr_prach.c b/openair1/PHY/NR_TRANSPORT/nr_prach.c
+index 16b42dd9b1..2d60412580 100644
+--- a/openair1/PHY/NR_TRANSPORT/nr_prach.c
++++ b/openair1/PHY/NR_TRANSPORT/nr_prach.c
+@@ -55,25 +55,25 @@ int16_t find_nr_prach(PHY_VARS_gNB *gNB,int frame, int slot, find_type_t type) {
+   AssertFatal(gNB!=NULL,"gNB is null\n");
+   for (uint16_t i=0; i<NUMBER_OF_NR_PRACH_MAX; i++) {
+     LOG_D(PHY,"searching for PRACH in %d.%d prach_index %d=> %d.%d\n", frame,slot,i,
+-	  gNB->prach_vars.list[i].frame,gNB->prach_vars.list[i].slot);
+-		if((type == SEARCH_EXIST_OR_FREE) &&
+-		  (gNB->prach_vars.list[i].frame == -1) &&
+-		  (gNB->prach_vars.list[i].slot == -1)) {
+-		  return i;
+-		}
++          gNB->prach_vars.list[i].frame,gNB->prach_vars.list[i].slot);
++                if((type == SEARCH_EXIST_OR_FREE) &&
++                  (gNB->prach_vars.list[i].frame == -1) &&
++                  (gNB->prach_vars.list[i].slot == -1)) {
++                  return i;
++                }
+     else if ((type == SEARCH_EXIST) &&
+-		  (gNB->prach_vars.list[i].frame == frame) &&
++                  (gNB->prach_vars.list[i].frame == frame) &&
+                   (gNB->prach_vars.list[i].slot  == slot)) {
+-		  return i;
+-		}
++                  return i;
++                }
+   }
+   return -1;
+ }
+ 
+ void nr_fill_prach(PHY_VARS_gNB *gNB,
+-		   int SFN,
+-		   int Slot,
+-		   nfapi_nr_prach_pdu_t *prach_pdu) {
++                   int SFN,
++                   int Slot,
++                   nfapi_nr_prach_pdu_t *prach_pdu) {
+ 
+   int prach_id = find_nr_prach(gNB,SFN,Slot,SEARCH_EXIST_OR_FREE);
+   AssertFatal( ((prach_id>=0) && (prach_id<NUMBER_OF_NR_PRACH_MAX)) || (prach_id < 0),
+@@ -89,9 +89,9 @@ void init_prach_ru_list(RU_t *ru) {
+ 
+   AssertFatal(ru!=NULL,"ruis null\n");
+   for (int i=0; i<NUMBER_OF_NR_RU_PRACH_MAX; i++) {
+-			ru->prach_list[i].frame = -1;
+-			ru->prach_list[i].slot  = -1;
+-	}		
++                        ru->prach_list[i].frame = -1;
++                        ru->prach_list[i].slot  = -1;
++        }               
+   pthread_mutex_init(&ru->prach_list_mutex,NULL);
+ }
+ 
+@@ -101,13 +101,13 @@ int16_t find_nr_prach_ru(RU_t *ru,int frame,int slot, find_type_t type) {
+   pthread_mutex_lock(&ru->prach_list_mutex);
+   for (uint16_t i=0; i<NUMBER_OF_NR_RU_PRACH_MAX; i++) {
+     LOG_D(PHY,"searching for PRACH in %d.%d : prach_index %d=> %d.%d\n", frame,slot,i,
+-	  ru->prach_list[i].frame,ru->prach_list[i].slot);
++          ru->prach_list[i].frame,ru->prach_list[i].slot);
+     if((type == SEARCH_EXIST_OR_FREE) &&
+        (ru->prach_list[i].frame == -1) &&
+        (ru->prach_list[i].slot == -1)) {
+           pthread_mutex_unlock(&ru->prach_list_mutex);
+           return i;
+-    }	
++    }   
+     else if ((type == SEARCH_EXIST) &&
+              (ru->prach_list[i].frame == frame) &&
+              (ru->prach_list[i].slot  == slot)) {
+@@ -120,9 +120,9 @@ int16_t find_nr_prach_ru(RU_t *ru,int frame,int slot, find_type_t type) {
+ }
+ 
+ void nr_fill_prach_ru(RU_t *ru,
+-		      int SFN,
+-		      int Slot,
+-		      nfapi_nr_prach_pdu_t *prach_pdu) {
++                      int SFN,
++                      int Slot,
++                      nfapi_nr_prach_pdu_t *prach_pdu) {
+ 
+   int prach_id = find_nr_prach_ru(ru,SFN,Slot,SEARCH_EXIST_OR_FREE);
+   AssertFatal( ((prach_id>=0) && (prach_id<NUMBER_OF_NR_PRACH_MAX)) || (prach_id < 0) ,
+@@ -140,23 +140,23 @@ void nr_fill_prach_ru(RU_t *ru,
+ }
+ 
+ void free_nr_ru_prach_entry(RU_t *ru,
+-			    int prach_id) {
++                            int prach_id) {
+ 
+   pthread_mutex_lock(&ru->prach_list_mutex);
+   ru->prach_list[prach_id].frame = -1;
+-	ru->prach_list[prach_id].slot  = -1;
++        ru->prach_list[prach_id].slot  = -1;
+   pthread_mutex_unlock(&ru->prach_list_mutex);
+ 
+ }
+ 
+ 
+ void rx_nr_prach_ru(RU_t *ru,
+-		    int prachFormat,
+-		    int numRA,
+-		    int prachStartSymbol,
+-		    int prachOccasion,
+-		    int frame,
+-		    int slot) {
++                    int prachFormat,
++                    int numRA,
++                    int prachStartSymbol,
++                    int prachOccasion,
++                    int frame,
++                    int slot) {
+ 
+   AssertFatal(ru!=NULL,"ru is null\n");
+ 
+@@ -193,7 +193,7 @@ void rx_nr_prach_ru(RU_t *ru,
+ 
+   for (int aa=0; aa<ru->nb_rx; aa++){ 
+     if (prach_sequence_length == 0) slot2=(slot/fp->slots_per_subframe)*fp->slots_per_subframe; 
+-    prach[aa] = (int16_t*)&ru->common.rxdata[aa][fp->get_samples_slot_timestamp(slot2,fp,0)+sample_offset_slot-ru->N_TA_offset];
++    prach[aa] = (int16_t*)&ru->common.rxdata[aa][(int64_t)fp->get_samples_slot_timestamp(slot2,fp,0)+sample_offset_slot-ru->N_TA_offset];
+   } 
+ 
+   int reps;
+@@ -203,7 +203,7 @@ void rx_nr_prach_ru(RU_t *ru,
+ 
+   if (prach_sequence_length == 0) {
+     LOG_D(PHY,"PRACH (ru %d) in %d.%d, format %d, msg1_frequencyStart %d\n",
+-	  ru->idx,frame,slot2,prachFormat,msg1_frequencystart);
++          ru->idx,frame,slot2,prachFormat,msg1_frequencystart);
+     switch (prachFormat) {
+     case 0:
+       reps = 1;
+@@ -236,7 +236,7 @@ void rx_nr_prach_ru(RU_t *ru,
+   }
+   else {
+     LOG_D(PHY,"PRACH (ru %d) in %d.%d, format %s, msg1_frequencyStart %d,startSymbol %d\n",
+-	  ru->idx,frame,slot,prachfmt[prachFormat],msg1_frequencystart,prachStartSymbol);
++          ru->idx,frame,slot,prachfmt[prachFormat],msg1_frequencystart,prachStartSymbol);
+     switch (prachFormat) {
+     case 4: //A1
+       reps = 2;
+@@ -539,30 +539,30 @@ void rx_nr_prach(PHY_VARS_gNB *gNB,
+           // current root depending on rootSequenceIndex
+           int index = (rootSequenceIndex + preamble_offset) % N_ZC;
+ 
+-	  u = prach_root_sequence_map[index];
+-	  
+-	  uint16_t n_group_ra = 0;
+-	  
+-	  if ( (nr_du[u]<(N_ZC/3)) && (nr_du[u]>=NCS) ) {
+-	    n_shift_ra     = nr_du[u]/NCS;
+-	    d_start        = (nr_du[u]<<1) + (n_shift_ra * NCS);
+-	    n_group_ra     = N_ZC/d_start;
+-	    n_shift_ra_bar = max(0,(N_ZC-(nr_du[u]<<1)-(n_group_ra*d_start))/N_ZC);
+-	  } else if  ( (nr_du[u]>=(N_ZC/3)) && (nr_du[u]<=((N_ZC - NCS)>>1)) ) {
+-	    n_shift_ra     = (N_ZC - (nr_du[u]<<1))/NCS;
+-	    d_start        = N_ZC - (nr_du[u]<<1) + (n_shift_ra * NCS);
+-	    n_group_ra     = nr_du[u]/d_start;
+-	    n_shift_ra_bar = min(n_shift_ra,max(0,(nr_du[u]- (n_group_ra*d_start))/NCS));
+-	  } else {
+-	    n_shift_ra     = 0;
+-	    n_shift_ra_bar = 0;
+-	  }
+-	  
+-	  // This is the number of cyclic shifts for the current root u
+-	  numshift = (n_shift_ra*n_group_ra) + n_shift_ra_bar;
+-	  // skip to next root and recompute parameters if numshift==0
+-	  (numshift>0) ? (not_found = 0) : (preamble_offset++);
+-	}
++          u = prach_root_sequence_map[index];
++          
++          uint16_t n_group_ra = 0;
++          
++          if ( (nr_du[u]<(N_ZC/3)) && (nr_du[u]>=NCS) ) {
++            n_shift_ra     = nr_du[u]/NCS;
++            d_start        = (nr_du[u]<<1) + (n_shift_ra * NCS);
++            n_group_ra     = N_ZC/d_start;
++            n_shift_ra_bar = max(0,(N_ZC-(nr_du[u]<<1)-(n_group_ra*d_start))/N_ZC);
++          } else if  ( (nr_du[u]>=(N_ZC/3)) && (nr_du[u]<=((N_ZC - NCS)>>1)) ) {
++            n_shift_ra     = (N_ZC - (nr_du[u]<<1))/NCS;
++            d_start        = N_ZC - (nr_du[u]<<1) + (n_shift_ra * NCS);
++            n_group_ra     = nr_du[u]/d_start;
++            n_shift_ra_bar = min(n_shift_ra,max(0,(nr_du[u]- (n_group_ra*d_start))/NCS));
++          } else {
++            n_shift_ra     = 0;
++            n_shift_ra_bar = 0;
++          }
++          
++          // This is the number of cyclic shifts for the current root u
++          numshift = (n_shift_ra*n_group_ra) + n_shift_ra_bar;
++          // skip to next root and recompute parameters if numshift==0
++          (numshift>0) ? (not_found = 0) : (preamble_offset++);
++        }
+       }        
+       
+       
+@@ -584,7 +584,7 @@ void rx_nr_prach(PHY_VARS_gNB *gNB,
+     if (LOG_DEBUGFLAG(PRACH)) {
+       int en = dB_fixed(signal_energy((int32_t*)&rxsigF[0][0],840));
+       if (en>60) LOG_D(PHY,"frame %d, slot %d : preamble index %d, NCS %d, N_ZC/NCS %d: offset %d, preamble shift %d , en %d)\n",
+-		       frame,slot,preamble_index,NCS,N_ZC/NCS,preamble_offset,preamble_shift,en);
++                       frame,slot,preamble_index,NCS,N_ZC/NCS,preamble_offset,preamble_shift,en);
+     }
+ 
+     LOG_D(PHY,"PRACH RX preamble_index %d, preamble_offset %d\n",preamble_index,preamble_offset);
+@@ -608,22 +608,22 @@ void rx_nr_prach(PHY_VARS_gNB *gNB,
+       }
+    
+       for (aa=0;aa<nb_rx; aa++) {
+-	// Do componentwise product with Xu* on each antenna 
+-
+-	       for (offset=0; offset<(N_ZC<<1); offset+=2) {
+-	          prachF[offset]   = (int16_t)(((int32_t)Xu[offset]*rxsigF[aa][offset]   + (int32_t)Xu[offset+1]*rxsigF[aa][offset+1])>>15);
+-	          prachF[offset+1] = (int16_t)(((int32_t)Xu[offset]*rxsigF[aa][offset+1] - (int32_t)Xu[offset+1]*rxsigF[aa][offset])>>15);
+-	       }
+-	
+-	       // Now do IFFT of size 1024 (N_ZC=839) or 256 (N_ZC=139)
+-	       if (N_ZC == 839) {
+-	         idft(IDFT_1024,prachF,prach_ifft_tmp,1);
+-	         // compute energy and accumulate over receive antennas
+-	         for (i=0;i<1024;i++)
+-	           prach_ifft[i] += (int32_t)prach_ifft_tmp[i<<1]*(int32_t)prach_ifft_tmp[i<<1] + (int32_t)prach_ifft_tmp[1+(i<<1)]*(int32_t)prach_ifft_tmp[1+(i<<1)];
+-	       } else {
+-	         idft(IDFT_256,prachF,prach_ifft_tmp,1);
+-	         log2_ifft_size = 8;
++        // Do componentwise product with Xu* on each antenna 
++
++               for (offset=0; offset<(N_ZC<<1); offset+=2) {
++                  prachF[offset]   = (int16_t)(((int32_t)Xu[offset]*rxsigF[aa][offset]   + (int32_t)Xu[offset+1]*rxsigF[aa][offset+1])>>15);
++                  prachF[offset+1] = (int16_t)(((int32_t)Xu[offset]*rxsigF[aa][offset+1] - (int32_t)Xu[offset+1]*rxsigF[aa][offset])>>15);
++               }
++        
++               // Now do IFFT of size 1024 (N_ZC=839) or 256 (N_ZC=139)
++               if (N_ZC == 839) {
++                 idft(IDFT_1024,prachF,prach_ifft_tmp,1);
++                 // compute energy and accumulate over receive antennas
++                 for (i=0;i<1024;i++)
++                   prach_ifft[i] += (int32_t)prach_ifft_tmp[i<<1]*(int32_t)prach_ifft_tmp[i<<1] + (int32_t)prach_ifft_tmp[1+(i<<1)]*(int32_t)prach_ifft_tmp[1+(i<<1)];
++               } else {
++                 idft(IDFT_256,prachF,prach_ifft_tmp,1);
++                 log2_ifft_size = 8;
+            // compute energy and accumulate over receive antennas and repetitions for BR
+            for (i=0;i<256;i++)
+              prach_ifft[i] += (int32_t)prach_ifft_tmp[i<<1]*(int32_t)prach_ifft_tmp[(i<<1)] + (int32_t)prach_ifft_tmp[1+(i<<1)]*(int32_t)prach_ifft_tmp[1+(i<<1)];

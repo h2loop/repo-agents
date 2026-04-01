@@ -1,0 +1,45 @@
+diff --git a/openair2/SDAP/nr_sdap/nr_sdap.c b/openair2/SDAP/nr_sdap/nr_sdap.c
+index f6602c7597..8eb5184b7a 100644
+--- a/openair2/SDAP/nr_sdap/nr_sdap.c
++++ b/openair2/SDAP/nr_sdap/nr_sdap.c
+@@ -112,11 +112,18 @@ static void *sdap_tun_read_thread(void *arg)
+   DevAssert(arg != NULL);
+   nr_sdap_entity_t *entity = arg;
+ 
++  // Check that we have a valid default DRB
++  if (!entity->default_drb) {
++    LOG_E(SDAP, "No default DRB configured for UE %ld, PDU session %d\n", entity->ue_id, entity->pdusession_id);
++    return NULL;
++  }
++
+   char rx_buf[NL_MAX_PAYLOAD];
+   int len;
+   reblock_tun_socket(entity->pdusession_sock);
+ 
+-  int rb_id = 1;
++  // Use the default DRB for this entity
++  rb_id_t rb_id = entity->default_drb;
+ 
+   while (!entity->stop_thread) {
+     len = read(entity->pdusession_sock, &rx_buf, NL_MAX_PAYLOAD);
+@@ -142,9 +149,8 @@ static void *sdap_tun_read_thread(void *arg)
+ 
+     protocol_ctxt_t ctxt = {.enb_flag = entity->is_gnb, .rntiMaybeUEid = entity->ue_id};
+ 
+-    bool dc = entity->is_gnb ? false : SDAP_HDR_UL_DATA_PDU;
+-
+-    DevAssert(entity != NULL);
++    // For data PDUs, DC bit should always be 1 (SDAP_HDR_UL_DATA_PDU)
++    // rqi (Reflective QoS Indication) is typically 0 for regular data
+     entity->tx_entity(entity,
+                       &ctxt,
+                       SRB_FLAG_NO,
+@@ -157,7 +163,7 @@ static void *sdap_tun_read_thread(void *arg)
+                       NULL,
+                       NULL,
+                       entity->qfi,
+-                      dc);
++                      false); // rqi = false (0) for regular data
+   }
+ 
+   return NULL;

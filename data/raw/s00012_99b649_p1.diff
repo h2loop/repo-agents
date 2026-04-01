@@ -1,0 +1,51 @@
+diff --git a/nfapi/open-nFAPI/vnf_sim/src/mac.cpp b/nfapi/open-nFAPI/vnf_sim/src/mac.cpp
+index 63bb877f1d..7bf1d2acb3 100644
+--- a/nfapi/open-nFAPI/vnf_sim/src/mac.cpp
++++ b/nfapi/open-nFAPI/vnf_sim/src/mac.cpp
+@@ -62,7 +62,7 @@ class mac_private {
+ 
+   mac_pdu *allocate_mac_pdu() {
+     mac_pdu *pdu = 0;
+-    mutex.lock();
++    std::lock_guard<std::mutex> lock(mutex);
+ 
+     if(free_store.empty()) {
+       pdu = new mac_pdu();
+@@ -71,34 +71,30 @@ class mac_private {
+       free_store.pop();
+     }
+ 
+-    mutex.unlock();
+     return pdu;
+   }
+ 
+   void release_mac_pdu(mac_pdu *pdu) {
+-    mutex.lock();
++    std::lock_guard<std::mutex> lock(mutex);
+     free_store.push(pdu);
+-    mutex.unlock();
+   }
+ 
+ 
+ 
+   void push_rx_buffer(mac_pdu *buff) {
+-    mutex.lock();
++    std::lock_guard<std::mutex> lock(mutex);
+     rx_buffer.push(buff);
+-    mutex.unlock();
+   }
+ 
+   mac_pdu *pop_rx_buffer() {
++    std::lock_guard<std::mutex> lock(mutex);
+     mac_pdu *buff = 0;
+-    mutex.lock();
+ 
+     if(!rx_buffer.empty()) {
+       buff = rx_buffer.front();
+       rx_buffer.pop();
+     }
+ 
+-    mutex.unlock();
+     return buff;
+   }
+ 

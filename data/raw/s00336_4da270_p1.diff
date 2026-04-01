@@ -1,0 +1,12 @@
+diff --git a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+index 60b5528096..87f646f76c 100644
+--- a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
++++ b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+@@ -1949,6 +1949,7 @@ narrowband_to_first_rb(COMMON_channels_t *cc,
+     default:
+       AssertFatal(1 == 0, "Impossible dl_Bandwidth %d\n",
+                   (int) cc->mib->message.dl_Bandwidth);
++      return -1; // Invalid bandwidth
+       break;
+   }
+ 

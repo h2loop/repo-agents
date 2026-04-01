@@ -1,0 +1,13 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_RA.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_RA.c
+index 4682ba5911..8c092df32e 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_RA.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_RA.c
+@@ -1317,6 +1317,8 @@ static void nr_generate_Msg2(module_id_t module_idP,
+     pdsch_pdu_rel15->maintenance_parms_v3.tbSizeLbrmBytes = nr_compute_tbslbrm(mcsTableIdx,
+                                                                                bw_tbslbrm,
+                                                                                1);
++    // Set tb_scaling to 0 (100%, no scaling) for Msg2 as per 3GPP TS 38.214
++    tb_scaling = 0;
+     pdsch_pdu_rel15->maintenance_parms_v3.ldpcBaseGraph = get_BG(TBS<<3,R);
+ 
+     // Fill PDCCH DL DCI PDU

@@ -1,0 +1,84 @@
+diff --git a/openair3/NAS/COMMON/API/NETWORK/nas_message.c b/openair3/NAS/COMMON/API/NETWORK/nas_message.c
+index a3bb781f92..6d7edc9094 100644
+--- a/openair3/NAS/COMMON/API/NETWORK/nas_message.c
++++ b/openair3/NAS/COMMON/API/NETWORK/nas_message.c
+@@ -46,6 +46,7 @@ Description Defines the layer 3 messages supported by the NAS sublayer
+ 
+ #include <stdlib.h> // malloc, free
+ #include <string.h> // memcpy
++#include <pthread.h> // pthread_mutex_lock, pthread_mutex_unlock
+ 
+ #if defined(NAS_BUILT_IN_UE)
+ # include "nas_itti_messaging.h"
+@@ -575,6 +576,9 @@ _nas_message_plain_decode(
+ 
+   int bytes = TLV_DECODE_PROTOCOL_NOT_SUPPORTED;
+ 
++  /* Lock mutex before accessing shared state */
++  pthread_mutex_lock(&errorCodeDecoderMutex);
++  
+   if (header->protocol_discriminator == EPS_MOBILITY_MANAGEMENT_MESSAGE) {
+     /* Decode EPS Mobility Management L3 message */
+     bytes = emm_msg_decode(&msg->emm, (uint8_t *)buffer, length);
+@@ -587,6 +591,9 @@ _nas_message_plain_decode(
+               "not supported", header->protocol_discriminator);
+   }
+ 
++  /* Unlock mutex after accessing shared state */
++  pthread_mutex_unlock(&errorCodeDecoderMutex);
++
+   LOG_FUNC_RETURN (bytes);
+ }
+ 
+@@ -731,6 +738,9 @@ static int _nas_message_plain_encode(
+ 
+   int bytes = TLV_ENCODE_PROTOCOL_NOT_SUPPORTED;
+ 
++  /* Lock mutex before accessing shared state */
++  pthread_mutex_lock(&errorCodeDecoderMutex);
++
+   if (header->protocol_discriminator == EPS_MOBILITY_MANAGEMENT_MESSAGE) {
+     /* Encode EPS Mobility Management L3 message */
+     bytes = emm_msg_encode((EMM_msg*)(&msg->emm), (uint8_t*)buffer, length);
+@@ -743,6 +753,9 @@ static int _nas_message_plain_encode(
+               "not supported", header->protocol_discriminator);
+   }
+ 
++  /* Unlock mutex after accessing shared state */
++  pthread_mutex_unlock(&errorCodeDecoderMutex);
++
+   LOG_FUNC_RETURN (bytes);
+ }
+ 
+diff --git a/openair3/NAS/COMMON/UTIL/TLVDecoder.c b/openair3/NAS/COMMON/UTIL/TLVDecoder.c
+index 625176319e..fc9a1fd670 100644
+--- a/openair3/NAS/COMMON/UTIL/TLVDecoder.c
++++ b/openair3/NAS/COMMON/UTIL/TLVDecoder.c
+@@ -22,5 +22,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include <pthread.h>
+ 
+ int errorCodeDecoder = 0;
++pthread_mutex_t errorCodeDecoderMutex = PTHREAD_MUTEX_INITIALIZER;
+diff --git a/openair3/NAS/COMMON/UTIL/TLVDecoder.h b/openair3/NAS/COMMON/UTIL/TLVDecoder.h
+index 90b95cd6bb..abf64eeb3c 100644
+--- a/openair3/NAS/COMMON/UTIL/TLVDecoder.h
++++ b/openair3/NAS/COMMON/UTIL/TLVDecoder.h
+@@ -23,6 +23,7 @@
+ #define TLV_DECODER_H_
+ 
+ #include <arpa/inet.h>  // ntohl, ntohs
++#include <pthread.h>
+ #include "nas_log.h"
+ 
+ #ifndef NAS_DEBUG
+@@ -94,6 +95,7 @@ typedef enum {
+ #define TLV_DECODE_FATAL_ERROR  (TLV_DECODE_VALUE_DOESNT_MATCH)
+ 
+ extern int errorCodeDecoder;
++extern pthread_mutex_t errorCodeDecoderMutex;
+ 
+ #ifdef ENABLE_TESTS
+ #define TLV_DEC_ERROR(...) fprintf(stderr, "TLV Decoder: " __VA_ARGS__)

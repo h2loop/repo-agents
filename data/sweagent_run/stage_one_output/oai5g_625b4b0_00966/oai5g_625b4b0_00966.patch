@@ -1,0 +1,88 @@
+diff --git a/openair1/PHY/LTE_TRANSPORT/ulsch_decoding.c b/openair1/PHY/LTE_TRANSPORT/ulsch_decoding.c
+index e613efd6ca..f7aa302f2a 100644
+--- a/openair1/PHY/LTE_TRANSPORT/ulsch_decoding.c
++++ b/openair1/PHY/LTE_TRANSPORT/ulsch_decoding.c
+@@ -118,6 +118,15 @@ LTE_eNB_ULSCH_t *new_eNB_ulsch(uint8_t max_turbo_iterations,uint8_t N_RB_UL, uin
+         else
+           exit_flag=3;
+ 
++        // Initialize HARQ process state for protocol compliance
++        ulsch->harq_processes[i]->status = SCH_IDLE;
++        ulsch->harq_processes[i]->round = 0;
++        ulsch->harq_processes[i]->rvidx = 0;
++        ulsch->harq_processes[i]->phich_active = 0;
++        ulsch->harq_processes[i]->phich_ACK = 0;
++        ulsch->harq_processes[i]->repetition_number = 0;
++        ulsch->harq_processes[i]->total_number_of_repetitions = 1;
++
+         if (abstraction_flag==0) {
+           for (r=0; r<MAX_NUM_ULSCH_SEGMENTS/bw_scaling; r++) {
+             ulsch->harq_processes[i]->c[r] = (uint8_t *)malloc16(((r==0)?8:0) + 3+768);
+@@ -160,7 +169,7 @@ void clean_eNb_ulsch(LTE_eNB_ULSCH_t *ulsch) {
+     for (i=0; i<8; i++) {
+       if (ulsch->harq_processes[i]) {
+         //    ulsch->harq_processes[i]->Ndi = 0;
+-        ulsch->harq_processes[i]->status = 0;
++        ulsch->harq_processes[i]->status = SCH_IDLE;
+         //ulsch->harq_processes[i]->phich_active = 0; //this will be done later after transmission of PHICH
+         ulsch->harq_processes[i]->phich_ACK = 0;
+         ulsch->harq_processes[i]->round = 0;
+@@ -180,6 +189,8 @@ void clean_eNb_ulsch(LTE_eNB_ULSCH_t *ulsch) {
+         ulsch->harq_processes[i]->rvidx = 0;
+         ulsch->harq_processes[i]->Msc_initial = 0;
+         ulsch->harq_processes[i]->Nsymb_initial = 0;
++        ulsch->harq_processes[i]->repetition_number = 0;
++        ulsch->harq_processes[i]->total_number_of_repetitions = 1;
+       }
+     }
+ 
+@@ -253,19 +264,19 @@ void processULSegment(void * arg) {
+       LOG_E(PHY,"Adding HARQ data for segment: %d\n", r);
+       // Store the result of HARQ combining in the last emtc repetitions of sequence 0,2,3,1
+       for (int nn=0; nn<max_Ncb; nn++)
+-	ulsch_harq->pusch_rep_buffer[r][nn] += ulsch_harq->w[r][nn] ;
++        ulsch_harq->pusch_rep_buffer[r][nn] += ulsch_harq->w[r][nn] ;
+     }
+ 
+     if (ulsch_harq->repetition_number == ulsch_harq->total_number_of_repetitions) {
+       LOG_E(PHY,"Will use HARQ data sum up for segment: %d\n", r);
+       for (int nn=0; nn<max_Ncb; nn++) 
+-	ulsch_harq->w[r][nn] =  ulsch_harq->pusch_rep_buffer[r][nn] ;
++        ulsch_harq->w[r][nn] =  ulsch_harq->pusch_rep_buffer[r][nn] ;
+     }
+   }
+   int16_t soft_bits[3*8*6144+12+96] __attribute__((aligned(32)));
+   sub_block_deinterleaving_turbo(4+rdata->Kr,
+-				 soft_bits+96,
+-				 ulsch_harq->w[r]);
++                                 soft_bits+96,
++                                 ulsch_harq->w[r]);
+   stop_meas(&eNB->ulsch_deinterleaving_stats);
+   rdata->decodeIterations = rdata->function(soft_bits + 96,
+                                             NULL,
+@@ -367,7 +378,7 @@ static int ulsch_decoding_data(PHY_VARS_eNB *eNB,
+     proc->nbDecode++;
+     LOG_D(PHY,"Added a block to decode, in pipe: %d\n",proc->nbDecode);
+     r_offset+=E;
+-    offset+=sz;	    
++    offset+=sz;     
+   }
+   return(ret);
+ }
+@@ -523,11 +534,11 @@ unsigned int ulsch_decoding(PHY_VARS_eNB *eNB,
+   // Compute Q_ri
+   Qprime = ulsch_harq->O_RI*ulsch_harq->Msc_initial*ulsch_harq->Nsymb_initial * ulsch->beta_offset_ri_times8;
+   LOG_D(PHY, "Qprime %d, O_RI %d, Msc %d, Nym %d beta %d\n",
+-		  Qprime,
+-		  ulsch_harq->O_RI,
+-		  ulsch_harq->Msc_initial,
+-		  ulsch_harq->Nsymb_initial,
+-		  ulsch->beta_offset_ri_times8);
++                  Qprime,
++                  ulsch_harq->O_RI,
++                  ulsch_harq->Msc_initial,
++                  ulsch_harq->Nsymb_initial,
++                  ulsch->beta_offset_ri_times8);
+ 
+   if (Qprime > 0 ) {
+     if ((Qprime % (8*sumKr)) > 0)

@@ -1,0 +1,34 @@
+diff --git a/openair3/NAS/COMMON/IES/EsmMessageContainer.c b/openair3/NAS/COMMON/IES/EsmMessageContainer.c
+index e33c06c71d..c25e619d61 100644
+--- a/openair3/NAS/COMMON/IES/EsmMessageContainer.c
++++ b/openair3/NAS/COMMON/IES/EsmMessageContainer.c
+@@ -77,10 +77,11 @@ int encode_esm_message_container(EsmMessageContainer *esmmessagecontainer, uint8
+   }
+ 
+   lenPtr  = (buffer + encoded);
++  encoded += sizeof(uint16_t); // Account for the 2-byte length field
+ 
+   //encoded += 2;
+   //if ((encode_result = encode_octet_string(&esmmessagecontainer->esmmessagecontainercontents, buffer + sizeof(uint16_t), len - sizeof(uint16_t))) < 0)
+-  if ((encode_result = encode_octet_string(&esmmessagecontainer->esmmessagecontainercontents, lenPtr + sizeof(uint16_t), len - sizeof(uint16_t))) < 0)
++  if ((encode_result = encode_octet_string(&esmmessagecontainer->esmmessagecontainercontents, lenPtr + sizeof(uint16_t), len - encoded)) < 0)
+     return encode_result;
+   else
+     encoded += encode_result;
+diff --git a/openair3/NAS/NR_UE/5GS/5GMM/IES/SORTransparentContainer.c b/openair3/NAS/NR_UE/5GS/5GMM/IES/SORTransparentContainer.c
+index 9a6af8517c..10e6d2f6e5 100644
+--- a/openair3/NAS/NR_UE/5GS/5GMM/IES/SORTransparentContainer.c
++++ b/openair3/NAS/NR_UE/5GS/5GMM/IES/SORTransparentContainer.c
+@@ -84,10 +84,11 @@ int encode_sor_transparent_container(const SORTransparentContainer *sortranspare
+   }
+ 
+   lenPtr = (buffer + encoded);
++  encoded += sizeof(uint16_t); // Account for the 2-byte length field
+ 
+   if ((encode_result = encode_octet_string(&sortransparentcontainer->sortransparentcontainercontents,
+                                            lenPtr + sizeof(uint16_t),
+-                                           len - sizeof(uint16_t)))
++                                           len - encoded))
+       < 0)
+     return encode_result;
+   else

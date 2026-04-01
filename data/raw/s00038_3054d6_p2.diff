@@ -1,0 +1,32 @@
+diff --git a/openair1/PHY/TOOLS/oai_dfts.c b/openair1/PHY/TOOLS/oai_dfts.c
+index 1a86bfdc27..9884f45797 100644
+--- a/openair1/PHY/TOOLS/oai_dfts.c
++++ b/openair1/PHY/TOOLS/oai_dfts.c
+@@ -513,9 +513,13 @@ __attribute__((always_inline)) static inline void bfly3_256(simde__m256i *x0,
+   packed_cmult_256(*(x2),*(tw2),&x2_2);
+   *(y0)  = simde_mm256_adds_epi16(*(x0),simde_mm256_adds_epi16(x1_2,x2_2));
+   cmult_256(x1_2,*(W13_256),&tmpre,&tmpim);
++  tmpre = simde_mm256_setzero_si256();
++  tmpim = simde_mm256_setzero_si256();
+   cmac_256(x2_2,*(W23_256),&tmpre,&tmpim);
+   *(y1) = cpack_256(tmpre,tmpim);
+   *(y1) = simde_mm256_adds_epi16(*(x0),*(y1));
++  tmpre = simde_mm256_setzero_si256();
++  tmpim = simde_mm256_setzero_si256();
+   cmult_256(x1_2,*(W23_256),&tmpre,&tmpim);
+   cmac_256(x2_2,*(W13_256),&tmpre,&tmpim);
+   *(y2) = cpack_256(tmpre,tmpim);
+@@ -577,9 +581,13 @@ __attribute__((always_inline)) static inline void bfly3_tw1_256(simde__m256i *x0
+ 
+   *(y0) = simde_mm256_adds_epi16(*(x0),simde_mm256_adds_epi16(*(x1),*(x2)));
+   cmult_256(*(x1),*(W13_256),&tmpre,&tmpim);
++  tmpre = simde_mm256_setzero_si256();
++  tmpim = simde_mm256_setzero_si256();
+   cmac_256(*(x2),*(W23_256),&tmpre,&tmpim);
+   *(y1) = cpack_256(tmpre,tmpim);
+   *(y1) = simde_mm256_adds_epi16(*(x0),*(y1));
++  tmpre = simde_mm256_setzero_si256();
++  tmpim = simde_mm256_setzero_si256();
+   cmult_256(*(x1),*(W23_256),&tmpre,&tmpim);
+   cmac_256(*(x2),*(W13_256),&tmpre,&tmpim);
+   *(y2) = cpack_256(tmpre,tmpim);

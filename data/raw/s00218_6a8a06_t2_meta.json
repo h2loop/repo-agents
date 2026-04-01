@@ -1,0 +1,9 @@
+{
+  "run_id": "s00218_6a8a06",
+  "pr_text": "## Title: Fix integer truncation in file descriptor getter functions\n\n### Summary\nFile descriptors can exceed the range of a 32-bit `int` on some systems or under certain runtime conditions. The `device_get_fd()` and `socket_get_fd()` functions were returning `int`, which could cause integer truncation when the actual file descriptor value is stored or passed through function pointers. This change widens the return type to `long int` to safely accommodate file descriptor values across all suppor",
+  "trajectory_path": "data/raw/s00218_6a8a06_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00218_6a8a06_p2.diff",
+  "patch_lines": 5,
+  "trajectory_steps": 27,
+  "timestamp": "2026-02-11T13:26:54Z"
+}

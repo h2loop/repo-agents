@@ -1,0 +1,58 @@
+diff --git a/radio/rfsimulator/simulator.c b/radio/rfsimulator/simulator.c
+index 1a4e05c20d..12b5594867 100644
+--- a/radio/rfsimulator/simulator.c
++++ b/radio/rfsimulator/simulator.c
+@@ -76,7 +76,7 @@
+ /*   optname                     helpstr                     paramflags           XXXptr                               defXXXval                          type         numelt  */
+ /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+ #define simOpt PARAMFLAG_NOFREE|PARAMFLAG_CMDLINE_NOPREFIXENABLED
+-#define RFSIMULATOR_PARAMS_DESC {					\
++#define RFSIMULATOR_PARAMS_DESC {                                       \
+     {"serveraddr",             "<ip address to connect to>\n",        simOpt,  .strptr=&rfsimulator->ip,               .defstrval="127.0.0.1",           TYPE_STRING,    0 },\
+     {"serverport",             "<port to connect to>\n",              simOpt,  .u16ptr=&(rfsimulator->port),           .defuintval=PORT,                 TYPE_UINT16,    0 },\
+     {RFSIMU_OPTIONS_PARAMNAME, RFSIM_CONFIG_HELP_OPTIONS,             0,       .strlistptr=NULL,                       .defstrlistval=NULL,              TYPE_STRINGLIST,0 },\
+@@ -239,7 +239,7 @@ static void setblocking(int sock, enum blocking_t active) {
+ 
+ static bool flushInput(rfsimulator_state_t *t, int timeout, int nsamps);
+ 
+-static void fullwrite(int fd, void *_buf, ssize_t count, rfsimulator_state_t *t) {
++static void fullwrite(void *_buf, int fd, ssize_t count, rfsimulator_state_t *t) {
+   if (t->saveIQfile != -1) {
+     if (write(t->saveIQfile, _buf, count) != count )
+       LOG_E(HW,"write in save iq file failed (%s)\n",strerror(errno));
+@@ -329,7 +329,7 @@ static int rfsimu_setchanmod_cmd(char *buff, int debug, telnet_printfunc_t prnt,
+     return 0;
+   }
+   if (debug)
+-  	  prnt("rfsimu_setchanmod_cmd buffer \"%s\"\n",buff);
++          prnt("rfsimu_setchanmod_cmd buffer \"%s\"\n",buff);
+   int s = sscanf(buff,"%m[^ ] %ms\n",&modelname, &modeltype);
+ 
+   if (s == 2) {
+@@ -372,7 +372,7 @@ static int rfsimu_setchanmod_cmd(char *buff, int debug, telnet_printfunc_t prnt,
+         }
+       } /* for */
+       if (found==0)
+-      	prnt("Channel %s not found or not currently used\n",modelname); 
++        prnt("Channel %s not found or not currently used\n",modelname); 
+     }
+   } else {
+     prnt("ERROR: 2 parameters required: model name and model type (%i found)\n",s);
+@@ -613,7 +613,7 @@ static int rfsimulator_write_internal(rfsimulator_state_t *t, openair0_timestamp
+ 
+     if (b->conn_sock >= 0 ) {
+       samplesBlockHeader_t header= {t->typeStamp, nsamps, nbAnt, timestamp};
+-      fullwrite(b->conn_sock,&header, sizeof(header), t);
++      fullwrite(&header, b->conn_sock, sizeof(header), t);
+       sample_t tmpSamples[nsamps][nbAnt];
+ 
+       for(int a=0; a<nbAnt; a++) {
+@@ -624,7 +624,7 @@ static int rfsimulator_write_internal(rfsimulator_state_t *t, openair0_timestamp
+       }
+ 
+       if (b->conn_sock >= 0 ) {
+-        fullwrite(b->conn_sock, (void *)tmpSamples, sampleToByte(nsamps,nbAnt), t);
++        fullwrite((void *)tmpSamples, b->conn_sock, sampleToByte(nsamps,nbAnt), t);
+       }
+     }
+   }

@@ -1,0 +1,267 @@
+"{\"env\":{\"deployment\":{\"image\":\"oai5g-sera:9777d23\",\"port\":null,\"docker_args\"\
+  :[],\"startup_timeout\":180.0,\"pull\":\"missing\",\"remove_images\":false,\"python_standalone_dir\"\
+  :\"/root\",\"platform\":null,\"remove_container\":true,\"container_runtime\":\"\
+  docker\",\"type\":\"docker\"},\"repo\":{\"repo_name\":\"repo\",\"base_commit\":\"\
+  HEAD\",\"type\":\"preexisting\",\"reset\":true},\"post_startup_commands\":[],\"\
+  post_startup_command_timeout\":500,\"name\":\"main\"},\"agent\":{\"name\":\"oai5g_9777d23_00616\"\
+  ,\"templates\":{\"system_template\":\"You are an expert C/C++ software engineer\
+  \ working on the OpenAirInterface 5G codebase.\\nYou can interact with the codebase\
+  \ using bash commands and a file editor to investigate and fix issues.\",\"instance_template\"\
+  :\"<uploaded_files>\\n{{working_dir}}\\n</uploaded_files>\\nI've uploaded the OpenAirInterface\
+  \ 5G codebase in {{working_dir}}. Consider the following PR description:\\n\\n<pr_description>\\\
+  n{{problem_statement}}\\n</pr_description>\\n\\nCan you help me implement the necessary\
+  \ changes to the repository so that the requirements specified in the <pr_description>\
+  \ are met?\\nYour task is to make the minimal changes to non-tests files in the\
+  \ {{working_dir}} directory to ensure the <pr_description> is satisfied.\\nFollow\
+  \ these steps to resolve the issue:\\n1. As a first step, find and read code relevant\
+  \ to the <pr_description>\\n2. Understand the issue and identify the root cause\\\
+  n3. Edit the source code to resolve the issue\\n4. Verify your changes make sense\\\
+  n5. Think about edge cases and make sure your fix handles them as well\\nYour thinking\
+  \ should be thorough and so it's fine if it's very long.\",\"next_step_template\"\
+  :\"OBSERVATION:\\n{{observation}}\",\"next_step_truncated_observation_template\"\
+  :\"Observation: {{observation[:max_observation_length]}}<response clipped><NOTE>Observations\
+  \ should not exceeded {{max_observation_length}} characters. {{elided_chars}} characters\
+  \ were elided. Please try a different command that produces less output or use head/tail/grep/redirect\
+  \ the output to a file. Do not use interactive pagers.</NOTE>\",\"max_observation_length\"\
+  :100000,\"next_step_no_output_template\":\"Your last command ran successfully and\
+  \ did not produce any output.\",\"strategy_template\":null,\"demonstration_template\"\
+  :null,\"demonstrations\":[],\"put_demos_in_history\":false,\"disable_image_processing\"\
+  :false,\"shell_check_error_template\":\"Your bash command contained syntax errors\
+  \ and was NOT executed. Please fix the syntax errors and try again. This can be\
+  \ the result of not adhering to the syntax for multi-line commands. Here is the\
+  \ output of `bash -n`:\\n{{bash_stdout}}\\n{{bash_stderr}}\",\"command_cancelled_timeout_template\"\
+  :\"The command '{{command}}' was cancelled because it took more than {{timeout}}\
+  \ seconds. Please try a different command that completes more quickly. Note: A common\
+  \ source of this error is if the command is interactive or requires user input (it\
+  \ is impossible to receive user input in the current environment, so the command\
+  \ will never complete).\"},\"tools\":{\"filter\":{\"blocklist_error_template\":\"\
+  Operation '{{action}}' is not supported by this environment.\",\"blocklist\":[\"\
+  vim\",\"vi\",\"emacs\",\"nano\",\"nohup\",\"gdb\",\"less\",\"tail -f\",\"python\
+  \ -m venv\",\"make\"],\"blocklist_standalone\":[\"python\",\"python3\",\"ipython\"\
+  ,\"bash\",\"sh\",\"/bin/bash\",\"/bin/sh\",\"nohup\",\"vi\",\"vim\",\"emacs\",\"\
+  nano\",\"su\"],\"block_unless_regex\":{\"radare2\":\"\\\\b(?:radare2)\\\\b.*\\\\\
+  s+-c\\\\s+.*\",\"r2\":\"\\\\b(?:radare2)\\\\b.*\\\\s+-c\\\\s+.*\"}},\"bundles\"\
+  :[{\"path\":\"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry\"\
+  ,\"hidden_tools\":[]},{\"path\":\"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic\"\
+  ,\"hidden_tools\":[]},{\"path\":\"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m\"\
+  ,\"hidden_tools\":[]},{\"path\":\"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state\"\
+  ,\"hidden_tools\":[]}],\"propagate_env_variables\":[],\"env_variables\":{\"PAGER\"\
+  :\"cat\",\"MANPAGER\":\"cat\",\"LESS\":\"-R\",\"PIP_PROGRESS_BAR\":\"off\",\"TQDM_DISABLE\"\
+  :\"1\",\"GIT_PAGER\":\"cat\"},\"registry_variables\":{\"USE_FILEMAP\":\"true\",\"\
+  SUBMIT_REVIEW_MESSAGES\":[\"Thank you for your work on this issue. Please review\
+  \ your changes:\\n\\n1. Make sure your fix is minimal and targeted\\n2. Verify you\
+  \ haven't introduced any new issues\\n3. Run the submit command again to confirm\\\
+  n\\nHere is a list of all of your changes:\\n\\n<diff>\\n{{diff}}\\n</diff>\\n\"\
+  ]},\"submit_command\":\"submit\",\"parse_function\":{\"error_message\":\"{%- if\
+  \ error_code == \\\"missing\\\" -%}\\nYour last output did not use any tool calls!\\\
+  nPlease make sure your output includes exactly _ONE_ function call!\\nYou must invoke\
+  \ the function directly using the function call format.\\nYou cannot invoke commands\
+  \ with ```, you have to use the function call format.\\nIf you think you have already\
+  \ resolved the issue, please submit your changes by running the `submit` command.\\\
+  nIf you think you cannot solve the problem, please run `exit_forfeit` (if available)\
+  \ or `submit`.\\nElse, please continue with a new tool call!\\n{%- elif error_code\
+  \ == \\\"multiple\\\" -%}\\nYour last output included multiple tool calls!\\nPlease\
+  \ make sure your output includes a thought and exactly _ONE_ function call.\\n{%-\
+  \ elif error_code == \\\"unexpected_arg\\\" -%}\\nYour action could not be parsed\
+  \ properly: {{exception_message}}.\\nMake sure your function call doesn't include\
+  \ any extra arguments that are not in the allowed arguments, and only use the allowed\
+  \ commands.\\n{%- else -%}\\nYour action could not be parsed properly: {{exception_message}}.\\\
+  n{% endif %}\\n\",\"type\":\"function_calling\"},\"enable_bash_tool\":true,\"format_error_template\"\
+  :\"{%- if error_code == \\\"missing\\\" -%}\\nYour last output did not use any tool\
+  \ calls!\\nPlease make sure your output includes exactly _ONE_ function call!\\\
+  nYou must invoke the function directly using the function call format.\\nYou cannot\
+  \ invoke commands with ```, you have to use the function call format.\\nIf you think\
+  \ you have already resolved the issue, please submit your changes by running the\
+  \ `submit` command.\\nIf you think you cannot solve the problem, please run `exit_forfeit`\
+  \ (if available) or `submit`.\\nElse, please continue with a new tool call!\\n{%-\
+  \ elif error_code == \\\"multiple\\\" -%}\\nYour last output included multiple tool\
+  \ calls!\\nPlease make sure your output includes a thought and exactly _ONE_ function\
+  \ call.\\n{%- elif error_code == \\\"unexpected_arg\\\" -%}\\nYour action could\
+  \ not be parsed properly: {{exception_message}}.\\nMake sure your function call\
+  \ doesn't include any extra arguments that are not in the allowed arguments, and\
+  \ only use the allowed commands.\\n{%- else -%}\\nYour action could not be parsed\
+  \ properly: {{exception_message}}.\\n{% endif %}\\n\",\"command_docs\":\"bash:\\\
+  n  docstring: runs the given command directly in bash\\n  signature: <command>\\\
+  n  arguments:\\n    - command (string) [required]: The bash command to execute.\\\
+  n\\nstr_replace_editor:\\n  docstring: Custom editing tool for viewing, creating\
+  \ and editing files * State is persistent across command calls and discussions with\
+  \ the user * If `path` is a file, `view` displays the result of applying `cat -n`.\
+  \ If `path` is a directory, `view` lists non-hidden files and directories up to\
+  \ 2 levels deep * The `create` command cannot be used if the specified `path` already\
+  \ exists as a file * If a `command` generates a long output, it will be truncated\
+  \ and marked with `<response clipped>` * The `undo_edit` command will revert the\
+  \ last edit made to the file at `path`\\nNotes for using the `str_replace` command:\
+  \ * The `old_str` parameter should match EXACTLY one or more consecutive lines from\
+  \ the original file. Be mindful of whitespaces! * If the `old_str` parameter is\
+  \ not unique in the file, the replacement will not be performed. Make sure to include\
+  \ enough context in `old_str` to make it unique * The `new_str` parameter should\
+  \ contain the edited lines that should replace the `old_str`\\n\\n  signature: str_replace_editor\
+  \ <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>] [<insert_line>]\\\
+  n\\n  arguments:\\n    - command (string) [required]: The commands to run. Allowed\
+  \ options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\\n    - path\
+  \ (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`\
+  \ or `/testbed`.\\n    - file_text (string) [optional]: Required parameter of `create`\
+  \ command, with the content of the file to be created.\\n    - old_str (string)\
+  \ [optional]: Required parameter of `str_replace` command containing the string\
+  \ in `path` to replace.\\n    - new_str (string) [optional]: Optional parameter\
+  \ of `str_replace` command containing the new string (if not given, no string will\
+  \ be added). Required parameter of `insert` command containing the string to insert.\\\
+  n    - insert_line (integer) [optional]: Required parameter of `insert` command.\
+  \ The `new_str` will be inserted AFTER the line `insert_line` of `path`.\\n    -\
+  \ view_range (array) [optional]: Optional parameter of `view` command when `path`\
+  \ points to a file. If none is given, the full file is shown. If provided, the file\
+  \ will be shown in the indicated line number range, e.g. [11, 12] will show lines\
+  \ 11 and 12. Indexing at 1 to start. Setting `[start_line, -1]` shows all lines\
+  \ from `start_line` to the end of the file.\\n\\nsubmit:\\n  docstring: submits\
+  \ the current file\\n  signature: submit\\n\\n\",\"multi_line_command_endings\"\
+  :{},\"submit_command_end_name\":null,\"reset_commands\":[],\"execution_timeout\"\
+  :300,\"install_timeout\":300,\"total_execution_timeout\":1800,\"max_consecutive_execution_timeouts\"\
+  :3},\"history_processors\":[],\"model\":{\"name\":\"bedrock/qwen.qwen3-coder-480b-a35b-v1:0\"\
+  ,\"per_instance_cost_limit\":0.0,\"total_cost_limit\":0.0,\"per_instance_call_limit\"\
+  :115,\"temperature\":0.7,\"top_p\":1.0,\"api_base\":null,\"api_version\":null,\"\
+  api_key\":\"**********\",\"stop\":[],\"completion_kwargs\":{},\"convert_system_to_user\"\
+  :false,\"retry\":{\"retries\":20,\"min_wait\":10.0,\"max_wait\":120.0},\"delay\"\
+  :0.0,\"fallbacks\":[],\"choose_api_key_by_thread\":true,\"max_input_tokens\":null,\"\
+  max_output_tokens\":null,\"litellm_model_registry\":\"/Users/metamyth/projects/sera/configs/litellm_model_registry.json\"\
+  ,\"custom_tokenizer\":null},\"max_requeries\":3,\"action_sampler\":null,\"type\"\
+  :\"default\"},\"problem_statement\":{\"text\":\"\\n## Title: Fix missed scheduling\
+  \ opportunities due to unprocessed SR in PUCCH format 2/3/4 UCI indications\\n\\\
+  n### Summary\\nNR gNB scheduler was missing scheduling opportunities for UEs that\
+  \ sent Scheduling Requests (SR) on PUCCH format 2/3/4. The root cause was that the\
+  \ `unpack_nr_uci_pucch_2_3_4` function correctly unpacked the SR payload but did\
+  \ not extract the SR indication bit, making it inaccessible to the scheduler.\\\
+  n\\nUnlike PUCCH format 0/1 which has a dedicated `sr_indication` field, format\
+  \ 2/3/4 only stored the raw SR payload. The MAC scheduler had a TODO comment indicating\
+  \ SR was not being handled, causing UEs requesting uplink resources via SR on format\
+  \ 2/3/4 to be ignored.\\n\\n### Reproduction\\nUnder load testing with mixed PUCCH\
+  \ formats, UEs using PUCCH format 2/3/4 with active SR were consistently not scheduled\
+  \ for uplink transmission, while identical UEs using PUCCH format 0/1 were scheduled\
+  \ correctly. This led to increased access delays and reduced throughput for affected\
+  \ UEs.\\n\\nThe issue was particularly noticeable in scenarios with high UE density\
+  \ where format 2/3/4 is preferred due to better multiplexing capabilities.\\n\\\
+  n### Changes\\n- `nfapi/open-nFAPI/nfapi/public_inc/nfapi_nr_interface_scf.h`: Added\
+  \ `sr_indication` field to `nfapi_nr_sr_pdu_2_3_4_t` structure for consistency with\
+  \ format 0/1\\n- `nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c`: Modified `unpack_nr_uci_pucch_2_3_4`\
+  \ to extract SR indication from payload[0] bit 0\\n- `nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c`:\
+  \ Updated `copy_uci_indication_sr_pdu_2_3_4` to copy new field\\n- `openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_uci.c`:\
+  \ Replaced TODO with SR processing logic using new field\\n- `nfapi/tests/p7/nr_fapi_uci_indication_test.c`:\
+  \ Updated test function to populate new field\\n\\n\",\"extra_fields\":{\"bug_description\"\
+  :\"missed scheduling opportunity where a UE with pending data is not scheduled\"\
+  ,\"bug_id\":\"telecom_sched_missed_opportunity\",\"stage_one_patch\":\"diff --git\
+  \ a/nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c b/nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c\\\
+  nindex 3315ee2a4c..600b772550 100644\\n--- a/nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c\\\
+  n+++ b/nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c\\n@@ -2144,6 +2144,10 @@ static uint8_t\
+  \ unpack_nr_uci_pucch_2_3_4(nfapi_nr_uci_pucch_pdu_format_2_3_4_t *\\n \\n     if\
+  \ (!pullarray8(ppReadPackedMsg, value->sr.sr_payload, sr_len, sr_len, end))\\n \
+  \      return 0;\\n+    \\n+    // Extract SR indication from the first bit of the\
+  \ payload\\n+    // SR is typically encoded as the first bit (bit 0) of the UCI\
+  \ payload for PUCCH format 2/3/4\\n+    value->sr.sr_indication = (value->sr.sr_payload[0]\
+  \ & 0x01);\\n   }\\n \\n   if ((value->pduBitmap >> 1) & 0x01) { // HARQ\\ndiff\
+  \ --git a/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c b/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c\\\
+  nindex fb645707ad..f10f24801f 100644\\n--- a/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c\\\
+  n+++ b/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c\\n@@ -1656,6 +1656,7 @@ void\
+  \ copy_uci_indication_sr_pdu_0_1(const nfapi_nr_sr_pdu_0_1_t *src, nfapi_nr_s\\\
+  n void copy_uci_indication_sr_pdu_2_3_4(const nfapi_nr_sr_pdu_2_3_4_t *src, nfapi_nr_sr_pdu_2_3_4_t\
+  \ *dst)\\n {\\n   dst->sr_bit_len = src->sr_bit_len;\\n+  dst->sr_indication = src->sr_indication;\\\
+  n   const uint16_t sr_len = (dst->sr_bit_len / 8) + 1;\\n   dst->sr_payload = calloc(sr_len,\
+  \ sizeof(*dst->sr_payload));\\n   for (int i = 0; i < sr_len; ++i) {\\ndiff --git\
+  \ a/nfapi/open-nFAPI/nfapi/public_inc/nfapi_nr_interface_scf.h b/nfapi/open-nFAPI/nfapi/public_inc/nfapi_nr_interface_scf.h\\\
+  nindex 10e6b7c14a..9a68d6faa5 100644\\n--- a/nfapi/open-nFAPI/nfapi/public_inc/nfapi_nr_interface_scf.h\\\
+  n+++ b/nfapi/open-nFAPI/nfapi/public_inc/nfapi_nr_interface_scf.h\\n@@ -269,7 +269,7\
+  \ @@ typedef struct\\n //3.3.2 CONFIG\\n \\n /*typedef struct {\\n-\\tnfapi_nr_config_errors_e\
+  \ error_code;\\n+        nfapi_nr_config_errors_e error_code;\\n   uint8_t number_of_invalid_tlvs_that_can_only_be_configured_in_idle;\\\
+  n   uint8_t unmber_of_missing_tlvs;\\n   //? \u2193\\n@@ -533,59 +533,59 @@ typedef\
+  \ enum {    // Table 2-27\\n \\n //PNF P5 NR \\n typedef struct {\\n-\\tnfapi_nr_p4_p5_message_header_t\
+  \ header;\\n-\\tnfapi_vendor_extension_tlv_t vendor_extension;\\n+        nfapi_nr_p4_p5_message_header_t\
+  \ header;\\n+        nfapi_vendor_extension_tlv_t vendor_extension;\\n } nfapi_nr_pnf_param_request_t;\\\
+  n \\n typedef struct {\\n-\\tnfapi_nr_p4_p5_message_header_t header;\\n-\\tuint8_t\
+  \ error_code;\\n+        nfapi_nr_p4_p5_message_header_t header;\\n+        uint8_t\
+  \ error_code;\\n   uint8_t num_tlvs;\\n-\\tnfapi_pnf_param_general_t pnf_param_general;\\\
+  n-\\tnfapi_pnf_phy_t pnf_phy;\\n-\\tnfapi_vendor_extension_tlv_t vendor_extension;\\\
+  n+        nfapi_pnf_param_general_t pnf_param_general;\\n+        nfapi_pnf_phy_t\
+  \ pnf_phy;\\n+        nfapi_vendor_extension_tlv_t vendor_extension;\\n } nfapi_nr_pnf_param_response_t;\\\
+  n \\n typedef struct {\\n-\\tnfapi_nr_p4_p5_message_header_t header;\\n-\\tuint8_t\
+  \ num_tlvs;\\n-\\tnfapi_pnf_phy_rf_config_t pnf_phy_rf_config;\\n-\\tnfapi_vendor_extension_tlv_t\
+  \ vendor_extension;\\n+        nfapi_nr_p4_p5_message_header_t header;\\n+     \
+  \   uint8_t num_tlvs;\\n+        nfapi_pnf_phy_rf_config_t pnf_phy_rf_config;\\\
+  n+        nfapi_vendor_extension_tlv_t vendor_extension;\\n } nfapi_nr_pnf_config_request_t;\\\
+  n \\n typedef struct {\\n-\\tnfapi_nr_p4_p5_message_header_t header;\\n-\\tuint8_t\
+  \ error_code;\\n-\\tnfapi_vendor_extension_tlv_t vendor_extension;\\n+        nfapi_nr_p4_p5_message_header_t\
+  \ header;\\n+        uint8_t error_code;\\n+        nfapi_vendor_extension_tlv_t\
+  \ vendor_extension;\\n } nfapi_nr_pnf_config_response_t;\\n \\n typedef struct {\\\
+  n-\\tnfapi_nr_p4_p5_message_header_t header;\\n-\\tnfapi_vendor_extension_tlv_t\
+  \ vendor_extension;\\n+        nfapi_nr_p4_p5_message_header_t header;\\n+     \
+  \   nfapi_vendor_extension_tlv_t vendor_extension;\\n } nfapi_nr_pnf_start_request_t;\\\
+  n \\n typedef struct {\\n-\\tnfapi_nr_p4_p5_message_header_t header;\\n-\\tuint32_t\
+  \ error_code;\\n-\\tnfapi_vendor_extension_tlv_t vendor_extension;\\n+        nfapi_nr_p4_p5_message_header_t\
+  \ header;\\n+        uint32_t error_code;\\n+        nfapi_vendor_extension_tlv_t\
+  \ vendor_extension;\\n } nfapi_nr_pnf_start_response_t;\\n \\n typedef struct {\\\
+  n-\\tnfapi_nr_p4_p5_message_header_t header;\\n-\\tnfapi_vendor_extension_tlv_t\
+  \ vendor_extension;\\n+        nfapi_nr_p4_p5_message_header_t header;\\n+     \
+  \   nfapi_vendor_extension_tlv_t vendor_extension;\\n } nfapi_nr_pnf_stop_request_t;\\\
+  n \\n typedef struct {\\n-\\tnfapi_nr_p4_p5_message_header_t header;\\n-\\tuint32_t\
+  \ error_code;\\n-\\tnfapi_vendor_extension_tlv_t vendor_extension;\\n+        nfapi_nr_p4_p5_message_header_t\
+  \ header;\\n+        uint32_t error_code;\\n+        nfapi_vendor_extension_tlv_t\
+  \ vendor_extension;\\n } nfapi_nr_pnf_stop_response_t;\\n \\n \\n /* PARAM.REQUEST\
+  \ */\\n typedef struct {\\n   nfapi_nr_p4_p5_message_header_t  header;\\n-\\tnfapi_vendor_extension_tlv_t\
+  \  vendor_extension;\\n+        nfapi_vendor_extension_tlv_t  vendor_extension;\\\
+  n } nfapi_nr_param_request_scf_t;\\n \\n /* PARAM.RESPONSE */\\n@@ -667,8 +667,8\
+  \ @@ typedef struct {\\n //3.3.3 START\\n \\n typedef struct {\\n-\\tnfapi_nr_p4_p5_message_header_t\
+  \ header;\\n-\\tnfapi_vendor_extension_tlv_t vendor_extension;\\n+        nfapi_nr_p4_p5_message_header_t\
+  \ header;\\n+        nfapi_vendor_extension_tlv_t vendor_extension;\\n } nfapi_nr_start_request_scf_t;\\\
+  n \\n typedef struct {\\n@@ -1135,18 +1135,18 @@ typedef struct {\\n \\n \\n typedef\
+  \ struct {\\n-\\tnfapi_nr_p7_message_header_t header;\\n-\\tuint32_t t1;\\n-\\tint32_t\
+  \ delta_sfn_slot;\\n-\\tnfapi_vendor_extension_tlv_t vendor_extension;\\n+     \
+  \   nfapi_nr_p7_message_header_t header;\\n+        uint32_t t1;\\n+        int32_t\
+  \ delta_sfn_slot;\\n+        nfapi_vendor_extension_tlv_t vendor_extension;\\n }\
+  \ nfapi_nr_dl_node_sync_t;\\n \\n typedef struct {\\n-\\tnfapi_nr_p7_message_header_t\
+  \ header;\\n-\\tuint32_t t1;\\n-\\tuint32_t t2;\\n-\\tuint32_t t3;\\t\\n-\\tnfapi_vendor_extension_tlv_t\
+  \ vendor_extension;\\n+        nfapi_nr_p7_message_header_t header;\\n+        uint32_t\
+  \ t1;\\n+        uint32_t t2;\\n+        uint32_t t3;    \\n+        nfapi_vendor_extension_tlv_t\
+  \ vendor_extension;\\n } nfapi_nr_ul_node_sync_t;\\n \\n typedef struct {\\n@@ -1217,7\
+  \ +1217,7 @@ typedef struct\\n \\n //3.4.2 dl_tti_request\\n typedef struct {\\\
+  n-\\tuint16_t sfn; //0->1023   \\n+        uint16_t sfn; //0->1023   \\n   uint16_t\
+  \ slot;//0->319\\n   uint8_t n_pdus;//Number of PDUs that are included in this message.\
+  \ All PDUs in the message are numbered in order. Value 0 -> 255\\n   uint8_t n_group;//Number\
+  \ of UE Groups included in this message. Value 0 -> 255\\n@@ -1610,7 +1610,7 @@\
+  \ typedef struct\\n } nfapi_nr_tx_data_request_t;\\n \\n typedef enum {\\n-\\tNFAPI_NR_DL_DATA_MSG_INVALID_STATE,\\\
+  n+        NFAPI_NR_DL_DATA_MSG_INVALID_STATE,\\n   NFAPI_NR_DL_DATA_MSG_INVALID_SFN,\\\
+  n   NFAPI_NR_DL_DATA_MSG_TX_ERR\\n \\n@@ -1687,6 +1687,7 @@ typedef struct\\n  \
+  \ uint16_t sr_bit_len;\\n   //! fixme\\n   uint8_t* sr_payload;//sr_payload[ceil(sr_bit_len/8)];\\\
+  n+  uint8_t sr_indication; // Extracted SR indication (0 = no SR, 1 = SR)\\n \\\
+  n } nfapi_nr_sr_pdu_2_3_4_t;\\n //table 3-68\\ndiff --git a/nfapi/tests/p7/nr_fapi_uci_indication_test.c\
+  \ b/nfapi/tests/p7/nr_fapi_uci_indication_test.c\\nindex 53f8469325..834f7c1388\
+  \ 100644\\n--- a/nfapi/tests/p7/nr_fapi_uci_indication_test.c\\n+++ b/nfapi/tests/p7/nr_fapi_uci_indication_test.c\\\
+  n@@ -35,6 +35,8 @@ static void fill_uci_indication_sr_pdu_2_3_4(nfapi_nr_sr_pdu_2_3_4_t\
+  \ *pdu)\\n   for (int i = 0; i < (pdu->sr_bit_len / 8) + 1; ++i) {\\n     pdu->sr_payload[i]\
+  \ = rand8();\\n   }\\n+  // Set SR indication based on the first bit of the payload\\\
+  n+  pdu->sr_indication = (pdu->sr_payload[0] & 0x01);\\n }\\n \\n static void fill_uci_indication_harq_pdu_0_1(nfapi_nr_harq_pdu_0_1_t\
+  \ *pdu)\\ndiff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_uci.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_uci.c\\\
+  nindex ac0803e1e3..c955761345 100644\\n--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_uci.c\\\
+  n+++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_uci.c\\n@@ -53,9 +53,9 @@ static\
+  \ void nr_fill_nfapi_pucch(gNB_MAC_INST *nrmac, frame_t frame, slot_t slot,\\n \
+  \  if (future_ul_tti_req->n_pdus >= sizeofArray(future_ul_tti_req->pdus_list) )\
+  \ {\\n     LOG_E(NR_MAC,\\n           \\\"future_ul_tti_req->n_pdus %d is full,\
+  \ slot: %d, sr flag %d dropping request\\\\n\\\",\\n-\\t  future_ul_tti_req->n_pdus,\\\
+  n-\\t  pucch->ul_slot,\\n-\\t  pucch->sr_flag);\\n+          future_ul_tti_req->n_pdus,\\\
+  n+          pucch->ul_slot,\\n+          pucch->sr_flag);\\n     return;\\n   }\\\
+  n   future_ul_tti_req->pdus_list[future_ul_tti_req->n_pdus].pdu_type = NFAPI_NR_UL_CONFIG_PUCCH_PDU_TYPE;\\\
+  n@@ -666,9 +666,9 @@ static void evaluate_cqi_report(uint8_t *payload,\\n \\n  \
+  \ uint8_t temp_cqi = pickandreverse_bits(payload, 4, cumul_bits);\\n \\n-  // NR_CSI_ReportConfig__cqi_Table_table1\\\
+  t= 0\\n-  // NR_CSI_ReportConfig__cqi_Table_table2\\t= 1\\n-  // NR_CSI_ReportConfig__cqi_Table_table3\\\
+  t= 2\\n+  // NR_CSI_ReportConfig__cqi_Table_table1      = 0\\n+  // NR_CSI_ReportConfig__cqi_Table_table2\
+  \      = 1\\n+  // NR_CSI_ReportConfig__cqi_Table_table3      = 2\\n   sched_ctrl->CSI_report.cri_ri_li_pmi_cqi_report.cqi_table\
+  \ = cqi_Table;\\n   sched_ctrl->CSI_report.cri_ri_li_pmi_cqi_report.wb_cqi_1tb =\
+  \ temp_cqi;\\n   LOG_D(MAC,\\\"Wide-band CQI for the first TB %d\\\\n\\\", temp_cqi);\\\
+  n@@ -998,8 +998,13 @@ void handle_nr_uci_pucch_2_3_4(module_id_t mod_id, frame_t\
+  \ frame, slot_t slot, c\\n     sched_ctrl->tpc1 = nr_limit_tpc(sched_ctrl->tpc1,\
+  \ uci_234->rssi, rssi_threshold);\\n   }\\n \\n-  // TODO: handle SR\\n+  // handle\
+  \ SR - check if UE is requesting uplink resources\\n   if (uci_234->pduBitmap &\
+  \ 0x1) {\\n+    if (uci_234->sr.sr_indication && uci_234->ul_cqi >= 148) {\\n+ \
+  \     // SR detected with SNR >= 10dB\\n+      sched_ctrl->SR |= true;\\n+     \
+  \ LOG_D(NR_MAC, \\\"SR UE %04x ul_cqi %d\\\\n\\\", uci_234->rnti, uci_234->ul_cqi);\\\
+  n+    }\\n     free(uci_234->sr.sr_payload);\\n   }\\n \\n\",\"start_fn\":\"unpack_nr_uci_pucch_2_3_4\"\
+  ,\"start_fn_file\":\"nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c\",\"subsystem\":\"nfapi/open-nFAPI/fapi\"\
+  },\"type\":\"text\",\"id\":\"oai5g_9777d23_00616\"},\"output_dir\":\"DEFAULT\",\"\
+  actions\":{\"open_pr\":false,\"pr_config\":{\"skip_if_commits_reference_issue\"\
+  :true},\"apply_patch_locally\":false},\"env_var_path\":null}"

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00328_d14f60",
+  "pr_text": "## Title: Fix NULL pointer dereference vulnerability in UL DMRS parameter extraction\n\n### Summary\nFix a NULL pointer dereference vulnerability in `get_ul_dmrs_params()` that could cause crashes when processing uplink DMRS configurations. The original code used nested ternary operators to access `dmrs_UplinkForPUSCH_MappingTypeA/B->choice.setup` without validating that these pointers were non-NULL. In configurations where these optional fields are absent, the code would dereference NULL pointers,",
+  "trajectory_path": "data/raw/s00328_d14f60_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00328_d14f60_p2.diff",
+  "patch_lines": 14,
+  "trajectory_steps": 37,
+  "timestamp": "2026-02-11T14:30:17Z"
+}

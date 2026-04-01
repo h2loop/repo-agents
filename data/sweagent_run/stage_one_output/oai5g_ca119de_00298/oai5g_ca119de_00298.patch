@@ -1,0 +1,47 @@
+diff --git a/executables/nr-ue.c b/executables/nr-ue.c
+index 0d1ae421f0..55e8921301 100644
+--- a/executables/nr-ue.c
++++ b/executables/nr-ue.c
+@@ -101,12 +101,42 @@
+  */
+ 
+ static void start_process_slot_tx(void* arg) {
++  if (arg == NULL) {
++    LOG_E(PHY, "start_process_slot_tx: NULL argument\n");
++    return;
++  }
++  
+   notifiedFIFO_elt_t *newTx = arg;
+   nr_rxtx_thread_data_t *curMsgTx = NotifiedFifoData(newTx);
++  
++  if (curMsgTx == NULL) {
++    LOG_E(PHY, "start_process_slot_tx: NULL curMsgTx\n");
++    return;
++  }
++  
++  if (curMsgTx->UE == NULL) {
++    LOG_E(PHY, "start_process_slot_tx: NULL UE\n");
++    return;
++  }
++  
+   int num_ul_actors = get_nrUE_params()->num_ul_actors;
+   if (num_ul_actors > 0) {
++    if (curMsgTx->UE->ul_actors == NULL) {
++      LOG_E(PHY, "start_process_slot_tx: NULL ul_actors\n");
++      return;
++    }
++    // Make sure we don't have a negative slot number
++    if (curMsgTx->proc.nr_slot_tx < 0) {
++      LOG_E(PHY, "start_process_slot_tx: negative slot number %d\n", curMsgTx->proc.nr_slot_tx);
++      return;
++    }
+     pushNotifiedFIFO(&curMsgTx->UE->ul_actors[curMsgTx->proc.nr_slot_tx % num_ul_actors].fifo, newTx);
+   } else {
++    // Handle both num_ul_actors <= 0 cases (including negative values)
++    if (newTx->processingFunc == NULL) {
++      LOG_E(PHY, "start_process_slot_tx: NULL processingFunc\n");
++      return;
++    }
+     newTx->processingFunc(curMsgTx);
+   }
+ }

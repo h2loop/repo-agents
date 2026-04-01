@@ -1,0 +1,33 @@
+{
+  "run_id": "s00421_0ce9f8",
+  "function": {
+    "name": "get_options",
+    "file": "executables/nr-softmodem.c",
+    "start_line": 306,
+    "end_line": 314,
+    "body_lines": 9,
+    "signature": "static void get_options(configmodule_interface_t *cfg)",
+    "subsystem": "executables",
+    "token_estimate": 21
+  },
+  "bug": {
+    "bug_id": "c_missing_return",
+    "description": "missing return statement in non-void function on certain code paths",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a missing return statement in non-void function on certain code paths downstream of function get_options in the executables subsystem.\nThe function is located at executables/nr-softmodem.c:306.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00421_0ce9f8_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00421_0ce9f8_p1.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 36,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:11:34Z"
+}

@@ -1,0 +1,32 @@
+{
+  "run_id": "s00364_fab5c3",
+  "function": {
+    "name": "vnf_p7_rx_reassembly_queue_remove_msg",
+    "file": "nfapi/open-nFAPI/vnf/src/vnf_p7.c",
+    "start_line": 189,
+    "end_line": 224,
+    "body_lines": 36,
+    "signature": "void vnf_p7_rx_reassembly_queue_remove_msg(vnf_p7_t* vnf_p7, vnf_p7_rx_reassembly_queue_t* queue, vnf_p7_rx_message_t* msg)",
+    "subsystem": "nfapi/open-nFAPI/vnf",
+    "token_estimate": 82
+  },
+  "bug": {
+    "bug_id": "telecom_missing_optional_field",
+    "description": "missing optional field that is conditionally mandatory per 3GPP specification",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a missing optional field that is conditionally mandatory per 3GPP specification downstream of function vnf_p7_rx_reassembly_queue_remove_msg in the nfapi/open-nFAPI/vnf subsystem.\nThe function is located at nfapi/open-nFAPI/vnf/src/vnf_p7.c:189.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00364_fab5c3_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00364_fab5c3_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 18,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T18:51:59Z"
+}

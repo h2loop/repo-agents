@@ -1,0 +1,32 @@
+{
+  "run_id": "s00177_eee157",
+  "function": {
+    "name": "measurcmd_display_one_rlcstat",
+    "file": "common/utils/telnetsrv/telnetsrv_enb_measurements.c",
+    "start_line": 139,
+    "end_line": 155,
+    "body_lines": 17,
+    "signature": "void measurcmd_display_one_rlcstat(telnet_printfunc_t prnt, int UE_id, telnet_ltemeasurdef_t *statsptr, int num_rlcmeasure, unsigned int *rlcstats, char *rbid_str, protocol_ctxt_t *ctxt, const srb_flag_t srb_flagP, const rb_id_t rb_idP)",
+    "subsystem": "common/utils/telnetsrv",
+    "token_estimate": 77
+  },
+  "bug": {
+    "bug_id": "telecom_missing_optional_field",
+    "description": "missing optional field that is conditionally mandatory per 3GPP specification",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a missing optional field that is conditionally mandatory per 3GPP specification downstream of function measurcmd_display_one_rlcstat in the common/utils/telnetsrv subsystem.\nThe function is located at common/utils/telnetsrv/telnetsrv_enb_measurements.c:139.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00177_eee157_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00177_eee157_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 28,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:01:46Z"
+}

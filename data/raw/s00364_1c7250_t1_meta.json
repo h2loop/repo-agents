@@ -1,0 +1,32 @@
+{
+  "run_id": "s00364_1c7250",
+  "function": {
+    "name": "pack_lbt_dl_config_request_body_value",
+    "file": "nfapi/open-nFAPI/nfapi/src/nfapi_p7.c",
+    "start_line": 2186,
+    "end_line": 2235,
+    "body_lines": 50,
+    "signature": "static uint8_t pack_lbt_dl_config_request_body_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end)",
+    "subsystem": "nfapi/open-nFAPI/nfapi",
+    "token_estimate": 157
+  },
+  "bug": {
+    "bug_id": "c_magic_number",
+    "description": "magic number used without symbolic constant making intent unclear and maintenance error-prone",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a magic number used without symbolic constant making intent unclear and maintenance error-prone downstream of function pack_lbt_dl_config_request_body_value in the nfapi/open-nFAPI/nfapi subsystem.\nThe function is located at nfapi/open-nFAPI/nfapi/src/nfapi_p7.c:2186.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00364_1c7250_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00364_1c7250_p1.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 41,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:51:12Z"
+}

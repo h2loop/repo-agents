@@ -1,0 +1,9 @@
+{
+  "run_id": "s00256_a99d1d",
+  "pr_text": "## Title: Fix buffer overflow in PNF config request handlers\n\n### Summary\nThe PNF (Physical Network Function) configuration request handlers contain loops that iterate over `req.pnf_phy_rf_config.number_phy_rf_config_info` without validating against the maximum allowed PHY-RF instances (`NFAPI_MAX_PHY_RF_INSTANCES`). When a malformed or misconfigured request specifies a count exceeding this limit, the code iterates beyond array boundaries, causing potential buffer overflows, memory corruption, a",
+  "trajectory_path": "data/raw/s00256_a99d1d_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00256_a99d1d_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 41,
+  "timestamp": "2026-02-11T13:51:48Z"
+}

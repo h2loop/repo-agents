@@ -1,0 +1,23 @@
+diff --git a/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c b/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c
+index 0a858e0be9..d94509b43d 100644
+--- a/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c
++++ b/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c
+@@ -2727,7 +2727,17 @@ static void dump_harq_0_1(const nfapi_nr_harq_pdu_0_1_t *harq, int depth)
+   INDENTED_PRINTF("Num HARQ = 0x%02x\n", harq->num_harq);
+   INDENTED_PRINTF("HARQ Confidence Level = 0x%02x\n", harq->harq_confidence_level);
+   depth++;
+-  for (int i = 0; i < harq->num_harq; i++) {
++  
++  // Prevent buffer overrun by limiting to array size
++  int max_harq = sizeof(harq->harq_list) / sizeof(harq->harq_list[0]);
++  int num_harq_to_dump = harq->num_harq;
++  
++  if (num_harq_to_dump > max_harq) {
++    INDENTED_PRINTF("Warning: Num HARQ (%d) exceeds array size (%d). Truncating.\n", harq->num_harq, max_harq);
++    num_harq_to_dump = max_harq;
++  }
++  
++  for (int i = 0; i < num_harq_to_dump; i++) {
+     INDENTED_PRINTF("HARQ Value[%d] : 0x%02x \n", i, harq->harq_list[i].harq_value);
+   }
+ }

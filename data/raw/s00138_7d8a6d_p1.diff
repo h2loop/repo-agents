@@ -1,0 +1,50 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c
+index 820eba2b5b..f92b41eade 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c
+@@ -1691,9 +1691,9 @@ static bool allocate_ul_retransmission(gNB_MAC_INST *nrmac,
+    * as the new scheduling instruction */
+   retInfo->frame = sched_ctrl->sched_pusch.frame;
+   retInfo->slot = sched_ctrl->sched_pusch.slot;
+-  /* Get previous PSUCH field info */
+-  sched_ctrl->sched_pusch = *retInfo;
+-  NR_sched_pusch_t *sched_pusch = &sched_ctrl->sched_pusch;
++  /* Use the HARQ process scheduling info directly to avoid duplicate structure
++   * that could lead to double-free issues */
++  NR_sched_pusch_t *sched_pusch = retInfo;
+ 
+   LOG_D(NR_MAC,
+         "%4d.%2d Allocate UL retransmission RNTI %04x sched %4d.%2d (%d RBs)\n",
+@@ -1709,8 +1709,8 @@ static bool allocate_ul_retransmission(gNB_MAC_INST *nrmac,
+ 
+   /* Mark the corresponding RBs as used */
+   n_rb_sched -= sched_pusch->rbSize;
+-  for (int rb = 0; rb < sched_ctrl->sched_pusch.rbSize; rb++)
+-    rballoc_mask[rb + sched_ctrl->sched_pusch.rbStart] ^= SL_to_bitmap(sched_pusch->tda_info.startSymbolIndex, sched_pusch->tda_info.nrOfSymbols);
++  for (int rb = 0; rb < sched_pusch->rbSize; rb++)
++    rballoc_mask[rb + sched_pusch->rbStart] ^= SL_to_bitmap(sched_pusch->tda_info.startSymbolIndex, sched_pusch->tda_info.nrOfSymbols);
+   return true;
+ }
+ 
+@@ -1907,8 +1907,8 @@ static void pf_ul(module_id_t module_id,
+ 
+       /* Mark the corresponding RBs as used */
+       n_rb_sched -= sched_pusch->rbSize;
+-      for (int rb = 0; rb < sched_ctrl->sched_pusch.rbSize; rb++)
+-        rballoc_mask[rb + sched_ctrl->sched_pusch.rbStart] ^= slbitmap;
++      for (int rb = 0; rb < sched_pusch->rbSize; rb++)
++        rballoc_mask[rb + sched_pusch->rbStart] ^= slbitmap;
+ 
+       remainUEs--;
+       continue;
+@@ -2049,8 +2049,8 @@ static void pf_ul(module_id_t module_id,
+                        sched_ctrl->aggregation_level);
+ 
+     n_rb_sched -= sched_pusch->rbSize;
+-    for (int rb = 0; rb < sched_ctrl->sched_pusch.rbSize; rb++)
+-      rballoc_mask[rb + sched_ctrl->sched_pusch.rbStart] ^= slbitmap;
++    for (int rb = 0; rb < sched_pusch->rbSize; rb++)
++      rballoc_mask[rb + sched_pusch->rbStart] ^= slbitmap;
+ 
+     /* reduce max_num_ue once we are sure UE can be allocated, i.e., has CCE */
+     remainUEs--;

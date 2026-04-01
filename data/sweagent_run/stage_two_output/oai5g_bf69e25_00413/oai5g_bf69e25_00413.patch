@@ -1,0 +1,84 @@
+diff --git a/openair3/NAS/COMMON/IES/EpsQualityOfService.c b/openair3/NAS/COMMON/IES/EpsQualityOfService.c
+index ac45a9c0f5..e2b5f7ac16 100644
+--- a/openair3/NAS/COMMON/IES/EpsQualityOfService.c
++++ b/openair3/NAS/COMMON/IES/EpsQualityOfService.c
+@@ -58,7 +58,7 @@ int decode_eps_quality_of_service(EpsQualityOfService *epsqualityofservice, uint
+   epsqualityofservice->qci = *(buffer + decoded);
+   decoded++;
+ 
+-  if ( ielen > 2 + (iei > 0) ? 1 : 0 ) {
++  if ( ielen > (2 + ((iei > 0) ? 1 : 0)) ) {
+     /* bitRates is present */
+     epsqualityofservice->bitRatesPresent = 1;
+     decoded += decode_eps_qos_bit_rates(&epsqualityofservice->bitRates,
+@@ -68,7 +68,7 @@ int decode_eps_quality_of_service(EpsQualityOfService *epsqualityofservice, uint
+     epsqualityofservice->bitRatesPresent = 0;
+   }
+ 
+-  if ( ielen > 6 + (iei > 0) ? 1 : 0 ) {
++  if ( ielen > (6 + ((iei > 0) ? 1 : 0)) ) {
+     /* bitRatesExt is present */
+     epsqualityofservice->bitRatesExtPresent = 1;
+     decoded += decode_eps_qos_bit_rates(&epsqualityofservice->bitRatesExt,
+@@ -172,31 +172,50 @@ void dump_eps_quality_of_service_xml(EpsQualityOfService *epsqualityofservice, u
+ }
+ 
+ #define EPS_QOS_BIT_RATE_MAX  262144  // 256 Mbps
++
++/* According to 3GPP TS 24.301, sections 9.9.3.33 and 9.9.3.34:
++ * - Bit rate value 0 is reserved
++ * - Bit rate value 255 is reserved
++ * Return -1 for reserved values, otherwise return the bit rate in kbps
++ */
+ int eps_qos_bit_rate_value(uint8_t br)
+ {
+-  if (br < 0b00000001) {
+-    return (EPS_QOS_BIT_RATE_MAX);
+-  } else if ( (br > 0b00000000) && (br < 0b01000000) ) {
+-    return (br);
+-  } else if ( (br > 0b00111111) && (br < 0b10000000) ) {
++  if (br == 0 || br == 255) {
++    /* Reserved values as per 3GPP TS 24.301 */
++    return -1;
++  } else if (br <= 0b00111111) {  // 1-63
++    return br;
++  } else if (br <= 0b01111111) {  // 64-127
+     return (64 + (br - 0b01000000) * 8);
+-  } else if ( (br > 0b01111111) && (br < 0b11111111) ) {
++  } else if (br <= 0b11111110) {  // 128-254
+     return (576 + (br - 0b10000000) * 64);
+   } else {
+-    return (0);
++    /* This case should never be reached due to the check above, but included for completeness */
++    return -1;
+   }
+ }
+ 
++/* Extended bit rate values according to 3GPP TS 24.301:
++ * - Bit rate value 0 is reserved
++ * - Other reserved values as per specification
++ * Return -1 for reserved values, otherwise return the bit rate in kbps
++ */
+ int eps_qos_bit_rate_ext_value(uint8_t br)
+ {
+-  if ( (br > 0b00000000) && (br < 0b01001011) ) {
++  if (br == 0) {
++    /* Reserved value as per 3GPP TS 24.301 */
++    return -1;
++  } else if (br <= 0b01001010) {  // 1-74
+     return (8600 + br * 100);
+-  } else if ( (br > 0b01001010) && (br < 0b10111011) ) {
++  } else if (br <= 0b10111010) {  // 75-186
+     return (16384 + (br - 0b01001010) * 1024);
+-  } else if ( (br > 0b10111010) && (br < 0b11111011) ) {
++  } else if (br <= 0b11111010) {  // 187-250
+     return (131072 + (br - 0b10111010) * 2048);
+   } else {
+-    return (-1);
++    /* Values 251-255 are reserved */
++    return -1;
+   }
+ }
+ 
++
++

@@ -1,0 +1,54 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c
+index d1ac9fcdcb..3bfc53dbd7 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c
+@@ -1997,6 +1997,17 @@ static uint8_t pack_nr_start_response(void *msg, uint8_t **ppWritePackedMsg, uin
+            pack_vendor_extension_tlv(pNfapiMsg->vendor_extension, ppWritePackedMsg, end, config) );
+ }
+ 
++static uint8_t pack_nr_stop_request(void *msg, uint8_t **ppWritePackedMsg, uint8_t *end, nfapi_p4_p5_codec_config_t *config) {
++  nfapi_stop_request_t *pNfapiMsg = (nfapi_stop_request_t *)msg;
++  return pack_vendor_extension_tlv(pNfapiMsg->vendor_extension, ppWritePackedMsg, end, config);
++}
++
++static uint8_t pack_nr_stop_response(void *msg, uint8_t **ppWritePackedMsg, uint8_t *end, nfapi_p4_p5_codec_config_t *config) {
++  nfapi_stop_response_t *pNfapiMsg = (nfapi_stop_response_t *)msg;
++  return ( push32(pNfapiMsg->error_code, ppWritePackedMsg, end ) &&
++           pack_vendor_extension_tlv(pNfapiMsg->vendor_extension, ppWritePackedMsg, end, config) );
++}
++
+ static uint8_t pack_start_response(void *msg, uint8_t **ppWritePackedMsg, uint8_t *end, nfapi_p4_p5_codec_config_t *config) {
+   nfapi_start_response_t *pNfapiMsg = (nfapi_start_response_t *)msg;
+   return ( push32(pNfapiMsg->error_code, ppWritePackedMsg, end ) &&
+@@ -2048,7 +2059,7 @@ static uint8_t pack_nr_p5_message_body(nfapi_p4_p5_message_header_t *header, uin
+       result = pack_nr_pnf_param_request(header, ppWritePackedMsg, end, config);
+       break;
+ 
+-    case NFAPI_PNF_PARAM_RESPONSE:
++    case NFAPI_NR_PHY_MSG_TYPE_PNF_PARAM_RESPONSE:
+       result = pack_nr_pnf_param_response(header, ppWritePackedMsg, end, config);
+       break;
+ 
+@@ -2072,7 +2083,7 @@ static uint8_t pack_nr_p5_message_body(nfapi_p4_p5_message_header_t *header, uin
+       result = pack_nr_pnf_stop_request(header, ppWritePackedMsg, end, config);
+       break;
+ 
+-    case NFAPI_PNF_STOP_RESPONSE:
++    case NFAPI_NR_PHY_MSG_TYPE_PNF_STOP_RESPONSE:
+       result = pack_nr_pnf_stop_response(header, ppWritePackedMsg, end, config);
+       break;
+ 
+@@ -2101,11 +2112,11 @@ static uint8_t pack_nr_p5_message_body(nfapi_p4_p5_message_header_t *header, uin
+       break;
+ 
+     case NFAPI_NR_PHY_MSG_TYPE_STOP_REQUEST:
+-      result = pack_stop_request(header, ppWritePackedMsg, end, config);
++      result = pack_nr_stop_request(header, ppWritePackedMsg, end, config);
+       break;
+ 
+     case NFAPI_NR_PHY_MSG_TYPE_STOP_RESPONSE:
+-      result = pack_stop_response(header, ppWritePackedMsg, end, config);
++      result = pack_nr_stop_response(header, ppWritePackedMsg, end, config);
+       break;
+ 
+     default: {

@@ -1,0 +1,75 @@
+diff --git a/openair2/RRC/LTE/rrc_eNB.c b/openair2/RRC/LTE/rrc_eNB.c
+index a5ad82b61e..041aaa1059 100644
+--- a/openair2/RRC/LTE/rrc_eNB.c
++++ b/openair2/RRC/LTE/rrc_eNB.c
+@@ -1084,8 +1084,18 @@ rrc_eNB_generate_UECapabilityEnquiry(
+   uint8_t                             buffer[100];
+   uint8_t                             size;
+   T(T_ENB_RRC_UE_CAPABILITY_ENQUIRY, T_INT(ctxt_pP->module_id), T_INT(ctxt_pP->frame), T_INT(ctxt_pP->subframe), T_INT(ctxt_pP->rntiMaybeUEid));
++  
++  // Check if gNB cells are configured (for NR band information)
++  uint32_t nr_band = 0; // Default to 0, do_NR_UECapabilityEnquiry will use band 78 if 0
++  if (RC.rrc[ctxt_pP->module_id]->num_gnb_cells > 0 && 
++      RC.rrc[ctxt_pP->module_id]->num_gnb_cells_cc[0] > 0) {
++    nr_band = RC.rrc[ctxt_pP->module_id]->nr_gnb_freq_band[0][0];
++  } else {
++    LOG_W(RRC, PROTOCOL_RRC_CTXT_UE_FMT" No gNB cells or carriers configured, using default NR band\n", 
++          PROTOCOL_RRC_CTXT_UE_ARGS(ctxt_pP));
++  }
++  
+   int16_t eutra_band = RC.rrc[ctxt_pP->module_id]->configuration.eutra_band[0];
+-  uint32_t nr_band = RC.rrc[ctxt_pP->module_id]->nr_gnb_freq_band[0][0];
+   size = do_UECapabilityEnquiry(
+            ctxt_pP,
+            buffer,
+@@ -1124,6 +1134,21 @@ rrc_eNB_generate_NR_UECapabilityEnquiry(
+   uint8_t                             buffer[100];
+   uint8_t                             size;
+   T(T_ENB_RRC_UE_CAPABILITY_ENQUIRY, T_INT(ctxt_pP->module_id), T_INT(ctxt_pP->frame), T_INT(ctxt_pP->subframe), T_INT(ctxt_pP->rntiMaybeUEid));
++  
++  // Check if gNB cells are configured
++  if (RC.rrc[ctxt_pP->module_id]->num_gnb_cells == 0) {
++    LOG_W(RRC, PROTOCOL_RRC_CTXT_UE_FMT" No gNB cells configured, cannot generate NR UECapabilityEnquiry\n", 
++          PROTOCOL_RRC_CTXT_UE_ARGS(ctxt_pP));
++    return;
++  }
++  
++  // Check if the first gNB cell has carriers configured
++  if (RC.rrc[ctxt_pP->module_id]->num_gnb_cells_cc[0] == 0) {
++    LOG_W(RRC, PROTOCOL_RRC_CTXT_UE_FMT" No carriers configured for first gNB cell, cannot generate NR UECapabilityEnquiry\n", 
++          PROTOCOL_RRC_CTXT_UE_ARGS(ctxt_pP));
++    return;
++  }
++  
+   int16_t eutra_band = RC.rrc[ctxt_pP->module_id]->configuration.eutra_band[0];
+   uint32_t nr_band = RC.rrc[ctxt_pP->module_id]->nr_gnb_freq_band[0][0];
+   size = do_NR_UECapabilityEnquiry(
+@@ -6179,7 +6204,7 @@ is_dl_256QAM_supported(
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R118
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R11a
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R125
+-	 && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250 != NULL
++         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250 != NULL
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250 != NULL
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array != NULL
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array[0]->dl_256QAM_r12 != NULL
+@@ -6497,7 +6522,7 @@ rrc_eNB_decode_dcch(
+                   ue_context_p->ue_context.enb_gtp_ebi[i]  = 0;
+                 }
+               }
+-	      gtpv1u_delete_s1u_tunnel(ctxt_pP->instance, &delete_tunnels);
++              gtpv1u_delete_s1u_tunnel(ctxt_pP->instance, &delete_tunnels);
+               //S1AP_E_RAB_RELEASE_RESPONSE
+               rrc_eNB_send_S1AP_E_RAB_RELEASE_RESPONSE(ctxt_pP,
+                   ue_context_p,
+@@ -7226,8 +7251,8 @@ void rrc_subframe_process(protocol_ctxt_t *const ctxt_pP, const int CC_id) {
+           get_ue_Category(ue_context_p->ue_context.UE_Capability,&catDL,&catUL);
+           fprintf(fd,"RRC UE cap: CatDL %ld, CatUL %ld, 64QAM UL %s, 256 QAM DL %s, 256 QAM UL %s, ENDC %s,\n",
+                 catDL,catUL,
+-		is_ul_64QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
+-		is_dl_256QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
++                is_ul_64QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
++                is_dl_256QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
+                 is_ul_256QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
+                 is_en_dc_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no");
+         }

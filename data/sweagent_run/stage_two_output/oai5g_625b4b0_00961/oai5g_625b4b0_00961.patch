@@ -1,0 +1,118 @@
+diff --git a/openair1/PHY/LTE_TRANSPORT/ulsch_decoding.c b/openair1/PHY/LTE_TRANSPORT/ulsch_decoding.c
+index fd682e917c..b89011c552 100644
+--- a/openair1/PHY/LTE_TRANSPORT/ulsch_decoding.c
++++ b/openair1/PHY/LTE_TRANSPORT/ulsch_decoding.c
+@@ -254,19 +254,19 @@ void processULSegment(void * arg) {
+       LOG_E(PHY,"Adding HARQ data for segment: %d\n", r);
+       // Store the result of HARQ combining in the last emtc repetitions of sequence 0,2,3,1
+       for (int nn=0; nn<max_Ncb; nn++)
+-	ulsch_harq->pusch_rep_buffer[r][nn] += ulsch_harq->w[r][nn] ;
++        ulsch_harq->pusch_rep_buffer[r][nn] += ulsch_harq->w[r][nn] ;
+     }
+ 
+     if (ulsch_harq->repetition_number == ulsch_harq->total_number_of_repetitions) {
+       LOG_E(PHY,"Will use HARQ data sum up for segment: %d\n", r);
+       for (int nn=0; nn<max_Ncb; nn++) 
+-	ulsch_harq->w[r][nn] =  ulsch_harq->pusch_rep_buffer[r][nn] ;
++        ulsch_harq->w[r][nn] =  ulsch_harq->pusch_rep_buffer[r][nn] ;
+     }
+   }
+   int16_t soft_bits[3*8*6144+12+96] __attribute__((aligned(32)));
+   sub_block_deinterleaving_turbo(4+rdata->Kr,
+-				 soft_bits+96,
+-				 ulsch_harq->w[r]);
++                                 soft_bits+96,
++                                 ulsch_harq->w[r]);
+   stop_meas(&eNB->ulsch_deinterleaving_stats);
+   rdata->decodeIterations = rdata->function(soft_bits + 96,
+                                             NULL,
+@@ -304,12 +304,13 @@ static int ulsch_decoding_data(PHY_VARS_eNB *eNB, L1_rxtx_proc_t *proc, int UE_i
+   int G = ulsch_harq->G;
+   unsigned int E;
+   int ret=0;
++  int num_segments = ulsch_harq->C; // Local counter to track submitted tasks
+   
+   decoder_if_t * td=llr8_flag == 0 ?
+     *decoder16 : *decoder8;
+   ulsch_harq->processedSegments=0;
+   set_abort(&ulsch_harq->abort_decode, false);
+-  for (int r=0; r<ulsch_harq->C; r++) {
++  for (int r=0; r<num_segments; r++) {
+     //    printf("before subblock deinterleaving c[%d] = %p\n",r,ulsch_harq->c[r]);
+     // Get Turbo interleaver parameters
+     unsigned int Kr= r<ulsch_harq->Cminus ?
+@@ -331,7 +332,8 @@ static int ulsch_decoding_data(PHY_VARS_eNB *eNB, L1_rxtx_proc_t *proc, int UE_i
+     else
+       E = ulsch_harq->Qm * ((GpmodC==0?0:1) + (Gp/ulsch_harq->C));
+     
+-    union turboReqUnion id= {.s={ulsch->rnti,proc->frame_rx,proc->subframe_rx,0,0}};
++    // Use segment index in task key for unique identification
++    union turboReqUnion id= {.s={ulsch->rnti,proc->frame_rx,proc->subframe_rx,r,0}};
+     notifiedFIFO_elt_t *req=newNotifiedFIFO_elt(sizeof(turboDecode_t),
+                                                 id.p,
+                                                 proc->respDecode,
+@@ -359,8 +361,30 @@ static int ulsch_decoding_data(PHY_VARS_eNB *eNB, L1_rxtx_proc_t *proc, int UE_i
+     proc->nbDecode++;
+     LOG_D(PHY,"Added a block to decode, in pipe: %d\n",proc->nbDecode);
+     r_offset+=E;
+-    offset+=sz;	    
++    offset+=sz;     
+   }
++  
++  // Wait for all submitted decoding tasks to complete before returning
++  int completed_tasks = 0;
++  for (int r = 0; r < num_segments; r++) {
++    notifiedFIFO_elt_t *resp = pullTpool(proc->respDecode, proc->threadPool);
++    if (resp == NULL) {
++      LOG_E(PHY, "Received NULL response from thread pool, stopping wait loop\n");
++      break; // Tpool has been stopped
++    }
++    delNotifiedFIFO_elt(resp);
++    proc->nbDecode--;
++    completed_tasks++;
++    LOG_D(PHY,"Completed a block decode, remaining in pipe: %d\n",proc->nbDecode);
++  }
++  
++  // In case we broke out of the loop early, adjust nbDecode appropriately
++  if (completed_tasks < num_segments) {
++    int uncompleted = num_segments - completed_tasks;
++    proc->nbDecode -= uncompleted;
++    LOG_W(PHY, "Adjusting nbDecode by %d due to early exit from wait loop\n", uncompleted);
++  }
++  
+   return(ret);
+ }
+ 
+@@ -531,11 +555,11 @@ unsigned int  ulsch_decoding(PHY_VARS_eNB *eNB,
+   // Compute Q_ri
+   Qprime = ulsch_harq->O_RI*ulsch_harq->Msc_initial*ulsch_harq->Nsymb_initial * ulsch->beta_offset_ri_times8;
+   LOG_D(PHY, "Qprime %d, O_RI %d, Msc %d, Nym %d beta %d\n",
+-		  Qprime,
+-		  ulsch_harq->O_RI,
+-		  ulsch_harq->Msc_initial,
+-		  ulsch_harq->Nsymb_initial,
+-		  ulsch->beta_offset_ri_times8);
++                  Qprime,
++                  ulsch_harq->O_RI,
++                  ulsch_harq->Msc_initial,
++                  ulsch_harq->Nsymb_initial,
++                  ulsch->beta_offset_ri_times8);
+ 
+   if (Qprime > 0 ) {
+     if ((Qprime % (8*sumKr)) > 0)
+@@ -1122,11 +1146,11 @@ void dump_ulsch_stats(FILE *fd,PHY_VARS_eNB *eNB,int frame) {
+       stroff+=sprintf(output+stroff,"ULSCH RNTI %x:  current_Qm %d, current_G %d, current_TBS %d, current_rate %f,current_RI %d, timing_offset %d, total_bytes RX/SCHED %d/%d\n",
+             eNB->ulsch_stats[i].rnti,
+             eNB->ulsch_stats[i].current_Qm,
+-	    eNB->ulsch_stats[i].current_G,
+-	    eNB->ulsch_stats[i].current_TBS,
+-	    (double)eNB->ulsch_stats[i].current_G/eNB->ulsch_stats[i].current_TBS,
++            eNB->ulsch_stats[i].current_G,
++            eNB->ulsch_stats[i].current_TBS,
++            (double)eNB->ulsch_stats[i].current_G/eNB->ulsch_stats[i].current_TBS,
+             eNB->ulsch_stats[i].current_RI,
+-	    eNB->ulsch_stats[i].timing_offset,
++            eNB->ulsch_stats[i].timing_offset,
+             eNB->ulsch_stats[i].total_bytes_rx,
+             eNB->ulsch_stats[i].total_bytes_tx);
+     }

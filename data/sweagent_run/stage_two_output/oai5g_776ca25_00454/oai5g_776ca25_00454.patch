@@ -1,0 +1,174 @@
+diff --git a/openair2/ENB_APP/enb_config.c b/openair2/ENB_APP/enb_config.c
+index 2f775f504e..fd64fd0355 100644
+--- a/openair2/ENB_APP/enb_config.c
++++ b/openair2/ENB_APP/enb_config.c
+@@ -188,14 +188,14 @@ void RCconfig_macrlc(void)
+       RC.mac[j]->max_ul_rb_index = *(MacRLC_ParamList.paramarray[j][MACRLC_MAX_UL_RB_INDEX_IDX ].iptr);
+       RC.nb_mac_CC[j] = *(MacRLC_ParamList.paramarray[j][MACRLC_CC_IDX].iptr);
+       LOG_I(ENB_APP,"MAC instance %d parameters : pusch_snr %lf, pucch_snr %lf, ue_multiple_max %d, use_mcs_offset %d, bler_lower %lf, bler_upper %lf,max_ul_rb_index %d\n",
+-	j,
+-	RC.mac[j]->puSch10xSnr/10.0,
+-	RC.mac[j]->puCch10xSnr/10.0,
+-	RC.mac[j]->ue_multiple_max,
+-	RC.mac[j]->use_mcs_offset,
+-	RC.mac[j]->bler_lower,
+-	RC.mac[j]->bler_upper,
+-	RC.mac[j]->max_ul_rb_index);
++        j,
++        RC.mac[j]->puSch10xSnr/10.0,
++        RC.mac[j]->puCch10xSnr/10.0,
++        RC.mac[j]->ue_multiple_max,
++        RC.mac[j]->use_mcs_offset,
++        RC.mac[j]->bler_lower,
++        RC.mac[j]->bler_upper,
++        RC.mac[j]->max_ul_rb_index);
+       if (strcmp(*(MacRLC_ParamList.paramarray[j][MACRLC_TRANSPORT_N_PREFERENCE_IDX].strptr), "local_RRC") == 0) {
+         // check number of instances is same as RRC/PDCP
+         LOG_I(ENB_APP,"Configuring local RRC for MACRLC\n");
+@@ -2137,67 +2137,84 @@ int RCconfig_S1(
+     config_getlist(config_get_if(), &ENBParamList, ENBParams, sizeofArray(ENBParams), NULL);
+ 
+     if (ENBParamList.numelt > 0) {
+-      for (int k = 0; k < ENBParamList.numelt; k++) {
+-        if (ENBParamList.paramarray[k][ENB_ENB_ID_IDX].uptr == NULL) {
+-          // Calculate a default eNB ID
+-          if (EPC_MODE_ENABLED) {
+-            uint32_t hash = 0;
+-            hash = s1ap_generate_eNB_id();
+-            enb_id = k + (hash & 0xFFFF8);
+-          } else {
+-            enb_id = k;
+-          }
++      // Verify that the requested eNB index is valid
++      AssertFatal(i < ENBParamList.numelt,
++                  "Failed to parse config file %s, requested eNB index %u is out of range (max %u)\n",
++                  RC.config_file_name, i, ENBParamList.numelt);
++      
++      int k = i; // Use the provided index directly
++      
++      if (ENBParamList.paramarray[k][ENB_ENB_ID_IDX].uptr == NULL) {
++        // Calculate a default eNB ID
++        if (EPC_MODE_ENABLED) {
++          uint32_t hash = 0;
++          hash = s1ap_generate_eNB_id();
++          enb_id = k + (hash & 0xFFFF8);
+         } else {
+-          enb_id = *(ENBParamList.paramarray[k][ENB_ENB_ID_IDX].uptr);
++          enb_id = k;
+         }
++      } else {
++        enb_id = *(ENBParamList.paramarray[k][ENB_ENB_ID_IDX].uptr);
++      }
+ 
+-        // search if in active list
+-        for (int j = 0; j < ENBSParams[ENB_ACTIVE_ENBS_IDX].numelt; j++) {
+-          if (strcmp(ENBSParams[ENB_ACTIVE_ENBS_IDX].strlistptr[j], *(ENBParamList.paramarray[k][ENB_ENB_NAME_IDX].strptr)) == 0) {
+-            paramdef_t PLMNParams[] = PLMNPARAMS_DESC;
+-            paramlist_def_t PLMNParamList = {ENB_CONFIG_STRING_PLMN_LIST, NULL, 0};
+-            paramdef_t CCsParams[] = CCPARAMS_DESC(ccparams_lte);
+-            /* map parameter checking array instances to parameter definition array instances */
+-            checkedparam_t config_check_CCparams[] = CCPARAMS_CHECK;
+-
+-            for (int I = 0; I < sizeofArray(CCsParams); I++) {
+-              CCsParams[I].chkPptr = &(config_check_CCparams[I]);
+-            }
+-
+-            /* map parameter checking array instances to parameter definition array instances */
+-            checkedparam_t config_check_PLMNParams [] = PLMNPARAMS_CHECK;
++      // search if in active list
++      int found = 0;
++      for (int j = 0; j < ENBSParams[ENB_ACTIVE_ENBS_IDX].numelt; j++) {
++        if (strcmp(ENBSParams[ENB_ACTIVE_ENBS_IDX].strlistptr[j], *(ENBParamList.paramarray[k][ENB_ENB_NAME_IDX].strptr)) == 0) {
++          found = 1;
++          break;
++        }
++      }
++      
++      // Verify that the eNB is in the active list
++      AssertFatal(found,
++                  "Failed to parse config file %s, eNB %u (name: %s) is not in the active eNB list\n",
++                  RC.config_file_name, i, *(ENBParamList.paramarray[k][ENB_ENB_NAME_IDX].strptr));
++
++      paramdef_t PLMNParams[] = PLMNPARAMS_DESC;
++      paramlist_def_t PLMNParamList = {ENB_CONFIG_STRING_PLMN_LIST, NULL, 0};
++      paramdef_t CCsParams[] = CCPARAMS_DESC(ccparams_lte);
++      /* map parameter checking array instances to parameter definition array instances */
++      checkedparam_t config_check_CCparams[] = CCPARAMS_CHECK;
++
++      for (int I = 0; I < sizeofArray(CCsParams); I++) {
++        CCsParams[I].chkPptr = &(config_check_CCparams[I]);
++      }
+ 
+-            for (int I = 0; I < sizeofArray(PLMNParams); ++I) {
+-              PLMNParams[I].chkPptr = &(config_check_PLMNParams[I]);
+-            }
++      /* map parameter checking array instances to parameter definition array instances */
++      checkedparam_t config_check_PLMNParams [] = PLMNPARAMS_CHECK;
+ 
+-            paramdef_t S1Params[] = S1PARAMS_DESC;
+-            paramlist_def_t S1ParamList = {ENB_CONFIG_STRING_MME_IP_ADDRESS, NULL, 0};
+-            paramdef_t SCTPParams[] = SCTPPARAMS_DESC;
+-            paramdef_t NETParams[] =  NETPARAMS_DESC;
+-            char aprefix[MAX_OPTNAME_SIZE*2 + 8];
+-            sprintf(aprefix, "%s.[%i]", ENB_CONFIG_STRING_ENB_LIST, k);
+-            S1AP_REGISTER_ENB_REQ (msg_p).eNB_id = enb_id;
++      for (int I = 0; I < sizeofArray(PLMNParams); ++I) {
++        PLMNParams[I].chkPptr = &(config_check_PLMNParams[I]);
++      }
+ 
+-            if (strcmp(*(ENBParamList.paramarray[k][ENB_CELL_TYPE_IDX].strptr), "CELL_MACRO_ENB") == 0) {
+-              S1AP_REGISTER_ENB_REQ (msg_p).cell_type = CELL_MACRO_ENB;
+-            } else  if (strcmp(*(ENBParamList.paramarray[k][ENB_CELL_TYPE_IDX].strptr), "CELL_HOME_ENB") == 0) {
+-              S1AP_REGISTER_ENB_REQ (msg_p).cell_type = CELL_HOME_ENB;
+-              // Temporary option to be able to parse an eNB configuration file which is treated as gNB from
+-              // the X2AP layer and test the setup of an ENDC X2AP connection. To be removed when we are ready to
+-              // parse an actual gNB configuration file wrt. the X2AP parameters instead.
+-            } else  if (strcmp(*(ENBParamList.paramarray[k][ENB_CELL_TYPE_IDX].strptr), "CELL_MACRO_GNB") == 0) {
+-              S1AP_REGISTER_ENB_REQ (msg_p).cell_type = CELL_MACRO_GNB;
+-            } else {
+-              AssertFatal(0,
+-                          "Failed to parse eNB configuration file %s, enb %u unknown value \"%s\" for cell_type choice: CELL_MACRO_ENB or CELL_HOME_ENB !\n",
+-                          RC.config_file_name,
+-                          i,
+-                          *(ENBParamList.paramarray[k][ENB_CELL_TYPE_IDX].strptr));
+-            }
++      paramdef_t S1Params[] = S1PARAMS_DESC;
++      paramlist_def_t S1ParamList = {ENB_CONFIG_STRING_MME_IP_ADDRESS, NULL, 0};
++      paramdef_t SCTPParams[] = SCTPPARAMS_DESC;
++      paramdef_t NETParams[] =  NETPARAMS_DESC;
++      char aprefix[MAX_OPTNAME_SIZE*2 + 8];
++      sprintf(aprefix, "%s.[%i]", ENB_CONFIG_STRING_ENB_LIST, k);
++      S1AP_REGISTER_ENB_REQ (msg_p).eNB_id = enb_id;
++
++      if (strcmp(*(ENBParamList.paramarray[k][ENB_CELL_TYPE_IDX].strptr), "CELL_MACRO_ENB") == 0) {
++        S1AP_REGISTER_ENB_REQ (msg_p).cell_type = CELL_MACRO_ENB;
++      } else  if (strcmp(*(ENBParamList.paramarray[k][ENB_CELL_TYPE_IDX].strptr), "CELL_HOME_ENB") == 0) {
++        S1AP_REGISTER_ENB_REQ (msg_p).cell_type = CELL_HOME_ENB;
++        // Temporary option to be able to parse an eNB configuration file which is treated as gNB from
++        // the X2AP layer and test the setup of an ENDC X2AP connection. To be removed when we are ready to
++        // parse an actual gNB configuration file wrt. the X2AP parameters instead.
++      } else  if (strcmp(*(ENBParamList.paramarray[k][ENB_CELL_TYPE_IDX].strptr), "CELL_MACRO_GNB") == 0) {
++        S1AP_REGISTER_ENB_REQ (msg_p).cell_type = CELL_MACRO_GNB;
++      } else {
++        AssertFatal(0,
++                    "Failed to parse eNB configuration file %s, enb %u unknown value \"%s\" for cell_type choice: CELL_MACRO_ENB or CELL_HOME_ENB !\n",
++                    RC.config_file_name,
++                    i,
++                    *(ENBParamList.paramarray[k][ENB_CELL_TYPE_IDX].strptr));
++      }
+ 
+-            S1AP_REGISTER_ENB_REQ (msg_p).eNB_name = strdup(*(ENBParamList.paramarray[k][ENB_ENB_NAME_IDX].strptr));
+-            S1AP_REGISTER_ENB_REQ(msg_p).tac = *ENBParamList.paramarray[k][ENB_TRACKING_AREA_CODE_IDX].uptr;
++      S1AP_REGISTER_ENB_REQ (msg_p).eNB_name = strdup(*(ENBParamList.paramarray[k][ENB_ENB_NAME_IDX].strptr));
++      S1AP_REGISTER_ENB_REQ(msg_p).tac = *ENBParamList.paramarray[k][ENB_TRACKING_AREA_CODE_IDX].uptr;
+             AssertFatal(!ENBParamList.paramarray[k][ENB_MOBILE_COUNTRY_CODE_IDX_OLD].strptr
+                         && !ENBParamList.paramarray[k][ENB_MOBILE_NETWORK_CODE_IDX_OLD].strptr,
+                         "It seems that you use an old configuration file. Please change the existing\n"
+@@ -2389,7 +2406,6 @@ int RCconfig_S1(
+             S1AP_REGISTER_ENB_REQ (msg_p).enb_ip_address.ipv6 = 0;
+             S1AP_REGISTER_ENB_REQ (msg_p).enb_ip_address.ipv4 = 1;
+             strcpy(S1AP_REGISTER_ENB_REQ (msg_p).enb_ip_address.ipv4_address, address);
+-            break;
+           }
+         }
+       }

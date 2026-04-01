@@ -1,0 +1,74 @@
+diff --git a/openair2/RRC/NR/MESSAGES/asn1_msg.c b/openair2/RRC/NR/MESSAGES/asn1_msg.c
+index c016e4c899..28ae19dfb5 100644
+--- a/openair2/RRC/NR/MESSAGES/asn1_msg.c
++++ b/openair2/RRC/NR/MESSAGES/asn1_msg.c
+@@ -39,6 +39,7 @@
+ #include "oai_asn1.h"
+ #include <asn_application.h>
+ #include <per_encoder.h>
++#include <xer_encoder.h>
+ #include <nr/nr_common.h>
+ #include <softmodem-common.h>
+ 
+@@ -547,7 +548,7 @@ static NR_RRCReconfiguration_IEs_t *build_RRCReconfiguration_IEs(const nr_rrc_re
+       ssize_t len = uper_encode_to_new_buffer(&asn_DEF_NR_CellGroupConfig, NULL, params->cell_group_config, (void **)&buf);
+       AssertFatal(len > 0, "ASN1 message encoding failed (%lu)!\n", len);
+       if (LOG_DEBUGFLAG(DEBUG_ASN1)) {
+-        xer_fprint(stdout, &asn_DEF_NR_CellGroupConfig, (const void *)params->cell_group_config);
++        dump_mcg(params->cell_group_config);
+       }
+       ie->nonCriticalExtension->masterCellGroup = calloc_or_fail(1, sizeof(*ie->nonCriticalExtension->masterCellGroup));
+       *ie->nonCriticalExtension->masterCellGroup = (OCTET_STRING_t){.buf = buf, .size = len};
+@@ -674,7 +675,7 @@ int do_NR_RRCReconfigurationComplete_for_nsa(
+   rrc_complete_msg.criticalExtensions.choice.rrcReconfigurationComplete =
+         CALLOC(1, sizeof(*rrc_complete_msg.criticalExtensions.choice.rrcReconfigurationComplete));
+   rrc_complete_msg.criticalExtensions.present =
+-	NR_RRCReconfigurationComplete__criticalExtensions_PR_rrcReconfigurationComplete;
++        NR_RRCReconfigurationComplete__criticalExtensions_PR_rrcReconfigurationComplete;
+   rrc_complete_msg.criticalExtensions.choice.rrcReconfigurationComplete->nonCriticalExtension = NULL;
+   rrc_complete_msg.criticalExtensions.choice.rrcReconfigurationComplete->lateNonCriticalExtension = NULL;
+   if (0) {
+@@ -1166,3 +1167,30 @@ int do_NR_MeasurementTimingConfiguration(const NR_MeasurementTimingConfiguration
+   AssertFatal(enc_rval.encoded > 0, "ASN1 message encoding failed (%s, %lu)!\n", enc_rval.failed_type->name, enc_rval.encoded);
+   return (enc_rval.encoded + 7) / 8;
+ }
++
++int dump_mcg(const NR_CellGroupConfig_t *cell_group_config)
++{
++  if (cell_group_config == NULL) {
++    LOG_E(NR_RRC, "dump_mcg: cell_group_config is NULL\n");
++    return -1;
++  }
++
++  xer_fprint(stdout, &asn_DEF_NR_CellGroupConfig, (const void *)cell_group_config);
++  return 0;
++}
++
++int dump_mcg_to_string(const NR_CellGroupConfig_t *cell_group_config, char *string, size_t string_size)
++{
++  if (cell_group_config == NULL) {
++    LOG_E(NR_RRC, "dump_mcg_to_string: cell_group_config is NULL\n");
++    return -1;
++  }
++
++  if (string == NULL || string_size == 0) {
++    LOG_E(NR_RRC, "dump_mcg_to_string: invalid string buffer\n");
++    return -1;
++  }
++
++  int ret = xer_nr_sprint(string, string_size, &asn_DEF_NR_CellGroupConfig, (void *)cell_group_config);
++  return ret;
++}
+diff --git a/openair2/RRC/NR/MESSAGES/asn1_msg.h b/openair2/RRC/NR/MESSAGES/asn1_msg.h
+index 432db0e5cd..201be1a218 100644
+--- a/openair2/RRC/NR/MESSAGES/asn1_msg.h
++++ b/openair2/RRC/NR/MESSAGES/asn1_msg.h
+@@ -160,4 +160,8 @@ NR_MeasConfig_t *get_MeasConfig(const NR_MeasTiming_t *mt,
+ void free_MeasConfig(NR_MeasConfig_t *mc);
+ int do_NR_Paging(uint8_t Mod_id, uint8_t *buffer, uint32_t tmsi);
+ 
++int dump_mcg(const NR_CellGroupConfig_t *cell_group_config);
++
++int dump_mcg_to_string(const NR_CellGroupConfig_t *cell_group_config, char *string, size_t string_size);
++
+ #endif  /* __RRC_NR_MESSAGES_ASN1_MSG__H__ */

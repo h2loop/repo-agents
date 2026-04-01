@@ -1,0 +1,9 @@
+{
+  "run_id": "s00216_0f3d2e",
+  "pr_text": "## Title: Fix deadlock in M2AP message handling by removing duplicate responses\n\n### Summary\nFix a deadlock caused by inconsistent lock acquisition ordering in M2AP message processing. The ENB_APP layer was sending duplicate responses for MBMS session control messages that are already handled by the RRC layer. Since RRC holds `cell_info_mutex` while processing these messages and sending its own responses, the duplicate responses from ENB_APP created a race condition leading to deadlock. This pat",
+  "trajectory_path": "data/raw/s00216_0f3d2e_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00216_0f3d2e_p2.diff",
+  "patch_lines": 44,
+  "trajectory_steps": 57,
+  "timestamp": "2026-02-10T12:01:03Z"
+}

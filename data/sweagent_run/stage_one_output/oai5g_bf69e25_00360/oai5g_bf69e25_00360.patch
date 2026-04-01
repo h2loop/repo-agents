@@ -1,0 +1,46 @@
+diff --git a/openair3/NAS/UE/ESM/PdnConnectivity.c b/openair3/NAS/UE/ESM/PdnConnectivity.c
+index a79320cccb..f7f21c644b 100644
+--- a/openair3/NAS/UE/ESM/PdnConnectivity.c
++++ b/openair3/NAS/UE/ESM/PdnConnectivity.c
+@@ -117,7 +117,7 @@ static void *_pdn_connectivity_t3482_handler(void *);
+  **      identifier                                                **
+  **                                                                        **
+  ** Inputs:  cid:       PDN connection identifier                  **
+- **      is_to_define:  Indicates whether the PDN connection has   **
++ **      to_define:  Indicates whether the PDN connection has   **
+  **             to be defined or undefined                 **
+  **      pdn_type:  PDN connection type (IPv4, IPv6, IPv4v6)   **
+  **      apn:       Access Point logical Name to be used       **
+@@ -131,7 +131,7 @@ static void *_pdn_connectivity_t3482_handler(void *);
+  **      Return:    RETURNok, RETURNerror                      **
+  **                                                                        **
+  ***************************************************************************/
+-int esm_proc_pdn_connectivity(nas_user_t *user, int cid, int is_to_define,
++int esm_proc_pdn_connectivity(nas_user_t *user, int cid, int to_define,
+                               esm_proc_pdn_type_t pdn_type,
+                               const OctetString *apn, bool is_emergency,
+                               unsigned int *pti)
+@@ -140,17 +140,17 @@ int esm_proc_pdn_connectivity(nas_user_t *user, int cid, int is_to_define,
+ 
+     int rc = RETURNerror;
+     int pid = cid - 1;
+-    esm_data_t *esm_data = user-> esm_data;
+-    esm_pt_data_t *esm_pt_data = user-> esm_pt_data;
++    esm_data_t *esm_data = user->esm_data;
++    esm_pt_data_t *esm_pt_data = user->esm_pt_data;
+ 
+-    if (!is_to_define) {
++    if (!to_define) {
+         LOG_TRACE(INFO, "ESM-PROC  - Undefine PDN connection (cid=%d)", cid);
+         /* Delete the PDN connection entry */
+-        int pti = _pdn_connectivity_delete(esm_data, pid);
++        int pti_del = _pdn_connectivity_delete(esm_data, pid);
+ 
+-        if (pti != ESM_PT_UNASSIGNED) {
++        if (pti_del != ESM_PT_UNASSIGNED) {
+             /* Release the procedure transaction data */
+-            rc = esm_pt_release(esm_pt_data, pti);
++            rc = esm_pt_release(esm_pt_data, pti_del);
+         }
+ 
+         LOG_FUNC_RETURN(rc);

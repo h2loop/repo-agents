@@ -1,0 +1,56 @@
+diff --git a/openair3/NAS/COMMON/UTIL/nas_timer.c b/openair3/NAS/COMMON/UTIL/nas_timer.c
+index b67a3bc232..e5c1c159e6 100644
+--- a/openair3/NAS/COMMON/UTIL/nas_timer.c
++++ b/openair3/NAS/COMMON/UTIL/nas_timer.c
+@@ -126,7 +126,7 @@ static nas_timer_entry_t *_nas_timer_db_create_entry(long sec,
+     nas_timer_callback_t cb, void *args);
+ static void _nas_timer_db_delete_entry(int id);
+ 
+-static void _nas_timer_db_insert_entry(int id, nas_timer_entry_t *te);
++static int _nas_timer_db_insert_entry(int id, nas_timer_entry_t *te);
+ static int _nas_timer_db_insert(timer_queue_t *entry);
+ 
+ static nas_timer_entry_t *_nas_timer_db_remove_entry(int id);
+@@ -215,7 +215,7 @@ int nas_timer_start(long sec, nas_timer_callback_t cb, void *args)
+   }
+ 
+   /* Insert the new entry into the timer queue */
+-  _nas_timer_db_insert_entry(id, te);
++  (void)_nas_timer_db_insert_entry(id, te);
+ # if defined(NAS_MME)
+   ret = timer_setup(sec, 0, TASK_NAS_MME, INSTANCE_DEFAULT, TIMER_PERIODIC, args, &timer_id);
+ # else
+@@ -288,7 +288,7 @@ int nas_timer_restart(int id)
+     /* Initialize its interval timer value */
+     te->tv = te->itv;
+     /* Insert again the entry into the timer queue */
+-    _nas_timer_db_insert_entry(id, te);
++    (void)_nas_timer_db_insert_entry(id, te);
+     return (id);
+   }
+ 
+@@ -494,11 +494,13 @@ static void _nas_timer_db_delete_entry(int id)
+  **      Others:    None                                       **
+  **                                                                        **
+  ** Outputs:     None                                                      **
+- **      Return:    None                                       **
++ **      Return:    true if the new entry became the first in      **
++ **             the queue (timer restart needed), false        **
++ **             otherwise                                      **
+  **      Others:    _nas_timer_db                              **
+  **                                                                        **
+  ***************************************************************************/
+-static void _nas_timer_db_insert_entry(int id, nas_timer_entry_t *te)
++static int _nas_timer_db_insert_entry(int id, nas_timer_entry_t *te)
+ {
+   struct itimerval it;
+   struct timespec  ts;
+@@ -525,7 +527,7 @@ static void _nas_timer_db_insert_entry(int id, nas_timer_entry_t *te)
+   restart = _nas_timer_db_insert(&_nas_timer_db.tq[id]);
+   nas_timer_unlock_db();
+ 
+-  (void)(restart);
++  return restart;
+ }
+ 
+ static int _nas_timer_db_insert(timer_queue_t *entry)

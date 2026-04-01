@@ -1,0 +1,28 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+index e75e418500..099f299be4 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+@@ -2556,6 +2556,11 @@ int pack_nr_srs_normalized_channel_iq_matrix(void *pMessageBuf, void *pPackedBuf
+ 
+ static uint8_t pack_nr_srs_reported_symbol(nfapi_nr_srs_reported_symbol_t *prgs, uint8_t **ppWritePackedMsg, uint8_t *end) {
+ 
++  // Validate num_prgs against maximum allowed value (272) to prevent buffer overflow
++  if(prgs->num_prgs > 272) {
++    return 0;
++  }
++
+   if(!push16(prgs->num_prgs, ppWritePackedMsg, end)) {
+     return 0;
+   }
+@@ -2576,6 +2581,11 @@ int pack_nr_srs_beamforming_report(void *pMessageBuf, void *pPackedBuf, uint32_t
+   uint8_t *pWritePackedMessage = pPackedBuf;
+   uint8_t *end = pPackedBuf + packedBufLen;
+ 
++  // Validate num_reported_symbols against maximum allowed value (4) to prevent buffer overflow
++  if (nr_srs_beamforming_report->num_reported_symbols > 4) {
++    return 0;
++  }
++
+   if (!(push16(nr_srs_beamforming_report->prg_size, &pWritePackedMessage, end)
+         && push8(nr_srs_beamforming_report->num_symbols, &pWritePackedMessage, end)
+         && push8(nr_srs_beamforming_report->wide_band_snr, &pWritePackedMessage, end)

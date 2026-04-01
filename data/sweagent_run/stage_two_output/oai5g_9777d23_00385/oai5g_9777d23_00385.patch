@@ -1,0 +1,46 @@
+diff --git a/openair2/UTIL/OMG/common.c b/openair2/UTIL/OMG/common.c
+index fa6e70df56..87ce0e1762 100644
+--- a/openair2/UTIL/OMG/common.c
++++ b/openair2/UTIL/OMG/common.c
+@@ -414,12 +414,6 @@ clear_string_list (string_list * list)
+   return list;
+ }
+ 
+-#ifdef STANDALONE
+-/*
+- * for the two functions below, the passed array must have a final entry
+- * with string value NULL
+- */
+-/* map a string to an int. Takes a mapping array and a string as arg */
+ int
+ map_str_to_int (mapping * map, const char *str)
+ {
+@@ -452,9 +446,3 @@ map_int_to_str (mapping * map, int val)
+     map++;
+   }
+ }
+-
+-
+-
+-
+-
+-#endif
+diff --git a/openair2/UTIL/OMG/defs.h b/openair2/UTIL/OMG/defs.h
+index 1102a69cc5..4005400d7b 100644
+--- a/openair2/UTIL/OMG/defs.h
++++ b/openair2/UTIL/OMG/defs.h
+@@ -32,14 +32,12 @@
+ #include <stdbool.h>
+ #include "omg_constants.h"
+ 
+-#ifdef STANDALONE
+ typedef struct {
+   char *name; /*!< \brief string name of item */
+   int value;  /*!< \brief integer value of mapping */
+ } mapping;
+ int  map_str_to_int(mapping *map, const char *str);
+ char *map_int_to_str(mapping *map, int val);
+-#endif
+ 
+ /****************************************************************************
+ !A sructure that includes all the characteristic mobility elements of a node

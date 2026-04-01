@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix use-after-free in user_plmns_free due to uninitialized struct\n\n### Summary\nThe NAS configuration parser had a use-after-free vulnerability in the `user_plmns_free` function. The `user_plmns_t` struct was declared uninitialized in `conf_parser.c`, causing garbage pointers to be freed when `user_plmns_free` was called.\n\nThis bug would manifest as crashes or memory corruption when processing UE configuration files with certain PLMN configurations. The issue was particularly prevalent when PLMN sections were missing or malformed in the configuration.\n\n### Changes\n- `openair3/NAS/TOOLS/conf_parser.c`: Initialize `user_plmns` struct to zero before use\n- `openair3/NAS/TOOLS/conf_user_plmn.c`: Add NULL checks in `user_plmns_free` for defensive programming\n\n"
+}

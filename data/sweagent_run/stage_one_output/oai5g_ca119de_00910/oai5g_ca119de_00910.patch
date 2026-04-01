@@ -1,0 +1,96 @@
+diff --git a/openair3/NAS/TEST/NETWORK/network_simulator.c b/openair3/NAS/TEST/NETWORK/network_simulator.c
+index 492a709463..542b4e5335 100644
+--- a/openair3/NAS/TEST/NETWORK/network_simulator.c
++++ b/openair3/NAS/TEST/NETWORK/network_simulator.c
+@@ -92,6 +92,77 @@ Description Implements the network simulator running at the network
+ #define BIT_RATE_512K 0x78
+ #define BIT_RATE_1024K  0x87
+ 
++/* Function to map RSRP/RSRQ to CQI value */
++static int _map_channel_quality_to_cqi(int rsrp, int rsrq)
++{
++  /* 
++   * Simple mapping based on typical LTE values:
++   * RSRP: 27 maps to medium quality (~-100 dBm)
++   * RSRQ: 55 maps to medium quality (~-10 dB)
++   * CQI range: 0-15 (0 worst, 15 best)
++   */
++  
++  /* Base CQI from RSRP (scale 0-15) */
++  int cqi_rsrp = 0;
++  if (rsrp <= 10) {
++    cqi_rsrp = 2;  /* Poor RSRP */
++  } else if (rsrp <= 20) {
++    cqi_rsrp = 6;  /* Fair RSRP */
++  } else if (rsrp <= 30) {
++    cqi_rsrp = 10; /* Good RSRP */
++  } else {
++    cqi_rsrp = 14; /* Excellent RSRP */
++  }
++  
++  /* Base CQI from RSRQ (scale 0-15) */
++  int cqi_rsrq = 0;
++  if (rsrq <= 30) {
++    cqi_rsrq = 2;  /* Poor RSRQ */
++  } else if (rsrq <= 45) {
++    cqi_rsrq = 6;  /* Fair RSRQ */
++  } else if (rsrq <= 60) {
++    cqi_rsrq = 10; /* Good RSRQ */
++  } else {
++    cqi_rsrq = 14; /* Excellent RSRQ */
++  }
++  
++  /* Combine both metrics (take the minimum as the limiting factor) */
++  int cqi = (cqi_rsrp < cqi_rsrq) ? cqi_rsrp : cqi_rsrq;
++  
++  /* Ensure CQI is within valid range */
++  if (cqi < 0) cqi = 0;
++  if (cqi > 15) cqi = 15;
++  
++  return cqi;
++}
++
++/* Function to map CQI to appropriate QCI based on channel quality */
++static int _map_cqi_to_qci(int cqi)
++{
++  /*
++   * Map CQI to QCI based on channel quality:
++   * - Higher CQI (better channel) -> Lower latency/better QoS requirements
++   * - Lower CQI (poorer channel) -> More tolerant QoS requirements
++   */
++   
++  if (cqi >= 12) {
++    /* Excellent channel quality - use QCI 1 (conversational voice) */
++    return 1;
++  } else if (cqi >= 8) {
++    /* Good channel quality - use QCI 2 (conversational video) */
++    return 2;
++  } else if (cqi >= 5) {
++    /* Medium channel quality - use QCI 3 (real-time gaming) */
++    return 3;
++  } else if (cqi >= 2) {
++    /* Fair channel quality - use QCI 4 (buffered streaming) */
++    return 4;
++  } else {
++    /* Poor channel quality - use QCI 5 (IMS signaling) or adaptive */
++    return 5;
++  }
++}
++
+ /* Eurecom's Access Point Name */
+ static const OctetString EURECOM_APN = {
+   14, (uint8_t*)("www.eurecom.fr")
+@@ -1062,7 +1133,12 @@ static int _process_pdn_connectivity_request(const pdn_connectivity_request_msg*
+     /* Setup Activate Default EPS Bearer Request message */
+     activate_default_eps_bearer_context_request_msg* request = &rsp->activate_default_eps_bearer_context_request;
+     request->messagetype = ACTIVATE_DEFAULT_EPS_BEARER_CONTEXT_REQUEST;
+-    request->epsqos.qci = 3;    /* GBR bearer for playback video */
++    
++    /* Map channel quality to appropriate QCI based on RSRP/RSRQ */
++    int cqi = _map_channel_quality_to_cqi(DEFAULT_RSRP, DEFAULT_RSRQ);
++    int qci = _map_cqi_to_qci(cqi);
++    request->epsqos.qci = qci;    /* Adaptive QCI based on channel quality */
++    
+     request->epsqos.bitRatesPresent = 1;
+     request->epsqos.bitRates.maxBitRateForUL = BIT_RATE_128K; /* 128K */
+     request->epsqos.bitRates.maxBitRateForDL = BIT_RATE_1024K;  /* 1M */

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00173_78c221",
+  "pr_text": "## Title: Fix double-free vulnerability in NR UE initial synchronization\n\n### Summary\nThe `nr_initial_sync` function contains a double-free bug when copying synchronization results. When a cell is detected, the code performs a struct copy (`res = *ssbInfo`) that duplicates the `rxdata` pointer array. The original `ssbInfo->rxdata` buffers are subsequently freed within the function, but the copied `res.rxdata` pointers remain dangling. When the caller later frees the `res` structure, the same mem",
+  "trajectory_path": "data/raw/s00173_78c221_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00173_78c221_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 14,
+  "timestamp": "2026-02-10T11:39:35Z"
+}

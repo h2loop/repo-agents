@@ -1,0 +1,9 @@
+{
+  "run_id": "s00227_65dc98",
+  "pr_text": "## Title: Fix buffer overflow vulnerability in E1AP bearer context setup\n\n### Summary\nThe `cucp_cuup_bearer_context_setup_e1ap` function uses `memcpy()` to copy the `e1ap_bearer_setup_req_t` structure when preparing inter-task messages. This structure contains nested arrays for PDU sessions and DRB configurations. Using `memcpy()` on such complex structures results in shallow copying that can lead to buffer overflows when nested arrays exceed allocated bounds or contain pointer fields, causing m",
+  "trajectory_path": "data/raw/s00227_65dc98_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00227_65dc98_p2.diff",
+  "patch_lines": 116,
+  "trajectory_steps": 56,
+  "timestamp": "2026-02-11T13:33:35Z"
+}

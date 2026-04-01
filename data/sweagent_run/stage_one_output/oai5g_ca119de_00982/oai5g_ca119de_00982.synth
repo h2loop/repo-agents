@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Add missing address sanitization attribute to LDPC encoder function\n\n### Summary\nThe 128-bit LDPC encoder function for Zc=320 was missing the `__attribute__ ((no_sanitize(\"address\", \"undefined\")))` attribute that is present in all other similar SIMD encoder functions. This caused unexpected behavior when the function was called under address sanitization builds.\n\nThe missing attribute allowed address sanitization to interfere with SIMD memory operations, leading to incorrect parity check computations and corrupted encoded data. The issue was particularly noticeable in environments with strict memory checking enabled.\n\n### Changes\n- `openair1/PHY/CODING/nrLDPC_encoder/ldpc_BG2_Zc320_byte_128.c`: Added missing no_sanitize attribute to function signature to match pattern used by other LDPC encoder functions.\n\n"
+}

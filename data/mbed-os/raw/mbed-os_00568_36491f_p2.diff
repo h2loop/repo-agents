@@ -1,0 +1,34 @@
+diff --git a/targets/TARGET_NXP/TARGET_MCUXpresso_MCUS/TARGET_MIMXRT1050/drivers/fsl_cache.c b/targets/TARGET_NXP/TARGET_MCUXpresso_MCUS/TARGET_MIMXRT1050/drivers/fsl_cache.c
+index 259f2994..e21ec087 100644
+--- a/targets/TARGET_NXP/TARGET_MCUXpresso_MCUS/TARGET_MIMXRT1050/drivers/fsl_cache.c
++++ b/targets/TARGET_NXP/TARGET_MCUXpresso_MCUS/TARGET_MIMXRT1050/drivers/fsl_cache.c
+@@ -464,6 +464,12 @@ void L2CACHE_LockdownByWayEnable(uint32_t masterId, uint32_t mask, bool enable)
+     assert(mask < (1U << num_ways));
+     assert(masterId < L2CACHE_LOCKDOWN_REGNUM);
+ 
++    /* Runtime bounds check to prevent buffer overflow */
++    if (masterId >= L2CACHE_LOCKDOWN_REGNUM)
++    {
++        return;
++    }
++
+     uint32_t dataReg = L2CACHEC->LOCKDOWN[masterId].REG9_D_LOCKDOWN;
+     uint32_t istrReg = L2CACHEC->LOCKDOWN[masterId].REG9_I_LOCKDOWN;
+ 
+diff --git a/targets/TARGET_NXP/TARGET_MCUXpresso_MCUS/TARGET_MIMXRT1170/drivers/fsl_cache.c b/targets/TARGET_NXP/TARGET_MCUXpresso_MCUS/TARGET_MIMXRT1170/drivers/fsl_cache.c
+index 31d6a247..189f5bcc 100644
+--- a/targets/TARGET_NXP/TARGET_MCUXpresso_MCUS/TARGET_MIMXRT1170/drivers/fsl_cache.c
++++ b/targets/TARGET_NXP/TARGET_MCUXpresso_MCUS/TARGET_MIMXRT1170/drivers/fsl_cache.c
+@@ -463,6 +463,12 @@ void L2CACHE_LockdownByWayEnable(uint32_t masterId, uint32_t mask, bool enable)
+     assert(mask < (1U << num_ways));
+     assert(masterId < L2CACHE_LOCKDOWN_REGNUM);
+ 
++    /* Runtime bounds check to prevent buffer overflow */
++    if (masterId >= L2CACHE_LOCKDOWN_REGNUM)
++    {
++        return;
++    }
++
+     uint32_t dataReg = L2CACHEC->LOCKDOWN[masterId].REG9_D_LOCKDOWN;
+     uint32_t istrReg = L2CACHEC->LOCKDOWN[masterId].REG9_I_LOCKDOWN;
+ 

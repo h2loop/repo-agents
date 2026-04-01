@@ -1,0 +1,36 @@
+diff --git a/nfapi/oai_integration/aerial/fapi_nvIPC.c b/nfapi/oai_integration/aerial/fapi_nvIPC.c
+index b1bfae5415..8c1b8a386b 100644
+--- a/nfapi/oai_integration/aerial/fapi_nvIPC.c
++++ b/nfapi/oai_integration/aerial/fapi_nvIPC.c
+@@ -616,6 +616,15 @@ int oai_fapi_tx_data_req(nfapi_nr_tx_data_request_t *tx_data_req)
+   nfapi_vnf_p7_config_t *p7_config = (((vnf_info *)vnf_config->user_data)->p7_vnfs[0].config);
+   tx_data_req->header.phy_id = 1; // DJP HACK TODO FIXME - need to pass this around!!!!
+   tx_data_req->header.message_id = NFAPI_NR_PHY_MSG_TYPE_TX_DATA_REQUEST;
++  
++  // Start protocol timer for TX data request
++  vnf_p7_t *vnf_p7 = (vnf_p7_t *)p7_config;
++  nfapi_vnf_p7_connection_info_t *p7_conn = vnf_p7->p7_connections;
++  if (p7_conn) {
++    // Record start time for latency measurement
++    p7_conn->previous_t1 = vnf_get_current_time_hr();
++  }
++  
+   // LOG_D(PHY, "[VNF] %s() TX_REQ sfn_sf:%d number_of_pdus:%d\n", __FUNCTION__, NFAPI_SFNSF2DEC(tx_data_req->SFN),
+   // tx_data_req->Number_of_PDUs); int retval = nfapi_vnf_p7_tx_data_req(p7_config, tx_data_req);
+   int retval = p7_config->send_p7_msg((vnf_p7_t *)p7_config, &tx_data_req->header);
+@@ -624,6 +633,15 @@ int oai_fapi_tx_data_req(nfapi_nr_tx_data_request_t *tx_data_req)
+   } else {
+     tx_data_req->Number_of_PDUs = 0;
+   }
++  
++  // Stop protocol timer after successful send
++  if (p7_conn && retval == 0) {
++    p7_conn->previous_t2 = vnf_get_current_time_hr();
++    // Calculate latency and update average
++    uint32_t latency = p7_conn->previous_t2 - p7_conn->previous_t1;
++    p7_conn->latency[p7_conn->sequence_number % 8] = latency;
++    p7_conn->average_latency = (p7_conn->average_latency * 7 + latency) / 8;
++  }
+ 
+   return retval;
+ }

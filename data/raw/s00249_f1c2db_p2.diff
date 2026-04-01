@@ -1,0 +1,13 @@
+diff --git a/openair2/F1AP/lib/f1ap_interface_management.c b/openair2/F1AP/lib/f1ap_interface_management.c
+index fe079faa4c..4b03cc45cf 100644
+--- a/openair2/F1AP/lib/f1ap_interface_management.c
++++ b/openair2/F1AP/lib/f1ap_interface_management.c
+@@ -163,6 +163,8 @@ static F1AP_Served_Cell_Information_t encode_served_cell_info(const f1ap_served_
+ static bool decode_served_cell_info(const F1AP_Served_Cell_Information_t *in, f1ap_served_cell_info_t *info)
+ {
+   AssertError(in != NULL, return false, "Input message pointer is NULL");
++  AssertError(info != NULL, return false, "Output info pointer is NULL");
++  memset(info, 0, sizeof(*info));
+   // 5GS TAC (O)
+   if (in->fiveGS_TAC) {
+     info->tac = malloc_or_fail(sizeof(*info->tac));

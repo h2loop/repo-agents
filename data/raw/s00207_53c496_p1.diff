@@ -1,0 +1,99 @@
+diff --git a/openair2/F1AP/f1ap_ids.c b/openair2/F1AP/f1ap_ids.c
+index 5569d60c48..8fdbaaa650 100644
+--- a/openair2/F1AP/f1ap_ids.c
++++ b/openair2/F1AP/f1ap_ids.c
+@@ -60,6 +60,16 @@ void cu_init_f1_ue_data(void)
+   pthread_mutex_unlock(&cu2du_mutex);
+ }
+ 
++void cu_destroy_f1_ue_data(void)
++{
++  pthread_mutex_lock(&cu2du_mutex);
++  if (cu2du_ue_mapping != NULL) {
++    hashtable_destroy(&cu2du_ue_mapping);
++    cu2du_ue_mapping = NULL;
++  }
++  pthread_mutex_unlock(&cu2du_mutex);
++}
++
+ bool cu_add_f1_ue_data(uint32_t ue_id, const f1_ue_data_t *data)
+ {
+   pthread_mutex_lock(&cu2du_mutex);
+@@ -128,6 +138,36 @@ void du_init_f1_ue_data(void)
+   pthread_mutex_unlock(&du2cu_mutex);
+ }
+ 
++void du_destroy_f1_ue_data(void)
++{
++  pthread_mutex_lock(&du2cu_mutex);
++  if (du2cu_ue_mapping != NULL) {
++    hashtable_destroy(&du2cu_ue_mapping);
++    du2cu_ue_mapping = NULL;
++  }
++  pthread_mutex_unlock(&du2cu_mutex);
++}
++
++void du_destroy_f1_ue_data(void)
++{
++  pthread_mutex_lock(&du2cu_mutex);
++  if (du2cu_ue_mapping != NULL) {
++    hashtable_destroy(&du2cu_ue_mapping);
++    du2cu_ue_mapping = NULL;
++  }
++  pthread_mutex_unlock(&du2cu_mutex);
++}
++
++void du_destroy_f1_ue_data(void)
++{
++  pthread_mutex_lock(&du2cu_mutex);
++  if (du2cu_ue_mapping != NULL) {
++    hashtable_destroy(&du2cu_ue_mapping);
++    du2cu_ue_mapping = NULL;
++  }
++  pthread_mutex_unlock(&du2cu_mutex);
++}
++
+ bool du_add_f1_ue_data(uint32_t ue_id, const f1_ue_data_t *data)
+ {
+   pthread_mutex_lock(&du2cu_mutex);
+diff --git a/openair2/F1AP/f1ap_ids.h b/openair2/F1AP/f1ap_ids.h
+index 585ed33322..85ff30d9d0 100644
+--- a/openair2/F1AP/f1ap_ids.h
++++ b/openair2/F1AP/f1ap_ids.h
+@@ -38,6 +38,7 @@ typedef struct f1_ue_data_t {
+ } f1_ue_data_t;
+ 
+ void cu_init_f1_ue_data(void);
++void cu_destroy_f1_ue_data(void);
+ bool cu_add_f1_ue_data(uint32_t ue_id, const f1_ue_data_t *data);
+ bool cu_exists_f1_ue_data(uint32_t ue_id);
+ bool cu_update_f1_ue_data(uint32_t ue_id, const f1_ue_data_t *data);
+@@ -45,6 +46,7 @@ f1_ue_data_t cu_get_f1_ue_data(uint32_t ue_id);
+ bool cu_remove_f1_ue_data(uint32_t ue_id);
+ 
+ void du_init_f1_ue_data(void);
++void du_destroy_f1_ue_data(void);
+ bool du_add_f1_ue_data(uint32_t ue_id, const f1_ue_data_t *data);
+ bool du_exists_f1_ue_data(uint32_t ue_id);
+ f1_ue_data_t du_get_f1_ue_data(uint32_t ue_id);
+diff --git a/openair2/F1AP/f1ap_ids_test.c b/openair2/F1AP/f1ap_ids_test.c
+index a58059339d..8ecc44393f 100644
+--- a/openair2/F1AP/f1ap_ids_test.c
++++ b/openair2/F1AP/f1ap_ids_test.c
+@@ -38,6 +38,7 @@ void du_data_test()
+   DevAssert(exists);
+   f1_ue_data_t rdata = du_get_f1_ue_data(rnti);
+   DevAssert(rdata.secondary_ue == data.secondary_ue);
++  du_destroy_f1_ue_data();
+ }
+ 
+ void cu_data_test()
+@@ -64,6 +65,8 @@ void cu_data_test()
+   DevAssert(exists);
+   f1_ue_data_t r2data = cu_get_f1_ue_data(ue_id);
+   DevAssert(r2data.secondary_ue == rdata.secondary_ue);
++  
++  cu_destroy_f1_ue_data();
+ }
+ 
+ int main()

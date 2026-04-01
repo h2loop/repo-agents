@@ -1,0 +1,13 @@
+diff --git a/targets/TARGET_STM/TARGET_STM32U5/STM32Cube_FW/STM32U5xx_HAL_Driver/stm32u5xx_hal_fdcan.c b/targets/TARGET_STM/TARGET_STM32U5/STM32Cube_FW/STM32U5xx_HAL_Driver/stm32u5xx_hal_fdcan.c
+index 4eabe7c6..176c1910 100644
+--- a/targets/TARGET_STM/TARGET_STM32U5/STM32Cube_FW/STM32U5xx_HAL_Driver/stm32u5xx_hal_fdcan.c
++++ b/targets/TARGET_STM/TARGET_STM32U5/STM32Cube_FW/STM32U5xx_HAL_Driver/stm32u5xx_hal_fdcan.c
+@@ -1382,7 +1382,7 @@ HAL_StatusTypeDef HAL_FDCAN_ConfigGlobalFilter(FDCAN_HandleTypeDef *hfdcan,
+   assert_param(IS_FDCAN_REJECT_REMOTE(RejectRemoteStd));
+   assert_param(IS_FDCAN_REJECT_REMOTE(RejectRemoteExt));
+ 
+-  if (hfdcan->State == HAL_FDCAN_STATE_READY)
++  if (hfdcan->State == (uint32_t)HAL_FDCAN_STATE_READY)
+   {
+     /* Configure global filter */
+     MODIFY_REG(hfdcan->Instance->RXGFC, (FDCAN_RXGFC_ANFS |

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix resource set ID collision in SRS configuration\n\n### Summary\nThe NR gNB SRS resource configuration had an issue where resource set IDs and resource IDs were being assigned the same values, causing conflicts in the RRC configuration. This led to incorrect SRS reporting behavior and potential RRC reconfiguration failures.\n\nThe issue was in the `get_config_srs` function where `get_srs_resourceset` was called with identical values for both the resource set ID and resource ID parameters.\n\n### Changes\n- `openair2/LAYER2/NR_MAC_gNB/nr_radio_config.c`: Modified `get_config_srs` function to generate distinct resource set IDs by adding an offset to the resource ID, ensuring proper separation between resource set and resource identifiers.\n"
+}

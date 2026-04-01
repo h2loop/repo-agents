@@ -1,0 +1,9 @@
+{
+  "run_id": "s00129_e71a02",
+  "pr_text": "## Title: Fix incorrect array sizing in NR PSS time search for sidelink mode\n\n### Summary\nThe `pss_search_time_nr` function in the NR UE PSS search module incorrectly allocates a fixed-size array for correlation averaging, causing out-of-bounds memory access in sidelink mode. The `avg` array was hardcoded to `NUMBER_PSS_SEQUENCE` elements, but when sidelink mode is active (`sl_mode != 0`), the downstream logic iterates over `NUMBER_PSS_SEQUENCE_SL` elements. This mismatch leads to undefined beha",
+  "trajectory_path": "data/raw/s00129_e71a02_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00129_e71a02_p2.diff",
+  "patch_lines": 5,
+  "trajectory_steps": 16,
+  "timestamp": "2026-02-11T12:10:56Z"
+}

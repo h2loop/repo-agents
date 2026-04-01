@@ -1,0 +1,14 @@
+diff --git a/openair2/X2AP/x2ap_eNB.c b/openair2/X2AP/x2ap_eNB.c
+index 831cad4742..15cfeb7f49 100644
+--- a/openair2/X2AP/x2ap_eNB.c
++++ b/openair2/X2AP/x2ap_eNB.c
+@@ -313,6 +313,9 @@ void x2ap_eNB_handle_register_eNB(instance_t instance,
+     new_instance->mnc_digit_length = x2ap_register_eNB->mnc_digit_length;
+     new_instance->num_cc           = x2ap_register_eNB->num_cc;
+ 
++    DevCheck(x2ap_register_eNB->num_cc <= MAX_NUM_CCs,
++             MAX_NUM_CCs, x2ap_register_eNB->num_cc, 0);
++
+     x2ap_id_manager_init(&new_instance->id_manager);
+     x2ap_timers_init(&new_instance->timers,
+                      x2ap_register_eNB->t_reloc_prep,

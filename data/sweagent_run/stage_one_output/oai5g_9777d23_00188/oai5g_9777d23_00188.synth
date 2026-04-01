@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix data loss in timeline widget when resizing\n\n### Summary\nThe timeline widget's allocate() function was incorrectly resetting all color data to -1 on every resize operation, causing previously drawn timeline points to be lost. This happened because the initialization loop was setting all elements rather than just newly allocated ones.\n\nUsers reported that timeline data would disappear when windows were resized or when the timeline widget was repacked.\n\n### Changes\n- `common/utils/T/tracer/gui/timeline.c`: Modified allocate() function to preserve existing timeline data during resize operations by only initializing newly allocated elements to -1.\n\n"
+}

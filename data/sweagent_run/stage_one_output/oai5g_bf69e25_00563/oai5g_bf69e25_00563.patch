@@ -1,0 +1,26 @@
+diff --git a/openair2/PHY_INTERFACE/IF_Module.c b/openair2/PHY_INTERFACE/IF_Module.c
+index f7af67ba8b..ea79b4fee4 100644
+--- a/openair2/PHY_INTERFACE/IF_Module.c
++++ b/openair2/PHY_INTERFACE/IF_Module.c
+@@ -366,15 +366,19 @@ static void put(char x) {
+ 
+   s[size++] = x;
+ }
+-
+ static void append_string(char *t) {
+-  size--;
++  // If buffer has content (not empty), we need to overwrite the null terminator
++  if (size > 0) {
++    size--;  // Remove the previous null terminator to append new content
++  }
+ 
+   while (*t) put(*t++);
+ 
+   put(0);
+ }
+ 
++
++
+ static void dump_ul(UL_IND_t *u) {
+   int i;
+   C;

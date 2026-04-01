@@ -1,0 +1,77 @@
+diff --git a/openair2/UTIL/CLI/cli.c b/openair2/UTIL/CLI/cli.c
+index c6aa0ab0de..6d1d30f60d 100644
+--- a/openair2/UTIL/CLI/cli.c
++++ b/openair2/UTIL/CLI/cli.c
+@@ -81,7 +81,6 @@ int cli_start(void)
+   priv_init();
+ 
+   priv_down();
+-  putenv("REMADDR=");
+ 
+   // get username
+   if ((username = getlogin()) == NULL) {
+@@ -171,13 +170,13 @@ int cli_login(const char *username, int maxnodes, int maxcmds)
+   // telnets use REMADDR
+   host = getenv("REMADDR");
+ 
+-  if (host) {
++  if (host && strlen(host) > 0) {
+     snprintf(g_sid, MAX_SID, "%s#%s", username, host);
+     printf("[CLI] login via telnet by user %s from address %s\n", username, host);
+   } else {
+     host = getenv("SSH_CLIENT");
+ 
+-    if (host) {
++    if (host && strlen(host) > 0) {
+       char *cp;
+       // format is <rem_addr> <rem_port> <local_port>
+       // replace first space with ':', second terminates the string
+@@ -198,11 +197,17 @@ int cli_login(const char *username, int maxnodes, int maxcmds)
+     } else {
+       host = getenv("HOST");
+ 
+-      if (host) {
++      if (host && strlen(host) > 0) {
+         snprintf(g_sid, MAX_SID, "%s$%s", username, host);
+         printf("[CLI] by user %s from host %s", username, host);
+       } else {
+-        printf("[CLI]Login by user %s from unknown destination\n", username);
++        host = getenv("HOSTNAME");
++        if (host && strlen(host) > 0) {
++          snprintf(g_sid, MAX_SID, "%s$%s", username, host);
++          printf("[CLI] by user %s from host %s", username, host);
++        } else {
++          printf("[CLI]Login by user %s from unknown destination\n", username);
++        }
+       }
+     }
+ 
+@@ -217,7 +222,7 @@ char *cli_prompt(void)
+ {
+   static char promptstr[256];
+   promptstr[0]='\0';
+-  snprintf(promptstr, 200,"%s@%s",username, cli_cfg->prompt);
++  snprintf(promptstr, 200,"%s@%s",username, host ? host : "unknown");
+   return promptstr;
+ }
+ 
+diff --git a/openair2/UTIL/CLI/cli_cmd.c b/openair2/UTIL/CLI/cli_cmd.c
+index 59f6bebfd2..2cb5138f34 100644
+--- a/openair2/UTIL/CLI/cli_cmd.c
++++ b/openair2/UTIL/CLI/cli_cmd.c
+@@ -104,9 +104,12 @@ int prompt (char *arg)
+     send(cli_cfg->cfd, buffer, strlen(buffer), 0);
+     // send(cli_cfg->cfd, cli_cfg->prompt, strlen(cli_cfg->prompt), 0);
+   } else {// set func
+-    snprintf(cli_cfg->prompt,200,"%s",arg);
+-    sprintf( cli_cfg->prompt,"%s%c ", cli_prompt(),  cli_cfg->promptchar);
+-
++    if (strlen(arg) == 0) {
++      // Reset to default prompt
++      snprintf(cli_cfg->prompt,200,"%s%c ", cli_prompt(), cli_cfg->promptchar);
++    } else {
++      snprintf(cli_cfg->prompt,200,"%s%c ",arg, cli_cfg->promptchar);
++    }
+   }
+ 
+   return (0);

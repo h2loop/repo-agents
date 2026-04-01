@@ -1,0 +1,66 @@
+diff --git a/common/utils/telnetsrv/telnetsrv_ciUE.c b/common/utils/telnetsrv/telnetsrv_ciUE.c
+index 673d904969..b099c88988 100644
+--- a/common/utils/telnetsrv/telnetsrv_ciUE.c
++++ b/common/utils/telnetsrv/telnetsrv_ciUE.c
+@@ -36,6 +36,8 @@
+ #include <stdarg.h>
+ #include "openair2/LAYER2/NR_MAC_UE/mac_defs.h"
+ #include "openair2/LAYER2/NR_MAC_UE/mac_proto.h"
++#include "openair2/RRC/NR_UE/rrc_proto.h"
++#include "openair2/COMMON/rrc_messages_types.h"
+ 
+ #define TELNETSERVERCODE
+ #include "telnetsrv.h"
+@@ -73,9 +75,52 @@ int get_sync_state(char *buf, int debug, telnet_printfunc_t prnt)
+   return 0;
+ }
+ 
++/**
++ * Force a UE to go to RRC IDLE state.
++ *
++ * @param buf    User input buffer containing UE ID (optional)
++ * @param debug  Debug flag (not used)
++ * @param prnt   Function to print output
++ * @return       0 on success, error code otherwise
++ */
++int force_RRC_IDLE(char *buf, int debug, telnet_printfunc_t prnt)
++{
++  int ue_id = 0; // Default to first UE instance
++  
++  // If UE ID is provided, use it
++  if (buf) {
++    ue_id = strtol(buf, NULL, 10);
++    if (ue_id < 0) {
++      ERROR_MSG_RET("UE ID needs to be non-negative\n");
++    }
++  }
++  
++  // Get the RRC instance - NR_UE_rrc_inst is static in rrc_UE.c
++  // so we need to declare it as extern to access it
++  extern NR_UE_RRC_INST_t *NR_UE_rrc_inst;
++  
++  if (!NR_UE_rrc_inst) {
++    ERROR_MSG_RET("RRC instance not initialized\n");
++  }
++  
++  // Check if UE ID is valid
++  if (ue_id >= NB_CNX_UE) {
++    ERROR_MSG_RET("UE ID %d exceeds maximum number of UEs %d\n", ue_id, NB_CNX_UE);
++  }
++  
++  NR_UE_RRC_INST_t *rrc = &NR_UE_rrc_inst[ue_id];
++  
++  // Force the UE to go to IDLE state
++  nr_rrc_going_to_IDLE(rrc, OTHER, NULL);
++  
++  prnt("UE %d forced to RRC IDLE state\n", ue_id);
++  return 0;
++}
++
+ /* Telnet shell command definitions */
+ static telnetshell_cmddef_t cicmds[] = {
+   {"sync_state", "[UE_ID(int,opt)]", get_sync_state},
++  {"force_RRC_IDLE", "[UE_ID(int,opt)]", force_RRC_IDLE},
+   {"", "", NULL},
+ };
+ 

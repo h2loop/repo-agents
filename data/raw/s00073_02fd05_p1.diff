@@ -1,0 +1,13 @@
+diff --git a/openair2/E1AP/e1ap.c b/openair2/E1AP/e1ap.c
+index 1e28ebd52a..3f8d7b056b 100644
+--- a/openair2/E1AP/e1ap.c
++++ b/openair2/E1AP/e1ap.c
+@@ -1384,7 +1384,7 @@ static void extract_BEARER_CONTEXT_MODIFICATION_REQUEST(const E1AP_E1AP_PDU_t *p
+                 up_params_t *dl_up_param = drb->DlUpParamList + k;
+                 E1AP_UP_Parameters_Item_t *dl_up_param_in = dl_up_paramList->list.array[k];
+                 if (dl_up_param_in->uP_TNL_Information.choice.gTPTunnel) { // Optional IE
+-                  DevAssert(dl_up_param_in->uP_TNL_Information.present = E1AP_UP_TNL_Information_PR_gTPTunnel);
++                  DevAssert(dl_up_param_in->uP_TNL_Information.present == E1AP_UP_TNL_Information_PR_gTPTunnel);
+                   BIT_STRING_TO_TRANSPORT_LAYER_ADDRESS_IPv4(
+                       &dl_up_param_in->uP_TNL_Information.choice.gTPTunnel->transportLayerAddress,
+                       dl_up_param->tlAddress);

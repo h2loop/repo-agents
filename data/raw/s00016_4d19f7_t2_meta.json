@@ -1,0 +1,9 @@
+{
+  "run_id": "s00016_4d19f7",
+  "pr_text": "## Title: Fix scheduling priority inversion for SI and PAGING traffic\n\n### Summary\nFixes a scheduling priority inversion in the eNB downlink scheduler where regular UE traffic was being prioritized over System Information (SI) and PAGING traffic. According to 3GPP specifications, SI and PAGING should have the highest scheduling priority, but the fair round-robin scheduler was processing them in the wrong order, causing potential delays for critical system broadcasts.\n\nThe fix explicitly inserts ",
+  "trajectory_path": "data/raw/s00016_4d19f7_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00016_4d19f7_p2.diff",
+  "patch_lines": 72,
+  "trajectory_steps": 45,
+  "timestamp": "2026-02-10T10:42:10Z"
+}

@@ -1,0 +1,45 @@
+diff --git a/radio/rfsimulator/simulator.c b/radio/rfsimulator/simulator.c
+index e524097898..62ef1bc52b 100644
+--- a/radio/rfsimulator/simulator.c
++++ b/radio/rfsimulator/simulator.c
+@@ -105,7 +105,7 @@ typedef enum { SIMU_ROLE_SERVER = 1, SIMU_ROLE_CLIENT } simuRole;
+ /*   optname                     helpstr                     paramflags           XXXptr                               defXXXval                          type         numelt  */
+ /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+ #define simOpt PARAMFLAG_NOFREE|PARAMFLAG_CMDLINE_NOPREFIXENABLED
+-#define RFSIMULATOR_PARAMS_DESC {					\
++#define RFSIMULATOR_PARAMS_DESC {                                       \
+     {"serveraddr",             "<ip address to connect to>\n",        simOpt,  .strptr=&rfsimulator->ip,               .defstrval="127.0.0.1",           TYPE_STRING,    0 },\
+     {"serverport",             "<port to connect to>\n",              simOpt,  .u16ptr=&(rfsimulator->port),           .defuintval=PORT,                 TYPE_UINT16,    0 },\
+     {RFSIMU_OPTIONS_PARAMNAME, RFSIM_CONFIG_HELP_OPTIONS,             0,       .strlistptr=NULL,                       .defstrlistval=NULL,              TYPE_STRINGLIST,0 },\
+@@ -612,7 +612,12 @@ static int rfsimulator_write_internal(rfsimulator_state_t *t, openair0_timestamp
+     buffer_t *b=&t->buf[i];
+ 
+     if (b->conn_sock >= 0 ) {
+-      samplesBlockHeader_t header = {nsamps, nbAnt, timestamp};
++      samplesBlockHeader_t header = {0};
++      header.size = nsamps;
++      header.nbAnt = nbAnt;
++      header.timestamp = timestamp;
++      header.option_value = 0;
++      header.option_flag = 0;
+       fullwrite(b->conn_sock,&header, sizeof(header), t);
+       sample_t tmpSamples[nsamps][nbAnt];
+ 
+@@ -658,7 +663,7 @@ static int rfsimulator_write_internal(rfsimulator_state_t *t, openair0_timestamp
+         nsamps,
+         timestamp,
+         timestamp + nsamps,
+-        signal_energy(samplesVoid[0], nsamps));
++        (samplesVoid && samplesVoid[0]) ? signal_energy(samplesVoid[0], nsamps) : 0);
+   return nsamps;
+ }
+ 
+@@ -940,7 +945,7 @@ static int rfsimulator_read(openair0_device *device, openair0_timestamp *ptimest
+         nsamps,
+         *ptimestamp,
+         t->nextRxTstamp,
+-        signal_energy(samplesVoid[0], nsamps));
++        (samplesVoid && samplesVoid[0]) ? signal_energy(samplesVoid[0], nsamps) : 0);
+   return nsamps;
+ }
+ 

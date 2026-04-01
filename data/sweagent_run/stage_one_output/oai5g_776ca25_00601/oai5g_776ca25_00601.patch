@@ -1,0 +1,91 @@
+diff --git a/openair3/NAS/COMMON/UTIL/socket.c b/openair3/NAS/COMMON/UTIL/socket.c
+index 20c071203d..43da81b6b8 100644
+--- a/openair3/NAS/COMMON/UTIL/socket.c
++++ b/openair3/NAS/COMMON/UTIL/socket.c
+@@ -46,6 +46,7 @@
+ #include <sys/types.h>
+ #include <sys/socket.h> // socket, setsockopt, connect, bind, recv, send
+ #include <netdb.h>  // getaddrinfo
++#include <pthread.h> // pthread_mutex_t, pthread_mutex_init, etc.
+ /****************************************************************************/
+ /****************  E X T E R N A L    D E F I N I T I O N S  ****************/
+ /****************************************************************************/
+@@ -69,6 +70,7 @@ struct socket_id_s {
+   char rhost[SOCKET_HOSTNAME_SIZE]; /* remote hostname    */
+   struct sockaddr_storage addr; /* remote address   */
+   int fd; /* socket file descriptor */
++  pthread_mutex_t mutex; /* mutex for synchronizing access to this structure */
+ };
+ 
+ /* Set socket option at the sockets API level (SOL_SOCKET) */
+@@ -221,6 +223,7 @@ void* socket_udp_open(int type, const char* host, const char* port)
+     sid->type = type;
+     sid->port = atoi (port);
+     sid->fd = sfd;
++    pthread_mutex_init(&sid->mutex, NULL);
+   } else {
+     close (sfd);
+   }
+@@ -248,7 +251,9 @@ void* socket_udp_open(int type, const char* host, const char* port)
+ void socket_close(void* id)
+ {
+   if (id) {
+-    close (((socket_id_t*) id)->fd);
++    socket_id_t* sid = (socket_id_t*) id;
++    pthread_mutex_destroy(&sid->mutex);
++    close (sid->fd);
+     free (id);
+   }
+ }
+@@ -276,6 +281,9 @@ ssize_t socket_recv(void* id, char* buffer, size_t length)
+   socket_id_t* sid = (socket_id_t*) (id);
+   ssize_t rbytes = -1;
+ 
++  /* Lock the mutex to synchronize access to the socket structure */
++  pthread_mutex_lock(&sid->mutex);
++
+   if (sid->type == SOCKET_CLIENT) {
+     /* Receive data from the connected socket */
+     rbytes = recv (sid->fd, buffer, length, 0);
+@@ -288,6 +296,9 @@ ssize_t socket_recv(void* id, char* buffer, size_t length)
+     sid->addr = addr;
+   }
+ 
++  /* Unlock the mutex */
++  pthread_mutex_unlock(&sid->mutex);
++
+   if (errno == EINTR) {
+     /* A signal was caught */
+     return 0;
+@@ -322,6 +333,9 @@ ssize_t socket_send(const void* id, const char* buffer, size_t length)
+   const socket_id_t* sid = (socket_id_t*) (id);
+   ssize_t sbytes = -1;
+ 
++  /* Lock the mutex to synchronize access to the socket structure */
++  pthread_mutex_lock((pthread_mutex_t*)&sid->mutex);
++
+   if (sid->type == SOCKET_CLIENT) {
+     /* Send data to the connected socket */
+     sbytes = send (sid->fd, buffer, length, 0);
+@@ -330,6 +344,9 @@ ssize_t socket_send(const void* id, const char* buffer, size_t length)
+     sbytes = sendto (sid->fd, buffer, length, 0, (struct sockaddr *) &sid->addr, (socklen_t) sizeof(sid->addr));
+   }
+ 
++  /* Unlock the mutex */
++  pthread_mutex_unlock((pthread_mutex_t*)&sid->mutex);
++
+   if (errno == EINTR) {
+     /* A signal was caught */
+     return 0;
+diff --git a/openair3/NAS/COMMON/UTIL/socket.h b/openair3/NAS/COMMON/UTIL/socket.h
+index 58bc6b8527..a2a88b3d34 100644
+--- a/openair3/NAS/COMMON/UTIL/socket.h
++++ b/openair3/NAS/COMMON/UTIL/socket.h
+@@ -39,6 +39,7 @@ Description Implements TCP socket handlers
+ #define __NAS_COMMON_UTIL_SOCKET__H__
+ 
+ #include <sys/types.h>
++#include <pthread.h>
+ 
+ /****************************************************************************/
+ /*********************  G L O B A L    C O N S T A N T S  *******************/

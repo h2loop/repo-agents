@@ -1,0 +1,9 @@
+{
+  "run_id": "s00290_9a010f",
+  "pr_text": "## Title: Fix signed/unsigned integer mismatch in NGAP overload handlers\n\n### Summary\nFix a signed/unsigned integer comparison mismatch in the NGAP overload handling functions. The `stream` parameter in both `ngap_gNB_handle_overload_start()` and `ngap_gNB_handle_overload_stop()` was declared as `uint32_t`, but downstream code compares it against signed integer values, leading to potential incorrect branching behavior and compiler warnings.\n\nThis change aligns the parameter type with the signed ",
+  "trajectory_path": "data/raw/s00290_9a010f_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00290_9a010f_p2.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 19,
+  "timestamp": "2026-02-10T12:25:29Z"
+}

@@ -1,0 +1,14 @@
+diff --git a/nfapi/open-nFAPI/common/src/nfapi.c b/nfapi/open-nFAPI/common/src/nfapi.c
+index 97352b98f7..893c9f6cb9 100644
+--- a/nfapi/open-nFAPI/common/src/nfapi.c
++++ b/nfapi/open-nFAPI/common/src/nfapi.c
+@@ -1176,7 +1176,8 @@ uint8_t pack_tlv(uint16_t tag, void *tlv, uint8_t **ppWritePackedMsg, uint8_t *e
+     // calculate the length of the value and rewrite the tl header
+     tl->length = (*ppWritePackedMsg) - pStartOfValue;
+     // rewrite the header with the correct length
+-    pack_tl(tl, &pStartOfTlv, end);
++    if (pack_tl(tl, &pStartOfTlv, end) == 0)
++      return 0;
+   } else {
+     if (tl->tag != 0) {
+       NFAPI_TRACE(NFAPI_TRACE_WARN, "Warning pack_tlv tag 0x%x does not match expected 0x%x\n", tl->tag, tag);

@@ -1,0 +1,30 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
+index 6e79af6348..89ffb1384c 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
+@@ -1176,16 +1176,23 @@ static uint8_t unpack_nb_iot_system_information_indication_value(void *tlv, uint
+   nfapi_nb_iot_system_information_indication_t *value = (nfapi_nb_iot_system_information_indication_t *)tlv;
+ 
+   if(!(pull8(ppReadPackedMsg, &value->sib_type, end) &&
+-       pull16(ppReadPackedMsg, &value->sib_length, end)))
++       pull16(ppReadPackedMsg, &value->sib_length, end))) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "Failed to unpack SIB type or length\n");
++    on_error();
+     return 0;
++  }
+ 
+   if(value->sib_length > NFAPI_MAX_SIB_LENGTH) {
+     NFAPI_TRACE(NFAPI_TRACE_ERROR, "SIB too long %d \n", value->sib_length);
++    on_error();
+     return 0;
+   }
+ 
+-  if(pullarray8(ppReadPackedMsg, value->sib, NFAPI_MAX_SIB_LENGTH,  value->sib_length, end) == 0)
++  if(pullarray8(ppReadPackedMsg, value->sib, NFAPI_MAX_SIB_LENGTH,  value->sib_length, end) == 0) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "Failed to unpack SIB data\n");
++    on_error();
+     return 0;
++  }
+ 
+   return 1;
+ }

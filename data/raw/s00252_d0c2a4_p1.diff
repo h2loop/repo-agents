@@ -1,0 +1,14 @@
+diff --git a/nfapi/oai_integration/wls_integration/wls_vnf.c b/nfapi/oai_integration/wls_integration/wls_vnf.c
+index ccc68b4905..fe192025ad 100644
+--- a/nfapi/oai_integration/wls_integration/wls_vnf.c
++++ b/nfapi/oai_integration/wls_integration/wls_vnf.c
+@@ -196,8 +196,8 @@ static void *wls_mac_alloc_buffer(PWLS_MAC_CTX pWls, uint32_t size, uint32_t loc
+   pthread_mutex_lock((pthread_mutex_t *)&pWls->lock_alloc);
+   if (wls_mac_alloc_mem_array(&pWls->sWlsStruct, &pBlock) != 0) {
+     NFAPI_TRACE(NFAPI_TRACE_ERROR, "wls_mac_alloc_buffer alloc error size[%d] loc[%d]\n", size, loc);
+-    wls_mac_print_stats();
+     pthread_mutex_unlock((pthread_mutex_t *)&pWls->lock_alloc);
++    wls_mac_print_stats();
+     return NULL;
+   }
+   pWls->nAllocBlocks++;

@@ -1,0 +1,316 @@
+diff --git a/common/utils/CMakeLists.txt b/common/utils/CMakeLists.txt
+index 7cf067dd14..066d1cb310 100644
+--- a/common/utils/CMakeLists.txt
++++ b/common/utils/CMakeLists.txt
+@@ -1,5 +1,6 @@
+ add_subdirectory(alg)
+ add_subdirectory(ds)
++add_subdirectory(time_manager)
+ add_boolean_option(ENABLE_TELNETSRV OFF "Whether to build telnet support in modems" OFF)
+ if(ENABLE_TELNETSRV)
+   add_subdirectory(telnetsrv)
+@@ -15,7 +16,7 @@ add_subdirectory(LOG)
+ add_subdirectory(threadPool)
+ add_library(utils utils.c system.c time_meas.c time_stat.c tun_if.c)
+ target_include_directories(utils PUBLIC .)
+-target_link_libraries(utils PRIVATE ${T_LIB})
++target_link_libraries(utils PRIVATE ${T_LIB} time_manager)
+ if (ENABLE_TESTS)
+   add_subdirectory(hashtable/tests)
+ endif()
+diff --git a/common/utils/time_manager/CMakeLists.txt b/common/utils/time_manager/CMakeLists.txt
+new file mode 100644
+index 0000000000..a97f3f8b96
+--- /dev/null
++++ b/common/utils/time_manager/CMakeLists.txt
+@@ -0,0 +1,8 @@
++add_library(time_manager time_source.c)
++target_include_directories(time_manager PUBLIC .)
++target_link_libraries(time_manager PUBLIC utils)
++
++if(ENABLE_TESTS)
++  add_executable(test_time_source test_time_source.c)
++  target_link_libraries(test_time_source time_manager)
++endif()
+\ No newline at end of file
+diff --git a/common/utils/time_manager/test_time_source.c b/common/utils/time_manager/test_time_source.c
+new file mode 100644
+index 0000000000..d6c5fc8828
+--- /dev/null
++++ b/common/utils/time_manager/test_time_source.c
+@@ -0,0 +1,70 @@
++/*
++ * Test file for time_source_iq_add function
++ */
++
++#include <stdio.h>
++#include <stdlib.h>
++#include "time_source.h"
++
++int main() {
++    // Initialize the time source with capacity for 100 samples
++    int ret = time_source_iq_init(100);
++    if (ret != 0) {
++        printf("Failed to initialize time source: %d\n", ret);
++        return -1;
++    }
++
++    // Create some test IQ data
++    c16_t test_data1[10] = {
++        {100, 200}, {300, 400}, {500, 600}, {700, 800}, {900, 1000},
++        {1100, 1200}, {1300, 1400}, {1500, 1600}, {1700, 1800}, {1900, 2000}
++    };
++
++    c16_t test_data2[10] = {
++        {50, 100}, {150, 200}, {250, 300}, {350, 400}, {450, 500},
++        {550, 600}, {650, 700}, {750, 800}, {850, 900}, {950, 1000}
++    };
++
++    // Add first set of data
++    ret = time_source_iq_add(test_data1, 10, 1000);
++    if (ret != 0) {
++        printf("Failed to add first set of IQ data: %d\n", ret);
++        return -1;
++    }
++
++    // Add second set of data (should accumulate)
++    ret = time_source_iq_add(test_data2, 10, 2000);
++    if (ret != 0) {
++        printf("Failed to add second set of IQ data: %d\n", ret);
++        return -1;
++    }
++
++    // Retrieve the accumulated data
++    c16_t result_data[10];
++    uint64_t timestamp;
++    int samples_copied = time_source_iq_get(result_data, 10, ×tamp);
++    if (samples_copied < 0) {
++        printf("Failed to get IQ data: %d\n", samples_copied);
++        return -1;
++    }
++
++    printf("Retrieved %d samples with timestamp %lu\n", samples_copied, timestamp);
++    printf("First few results:\n");
++    for (int i = 0; i < 3 && i < samples_copied; i++) {
++        printf("  [%d] r=%d, i=%d\n", i, result_data[i].r, result_data[i].i);
++    }
++
++    // Expected results: sum of test_data1 and test_data2
++    printf("Expected results:\n");
++    for (int i = 0; i < 3; i++) {
++        int expected_r = test_data1[i].r + test_data2[i].r;
++        int expected_i = test_data1[i].i + test_data2[i].i;
++        printf("  [%d] r=%d, i=%d\n", i, expected_r, expected_i);
++    }
++
++    // Reset and clean up
++    time_source_iq_reset();
++
++    printf("Test completed successfully!\n");
++    return 0;
++}
+\ No newline at end of file
+diff --git a/common/utils/time_manager/time_source.c b/common/utils/time_manager/time_source.c
+new file mode 100644
+index 0000000000..30f3bd6d23
+--- /dev/null
++++ b/common/utils/time_manager/time_source.c
+@@ -0,0 +1,120 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <math.h>
++#include "time_source.h"
++
++// Structure to hold time source information with IQ data
++typedef struct {
++    uint64_t timestamp;
++    c16_t* iq_data;
++    int length;
++} time_source_iq_t;
++
++// Global time source IQ buffer
++static time_source_iq_t time_source_buffer = {0, NULL, 0};
++
++int time_source_iq_add(c16_t* iq_samples, int length, uint64_t timestamp)
++{
++    if (iq_samples == NULL || length <= 0) {
++        return -1; // Invalid input parameters
++    }
++
++    // If buffer is not allocated or size mismatch, reallocate
++    if (time_source_buffer.iq_data == NULL || time_source_buffer.length < length) {
++        if (time_source_buffer.iq_data != NULL) {
++            free(time_source_buffer.iq_data);
++        }
++        time_source_buffer.iq_data = (c16_t*)malloc(length * sizeof(c16_t));
++        if (time_source_buffer.iq_data == NULL) {
++            time_source_buffer.length = 0;
++            return -2; // Memory allocation failed
++        }
++        time_source_buffer.length = length;
++        memset(time_source_buffer.iq_data, 0, length * sizeof(c16_t));
++    }
++
++    // Add IQ samples (complex addition)
++    for (int i = 0; i < length; i++) {
++        time_source_buffer.iq_data[i] = c16add(time_source_buffer.iq_data[i], iq_samples[i]);
++    }
++
++    // Update timestamp
++    time_source_buffer.timestamp = timestamp;
++
++    return 0; // Success
++}
++
++int time_source_iq_get(c16_t* iq_samples, int length, uint64_t* timestamp)
++{
++    if (iq_samples == NULL || length <= 0 || timestamp == NULL) {
++        return -1; // Invalid input parameters
++    }
++
++    if (time_source_buffer.iq_data == NULL || time_source_buffer.length == 0) {
++        return -3; // No data available
++    }
++
++    // Copy data up to the minimum of requested length and available length
++    int copy_length = (length < time_source_buffer.length) ? length : time_source_buffer.length;
++    
++    for (int i = 0; i < copy_length; i++) {
++        iq_samples[i] = time_source_buffer.iq_data[i];
++    }
++
++    *timestamp = time_source_buffer.timestamp;
++
++    return copy_length; // Return number of samples copied
++}
++
++void time_source_iq_reset(void)
++{
++    if (time_source_buffer.iq_data != NULL) {
++        free(time_source_buffer.iq_data);
++        time_source_buffer.iq_data = NULL;
++    }
++    time_source_buffer.length = 0;
++    time_source_buffer.timestamp = 0;
++}
++
++int time_source_iq_init(int max_length)
++{
++    if (max_length <= 0) {
++        return -1; // Invalid parameter
++    }
++
++    // Reset any existing buffer
++    time_source_iq_reset();
++
++    // Allocate buffer
++    time_source_buffer.iq_data = (c16_t*)calloc(max_length, sizeof(c16_t));
++    if (time_source_buffer.iq_data == NULL) {
++        return -2; // Memory allocation failed
++    }
++
++    time_source_buffer.length = max_length;
++    time_source_buffer.timestamp = 0;
++
++    return 0; // Success
++}
+\ No newline at end of file
+diff --git a/common/utils/time_manager/time_source.h b/common/utils/time_manager/time_source.h
+new file mode 100644
+index 0000000000..34d6f38f9c
+--- /dev/null
++++ b/common/utils/time_manager/time_source.h
+@@ -0,0 +1,70 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++#ifndef __TIME_SOURCE_H__
++#define __TIME_SOURCE_H__
++
++#include <stdint.h>
++#include "PHY/TOOLS/tools_defs.h"
++
++/**
++ * @brief Add IQ samples to the time source buffer
++ * 
++ * This function adds IQ samples to an internal buffer, maintaining timing information.
++ * The addition is performed as complex addition (real and imaginary parts separately).
++ * 
++ * @param iq_samples Pointer to the IQ samples to add
++ * @param length Number of IQ samples
++ * @param timestamp Timestamp associated with these samples
++ * @return 0 on success, negative value on error
++ *         -1: Invalid parameters
++ *         -2: Memory allocation failed
++ */
++int time_source_iq_add(c16_t* iq_samples, int length, uint64_t timestamp);
++
++/**
++ * @brief Get the current accumulated IQ samples from the time source
++ * 
++ * @param iq_samples Pointer to buffer where IQ samples will be copied
++ * @param length Maximum number of samples to copy
++ * @param timestamp Pointer to store the timestamp of the data
++ * @return Number of samples copied on success, negative value on error
++ *         -1: Invalid parameters
++ *         -3: No data available
++ */
++int time_source_iq_get(c16_t* iq_samples, int length, uint64_t* timestamp);
++
++/**
++ * @brief Initialize the time source IQ buffer
++ * 
++ * @param max_length Maximum number of IQ samples the buffer can hold
++ * @return 0 on success, negative value on error
++ *         -1: Invalid parameter
++ *         -2: Memory allocation failed
++ */
++int time_source_iq_init(int max_length);
++
++/**
++ * @brief Reset and free the time source IQ buffer
++ */
++void time_source_iq_reset(void);
++
++#endif /* __TIME_SOURCE_H__ */
+\ No newline at end of file

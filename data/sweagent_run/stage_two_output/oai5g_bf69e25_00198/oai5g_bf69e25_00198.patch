@@ -1,0 +1,32 @@
+diff --git a/openair3/M3AP/m3ap_itti_messaging.c b/openair3/M3AP/m3ap_itti_messaging.c
+index 70183f86ff..144be95a7e 100644
+--- a/openair3/M3AP/m3ap_itti_messaging.c
++++ b/openair3/M3AP/m3ap_itti_messaging.c
+@@ -40,6 +40,13 @@ void m3ap_MCE_itti_send_sctp_data_req(instance_t instance,
+   sctp_data_req_t *sctp_data_req;
+ 
+   message_p = itti_alloc_new_message(TASK_M3AP_MCE, 0, SCTP_DATA_REQ);
++  if (message_p == NULL) {
++    // Free the encoded buffer if allocation fails
++    if (buffer != NULL) {
++      free(buffer);
++    }
++    return;
++  }
+ 
+   sctp_data_req = &message_p->ittiMsg.sctp_data_req;
+ 
+@@ -76,6 +83,13 @@ void m3ap_MME_itti_send_sctp_data_req(instance_t instance,
+   sctp_data_req_t *sctp_data_req;
+ 
+   message_p = itti_alloc_new_message(TASK_M3AP_MME, 0, SCTP_DATA_REQ);
++  if (message_p == NULL) {
++    // Free the encoded buffer if allocation fails
++    if (buffer != NULL) {
++      free(buffer);
++    }
++    return;
++  }
+ 
+   sctp_data_req = &message_p->ittiMsg.sctp_data_req;
+ 

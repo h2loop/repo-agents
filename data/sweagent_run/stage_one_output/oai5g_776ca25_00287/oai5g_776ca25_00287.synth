@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect protocol state machine transition in LDPC decoder initialization\n\n### Summary\nThe LDPC decoder initialization code contained an incorrect protocol state machine transition that skipped processing of essential data types. This bug caused incomplete buffer initialization for soft output and HARQ data paths, leading to decoding failures under certain channel conditions.\n\nThe issue was located in two loop conditions that used an incorrect termination check, causing the loops to skip DATA_SOFT_OUTPUT, DATA_HARQ_INPUT, and DATA_HARQ_OUTPUT types during buffer allocation and initialization.\n\n### Changes\n- `openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_decoder_offload.c`: Corrected loop termination condition from `type < 3` to `type < DATA_NUM_TYPES` in both buffer allocation and initialization loops (lines 1546 and 1614).\n\n"
+}

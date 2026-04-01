@@ -1,0 +1,30 @@
+{
+  "run_id": "s00384_817299",
+  "function": {
+    "name": "force_RRC_IDLE",
+    "file": "common/utils/telnetsrv/telnetsrv_ciUE.c",
+    "start_line": 103,
+    "end_line": 108,
+    "body_lines": 6,
+    "signature": "int force_RRC_IDLE(char *buf, int debug, telnet_printfunc_t prnt)",
+    "subsystem": "common/utils/telnetsrv",
+    "token_estimate": 18
+  },
+  "bug": {
+    "bug_id": "telecom_interface_f1ap_error",
+    "description": "F1AP interface handling error between CU and DU causing message loss or corruption",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/LAYER2/MAC",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a F1AP interface handling error between CU and DU causing message loss or corruption downstream of function force_RRC_IDLE in the common/utils/telnetsrv subsystem.\nThe function is located at common/utils/telnetsrv/telnetsrv_ciUE.c:103.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00384_817299_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00384_817299_p1.diff",
+  "patch_lines": 42,
+  "trajectory_steps": 88,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:01:35Z"
+}

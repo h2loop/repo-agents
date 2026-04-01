@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix race condition in mobility type switching\n\n### Summary\nThe `set_new_mob_type` function in the OMG module had a race condition when multiple threads tried to modify node mobility types concurrently. This could lead to corrupted node states or job queue corruption.\n\nThis fix adds proper mutex protection around all shared data structure accesses in the OMG module.\n\n### Changes\n- `openair2/UTIL/OMG/omg.c`: Added pthread mutexes to protect node_vector and job_vector access\n- Protected functions: set_new_mob_type, get_current_positions, get_node_position, update_nodes\n- Added proper locking around all shared data structure reads/writes\n\n"
+}

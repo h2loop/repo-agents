@@ -1,0 +1,166 @@
+diff --git a/executables/nr-ru.c b/executables/nr-ru.c
+index 20deff5725..fc90fed1db 100644
+--- a/executables/nr-ru.c
++++ b/executables/nr-ru.c
+@@ -75,72 +75,82 @@ static void NRRCconfig_RU(configmodule_interface_t *cfg);
+ 
+ int attach_rru(RU_t *ru)
+ {
++  ssize_t      msg_len,len;
+   RRU_CONFIG_msg_t rru_config_msg;
+   int received_capabilities=0;
+-  wait_gNBs();
+ 
++  wait_gNBs();
+   // Wait for capabilities
+   while (received_capabilities==0) {
+-    rru_config_msg = (RRU_CONFIG_msg_t){.type = RAU_tick, .len = sizeof(rru_config_msg.msg)};
+-    LOG_D(PHY, "Sending RAU tick to RRU %d\n", ru->idx);
++    
++    memset((void*)&rru_config_msg,0,sizeof(rru_config_msg));
++    rru_config_msg.type = RAU_tick; 
++    rru_config_msg.len  = sizeof(RRU_CONFIG_msg_t)-MAX_RRU_CONFIG_SIZE;
++    LOG_D(PHY,"Sending RAU tick to RRU %d\n",ru->idx);
+     AssertFatal((ru->ifdevice.trx_ctlsend_func(&ru->ifdevice,&rru_config_msg,rru_config_msg.len)!=-1),
+                 "RU %d cannot access remote radio\n",ru->idx);
+-    ssize_t msg_len = rru_config_msg.len + sizeof(RRU_capabilities_t);
+-    // wait for answer with timeout
+-    ssize_t len = ru->ifdevice.trx_ctlrecv_func(&ru->ifdevice, &rru_config_msg, msg_len);
+-    if (len < 0) {
+-      LOG_D(PHY, "Waiting for RRU %d\n", ru->idx);
+-    } else if (rru_config_msg.type == RRU_capabilities) {
+-      AssertFatal(rru_config_msg.len == msg_len,
+-                  "Received capabilities with incorrect length (%ld!=%ld)\n",
+-                  rru_config_msg.len,
+-                  msg_len);
+-      RRU_capabilities_t *cap = (RRU_capabilities_t *)rru_config_msg.msg;
+-      LOG_I(PHY,
+-            "Received capabilities from RRU %d (len %ld/%ld, num_bands %d,max_pdschReferenceSignalPower %d, max_rxgain %d, nb_tx "
+-            "%d, nb_rx %d)\n",
+-            ru->idx,
+-            rru_config_msg.len,
+-            msg_len,
+-            cap->num_bands,
+-            cap->max_pdschReferenceSignalPower[0],
+-            cap->max_rxgain[0],
+-            cap->nb_tx[0],
+-            cap->nb_rx[0]);
++
++    msg_len  = sizeof(RRU_CONFIG_msg_t)-MAX_RRU_CONFIG_SIZE+sizeof(RRU_capabilities_t);
++
++    // wait for answer with timeout  
++    if ((len = ru->ifdevice.trx_ctlrecv_func(&ru->ifdevice,
++                                             &rru_config_msg,
++                                             msg_len))<0) {
++      LOG_D(PHY,"Waiting for RRU %d\n",ru->idx);     
++    }
++    else if (rru_config_msg.type == RRU_capabilities) {
++      AssertFatal(rru_config_msg.len==msg_len,"Received capabilities with incorrect length (%d!=%d)\n",(int)rru_config_msg.len,(int)msg_len);
++      LOG_I(PHY,"Received capabilities from RRU %d (len %d/%d, num_bands %d,max_pdschReferenceSignalPower %d, max_rxgain %d, nb_tx %d, nb_rx %d)\n",ru->idx,
++            (int)rru_config_msg.len,(int)msg_len,
++            ((RRU_capabilities_t*)&rru_config_msg.msg[0])->num_bands,
++            ((RRU_capabilities_t*)&rru_config_msg.msg[0])->max_pdschReferenceSignalPower[0],
++            ((RRU_capabilities_t*)&rru_config_msg.msg[0])->max_rxgain[0],
++            ((RRU_capabilities_t*)&rru_config_msg.msg[0])->nb_tx[0],
++            ((RRU_capabilities_t*)&rru_config_msg.msg[0])->nb_rx[0]);
+       received_capabilities=1;
+-    } else {
+-      LOG_E(PHY,"Received incorrect message %d from RRU %d\n",rru_config_msg.type,ru->idx);
++    }
++    else {
++      LOG_E(PHY,"Received incorrect message %d from RRU %d\n",rru_config_msg.type,ru->idx); 
+     }
+   }
+-
+-  configure_ru(ru, (RRU_capabilities_t *)rru_config_msg.msg);
++  configure_ru(ru,
++               (RRU_capabilities_t *)&rru_config_msg.msg[0]);
++                    
+   rru_config_msg.type = RRU_config;
+   rru_config_msg.len  = sizeof(RRU_CONFIG_msg_t)-MAX_RRU_CONFIG_SIZE+sizeof(RRU_config_t);
+-  RRU_config_t *conf = (RRU_config_t *)rru_config_msg.msg;
+-  LOG_I(PHY,
+-        "Sending Configuration to RRU %d (num_bands %d,band0 %d,txfreq %u,rxfreq %u,att_tx %d,att_rx %d,N_RB_DL %d,N_RB_UL "
+-        "%d,3/4FS %d, prach_FO %d, prach_CI %d)\n",
+-        ru->idx,
+-        conf->num_bands,
+-        conf->band_list[0],
+-        conf->tx_freq[0],
+-        conf->rx_freq[0],
+-        conf->att_tx[0],
+-        conf->att_rx[0],
+-        conf->N_RB_DL[0],
+-        conf->N_RB_UL[0],
+-        conf->threequarter_fs[0],
+-        conf->prach_FreqOffset[0],
+-        conf->prach_ConfigIndex[0]);
++  LOG_I(PHY,"Sending Configuration to RRU %d (num_bands %d,band0 %d,txfreq %u,rxfreq %u,att_tx %d,att_rx %d,N_RB_DL %d,N_RB_UL %d,3/4FS %d, prach_FO %d, prach_CI %d)\n",ru->idx,
++        ((RRU_config_t *)&rru_config_msg.msg[0])->num_bands,
++        ((RRU_config_t *)&rru_config_msg.msg[0])->band_list[0],
++        ((RRU_config_t *)&rru_config_msg.msg[0])->tx_freq[0],
++        ((RRU_config_t *)&rru_config_msg.msg[0])->rx_freq[0],
++        ((RRU_config_t *)&rru_config_msg.msg[0])->att_tx[0],
++        ((RRU_config_t *)&rru_config_msg.msg[0])->att_rx[0],
++        ((RRU_config_t *)&rru_config_msg.msg[0])->N_RB_DL[0],
++        ((RRU_config_t *)&rru_config_msg.msg[0])->N_RB_UL[0],
++        ((RRU_config_t *)&rru_config_msg.msg[0])->threequarter_fs[0],
++        ((RRU_config_t *)&rru_config_msg.msg[0])->prach_FreqOffset[0],
++        ((RRU_config_t *)&rru_config_msg.msg[0])->prach_ConfigIndex[0]);
++
+   AssertFatal((ru->ifdevice.trx_ctlsend_func(&ru->ifdevice,&rru_config_msg,rru_config_msg.len)!=-1),
+               "RU %d failed send configuration to remote radio\n",ru->idx);
+-  int len = ru->ifdevice.trx_ctlrecv_func(&ru->ifdevice, &rru_config_msg, sizeof(rru_config_msg.msg));
+-  if (len < 0) {
+-    LOG_I(PHY,"Waiting for RRU %d\n",ru->idx);
+-  } else if (rru_config_msg.type == RRU_config_ok) {
+-    LOG_I(PHY, "RRU_config_ok received\n");
+-  } else {
+-    LOG_E(PHY,"Received incorrect message %d from RRU %d\n",rru_config_msg.type,ru->idx);
++
++  // wait for RRU_config_ok
++  int configuration_ok_received = 0;
++  while (configuration_ok_received == 0) {
++    if ((len = ru->ifdevice.trx_ctlrecv_func(&ru->ifdevice,
++                                             &rru_config_msg,
++                                             sizeof(RRU_CONFIG_msg_t)-MAX_RRU_CONFIG_SIZE))<0) {
++      LOG_D(PHY,"Waiting for RRU %d\n",ru->idx);     
++    }    
++    else {
++      if (rru_config_msg.type == RRU_config_ok) {
++        LOG_I(PHY,"Configuration OK received from RRU %d\n",ru->idx);
++        configuration_ok_received = 1;
++      }
++      else {
++        LOG_E(PHY,"Received erroneous message (%d) from RRU %d, expected RRU_config_ok\n",rru_config_msg.type,ru->idx);
++      }
++    }
+   }
+ 
+   return 0;
+@@ -168,7 +178,7 @@ int connect_rau(RU_t *ru) {
+   // send capabilities
+   rru_config_msg.type = RRU_capabilities;
+   rru_config_msg.len  = sizeof(RRU_CONFIG_msg_t)-MAX_RRU_CONFIG_SIZE+sizeof(RRU_capabilities_t);
+-  RRU_capabilities_t *cap = (RRU_capabilities_t *)rru_config_msg.msg;
++  RRU_capabilities_t *cap = (RRU_capabilities_t *)&rru_config_msg.msg[0];
+   LOG_I(PHY,
+         "Sending Capabilities (len %ld, num_bands %d,max_pdschReferenceSignalPower %d, max_rxgain %d, nb_tx %d, nb_rx %d)\n",
+         rru_config_msg.len,
+@@ -218,7 +228,7 @@ int connect_rau(RU_t *ru) {
+     if (len < 0) {
+       LOG_I(PHY,"Waiting for configuration from RAU\n");
+     } else {
+-      RRU_config_t *conf = (RRU_config_t *)rru_config_msg.msg;
++      RRU_config_t *conf = (RRU_config_t *)&rru_config_msg.msg[0];
+       LOG_I(PHY,
+             "Configuration received from RAU  (num_bands %d,band0 %d,txfreq %u,rxfreq %u,att_tx %d,att_rx %d,N_RB_DL %d,N_RB_UL "
+             "%d,3/4FS %d, prach_FO %d, prach_CI %d)\n",
+@@ -233,7 +243,7 @@ int connect_rau(RU_t *ru) {
+             conf->threequarter_fs[0],
+             conf->prach_FreqOffset[0],
+             conf->prach_ConfigIndex[0]);
+-      configure_rru(ru, (void *)rru_config_msg.msg);
++      configure_rru(ru, (void *)&rru_config_msg.msg[0]);
+       configuration_received = 1;
+     }
+   }

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00294_76c43a",
+  "pr_text": "## Title: Fix uninitialized memory read in is_pattern2_config validation\n\n### Summary\nThe `is_pattern2_config()` function in the gNB configuration parser was reading uninitialized memory when determining if pattern2 parameters were configured. The function dereferenced `param->i64ptr` without first verifying that the parameter had been set (either explicitly or to its default value), causing undefined behavior when optional configuration parameters were omitted.\n\nThis patch adds proper initializ",
+  "trajectory_path": "data/raw/s00294_76c43a_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00294_76c43a_p2.diff",
+  "patch_lines": 11,
+  "trajectory_steps": 18,
+  "timestamp": "2026-02-10T12:25:05Z"
+}

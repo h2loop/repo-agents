@@ -1,0 +1,97 @@
+diff --git a/openair2/RRC/NR_UE/rrc_UE.c b/openair2/RRC/NR_UE/rrc_UE.c
+index 53364b0768..d59c1d7680 100644
+--- a/openair2/RRC/NR_UE/rrc_UE.c
++++ b/openair2/RRC/NR_UE/rrc_UE.c
+@@ -33,6 +33,8 @@
+ #define RRC_UE
+ #define RRC_UE_C
+ 
++#include <pthread.h>
++
+ #include "NR_DL-DCCH-Message.h"        //asn_DEF_NR_DL_DCCH_Message
+ #include "NR_DL-CCCH-Message.h"        //asn_DEF_NR_DL_CCCH_Message
+ #include "NR_BCCH-BCH-Message.h"       //asn_DEF_NR_BCCH_BCH_Message
+@@ -323,6 +325,9 @@ NR_UE_RRC_INST_t* nr_rrc_init_ue(char* uecap_file, int nb_inst, int num_ant_tx)
+     rrc->ul_bwp_id = 0;
+     rrc->as_security_activated = false;
+     rrc->detach_after_release = false;
++    
++    /* Initialize mutex for thread-safe access */
++    pthread_mutex_init(&rrc->mutex, NULL);
+ 
+     FILE *f = NULL;
+     if (uecap_file)
+@@ -694,6 +699,8 @@ static int nr_decode_SI(NR_UE_RRC_SI_INFO *SI_info, NR_SystemInformation_t *si)
+ 
+ static void nr_rrc_handle_msg3_indication(NR_UE_RRC_INST_t *rrc, rnti_t rnti)
+ {
++  pthread_mutex_lock(&rrc->mutex);
++  
+   NR_UE_Timers_Constants_t *tac = &rrc->timers_and_constants;
+   switch (rrc->ra_trigger) {
+     case RRC_CONNECTION_SETUP:
+@@ -701,6 +708,7 @@ static void nr_rrc_handle_msg3_indication(NR_UE_RRC_INST_t *rrc, rnti_t rnti)
+       rrc->rnti = rnti;
+       // start timer T300
+       nr_timer_start(&tac->T300);
++      pthread_mutex_unlock(&rrc->mutex);
+       break;
+     case RRC_CONNECTION_REESTABLISHMENT:
+       rrc->rnti = rnti;
+@@ -717,26 +725,34 @@ static void nr_rrc_handle_msg3_indication(NR_UE_RRC_INST_t *rrc, rnti_t rnti)
+       nr_rlc_reconfigure_entity(rrc->ue_id, lc_id, NULL);
+       // resume SRB1
+       rrc->Srb[srb_id] = RB_ESTABLISHED;
++      pthread_mutex_unlock(&rrc->mutex);
+       break;
+     case DURING_HANDOVER:
++      pthread_mutex_unlock(&rrc->mutex);
+       AssertFatal(1==0, "ra_trigger not implemented yet!\n");
+       break;
+     case NON_SYNCHRONISED:
++      pthread_mutex_unlock(&rrc->mutex);
+       AssertFatal(1==0, "ra_trigger not implemented yet!\n");
+       break;
+     case TRANSITION_FROM_RRC_INACTIVE:
++      pthread_mutex_unlock(&rrc->mutex);
+       AssertFatal(1==0, "ra_trigger not implemented yet!\n");
+       break;
+     case TO_ESTABLISH_TA:
++      pthread_mutex_unlock(&rrc->mutex);
+       AssertFatal(1==0, "ra_trigger not implemented yet!\n");
+       break;
+     case REQUEST_FOR_OTHER_SI:
++      pthread_mutex_unlock(&rrc->mutex);
+       AssertFatal(1==0, "ra_trigger not implemented yet!\n");
+       break;
+     case BEAM_FAILURE_RECOVERY:
++      pthread_mutex_unlock(&rrc->mutex);
+       AssertFatal(1==0, "ra_trigger not implemented yet!\n");
+       break;
+     default:
++      pthread_mutex_unlock(&rrc->mutex);
+       AssertFatal(1==0, "Invalid ra_trigger value!\n");
+       break;
+   }
+diff --git a/openair2/RRC/NR_UE/rrc_defs.h b/openair2/RRC/NR_UE/rrc_defs.h
+index 26a102fdb0..85aea8aa6a 100644
+--- a/openair2/RRC/NR_UE/rrc_defs.h
++++ b/openair2/RRC/NR_UE/rrc_defs.h
+@@ -36,6 +36,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include <pthread.h>
+ 
+ #include "common/platform_types.h"
+ #include "commonDef.h"
+@@ -234,6 +235,9 @@ typedef struct NR_UE_RRC_INST_s {
+   //Sidelink params
+   NR_SL_PreconfigurationNR_r16_t *sl_preconfig;
+ 
++  /* Mutex for thread-safe access to RRC instance */
++  pthread_mutex_t mutex;
++
+ } NR_UE_RRC_INST_t;
+ 
+ #endif

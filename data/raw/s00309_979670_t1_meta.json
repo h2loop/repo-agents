@@ -1,0 +1,30 @@
+{
+  "run_id": "s00309_979670",
+  "function": {
+    "name": "push8",
+    "file": "nfapi/open-nFAPI/common/src/nfapi.c",
+    "start_line": 72,
+    "end_line": 85,
+    "body_lines": 14,
+    "signature": "uint8_t push8(uint8_t in, uint8_t **out, uint8_t *end)",
+    "subsystem": "nfapi/open-nFAPI/common",
+    "token_estimate": 42
+  },
+  "bug": {
+    "bug_id": "telecom_power_control_error",
+    "description": "power control error causing incorrect transmit power level",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "radio"
+    ]
+  },
+  "prompt": "There is a power control error causing incorrect transmit power level downstream of function push8 in the nfapi/open-nFAPI/common subsystem.\nThe function is located at nfapi/open-nFAPI/common/src/nfapi.c:72.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00309_979670_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00309_979670_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 18,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:31:35Z"
+}

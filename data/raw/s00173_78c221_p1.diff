@@ -1,0 +1,13 @@
+diff --git a/openair1/PHY/NR_UE_TRANSPORT/nr_initial_sync.c b/openair1/PHY/NR_UE_TRANSPORT/nr_initial_sync.c
+index 4788c9ed9d..c677f27da8 100644
+--- a/openair1/PHY/NR_UE_TRANSPORT/nr_initial_sync.c
++++ b/openair1/PHY/NR_UE_TRANSPORT/nr_initial_sync.c
+@@ -352,6 +352,8 @@ nr_initial_sync_t nr_initial_sync(UE_nr_rxtx_proc_t *proc,
+             ssbInfo->pssCorrAvgPower);
+       if (!res.syncRes.cell_detected) { // take the first cell detected
+         res = *ssbInfo;
++        // Clear rxdata pointers in res to avoid double free since we will free them below
++        res.rxdata = NULL;
+       }
+     }
+     for (int ant = 0; ant < fp->nb_antennas_rx; ant++) {

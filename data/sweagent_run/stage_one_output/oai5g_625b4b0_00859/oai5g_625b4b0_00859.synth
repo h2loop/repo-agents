@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect type cast in get_dlsch_mcs_table function causing MCS table selection issues\n\n### Summary\nThere is an incorrect type cast causing data corruption or misinterpretation downstream of function get_dlsch_mcs_table. The issue manifests when determining the appropriate MCS table for PDSCH transmission, leading to incorrect modulation and coding schemes being selected.\n\nThe problem occurs because the ss_type parameter in get_dlsch_mcs_table is declared as int but is compared against NR_SearchSpace__searchSpaceType_PR enum values. This type mismatch can cause incorrect MCS table selection on certain platforms or compiler configurations.\n\n### Changes\n- `openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c`: Changed ss_type parameter type from int to long in get_dlsch_mcs_table function and added explicit casts in function calls to ensure proper type compatibility with enum values.\n\n"
+}

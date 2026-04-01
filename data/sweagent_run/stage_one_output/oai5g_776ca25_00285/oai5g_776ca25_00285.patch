@@ -1,0 +1,470 @@
+diff --git a/openair2/MCE_APP/mce_app.c b/openair2/MCE_APP/mce_app.c
+index 7e9d45d99f..03c4efc2c0 100644
+--- a/openair2/MCE_APP/mce_app.c
++++ b/openair2/MCE_APP/mce_app.c
+@@ -80,7 +80,7 @@ static uint32_t MCE_app_register(uint32_t mce_id_start, uint32_t mce_id_end) {
+         //RCconfig_S1(msg_p, mce_id);
+ 
+         //if (mce_id == 0) 
+-		//RCconfig_gtpu();
++                //RCconfig_gtpu();
+ 
+         //LOG_I(MCE_APP,"default drx %d\n",((M3AP_REGISTER_MCE_REQ(msg_p)).default_drx));
+ 
+@@ -135,11 +135,11 @@ static uint32_t MCE_app_register(uint32_t mce_id_start, uint32_t mce_id_end) {
+ //  LOG_W(MCE_APP,"Register ...");
+ //  for (mce_id = mce_id_start; (mce_id < mce_id_end) ; mce_id++) {
+ //    {
+-//  //	LOG_W(MCE_APP,"Register commes inside ...\n");
++//  //  LOG_W(MCE_APP,"Register commes inside ...\n");
+ //      msg_p = itti_alloc_new_message (TASK_MCE_APP, 0, M2AP_REGISTER_MCE_REQ);
+ //      //RCconfig_M2_MCE(msg_p, mce_id);
+ //      itti_send_msg_to_task (TASK_M2AP_MCE, ENB_MODULE_ID_TO_INSTANCE(mce_id), msg_p);
+-//  //	LOG_W(MCE_APP,"Register sent ...\n");
++//  //  LOG_W(MCE_APP,"Register sent ...\n");
+ //      register_mce_m2_pending++;
+ //    }
+ //  }
+@@ -156,11 +156,11 @@ static uint32_t MCE_app_register_m3(uint32_t mce_id_start, uint32_t mce_id_end)
+   LOG_D(MCE_APP,"Register ...\n");
+   for (mce_id = mce_id_start; (mce_id < mce_id_end) ; mce_id++) {
+     {
+-  //	LOG_W(MCE_APP,"Register commes inside ...\n");
++  //    LOG_W(MCE_APP,"Register commes inside ...\n");
+       msg_p = itti_alloc_new_message (TASK_MCE_APP, 0, M3AP_REGISTER_MCE_REQ);
+       RCconfig_M3(msg_p, mce_id);
+       itti_send_msg_to_task (TASK_M3AP_MCE, ENB_MODULE_ID_TO_INSTANCE(mce_id), msg_p);
+-  	LOG_D(MCE_APP,"Register sent ...\n");
++        LOG_D(MCE_APP,"Register sent ...\n");
+       register_mce_m3_pending++;
+     }
+   }
+@@ -170,57 +170,59 @@ static uint32_t MCE_app_register_m3(uint32_t mce_id_start, uint32_t mce_id_end)
+ 
+ /***************************  M3AP MCE handle **********************************/
+ //static uint32_t MCE_app_handle_m3ap_mbms_session_start_req(instance_t instance){
+-//  	//uint32_t         mce_id=0;
+-//  //	MessageDef      *msg_p;
++//      //uint32_t         mce_id=0;
++//  //  MessageDef      *msg_p;
+ //  //      msg_p = itti_alloc_new_message (TASK_MCE_APP, 0, M3AP_MBMS_SESSION_START_RESP);
+ //  //      itti_send_msg_to_task (TASK_M3AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);
+-//	
+-//	
+-//	return 0;
++//      
++//      
++//      return 0;
+ //}
+ 
+ static uint32_t MCE_app_handle_m3ap_mbms_session_stop_req(instance_t instance){
+-  	//uint32_t         mce_id=0;
+-  	MessageDef      *msg_p;
++        //uint32_t         mce_id=0;
++        MessageDef      *msg_p;
+         msg_p = itti_alloc_new_message (TASK_MCE_APP, 0, M3AP_MBMS_SESSION_STOP_RESP);
+         itti_send_msg_to_task (TASK_M3AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);
+-	
+-	return 0;
++        
++        return 0;
+ }
+ 
+ static uint32_t MCE_app_handle_m3ap_mbms_session_update_req(instance_t instance){
+-  	//uint32_t         mce_id=0;
+-  	MessageDef      *msg_p;
++        //uint32_t         mce_id=0;
++        MessageDef      *msg_p;
+         msg_p = itti_alloc_new_message (TASK_MCE_APP, 0, M3AP_MBMS_SESSION_UPDATE_RESP);
+         itti_send_msg_to_task (TASK_M3AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);
+-	
+-	return 0;
++        
++        return 0;
+ }
+ //// end M3AP MCE handle **********************************/
+ 
+ 
+ /***************************  M2AP MCE handle **********************************/
+ static uint32_t MCE_app_handle_m2ap_setup_req(instance_t instance){
+-	
+-  	//uint32_t         mce_id=0;
+-  	MessageDef      *msg_p;
++        
++        //uint32_t         mce_id=0;
++        MessageDef      *msg_p;
+         msg_p = itti_alloc_new_message (TASK_MCE_APP, 0, M2AP_SETUP_RESP);
+-	if(m2ap_setup_resp_local)
+-		memcpy(&M2AP_SETUP_RESP(msg_p),m2ap_setup_resp_local,sizeof(m2ap_setup_resp_t));
+-	else
+-		RCconfig_M2_MCCH(msg_p,0);
++        if(m2ap_setup_resp_local)
++                memcpy(&M2AP_SETUP_RESP(msg_p),m2ap_setup_resp_local,sizeof(m2ap_setup_resp_t));
++        else
++                RCconfig_M2_MCCH(msg_p,0);
+ 
+-	
++        
+         itti_send_msg_to_task (TASK_M2AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);
+-	
+-	return 0;
++        
++        return 0;
+ }
+ 
+-static uint32_t MCE_app_handle_m2ap_mbms_session_start_resp(instance_t instance){
+-	MessageDef      *msg_p;
+-  	msg_p = itti_alloc_new_message (TASK_MCE_APP, 0, M3AP_MBMS_SESSION_START_RESP); 
+-	itti_send_msg_to_task (TASK_M3AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);
+-	return 0;
++static uint32_t MCE_app_handle_m2ap_mbms_session_start_resp(instance_t instance, MessageDef *msg_p_original){
++        MessageDef      *msg_p;
++        msg_p = itti_alloc_new_message (TASK_MCE_APP, 0, M3AP_MBMS_SESSION_START_RESP); 
++        // Copy data from original M2AP message to new M3AP message
++        memcpy(&M3AP_MBMS_SESSION_START_RESP(msg_p), &M2AP_MBMS_SESSION_START_RESP(msg_p_original), sizeof(m2ap_session_start_resp_t));
++        itti_send_msg_to_task (TASK_M3AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);
++        return 0;
+ }
+ 
+ //// end M2AP MCE handle **********************************/
+@@ -228,83 +230,83 @@ static uint32_t MCE_app_handle_m2ap_mbms_session_start_resp(instance_t instance)
+ 
+ /***************************  M2AP MCE send **********************************/
+ static uint32_t MCE_app_send_m2ap_mbms_scheduling_information(instance_t instance){
+-	
+-  	//uint32_t         mce_id=0;
+-  	MessageDef      *msg_p;
++        
++        //uint32_t         mce_id=0;
++        MessageDef      *msg_p;
+         msg_p = itti_alloc_new_message (TASK_MCE_APP, 0, M2AP_MBMS_SCHEDULING_INFORMATION);
+-	if(m2ap_mbms_scheduling_information_local)
+-		memcpy(&M2AP_MBMS_SCHEDULING_INFORMATION(msg_p),m2ap_mbms_scheduling_information_local,sizeof(m2ap_mbms_scheduling_information_t));
+-	else
+-		RCconfig_M2_SCHEDULING(msg_p,0);
++        if(m2ap_mbms_scheduling_information_local)
++                memcpy(&M2AP_MBMS_SCHEDULING_INFORMATION(msg_p),m2ap_mbms_scheduling_information_local,sizeof(m2ap_mbms_scheduling_information_t));
++        else
++                RCconfig_M2_SCHEDULING(msg_p,0);
+         itti_send_msg_to_task (TASK_M2AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);
+-	
+-	return 0;
++        
++        return 0;
+ }
+ 
+ static uint32_t MCE_app_send_m2ap_session_start_req(instance_t instance){
+-	
+-  	//uint32_t         mce_id=0;
+-  	MessageDef      *msg_p;
++        
++        //uint32_t         mce_id=0;
++        MessageDef      *msg_p;
+         msg_p = itti_alloc_new_message (TASK_MCE_APP, 0, M2AP_MBMS_SESSION_START_REQ);
+         itti_send_msg_to_task (TASK_M2AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);
+-	
+-	return 0;
++        
++        return 0;
+ }
+ //static uint32_t MCE_app_send_m2ap_session_stop_req(instance_t instance){
+-//	
+-//  	//uint32_t         mce_id=0;
+-//  	MessageDef      *msg_p;
++//      
++//      //uint32_t         mce_id=0;
++//      MessageDef      *msg_p;
+ //        msg_p = itti_alloc_new_message (TASK_MCE_APP, 0, M2AP_MBMS_SESSION_STOP_REQ);
+ //        itti_send_msg_to_task (TASK_M2AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);
+-//	
+-//	return 0;
++//      
++//      return 0;
+ //}
+ //static uint32_t MCE_app_send_m2ap_mce_configuration_update(instance_t instance){
+-//	
+-//  	//uint32_t         mce_id=0;
+-//  	MessageDef      *msg_p;
++//      
++//      //uint32_t         mce_id=0;
++//      MessageDef      *msg_p;
+ //        msg_p = itti_alloc_new_message (TASK_MCE_APP, 0, M2AP_MCE_CONFIGURATION_UPDATE);
+ //        itti_send_msg_to_task (TASK_M2AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);
+-//	
+-//	return 0;
++//      
++//      return 0;
+ //}
+ //static uint32_t MCE_app_send_m2ap_enb_configuration_update_ack(instance_t instance){
+-//	
+-//  	//uint32_t         mce_id=0;
+-//  	MessageDef      *msg_p;
++//      
++//      //uint32_t         mce_id=0;
++//      MessageDef      *msg_p;
+ //        msg_p = itti_alloc_new_message (TASK_MCE_APP, 0, M2AP_ENB_CONFIGURATION_UPDATE_ACK);
+ //        itti_send_msg_to_task (TASK_M2AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);
+-//	
+-//	return 0;
++//      
++//      return 0;
+ //}
+ //static uint32_t MCE_app_send_m2ap_enb_configuration_update_failure(instance_t instance){
+-//	
+-//  	//uint32_t         mce_id=0;
+-//  	MessageDef      *msg_p;
++//      
++//      //uint32_t         mce_id=0;
++//      MessageDef      *msg_p;
+ //        msg_p = itti_alloc_new_message (TASK_MCE_APP, 0, M2AP_ENB_CONFIGURATION_UPDATE_FAILURE);
+ //        itti_send_msg_to_task (TASK_M2AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);
+-//	
+-//	return 0;
++//      
++//      return 0;
+ //} //// end M2AP MCE send **********************************/
+ 
+ //static uint32_t MCE_app_send_MME_APP(instance_t instance){
+-//	
+-//  	//uint32_t         mce_id=0;
+-//  	MessageDef      *msg_p;
++//      
++//      //uint32_t         mce_id=0;
++//      MessageDef      *msg_p;
+ //        msg_p = itti_alloc_new_message (TASK_MCE_APP, 0, MESSAGE_TEST);
+ //        itti_send_msg_to_task (TASK_MME_APP, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);
+-//	
+-//	return 0;
++//      
++//      return 0;
+ //}
+ 
+ //static uint32_t MCE_app_send_MME_APP2(instance_t instance){
+-//	
+-//  	//uint32_t         mce_id=0;
+-//  	MessageDef      *msg_p;
++//      
++//      //uint32_t         mce_id=0;
++//      MessageDef      *msg_p;
+ //        msg_p = itti_alloc_new_message (TASK_MCE_APP, 0, MESSAGE_TEST);
+ //        itti_send_msg_to_task (TASK_M3AP_MCE, ENB_MODULE_ID_TO_INSTANCE(instance), msg_p);
+-//	
+-//	return 0;
++//      
++//      return 0;
+ //}
+ 
+ /*------------------------------------------------------------------------------*/
+@@ -315,7 +317,7 @@ void *MCE_app_task(void *args_p) {
+   uint32_t                        register_mce_pending=0;
+   uint32_t                        registered_mce=0;
+   //long                            mce_register_retry_timer_id;
+-  long 				  mce_scheduling_info_timer_id = 0;
++  long                            mce_scheduling_info_timer_id = 0;
+   //uint32_t                        m3_register_mce_pending = 0;
+  // uint32_t                        x2_registered_mce = 0;
+  // long                            x2_mce_register_retry_timer_id;
+@@ -415,24 +417,24 @@ void *MCE_app_task(void *args_p) {
+ 
+    case M3AP_MBMS_SESSION_START_REQ:
+         LOG_I(MCE_APP, "Received M3AP_MBMS_SESSION_START_REQ message %s\n", ITTI_MSG_NAME (msg_p));
+-	//MCE_app_handle_m3ap_mbms_session_start_req(ITTI_MSG_DESTINATION_INSTANCE(msg_p));
+-	if(m2ap_setup_req_local)
+-		if (timer_setup (2, 0, TASK_MCE_APP, INSTANCE_DEFAULT, TIMER_ONE_SHOT,
++        //MCE_app_handle_m3ap_mbms_session_start_req(ITTI_MSG_DESTINATION_INSTANCE(msg_p));
++        if(m2ap_setup_req_local)
++                if (timer_setup (2, 0, TASK_MCE_APP, INSTANCE_DEFAULT, TIMER_ONE_SHOT,
+                                NULL, &mce_scheduling_info_timer_id) < 0) {
+-   		}
++                }
+ 
+ 
+-	break;
++        break;
+ 
+    case M3AP_MBMS_SESSION_STOP_REQ:
+         LOG_I(MCE_APP, "Received M3AP_MBMS_SESSION_STOP_REQ message %s\n", ITTI_MSG_NAME (msg_p));
+-	MCE_app_handle_m3ap_mbms_session_stop_req(ITTI_MSG_DESTINATION_INSTANCE(msg_p));
+-	break;
++        MCE_app_handle_m3ap_mbms_session_stop_req(ITTI_MSG_DESTINATION_INSTANCE(msg_p));
++        break;
+ 
+    case M3AP_MBMS_SESSION_UPDATE_REQ:
+         LOG_I(MCE_APP, "Received M3AP_MBMS_SESSION_UPDATE_REQ message %s\n", ITTI_MSG_NAME (msg_p));
+-	MCE_app_handle_m3ap_mbms_session_update_req(ITTI_MSG_DESTINATION_INSTANCE(msg_p));
+-	break;
++        MCE_app_handle_m3ap_mbms_session_update_req(ITTI_MSG_DESTINATION_INSTANCE(msg_p));
++        break;
+ 
+ 
+ 
+@@ -490,20 +492,20 @@ void *MCE_app_task(void *args_p) {
+       break;
+ 
+     case TIMER_HAS_EXPIRED:
+-	      LOG_I(MCE_APP, " Received %s: timer_id %ld\n", ITTI_MSG_NAME (msg_p), TIMER_HAS_EXPIRED(msg_p).timer_id);
++              LOG_I(MCE_APP, " Received %s: timer_id %ld\n", ITTI_MSG_NAME (msg_p), TIMER_HAS_EXPIRED(msg_p).timer_id);
+ 
+-	      if (TIMER_HAS_EXPIRED (msg_p).timer_id == mce_scheduling_info_timer_id/*mce_register_retry_timer_id*/) {
+-		/* Restart the registration process */
+-		//registered_mce = 0;
+-		//register_mce_pending = MCE_app_register (RC.rrc[0]->node_type, mce_id_start, mce_id_end);
+-		MCE_app_send_m2ap_mbms_scheduling_information(0);
+-	      }
++              if (TIMER_HAS_EXPIRED (msg_p).timer_id == mce_scheduling_info_timer_id/*mce_register_retry_timer_id*/) {
++                /* Restart the registration process */
++                //registered_mce = 0;
++                //register_mce_pending = MCE_app_register (RC.rrc[0]->node_type, mce_id_start, mce_id_end);
++                MCE_app_send_m2ap_mbms_scheduling_information(0);
++              }
+ 
+-	      //if (TIMER_HAS_EXPIRED (msg_p).timer_id == x2_mce_register_retry_timer_id) {
+-	      //  /* Restart the registration process */
+-	      //  x2_registered_mce = 0;
+-	      //  x2_register_mce_pending = MCE_app_register_x2 (mce_id_start, mce_id_end);
+-	      //}
++              //if (TIMER_HAS_EXPIRED (msg_p).timer_id == x2_mce_register_retry_timer_id) {
++              //  /* Restart the registration process */
++              //  x2_registered_mce = 0;
++              //  x2_register_mce_pending = MCE_app_register_x2 (mce_id_start, mce_id_end);
++              //}
+ 
+       break;
+ 
+@@ -536,8 +538,8 @@ void *MCE_app_task(void *args_p) {
+  //         // timer to retry
+  //         /* Restart the MCE registration process in ENB_REGISTER_RETRY_DELAY seconds */
+  //         if (timer_setup (X2AP_ENB_REGISTER_RETRY_DELAY, 0, TASK_ENB_APP,
+- //       		   INSTANCE_DEFAULT, TIMER_ONE_SHOT, NULL,
+- //       		   &x2_enb_register_retry_timer_id) < 0) {
++ //                        INSTANCE_DEFAULT, TIMER_ONE_SHOT, NULL,
++ //                        &x2_enb_register_retry_timer_id) < 0) {
+  //           LOG_E(ENB_APP, " Can not start MCE X2AP register: retry timer, use \"sleep\" instead!\n");
+  //           sleep(X2AP_ENB_REGISTER_RETRY_DELAY);
+  //           /* Restart the registration process */
+@@ -578,8 +580,8 @@ void *MCE_app_task(void *args_p) {
+  //         // timer to retry
+  //         /* Restart the MCE registration process in ENB_REGISTER_RETRY_DELAY seconds */
+  //         //if (timer_setup (X2AP_ENB_REGISTER_RETRY_DELAY, 0, TASK_ENB_APP,
+- //         //      	   INSTANCE_DEFAULT, TIMER_ONE_SHOT, NULL,
+- //         //      	   &x2_enb_register_retry_timer_id) < 0) {
++ //         //             INSTANCE_DEFAULT, TIMER_ONE_SHOT, NULL,
++ //         //             &x2_enb_register_retry_timer_id) < 0) {
+  //         //  LOG_E(ENB_APP, " Can not start MCE X2AP register: retry timer, use \"sleep\" instead!\n");
+  //         //  sleep(X2AP_ENB_REGISTER_RETRY_DELAY);
+  //         //  /* Restart the registration process */
+@@ -592,82 +594,82 @@ void *MCE_app_task(void *args_p) {
+  //     break;
+    case M2AP_RESET:
+       LOG_I(MCE_APP, "Received M2AP_RESET message %s\n", ITTI_MSG_NAME (msg_p));
+-	break;
++        break;
+ 
+    case M2AP_SETUP_REQ:
+       LOG_I(MCE_APP, "Received M2AP_SETUP_REQ message %s\n", ITTI_MSG_NAME (msg_p));
+-	if(!m2ap_setup_req_local)
+-		m2ap_setup_req_local = (m2ap_setup_req_t*)calloc(1,sizeof(m2ap_setup_req_t));
+-	if(m2ap_setup_req_local)
+-		memcpy(m2ap_setup_req_local,&M2AP_SETUP_REQ(msg_p),sizeof(m2ap_setup_req_t));
+-	MCE_app_handle_m2ap_setup_req(ITTI_MSG_DESTINATION_INSTANCE(msg_p));
+-	//MCE_app_send_m2ap_mbms_scheduling_information(0);
+-	//if (timer_setup (2, 0, TASK_MCE_APP, INSTANCE_DEFAULT, TIMER_ONE_SHOT,
++        if(!m2ap_setup_req_local)
++                m2ap_setup_req_local = (m2ap_setup_req_t*)calloc(1,sizeof(m2ap_setup_req_t));
++        if(m2ap_setup_req_local)
++                memcpy(m2ap_setup_req_local,&M2AP_SETUP_REQ(msg_p),sizeof(m2ap_setup_req_t));
++        MCE_app_handle_m2ap_setup_req(ITTI_MSG_DESTINATION_INSTANCE(msg_p));
++        //MCE_app_send_m2ap_mbms_scheduling_information(0);
++        //if (timer_setup (2, 0, TASK_MCE_APP, INSTANCE_DEFAULT, TIMER_ONE_SHOT,
+         //                       NULL, &mce_scheduling_info_timer_id) < 0) {
+-   	//}
++        //}
+ 
+ 
+-   	/*m3_register_mce_pending =*/ //MCE_app_register_m3 (mce_id_start, mce_id_end);
++        /*m3_register_mce_pending =*/ //MCE_app_register_m3 (mce_id_start, mce_id_end);
+ 
+-	//MCE_app_send_m2ap_session_start_req(0);
+-	break;
++        //MCE_app_send_m2ap_session_start_req(0);
++        break;
+ 
+    case M2AP_MBMS_SESSION_START_RESP:
+       LOG_I(MCE_APP, "Received M2AP_MBMS_SESSION_START_RESP message %s\n", ITTI_MSG_NAME (msg_p));
+-	//MCE_app_send_m2ap_session_stop_req(0);
+-	MCE_app_handle_m2ap_mbms_session_start_resp(0);
+-	break;
++        //MCE_app_send_m2ap_session_stop_req(0);
++        MCE_app_handle_m2ap_mbms_session_start_resp(0, msg_p);
++        break;
+ 
+    case M2AP_MBMS_SESSION_STOP_RESP:
+       LOG_I(MCE_APP, "Received M2AP_MBMS_SESSION_STOP_RESP message %s\n", ITTI_MSG_NAME (msg_p));
+-	//MCE_app_send_m2ap_session_start_req(0);
+-	//MCE_app_handle_m2ap_mbms_session_start_resp(0);
+-	//MCE_app_send_MME_APP(0);
+-	break;
++        //MCE_app_send_m2ap_session_start_req(0);
++        //MCE_app_handle_m2ap_mbms_session_start_resp(0);
++        //MCE_app_send_MME_APP(0);
++        break;
+ 
+    case M2AP_MBMS_SCHEDULING_INFORMATION_RESP:
+       LOG_I(MCE_APP, "Received M2AP_MBMS_SCHEDULING_INFORMATION_RESP message %s\n", ITTI_MSG_NAME (msg_p));
+-	MCE_app_send_m2ap_session_start_req(0);
+-	break;
++        MCE_app_send_m2ap_session_start_req(0);
++        break;
+ 
+    case M2AP_ENB_CONFIGURATION_UPDATE:
+       LOG_I(MCE_APP, "Received M2AP_ENB_CONFIGURATION_UPDATE message %s\n", ITTI_MSG_NAME (msg_p));
+-	break;
+-	
++        break;
++        
+    case M2AP_ERROR_INDICATION:
+       LOG_I(MCE_APP, "Received M2AP_ERROR_INDICATION message %s\n", ITTI_MSG_NAME (msg_p));
+-	break;
++        break;
+ 
+    case M2AP_MBMS_SESSION_UPDATE_RESP:
+       LOG_I(MCE_APP, "Received M2AP_MBMS_SESSION_UPDATE_RESP message %s\n", ITTI_MSG_NAME (msg_p));
+-	break;
++        break;
+ 
+    case M2AP_MBMS_SESSION_UPDATE_FAILURE:
+       LOG_I(MCE_APP, "Received M2AP_MBMS_SESSION_UPDATE_FAILURE message %s\n", ITTI_MSG_NAME (msg_p));
+-	break;
++        break;
+ 
+    case M2AP_MBMS_SERVICE_COUNTING_REPORT:
+       LOG_I(MCE_APP, "Received M2AP_MBMS_SESSION_UPDATE_REPORT message %s\n", ITTI_MSG_NAME (msg_p));
+-	break;
++        break;
+ 
+    case M2AP_MBMS_OVERLOAD_NOTIFICATION:
+       LOG_I(MCE_APP, "Received M2AP_MBMS_OVERLOAD_NOTIFICATION message %s\n", ITTI_MSG_NAME (msg_p));
+-	break;
++        break;
+ 
+    case M2AP_MBMS_SERVICE_COUNTING_RESP:
+       LOG_I(MCE_APP, "Received M2AP_MBMS_SESSION_UPDATE_RESP message %s\n", ITTI_MSG_NAME (msg_p));
+-	break;
++        break;
+ 
+    case M2AP_MBMS_SERVICE_COUNTING_FAILURE:
+       LOG_I(MCE_APP, "Received M2AP_MBMS_SESSION_UPDATE_FAILURE message %s\n", ITTI_MSG_NAME (msg_p));
+-	break;
++        break;
+ 
+    case M2AP_MCE_CONFIGURATION_UPDATE_ACK:
+       LOG_I(MCE_APP, "Received M2AP_MCE_CONFIGURATION_UPDATE_ACK message %s\n", ITTI_MSG_NAME (msg_p));
+-	break;
++        break;
+    case M2AP_MCE_CONFIGURATION_UPDATE_FAILURE:
+       LOG_I(MCE_APP, "Received M2AP_MCE_CONFIGURATION_UPDATE_FAILURE message %s\n", ITTI_MSG_NAME (msg_p));
+-	break;
++        break;
+ 
+     default:
+       LOG_E(MCE_APP, "Received unexpected message %s\n", ITTI_MSG_NAME (msg_p));

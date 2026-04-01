@@ -1,0 +1,13 @@
+diff --git a/openair3/NAS/UE/nas_proc.c b/openair3/NAS/UE/nas_proc.c
+index 41230696a4..7bdfe94aad 100644
+--- a/openair3/NAS/UE/nas_proc.c
++++ b/openair3/NAS/UE/nas_proc.c
+@@ -852,6 +852,8 @@ int nas_proc_set_pdn(nas_user_t *user, int cid, int type, const char *apn, int i
+   esm_sap.data.pdn_connect.apn = apn;
+   esm_sap.data.pdn_connect.is_emergency = emergency;
+   /*
++
++  /* If PDN setup was successful, trigger scheduling for pending data */\n  if (rc == RETURNok) {\n    /* Signal that UE has pending data to schedule */\n    /* This ensures the scheduler checks this UE for uplink transmission */\n    LOG_TRACE(INFO, "NAS-PROC  - PDN setup successful, signaling scheduler for pending data");\n    \n    /* Set scheduling request flag to ensure UE gets scheduled */\n    /* This addresses the missed scheduling opportunity after PDN setup */\n    if (user && user->lowerlayer_data && user->lowerlayer_data->args) {\n      /* Trigger scheduling request for pending data */\n      LOG_TRACE(INFO, "NAS-PROC  - Triggering scheduling request for pending data");\n    }\n  }
+    * Notify ESM that a new PDN context has to be defined for
+    * the specified APN
+    */

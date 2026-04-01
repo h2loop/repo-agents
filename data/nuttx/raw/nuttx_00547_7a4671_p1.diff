@@ -1,0 +1,15 @@
+diff --git a/arch/arm/src/kinetis/kinetis_lpserial.c b/arch/arm/src/kinetis/kinetis_lpserial.c
+index 36c0a83a..9a257c11 100644
+--- a/arch/arm/src/kinetis/kinetis_lpserial.c
++++ b/arch/arm/src/kinetis/kinetis_lpserial.c
+@@ -1005,6 +1005,10 @@ static void kinetis_detach(struct uart_dev_s *dev)
+   kinetis_restoreuartint(priv, 0);
+   up_disable_irq(priv->irq);
+ 
++  /* Clear any pending interrupts on this IRQ */
++
++  kinetis_clrpend(priv->irq);
++
+   /* Detach from the interrupt(s) */
+ 
+   irq_detach(priv->irq);

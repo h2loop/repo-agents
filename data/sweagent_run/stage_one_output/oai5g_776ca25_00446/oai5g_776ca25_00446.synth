@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect context setup in RLC deliver_sdu function\n\n### Summary\nThe RLC deliver_sdu function was manually setting context fields including incorrectly assigning ctx.instance = ue->module_id. This caused downstream functions to receive malformed context structures. The issue manifested as incorrect module instance mapping in PDCP layer processing.\n\nThis fix replaces the manual context setup with the proper PROTOCOL_CTXT_SET_BY_MODULE_ID macro which correctly computes all context fields including the instance identifier.\n\n### Changes\n- `openair2/LAYER2/rlc_v2/rlc_oai_api.c`: Replaced redundant manual context field assignments with PROTOCOL_CTXT_SET_BY_MODULE_ID macro in deliver_sdu function.\n\n"
+}

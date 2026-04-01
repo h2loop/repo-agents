@@ -1,0 +1,9 @@
+{
+  "run_id": "s00050_b23948",
+  "pr_text": "## Title: Fix missing error propagation in ENDC DC prep timeout handler\n\n### Summary\nThe `rrc_eNB_process_ENDC_DC_prep_timeout` function silently ignored error conditions when processing ENDC DC preparation timeouts, making debugging difficult. Failures such as unknown UE context or invalid RRC state were only logged locally but not propagated to the caller, masking potential issues in dual connectivity setup procedures.\n\nThis patch adds proper error propagation by changing the function signatur",
+  "trajectory_path": "data/raw/s00050_b23948_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00050_b23948_p2.diff",
+  "patch_lines": 7,
+  "trajectory_steps": 27,
+  "timestamp": "2026-02-10T10:52:29Z"
+}

@@ -1,0 +1,29 @@
+diff --git a/openair3/NAS/NR_UE/nr_nas_msg.c b/openair3/NAS/NR_UE/nr_nas_msg.c
+index 8f4f9bd280..b9b5522494 100644
+--- a/openair3/NAS/NR_UE/nr_nas_msg.c
++++ b/openair3/NAS/NR_UE/nr_nas_msg.c
+@@ -917,7 +917,6 @@ void generateServiceRequest(as_nas_info_t *initialNasMsg, nr_ue_nas_t *nas)
+   size += fill_fgstmsi(&mm_msg->fiveg_s_tmsi, nas->guti);
+ 
+   /* message encoding */
+-  initialNasMsg->nas_data = malloc_or_fail(size * sizeof(*initialNasMsg->nas_data));
+   if (security_protected) {
+     fgmm_nas_msg_security_protected_t sp = {0};
+ 
+@@ -927,6 +926,8 @@ void generateServiceRequest(as_nas_info_t *initialNasMsg, nr_ue_nas_t *nas)
+     sp.header.sequence_number = nas->security.nas_count_ul & 0xff;
+     size += sizeof(sp.header);
+ 
++    initialNasMsg->nas_data = malloc_or_fail(size * sizeof(*initialNasMsg->nas_data));
++
+     // Payload: plain message
+     sp.plain = plain;
+ 
+@@ -963,6 +964,7 @@ void generateServiceRequest(as_nas_info_t *initialNasMsg, nr_ue_nas_t *nas)
+       initialNasMsg->nas_data[2 + i] = mac[i];
+   } else {
+     // plain encoding
++    initialNasMsg->nas_data = malloc_or_fail(size * sizeof(*initialNasMsg->nas_data));
+     initialNasMsg->length = mm_msg_encode(&plain, initialNasMsg->nas_data, size);
+     LOG_I(NAS, "PLAIN_5GS_MSG initial NAS message: Service Request with length %d \n", initialNasMsg->length);
+   }

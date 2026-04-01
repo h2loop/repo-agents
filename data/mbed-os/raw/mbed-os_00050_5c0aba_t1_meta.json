@@ -1,0 +1,26 @@
+{
+  "run_id": "mbed-os_00050_5c0aba",
+  "function": {
+    "name": "ENET_Deinit",
+    "file": "targets/TARGET_Freescale/TARGET_MCUXpresso_MCUS/TARGET_MCU_K64F/drivers/fsl_enet.c",
+    "start_line": 344,
+    "end_line": 356,
+    "body_lines": 13,
+    "signature": "void ENET_Deinit(ENET_Type *base)",
+    "subsystem": "targets/TARGET_Freescale/TARGET_MCUXpresso_MCUS",
+    "token_estimate": 34
+  },
+  "bug": {
+    "bug_id": "embedded_peripheral_init_order",
+    "description": "peripheral initialization in wrong order causing dependent hardware to malfunction",
+    "domain": "embedded",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a peripheral initialization in wrong order causing dependent hardware to malfunction downstream of function ENET_Deinit in the targets/TARGET_Freescale/TARGET_MCUXpresso_MCUS subsystem.\nThe function is located at targets/TARGET_Freescale/TARGET_MCUXpresso_MCUS/TARGET_MCU_K64F/drivers/fsl_enet.c:344.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 3,
+  "trajectory_steps": 15,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:02:16Z"
+}

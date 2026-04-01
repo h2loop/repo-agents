@@ -1,0 +1,19 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c b/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c
+index 783ae0489f..6816b63baa 100644
+--- a/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c
++++ b/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c
+@@ -1728,12 +1728,12 @@ int nr_ue_configure_pucch(NR_UE_MAC_INST_t *mac,
+         pucch_pdu->pre_dft_occ_len = pucchres->format.choice.format4->occ_Length;
+         pucch_pdu->pre_dft_occ_idx = pucchres->format.choice.format4->occ_Index;
+         pucch_pdu->data_scrambling_id = pusch_id!= NULL ? *pusch_id : mac->physCellId;
+-        if (pucch_Config->format3 == NULL) {
++        if (pucch_Config->format4 == NULL) {
+           pucch_pdu->pi_2bpsk = 0;
+           pucch_pdu->add_dmrs_flag = 0;
+         }
+         else {
+-          pucchfmt = pucch_Config->format3->choice.setup;
++          pucchfmt = pucch_Config->format4->choice.setup;
+           pucch_pdu->pi_2bpsk = pucchfmt->pi2BPSK!= NULL ?  1 : 0;
+           pucch_pdu->add_dmrs_flag = pucchfmt->additionalDMRS!= NULL ?  1 : 0;
+         }

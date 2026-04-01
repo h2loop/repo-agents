@@ -1,0 +1,26 @@
+{
+  "run_id": "mbed-os_00127_564808",
+  "function": {
+    "name": "MX_WIFI_Socket_connect",
+    "file": "connectivity/drivers/wifi/TARGET_STM/COMPONENT_EMW3080B/mx_wifi/mx_wifi.c",
+    "start_line": 1601,
+    "end_line": 1632,
+    "body_lines": 32,
+    "signature": "int32_t MX_WIFI_Socket_connect(MX_WIFIObject_t *Obj, int32_t sockfd, const struct sockaddr *addr, int32_t addrlen)",
+    "subsystem": "connectivity/drivers/wifi",
+    "token_estimate": 88
+  },
+  "bug": {
+    "bug_id": "c_incorrect_loop_bounds",
+    "description": "incorrect loop bounds causing iteration over invalid indices",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a incorrect loop bounds causing iteration over invalid indices downstream of function MX_WIFI_Socket_connect in the connectivity/drivers/wifi subsystem.\nThe function is located at connectivity/drivers/wifi/TARGET_STM/COMPONENT_EMW3080B/mx_wifi/mx_wifi.c:1601.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 2,
+  "trajectory_steps": 31,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:16:09Z"
+}

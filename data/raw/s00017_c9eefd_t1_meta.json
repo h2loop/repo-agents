@@ -1,0 +1,33 @@
+{
+  "run_id": "s00017_c9eefd",
+  "function": {
+    "name": "decode_eps_qos_bit_rates",
+    "file": "openair3/NAS/COMMON/IES/EpsQualityOfService.c",
+    "start_line": 31,
+    "end_line": 43,
+    "body_lines": 13,
+    "signature": "static int decode_eps_qos_bit_rates(EpsQoSBitRates* epsqosbitrates, const uint8_t *buffer)",
+    "subsystem": "openair3/NAS/COMMON",
+    "token_estimate": 39
+  },
+  "bug": {
+    "bug_id": "c_integer_overflow",
+    "description": "integer overflow leading to incorrect computation or wraparound",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a integer overflow leading to incorrect computation or wraparound downstream of function decode_eps_qos_bit_rates in the openair3/NAS/COMMON subsystem.\nThe function is located at openair3/NAS/COMMON/IES/EpsQualityOfService.c:31.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00017_c9eefd_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00017_c9eefd_p1.diff",
+  "patch_lines": 21,
+  "trajectory_steps": 27,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:40:29Z"
+}

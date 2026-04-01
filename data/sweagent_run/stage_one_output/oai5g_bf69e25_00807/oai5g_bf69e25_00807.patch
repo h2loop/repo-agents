@@ -1,0 +1,139 @@
+diff --git a/openair2/RRC/LTE/rrc_eNB.c b/openair2/RRC/LTE/rrc_eNB.c
+index 6b78e27f63..a31da43435 100644
+--- a/openair2/RRC/LTE/rrc_eNB.c
++++ b/openair2/RRC/LTE/rrc_eNB.c
+@@ -1831,7 +1831,6 @@ rrc_eNB_generate_RRCConnectionReestablishmentReject(
+         PROTOCOL_RRC_CTXT_UE_ARGS(ctxt_pP),
+         ue_p->Srb0.Tx_buffer.payload_size);
+ }
+-#if 0
+ void rrc_generate_SgNBReleaseRequest(
+   const protocol_ctxt_t *const ctxt_pP,
+   rrc_eNB_ue_context_t *const ue_context_pP
+@@ -1839,19 +1838,48 @@ void rrc_generate_SgNBReleaseRequest(
+ //-----------------------------------------------------------------------------
+ {
+   MessageDef      *msg;
+-  msg = itti_alloc_new_message(TASK_RRC_ENB, 0, X2AP_ENDC_SGNB_RELEASE_REQ);
+-  memset(&(X2AP_ENDC_SGNB_RELEASE_REQ(msg)), 0, sizeof(x2ap_ENDC_sgnb_release_req_t));
+-  // X2AP_ENDC_SGNB_RELEASE_REQ(msg).MeNB_ue_x2_id = ;
+-  // X2AP_ENDC_SGNB_RELEASE_REQ(msg).SgNB_ue_x2_id = ;
+-  // X2AP_ENDC_SGNB_RELEASE_REQ(msg).cause = ;
+-  // X2AP_ENDC_SGNB_RELEASE_REQ(msg).target_physCellId = ;
++  
++  if (ue_context_pP == NULL) {
++    LOG_E(RRC, "[eNB %d] frame %d UE rnti %x: ue_context_pP is NULL\n",
++          ctxt_pP->module_id, ctxt_pP->frame, ctxt_pP->rntiMaybeUEid);
++    return;
++  }
++  
++  // Check if UE is in NSA mode
++  if (ue_context_pP->ue_context.StatusRrc != RRC_NR_NSA &&
++      ue_context_pP->ue_context.StatusRrc != RRC_NR_NSA_RECONFIGURED) {
++    LOG_D(RRC, "[eNB %d] frame %d UE rnti %x: UE is not in NSA mode (StatusRrc=%d)\n",
++          ctxt_pP->module_id, ctxt_pP->frame, ctxt_pP->rntiMaybeUEid, 
++          ue_context_pP->ue_context.StatusRrc);
++    return;
++  }
++  
++  // Check if we've already sent the release request
++  if (ue_context_pP->ue_context.StatusRrc == RRC_NR_NSA_DELETED) {
++    LOG_D(RRC, "[eNB %d] frame %d UE rnti %x: SgNB release request already sent\n",
++          ctxt_pP->module_id, ctxt_pP->frame, ctxt_pP->rntiMaybeUEid);
++    return;
++  }
++  
++  msg = itti_alloc_new_message(TASK_RRC_ENB, 0, X2AP_ENDC_SGNB_RELEASE_REQUEST);
++  memset(&(X2AP_ENDC_SGNB_RELEASE_REQUEST(msg)), 0, sizeof(x2ap_ENDC_sgnb_release_request_t));
++  
++  X2AP_ENDC_SGNB_RELEASE_REQUEST(msg).rnti = ue_context_pP->ue_context.gnb_rnti;
++  X2AP_ENDC_SGNB_RELEASE_REQUEST(msg).assoc_id = ue_context_pP->ue_context.gnb_x2_assoc_id;
++  X2AP_ENDC_SGNB_RELEASE_REQUEST(msg).cause = X2AP_CAUSE_RADIO_CONNECTION_WITH_UE_LOST;
++  
+   LOG_I(RRC,
+-        "[eNB %d] frame %d UE rnti %x transmitting sgnb release request to sgnb \n",
+-        ctxt_pP->module_id,ctxt_pP->frame,ctxt_pP->rntiMaybeUEid);
+-  itti_send_msg_to_task(TASK_X2AP, ENB_MODULE_ID_TO_INSTANCE(ctxt_pP->module_id), msg);
++        "[eNB %d] frame %d UE rnti %x transmitting SgNB release request to gNB (gnb_rnti=%d, assoc_id=%d)\n",
++        ctxt_pP->module_id, ctxt_pP->frame, ctxt_pP->rntiMaybeUEid,
++        ue_context_pP->ue_context.gnb_rnti, ue_context_pP->ue_context.gnb_x2_assoc_id);
++  
++  itti_send_msg_to_task(TASK_X2AP, ctxt_pP->module_id, msg);
++  
++  // Update UE state to prevent duplicate requests
++  ue_context_pP->ue_context.StatusRrc = RRC_NR_NSA_DELETED;
++  
+   return;
+ }
+-#endif
+ //-----------------------------------------------------------------------------
+ /*
+ * Generate the RRC Connection Release to UE.
+@@ -1868,15 +1896,14 @@ rrc_eNB_generate_RRCConnectionRelease(
+   uint16_t size = 0;
+   int release_num;
+   T(T_ENB_RRC_CONNECTION_RELEASE, T_INT(ctxt_pP->module_id), T_INT(ctxt_pP->frame), T_INT(ctxt_pP->subframe), T_INT(ctxt_pP->rntiMaybeUEid));
+-#if 0
+ 
+   if(ue_context_pP != NULL) {
+-    if(ue_context_pP->ue_context.StatusRrc == RRC_NR_NSA) {
+-      //rrc_eNB_generate_SgNBReleaseRequest(ctxt_pP,ue_context_pP);
++    if(ue_context_pP->ue_context.StatusRrc == RRC_NR_NSA || 
++       ue_context_pP->ue_context.StatusRrc == RRC_NR_NSA_RECONFIGURED) {
++      rrc_generate_SgNBReleaseRequest(ctxt_pP, ue_context_pP);
+     }
+   }
+ 
+-#endif
+   size = do_RRCConnectionRelease(ctxt_pP->module_id, buffer, sizeof(buffer),
+                                  rrc_eNB_get_next_transaction_identifier(ctxt_pP->module_id));
+   ue_context_pP->ue_context.ue_reestablishment_timer = 0;
+@@ -6179,7 +6206,7 @@ is_dl_256QAM_supported(
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R118
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R11a
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R125
+-	 && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250 != NULL
++         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250 != NULL
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250 != NULL
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array != NULL
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array[0]->dl_256QAM_r12 != NULL
+@@ -6497,7 +6524,7 @@ rrc_eNB_decode_dcch(
+                   ue_context_p->ue_context.enb_gtp_ebi[i]  = 0;
+                 }
+               }
+-	      gtpv1u_delete_s1u_tunnel(ctxt_pP->instance, &delete_tunnels);
++              gtpv1u_delete_s1u_tunnel(ctxt_pP->instance, &delete_tunnels);
+               //S1AP_E_RAB_RELEASE_RESPONSE
+               rrc_eNB_send_S1AP_E_RAB_RELEASE_RESPONSE(ctxt_pP,
+                   ue_context_p,
+@@ -7230,8 +7257,8 @@ void rrc_subframe_process(protocol_ctxt_t *const ctxt_pP, const int CC_id) {
+           get_ue_Category(ue_context_p->ue_context.UE_Capability,&catDL,&catUL);
+           fprintf(fd,"RRC UE cap: CatDL %ld, CatUL %ld, 64QAM UL %s, 256 QAM DL %s, 256 QAM UL %s, ENDC %s,\n",
+                 catDL,catUL,
+-		is_ul_64QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
+-		is_dl_256QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
++                is_ul_64QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
++                is_dl_256QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
+                 is_ul_256QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
+                 is_en_dc_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no");
+         }
+diff --git a/openair2/RRC/LTE/rrc_proto.h b/openair2/RRC/LTE/rrc_proto.h
+index a54a7a7336..75fa65c17e 100644
+--- a/openair2/RRC/LTE/rrc_proto.h
++++ b/openair2/RRC/LTE/rrc_proto.h
+@@ -294,6 +294,15 @@ rrc_eNB_generate_RRCConnectionRelease(
+   rrc_eNB_ue_context_t          *const ue_context_pP
+ );
+ 
++/**\brief Generate the SgNB Release Request for NSA UEs.
++   \param ctxt_pP Running context
++   \param ue_context_pP UE context of UE receiving the message*/
++void
++rrc_generate_SgNBReleaseRequest(
++  const protocol_ctxt_t *const ctxt_pP,
++  rrc_eNB_ue_context_t *const ue_context_pP
++);
++
+ void
+ rrc_eNB_generate_defaultRRCConnectionReconfiguration(
+   const protocol_ctxt_t *const ctxt_pP,

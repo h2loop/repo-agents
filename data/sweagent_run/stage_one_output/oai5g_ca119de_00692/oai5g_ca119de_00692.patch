@@ -1,0 +1,59 @@
+diff --git a/openair2/F1AP/lib/f1ap_interface_management.c b/openair2/F1AP/lib/f1ap_interface_management.c
+index 2253493832..46ea5fe136 100644
+--- a/openair2/F1AP/lib/f1ap_interface_management.c
++++ b/openair2/F1AP/lib/f1ap_interface_management.c
+@@ -319,14 +319,17 @@ bool decode_f1ap_reset_ack(const struct F1AP_F1AP_PDU *pdu, f1ap_reset_ack_t *ou
+         _F1_EQ_CHECK_INT(ie->value.present, F1AP_ResetAcknowledgeIEs__value_PR_UE_associatedLogicalF1_ConnectionListResAck);
+         {
+           const F1AP_UE_associatedLogicalF1_ConnectionListResAck_t *conn_list = &ie->value.choice.UE_associatedLogicalF1_ConnectionListResAck;
+-          AssertError(conn_list->list.count > 0, return false, "no UEs for partially reset F1 interface\n");
+           out->num_ue_to_reset = conn_list->list.count;
+-          out->ue_to_reset = calloc_or_fail(out->num_ue_to_reset, sizeof(*out->ue_to_reset));
+-          for (int i = 0; i < out->num_ue_to_reset; ++i) {
+-            const F1AP_UE_associatedLogicalF1_ConnectionItemResAck_t *it_res = (const F1AP_UE_associatedLogicalF1_ConnectionItemResAck_t *)conn_list->list.array[i];
+-            _F1_EQ_CHECK_LONG(it_res->id, F1AP_ProtocolIE_ID_id_UE_associatedLogicalF1_ConnectionItem);
+-            _F1_EQ_CHECK_INT(it_res->value.present, F1AP_UE_associatedLogicalF1_ConnectionItemResAck__value_PR_UE_associatedLogicalF1_ConnectionItem);
+-            out->ue_to_reset[i] = decode_f1ap_ue_to_reset(&it_res->value.choice.UE_associatedLogicalF1_ConnectionItem);
++          if (out->num_ue_to_reset > 0) {
++            out->ue_to_reset = calloc_or_fail(out->num_ue_to_reset, sizeof(*out->ue_to_reset));
++            for (int i = 0; i < out->num_ue_to_reset; ++i) {
++              const F1AP_UE_associatedLogicalF1_ConnectionItemResAck_t *it_res = (const F1AP_UE_associatedLogicalF1_ConnectionItemResAck_t *)conn_list->list.array[i];
++              _F1_EQ_CHECK_LONG(it_res->id, F1AP_ProtocolIE_ID_id_UE_associatedLogicalF1_ConnectionItem);
++              _F1_EQ_CHECK_INT(it_res->value.present, F1AP_UE_associatedLogicalF1_ConnectionItemResAck__value_PR_UE_associatedLogicalF1_ConnectionItem);
++              out->ue_to_reset[i] = decode_f1ap_ue_to_reset(&it_res->value.choice.UE_associatedLogicalF1_ConnectionItem);
++            }
++          } else {
++            out->ue_to_reset = NULL;
+           }
+         }
+         break;
+@@ -340,18 +343,23 @@ bool decode_f1ap_reset_ack(const struct F1AP_F1AP_PDU *pdu, f1ap_reset_ack_t *ou
+ 
+ void free_f1ap_reset_ack(f1ap_reset_ack_t *msg)
+ {
+-  for (int i = 0; i < msg->num_ue_to_reset; ++i)
+-    free_f1ap_ue_to_reset(&msg->ue_to_reset[i]);
+-  free(msg->ue_to_reset);
++  if (msg->ue_to_reset != NULL) {
++    for (int i = 0; i < msg->num_ue_to_reset; ++i)
++      free_f1ap_ue_to_reset(&msg->ue_to_reset[i]);
++    free(msg->ue_to_reset);
++  }
+ }
+ 
+ bool eq_f1ap_reset_ack(const f1ap_reset_ack_t *a, const f1ap_reset_ack_t *b)
+ {
+   _F1_EQ_CHECK_LONG(a->transaction_id, b->transaction_id);
+   _F1_EQ_CHECK_INT(a->num_ue_to_reset, b->num_ue_to_reset);
+-  for (int i = 0; i < a->num_ue_to_reset; ++i) {
+-    if (!eq_f1ap_ue_to_reset(&a->ue_to_reset[i], &b->ue_to_reset[i]))
+-      return false;
++  if (a->num_ue_to_reset > 0) {
++    _F1_CHECK_EXP(a->ue_to_reset != NULL && b->ue_to_reset != NULL);
++    for (int i = 0; i < a->num_ue_to_reset; ++i) {
++      if (!eq_f1ap_ue_to_reset(&a->ue_to_reset[i], &b->ue_to_reset[i]))
++        return false;
++    }
+   }
+   return true;
+ }

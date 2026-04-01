@@ -1,0 +1,30 @@
+{
+  "run_id": "s00156_07e281",
+  "function": {
+    "name": "itti_create_task",
+    "file": "common/utils/ocp_itti/intertask_interface.cpp",
+    "start_line": 309,
+    "end_line": 325,
+    "body_lines": 17,
+    "signature": "int itti_create_task(const task_id_t task_id, void *(*start_routine)(void *), const ittiTask_parms_t *parms)",
+    "subsystem": "common/utils/ocp_itti",
+    "token_estimate": 66
+  },
+  "bug": {
+    "bug_id": "c_fd_leak",
+    "description": "file descriptor leak where an opened fd is not closed on error paths",
+    "domain": "generic_c",
+    "subsystems": [
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a file descriptor leak where an opened fd is not closed on error paths downstream of function itti_create_task in the common/utils/ocp_itti subsystem.\nThe function is located at common/utils/ocp_itti/intertask_interface.cpp:309.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00156_07e281_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00156_07e281_p1.diff",
+  "patch_lines": 91,
+  "trajectory_steps": 40,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:34:12Z"
+}

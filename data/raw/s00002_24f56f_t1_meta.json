@@ -1,0 +1,35 @@
+{
+  "run_id": "s00002_24f56f",
+  "function": {
+    "name": "config_dci_pdu",
+    "file": "openair2/LAYER2/NR_MAC_UE/nr_ue_dci_configuration.c",
+    "start_line": 104,
+    "end_line": 342,
+    "body_lines": 239,
+    "signature": "static void config_dci_pdu(NR_UE_MAC_INST_t *mac, fapi_nr_dl_config_request_t *dl_config, const int rnti_type, const int slot, const NR_SearchSpace_t *ss)",
+    "subsystem": "openair2/LAYER2/NR_MAC_UE",
+    "token_estimate": 798
+  },
+  "bug": {
+    "bug_id": "c_race_condition",
+    "description": "race condition on shared data accessed from multiple threads without synchronization",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a race condition on shared data accessed from multiple threads without synchronization downstream of function config_dci_pdu in the openair2/LAYER2/NR_MAC_UE subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_UE/nr_ue_dci_configuration.c:104.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00002_24f56f_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00002_24f56f_p1.diff",
+  "patch_lines": 19,
+  "trajectory_steps": 22,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-12T09:36:30Z"
+}

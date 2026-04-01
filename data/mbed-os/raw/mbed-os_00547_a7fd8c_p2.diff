@@ -1,0 +1,62 @@
+diff --git a/targets/TARGET_STM/TARGET_STM32F3/STM32Cube_FW/STM32F3xx_HAL_Driver/stm32f3xx_hal_irda.c b/targets/TARGET_STM/TARGET_STM32F3/STM32Cube_FW/STM32F3xx_HAL_Driver/stm32f3xx_hal_irda.c
+index 61ea67fe..937c0f2e 100644
+--- a/targets/TARGET_STM/TARGET_STM32F3/STM32Cube_FW/STM32F3xx_HAL_Driver/stm32f3xx_hal_irda.c
++++ b/targets/TARGET_STM/TARGET_STM32F3/STM32Cube_FW/STM32F3xx_HAL_Driver/stm32f3xx_hal_irda.c
+@@ -2785,6 +2785,28 @@ static void IRDA_Transmit_IT(IRDA_HandleTypeDef *hirda)
+     }
+     else
+     {
++      /* Buffer overflow protection: Check if there's enough data in the buffer */
++      if ((hirda->Init.WordLength == IRDA_WORDLENGTH_9B) && (hirda->Init.Parity == IRDA_PARITY_NONE))
++      {
++        /* For 9-bit transfers, ensure at least 2 bytes are available */
++        if (hirda->TxXferCount < 2U)
++        {
++          /* Insufficient buffer data, terminate transfer safely */
++          hirda->TxXferCount = 0U;
++          return;
++        }
++      }
++      else
++      {
++        /* For 8-bit transfers, ensure at least 1 byte is available */
++        if (hirda->TxXferCount < 1U)
++        {
++          /* Insufficient buffer data, terminate transfer safely */
++          hirda->TxXferCount = 0U;
++          return;
++        }
++      }
++
+       if ((hirda->Init.WordLength == IRDA_WORDLENGTH_9B) && (hirda->Init.Parity == IRDA_PARITY_NONE))
+       {
+         tmp = (uint16_t *) hirda->pTxBuffPtr; /* Derogation R.11.3 */
+@@ -2841,6 +2863,28 @@ static void IRDA_Receive_IT(IRDA_HandleTypeDef *hirda)
+   /* Check that a Rx process is ongoing */
+   if (hirda->RxState == HAL_IRDA_STATE_BUSY_RX)
+   {
++    /* Buffer overflow protection: Check if there's enough space in the buffer */
++    if ((hirda->Init.WordLength == IRDA_WORDLENGTH_9B) && (hirda->Init.Parity == IRDA_PARITY_NONE))
++    {
++      /* For 9-bit transfers, ensure at least 2 bytes are available */
++      if (hirda->RxXferCount < 2U)
++      {
++        /* Insufficient buffer space, terminate transfer safely */
++        hirda->RxXferCount = 0U;
++        return;
++      }
++    }
++    else
++    {
++      /* For 8-bit transfers, ensure at least 1 byte is available */
++      if (hirda->RxXferCount < 1U)
++      {
++        /* Insufficient buffer space, terminate transfer safely */
++        hirda->RxXferCount = 0U;
++        return;
++      }
++    }
++
+     uhdata = (uint16_t) READ_REG(hirda->Instance->RDR);
+     if ((hirda->Init.WordLength == IRDA_WORDLENGTH_9B) && (hirda->Init.Parity == IRDA_PARITY_NONE))
+     {

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect channel level median calculation in LTE downlink processing\n\n### Summary\nThe `dlsch_channel_level_median` function in the LTE UE transport layer was producing incorrect channel quality estimates due to several implementation issues. When processing downlink channel estimates with certain antenna configurations, the function would return values that were significantly different from the expected median channel power.\n\nThis fix addresses array indexing errors, improper min/max initialization, and adds proper bounds checking to ensure consistent behavior across different antenna configurations.\n\n### Changes\n- `openair1/PHY/LTE_UE_TRANSPORT/dlsch_demodulation.c`: Fixed array indexing to use `n_rx` parameter instead of hardcoded value, corrected min/max initialization logic, added edge case handling for zero-length inputs, and updated data types to prevent overflow.\n\n"
+}

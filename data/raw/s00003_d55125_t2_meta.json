@@ -1,0 +1,9 @@
+{
+  "run_id": "s00003_d55125",
+  "pr_text": "## Title: Fix unchecked return values in S1AP decoder encoding functions\n\n### Summary\nThe S1AP eNB decoder module contained multiple instances where the return value from `asn_encode_to_new_buffer()` was not checked before accessing the result buffer. This function can fail during ASN.1 encoding (e.g., due to memory allocation failures or invalid PDU structures), and the unchecked access could lead to segmentation faults or undefined behavior when `res.buffer` is NULL or contains invalid data.\n\n",
+  "trajectory_path": "data/raw/s00003_d55125_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00003_d55125_p2.diff",
+  "patch_lines": 83,
+  "trajectory_steps": 95,
+  "timestamp": "2026-02-10T10:29:50Z"
+}

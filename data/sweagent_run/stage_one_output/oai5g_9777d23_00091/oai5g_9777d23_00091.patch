@@ -1,0 +1,42 @@
+diff --git a/openair1/PHY/LTE_TRANSPORT/transport_common_proto.h b/openair1/PHY/LTE_TRANSPORT/transport_common_proto.h
+index 57a7b2ec91..e558fd43be 100644
+--- a/openair1/PHY/LTE_TRANSPORT/transport_common_proto.h
++++ b/openair1/PHY/LTE_TRANSPORT/transport_common_proto.h
+@@ -133,11 +133,11 @@ uint8_t SE2I_TBS(float SE,
+     @param txdataF pointer to the frequency domain TX signal
+     @returns 0 on success*/
+ 
+-int generate_srs(LTE_DL_FRAME_PARMS *frame_parms,
+-                 SOUNDINGRS_UL_CONFIG_DEDICATED *soundingrs_ul_config_dedicated,
+-                 int *txdataF,
+-                 int16_t amp,
+-                 uint32_t subframe);
++int32_t generate_srs(LTE_DL_FRAME_PARMS *frame_parms,
++                     SOUNDINGRS_UL_CONFIG_DEDICATED *soundingrs_ul_config_dedicated,
++                     int32_t *txdataF,
++                     int16_t amp,
++                     uint32_t subframe);
+ 
+ 
+ /*!
+diff --git a/openair1/PHY/LTE_UE_TRANSPORT/transport_proto_ue.h b/openair1/PHY/LTE_UE_TRANSPORT/transport_proto_ue.h
+index 36da4ccab0..8c5cf842ee 100644
+--- a/openair1/PHY/LTE_UE_TRANSPORT/transport_proto_ue.h
++++ b/openair1/PHY/LTE_UE_TRANSPORT/transport_proto_ue.h
+@@ -1326,11 +1326,11 @@ uint8_t SE2I_TBS(float SE,
+     @param soundingrs_ul_config_dedicated Dynamic configuration from RRC during Connection Establishment
+     @param txdataF pointer to the frequency domain TX signal
+     @returns 0 on success*/
+-int generate_srs(LTE_DL_FRAME_PARMS *frame_parms,
+-                 SOUNDINGRS_UL_CONFIG_DEDICATED *soundingrs_ul_config_dedicated,
+-                 int *txdataF,
+-                 int16_t amp,
+-                 uint32_t subframe);
++int32_t generate_srs(LTE_DL_FRAME_PARMS *frame_parms,
++                     SOUNDINGRS_UL_CONFIG_DEDICATED *soundingrs_ul_config_dedicated,
++                     int32_t *txdataF,
++                     int16_t amp,
++                     uint32_t subframe);
+ 
+ 
+ /*!

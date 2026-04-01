@@ -1,0 +1,40 @@
+diff --git a/nfapi/open-nFAPI/common/src/nfapi.c b/nfapi/open-nFAPI/common/src/nfapi.c
+index 97352b98f7..ff2f66d254 100644
+--- a/nfapi/open-nFAPI/common/src/nfapi.c
++++ b/nfapi/open-nFAPI/common/src/nfapi.c
+@@ -47,6 +47,7 @@
+ #include <errno.h>
+ #include <pthread.h>
+ #include <execinfo.h>
++#include <limits.h>
+ 
+ #include <nfapi_interface.h>
+ #include <nfapi_nr_interface_scf.h>
+@@ -1174,7 +1175,12 @@ uint8_t pack_tlv(uint16_t tag, void *tlv, uint8_t **ppWritePackedMsg, uint8_t *e
+       return 0;
+ 
+     // calculate the length of the value and rewrite the tl header
+-    tl->length = (*ppWritePackedMsg) - pStartOfValue;
++    ptrdiff_t calculated_length = (*ppWritePackedMsg) - pStartOfValue;
++    if (calculated_length > UINT16_MAX) {
++      NFAPI_TRACE(NFAPI_TRACE_ERROR, "pack_tlv: calculated length %td exceeds UINT16_MAX for tag 0x%x\n", calculated_length, tag);
++      return 0;
++    }
++    tl->length = (uint16_t)calculated_length;
+     // rewrite the header with the correct length
+     pack_tl(tl, &pStartOfTlv, end);
+   } else {
+@@ -1208,7 +1214,12 @@ uint8_t pack_nr_tlv(uint16_t tag, void *tlv, uint8_t **ppWritePackedMsg, uint8_t
+       return 0;
+ 
+     // calculate the length of the value and rewrite the tl header
+-    tl->length = (*ppWritePackedMsg) - pStartOfValue;
++    ptrdiff_t calculated_length = (*ppWritePackedMsg) - pStartOfValue;
++    if (calculated_length > UINT16_MAX) {
++      NFAPI_TRACE(NFAPI_TRACE_ERROR, "pack_nr_tlv: calculated length %td exceeds UINT16_MAX for tag 0x%x\n", calculated_length, tag);
++      return 0;
++    }
++    tl->length = (uint16_t)calculated_length;
+     // rewrite the header with the correct length
+     pack_tl(tl, &pStartOfTlv, end);
+     // Add padding that ensures multiple of 4 bytes (SCF 225 Section 2.3.2.1)

@@ -1,0 +1,32 @@
+{
+  "run_id": "s00261_d74368",
+  "function": {
+    "name": "config_sib13",
+    "file": "openair2/LAYER2/MAC/config.c",
+    "start_line": 694,
+    "end_line": 731,
+    "body_lines": 38,
+    "signature": "void config_sib13( int Mod_id, int CC_id, int mbsfn_Area_idx, long mbsfn_AreaId_r9)",
+    "subsystem": "openair2/LAYER2/MAC",
+    "token_estimate": 118
+  },
+  "bug": {
+    "bug_id": "telecom_state_machine_missing_validation",
+    "description": "missing state validation before processing a protocol message",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a missing state validation before processing a protocol message downstream of function config_sib13 in the openair2/LAYER2/MAC subsystem.\nThe function is located at openair2/LAYER2/MAC/config.c:694.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00261_d74368_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00261_d74368_p1.diff",
+  "patch_lines": 13,
+  "trajectory_steps": 34,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:53:14Z"
+}

@@ -1,0 +1,28 @@
+diff --git a/common/utils/telnetsrv/telnetsrv_enb_measurements.c b/common/utils/telnetsrv/telnetsrv_enb_measurements.c
+index b8898b665e..372b3aea82 100644
+--- a/common/utils/telnetsrv/telnetsrv_enb_measurements.c
++++ b/common/utils/telnetsrv/telnetsrv_enb_measurements.c
+@@ -112,8 +112,13 @@ void measurcmd_display_pdcpcpu(telnet_printfunc_t prnt) {
+ 
+ 
+ void measurcmd_display_macstats_ue(telnet_printfunc_t prnt) {
+-  UE_info_t *UE_info = &(RC.mac[eNB_id]->UE_info);
++  eNB_MAC_INST *mac = RC.mac[eNB_id];
++
++  
++  UE_info_t *UE_info = &(mac->UE_info);
+ 
++  pthread_mutex_lock(&RC.mac[eNB_id]->UL_INFO_mutex);
++  
+   for (int UE_id=UE_info->list.head; UE_id>=0; UE_id=UE_info->list.next[UE_id]) {
+     for (int i=0; i<UE_info->numactiveCCs[UE_id]; i++) {
+       int CC_id = UE_info->ordered_CCids[i][UE_id];
+@@ -123,6 +128,8 @@ void measurcmd_display_macstats_ue(telnet_printfunc_t prnt) {
+       measurcmd_display_measures(prnt, statsptr, sizeof(statsptr)/sizeof(telnet_ltemeasurdef_t));
+     }
+   }
++  
++  pthread_mutex_unlock(&RC.mac[eNB_id]->UL_INFO_mutex);
+ } /* measurcmd_display_macstats_ue */
+ 
+ void measurcmd_display_macstats(telnet_printfunc_t prnt) {

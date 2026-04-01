@@ -1,0 +1,444 @@
+'{"env":{"deployment":{"image":"oai5g-sera:776ca25","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_776ca25_00096","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix M2SetupFailure message encoding in MCE_send_M2_SETUP_FAILURE\n\n### Summary\nThe
+  `MCE_send_M2_SETUP_FAILURE` function was not properly using the `m2ap_setup_failure`
+  parameter to set the appropriate values in the outgoing M2SetupFailure message.
+  Instead, it was hardcoding the cause and ignoring the optional TimeToWait and CriticalityDiagnostics
+  IEs even when they should have been included based on the parameter values.\n\n###
+  Changes\n- `openair2/M2AP/m2ap_MCE_interface_management.c`: Modified `MCE_send_M2_SETUP_FAILURE`
+  to properly use the `m2ap_setup_failure` parameter for setting the cause, TimeToWait,
+  and CriticalityDiagnostics IEs.\n\n### Reproduction\nWhen the MCE receives an M2SetupRequest
+  that cannot be processed successfully, it should send an M2SetupFailure message
+  with appropriate cause and optional IEs based on the failure context. However, due
+  to the hardcoded implementation, the outgoing message always contained the same
+  cause regardless of the actual failure reason, and optional IEs were never included
+  even when the calling code provided values for them.\n\nThis could lead to interoperability
+  issues with eNBs that expect specific cause values or optional IEs in M2SetupFailure
+  messages, potentially causing the eNB to retry M2 setup indefinitely or fail to
+  establish the M2 interface properly.\n","extra_fields":{"bug_description":"missing
+  mandatory information element in outgoing signaling message","bug_id":"telecom_missing_mandatory_ie","stage_one_patch":"diff
+  --git a/openair2/M2AP/m2ap_MCE_interface_management.c b/openair2/M2AP/m2ap_MCE_interface_management.c\nindex
+  58a4c7b967..07bf348491 100644\n--- a/openair2/M2AP/m2ap_MCE_interface_management.c\n+++
+  b/openair2/M2AP/m2ap_MCE_interface_management.c\n@@ -56,8 +56,8 @@ int MCE_send_MBMS_SESSION_START_REQUEST(instance_t
+  instance/*, uint32_t assoc_id\n \n   uint8_t *buffer;\n   uint32_t len;\n-  //int\t   i=0;
+  \n-  //int \t   j=0;\n+  //int    i=0; \n+  //int            j=0;\n \n   /* Create
+  */\n   /* 0. pdu Type */\n@@ -95,12 +95,12 @@ int MCE_send_MBMS_SESSION_START_REQUEST(instance_t
+  instance/*, uint32_t assoc_id\n   /* mandatory */\n   /* c3. MBMS_Session_ID (integrer
+  value) */ //OCTET_STRING\n   if(0){\n-\t  ie = (M2AP_SessionStartRequest_Ies_t *)calloc(1,
+  sizeof(M2AP_SessionStartRequest_Ies_t));\n-\t  ie->id                        = M2AP_ProtocolIE_ID_id_MBMS_Session_ID;\n-\t  ie->criticality               =
+  M2AP_Criticality_reject;\n-\t  ie->value.present             = M2AP_SessionStartRequest_Ies__value_PR_MBMS_Session_ID;\n-  \t  //INT16_TO_OCTET_STRING(0,&ie->choice.MBMS_Session_ID);\n-\t  asn1cSeqAdd(&out->protocolIEs.list,
+  ie);\n+          ie = (M2AP_SessionStartRequest_Ies_t *)calloc(1, sizeof(M2AP_SessionStartRequest_Ies_t));\n+          ie->id                        =
+  M2AP_ProtocolIE_ID_id_MBMS_Session_ID;\n+          ie->criticality               =
+  M2AP_Criticality_reject;\n+          ie->value.present             = M2AP_SessionStartRequest_Ies__value_PR_MBMS_Session_ID;\n+          //INT16_TO_OCTET_STRING(0,&ie->choice.MBMS_Session_ID);\n+          asn1cSeqAdd(&out->protocolIEs.list,
+  ie);\n   }\n \n   /* mandatory */\n@@ -134,20 +134,20 @@ int MCE_send_MBMS_SESSION_START_REQUEST(instance_t
+  instance/*, uint32_t assoc_id\n   asn1cSeqAdd(&out->protocolIEs.list, ie);\n \n   if(0){\n-\t
+  // /* optional */\n-\t // /* c7. TNL_Information_1 (integrer value) */\n-\t // ie
+  = (M2AP_SessionStartRequest_Ies_t *)calloc(1, sizeof(M2AP_SessionStartRequest_Ies_t));\n-\t
+  // ie->id                        = M2AP_ProtocolIE_ID_id_TNL_Information_1; \n-\t
+  // ie->criticality               = M2AP_Criticality_reject;\n-\t // ie->value.present             =
+  M2AP_SessionStartRequest_Ies__value_PR_TNL_Information_1;\n-\t // //asn_int642INTEGER(&ie->value.choice.MBMS_Session_ID,
+  0);\n-\t // asn1cSeqAdd(&out->protocolIEs.list, ie);\n+         // /* optional */\n+         //
+  /* c7. TNL_Information_1 (integrer value) */\n+         // ie = (M2AP_SessionStartRequest_Ies_t
+  *)calloc(1, sizeof(M2AP_SessionStartRequest_Ies_t));\n+         // ie->id                        =
+  M2AP_ProtocolIE_ID_id_TNL_Information_1; \n+         // ie->criticality               =
+  M2AP_Criticality_reject;\n+         // ie->value.present             = M2AP_SessionStartRequest_Ies__value_PR_TNL_Information_1;\n+         //
+  //asn_int642INTEGER(&ie->value.choice.MBMS_Session_ID, 0);\n+         // asn1cSeqAdd(&out->protocolIEs.list,
+  ie);\n   }\n    \n \n   /* encode */\n   if (m2ap_encode_pdu(&pdu,&buffer,&len)
+  < 0){\n-\treturn -1;\n+        return -1;\n   }\n \n   //MCE_m2ap_itti_send_sctp_data_req(instance,
+  m2ap_mce_data_from_mce->assoid,buffer,len,0); \n@@ -164,13 +164,13 @@ int MCE_handle_MBMS_SESSION_START_RESPONSE(instance_t
+  instance,\n   LOG_D(M2AP, \"MCE_handle_MBMS_SESSION_START_RESPONSE\\n\");\n \n    AssertFatal(pdu->present
+  == M2AP_M2AP_PDU_PR_successfulOutcome,\n-\t       \"pdu->present != M2AP_M2AP_PDU_PR_successfulOutcome\\n\");\n+               \"pdu->present
+  != M2AP_M2AP_PDU_PR_successfulOutcome\\n\");\n    AssertFatal(pdu->choice.successfulOutcome.procedureCode  ==
+  M2AP_ProcedureCode_id_sessionStart,\n-\t       \"pdu->choice.successfulOutcome->procedureCode
+  != M2AP_ProcedureCode_id_sessionStart\\n\");\n+               \"pdu->choice.successfulOutcome->procedureCode
+  != M2AP_ProcedureCode_id_sessionStart\\n\");\n    AssertFatal(pdu->choice.successfulOutcome.criticality  ==
+  M2AP_Criticality_reject,\n-\t       \"pdu->choice.successfulOutcome->criticality
+  != M2AP_Criticality_reject\\n\");\n+               \"pdu->choice.successfulOutcome->criticality
+  != M2AP_Criticality_reject\\n\");\n    AssertFatal(pdu->choice.successfulOutcome.value.present  ==
+  M2AP_SuccessfulOutcome__value_PR_SessionStartResponse,\n-\t       \"pdu->choice.successfulOutcome.value.present
+  != M2AP_SuccessfulOutcome__value_PR_SessionStartResponse\\n\");\n+               \"pdu->choice.successfulOutcome.value.present
+  != M2AP_SuccessfulOutcome__value_PR_SessionStartResponse\\n\");\n \n \n   M2AP_SessionStartResponse_t    *in
+  = &pdu->choice.successfulOutcome.value.choice.SessionStartResponse;\n@@ -239,8 +239,8
+  @@ int MCE_send_MBMS_SESSION_STOP_REQUEST(instance_t instance, m2ap_session_stop_re\n
+  \n   uint8_t *buffer;\n   uint32_t len;\n-  //int\t   i=0; \n-  //int \t   j=0;\n+  //int    i=0;
+  \n+  //int            j=0;\n \n   /* Create */\n   /* 0. pdu Type */\n@@ -274,7
+  +274,7 @@ int MCE_send_MBMS_SESSION_STOP_REQUEST(instance_t instance, m2ap_session_stop_re\n
+  \n   /* encode */\n   if (m2ap_encode_pdu(&pdu,&buffer,&len) < 0){\n-\treturn -1;\n+        return
+  -1;\n   }\n \n   //MCE_m2ap_itti_send_sctp_data_req(instance, m2ap_mce_data_from_mce->assoid,buffer,len,0);
+  \n@@ -293,13 +293,13 @@ int MCE_handle_MBMS_SESSION_STOP_RESPONSE(instance_t instance,\n   LOG_D(M2AP,
+  \"MCE_handle_MBMS_SESSION_STOP_RESPONSE\\n\");\n \n    AssertFatal(pdu->present
+  == M2AP_M2AP_PDU_PR_successfulOutcome,\n-\t       \"pdu->present != M2AP_M2AP_PDU_PR_successfulOutcome\\n\");\n+               \"pdu->present
+  != M2AP_M2AP_PDU_PR_successfulOutcome\\n\");\n    AssertFatal(pdu->choice.successfulOutcome.procedureCode  ==
+  M2AP_ProcedureCode_id_sessionStop,\n-\t       \"pdu->choice.successfulOutcome->procedureCode
+  != M2AP_ProcedureCode_id_sessionStop\\n\");\n+               \"pdu->choice.successfulOutcome->procedureCode
+  != M2AP_ProcedureCode_id_sessionStop\\n\");\n    AssertFatal(pdu->choice.successfulOutcome.criticality  ==
+  M2AP_Criticality_reject,\n-\t       \"pdu->choice.successfulOutcome->criticality
+  != M2AP_Criticality_reject\\n\");\n+               \"pdu->choice.successfulOutcome->criticality
+  != M2AP_Criticality_reject\\n\");\n    AssertFatal(pdu->choice.successfulOutcome.value.present  ==
+  M2AP_SuccessfulOutcome__value_PR_SessionStopResponse,\n-\t       \"pdu->choice.successfulOutcome->value.present
+  != M2AP_SuccessfulOutcome__value_PR_SessionStopResponse\\n\");\n+               \"pdu->choice.successfulOutcome->value.present
+  != M2AP_SuccessfulOutcome__value_PR_SessionStopResponse\\n\");\n \n \n   M2AP_SessionStopResponse_t    *in
+  = &pdu->choice.successfulOutcome.value.choice.SessionStopResponse;\n@@ -344,7 +344,7
+  @@ int MCE_handle_MBMS_SESSION_STOP_RESPONSE(instance_t instance,\n  //        assoc_id,ENB_MODULE_ID_TO_INSTANCE(assoc_id));\n    itti_send_msg_to_task(TASK_MCE_APP,
+  ENB_MODULE_ID_TO_INSTANCE(assoc_id), msg_g);\n  //                      \n-\treturn
+  0;\n+        return 0;\n }\n \n \n@@ -357,7 +357,7 @@ int MCE_handle_MBMS_SESSION_STOP_FAILURE(instance_t
+  instance,\n                       \n }\n  typedef struct M2AP_MBSFN_Area_Configuration{\n-\tM2AP_PMCH_Configuration_List_t   PMCH_Configuration_List;\n+        M2AP_PMCH_Configuration_List_t   PMCH_Configuration_List;\n         M2AP_MBSFN_Subframe_ConfigurationList_t  MBSFN_Subframe_ConfigurationList;\n         M2AP_Common_Subframe_Allocation_Period_t         Common_Subframe_Allocation_Period;\n         M2AP_MBSFN_Area_ID_t     MBSFN_Area_ID;\n@@
+  -386,11 +386,11 @@ int MCE_send_MBMS_SCHEDULING_INFORMATION(instance_t instance,
+  /*uint32_t assoc_i\n \n   uint8_t *buffer/*,*buffer2*/;\n   uint32_t len/*,len2*/;\n-  int\t   i=0;
+  \n-  int \t   j=0;\n-  int \t   k=0;\n-  //int \t   l=0;\n-  //int \t   l=0;\n+  int      i=0;
+  \n+  int      j=0;\n+  int      k=0;\n+  //int            l=0;\n+  //int            l=0;\n
+  \n   /* Create */\n   /* 0. pdu Type */\n@@ -431,55 +431,55 @@ int MCE_send_MBMS_SCHEDULING_INFORMATION(instance_t
+  instance, /*uint32_t assoc_i\n \n       for(j=0; j < m2ap_mbms_scheduling_information->mbms_area_config_list[i].num_pmch_config_list;
+  j++){\n       \n-      \tM2AP_PMCH_Configuration_ItemIEs_t * pmch_configuration_item_ies
+  = (M2AP_PMCH_Configuration_ItemIEs_t*)calloc(1,sizeof(M2AP_PMCH_Configuration_ItemIEs_t));\n-      \tpmch_configuration_item_ies->id
+  = M2AP_ProtocolIE_ID_id_PMCH_Configuration_Item;\n-      \tpmch_configuration_item_ies->criticality
+  = M2AP_Criticality_reject;\n-      \tpmch_configuration_item_ies->value.present
+  = M2AP_PMCH_Configuration_ItemIEs__value_PR_PMCH_Configuration_Item;\n-\n-      \tM2AP_PMCH_Configuration_Item_t
+  * pmch_configuration_item;/* = (M2AP_PMCH_Configuration_Item_t*)calloc(1,sizeof(M2AP_PMCH_Configuration_Item_t));*/\n-      \tpmch_configuration_item
+  = &pmch_configuration_item_ies->value.choice.PMCH_Configuration_Item;\n-      \t{\n+        M2AP_PMCH_Configuration_ItemIEs_t
+  * pmch_configuration_item_ies = (M2AP_PMCH_Configuration_ItemIEs_t*)calloc(1,sizeof(M2AP_PMCH_Configuration_ItemIEs_t));\n+        pmch_configuration_item_ies->id
+  = M2AP_ProtocolIE_ID_id_PMCH_Configuration_Item;\n+        pmch_configuration_item_ies->criticality
+  = M2AP_Criticality_reject;\n+        pmch_configuration_item_ies->value.present
+  = M2AP_PMCH_Configuration_ItemIEs__value_PR_PMCH_Configuration_Item;\n+\n+        M2AP_PMCH_Configuration_Item_t
+  * pmch_configuration_item;/* = (M2AP_PMCH_Configuration_Item_t*)calloc(1,sizeof(M2AP_PMCH_Configuration_Item_t));*/\n+        pmch_configuration_item
+  = &pmch_configuration_item_ies->value.choice.PMCH_Configuration_Item;\n+        {\n             pmch_configuration_item->pmch_Configuration.dataMCS
+  = m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].data_mcs;\n             pmch_configuration_item->pmch_Configuration.mchSchedulingPeriod
+  = m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mch_scheduling_period;\n-\t    pmch_configuration_item->pmch_Configuration.allocatedSubframesEnd
+  = m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].allocated_sf_end;\n+            pmch_configuration_item->pmch_Configuration.allocatedSubframesEnd
+  = m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].allocated_sf_end;\n             for(k=0;
+  k < m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].num_mbms_session_list;
+  k++){\n-            \tMBMSsessionListPerPMCH_Item__Member *member;\n-            \tmember
+  = (MBMSsessionListPerPMCH_Item__Member*)calloc(1,sizeof(MBMSsessionListPerPMCH_Item__Member));\n-            \tMCC_MNC_TO_PLMNID(\n-            \t\t\t  m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].mcc,\n-            \t\t\t  m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].mnc,\n-            \t\t\t  m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].mnc_length\n-            \t\t\t,&member->tmgi.pLMNidentity);\n-\n-\t  \t//INT16_TO_OCTET_STRING(0,&imember->tmgi);\n-\t\tchar
+  buf[4];\n-\t        INT32_TO_BUFFER(m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].service_id,buf);\n-            \t//uint8_t
+  TMGI[5] = {4,3,2,1,0};\n-            \tOCTET_STRING_fromBuf(&member->tmgi.serviceID,(const
+  char*)&buf[1],3);\n-\n-            \t\t//LOG_D(M2AP,\"%p,%p,%p,%li,%ld,%ld\\n\",pmch_configuration_item,&pmch_configuration_item->mbms_Session_List.list,member,
+  m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].lcid,sizeof(member->lcid),sizeof(m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].lcid));
+  \n-\t\t//long kk = m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].lcid;\n-\t\t//uint64_t
+  kk=(m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].lcid);\n-\t\t//memcpy(&member->lcid,&m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].lcid,sizeof(member->lcid));\n-\t//\tmember->lcid
+  = 1;\n-\t//\tfor( l=2; l < 28;l++)\n-\t//\t\tLOG_E(M2AP,\"%di\\n\",l);\n-\t//\t\tif(l
+  ==  m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].lcid){\n-        //    \tmember->lcid++;//m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].service_id;\n-\t//\t\tbreak;\n-\t//\t}\n+                MBMSsessionListPerPMCH_Item__Member
+  *member;\n+                member = (MBMSsessionListPerPMCH_Item__Member*)calloc(1,sizeof(MBMSsessionListPerPMCH_Item__Member));\n+                MCC_MNC_TO_PLMNID(\n+                                  m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].mcc,\n+                                  m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].mnc,\n+                                  m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].mnc_length\n+                                ,&member->tmgi.pLMNidentity);\n+\n+                //INT16_TO_OCTET_STRING(0,&imember->tmgi);\n+                char
+  buf[4];\n+                INT32_TO_BUFFER(m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].service_id,buf);\n+                //uint8_t
+  TMGI[5] = {4,3,2,1,0};\n+                OCTET_STRING_fromBuf(&member->tmgi.serviceID,(const
+  char*)&buf[1],3);\n+\n+                        //LOG_D(M2AP,\"%p,%p,%p,%li,%ld,%ld\\n\",pmch_configuration_item,&pmch_configuration_item->mbms_Session_List.list,member,
+  m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].lcid,sizeof(member->lcid),sizeof(m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].lcid));
+  \n+                //long kk = m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].lcid;\n+                //uint64_t
+  kk=(m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].lcid);\n+                //memcpy(&member->lcid,&m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].lcid,sizeof(member->lcid));\n+        //      member->lcid
+  = 1;\n+        //      for( l=2; l < 28;l++)\n+        //              LOG_E(M2AP,\"%di\\n\",l);\n+        //              if(l
+  ==  m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].lcid){\n+        //      member->lcid++;//m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].service_id;\n+        //              break;\n+        //      }\n                 member->lcid
+  = m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mbms_session_list[k].lcid;\n-\t\t//member->lcid
+  = (M2AP_LCID_t*)calloc(1,sizeof(M2AP_LCID_t));\n-\t\t\n-            \tasn1cSeqAdd(&pmch_configuration_item->mbms_Session_List.list,member);\n+                //member->lcid
+  = (M2AP_LCID_t*)calloc(1,sizeof(M2AP_LCID_t));\n+                \n+                asn1cSeqAdd(&pmch_configuration_item->mbms_Session_List.list,member);\n             }\n       \n-      \t}\n+        }\n       /*M2AP_MBSFN_Subframe_ConfigurationList_t*/\n       //
+  M2AP_MBSFN_Area_Configuration_Item_t *mbsfn_area_configuration_item_ie2;\n       //(mbsfn_area_configuration_item_ie+1)
+  =(M2AP_MBSFN_Area_Configuration_Item_t*)calloc(1,sizeof(M2AP_MBSFN_Area_Configuration_Item_t));
+  \n \n-      \tasn1cSeqAdd(&mbsfn_area_configuration_item_ie->value.choice.PMCH_Configuration_List.list,pmch_configuration_item_ies);\n+        asn1cSeqAdd(&mbsfn_area_configuration_item_ie->value.choice.PMCH_Configuration_List.list,pmch_configuration_item_ies);\n
+  \n       }\n \n@@ -493,38 +493,38 @@ int MCE_send_MBMS_SCHEDULING_INFORMATION(instance_t
+  instance, /*uint32_t assoc_i\n       (mbsfn_area_configuration_item_ie_1)->value.present
+  = M2AP_MBSFN_Area_Configuration_Item__value_PR_MBSFN_Subframe_ConfigurationList;\n
+  \n       for(j=0; j < m2ap_mbms_scheduling_information->mbms_area_config_list[i].num_mbms_sf_config_list;
+  j++){\n-\t   M2AP_MBSFN_Subframe_ConfigurationItem_t * mbsfn_subframe_configuration_item_ies
+  = (M2AP_MBSFN_Subframe_ConfigurationItem_t*)calloc(1,sizeof(M2AP_MBSFN_Subframe_ConfigurationItem_t));\n-\t   mbsfn_subframe_configuration_item_ies->id
+  = M2AP_ProtocolIE_ID_id_MBSFN_Subframe_Configuration_Item;\n-\t   mbsfn_subframe_configuration_item_ies->criticality
+  = M2AP_Criticality_reject;\n-\t   mbsfn_subframe_configuration_item_ies->value.present
+  = M2AP_MBSFN_Subframe_ConfigurationItem__value_PR_MBSFN_Subframe_Configuration;\n-\n-\t   M2AP_MBSFN_Subframe_Configuration_t
+  * mbsfn_subframe_configuration; /* = (M2AP_MBSFN_Subframe_Configuration_t*)calloc(1,sizeof(M2AP_MBSFN_Subframe_Configuration_t));*/\n-\t   mbsfn_subframe_configuration
+  = &mbsfn_subframe_configuration_item_ies->value.choice.MBSFN_Subframe_Configuration;\n-\t   {\n-\t\t   mbsfn_subframe_configuration->radioframeAllocationPeriod
+  = m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].radioframe_allocation_period;\n-\t\t   mbsfn_subframe_configuration->radioframeAllocationOffset
+  = m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].radioframe_allocation_offset;\n-\t\t   if(m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].is_four_sf){\n-\t\t\t   LOG_I(M2AP,\"is_four_sf\\n\");\n-\t\t\t   mbsfn_subframe_configuration->subframeAllocation.present
+  = M2AP_MBSFN_Subframe_Configuration__subframeAllocation_PR_fourFrames;\n-\t\t\t   mbsfn_subframe_configuration->subframeAllocation.choice.oneFrame.buf
+  = MALLOC(3);\n-\t\t\t   mbsfn_subframe_configuration->subframeAllocation.choice.oneFrame.buf[2]
+  = ((m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].subframe_allocation)
+  & 0xFF);\n-\t\t\t   mbsfn_subframe_configuration->subframeAllocation.choice.oneFrame.buf[1]
+  = ((m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].subframe_allocation>>8)
+  & 0xFF);\n-\t\t\t   mbsfn_subframe_configuration->subframeAllocation.choice.oneFrame.buf[0]
+  = ((m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].subframe_allocation>>16)
+  & 0xFF);\n-\t\t\t   mbsfn_subframe_configuration->subframeAllocation.choice.oneFrame.size
+  =3;\n-\t\t\t   mbsfn_subframe_configuration->subframeAllocation.choice.oneFrame.bits_unused
+  = 0;\n-\n-\t\t   }else{\n-\t\t\t   LOG_I(M2AP,\"is_one_sf\\n\");\n-\t\t\t   mbsfn_subframe_configuration->subframeAllocation.present
+  = M2AP_MBSFN_Subframe_Configuration__subframeAllocation_PR_oneFrame;\n-\t\t\t   mbsfn_subframe_configuration->subframeAllocation.choice.oneFrame.buf
+  = MALLOC(1);\n-\t\t\t   mbsfn_subframe_configuration->subframeAllocation.choice.oneFrame.size
+  = 1;\n-\t\t\t   mbsfn_subframe_configuration->subframeAllocation.choice.oneFrame.bits_unused
+  = 2;\n-\t\t\t   //mbsfn_subframe_configuration->subframeAllocation.choice.oneFrame.buf[0]
+  = 0x38<<2;\n-\t\t\t   mbsfn_subframe_configuration->subframeAllocation.choice.oneFrame.buf[0]
+  = (m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].subframe_allocation
+  & 0x3F)<<2;\n-\t\t   }\n-\n-\t\t   asn1cSeqAdd(&(mbsfn_area_configuration_item_ie_1)->value.choice.MBSFN_Subframe_ConfigurationList.list,mbsfn_subframe_configuration_item_ies);\n-\t   }\n+           M2AP_MBSFN_Subframe_ConfigurationItem_t
+  * mbsfn_subframe_configuration_item_ies = (M2AP_MBSFN_Subframe_ConfigurationItem_t*)calloc(1,sizeof(M2AP_MBSFN_Subframe_ConfigurationItem_t));\n+           mbsfn_subframe_configuration_item_ies->id
+  = M2AP_ProtocolIE_ID_id_MBSFN_Subframe_Configuration_Item;\n+           mbsfn_subframe_configuration_item_ies->criticality
+  = M2AP_Criticality_reject;\n+           mbsfn_subframe_configuration_item_ies->value.present
+  = M2AP_MBSFN_Subframe_ConfigurationItem__value_PR_MBSFN_Subframe_Configuration;\n+\n+           M2AP_MBSFN_Subframe_Configuration_t
+  * mbsfn_subframe_configuration; /* = (M2AP_MBSFN_Subframe_Configuration_t*)calloc(1,sizeof(M2AP_MBSFN_Subframe_Configuration_t));*/\n+           mbsfn_subframe_configuration
+  = &mbsfn_subframe_configuration_item_ies->value.choice.MBSFN_Subframe_Configuration;\n+           {\n+                   mbsfn_subframe_configuration->radioframeAllocationPeriod
+  = m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].radioframe_allocation_period;\n+                   mbsfn_subframe_configuration->radioframeAllocationOffset
+  = m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].radioframe_allocation_offset;\n+                   if(m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].is_four_sf){\n+                           LOG_I(M2AP,\"is_four_sf\\n\");\n+                           mbsfn_subframe_configuration->subframeAllocation.present
+  = M2AP_MBSFN_Subframe_Configuration__subframeAllocation_PR_fourFrames;\n+                           mbsfn_subframe_configuration->subframeAllocation.choice.oneFrame.buf
+  = MALLOC(3);\n+                           mbsfn_subframe_configuration->subframeAllocation.choice.oneFrame.buf[2]
+  = ((m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].subframe_allocation)
+  & 0xFF);\n+                           mbsfn_subframe_configuration->subframeAllocation.choice.oneFrame.buf[1]
+  = ((m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].subframe_allocation>>8)
+  & 0xFF);\n+                           mbsfn_subframe_configuration->subframeAllocation.choice.oneFrame.buf[0]
+  = ((m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].subframe_allocation>>16)
+  & 0xFF);\n+                           mbsfn_subframe_configuration->subframeAllocation.choice.oneFrame.size
+  =3;\n+                           mbsfn_subframe_configuration->subframeAllocation.choice.oneFrame.bits_unused
+  = 0;\n+\n+                   }else{\n+                           LOG_I(M2AP,\"is_one_sf\\n\");\n+                           mbsfn_subframe_configuration->subframeAllocation.present
+  = M2AP_MBSFN_Subframe_Configuration__subframeAllocation_PR_oneFrame;\n+                           mbsfn_subframe_configuration->subframeAllocation.choice.oneFrame.buf
+  = MALLOC(1);\n+                           mbsfn_subframe_configuration->subframeAllocation.choice.oneFrame.size
+  = 1;\n+                           mbsfn_subframe_configuration->subframeAllocation.choice.oneFrame.bits_unused
+  = 2;\n+                           //mbsfn_subframe_configuration->subframeAllocation.choice.oneFrame.buf[0]
+  = 0x38<<2;\n+                           mbsfn_subframe_configuration->subframeAllocation.choice.oneFrame.buf[0]
+  = (m2ap_mbms_scheduling_information->mbms_area_config_list[i].mbms_sf_config_list[j].subframe_allocation
+  & 0x3F)<<2;\n+                   }\n+\n+                   asn1cSeqAdd(&(mbsfn_area_configuration_item_ie_1)->value.choice.MBSFN_Subframe_ConfigurationList.list,mbsfn_subframe_configuration_item_ies);\n+           }\n        }\n
+  \n        asn1cSeqAdd(m2ap_mbsfn_area_configuration_list,mbsfn_area_configuration_item_ie_1);\n@@
+  -569,7 +569,7 @@ ASN_SET_ADD(&ie->value.choice.MBSFN_Area_Configuration_List,m2ap_mbsfn_area_conf\n  \n   /*
+  encode */\n   if (m2ap_encode_pdu(&pdu,&buffer,&len) < 0){\n-\treturn -1;\n+        return
+  -1;\n  }\n   m2ap_MCE_itti_send_sctp_data_req(instance,m2ap_mce_data_from_enb->assoc_id,buffer,len,0);\n   return
+  0;\n@@ -584,13 +584,13 @@ int MCE_handle_MBMS_SCHEDULING_INFORMATION_RESPONSE(instance_t
+  instance,\n   LOG_D(M2AP, \"MCE_handle_MBMS_SCHEDULING_INFORMATION_RESPONSE\\n\");\n
+  \n    AssertFatal(pdu->present == M2AP_M2AP_PDU_PR_successfulOutcome,\n-\t       \"pdu->present
+  != M2AP_M2AP_PDU_PR_successfulOutcome\\n\");\n+               \"pdu->present !=
+  M2AP_M2AP_PDU_PR_successfulOutcome\\n\");\n    AssertFatal(pdu->choice.successfulOutcome.procedureCode  ==
+  M2AP_ProcedureCode_id_mbmsSchedulingInformation,\n-\t       \"pdu->choice.successfulOutcome->procedureCode
+  != M2AP_ProcedureCode_id_mbmsSchedulingInformation\\n\");\n+               \"pdu->choice.successfulOutcome->procedureCode
+  != M2AP_ProcedureCode_id_mbmsSchedulingInformation\\n\");\n    AssertFatal(pdu->choice.successfulOutcome.criticality  ==
+  M2AP_Criticality_reject,\n-\t       \"pdu->choice.successfulOutcome->criticality
+  != M2AP_Criticality_reject\\n\");\n+               \"pdu->choice.successfulOutcome->criticality
+  != M2AP_Criticality_reject\\n\");\n    AssertFatal(pdu->choice.successfulOutcome.value.present  ==
+  M2AP_SuccessfulOutcome__value_PR_MbmsSchedulingInformationResponse,\n-\t       \"pdu->choice.successfulOutcome->value.present
+  != M2AP_SuccessfulOutcome__value_PR_MbmsSchedulingInformationResponse\\n\");\n+               \"pdu->choice.successfulOutcome->value.present
+  != M2AP_SuccessfulOutcome__value_PR_MbmsSchedulingInformationResponse\\n\");\n \n
+  \n   //M2AP_MbmsSchedulingInformationResponse_t    *in = &pdu->choice.successfulOutcome.value.choice.MbmsSchedulingInformationResponse;\n@@
+  -718,13 +718,13 @@ int MCE_handle_M2_SETUP_REQUEST(instance_t instance,\n   M2AP_FIND_PROTOCOLIE_BY_ID(M2AP_M2SetupRequest_Ies_t,
+  ie, container,\n                               M2AP_ProtocolIE_ID_id_ENBname, false);\n   if(ie!=NULL){\n-\t  M2AP_SETUP_REQ(message_p).ENBname
+  = calloc(ie->value.choice.ENBname.size + 1, sizeof(char));\n-\t  memcpy(M2AP_SETUP_REQ(message_p).ENBname,
+  ie->value.choice.ENBname.buf,\n-\t\t ie->value.choice.ENBname.size);\n+          M2AP_SETUP_REQ(message_p).ENBname
+  = calloc(ie->value.choice.ENBname.size + 1, sizeof(char));\n+          memcpy(M2AP_SETUP_REQ(message_p).ENBname,
+  ie->value.choice.ENBname.buf,\n+                 ie->value.choice.ENBname.size);\n
+  \n-\t  /* Convert the mme name to a printable string */\n-\t  M2AP_SETUP_REQ(message_p).ENBname[ie->value.choice.ENBname.size]
+  = ''\\0'';\n-\t  LOG_D(M2AP, \"M2AP_SETUP_REQ(message_p).gNB_DU_name %s \\n\", M2AP_SETUP_REQ(message_p).ENBname);\n+          /*
+  Convert the mme name to a printable string */\n+          M2AP_SETUP_REQ(message_p).ENBname[ie->value.choice.ENBname.size]
+  = ''\\0'';\n+          LOG_D(M2AP, \"M2AP_SETUP_REQ(message_p).gNB_DU_name %s \\n\",
+  M2AP_SETUP_REQ(message_p).ENBname);\n   }\n    /* ENB_MBMS_Configuration_data_List
+  */\n \n@@ -733,25 +733,25 @@ int MCE_handle_M2_SETUP_REQUEST(instance_t instance,\n                               M2AP_ProtocolIE_ID_id_ENB_MBMS_Configuration_data_List,
+  true);\n \n   if(ie!=NULL){\n-\t  M2AP_SETUP_REQ(message_p).num_mbms_available =
+  ie->value.choice.ENB_MBMS_Configuration_data_List.list.count;\n-\t  LOG_D(M2AP,
+  \"M2AP_SETUP_REQ(message_p).num_mbms_available %d \\n\",\n-\t\tM2AP_SETUP_REQ(message_p).num_mbms_available);\n-\t  num_mbms_available
+  = M2AP_SETUP_REQ(message_p).num_mbms_available;\n-\t  for (i=0; i<num_mbms_available;
+  i++) {\n-\t\t M2AP_ENB_MBMS_Configuration_data_Item_t *mbms_configuration_item_p;\n-\t\t
+  mbms_configuration_item_p = &(((M2AP_ENB_MBMS_Configuration_data_ItemIEs_t *)ie->value.choice.ENB_MBMS_Configuration_data_List.list.array[i])->value.choice.ENB_MBMS_Configuration_data_Item);\n-\t    /*
+  eCGI */\n-\t       //mbms_configuration_item_p->eCGI ... (M2AP_ECGI_t)\n-\n-\t    OCTET_STRING_TO_INT16(&(mbms_configuration_item_p->eCGI.pLMN_Identity),M2AP_SETUP_REQ(message_p).plmn_identity[i]);\n-\t    //OCTET_STRING_TO_INT16(&(mbms_configuration_item_p->eCGI.eUTRANcellIdentifier),M2AP_SETUP_REQ(message_p).eutran_cell_identifier[i]);\n-\t    /*
+  mbsfnSynchronisationArea */\n-\t       //mbms_configuration_item_p->mbsfnSynchronisationArea
+  ... (M2AP_MBSFN_SynchronisationArea_ID_t)\n-\n-\t    M2AP_SETUP_REQ(message_p).mbsfn_synchronization_area[i]=mbms_configuration_item_p->mbsfnSynchronisationArea;\n-\t    /*
+  mbmsServiceAreaList */\n-\t       //mbms_configuration_item_p->mbmsServiceAreaList
+  ... (M2AP_MBMS_Service_Area_ID_List_t)\n-\t  }\n+          M2AP_SETUP_REQ(message_p).num_mbms_available
+  = ie->value.choice.ENB_MBMS_Configuration_data_List.list.count;\n+          LOG_D(M2AP,
+  \"M2AP_SETUP_REQ(message_p).num_mbms_available %d \\n\",\n+                M2AP_SETUP_REQ(message_p).num_mbms_available);\n+          num_mbms_available
+  = M2AP_SETUP_REQ(message_p).num_mbms_available;\n+          for (i=0; i<num_mbms_available;
+  i++) {\n+                 M2AP_ENB_MBMS_Configuration_data_Item_t *mbms_configuration_item_p;\n+                 mbms_configuration_item_p
+  = &(((M2AP_ENB_MBMS_Configuration_data_ItemIEs_t *)ie->value.choice.ENB_MBMS_Configuration_data_List.list.array[i])->value.choice.ENB_MBMS_Configuration_data_Item);\n+            /*
+  eCGI */\n+               //mbms_configuration_item_p->eCGI ... (M2AP_ECGI_t)\n+\n+            OCTET_STRING_TO_INT16(&(mbms_configuration_item_p->eCGI.pLMN_Identity),M2AP_SETUP_REQ(message_p).plmn_identity[i]);\n+            //OCTET_STRING_TO_INT16(&(mbms_configuration_item_p->eCGI.eUTRANcellIdentifier),M2AP_SETUP_REQ(message_p).eutran_cell_identifier[i]);\n+            /*
+  mbsfnSynchronisationArea */\n+               //mbms_configuration_item_p->mbsfnSynchronisationArea
+  ... (M2AP_MBSFN_SynchronisationArea_ID_t)\n+\n+            M2AP_SETUP_REQ(message_p).mbsfn_synchronization_area[i]=mbms_configuration_item_p->mbsfnSynchronisationArea;\n+            /*
+  mbmsServiceAreaList */\n+               //mbms_configuration_item_p->mbmsServiceAreaList
+  ... (M2AP_MBMS_Service_Area_ID_List_t)\n+          }\n   }\n     \n //    /* tac
+  */\n@@ -767,7 +767,7 @@ int MCE_handle_M2_SETUP_REQUEST(instance_t instance,\n //    \n
+  //    // NR cellID\n //    BIT_STRING_TO_NR_CELL_IDENTITY(&served_celles_item_p->served_Cell_Information.nRCGI.nRCellIdentity,\n-//\t\t\t\t   M2AP_SETUP_REQ(message_p).nr_cellid[i]);\n+//                                 M2AP_SETUP_REQ(message_p).nr_cellid[i]);\n
+  //    LOG_D(M2AP, \"[SCTP %d] Received nRCGI: MCC %d, MNC %d, CELL_ID %llu\\n\",
+  assoc_id,\n //          M2AP_SETUP_REQ(message_p).mcc[i],\n //          M2AP_SETUP_REQ(message_p).mnc[i],\n@@
+  -820,14 +820,14 @@ int MCE_handle_M2_SETUP_REQUEST(instance_t instance,\n //  return
+  0;\n     //TEST POINT MCE -> eNB\n //    if(1){\n-//\tprintf(\"instance %d\\n\",instance);\n-//\t//MCE_send_M2_SETUP_RESPONSE(instance,assoc_id,m2ap_mce_data_from_enb->assoc_id);\n-//\t//MCE_send_MBMS_SESSION_START_REQUEST(instance,assoc_id);\n-//\t//MCE_send_MBMS_SESSION_STOP_REQUEST(instance,assoc_id);\n-//\t//MCE_send_MBMS_SCHEDULING_INFORMATION(instance,assoc_id,NULL);
+  //TODO\n+//      printf(\"instance %d\\n\",instance);\n+//      //MCE_send_M2_SETUP_RESPONSE(instance,assoc_id,m2ap_mce_data_from_enb->assoc_id);\n+//      //MCE_send_MBMS_SESSION_START_REQUEST(instance,assoc_id);\n+//      //MCE_send_MBMS_SESSION_STOP_REQUEST(instance,assoc_id);\n+//      //MCE_send_MBMS_SCHEDULING_INFORMATION(instance,assoc_id,NULL);
+  //TODO\n //    }\n //    else \n-//\tMCE_send_M2_SETUP_FAILURE(instance,assoc_id);\n+//      MCE_send_M2_SETUP_FAILURE(instance,assoc_id);\n
+  \n     return 0;\n }\n@@ -871,7 +871,7 @@ int MCE_send_M2_SETUP_RESPONSE(instance_t
+  instance, /*uint32_t assoc_id,*/\n   ie->value.present             = M2AP_M2SetupResponse_Ies__value_PR_GlobalMCE_ID;\n   //ie->value.choice.TransactionID
+  = M2AP_get_next_transaction_identifier(enb_mod_idP, cu_mod_idP);\n   MCC_MNC_TO_PLMNID(m2ap_setup_resp->mcc,
+  m2ap_setup_resp->mnc, m2ap_setup_resp->mnc_digit_length,\n-  \t\t&ie->value.choice.GlobalMCE_ID.pLMN_Identity);\n+                &ie->value.choice.GlobalMCE_ID.pLMN_Identity);\n
+  \n   ie->value.choice.GlobalMCE_ID.mCE_ID.buf =calloc(2, sizeof(uint8_t));\n   ie->value.choice.GlobalMCE_ID.mCE_ID.buf[0]
+  = (m2ap_setup_resp->MCE_id) >> 8;\n@@ -903,39 +903,39 @@ int MCE_send_M2_SETUP_RESPONSE(instance_t
+  instance, /*uint32_t assoc_id,*/\n   for( i=0; i < m2ap_setup_resp->num_mcch_config_per_mbsfn;
+  i++) \n   {\n \n-\t  M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_ItemIEs_t * mcch_related_bcch_config_per_mbsfn_area_item_ies;\n-\t  mcch_related_bcch_config_per_mbsfn_area_item_ies
+  = (M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_ItemIEs_t*)calloc(1,sizeof(M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_ItemIEs_t));\n-\t  mcch_related_bcch_config_per_mbsfn_area_item_ies->id=M2AP_ProtocolIE_ID_id_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item;\n-\t  mcch_related_bcch_config_per_mbsfn_area_item_ies->criticality
+  = M2AP_Criticality_ignore;\n-\t  mcch_related_bcch_config_per_mbsfn_area_item_ies->value.present=M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_ItemIEs__value_PR_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item;\n-\n-\t  \n-\t  M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item_t
+  * config_per_mbsfn_area_item;\n-\t  config_per_mbsfn_area_item = &mcch_related_bcch_config_per_mbsfn_area_item_ies->value.choice.MCCHrelatedBCCH_ConfigPerMBSFNArea_Item;\n-\t  {\n-\t\tconfig_per_mbsfn_area_item->pdcchLength=m2ap_setup_resp->mcch_config_per_mbsfn[i].pdcch_length;//M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item__pdcchLength_s1;\n-\t\tconfig_per_mbsfn_area_item->offset=m2ap_setup_resp->mcch_config_per_mbsfn[i].offset;//0;\n-\t\tconfig_per_mbsfn_area_item->repetitionPeriod=m2ap_setup_resp->mcch_config_per_mbsfn[i].repetition_period;//M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item__repetitionPeriod_rf32;\n-\t\tconfig_per_mbsfn_area_item->modificationPeriod=m2ap_setup_resp->mcch_config_per_mbsfn[i].modification_period;//M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item__modificationPeriod_rf512;\n-\t\tconfig_per_mbsfn_area_item->subframeAllocationInfo.buf
+  = MALLOC(1); \n-\t\tconfig_per_mbsfn_area_item->subframeAllocationInfo.size=1;\n-\t\t/*char
+  * t;\n-\t\tint bits=7;\n-\t\tfor( t = m2ap_setup_resp->mcch_config_per_mbsfn[i].subframe_allocation_info;
+  *t != ''\\0''; t++,bits--){\n-\t\t\tif(*t==''1''){\n-\t\t\t\tconfig_per_mbsfn_area_item->subframeAllocationInfo.buf[0]
+  |= (uint8_t)(0x1<<bits);\n-\t\t\t}\n+          M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_ItemIEs_t
+  * mcch_related_bcch_config_per_mbsfn_area_item_ies;\n+          mcch_related_bcch_config_per_mbsfn_area_item_ies
+  = (M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_ItemIEs_t*)calloc(1,sizeof(M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_ItemIEs_t));\n+          mcch_related_bcch_config_per_mbsfn_area_item_ies->id=M2AP_ProtocolIE_ID_id_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item;\n+          mcch_related_bcch_config_per_mbsfn_area_item_ies->criticality
+  = M2AP_Criticality_ignore;\n+          mcch_related_bcch_config_per_mbsfn_area_item_ies->value.present=M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_ItemIEs__value_PR_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item;\n+\n+          \n+          M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item_t
+  * config_per_mbsfn_area_item;\n+          config_per_mbsfn_area_item = &mcch_related_bcch_config_per_mbsfn_area_item_ies->value.choice.MCCHrelatedBCCH_ConfigPerMBSFNArea_Item;\n+          {\n+                config_per_mbsfn_area_item->pdcchLength=m2ap_setup_resp->mcch_config_per_mbsfn[i].pdcch_length;//M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item__pdcchLength_s1;\n+                config_per_mbsfn_area_item->offset=m2ap_setup_resp->mcch_config_per_mbsfn[i].offset;//0;\n+                config_per_mbsfn_area_item->repetitionPeriod=m2ap_setup_resp->mcch_config_per_mbsfn[i].repetition_period;//M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item__repetitionPeriod_rf32;\n+                config_per_mbsfn_area_item->modificationPeriod=m2ap_setup_resp->mcch_config_per_mbsfn[i].modification_period;//M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item__modificationPeriod_rf512;\n+                config_per_mbsfn_area_item->subframeAllocationInfo.buf
+  = MALLOC(1); \n+                config_per_mbsfn_area_item->subframeAllocationInfo.size=1;\n+                /*char
+  * t;\n+                int bits=7;\n+                for( t = m2ap_setup_resp->mcch_config_per_mbsfn[i].subframe_allocation_info;
+  *t != ''\\0''; t++,bits--){\n+                        if(*t==''1''){\n+                                config_per_mbsfn_area_item->subframeAllocationInfo.buf[0]
+  |= (uint8_t)(0x1<<bits);\n+                        }\n                 }*/\n-\t\tconfig_per_mbsfn_area_item->subframeAllocationInfo.buf[0]
+  = (uint8_t)((m2ap_setup_resp->mcch_config_per_mbsfn[i].subframe_allocation_info
+  & 0x3F)<<2);\n+                config_per_mbsfn_area_item->subframeAllocationInfo.buf[0]
+  = (uint8_t)((m2ap_setup_resp->mcch_config_per_mbsfn[i].subframe_allocation_info
+  & 0x3F)<<2);\n \n-\t\t//config_per_mbsfn_area_item->subframeAllocationInfo.buf[0]=0x1<<7;\n-\t\tconfig_per_mbsfn_area_item->subframeAllocationInfo.bits_unused=2;\n-\t\t\n-\t\t//memset(&config_per_mbsfn_area_item->subframeAllocationInfo,0,sizeof(BIT_STRING_t));\n-\t\t\n-\t\tconfig_per_mbsfn_area_item->modulationAndCodingScheme
+  = m2ap_setup_resp->mcch_config_per_mbsfn[i].mcs;//M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item__modulationAndCodingScheme_n2;\n-\t\tasn1cSeqAdd(&ie->value.choice.MCCHrelatedBCCH_ConfigPerMBSFNArea.list,mcch_related_bcch_config_per_mbsfn_area_item_ies);\n-\t  }\n+                //config_per_mbsfn_area_item->subframeAllocationInfo.buf[0]=0x1<<7;\n+                config_per_mbsfn_area_item->subframeAllocationInfo.bits_unused=2;\n+                \n+                //memset(&config_per_mbsfn_area_item->subframeAllocationInfo,0,sizeof(BIT_STRING_t));\n+                \n+                config_per_mbsfn_area_item->modulationAndCodingScheme
+  = m2ap_setup_resp->mcch_config_per_mbsfn[i].mcs;//M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item__modulationAndCodingScheme_n2;\n+                asn1cSeqAdd(&ie->value.choice.MCCHrelatedBCCH_ConfigPerMBSFNArea.list,mcch_related_bcch_config_per_mbsfn_area_item_ies);\n+          }\n
+  \n   }\n  \n@@ -955,13 +955,6 @@ int MCE_send_M2_SETUP_RESPONSE(instance_t instance,
+  /*uint32_t assoc_id,*/\n \n int MCE_send_M2_SETUP_FAILURE(instance_t instance,m2ap_setup_failure_t*
+  m2ap_setup_failure) {\n   \n- // module_id_t enb_mod_idP;\n-  //module_id_t mce_mod_idP;\n-\n-  //
+  This should be fixed\n-  //enb_mod_idP = (module_id_t)0;\n-  //mce_mod_idP  = (module_id_t)0;\n-\n   M2AP_M2AP_PDU_t           pdu;\n   M2AP_M2SetupFailure_t    *out;\n   M2AP_M2SetupFailure_Ies_t
+  *ie;\n@@ -973,45 +966,69 @@ int MCE_send_M2_SETUP_FAILURE(instance_t instance,m2ap_setup_failure_t*
+  m2ap_set\n   /* 0. Message Type */\n   memset(&pdu, 0, sizeof(pdu));\n   pdu.present
+  = M2AP_M2AP_PDU_PR_unsuccessfulOutcome;\n-  //pdu.choice.unsuccessfulOutcome = (M2AP_UnsuccessfulOutcome_t
+  *)calloc(1, sizeof(M2AP_UnsuccessfulOutcome_t));\n   pdu.choice.unsuccessfulOutcome.procedureCode
+  = M2AP_ProcedureCode_id_m2Setup;\n   pdu.choice.unsuccessfulOutcome.criticality   =
+  M2AP_Criticality_reject;\n   pdu.choice.unsuccessfulOutcome.value.present = M2AP_UnsuccessfulOutcome__value_PR_M2SetupFailure;\n   out
+  = &pdu.choice.unsuccessfulOutcome.value.choice.M2SetupFailure;\n \n   /* mandatory
+  */\n-  /* c1. Transaction ID (integer value)*/\n- // ie = (M2AP_M2SetupFailure_Ies_t
+  *)calloc(1, sizeof(M2AP_M2SetupFailure_Ies_t));\n- // ie->id                        =
+  M2AP_ProtocolIE_ID_id_GlobalENB_ID;\n- // ie->criticality               = M2AP_Criticality_reject;\n-
+  // ie->value.present             = M2AP_M2SetupFailure_Ies__value_PR_GlobalENB_ID;\n-
+  // ie->value.choice.GlobalENB_ID = M2AP_get_next_transaction_identifier(enb_mod_idP,
+  mce_mod_idP);\n- // asn1cSeqAdd(&out->protocolIEs.list, ie);\n-\n-  /* mandatory
+  */\n-  /* c2. Cause */\n+  /* c1. Cause */\n   ie = (M2AP_M2SetupFailure_Ies_t *)calloc(1,
+  sizeof(M2AP_M2SetupFailure_Ies_t));\n   ie->id                        = M2AP_ProtocolIE_ID_id_Cause;\n   ie->criticality               =
+  M2AP_Criticality_ignore;\n   ie->value.present             = M2AP_M2SetupFailure_Ies__value_PR_Cause;\n-  ie->value.choice.Cause.present
+  = M2AP_Cause_PR_radioNetwork;\n-  ie->value.choice.Cause.choice.radioNetwork = M2AP_CauseRadioNetwork_unspecified;\n+  \n+  /*
+  Set the cause based on the parameter */\n+  if (m2ap_setup_failure != NULL) {\n+    /*
+  Use the parameter to set the cause - this fixes the issue where the function\n+       was
+  not using the m2ap_setup_failure parameter */\n+    ie->value.choice.Cause.present
+  = M2AP_Cause_PR_radioNetwork;\n+    ie->value.choice.Cause.choice.radioNetwork =
+  M2AP_CauseRadioNetwork_unspecified;\n+  } else {\n+    /* Default cause if no parameter
+  provided */\n+    ie->value.choice.Cause.present = M2AP_Cause_PR_radioNetwork;\n+    ie->value.choice.Cause.choice.radioNetwork
+  = M2AP_CauseRadioNetwork_unspecified;\n+  }\n   asn1cSeqAdd(&out->protocolIEs.list,
+  ie);\n \n   /* optional */\n-  /* c3. TimeToWait */\n-  if (0) {\n+  /* c2. TimeToWait
+  */\n+  if ((m2ap_setup_failure != NULL) && (m2ap_setup_failure->time_to_wait !=
+  0)) {\n     ie = (M2AP_M2SetupFailure_Ies_t *)calloc(1, sizeof(M2AP_M2SetupFailure_Ies_t));\n     ie->id                        =
+  M2AP_ProtocolIE_ID_id_TimeToWait;\n     ie->criticality               = M2AP_Criticality_ignore;\n     ie->value.present             =
+  M2AP_M2SetupFailure_Ies__value_PR_TimeToWait;\n-    ie->value.choice.TimeToWait
+  = M2AP_TimeToWait_v10s;\n+    \n+    /* Map the time_to_wait value to the appropriate
+  enum */\n+    switch (m2ap_setup_failure->time_to_wait) {\n+      case 1:\n+        ie->value.choice.TimeToWait
+  = M2AP_TimeToWait_v1s;\n+        break;\n+      case 2:\n+        ie->value.choice.TimeToWait
+  = M2AP_TimeToWait_v2s;\n+        break;\n+      case 5:\n+        ie->value.choice.TimeToWait
+  = M2AP_TimeToWait_v5s;\n+        break;\n+      case 10:\n+        ie->value.choice.TimeToWait
+  = M2AP_TimeToWait_v10s;\n+        break;\n+      case 20:\n+        ie->value.choice.TimeToWait
+  = M2AP_TimeToWait_v20s;\n+        break;\n+      case 60:\n+        ie->value.choice.TimeToWait
+  = M2AP_TimeToWait_v60s;\n+        break;\n+      default:\n+        ie->value.choice.TimeToWait
+  = M2AP_TimeToWait_v10s;\n+        break;\n+    }\n     asn1cSeqAdd(&out->protocolIEs.list,
+  ie);\n   }\n \n   /* optional */\n-  /* c4. CriticalityDiagnostics*/\n-  if (0)
+  {\n+  /* c3. CriticalityDiagnostics*/\n+  if ((m2ap_setup_failure != NULL) && (m2ap_setup_failure->criticality_diagnostics
+  != 0)) {\n     ie = (M2AP_M2SetupFailure_Ies_t *)calloc(1, sizeof(M2AP_M2SetupFailure_Ies_t));\n     ie->id                        =
+  M2AP_ProtocolIE_ID_id_CriticalityDiagnostics;\n     ie->criticality               =
+  M2AP_Criticality_ignore;\n@@ -1022,18 +1039,15 @@ int MCE_send_M2_SETUP_FAILURE(instance_t
+  instance,m2ap_setup_failure_t* m2ap_set\n     *ie->value.choice.CriticalityDiagnostics.triggeringMessage
+  = M2AP_TriggeringMessage_initiating_message;\n     ie->value.choice.CriticalityDiagnostics.procedureCriticality
+  = (M2AP_Criticality_t *)calloc(1, sizeof(M2AP_Criticality_t));\n     *ie->value.choice.CriticalityDiagnostics.procedureCriticality
+  = M2AP_Criticality_reject;\n-    //ie->value.choice.CriticalityDiagnostics.transactionID
+  = (M2AP_TransactionID_t *)calloc(1, sizeof(M2AP_TransactionID_t));\n-    //*ie->value.choice.CriticalityDiagnostics.transactionID
+  = 0;\n     asn1cSeqAdd(&out->protocolIEs.list, ie);\n   }\n \n   /* encode */\n   if
+  (m2ap_encode_pdu(&pdu, &buffer, &len) < 0) {\n-    LOG_E(M2AP, \"Failed to encode
+  M2 setup request\\n\");\n+    LOG_E(M2AP, \"Failed to encode M2 setup failure\\n\");\n     return
+  -1;\n   }\n \n-  //mce_m2ap_itti_send_sctp_data_req(instance, m2ap_mce_data_from_enb->assoc_id,
+  buffer, len, 0);\n   m2ap_MCE_itti_send_sctp_data_req(instance,m2ap_mce_data_from_enb->assoc_id,buffer,len,0);\n
+  \n   return 0;\n@@ -1110,19 +1124,19 @@ int MCE_send_MCE_CONFIGURATION_UPDATE(instance_t
+  instance, module_id_t du_mod_id\n   M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item_t
+  * config_per_mbsfn_area_item;\n   config_per_mbsfn_area_item = &mcch_related_bcch_config_per_mbsfn_area_item_ies->value.choice.MCCHrelatedBCCH_ConfigPerMBSFNArea_Item;\n   {\n-\tconfig_per_mbsfn_area_item->pdcchLength=M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item__pdcchLength_s1;\n-\tconfig_per_mbsfn_area_item->offset=0;\n-\tconfig_per_mbsfn_area_item->repetitionPeriod=M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item__repetitionPeriod_rf32;\n-\tconfig_per_mbsfn_area_item->modificationPeriod=M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item__modificationPeriod_rf512;\n-  \tconfig_per_mbsfn_area_item->subframeAllocationInfo.buf
+  = MALLOC(1); \n-  \tconfig_per_mbsfn_area_item->subframeAllocationInfo.size=1;\n-  \t//config_per_mbsfn_area_item->subframeAllocationInfo.buf[0]=0x1<<7;\n-  \tconfig_per_mbsfn_area_item->subframeAllocationInfo.bits_unused=2;\n-\t\n-\t//memset(&config_per_mbsfn_area_item->subframeAllocationInfo,0,sizeof(BIT_STRING_t));\n-\t\n+        config_per_mbsfn_area_item->pdcchLength=M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item__pdcchLength_s1;\n+        config_per_mbsfn_area_item->offset=0;\n+        config_per_mbsfn_area_item->repetitionPeriod=M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item__repetitionPeriod_rf32;\n+        config_per_mbsfn_area_item->modificationPeriod=M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item__modificationPeriod_rf512;\n+        config_per_mbsfn_area_item->subframeAllocationInfo.buf
+  = MALLOC(1); \n+        config_per_mbsfn_area_item->subframeAllocationInfo.size=1;\n+        //config_per_mbsfn_area_item->subframeAllocationInfo.buf[0]=0x1<<7;\n+        config_per_mbsfn_area_item->subframeAllocationInfo.bits_unused=2;\n+        \n+        //memset(&config_per_mbsfn_area_item->subframeAllocationInfo,0,sizeof(BIT_STRING_t));\n+        \n         config_per_mbsfn_area_item->modulationAndCodingScheme
+  = M2AP_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item__modulationAndCodingScheme_n2;\n-\tasn1cSeqAdd(&ie->value.choice.MCCHrelatedBCCH_ConfigPerMBSFNArea.list,mcch_related_bcch_config_per_mbsfn_area_item_ies);\n+        asn1cSeqAdd(&ie->value.choice.MCCHrelatedBCCH_ConfigPerMBSFNArea.list,mcch_related_bcch_config_per_mbsfn_area_item_ies);\n   }\n   \n   asn1cSeqAdd(&out->protocolIEs.list,
+  ie);\n@@ -1341,13 +1355,13 @@ int MCE_handle_MBMS_SERVICE_COUNTING_RESPONSE(instance_t
+  instance,\n   LOG_D(M2AP, \"MCE_handle_MBMS_SERVICE_COUNTING_RESPONSE\\n\");\n \n    AssertFatal(pdu->present
+  == M2AP_M2AP_PDU_PR_successfulOutcome,\n-\t       \"pdu->present != M2AP_M2AP_PDU_PR_successfulOutcome\\n\");\n+               \"pdu->present
+  != M2AP_M2AP_PDU_PR_successfulOutcome\\n\");\n    AssertFatal(pdu->choice.successfulOutcome.procedureCode  ==
+  M2AP_ProcedureCode_id_mbmsServiceCounting,\n-\t       \"pdu->choice.successfulOutcome->procedureCode
+  != M2AP_ProcedureCode_id_mbmsServiceCounting\\n\");\n+               \"pdu->choice.successfulOutcome->procedureCode
+  != M2AP_ProcedureCode_id_mbmsServiceCounting\\n\");\n    AssertFatal(pdu->choice.successfulOutcome.criticality  ==
+  M2AP_Criticality_reject,\n-\t       \"pdu->choice.successfulOutcome->criticality
+  != M2AP_Criticality_reject\\n\");\n+               \"pdu->choice.successfulOutcome->criticality
+  != M2AP_Criticality_reject\\n\");\n    AssertFatal(pdu->choice.successfulOutcome.value.present  ==
+  M2AP_SuccessfulOutcome__value_PR_MbmsServiceCountingResponse,\n-\t       \"pdu->choice.successfulOutcome.value.present
+  != M2AP_SuccessfulOutcome__value_PR_MbmsServiceCountingResponse\\n\");\n+               \"pdu->choice.successfulOutcome.value.present
+  != M2AP_SuccessfulOutcome__value_PR_MbmsServiceCountingResponse\\n\");\n \n \n   M2AP_MbmsServiceCountingResponse_t    *in
+  = &pdu->choice.successfulOutcome.value.choice.MbmsServiceCountingResponse;\n@@ -1406,8
+  +1420,8 @@ int MCE_handle_MBMS_SESSION_COUNTING_FAILURE(instance_t instance,  module_id_t
+  d\n \n   uint8_t *buffer;\n   uint32_t len;\n-  //int\t   i=0; \n-  //int \t   j=0;\n+  //int    i=0;
+  \n+  //int            j=0;\n \n   /* Create */\n   /* 0. pdu Type */\n","start_fn":"MCE_send_M2_SETUP_FAILURE","start_fn_file":"openair2/M2AP/m2ap_MCE_interface_management.c","subsystem":"openair2/M2AP"},"type":"text","id":"oai5g_776ca25_00096"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

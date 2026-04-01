@@ -1,0 +1,9 @@
+{
+  "run_id": "s00650_b6bedb",
+  "pr_text": "## Title: Fix null pointer dereference in nfapi_nr_pnf_pnf_param_resp\n\n### Summary\nThe `nfapi_nr_pnf_pnf_param_resp` function in the nFAPI PNF interface had a potential null pointer dereference vulnerability on the `config->send_p5_msg` function pointer. While the function validated the `config` and `resp` parameters, it did not check if the `send_p5_msg` callback was initialized before dereferencing it. The existing `AssertFatal` macro only provided debug-build protection and could be compiled ",
+  "trajectory_path": "data/raw/s00650_b6bedb_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00650_b6bedb_p2.diff",
+  "patch_lines": 8,
+  "trajectory_steps": 11,
+  "timestamp": "2026-02-10T17:38:36Z"
+}

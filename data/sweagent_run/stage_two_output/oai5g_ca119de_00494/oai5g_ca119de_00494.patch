@@ -1,0 +1,99 @@
+diff --git a/common/utils/threadPool/thread-pool.c b/common/utils/threadPool/thread-pool.c
+index 5b22f2895d..0fc3f49aea 100644
+--- a/common/utils/threadPool/thread-pool.c
++++ b/common/utils/threadPool/thread-pool.c
+@@ -27,6 +27,7 @@
+ #include <fcntl.h>
+ #include <string.h>
+ #include <ctype.h>
++#include <unistd.h>
+ #include <threadPool/thread-pool.h>
+ 
+ 
+@@ -98,12 +99,20 @@ void initNamedTpool(char *params,tpool_t *pool, bool performanceMeas, char *name
+ 
+   if (measr) {
+     mkfifo(measr,0666);
+-    AssertFatal(-1 != (pool->dummyKeepReadingTraceFd=
+-                         open(measr, O_RDONLY| O_NONBLOCK)),"");
+-    AssertFatal(-1 != (pool->traceFd=
+-                         open(measr, O_WRONLY|O_APPEND|O_NOATIME|O_NONBLOCK)),"");
+-  } else
++    pool->dummyKeepReadingTraceFd = open(measr, O_RDONLY| O_NONBLOCK);
++    AssertFatal(-1 != pool->dummyKeepReadingTraceFd, "Failed to open dummy reading FIFO for thread pool tracing");
++
++    pool->traceFd = open(measr, O_WRONLY|O_APPEND|O_NOATIME|O_NONBLOCK);
++    if (-1 == pool->traceFd) {
++      // Close the first file descriptor if the second one fails to open
++      close(pool->dummyKeepReadingTraceFd);
++      pool->dummyKeepReadingTraceFd = -1;
++      AssertFatal(false, "Failed to open write FIFO for thread pool tracing");
++    }
++  } else {
+     pool->traceFd=-1;
++    pool->dummyKeepReadingTraceFd = -1;
++  }
+ 
+   pool->activated=true;
+   initNotifiedFIFO(&pool->incomingFifo);
+@@ -161,3 +170,15 @@ void initFloatingCoresTpool(int nbThreads,tpool_t *pool, bool performanceMeas, c
+   threads[sizeof(threads)-1]=0;
+   initNamedTpool(threads, pool, performanceMeas, name);
+ }
++
++void cleanupTpool(tpool_t *t) {
++  if (t->traceFd != -1) {
++    close(t->traceFd);
++    t->traceFd = -1;
++  }
++  
++  if (t->dummyKeepReadingTraceFd != -1) {
++    close(t->dummyKeepReadingTraceFd);
++    t->dummyKeepReadingTraceFd = -1;
++  }
++}
+diff --git a/common/utils/threadPool/thread-pool.h b/common/utils/threadPool/thread-pool.h
+index b0e1b9e4e8..cd6206527c 100644
+--- a/common/utils/threadPool/thread-pool.h
++++ b/common/utils/threadPool/thread-pool.h
+@@ -31,6 +31,8 @@
+ #include <pthread.h>
+ #include <unistd.h>
+ #include <sys/syscall.h>
++#include <fcntl.h>
++#include <errno.h>
+ #include "assertions.h"
+ #include "common/utils/time_meas.h"
+ #include "common/utils/system.h"
+@@ -269,7 +271,7 @@ static inline notifiedFIFO_elt_t *pullTpool(notifiedFIFO_t *responseFifo, tpool_
+   notifiedFIFO_elt_t *msg= pullNotifiedFIFO(responseFifo);
+   if (msg == NULL)
+     return NULL;
+-  AssertFatal(t->traceFd != 0, "Thread pool used while not initialized");
++  AssertFatal(t->traceFd != -1, "Thread pool used while not initialized");
+   if (t->measurePerf)
+     msg->returnTime=rdtsc_oai();
+ 
+@@ -283,7 +285,7 @@ static inline notifiedFIFO_elt_t *pullTpool(notifiedFIFO_t *responseFifo, tpool_
+ 
+ static inline notifiedFIFO_elt_t *tryPullTpool(notifiedFIFO_t *responseFifo, tpool_t *t) {
+   notifiedFIFO_elt_t *msg= pollNotifiedFIFO(responseFifo);
+-  AssertFatal(t->traceFd != 0, "Thread pool used while not initialized");
++  AssertFatal(t->traceFd != -1, "Thread pool used while not initialized");
+   if (msg == NULL)
+     return NULL;
+ 
+@@ -341,8 +343,13 @@ static inline int abortTpool(tpool_t *t) {
+     thread = next;
+   }
+ 
++  /* clean up file descriptors */
++  cleanupTpool(t);
++
+   return nbRemoved;
+ }
++
++void cleanupTpool(tpool_t *t);
+ void initNamedTpool(char *params,tpool_t *pool, bool performanceMeas, char *name);
+ void initFloatingCoresTpool(int nbThreads,tpool_t *pool, bool performanceMeas, char *name);
+ #define  initTpool(PARAMPTR,TPOOLPTR, MEASURFLAG) initNamedTpool(PARAMPTR,TPOOLPTR, MEASURFLAG, NULL)

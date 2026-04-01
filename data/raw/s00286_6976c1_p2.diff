@@ -1,0 +1,72 @@
+diff --git a/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.c b/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.c
+index 5c6777d5a3..7bde0dd5da 100644
+--- a/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.c
++++ b/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.c
+@@ -2,10 +2,18 @@
+ #include "../../flexric/test/rnd/fill_rnd_data_rc.h"
+ #include "../../flexric/src/sm/rc_sm/ie/ir/lst_ran_param.h"
+ #include "../../flexric/src/sm/rc_sm/ie/ir/ran_param_list.h"
++#include "../../LAYER2/rlc_v2/rlc_ue_manager.h"
++#include "../../LAYER2/rlc_v2/rlc_entity.h"
++#include "../../LAYER2/MAC/mac.h"
+ #include <assert.h>
+ #include <stdio.h>
+ #include <pthread.h>
+ #include <unistd.h>
++#include <stdlib.h>
++
++/* Forward declarations for new scheduling functions */
++static void schedule_pending_data_ues(void);
++static rc_ind_data_t fill_report_style_4(void);
+ 
+ void read_rc_sm(void* data)
+ {
+@@ -67,6 +75,39 @@ sm_ag_if_ans_t write_ctrl_rc_sm(void const* data)
+   return ans;
+ }
+ 
++/* Helper function to schedule UEs with pending RLC data */
++static
++void schedule_pending_data_ues(void)
++{
++  /* TODO: Access the RLC UE manager and MAC scheduler 
++   * This is a placeholder that needs integration with the actual
++   * MAC and RLC layer management structures */
++  
++  /* For now, we'll use a simplified approach to check for pending data.
++   * In a full implementation, this would:
++   * 1. Get access to the RLC UE manager
++   * 2. Iterate through all connected UEs
++   * 3. Check each UE's RLC entities for pending data
++   * 4. Trigger MAC scheduler for UEs with data to send
++   */
++  
++  printf("Checking for UEs with pending RLC data to schedule...\n");
++  
++  /* Placeholder for MAC scheduling trigger */
++  /* mac_trigger_scheduler_for_pending_data(); */
++}
++
++/* New function to schedule pending data UEs and generate RC indication */
++static
++rc_ind_data_t fill_report_style_4(void)
++{
++  /* First schedule any UEs with pending data */
++  schedule_pending_data_ues();
++  
++  /* Then generate the RC indication message */
++  return fill_rnd_rc_ind_data();
++}
++
+ static
+ void* emulate_rrc_msg(void* ptr)
+ {
+@@ -75,7 +116,7 @@ void* emulate_rrc_msg(void* ptr)
+     usleep(rand()%4000);
+     rc_ind_data_t* d = calloc(1, sizeof(rc_ind_data_t)); 
+     assert(d != NULL && "Memory exhausted");
+-    *d = fill_rnd_rc_ind_data();
++    *d = fill_report_style_4();  /* Use new function that schedules pending data UEs first */
+     async_event_agent_api(*ric_id, d);
+     printf("Event for RIC Req ID %u generated\n", *ric_id);
+   }

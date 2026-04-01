@@ -1,0 +1,9 @@
+{
+  "run_id": "s00214_783fc3",
+  "pr_text": "## Title: Fix double-free vulnerability in NR UE measurement reporting cleanup\n\n### Summary\nThe `handle_meas_reporting_remove` function in the NR UE RRC module contained a double-free vulnerability when cleaning up measurement reporting structures. The code unconditionally freed `rrc->MeasReport[id]` without verifying the pointer was valid or clearing it after deallocation. This could cause memory corruption and crashes if measurement reporting was reconfigured multiple times for the same measur",
+  "trajectory_path": "data/raw/s00214_783fc3_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00214_783fc3_p2.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 13,
+  "timestamp": "2026-02-11T13:21:02Z"
+}

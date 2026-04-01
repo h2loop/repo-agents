@@ -1,0 +1,28 @@
+diff --git a/nfapi/open-nFAPI/vnf/src/vnf_p7.c b/nfapi/open-nFAPI/vnf/src/vnf_p7.c
+index 28c7b71656..7a4e73f655 100644
+--- a/nfapi/open-nFAPI/vnf/src/vnf_p7.c
++++ b/nfapi/open-nFAPI/vnf/src/vnf_p7.c
+@@ -1104,6 +1104,11 @@ void vnf_handle_ul_node_sync(void *pRecvMsg, int recvMsgLen, vnf_p7_t* vnf_p7)
+ 	//NFAPI_TRACE(NFAPI_TRACE_INFO, "Received UL_NODE_SYNC phy_id:%d t1:%d t2:%d t3:%d\n", ind.header.phy_id, ind.t1, ind.t2, ind.t3);
+ 
+ 	nfapi_vnf_p7_connection_info_t* phy = vnf_p7_connection_info_list_find(vnf_p7, ind.header.phy_id);
++	if(phy == NULL)
++	{
++		NFAPI_TRACE(NFAPI_TRACE_ERROR, "Failed to find phy connection info for phy_id:%d\n", ind.header.phy_id);
++		return;
++	}
+ 	uint32_t t4 = calculate_t4(now_time_hr, phy->sfn_sf, vnf_p7->sf_start_time_hr);
+ 
+ 	uint32_t tx_2_rx = t4>ind.t1 ? t4 - ind.t1 : t4 + NFAPI_MAX_SFNSFDEC - ind.t1 ;
+@@ -1635,6 +1640,11 @@ void vnf_nr_handle_ul_node_sync(void *pRecvMsg, int recvMsgLen, vnf_p7_t* vnf_p7
+ 	//NFAPI_TRACE(NFAPI_TRACE_INFO, "Received UL_NODE_SYNC phy_id:%d t1:%d t2:%d t3:%d\n", ind.header.phy_id, ind.t1, ind.t2, ind.t3);
+ 
+ 	nfapi_vnf_p7_connection_info_t* phy = vnf_p7_connection_info_list_find(vnf_p7, ind.header.phy_id);
++	if(phy == NULL)
++	{
++		NFAPI_TRACE(NFAPI_TRACE_ERROR, "Failed to find phy connection info for phy_id:%d\n", ind.header.phy_id);
++		return;
++	}
+ 	uint32_t t4 = calculate_nr_t4(now_time_hr, phy->sfn, phy->slot, vnf_p7->slot_start_time_hr);
+ 
+ 	uint32_t tx_2_rx = t4>ind.t1 ? t4 - ind.t1 : t4 + NFAPI_MAX_SFNSLOTDEC - ind.t1 ; //time taken to receive ul node sync - time taken to send dl node sync

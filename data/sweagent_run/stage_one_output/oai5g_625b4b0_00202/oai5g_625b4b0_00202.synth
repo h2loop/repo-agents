@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix byte ordering in nfapi packing/unpacking functions\n\n### Summary\nThe nfapi library had incorrect byte ordering implementations in the push/pull functions that caused `pack_pnf_phy_rel13_info()` to produce incorrect packed data. The functions were storing bytes in the wrong order for both big-endian and little-endian modes.\n\nThis fix corrects the byte ordering in all push and pull functions to ensure proper network byte order handling.\n\n### Changes\n- `nfapi/open-nFAPI/common/src/nfapi.c`: Fixed byte ordering in push16/pull16, pushs16/pulls16, push32/pull32, and pushs32/pulls32 functions\n- Big-endian mode now correctly stores most significant byte at lower memory address\n- Little-endian mode now correctly stores least significant byte at lower memory address\n- All pull functions updated to match the corrected push function byte ordering\n\n"
+}

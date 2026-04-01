@@ -1,0 +1,32 @@
+{
+  "run_id": "s00236_814548",
+  "function": {
+    "name": "unpack_nr_start_request",
+    "file": "nfapi/open-nFAPI/fapi/src/nr_fapi_p5.c",
+    "start_line": 1780,
+    "end_line": 1784,
+    "body_lines": 5,
+    "signature": "uint8_t unpack_nr_start_request(uint8_t **ppReadPackedMsg, uint8_t *end, void *msg, nfapi_p4_p5_codec_config_t *config)",
+    "subsystem": "nfapi/open-nFAPI/fapi",
+    "token_estimate": 23
+  },
+  "bug": {
+    "bug_id": "telecom_config_layer_mismatch",
+    "description": "configuration mismatch between protocol layers causing inconsistent behavior",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC"
+    ]
+  },
+  "prompt": "There is a configuration mismatch between protocol layers causing inconsistent behavior downstream of function unpack_nr_start_request in the nfapi/open-nFAPI/fapi subsystem.\nThe function is located at nfapi/open-nFAPI/fapi/src/nr_fapi_p5.c:1780.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00236_814548_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00236_814548_p1.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 72,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:39:03Z"
+}

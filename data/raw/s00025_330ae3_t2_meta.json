@@ -1,0 +1,9 @@
+{
+  "run_id": "s00025_330ae3",
+  "pr_text": "## Title: Fix race condition in itti_get_task_name by adding missing mutex lock\n\n### Summary\nThe `itti_get_task_name()` function in the ITTI (Inter-Task Communication Interface) subsystem accessed the global `tasks` array without acquiring the `lock_nb_queues` mutex. This created a race condition where concurrent reads from this function and writes from task management operations could lead to undefined behavior, including potential use-after-free or access to inconsistent data during task initi",
+  "trajectory_path": "data/raw/s00025_330ae3_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00025_330ae3_p2.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 18,
+  "timestamp": "2026-02-11T09:18:45Z"
+}

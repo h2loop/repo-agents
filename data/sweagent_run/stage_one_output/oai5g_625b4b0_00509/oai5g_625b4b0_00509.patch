@@ -1,0 +1,62 @@
+diff --git a/common/utils/telnetsrv/telnetsrv_bearer.c b/common/utils/telnetsrv/telnetsrv_bearer.c
+index 4d8dacd82f..7995295fe3 100644
+--- a/common/utils/telnetsrv/telnetsrv_bearer.c
++++ b/common/utils/telnetsrv/telnetsrv_bearer.c
+@@ -37,10 +37,24 @@
+ static int get_single_ue_rnti(void)
+ {
+   rrc_gNB_ue_context_t *ue_context_p = NULL;
++  int count = 0;
++  rnti_t rnti = -1;
++  
+   RB_FOREACH(ue_context_p, rrc_nr_ue_tree_s, &(RC.nrrrc[0]->rrc_ue_head)) {
+-    return ue_context_p->ue_context.rnti;
++    count++;
++    rnti = ue_context_p->ue_context.rnti;
++    // If we already found more than one UE, we can return -1 immediately
++    if (count > 1) {
++      return -1;
++    }
++  }
++  
++  // Return the RNTI only if exactly one UE was found
++  if (count == 1) {
++    return rnti;
++  } else {
++    return -1;
+   }
+-  return -1;
+ }
+ 
+ int get_single_rnti(char *buf, int debug, telnet_printfunc_t prnt)
+diff --git a/common/utils/telnetsrv/telnetsrv_rrc.c b/common/utils/telnetsrv/telnetsrv_rrc.c
+index aab85a825f..30583e241e 100644
+--- a/common/utils/telnetsrv/telnetsrv_rrc.c
++++ b/common/utils/telnetsrv/telnetsrv_rrc.c
+@@ -55,10 +55,24 @@
+ static int get_single_ue_id(void)
+ {
+   rrc_gNB_ue_context_t *ue_context_p = NULL;
++  int count = 0;
++  uint32_t ue_id = -1;
++  
+   RB_FOREACH(ue_context_p, rrc_nr_ue_tree_s, &(RC.nrrrc[0]->rrc_ue_head)) {
+-    return ue_context_p->ue_context.rrc_ue_id;
++    count++;
++    ue_id = ue_context_p->ue_context.rrc_ue_id;
++    // If we already found more than one UE, we can return -1 immediately
++    if (count > 1) {
++      return -1;
++    }
++  }
++  
++  // Return the UE ID only if exactly one UE was found
++  if (count == 1) {
++    return ue_id;
++  } else {
++    return -1;
+   }
+-  return -1;
+ }
+ 
+ /**

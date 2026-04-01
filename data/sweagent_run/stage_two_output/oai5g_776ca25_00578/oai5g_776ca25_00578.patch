@@ -1,0 +1,38 @@
+diff --git a/openair2/ENB_APP/enb_app.c b/openair2/ENB_APP/enb_app.c
+index 571d008e84..db5897f6e2 100644
+--- a/openair2/ENB_APP/enb_app.c
++++ b/openair2/ENB_APP/enb_app.c
+@@ -100,7 +100,7 @@ static uint32_t eNB_app_register_m2(uint32_t enb_id_start, uint32_t enb_id_end)
+     {
+       msg_p = itti_alloc_new_message (TASK_ENB_APP, 0, M2AP_REGISTER_ENB_REQ);
+       RCconfig_M2(msg_p, enb_id);
+-      itti_send_msg_to_task (TASK_M2AP_ENB, ENB_MODULE_ID_TO_INSTANCE(enb_id), msg_p);
++      itti_send_msg_to_task (TASK_M2AP_MCE, ENB_MODULE_ID_TO_INSTANCE(enb_id), msg_p);
+       register_enb_m2_pending++;
+     }
+   }
+@@ -328,7 +328,7 @@ void *eNB_app_task(void *args_p) {
+ //
+ //               LOG_I(ENB_APP, " Received %s: timer_id %ld M2 register\n", ITTI_MSG_NAME (msg_p), TIMER_HAS_EXPIRED(msg_p).timer_id);
+ //               m2_register_enb_pending = eNB_app_register_m2 (enb_id_start, enb_id_end);
+-//	}
++//      }
+ 
+       break;
+ 
+@@ -358,11 +358,11 @@ void *eNB_app_task(void *args_p) {
+           LOG_W(ENB_APP, " %d eNB %s not associated with the target\n",
+                 x2_not_associated, x2_not_associated > 1 ? "are" : "is");
+ 
+-	  // timer to retry
+-	  /* Restart the eNB registration process in ENB_REGISTER_RETRY_DELAY seconds */
++          // timer to retry
++          /* Restart the eNB registration process in ENB_REGISTER_RETRY_DELAY seconds */
+           if (timer_setup (X2AP_ENB_REGISTER_RETRY_DELAY, 0, TASK_ENB_APP,
+-			   INSTANCE_DEFAULT, TIMER_ONE_SHOT, NULL,
+-			   &x2_enb_register_retry_timer_id) < 0) {
++                           INSTANCE_DEFAULT, TIMER_ONE_SHOT, NULL,
++                           &x2_enb_register_retry_timer_id) < 0) {
+             LOG_E(ENB_APP, " Can not start eNB X2AP register: retry timer, use \"sleep\" instead!\n");
+             sleep(X2AP_ENB_REGISTER_RETRY_DELAY);
+             /* Restart the registration process */

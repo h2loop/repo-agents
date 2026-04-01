@@ -1,0 +1,24 @@
+diff --git a/openair1/PHY/CODING/TESTBENCH/pdcch_test.c b/openair1/PHY/CODING/TESTBENCH/pdcch_test.c
+index f4574bb0c5..e67b51b2f3 100644
+--- a/openair1/PHY/CODING/TESTBENCH/pdcch_test.c
++++ b/openair1/PHY/CODING/TESTBENCH/pdcch_test.c
+@@ -313,5 +313,19 @@ int main(int argc, char *argv[])
+     }
+   }
+ 
++  // Cleanup allocated resources
++  if (PHY_vars != NULL) {
++    free(PHY_vars);
++    PHY_vars = NULL;
++  }
++  if (PHY_config != NULL) {
++    free(PHY_config);
++    PHY_config = NULL;
++  }
++  if (mac_xface != NULL) {
++    free(mac_xface);
++    mac_xface = NULL;
++  }
++
+   return(0);
+ }

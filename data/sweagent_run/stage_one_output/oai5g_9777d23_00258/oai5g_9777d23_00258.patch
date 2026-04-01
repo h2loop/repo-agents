@@ -1,0 +1,26 @@
+diff --git a/common/utils/T/tracer/to_vcd.c b/common/utils/T/tracer/to_vcd.c
+index 6458443394..baea3409c2 100644
+--- a/common/utils/T/tracer/to_vcd.c
++++ b/common/utils/T/tracer/to_vcd.c
+@@ -125,7 +125,7 @@ void vcd_dump(char *v)
+   uint64_t val;
+   uint64_t time;
+   char var[256];
+-  if (sscanf(v, "%"SCNu64":%"SCNu64":%"SCNu64".%"SCNu64": %c %"SCNu64" %s",
++  if (sscanf(v, "%"SCNu64":%"SCNu64":%"SCNu64".%"SCNu64": %c %"SCNu64" %255s",
+       &h, &m, &s, &ns, &t, &val, var) != 7)
+     goto err;
+   time = h*60*60*1000000000 +
+@@ -345,7 +345,7 @@ int main(int n, char **v)
+   /* setup traces */
+   for (i = 0; i < nvars; i++) {
+     char format[256];
+-    int ret = snprintf(format, 256, "%c [%s] %s", vars[i].boolean ? 'b' : 'l', vars[i].arg, vars[i].vcd_name);
++    int ret = snprintf(format, 256, "%c %s %s", vars[i].boolean ? 'b' : 'l', vars[i].arg, vars[i].vcd_name);
+     if (ret > 255)
+       abort();
+     textlog = new_textlog(h, database, vars[i].event, format);
+diff --git a/to_vcd.o b/to_vcd.o
+new file mode 100644
+index 0000000000..65017f7afb
+Binary files /dev/null and b/to_vcd.o differ

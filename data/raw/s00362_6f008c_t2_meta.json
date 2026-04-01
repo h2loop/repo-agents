@@ -1,0 +1,9 @@
+{
+  "run_id": "s00362_6f008c",
+  "pr_text": "## Title: Fix invalid array access bounds in UE release cleanup\n\n### Summary\nThe UE release cleanup logic in `release_UE_in_freeList()` contained insufficient bounds checking when cleaning up ULSCH and DLSCH entries for released UEs. The `find_ulsch()` and `find_dlsch()` helper functions could return indices that exceed the respective array limits (`NUMBER_OF_ULSCH_MAX` and `NUMBER_OF_DLSCH_MAX`), but the code only validated the lower bound (`id >= 0`) before dereferencing the arrays. This could",
+  "trajectory_path": "data/raw/s00362_6f008c_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00362_6f008c_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 12,
+  "timestamp": "2026-02-10T12:51:11Z"
+}

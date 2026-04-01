@@ -1,0 +1,28 @@
+{
+  "run_id": "s00042_989101",
+  "function": {
+    "name": "itti_subscribe_event_fd",
+    "file": "common/utils/ocp_itti/intertask_interface.cpp",
+    "start_line": 157,
+    "end_line": 169,
+    "body_lines": 13,
+    "signature": "void itti_subscribe_event_fd(task_id_t task_id, int fd)",
+    "subsystem": "common/utils/ocp_itti",
+    "token_estimate": 54
+  },
+  "bug": {
+    "bug_id": "telecom_sched_priority_inversion",
+    "description": "scheduling priority inversion where lower-priority traffic is served before higher-priority",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a scheduling priority inversion where lower-priority traffic is served before higher-priority downstream of function itti_subscribe_event_fd in the common/utils/ocp_itti subsystem.\nThe function is located at common/utils/ocp_itti/intertask_interface.cpp:157.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00042_989101_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00042_989101_p1.diff",
+  "patch_lines": 23,
+  "trajectory_steps": 41,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:48:09Z"
+}

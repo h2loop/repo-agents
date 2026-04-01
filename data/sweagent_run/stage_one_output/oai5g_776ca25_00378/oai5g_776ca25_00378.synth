@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix integer overflow in device_write function leading to incorrect error handling\n\n### Summary\nThe NR UE device driver contained an integer overflow vulnerability in the `device_write` function that could lead to incorrect error handling when writing to I/O devices. The bug manifested under conditions where the `write()` system call returned -1 (error), causing improper comparison with the unsigned length parameter.\n\nThe issue was caused by direct comparison between the signed return value from `write()` and the unsigned length parameter, which could result in the error condition being missed in edge cases.\n\n### Changes\n- `openair3/NAS/COMMON/UTIL/device.c`: Fixed signed/unsigned comparison in device_write function by separating error checking and explicit casting.\n\n"
+}

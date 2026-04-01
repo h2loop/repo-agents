@@ -1,0 +1,34 @@
+{
+  "run_id": "s00380_1b63f4",
+  "function": {
+    "name": "label_set_text",
+    "file": "common/utils/T/tracer/gui/label.c",
+    "start_line": 85,
+    "end_line": 101,
+    "body_lines": 17,
+    "signature": "void label_set_text(gui *_g, widget *_this, char *text)",
+    "subsystem": "common/utils/T",
+    "token_estimate": 39
+  },
+  "bug": {
+    "bug_id": "c_stack_buffer_overflow",
+    "description": "stack buffer overflow from unbounded copy into fixed-size local array",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a stack buffer overflow from unbounded copy into fixed-size local array downstream of function label_set_text in the common/utils/T subsystem.\nThe function is located at common/utils/T/tracer/gui/label.c:85.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00380_1b63f4_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00380_1b63f4_p1.diff",
+  "patch_lines": 14,
+  "trajectory_steps": 30,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:56:34Z"
+}

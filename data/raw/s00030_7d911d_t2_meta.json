@@ -1,0 +1,9 @@
+{
+  "run_id": "s00030_7d911d",
+  "pr_text": "## Title: Fix thread-unsafe access to interpolation state in LTE DL channel estimation\n\n### Summary\nThe LTE downlink channel estimation function used a static global variable `interpolateS11S12` to control pilot interpolation logic across OFDM symbols. This variable was read and modified at multiple points without synchronization, creating a race condition when multiple UE processing threads executed concurrently. The shared state could cause non-deterministic interpolation behavior and potentia",
+  "trajectory_path": "data/raw/s00030_7d911d_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00030_7d911d_p2.diff",
+  "patch_lines": 7,
+  "trajectory_steps": 34,
+  "timestamp": "2026-02-10T10:45:32Z"
+}

@@ -1,0 +1,107 @@
+diff --git a/connectivity/lwipstack/lwip/src/apps/snmp/lwip_snmp_core.c b/connectivity/lwipstack/lwip/src/apps/snmp/lwip_snmp_core.c
+index 987f1066..b4c98d23 100644
+--- a/connectivity/lwipstack/lwip/src/apps/snmp/lwip_snmp_core.c
++++ b/connectivity/lwipstack/lwip/src/apps/snmp/lwip_snmp_core.c
+@@ -186,6 +186,11 @@
+ #include "lwip/netif.h"
+ #include <string.h>
+ 
++/* Include Mbed OS headers for interrupt context checking if available */
++#if defined(TARGET_LIKE_MBED)
++#include "platform/mbed_critical.h"
++#endif
++
+ 
+ #if (LWIP_SNMP && (SNMP_TRAP_DESTINATIONS<=0))
+ #error "If you want to use SNMP, you have to define SNMP_TRAP_DESTINATIONS>=1 in your lwipopts.h"
+@@ -285,6 +290,16 @@ const struct snmp_obj_id *snmp_get_device_enterprise_oid(void)
+ u8_t
+ snmp_oid_to_ip4(const u32_t *oid, ip4_addr_t *ip)
+ {
++  /* Check if we're in interrupt context and handle appropriately */
++#if defined(TARGET_LIKE_MBED)
++  if (core_util_is_isr_active()) {
++    /* This function should not be called from interrupt context as it may cause
++     * undefined behavior downstream. Return error to indicate invalid context. */
++    ip4_addr_set_zero(ip);
++    return 0;
++  }
++#endif /* TARGET_LIKE_MBED */
++
+   if ((oid[0] > 0xFF) ||
+       (oid[1] > 0xFF) ||
+       (oid[2] > 0xFF) ||
+@@ -305,6 +320,19 @@ snmp_oid_to_ip4(const u32_t *oid, ip4_addr_t *ip)
+ void
+ snmp_ip4_to_oid(const ip4_addr_t *ip, u32_t *oid)
+ {
++  /* Check if we're in interrupt context and handle appropriately */
++#if defined(TARGET_LIKE_MBED)
++  if (core_util_is_isr_active()) {
++    /* This function should not be called from interrupt context.
++     * Set OID to zero values as a safe default. */
++    oid[0] = 0;
++    oid[1] = 0;
++    oid[2] = 0;
++    oid[3] = 0;
++    return;
++  }
++#endif /* TARGET_LIKE_MBED */
++
+   oid[0] = ip4_addr1(ip);
+   oid[1] = ip4_addr2(ip);
+   oid[2] = ip4_addr3(ip);
+@@ -321,6 +349,16 @@ snmp_ip4_to_oid(const ip4_addr_t *ip, u32_t *oid)
+ u8_t
+ snmp_oid_to_ip6(const u32_t *oid, ip6_addr_t *ip)
+ {
++  /* Check if we're in interrupt context and handle appropriately */
++#if defined(TARGET_LIKE_MBED)
++  if (core_util_is_isr_active()) {
++    /* This function should not be called from interrupt context as it may cause
++     * undefined behavior downstream. Return error to indicate invalid context. */
++    ip6_addr_set_any(ip);
++    return 0;
++  }
++#endif /* TARGET_LIKE_MBED */
++
+   if ((oid[0]  > 0xFF) ||
+       (oid[1]  > 0xFF) ||
+       (oid[2]  > 0xFF) ||
+@@ -356,6 +394,18 @@ snmp_oid_to_ip6(const u32_t *oid, ip6_addr_t *ip)
+ void
+ snmp_ip6_to_oid(const ip6_addr_t *ip, u32_t *oid)
+ {
++  /* Check if we're in interrupt context and handle appropriately */
++#if defined(TARGET_LIKE_MBED)
++  if (core_util_is_isr_active()) {
++    /* This function should not be called from interrupt context.
++     * Set OID to zero values as a safe default. */
++    for (int i = 0; i < 16; i++) {
++      oid[i] = 0;
++    }
++    return;
++  }
++#endif /* TARGET_LIKE_MBED */
++
+   oid[0]  = (ip->addr[0] & 0xFF000000) >> 24;
+   oid[1]  = (ip->addr[0] & 0x00FF0000) >> 16;
+   oid[2]  = (ip->addr[0] & 0x0000FF00) >>  8;
+@@ -439,6 +489,17 @@ snmp_ip_to_oid(const ip_addr_t *ip, u32_t *oid)
+ u8_t
+ snmp_oid_to_ip(const u32_t *oid, u8_t oid_len, ip_addr_t *ip)
+ {
++  /* Check if we're in interrupt context and handle appropriately */
++#if defined(TARGET_LIKE_MBED)
++  if (core_util_is_isr_active()) {
++    /* This function should not be called from interrupt context as it may cause
++     * undefined behavior downstream. Return error to indicate invalid context. */
++    memset(ip, 0, sizeof(*ip));
++    IP_SET_TYPE(ip, IPADDR_TYPE_ANY);
++    return 0;
++  }
++#endif /* TARGET_LIKE_MBED */
++
+   /* InetAddressType */
+   if (oid_len < 1) {
+     return 0;

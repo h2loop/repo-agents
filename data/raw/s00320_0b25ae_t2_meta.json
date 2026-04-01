@@ -1,0 +1,9 @@
+{
+  "run_id": "s00320_0b25ae",
+  "pr_text": "## Title: Fix thread-safety issue in X2AP UE context release handler\n\n### Summary\nThe `x2ap_eNB_handle_ue_context_release` function accesses the shared `id_manager` resource without proper synchronization, creating a race condition when multiple threads process X2AP messages concurrently. This can lead to data corruption, inconsistent UE ID mappings, and potential crashes in multi-threaded gNB deployments under high X2 traffic load.\n\nThis fix introduces mutex protection around all accesses to th",
+  "trajectory_path": "data/raw/s00320_0b25ae_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00320_0b25ae_p2.diff",
+  "patch_lines": 31,
+  "trajectory_steps": 58,
+  "timestamp": "2026-02-11T14:27:58Z"
+}

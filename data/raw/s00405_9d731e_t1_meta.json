@@ -1,0 +1,33 @@
+{
+  "run_id": "s00405_9d731e",
+  "function": {
+    "name": "read_pipe",
+    "file": "common/utils/system.c",
+    "start_line": 89,
+    "end_line": 98,
+    "body_lines": 10,
+    "signature": "static void read_pipe(int p, char *b, int size)",
+    "subsystem": "common/utils",
+    "token_estimate": 31
+  },
+  "bug": {
+    "bug_id": "c_signed_unsigned_mismatch",
+    "description": "signed/unsigned integer comparison mismatch leading to incorrect branch",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a signed/unsigned integer comparison mismatch leading to incorrect branch downstream of function read_pipe in the common/utils subsystem.\nThe function is located at common/utils/system.c:89.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00405_9d731e_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00405_9d731e_p1.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 9,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:05:06Z"
+}

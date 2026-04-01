@@ -1,0 +1,9 @@
+{
+  "run_id": "s00226_47563d",
+  "pr_text": "## Title: Fix DRB ID range validation to prevent resource leaks and configuration errors\n\n### Summary\nThe PDCP UE manager used a hardcoded limit of 5 for DRB ID validation and cleanup operations, while the system architecture supports MAX_DRBS_PER_UE (32) data radio bearers. This inconsistency caused two critical issues:\n\n1. **Configuration rejection**: The validation in `nr_pdcp_ue_add_drb_pdcp_entity()` rejected valid DRB IDs between 6-32, artificially limiting UE capacity to 5 DRBs despite sy",
+  "trajectory_path": "data/raw/s00226_47563d_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00226_47563d_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 32,
+  "timestamp": "2026-02-11T13:30:24Z"
+}

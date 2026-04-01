@@ -1,0 +1,9 @@
+{
+  "run_id": "s00122_e17ee2",
+  "pr_text": "## Title: Fix signed/unsigned integer comparison mismatches in nFAPI VNF P7\n\n### Summary\nThe nFAPI VNF P7 subsystem contains signed/unsigned integer comparison mismatches that generate compiler warnings and risk incorrect branching behavior. The `in_sync` field in `nfapi_vnf_p7_connection_info_t` is an unsigned integer type, but multiple functions compare it against signed literals (0 and 1). Additionally, frame/slot number fields (`sfn_sf`, `sfn`, `slot`) in the connection info struct are decla",
+  "trajectory_path": "data/raw/s00122_e17ee2_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00122_e17ee2_p2.diff",
+  "patch_lines": 9,
+  "trajectory_steps": 52,
+  "timestamp": "2026-02-10T11:24:44Z"
+}

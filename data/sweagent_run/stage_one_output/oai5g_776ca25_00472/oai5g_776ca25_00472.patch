@@ -1,0 +1,28 @@
+diff --git a/openair1/PHY/LTE_ESTIMATION/lte_sync_time.c b/openair1/PHY/LTE_ESTIMATION/lte_sync_time.c
+index e80de0798d..dd7e872067 100644
+--- a/openair1/PHY/LTE_ESTIMATION/lte_sync_time.c
++++ b/openair1/PHY/LTE_ESTIMATION/lte_sync_time.c
+@@ -42,6 +42,10 @@ static void doIdft(int size, short *in, short *out) {
+       idft(IDFT_128,in,out,1);
+     break;
+ 
++  case 15:
++      idft(IDFT_256,in,out,1);
++    break;
++
+   case 25:
+       idft(IDFT_512,in,out,1);
+     break;
+@@ -195,6 +199,12 @@ int ru_sync_time_init(RU_t *ru) { // LTE_UE_COMMON *common_vars
+            1);
+       break;
+ 
++    case 15:
++      idft(IDFT_256,(int16_t *)(&dmrsp[0][3*ru->frame_parms->ofdm_symbol_size]),
++           ru->dmrssync, /// complex output
++           1);
++      break;
++
+     case 25:
+       idft(IDFT_512,(int16_t *)(&dmrsp[0][3*ru->frame_parms->ofdm_symbol_size]),
+            ru->dmrssync, /// complex output

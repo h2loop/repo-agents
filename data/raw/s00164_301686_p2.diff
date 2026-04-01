@@ -1,0 +1,14 @@
+diff --git a/openair3/NAS/UE/EMM/IdleMode.c b/openair3/NAS/UE/EMM/IdleMode.c
+index 50a318355c..387cf6d018 100644
+--- a/openair3/NAS/UE/EMM/IdleMode.c
++++ b/openair3/NAS/UE/EMM/IdleMode.c
+@@ -888,6 +888,9 @@ int emm_proc_plmn_selection_end(nas_user_t *user, int found, tac_t tac, ci_t ci,
+      */
+     rc = emm_sap_send(user, &emm_sap);
+ 
++    /* Clear the PLMN list index to ensure clean state for future operations */
++    emm_plmn_list->index = 0;
++
+     if (emm_plmn_list->splmn != -1) {
+       if (emm_plmn_list->splmn == emm_plmn_list->rplmn) {
+         /* The selected PLMN is the registered PLMN */

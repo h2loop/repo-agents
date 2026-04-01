@@ -1,0 +1,60 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c
+index f890ae087b..5d397f3e23 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c
+@@ -1245,13 +1245,13 @@ void handle_nr_srs_measurements(const module_id_t module_id,
+       LOG_I(NR_MAC, "nr_srs_bf_report.num_symbols = %i\n", nr_srs_bf_report.num_symbols);
+       LOG_I(NR_MAC, "nr_srs_bf_report.wide_band_snr = %i (%i dB)\n", nr_srs_bf_report.wide_band_snr, wide_band_snr_dB);
+       LOG_I(NR_MAC, "nr_srs_bf_report.num_reported_symbols = %i\n", nr_srs_bf_report.num_reported_symbols);
+-      LOG_I(NR_MAC, "nr_srs_bf_report.prgs[0].num_prgs = %i\n", nr_srs_bf_report.prgs[0].num_prgs);
+-      for (int prg_idx = 0; prg_idx < nr_srs_bf_report.prgs[0].num_prgs; prg_idx++) {
++      LOG_I(NR_MAC, "nr_srs_bf_report.prgs.num_prgs = %i\n", nr_srs_bf_report.prgs.num_prgs);
++      for (int prg_idx = 0; prg_idx < nr_srs_bf_report.prgs.num_prgs; prg_idx++) {
+         LOG_I(NR_MAC,
+-              "nr_srs_bf_report.prgs[0].prg_list[%3i].rb_snr = %i (%i dB)\n",
++              "nr_srs_bf_report.prgs.prg_list[%3i].rb_snr = %i (%i dB)\n",
+               prg_idx,
+-              nr_srs_bf_report.prgs[0].prg_list[prg_idx].rb_snr,
+-              (nr_srs_bf_report.prgs[0].prg_list[prg_idx].rb_snr >> 1) - 64);
++              nr_srs_bf_report.prgs.prg_list[prg_idx].rb_snr,
++              (nr_srs_bf_report.prgs.prg_list[prg_idx].rb_snr >> 1) - 64);
+       }
+ #endif
+ 
+@@ -1260,14 +1260,31 @@ void handle_nr_srs_measurements(const module_id_t module_id,
+       const int ul_prbblack_SNR_threshold = nr_mac->ul_prbblack_SNR_threshold;
+       uint16_t *ulprbbl = nr_mac->ulprbbl;
+ 
++      /* Calculate total number of RBs from PRG size and number of PRGs */
+       uint16_t num_rbs = nr_srs_bf_report.prg_size * nr_srs_bf_report.prgs.num_prgs;
+-      memset(ulprbbl, 0, num_rbs * sizeof(uint16_t));
+-      for (int rb = 0; rb < num_rbs; rb++) {
+-        int snr = (nr_srs_bf_report.prgs.prg_list[rb / nr_srs_bf_report.prg_size].rb_snr >> 1) - 64;
++      
++      /* Limit to MAX_BWP_SIZE to prevent buffer overflow */
++      if (num_rbs > MAX_BWP_SIZE) {
++        LOG_W(NR_MAC, "num_rbs %d exceeds MAX_BWP_SIZE %d, limiting\n", num_rbs, MAX_BWP_SIZE);
++        num_rbs = MAX_BWP_SIZE;
++      }
++      
++      memset(ulprbbl, 0, MAX_BWP_SIZE * sizeof(uint16_t));
++      
++      /* Process each PRG and mark bad RBs */
++      for (int prg_idx = 0; prg_idx < nr_srs_bf_report.prgs.num_prgs && prg_idx < 272; prg_idx++) {
++        int snr = (nr_srs_bf_report.prgs.prg_list[prg_idx].rb_snr >> 1) - 64;
+         if (snr < wide_band_snr_dB - ul_prbblack_SNR_threshold) {
+-          ulprbbl[rb] = 0x3FFF; // all symbols taken
++          /* Mark all RBs in this PRG as bad */
++          int start_rb = prg_idx * nr_srs_bf_report.prg_size;
++          int end_rb = start_rb + nr_srs_bf_report.prg_size;
++          if (end_rb > num_rbs)
++            end_rb = num_rbs;
++          for (int rb = start_rb; rb < end_rb && rb < MAX_BWP_SIZE; rb++) {
++            ulprbbl[rb] = 0x3FFF; // all symbols taken
++            LOG_D(NR_MAC, "ulprbbl[%3i] = 0x%x (SNR %d dB)\n", rb, ulprbbl[rb], snr);
++          }
+         }
+-        LOG_D(NR_MAC, "ulprbbl[%3i] = 0x%x\n", rb, ulprbbl[rb]);
+       }
+ 
+       break;

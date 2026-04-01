@@ -1,0 +1,9 @@
+{
+  "run_id": "s00027_79dc61",
+  "pr_text": "## Title: Fix PUCCH format 3/4 channel coding index construction\n\n### Summary\nThe `generate_pucch3x()` function incorrectly constructs the channel coding table index from payload bits using arithmetic addition instead of bitwise OR, causing incorrect index values. Payload bits are also not masked, potentially using non-binary values. Additionally, an uninitialized variable in the scrambling logic leads to undefined behavior. These bugs affect PUCCH format 3/4 encoding for uplink control informat",
+  "trajectory_path": "data/raw/s00027_79dc61_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00027_79dc61_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 32,
+  "timestamp": "2026-02-10T10:45:19Z"
+}

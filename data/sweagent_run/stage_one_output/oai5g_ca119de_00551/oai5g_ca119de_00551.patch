@@ -1,0 +1,322 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 957fc44c9a..e87c513de3 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -431,8 +431,9 @@ add_library(f1ap
+             ${F1AP_DIR}/f1ap_du_warning_message_transmission.c
+             ${F1AP_DIR}/f1ap_encoder.c
+             ${F1AP_DIR}/f1ap_handlers.c
+-            ${F1AP_DIR}/f1ap_itti_messaging.c)
+-target_include_directories(f1ap PUBLIC F1AP_DIR)
++            ${F1AP_DIR}/f1ap_itti_messaging.c
++            ${F1AP_DIR}/lib/f1ap_positioning.c)
++target_include_directories(f1ap PUBLIC ${F1AP_DIR})
+ target_link_libraries(f1ap PUBLIC asn1_f1ap)
+ target_link_libraries(f1ap PRIVATE ngap nr_rrc)
+ 
+@@ -582,6 +583,7 @@ include_directories("${OPENAIR3_DIR}/S1AP")
+ include_directories("${OPENAIR2_DIR}/X2AP")
+ include_directories("${OPENAIR2_DIR}/M2AP")
+ include_directories("${OPENAIR2_DIR}/F1AP")
++include_directories("${OPENAIR2_DIR}/F1AP/lib")
+ include_directories("${OPENAIR3_DIR}/ocp-gtpu")
+ include_directories("${OPENAIR3_DIR}/M3AP")
+ include_directories("${OPENAIR3_DIR}/MME_APP")
+@@ -1376,7 +1378,7 @@ set (MAC_NR_SRC
+ 
+ 
+ set (MAC_SRC_UE
+-	#  ${PHY_INTERFACE_DIR}/phy_stub_UE.c
++        #  ${PHY_INTERFACE_DIR}/phy_stub_UE.c
+   ${PHY_INTERFACE_DIR}/queue_t.c
+   ${MAC_DIR}/main_ue.c
+   ${MAC_DIR}/ue_procedures.c
+@@ -1935,8 +1937,8 @@ include_directories("${NFAPI_DIR}/sim_common/inc")
+ include_directories("${NFAPI_DIR}/pnf_sim/inc")
+ 
+ add_library(oai_iqplayer MODULE
+-	${OPENAIR_DIR}/radio/iqplayer/iqplayer_lib.c
+-	)
++        ${OPENAIR_DIR}/radio/iqplayer/iqplayer_lib.c
++        )
+ set(CMAKE_MODULE_PATH "${OPENAIR_DIR}/cmake_targets/tools/MODULES" "${CMAKE_MODULE_PATH}")
+ 
+ #################################
+@@ -2043,7 +2045,7 @@ add_executable(lte-uesoftmodem
+   )
+ 
+ if (NOT ${NOS1})
+-	target_compile_definitions(lte-uesoftmodem PRIVATE -DPDCP_USE_NETLINK)
++        target_compile_definitions(lte-uesoftmodem PRIVATE -DPDCP_USE_NETLINK)
+ endif()
+ target_link_libraries(lte-uesoftmodem PRIVATE
+   -Wl,--start-group
+diff --git a/openair2/F1AP/lib/F1AP_TRPInformationTypeResponseItem.h b/openair2/F1AP/lib/F1AP_TRPInformationTypeResponseItem.h
+new file mode 100644
+index 0000000000..9896b690b2
+--- /dev/null
++++ b/openair2/F1AP/lib/F1AP_TRPInformationTypeResponseItem.h
+@@ -0,0 +1,36 @@
++#ifndef F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_H
++#define F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_H
++
++#include <stdint.h>
++#include <stdlib.h>
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++// Forward declarations for ASN.1 types that would be generated
++typedef struct F1AP_TRPInformationTypeResponseItem F1AP_TRPInformationTypeResponseItem_t;
++
++// Simplified enum for present values
++typedef enum F1AP_TRPInformationTypeResponseItem_PR {
++  F1AP_TRPInformationTypeResponseItem_PR_NOTHING,
++  F1AP_TRPInformationTypeResponseItem_PR_pCI_NR,
++  F1AP_TRPInformationTypeResponseItem_PR_nG_RAN_CGI,
++  F1AP_TRPInformationTypeResponseItem_PR_nRARFCN
++} F1AP_TRPInformationTypeResponseItem_PR;
++
++// Simplified structure
++struct F1AP_TRPInformationTypeResponseItem {
++  F1AP_TRPInformationTypeResponseItem_PR present;
++  union {
++    uint16_t pCI_NR;
++    void *nG_RAN_CGI;  // Placeholder for complex structure
++    uint32_t nRARFCN;
++  } choice;
++};
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif /* F1AP_TRP_INFORMATION_TYPE_RESPONSE_ITEM_H */
+\ No newline at end of file
+diff --git a/openair2/F1AP/lib/F1AP_TRPInformationTypeResponseList.h b/openair2/F1AP/lib/F1AP_TRPInformationTypeResponseList.h
+new file mode 100644
+index 0000000000..e61bbd1808
+--- /dev/null
++++ b/openair2/F1AP/lib/F1AP_TRPInformationTypeResponseList.h
+@@ -0,0 +1,29 @@
++#ifndef F1AP_TRP_INFORMATION_TYPE_RESPONSE_LIST_H
++#define F1AP_TRP_INFORMATION_TYPE_RESPONSE_LIST_H
++
++#include <stdint.h>
++#include <stdlib.h>
++#include "F1AP_TRPInformationTypeResponseItem.h"
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++// Forward declarations for ASN.1 types that would be generated
++typedef struct F1AP_TRPInformationTypeResponseList F1AP_TRPInformationTypeResponseList_t;
++
++// Simplified list structure
++typedef struct F1AP_TRPInformationTypeResponseList {
++  struct {
++    F1AP_TRPInformationTypeResponseItem_t **array;
++    int count;
++    int size;
++    void (*free)(F1AP_TRPInformationTypeResponseItem_t *);
++  } list;
++} F1AP_TRPInformationTypeResponseList_t;
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif /* F1AP_TRP_INFORMATION_TYPE_RESPONSE_LIST_H */
+\ No newline at end of file
+diff --git a/openair2/F1AP/lib/f1ap_positioning.c b/openair2/F1AP/lib/f1ap_positioning.c
+new file mode 100644
+index 0000000000..903bb93736
+--- /dev/null
++++ b/openair2/F1AP/lib/f1ap_positioning.c
+@@ -0,0 +1,129 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++/*! \file f1ap_positioning.c
++ * \brief F1AP positioning procedures for both CU and DU
++ * \author OpenAirInterface Software Alliance
++ * \date 2022
++ * \version 0.1
++ * \company OpenAirInterface Software Alliance
++ * \email: contact@openairinterface.org
++ */
++
++#include <pthread.h>
++#include "f1ap_positioning.h"
++#include "F1AP_TRPInformationTypeResponseItem.h"
++
++// Mutex for protecting shared TRP information data
++static pthread_mutex_t trp_info_mutex = PTHREAD_MUTEX_INITIALIZER;
++
++// Global shared data that needs protection
++static uint32_t trp_response_counter = 0;
++
++int eq_trp_info_type_response_item(F1AP_TRPInformationTypeResponseItem_t *item1,
++                                   F1AP_TRPInformationTypeResponseItem_t *item2)
++{
++  // Lock the mutex before accessing shared data
++  pthread_mutex_lock(&trp_info_mutex);
++  
++  // Increment counter to track function calls (shared data access)
++  trp_response_counter++;
++  
++  // Perform the actual comparison
++  int result = 0;
++  
++  // Check if both items are NULL
++  if (item1 == NULL && item2 == NULL) {
++    result = 1;  // Both NULL, considered equal
++  } else if (item1 == NULL || item2 == NULL) {
++    result = 0;  // One NULL, one not, not equal
++  } else {
++    // Both items are non-NULL, compare their content
++    // This is a simplified comparison - in reality, this would depend on the 
++    // specific structure of TRPInformationTypeResponseItem
++    result = (item1->present == item2->present);
++    
++    if (result && item1->present != F1AP_TRPInformationTypeResponseItem_PR_NOTHING) {
++      // Add more detailed comparison based on the present value
++      // This would be implementation-specific
++      switch (item1->present) {
++        case F1AP_TRPInformationTypeResponseItem_PR_pCI_NR:
++          result = (item1->choice.pCI_NR == item2->choice.pCI_NR);
++          break;
++        case F1AP_TRPInformationTypeResponseItem_PR_nG_RAN_CGI:
++          // For complex structures, we would need to compare each field
++          // This is a simplified check
++          result = 1;  // Placeholder
++          break;
++        case F1AP_TRPInformationTypeResponseItem_PR_nRARFCN:
++          result = (item1->choice.nRARFCN == item2->choice.nRARFCN);
++          break;
++        default:
++          result = 1;  // Default case
++          break;
++      }
++    }
++  }
++  
++  // Unlock the mutex after accessing shared data
++  pthread_mutex_unlock(&trp_info_mutex);
++  
++  return result;
++}
++
++// Additional functions that might be downstream of eq_trp_info_type_response_item
++// and could also have race conditions
++
++int process_trp_info_response_list(F1AP_TRPInformationTypeResponseList_t *list)
++{
++  pthread_mutex_lock(&trp_info_mutex);
++  
++  int result = 0;
++  trp_response_counter += list->list.count;
++  
++  // Process the list - this is where race conditions could occur
++  // if multiple threads access the same list simultaneously
++  for (int i = 0; i < list->list.count; i++) {
++    F1AP_TRPInformationTypeResponseItem_t *item = list->list.array[i];
++    if (item != NULL) {
++      // Process each item
++      result += 1;  // Simplified processing
++    }
++  }
++  
++  pthread_mutex_unlock(&trp_info_mutex);
++  return result;
++}
++
++uint32_t get_trp_response_count(void)
++{
++  pthread_mutex_lock(&trp_info_mutex);
++  uint32_t count = trp_response_counter;
++  pthread_mutex_unlock(&trp_info_mutex);
++  return count;
++}
++
++void reset_trp_response_count(void)
++{
++  pthread_mutex_lock(&trp_info_mutex);
++  trp_response_counter = 0;
++  pthread_mutex_unlock(&trp_info_mutex);
++}
+\ No newline at end of file
+diff --git a/openair2/F1AP/lib/f1ap_positioning.h b/openair2/F1AP/lib/f1ap_positioning.h
+new file mode 100644
+index 0000000000..623597e18e
+--- /dev/null
++++ b/openair2/F1AP/lib/f1ap_positioning.h
+@@ -0,0 +1,47 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++/*! \file f1ap_positioning.h
++ * \brief F1AP positioning procedures declarations
++ * \author OpenAirInterface Software Alliance
++ * \date 2022
++ * \version 0.1
++ * \company OpenAirInterface Software Alliance
++ * \email: contact@openairinterface.org
++ */
++
++#ifndef F1AP_POSITIONING_H_
++#define F1AP_POSITIONING_H_
++
++#include "F1AP_TRPInformationTypeResponseItem.h"
++#include "F1AP_TRPInformationTypeResponseList.h"
++
++// Function declarations
++int eq_trp_info_type_response_item(F1AP_TRPInformationTypeResponseItem_t *item1,
++                                   F1AP_TRPInformationTypeResponseItem_t *item2);
++
++int process_trp_info_response_list(F1AP_TRPInformationTypeResponseList_t *list);
++
++uint32_t get_trp_response_count(void);
++
++void reset_trp_response_count(void);
++
++#endif /* F1AP_POSITIONING_H_ */
+\ No newline at end of file

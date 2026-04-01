@@ -1,0 +1,9 @@
+{
+  "run_id": "s00012_99b649",
+  "pr_text": "## Title: Fix deadlock in VNF simulator MAC by adopting RAII lock guards\n\n### Summary\nThe VNF simulator MAC implementation suffers from a deadlock caused by manual mutex lock/unlock management in the `mac_private` class. The `allocate_mac_pdu()`, `release_mac_pdu()`, `push_rx_buffer()`, and `pop_rx_buffer()` methods use explicit `mutex.lock()` and `mutex.unlock()` calls, creating vulnerability to deadlocks from inconsistent lock ordering and missing unlocks on exception paths. This patch elimina",
+  "trajectory_path": "data/raw/s00012_99b649_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00012_99b649_p2.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 13,
+  "timestamp": "2026-02-11T07:36:04Z"
+}

@@ -1,0 +1,32 @@
+diff --git a/openair3/NAS/COMMON/IES/EpsUpdateResult.c b/openair3/NAS/COMMON/IES/EpsUpdateResult.c
+index a91da63985..2f92fdb260 100644
+--- a/openair3/NAS/COMMON/IES/EpsUpdateResult.c
++++ b/openair3/NAS/COMMON/IES/EpsUpdateResult.c
+@@ -34,6 +34,10 @@ int decode_eps_update_result(EpsUpdateResult *epsupdateresult, uint8_t iei, uint
+   CHECK_PDU_POINTER_AND_LENGTH_DECODER(buffer, EPS_UPDATE_RESULT_MINIMUM_LENGTH, len);
+ 
+   if (iei > 0) {
++    /* For Type 1 IEs, expected IEI should have lower nibble = 0 */
++    if ((iei & 0x0F) != 0) {
++      return -1;
++    }
+     CHECK_IEI_DECODER((*buffer & 0xf0), iei);
+   }
+ 
+@@ -65,8 +69,14 @@ int encode_eps_update_result(EpsUpdateResult *epsupdateresult, uint8_t iei, uint
+ #if defined (NAS_DEBUG)
+   dump_eps_update_result_xml(epsupdateresult, iei);
+ #endif
+-  *(buffer + encoded) = 0x00 | (iei & 0xf0) |
+-                        (*epsupdateresult & 0x7);
++  
++  /* For Type 1 IEs, if IEI is specified, lower nibble must be 0 */
++  if ((iei > 0) && ((iei & 0x0F) != 0)) {
++    /* Invalid Type 1 IE format - this function only supports Type 1 IEs */
++    return -1;
++  }
++  
++  *(buffer + encoded) = (iei & 0xf0) | (*epsupdateresult & 0x7);
+   encoded++;
+   return encoded;
+ }

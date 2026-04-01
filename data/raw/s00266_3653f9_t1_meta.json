@@ -1,0 +1,40 @@
+{
+  "run_id": "s00266_3653f9",
+  "function": {
+    "name": "emm_send_authentication_response",
+    "file": "openair3/NAS/UE/EMM/SAP/emm_send.c",
+    "start_line": 767,
+    "end_line": 782,
+    "body_lines": 16,
+    "signature": "int emm_send_authentication_response(const emm_as_security_t *msg, authentication_response_msg *emm_msg)",
+    "subsystem": "openair3/NAS/UE",
+    "token_estimate": 43
+  },
+  "bug": {
+    "bug_id": "c_buffer_overflow",
+    "description": "buffer overflow vulnerability",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables",
+      "radio",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a buffer overflow vulnerability downstream of function emm_send_authentication_response in the openair3/NAS/UE subsystem.\nThe function is located at openair3/NAS/UE/EMM/SAP/emm_send.c:767.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00266_3653f9_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00266_3653f9_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 20,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:14:14Z"
+}

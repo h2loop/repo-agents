@@ -1,0 +1,35 @@
+{
+  "run_id": "s00047_1b6f84",
+  "function": {
+    "name": "_emm_as_set_header",
+    "file": "openair3/NAS/UE/EMM/SAP/emm_as.c",
+    "start_line": 751,
+    "end_line": 801,
+    "body_lines": 51,
+    "signature": "static EMM_msg *_emm_as_set_header(nas_message_t *msg, const emm_as_security_data_t *security)",
+    "subsystem": "openair3/NAS/UE",
+    "token_estimate": 168
+  },
+  "bug": {
+    "bug_id": "c_missing_error_propagation",
+    "description": "missing error propagation where a failure is silently ignored",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a missing error propagation where a failure is silently ignored downstream of function _emm_as_set_header in the openair3/NAS/UE subsystem.\nThe function is located at openair3/NAS/UE/EMM/SAP/emm_as.c:751.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00047_1b6f84_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00047_1b6f84_p1.diff",
+  "patch_lines": 89,
+  "trajectory_steps": 43,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:50:35Z"
+}

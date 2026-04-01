@@ -1,0 +1,30 @@
+diff --git a/drivers/video/video_stm32_dcmi.c b/drivers/video/video_stm32_dcmi.c
+index adcbe6d1..0b0a57c8 100644
+--- a/drivers/video/video_stm32_dcmi.c
++++ b/drivers/video/video_stm32_dcmi.c
+@@ -17,6 +17,7 @@
+ #include <zephyr/drivers/clock_control.h>
+ #include <zephyr/drivers/dma.h>
+ #include <zephyr/drivers/dma/dma_stm32.h>
++#include <zephyr/sys/watchdog.h>
+ 
+ #include <stm32_ll_dma.h>
+ 
+@@ -201,11 +202,17 @@ static int video_stm32_dcmi_set_fmt(const struct device *dev, struct video_forma
+ 	struct video_stm32_dcmi_data *data = dev->data;
+ 	int ret;
+ 
++	/* Feed watchdog before potentially long-running sensor operation */
++	sys_watchdog_feed();
++
+ 	ret = video_set_format(config->sensor_dev, fmt);
+ 	if (ret < 0) {
+ 		return ret;
+ 	}
+ 
++	/* Feed watchdog after sensor operation and before format size estimation */
++	sys_watchdog_feed();
++
+ 	ret = video_estimate_fmt_size(fmt);
+ 	if (ret < 0) {
+ 		return ret;

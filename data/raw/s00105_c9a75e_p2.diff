@@ -1,0 +1,71 @@
+diff --git a/openair1/PHY/NR_TRANSPORT/pucch_rx.c b/openair1/PHY/NR_TRANSPORT/pucch_rx.c
+index 084046cc38..865dc82d57 100644
+--- a/openair1/PHY/NR_TRANSPORT/pucch_rx.c
++++ b/openair1/PHY/NR_TRANSPORT/pucch_rx.c
+@@ -36,6 +36,7 @@
+ #include <fcntl.h>
+ #include <sys/ioctl.h>
+ #include <sys/mman.h>
++#include <pthread.h>
+ 
+ #include "PHY/impl_defs_nr.h"
+ #include "PHY/defs_nr_common.h"
+@@ -880,11 +881,15 @@ static simde__m256i *pucch2_lut[9] =
+ simde__m64 pucch2_polar_4bit[16];
+ simde__m128i pucch2_polar_llr_num_lut[256],pucch2_polar_llr_den_lut[256];
+ 
++static pthread_mutex_t pucch2_lut_mutex = PTHREAD_MUTEX_INITIALIZER;
++
+ void init_pucch2_luts() {
+ 
+   uint32_t out;
+   int8_t bit; 
+   
++  pthread_mutex_lock(&pucch2_lut_mutex);
++  
+   for (int b=3;b<12;b++) {
+     for (int i = 0; i < (1 << b); i++) {
+       out = encodeSmallBlock(i, b);
+@@ -1019,6 +1024,7 @@ void init_pucch2_luts() {
+            ((int16_t *)lut_num_i)[7]);
+ #endif
+   }
++  pthread_mutex_unlock(&pucch2_lut_mutex);
+ }
+ 
+ 
+@@ -1387,6 +1393,8 @@ void nr_decode_pucch2(PHY_VARS_gNB *gNB,
+     uint64_t corr=0;
+     int cw_ML=0;
+ 
++    pthread_mutex_lock(&pucch2_lut_mutex);
++
+     for (int cw=0;cw<1<<nb_bit;cw++) {
+ #ifdef DEBUG_NR_PUCCH_RX
+       printf("cw %d:",cw);
+@@ -1483,12 +1491,16 @@ void nr_decode_pucch2(PHY_VARS_gNB *gNB,
+ #endif
+       }
+     } // cw loop
++    pthread_mutex_unlock(&pucch2_lut_mutex);
++    
+     corr_dB = dB_fixed64((uint64_t)corr);
+ #ifdef DEBUG_NR_PUCCH_RX
+     printf("slot %d PUCCH2 cw_ML %d, metric %d \n",slot,cw_ML,corr_dB);
+ #endif
+     decodedPayload[0]=(uint64_t)cw_ML;
+   } else if (nb_bit >= 12) { // polar coded case
++    pthread_mutex_lock(&pucch2_lut_mutex);
++    
+     simde__m64 *rp_re[Prx2][2];
+     simde__m64 *rp2_re[Prx2][2];
+     simde__m64 *rp_im[Prx2][2];
+@@ -1644,6 +1656,8 @@ void nr_decode_pucch2(PHY_VARS_gNB *gNB,
+     corr_dB = dB_fixed64(corr);
+     LOG_D(PHY,"metric %d dB\n",corr_dB);
+   }
++  
++  pthread_mutex_unlock(&pucch2_lut_mutex);
+ 
+   LOG_D(PHY, "UCI decoderState %d, payload[0] %llu\n", decoderState, (unsigned long long)decodedPayload[0]);
+ 

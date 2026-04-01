@@ -1,0 +1,16 @@
+diff --git a/subsys/mgmt/ec_host_cmd/backends/ec_host_cmd_backend_spi_stm32.c b/subsys/mgmt/ec_host_cmd/backends/ec_host_cmd_backend_spi_stm32.c
+index eeb69596..8c759547 100644
+--- a/subsys/mgmt/ec_host_cmd/backends/ec_host_cmd_backend_spi_stm32.c
++++ b/subsys/mgmt/ec_host_cmd/backends/ec_host_cmd_backend_spi_stm32.c
+@@ -310,6 +310,11 @@ static void dma_callback(const struct device *dev, void *arg, uint32_t channel,
+ {
+ 	struct ec_host_cmd_spi_ctx *hc_spi = arg;
+ 
++	if (hc_spi == NULL) {
++		LOG_ERR("Invalid DMA callback context");
++		return;
++	}
++
+ 	/* End of sending */
+ 	if (channel == hc_spi->dma_tx->channel) {
+ 		if (hc_spi->prepare_rx_later) {

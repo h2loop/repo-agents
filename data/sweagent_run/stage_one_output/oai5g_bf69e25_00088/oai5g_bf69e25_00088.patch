@@ -1,0 +1,19 @@
+diff --git a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+index 50c46b16e1..849cb0a57a 100644
+--- a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
++++ b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+@@ -654,11 +654,9 @@ is_S_sf(COMMON_channels_t *ccP,
+       return 1;
+ 
+     case 6:
+-      if (ccP->tdd_Config->subframeAssignment == 0 || ccP->tdd_Config->subframeAssignment == 1 ||
+-          ccP->tdd_Config->subframeAssignment == 2 || ccP->tdd_Config->subframeAssignment == 6)
+-        return 1;
+-
+-      break;
++      // According to LTE TDD specifications, all TDD configurations (0-6) 
++      // have special subframes at positions 1 and 6
++      return 1;
+ 
+     default:
+       break;

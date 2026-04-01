@@ -1,0 +1,31 @@
+{
+  "run_id": "s00342_9290a5",
+  "function": {
+    "name": "nr_mac_update_pdcch_closed_loop_adjust",
+    "file": "openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c",
+    "start_line": 4103,
+    "end_line": 4110,
+    "body_lines": 8,
+    "signature": "void nr_mac_update_pdcch_closed_loop_adjust(NR_UE_sched_ctrl_t *sched_ctrl, bool feedback_not_detected)",
+    "subsystem": "openair2/LAYER2/NR_MAC_gNB",
+    "token_estimate": 26
+  },
+  "bug": {
+    "bug_id": "telecom_timer_incorrect_duration",
+    "description": "protocol timer configured with incorrect duration violating 3GPP timing requirements",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a protocol timer configured with incorrect duration violating 3GPP timing requirements downstream of function nr_mac_update_pdcch_closed_loop_adjust in the openair2/LAYER2/NR_MAC_gNB subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c:4103.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00342_9290a5_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00342_9290a5_p1.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 49,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:41:56Z"
+}

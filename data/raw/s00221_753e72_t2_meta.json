@@ -1,0 +1,9 @@
+{
+  "run_id": "s00221_753e72",
+  "pr_text": "## Title: Add bounds check for dl_BandwidthP parameter in config_mib\n\n### Summary\nThe `config_mib` function in the MAC layer uses the `dl_BandwidthP` parameter as an array index in downstream operations without validating its range. Invalid values outside the expected range of 0-5 can cause out-of-bounds memory access, leading to undefined behavior, potential crashes, or silent data corruption. I add an `AssertFatal` check at the function entry to validate the parameter bounds, ensuring early fa",
+  "trajectory_path": "data/raw/s00221_753e72_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00221_753e72_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 14,
+  "timestamp": "2026-02-11T13:25:13Z"
+}

@@ -1,0 +1,77 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+index 45d5f15ffe..c672e18759 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+@@ -2050,13 +2050,37 @@ static uint8_t pack_tx_data_pdu_list_value(void *tlv, uint8_t **ppWritePackedMsg
+           NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s():%d. value->TLVs[i].length %d \n", __FUNCTION__, __LINE__, value->TLVs[i].length);
+           return 0;
+         }
++        break;
++      }
+ 
++      case 2:  // Power control TLV tag
++      case 3:  // Additional power control parameters
++      case 4:  // Transmit power offset
++      case 5:  // Power headroom
++      case 6:  // Path loss reference
++      case 7:  // P0 nominal
++      case 8:  // Alpha value
++      case 9:  // CLTD control
++      case 10: // Uplink power control
++      {
++        // Handle power control TLVs with proper array packing
++        if (!pusharray32(value->TLVs[i].value.direct,
++                         (value->TLVs[i].length + 3) / 4,
++                         (value->TLVs[i].length + 3) / 4,
++                         ppWritePackedMsg,
++                         end)) {
++          NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s():%d. Power control TLV tag=%d length=%d packing failed\n", 
++                      __FUNCTION__, __LINE__, value->TLVs[i].tag, value->TLVs[i].length);
++          return 0;
++        }
++        NFAPI_TRACE(NFAPI_TRACE_INFO, "%s():%d. Successfully packed power control TLV tag=%d length=%d \n", 
++                    __FUNCTION__, __LINE__, value->TLVs[i].tag, value->TLVs[i].length);
+         break;
+       }
+ 
+       default: {
+         NFAPI_TRACE(NFAPI_TRACE_ERROR, "FIXME : Invalid tag value %d \n", value->TLVs[i].tag);
+-        break;
++        return 0;  // Return error for unsupported tags instead of continuing
+       }
+     }
+   }
+@@ -5942,9 +5966,32 @@ static uint8_t unpack_tx_data_pdu_list_value(uint8_t **ppReadPackedMsg, uint8_t
+         break;
+       }
+ 
++      case 2:  // Power control TLV tag
++      case 3:  // Additional power control parameters
++      case 4:  // Transmit power offset
++      case 5:  // Power headroom
++      case 6:  // Path loss reference
++      case 7:  // P0 nominal
++      case 8:  // Alpha value
++      case 9:  // CLTD control
++      case 10: // Uplink power control
++      {
++        // Handle power control TLVs with proper array unpacking
++        if (!pullarray32(ppReadPackedMsg, pNfapiMsg->TLVs[i].value.direct,
++                         sizeof(pNfapiMsg->TLVs[i].value.direct) / sizeof(uint32_t),
++                         (pNfapiMsg->TLVs[i].length+3)/4, end)) {
++          NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s():%d. Power control TLV tag=%d length=%d unpacking failed\n", 
++                      __FUNCTION__, __LINE__, pNfapiMsg->TLVs[i].tag, pNfapiMsg->TLVs[i].length);
++          return 0;
++        }
++        NFAPI_TRACE(NFAPI_TRACE_INFO, "%s():%d. Successfully unpacked power control TLV tag=%d length=%d \n", 
++                    __FUNCTION__, __LINE__, pNfapiMsg->TLVs[i].tag, pNfapiMsg->TLVs[i].length);
++        break;
++      }
++
+       default: {
+         NFAPI_TRACE(NFAPI_TRACE_ERROR, "FIXME : Invalid tag value %d \n", pNfapiMsg->TLVs[i].tag );
+-        break;
++        return 0;  // Return error for unsupported tags instead of continuing
+       }
+     }
+   }

@@ -1,0 +1,73 @@
+diff --git a/common/utils/threadPool/thread-pool.c b/common/utils/threadPool/thread-pool.c
+index 1a2fafdbf8..1cae7218d3 100644
+--- a/common/utils/threadPool/thread-pool.c
++++ b/common/utils/threadPool/thread-pool.c
+@@ -93,8 +93,13 @@ void *one_thread(void *arg) {
+ 
+       if (myThread->dropJob)
+         delNotifiedFIFO_elt(elt);
+-      else
+-        pushNotifiedFIFO(elt->reponseFifo, elt);
++      else {
++        // Avoid double-locking when response FIFO is the same as incoming FIFO
++        if (elt->reponseFifo == &tp->incomingFifo)
++          pushNotifiedFIFO_nothreadSafe(elt->reponseFifo, elt);
++        else
++          pushNotifiedFIFO(elt->reponseFifo, elt);
++      }
+       myThread->runningOnKey=-1;
+       mutexunlock(tp->incomingFifo.lockF);
+     }
+@@ -254,11 +259,11 @@ int main() {
+     while (parall) {
+       tmp=pullTpool(&worker_back,&pool);
+       if (tmp) {
+-	parall--;
+-	struct testData *dd=NotifiedFifoData(tmp);
+-	if (dd->sleepTime > sleepmax)
+-	  sleepmax=dd->sleepTime;
+-	delNotifiedFIFO_elt(tmp);
++        parall--;
++        struct testData *dd=NotifiedFifoData(tmp);
++        if (dd->sleepTime > sleepmax)
++          sleepmax=dd->sleepTime;
++        delNotifiedFIFO_elt(tmp);
+       }
+     }
+     cumulProcessTime+=sleepmax;
+@@ -266,9 +271,9 @@ int main() {
+   clock_gettime(CLOCK_MONOTONIC, &end);
+   long long dur=(end.tv_sec-st.tv_sec)*1000*1000+(end.tv_nsec-st.tv_nsec)/1000;
+   printf("In µs, Total time per group of %d job:%lld, work time per job %d, overhead per job %lld\n",
+-	 nb_jobs, dur/1000, cumulProcessTime/1000, (dur-cumulProcessTime)/(1000*nb_jobs));
++         nb_jobs, dur/1000, cumulProcessTime/1000, (dur-cumulProcessTime)/(1000*nb_jobs));
+ 
+-	/*	
++        /*      
+   for (int i=0; i <1000 ; i++) {
+     notifiedFIFO_elt_t *work=newNotifiedFIFO_elt(sizeof(struct testData), i, &worker_back, processing);
+     struct testData *x=(struct testData *)NotifiedFifoData(work);
+@@ -288,7 +293,7 @@ int main() {
+ 
+     abortTpoolJob(&pool,510);
+   } while(tmp);
+-	*/
++        */
+   return 0;
+ }
+ #endif
+diff --git a/common/utils/threadPool/thread-pool.h b/common/utils/threadPool/thread-pool.h
+index 66e1152f48..e43078a14d 100644
+--- a/common/utils/threadPool/thread-pool.h
++++ b/common/utils/threadPool/thread-pool.h
+@@ -47,8 +47,8 @@
+ #define mutextrylock(mutex)   pthread_mutex_trylock(&mutex)
+ #define mutexunlock(mutex) {int ret=pthread_mutex_unlock(&mutex); \
+                             AssertFatal(ret==0,"ret=%d\n",ret);}
+-#define condwait(condition, mutex) {int ret=pthread_cond_wait(&condition, &mutex); \
+-                                    AssertFatal(ret==0,"ret=%d\n",ret);}
++#define condwait(condition, mutex) do {int ret=pthread_cond_wait(&condition, &mutex); \
++                                       AssertFatal(ret==0,"ret=%d\n",ret);} while(0)
+ #define condbroadcast(signal) {int ret=pthread_cond_broadcast(&signal); \
+                                AssertFatal(ret==0,"ret=%d\n",ret);}
+ #define condsignal(signal)    {int ret=pthread_cond_signal(&signal); \

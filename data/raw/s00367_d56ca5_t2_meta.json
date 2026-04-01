@@ -1,0 +1,9 @@
+{
+  "run_id": "s00367_d56ca5",
+  "pr_text": "## Title: Fix buffer overflow vulnerability in RRCConnectionReconfiguration_BR encoder\n\n### Summary\nThe `do_RRCConnectionReconfiguration_BR` function in the LTE RRC subsystem encodes ASN.1 RRC connection reconfiguration messages into a provided buffer. Previously, the function called `uper_encode_to_buffer()` but did not validate whether the resulting encoded data fit within the supplied `buffer_size`. If the encoded message exceeded the buffer capacity, the function would still return the encod",
+  "trajectory_path": "data/raw/s00367_d56ca5_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00367_d56ca5_p2.diff",
+  "patch_lines": 10,
+  "trajectory_steps": 14,
+  "timestamp": "2026-02-10T12:51:59Z"
+}

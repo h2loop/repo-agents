@@ -1,0 +1,16 @@
+diff --git a/nfapi/open-nFAPI/vnf/src/vnf.c b/nfapi/open-nFAPI/vnf/src/vnf.c
+index 6a769acd77..c0af0b9981 100644
+--- a/nfapi/open-nFAPI/vnf/src/vnf.c
++++ b/nfapi/open-nFAPI/vnf/src/vnf.c
+@@ -1505,8 +1505,9 @@ static int vnf_send_p5_msg(nfapi_vnf_pnf_info_t* pnf, const void *msg, int len,
+ 	{
+ 		if(result <  0)
+ 		{
+-			// error
+-			NFAPI_TRACE(NFAPI_TRACE_ERROR, "sctp sendto failed errno: %d\n", errno);
++			// error - save errno immediately before any other calls
++			int saved_errno = errno;
++			NFAPI_TRACE(NFAPI_TRACE_ERROR, "sctp sendto failed errno: %d\n", saved_errno);
+ 		}
+ 		else
+ 		{

@@ -1,0 +1,20 @@
+diff --git a/connectivity/FEATURE_BLE/libraries/cordio_stack/wsf/sources/util/bda.c b/connectivity/FEATURE_BLE/libraries/cordio_stack/wsf/sources/util/bda.c
+index 90d901b9..93793e69 100644
+--- a/connectivity/FEATURE_BLE/libraries/cordio_stack/wsf/sources/util/bda.c
++++ b/connectivity/FEATURE_BLE/libraries/cordio_stack/wsf/sources/util/bda.c
+@@ -101,6 +101,15 @@ char *Bda2Str(const uint8_t *pAddr)
+   static char       str[BDA_ADDR_STR_LEN + 1];
+   char              *pStr = str;
+ 
++  /* Check for NULL pointer */
++  if (pAddr == NULL)
++  {
++    /* Return string of zeros for NULL input */
++    memset(str, '0', BDA_ADDR_STR_LEN);
++    str[BDA_ADDR_STR_LEN] = '\0';
++    return str;
++  }
++
+   /* address is little endian so copy in reverse */
+   pAddr += BDA_ADDR_LEN;
+ 

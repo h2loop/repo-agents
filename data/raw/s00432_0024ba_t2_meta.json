@@ -1,0 +1,9 @@
+{
+  "run_id": "s00432_0024ba",
+  "pr_text": "## Title: Fix incorrect frequency band list population in F1AP configuration update\n\n### Summary\nThe F1AP DU interface management code incorrectly populated the `supportedSULBandList` instead of `freqBandListNr` when constructing the DL NRFreqInfo structure in `DU_send_gNB_DU_CONFIGURATION_UPDATE`. This caused the DU to send malformed configuration updates to the CU, containing resource block allocation parameters in the wrong ASN.1 container. The CU would then parse incorrect frequency band inf",
+  "trajectory_path": "data/raw/s00432_0024ba_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00432_0024ba_p2.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 16,
+  "timestamp": "2026-02-10T13:16:23Z"
+}

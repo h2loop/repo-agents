@@ -1,0 +1,9 @@
+{
+  "run_id": "s00421_0ce9f8",
+  "pr_text": "## Title: Fix missing return statements in gNB initialization functions\n\n### Summary\nThe `get_options()` function in the gNB softmodem was declared with a non-void return type but lacked return statements, causing undefined behavior and preventing proper error propagation from command-line parsing. Additionally, `create_gNB_tasks()` had a missing return statement on an error path when X2AP task creation fails in NSA mode. These issues could lead to silent failures during gNB initialization and i",
+  "trajectory_path": "data/raw/s00421_0ce9f8_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00421_0ce9f8_p2.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 12,
+  "timestamp": "2026-02-10T13:12:17Z"
+}

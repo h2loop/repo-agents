@@ -1,0 +1,57 @@
+diff --git a/openair3/NAS/COMMON/IES/EpsQualityOfService.c b/openair3/NAS/COMMON/IES/EpsQualityOfService.c
+index ac45a9c0f5..d7b3dd0c7f 100644
+--- a/openair3/NAS/COMMON/IES/EpsQualityOfService.c
++++ b/openair3/NAS/COMMON/IES/EpsQualityOfService.c
+@@ -28,9 +28,15 @@
+ #include "TLVDecoder.h"
+ #include "EpsQualityOfService.h"
+ 
+-static int decode_eps_qos_bit_rates(EpsQoSBitRates* epsqosbitrates, const uint8_t *buffer)
++static int decode_eps_qos_bit_rates(EpsQoSBitRates* epsqosbitrates, const uint8_t *buffer, uint32_t buflen)
+ {
+   int decoded = 0;
++  
++  /* Check if we have enough buffer space */
++  if (buflen < 4) {
++    return -1; /* Error: insufficient buffer */
++  }
++  
+   epsqosbitrates->maxBitRateForUL = *(buffer + decoded);
+   decoded++;
+   epsqosbitrates->maxBitRateForDL = *(buffer + decoded);
+@@ -58,21 +64,29 @@ int decode_eps_quality_of_service(EpsQualityOfService *epsqualityofservice, uint
+   epsqualityofservice->qci = *(buffer + decoded);
+   decoded++;
+ 
+-  if ( ielen > 2 + (iei > 0) ? 1 : 0 ) {
++  if ( ielen > (2 + (iei > 0 ? 1 : 0)) ) {
+     /* bitRates is present */
+     epsqualityofservice->bitRatesPresent = 1;
+-    decoded += decode_eps_qos_bit_rates(&epsqualityofservice->bitRates,
+-                                        buffer + decoded);
++    int result = decode_eps_qos_bit_rates(&epsqualityofservice->bitRates,
++                                         buffer + decoded, len - decoded);
++    if (result < 0) {
++      return -1; /* Error: insufficient buffer */
++    }
++    decoded += result;
+   } else {
+     /* bitRates is not present */
+     epsqualityofservice->bitRatesPresent = 0;
+   }
+ 
+-  if ( ielen > 6 + (iei > 0) ? 1 : 0 ) {
++  if ( ielen > (6 + (iei > 0 ? 1 : 0)) ) {
+     /* bitRatesExt is present */
+     epsqualityofservice->bitRatesExtPresent = 1;
+-    decoded += decode_eps_qos_bit_rates(&epsqualityofservice->bitRatesExt,
+-                                        buffer + decoded);
++    int result = decode_eps_qos_bit_rates(&epsqualityofservice->bitRatesExt,
++                                         buffer + decoded, len - decoded);
++    if (result < 0) {
++      return -1; /* Error: insufficient buffer */
++    }
++    decoded += result;
+   } else {
+     /* bitRatesExt is not present */
+     epsqualityofservice->bitRatesExtPresent = 0;

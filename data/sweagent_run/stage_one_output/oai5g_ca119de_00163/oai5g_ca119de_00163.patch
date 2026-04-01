@@ -1,0 +1,45 @@
+diff --git a/openair3/SECU/nas_stream_eia2.c b/openair3/SECU/nas_stream_eia2.c
+index 8a050b3377..7ae78d709a 100644
+--- a/openair3/SECU/nas_stream_eia2.c
++++ b/openair3/SECU/nas_stream_eia2.c
+@@ -45,7 +45,7 @@ void nas_stream_encrypt_eia2(nas_stream_cipher_t const *stream_cipher, uint8_t o
+   DevAssert(stream_cipher->bearer < 32);
+   DevAssert((stream_cipher->blength & 0x7) == 0); 
+ 
+-  cbc_cmac_ctx_t *ctx = (cbc_cmac_ctx_t *)stream_cipher->context;
++  cbc_cmac_ctx_t *ctx = (cbc_cmac_ctx_t *)stream_cipher->context->context;
+   aes_128_t k_iv = {0};
+   memcpy(&k_iv.key, ctx->key, 16);
+   k_iv.type = AES_INITIALIZATION_VECTOR_8;
+@@ -63,14 +63,25 @@ void nas_stream_encrypt_eia2(nas_stream_cipher_t const *stream_cipher, uint8_t o
+ 
+ stream_security_context_t *stream_integrity_init_eia2(const uint8_t *integrity_key)
+ {
+-  cbc_cmac_ctx_t *ret = calloc(1, sizeof(cbc_cmac_ctx_t));
+-  AssertFatal(ret != NULL, "out of memory\n");
+-  *ret = init_aes_128_cbc_cmac(integrity_key);
+-  return (stream_security_context_t *)ret;
++  stream_security_context_t *sec_ctx = calloc(1, sizeof(stream_security_context_t));
++  AssertFatal(sec_ctx != NULL, "out of memory\n");
++  
++  cbc_cmac_ctx_t *cbc_ctx = calloc(1, sizeof(cbc_cmac_ctx_t));
++  AssertFatal(cbc_ctx != NULL, "out of memory\n");
++  
++  *cbc_ctx = init_aes_128_cbc_cmac(integrity_key);
++  sec_ctx->context = cbc_ctx;
++  
++  return sec_ctx;
+ }
+ 
+ void stream_integrity_free_eia2(stream_security_context_t *integrity_context)
+ {
+-  free_aes_128_cbc_cmac((cbc_cmac_ctx_t *)integrity_context);
+-  free(integrity_context);
++  if (integrity_context != NULL) {
++    if (integrity_context->context != NULL) {
++      free_aes_128_cbc_cmac((cbc_cmac_ctx_t *)integrity_context->context);
++      free(integrity_context->context);
++    }
++    free(integrity_context);
++  }
+ }

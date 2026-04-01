@@ -1,0 +1,23 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c b/openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c
+index fcc977d9e5..697ee9b73d 100644
+--- a/openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c
++++ b/openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c
+@@ -2713,8 +2713,16 @@ static void get_pusch_frame_slot(const int current_frame,
+                                  frame_t *frame_tx,
+                                  int *slot_tx)
+ {
+-  *slot_tx = (current_slot + k2 + delta) % slots_per_frame;
+-  *frame_tx = (current_frame + (current_slot + k2 + delta) / slots_per_frame) % MAX_FRAME_NUMBER;
++  int total_offset = current_slot + k2 + delta;
++  // Properly handle negative modulo for slot calculation
++  *slot_tx = ((total_offset % slots_per_frame) + slots_per_frame) % slots_per_frame;
++  // Calculate frame with proper handling of negative division
++  int frame_offset = total_offset / slots_per_frame;
++  *frame_tx = (current_frame + frame_offset) % MAX_FRAME_NUMBER;
++  // Ensure frame_tx is positive
++  if (*frame_tx < 0) {
++    *frame_tx += MAX_FRAME_NUMBER;
++  }
+ }
+ 
+ // PUSCH scheduler:

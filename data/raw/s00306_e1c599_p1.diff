@@ -1,0 +1,73 @@
+diff --git a/common/utils/T/tracer/enb.c b/common/utils/T/tracer/enb.c
+index 5bb1cb87e2..b4ff7a7d92 100644
+--- a/common/utils/T/tracer/enb.c
++++ b/common/utils/T/tracer/enb.c
+@@ -394,7 +394,7 @@ static void enb_main_gui(enb_gui *e, gui *g, event_handler *h, void *database,
+   widget_add_child(g, col, w, -1);
+   container_set_child_growable(g, col, w, 1);
+   l = new_throughputlog(h, database, "ENB_PHY_DL_TICK", "frame", "subframe",
+-      "ENB_PHY_DLSCH_UE_DCI", "TBS");
++      "ENB_PHY_DLSCH_UE_DCI", "TBS", 0.0f);
+   v = new_view_scrolltti(10, g, w, new_color(g, "#0c0c72"), w2);
+   logger_add_view(l, v);
+ 
+@@ -409,7 +409,7 @@ static void enb_main_gui(enb_gui *e, gui *g, event_handler *h, void *database,
+   widget_add_child(g, col, w, -1);
+   container_set_child_growable(g, col, w, 1);
+   l = new_throughputlog(h, database, "ENB_PHY_DL_TICK", "frame", "subframe",
+-      "ENB_PHY_ULSCH_UE_DCI", "TBS");
++      "ENB_PHY_ULSCH_UE_DCI", "TBS", 0.0f);
+   v = new_view_scrolltti(10, g, w, new_color(g, "#0c0c72"), w2);
+   logger_add_view(l, v);
+ 
+diff --git a/common/utils/T/tracer/logger/logger.h b/common/utils/T/tracer/logger/logger.h
+index d746161e70..4f32aba8dd 100644
+--- a/common/utils/T/tracer/logger/logger.h
++++ b/common/utils/T/tracer/logger/logger.h
+@@ -16,7 +16,7 @@ logger *new_ticked_ttilog(void *event_handler, void *database,
+     int convert_to_dB, float empty_value);
+ logger *new_throughputlog(void *event_handler, void *database,
+     char *tick_event_name, char *frame_varname, char *subframe_varname,
+-    char *event_name, char *data_varname);
++    char *event_name, char *data_varname, float empty_value);
+ logger *new_timelog(void *event_handler, void *database, char *event_name);
+ logger *new_ticklog(void *event_handler, void *database,
+     char *event_name, char *frame_name, char *subframe_name);
+diff --git a/common/utils/T/tracer/logger/throughputlog.c b/common/utils/T/tracer/logger/throughputlog.c
+index 8a2d46da91..df3ecc1e07 100644
+--- a/common/utils/T/tracer/logger/throughputlog.c
++++ b/common/utils/T/tracer/logger/throughputlog.c
+@@ -26,6 +26,7 @@ struct throughputlog {
+   unsigned long tick_handler_id;
+   /* tick filter - NULL is no filter set */
+   void *tick_filter;
++  float empty_value;
+ };
+ 
+ static void _event(void *p, event e)
+@@ -75,7 +76,7 @@ static void _tick_event(void *p, event e)
+ 
+   l->insert_point = (l->insert_point + 1) % 1000;
+   l->total -= l->bits[l->insert_point];
+-  l->bits[l->insert_point] = 0;
++  l->bits[l->insert_point] = (unsigned long)l->empty_value;
+ 
+   l->last_tick_frame = frame;
+   l->last_tick_subframe = subframe;
+@@ -83,7 +84,7 @@ static void _tick_event(void *p, event e)
+ 
+ logger *new_throughputlog(event_handler *h, void *database,
+     char *tick_event_name, char *frame_varname, char *subframe_varname,
+-    char *event_name, char *data_varname)
++    char *event_name, char *data_varname, float empty_value)
+ {
+   struct throughputlog *ret;
+   int event_id;
+@@ -95,6 +96,7 @@ logger *new_throughputlog(event_handler *h, void *database,
+   ret->common.event_name = strdup(event_name);
+   if (ret->common.event_name == NULL) abort();
+   ret->database = database;
++  ret->empty_value = empty_value;
+ 
+   ret->tick_event_name = strdup(tick_event_name);
+   if (ret->tick_event_name == NULL) abort();

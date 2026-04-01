@@ -1,0 +1,31 @@
+{
+  "run_id": "s00375_08a56c",
+  "function": {
+    "name": "dump_time_zone_and_time_xml",
+    "file": "openair3/NAS/COMMON/IES/TimeZoneAndTime.c",
+    "start_line": 91,
+    "end_line": 107,
+    "body_lines": 17,
+    "signature": "void dump_time_zone_and_time_xml(TimeZoneAndTime *timezoneandtime, uint8_t iei)",
+    "subsystem": "openair3/NAS/COMMON",
+    "token_estimate": 53
+  },
+  "bug": {
+    "bug_id": "telecom_timer_race",
+    "description": "race condition between timer expiry handler and normal message processing",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a race condition between timer expiry handler and normal message processing downstream of function dump_time_zone_and_time_xml in the openair3/NAS/COMMON subsystem.\nThe function is located at openair3/NAS/COMMON/IES/TimeZoneAndTime.c:91.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00375_08a56c_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00375_08a56c_p1.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 42,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:54:38Z"
+}

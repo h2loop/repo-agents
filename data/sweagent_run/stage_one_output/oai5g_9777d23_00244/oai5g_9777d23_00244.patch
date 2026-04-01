@@ -1,0 +1,75 @@
+diff --git a/openair1/PHY/CODING/nrPolar_tools/nr_polar_decoding_tools.c b/openair1/PHY/CODING/nrPolar_tools/nr_polar_decoding_tools.c
+index d1680e7206..d66830cf91 100644
+--- a/openair1/PHY/CODING/nrPolar_tools/nr_polar_decoding_tools.c
++++ b/openair1/PHY/CODING/nrPolar_tools/nr_polar_decoding_tools.c
+@@ -47,7 +47,7 @@ static inline void updateBit(uint8_t listSize,
+ {
+   const uint offset = (xlen / (pow(2, (ylen - col))));
+ 
+-  for (uint i = 0; i < listSize; i++) {
++  for (uint8_t i = 0; i < listSize; i++) {
+     if (((row) % (2 * offset)) >= offset) {
+       if (bitU[row][col - 1] == 0)
+         updateBit(listSize, row, (col - 1), xlen, ylen, zlen, bit, bitU);
+@@ -84,7 +84,7 @@ void updateLLR(uint8_t listSize,
+                uint8_t bitU[xlen][ylen])
+ {
+   const uint offset = (xlen / (pow(2, (ylen - col - 1))));
+-  for (uint i = 0; i < listSize; i++) {
++  for (uint8_t i = 0; i < listSize; i++) {
+     if ((row % (2 * offset)) >= offset) {
+       if (bitU[row - offset][col] == 0)
+         updateBit(listSize, (row - offset), col, xlen, ylen, zlen, bit, bitU);
+@@ -103,7 +103,7 @@ void updateLLR(uint8_t listSize,
+   }
+   llrU[row][col] = 1;
+ 
+-  //	printf("LLR (a %f, b %f): llr[%d][%d] %f\n",32*a,32*b,col,row,32*llr[col][row]);
++  //    printf("LLR (a %f, b %f): llr[%d][%d] %f\n",32*a,32*b,col,row,32*llr[col][row]);
+ }
+ 
+ void updatePathMetric(double *pathMetric,
+@@ -116,7 +116,7 @@ void updatePathMetric(double *pathMetric,
+                       double llr[xlen][ylen][zlen])
+ {
+   const int multiplier = (2 * bitValue) - 1;
+-  for (uint i = 0; i < listSize; i++)
++  for (uint8_t i = 0; i < listSize; i++)
+     pathMetric[i] += log(1 + exp(multiplier * llr[row][0][i])); // eq. (11b)
+ }
+ 
+@@ -131,14 +131,14 @@ void updatePathMetric2(double *pathMetric,
+   double tempPM[listSize];
+   memcpy(tempPM, pathMetric, (sizeof(double) * listSize));
+ 
+-  uint bitValue = 0;
++  uint8_t bitValue = 0;
+   int multiplier = (2 * bitValue) - 1;
+-  for (uint i = 0; i < listSize; i++)
++  for (uint8_t i = 0; i < listSize; i++)
+     pathMetric[i] += log(1 + exp(multiplier * llr[row][0][i])); // eq. (11b)
+ 
+   bitValue = 1;
+   multiplier = (2 * bitValue) - 1;
+-  for (uint i = listSize; i < 2 * listSize; i++)
++  for (uint8_t i = listSize; i < 2 * listSize; i++)
+     pathMetric[i] = tempPM[(i - listSize)] + log(1 + exp(multiplier * llr[row][0][(i - listSize)])); // eq. (11b)
+ }
+ 
+@@ -269,7 +269,7 @@ static inline void applyFtoleft(const t_nrPolar_params *pp, decoder_node_t *node
+         int16_t absb = (b + maskb) ^ maskb;
+         int16_t minabs = absa < absb ? absa : absb;
+         alpha_l[i] = (maska ^ maskb) == 0 ? minabs : -minabs;
+-        //	printf("alphal[%d] %d (%d,%d)\n",i,alpha_l[i],a,b);
++        //      printf("alphal[%d] %d (%d,%d)\n",i,alpha_l[i],a,b);
+       }
+     }
+     if (sz == 1) { // apply hard decision on left node
+diff --git a/test.c b/test.c
+new file mode 100644
+index 0000000000..4d0386c458
+--- /dev/null
++++ b/test.c
+@@ -0,0 +1,2 @@
++#include <stdint.h>
++int main() { uint x = 5; return 0; }

@@ -1,0 +1,22 @@
+diff --git a/executables/nr-ue.c b/executables/nr-ue.c
+index 3a11b4e4e3..35916036a5 100644
+--- a/executables/nr-ue.c
++++ b/executables/nr-ue.c
+@@ -702,7 +702,7 @@ static void syncInFrame(PHY_VARS_NR_UE *UE, openair0_timestamp *timestamp, opena
+ 
+   if (IS_SOFTMODEM_IQPLAYER || IS_SOFTMODEM_IQRECORDER) {
+     // Resynchonize by slot (will work with numerology 1 only)
+-    for (int size = rx_offset; size > 0; size -= fp->samples_per_subframe / 2) {
++    for (int64_t size = rx_offset; size > 0; size -= fp->samples_per_subframe / 2) {
+       int unitTransfer = size > fp->samples_per_subframe / 2 ? fp->samples_per_subframe / 2 : size;
+       int tmp =
+           UE->rfdevice.trx_read_func(&UE->rfdevice, timestamp, (void **)UE->common_vars.rxdata, unitTransfer, fp->nb_antennas_rx);
+@@ -710,7 +710,7 @@ static void syncInFrame(PHY_VARS_NR_UE *UE, openair0_timestamp *timestamp, opena
+     }
+   } else {
+     *timestamp += fp->get_samples_per_slot(1, fp);
+-    for (int size = rx_offset; size > 0; size -= fp->samples_per_subframe) {
++    for (int64_t size = rx_offset; size > 0; size -= fp->samples_per_subframe) {
+       int unitTransfer = size > fp->samples_per_subframe ? fp->samples_per_subframe : size;
+       // we write before read because gNB waits for UE to write and both executions halt
+       // this happens here as the read size is samples_per_subframe which is very much larger than samp_per_slot

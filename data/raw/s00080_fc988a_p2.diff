@@ -1,0 +1,25 @@
+diff --git a/openair3/NAS/UE/ESM/esm_ip.c b/openair3/NAS/UE/ESM/esm_ip.c
+index 55be45d182..05776af023 100644
+--- a/openair3/NAS/UE/ESM/esm_ip.c
++++ b/openair3/NAS/UE/ESM/esm_ip.c
+@@ -37,11 +37,15 @@ char *esm_data_get_ipv4_addr(const OctetString *ip_addr, char *ret)
+ char *esm_data_get_ipv6_addr(const OctetString *ip_addr, char *ret)
+ {
+   if (ip_addr->length > 0) {
+-    sprintf(ret, "%x%.2x:%x%.2x:%x%.2x:%x%.2x",
+-            ip_addr->value[0], ip_addr->value[1],
+-            ip_addr->value[2], ip_addr->value[3],
+-            ip_addr->value[4], ip_addr->value[5],
+-            ip_addr->value[6], ip_addr->value[7]);
++    sprintf(ret, "%.4x:%.4x:%.4x:%.4x:%.4x:%.4x:%.4x:%.4x",
++            (ip_addr->value[0] << 8) | ip_addr->value[1],
++            (ip_addr->value[2] << 8) | ip_addr->value[3],
++            (ip_addr->value[4] << 8) | ip_addr->value[5],
++            (ip_addr->value[6] << 8) | ip_addr->value[7],
++            (ip_addr->value[8] << 8) | ip_addr->value[9],
++            (ip_addr->value[10] << 8) | ip_addr->value[11],
++            (ip_addr->value[12] << 8) | ip_addr->value[13],
++            (ip_addr->value[14] << 8) | ip_addr->value[15]);
+     return ret;
+   }
+ 

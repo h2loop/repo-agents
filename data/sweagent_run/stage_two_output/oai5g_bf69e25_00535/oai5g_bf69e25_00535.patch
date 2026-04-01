@@ -1,0 +1,26 @@
+diff --git a/common/utils/utils.c b/common/utils/utils.c
+index 377c4512b7..8aab4c5aad 100644
+--- a/common/utils/utils.c
++++ b/common/utils/utils.c
+@@ -56,14 +56,14 @@ int hex_char_to_hex_value (char c)
+         (c >= '0' && c <= '9')))
+     return -1;
+ 
+-  if (c >= 'A') {
+-    /* Remove case bit */
+-    c &= ~('a' ^ 'A');
+-
+-    return (c - 'A' + 10);
+-  } else {
++  if (c >= '0' && c <= '9')
+     return (c - '0');
+-  }
++  else if (c >= 'A' && c <= 'F')
++    return (c - 'A' + 10);
++  else if (c >= 'a' && c <= 'f')
++    return (c - 'a' + 10);
++
++  return -1; // Should never reach here due to validation above
+ }
+ 
+ /****************************************************************************

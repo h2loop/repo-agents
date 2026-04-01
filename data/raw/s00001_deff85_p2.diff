@@ -1,0 +1,71 @@
+diff --git a/openair2/NR_UE_PHY_INTERFACE/NR_Packet_Drop.c b/openair2/NR_UE_PHY_INTERFACE/NR_Packet_Drop.c
+index 8a6bd3118c..7893b6379b 100644
+--- a/openair2/NR_UE_PHY_INTERFACE/NR_Packet_Drop.c
++++ b/openair2/NR_UE_PHY_INTERFACE/NR_Packet_Drop.c
+@@ -60,40 +60,39 @@ void read_channel_param(const nfapi_nr_dl_tti_pdsch_pdu_rel15_t * pdu, int slot,
+ extern nr_bler_struct nr_bler_data[NR_NUM_MCS];
+ float get_bler_val(uint8_t mcs, int sinr)
+ {
+-  // 4th col = dropped packets, 5th col = total packets
+   float bler_val = 0.0;
+   CHECK_INDEX(nr_bler_data, mcs);
+   LOG_D(NR_MAC, "sinr %d min %d max %d\n", sinr,
+-                (int)(nr_bler_data[mcs].bler_table[0][0] * 10),
+-                (int)(nr_bler_data[mcs].bler_table[nr_bler_data[mcs].length - 1][0] * 10)
++                (int)(nr_bler_data[mcs].bler_table[0][BLER_COL_SINR] * 10),
++                (int)(nr_bler_data[mcs].bler_table[nr_bler_data[mcs].length - 1][BLER_COL_SINR] * 10)
+   );
+ 
+-  if (sinr < (int)(nr_bler_data[mcs].bler_table[0][0] * 10))
++  if (sinr < (int)(nr_bler_data[mcs].bler_table[0][BLER_COL_SINR] * 10))
+   {
+     LOG_D(NR_MAC, "MCS %d table. SINR is smaller than lowest SINR, bler_val is set based on lowest SINR in table\n", mcs);
+-    bler_val = nr_bler_data[mcs].bler_table[0][4] / nr_bler_data[mcs].bler_table[0][5];
++    bler_val = nr_bler_data[mcs].bler_table[0][BLER_COL_DROPPED_PACKETS] / nr_bler_data[mcs].bler_table[0][BLER_COL_TOTAL_PACKETS];
+     return bler_val;
+   }
+-  if (sinr > (int)(nr_bler_data[mcs].bler_table[nr_bler_data[mcs].length - 1][0] * 10))
++  if (sinr > (int)(nr_bler_data[mcs].bler_table[nr_bler_data[mcs].length - 1][BLER_COL_SINR] * 10))
+   {
+     LOG_D(NR_MAC, "MCS %d table. SINR is greater than largest SINR. bler_val is set based on largest SINR in table\n", mcs);
+-    bler_val = nr_bler_data[mcs].bler_table[(nr_bler_data[mcs].length - 1)][4] / nr_bler_data[mcs].bler_table[(nr_bler_data[mcs].length - 1)][5];
++    bler_val = nr_bler_data[mcs].bler_table[(nr_bler_data[mcs].length - 1)][BLER_COL_DROPPED_PACKETS] / nr_bler_data[mcs].bler_table[(nr_bler_data[mcs].length - 1)][BLER_COL_TOTAL_PACKETS];
+     return bler_val;
+   }
+   // Loop through bler table to find sinr_index
+   for (int i = 0; i < nr_bler_data[mcs].length; i++)
+   {
+-    int temp_sinr = (int)(nr_bler_data[mcs].bler_table[i][0] * 10);
++    int temp_sinr = (int)(nr_bler_data[mcs].bler_table[i][BLER_COL_SINR] * 10);
+     if (temp_sinr == sinr)
+     {
+-      bler_val = nr_bler_data[mcs].bler_table[i][4] / nr_bler_data[mcs].bler_table[i][5];
++      bler_val = nr_bler_data[mcs].bler_table[i][BLER_COL_DROPPED_PACKETS] / nr_bler_data[mcs].bler_table[i][BLER_COL_TOTAL_PACKETS];
+       return bler_val;
+     }
+     // Linear interpolation when SINR is between indices
+     if (temp_sinr > sinr)
+     {
+-      float bler_val1 = nr_bler_data[mcs].bler_table[i - 1][4] / nr_bler_data[mcs].bler_table[i - 1][5];
+-      float bler_val2 = nr_bler_data[mcs].bler_table[i][4] / nr_bler_data[mcs].bler_table[i][5];
++      float bler_val1 = nr_bler_data[mcs].bler_table[i - 1][BLER_COL_DROPPED_PACKETS] / nr_bler_data[mcs].bler_table[i - 1][BLER_COL_TOTAL_PACKETS];
++      float bler_val2 = nr_bler_data[mcs].bler_table[i][BLER_COL_DROPPED_PACKETS] / nr_bler_data[mcs].bler_table[i][BLER_COL_TOTAL_PACKETS];
+       LOG_D(NR_MAC, "sinr %d min %f max %f\n", sinr, bler_val1, bler_val2);
+       return ((bler_val1 + bler_val2) / 2);
+     }
+diff --git a/openair2/NR_UE_PHY_INTERFACE/NR_Packet_Drop.h b/openair2/NR_UE_PHY_INTERFACE/NR_Packet_Drop.h
+index dcc5710724..91d850baa6 100644
+--- a/openair2/NR_UE_PHY_INTERFACE/NR_Packet_Drop.h
++++ b/openair2/NR_UE_PHY_INTERFACE/NR_Packet_Drop.h
+@@ -31,6 +31,11 @@
+ #define NR_NUM_LAYER 1
+ #define MAX_NR_CHAN_PARAMS 256
+ 
++/* BLER table column indices */
++#define BLER_COL_SINR 0              /* Column 0: SINR values (scaled by 10x) */
++#define BLER_COL_DROPPED_PACKETS 4   /* Column 4: Dropped packet counts */
++#define BLER_COL_TOTAL_PACKETS 5     /* Column 5: Total packet counts */
++
+ typedef struct NR_UL_TIME_ALIGNMENT NR_UL_TIME_ALIGNMENT_t;
+ 
+ typedef struct {

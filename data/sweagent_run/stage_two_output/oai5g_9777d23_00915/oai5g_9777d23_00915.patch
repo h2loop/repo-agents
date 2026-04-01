@@ -1,0 +1,516 @@
+diff --git a/openair3/TEST/Makefile.am b/openair3/TEST/Makefile.am
+index 1c00d33420..0c29af68ca 100644
+--- a/openair3/TEST/Makefile.am
++++ b/openair3/TEST/Makefile.am
+@@ -20,32 +20,32 @@
+ # */
+ 
+ AM_CFLAGS = @ADD_CFLAGS@ \
+-	@CHECK_CFLAGS@	\
+-	-I$(top_srcdir)/COMMON	\
+-	-I$(top_srcdir)/GTPV1-U			\
+-	-I$(top_srcdir)/GTPV1-U/nw-gtpv1u/include	\
+-	-I$(top_srcdir)/GTPV1-U/nw-gtpv1u/shared	\
+-	-I$(top_srcdir)/SCTP			\
+-	-I$(top_srcdir)/INTERTASK_INTERFACE	\
+-	-I$(top_srcdir)/IPV4			\
+-	-I$(top_builddir)/S1AP/MESSAGES	\
+-	-I$(top_builddir)/S1AP			\
+-	-I$(top_srcdir)/S1AP			\
+-	-I$(top_srcdir)/SECU			\
+-	-I$(top_srcdir)/S6A			\
+-	-I$(top_srcdir)/SGW-LITE		\
+-	-I$(top_srcdir)/UDP			\
+-	-I$(top_srcdir)/UTILS			\
+-	-I$(top_srcdir)/UTILS/TIMER		\
+-	-I$(top_srcdir)/UTILS/HASTABLE
++        @CHECK_CFLAGS@  \
++        -I$(top_srcdir)/COMMON  \
++        -I$(top_srcdir)/GTPV1-U                 \
++        -I$(top_srcdir)/GTPV1-U/nw-gtpv1u/include       \
++        -I$(top_srcdir)/GTPV1-U/nw-gtpv1u/shared        \
++        -I$(top_srcdir)/SCTP                    \
++        -I$(top_srcdir)/INTERTASK_INTERFACE     \
++        -I$(top_srcdir)/IPV4                    \
++        -I$(top_builddir)/S1AP/MESSAGES \
++        -I$(top_builddir)/S1AP                  \
++        -I$(top_srcdir)/S1AP                    \
++        -I$(top_srcdir)/SECU                    \
++        -I$(top_srcdir)/S6A                     \
++        -I$(top_srcdir)/SGW-LITE                \
++        -I$(top_srcdir)/UDP                     \
++        -I$(top_srcdir)/UTILS                   \
++        -I$(top_srcdir)/UTILS/TIMER             \
++        -I$(top_srcdir)/UTILS/HASTABLE
+ 
+ if HAVE_CHECK
+-TESTS =	\
+-	test_kdf	\
+-	test_aes128_cmac_encrypt	\
+-	test_aes128_ctr	\
+-	test_secu_kenb	\
+-	test_secu_knas	\
++TESTS = \
++        test_kdf        \
++        test_aes128_cmac_encrypt        \
++        test_aes128_ctr \
++        test_secu_kenb  \
++        test_secu_knas  \
+     test_secu_knas_encrypt_eea1 \
+     test_secu_knas_encrypt_eia1 \
+     test_secu_knas_encrypt_eea2 \
+@@ -55,34 +55,34 @@ TESTS =
+ endif
+ 
+ libtest_util_la_SOURCES = \
+-	test_util.c	test_util.h
++        test_util.h
+ 
+ noinst_LTLIBRARIES = libtest_util.la 
+ 
+-common_ldadd = 	$(top_builddir)/SECU/libsecu.la	\
+-	libtest_util.la	\
+-	$(top_builddir)/UTILS/libutils.la	\
+-	@CHECK_LIBS@
+-
+-check_PROGRAMS =	\
+-	test_kdf	\
+-	test_aes128_cmac_encrypt	\
+-	test_aes128_ctr	\
+-	test_secu_kenb	\
+-	test_secu_knas	\
++common_ldadd =  $(top_builddir)/SECU/libsecu.la \
++        libtest_util.la \
++        $(top_builddir)/UTILS/libutils.la       \
++        @CHECK_LIBS@
++
++check_PROGRAMS =        \
++        test_kdf        \
++        test_aes128_cmac_encrypt        \
++        test_aes128_ctr \
++        test_secu_kenb  \
++        test_secu_knas  \
+     test_secu_knas_encrypt_eea1 \
+     test_secu_knas_encrypt_eia1 \
+     test_secu_knas_encrypt_eea2 \
+     test_secu_knas_encrypt_eia2
+ 
+-test_kdf_LDADD =	\
+-	$(common_ldadd)
++test_kdf_LDADD =        \
++        $(common_ldadd)
+ 
+-test_secu_knas_LDADD =	\
+-	$(common_ldadd)
++test_secu_knas_LDADD =  \
++        $(common_ldadd)
+ 
+-test_secu_kenb_LDADD =	\
+-	$(common_ldadd)
++test_secu_kenb_LDADD =  \
++        $(common_ldadd)
+ 
+ test_secu_knas_encrypt_eea1_LDADD = \
+     $(common_ldadd)
+@@ -96,23 +96,23 @@ test_secu_knas_encrypt_eea2_LDADD = \
+ test_secu_knas_encrypt_eia2_LDADD = \
+     $(common_ldadd)
+ 
+-test_aes128_ctr_encrypt_LDADD =	\
+-	$(common_ldadd)
++test_aes128_ctr_encrypt_LDADD = \
++        $(common_ldadd)
+ 
+-test_aes128_ctr_decrypt_LDADD =	\
+-	$(common_ldadd)
++test_aes128_ctr_decrypt_LDADD = \
++        $(common_ldadd)
+ 
+-test_aes128_cmac_encrypt_LDADD =	\
+-	$(common_ldadd)
++test_aes128_cmac_encrypt_LDADD =        \
++        $(common_ldadd)
+ 
+-test_s1ap_LDADD = libtest_util.la	\
+- 	$(top_builddir)/S1AP/libs1ap.la
++test_s1ap_LDADD = libtest_util.la       \
++        $(top_builddir)/S1AP/libs1ap.la
+ # 
+- test_s1ap_SOURCES = test_s1ap.c	\
+- 	$(top_srcdir)/S1AP/s1ap_eNB_decoder.c \
+- 	$(top_srcdir)/S1AP/s1ap_eNB_decoder.h \
+- 	$(top_srcdir)/S1AP/s1ap_eNB_encoder.c \
+- 	$(top_srcdir)/S1AP/s1ap_eNB_encoder.h
++ test_s1ap_SOURCES = test_s1ap.c        \
++        $(top_srcdir)/S1AP/s1ap_eNB_decoder.c \
++        $(top_srcdir)/S1AP/s1ap_eNB_decoder.h \
++        $(top_srcdir)/S1AP/s1ap_eNB_encoder.c \
++        $(top_srcdir)/S1AP/s1ap_eNB_encoder.h
+  
+  test_secu_kenb_SOURCES = test_secu_kenb.c
+  test_secu_knas_SOURCES = test_secu_knas.c
+diff --git a/openair3/TEST/test_kdf.c b/openair3/TEST/test_kdf.c
+index 7e1b623e5e..a5d9b04c39 100644
+--- a/openair3/TEST/test_kdf.c
++++ b/openair3/TEST/test_kdf.c
+@@ -23,17 +23,32 @@
+ #include <stdint.h>
+ #include <unistd.h>
+ #include <string.h>
++#include <stdlib.h>
+ 
+ #include "test_util.h"
+ #include "secu_defs.h"
++#include "kdf.h"
++#include "common/utils/ds/byte_array.h"
++
++/* Global variable definition for HL macro */
++unsigned int hl_last_length = 0;
+ 
+ static
+ void do_kdf(uint8_t *key, unsigned key_length, uint8_t *data, unsigned data_length,
+             uint8_t *exp, unsigned exp_length)
+ {
+   uint8_t result[32];
++  uint8_t padded_key[32];
++
++  // Pad key to 32 bytes with zeros
++  memset(padded_key, 0, sizeof(padded_key));
++  memcpy(padded_key, key, key_length < 32 ? key_length : 32);
++
++  // Create byte_array_t for data
++  byte_array_t data_array = { .len = data_length, .buf = data };
+ 
+-  kdf(key, key_length, data, data_length, result, 32);
++  // Call kdf with correct signature
++  kdf(padded_key, data_array, exp_length, result);
+ 
+   if (compare_buffer(result, exp_length, exp, exp_length) != 0) {
+     fail("Fail: kdf\n");
+@@ -44,79 +59,143 @@ void
+ doit (void)
+ {
+   /* RFC 4231 */
++  uint8_t *key_data, *data_data, *exp_data;
++  unsigned int key_len, data_len, exp_len;
+ 
+   /* Test case 1 #4.2 */
+-  do_kdf(HL("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b"
+-            "0b0b0b0b"),
+-         HL("4869205468657265"),
+-         HL("b0344c61d8db38535ca8afceaf0bf12b"
+-            "881dc200c9833da726e9376c2e32cff7"));
++  key_data = HL("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b"
++                "0b0b0b0b");
++  key_len = HL_LENGTH();
++  data_data = HL("4869205468657265");
++  data_len = HL_LENGTH();
++  exp_data = HL("b0344c61d8db38535ca8afceaf0bf12b"
++                "881dc200c9833da726e9376c2e32cff7");
++  exp_len = HL_LENGTH();
++  do_kdf(key_data, key_len, data_data, data_len,
++         exp_data, exp_len);
++  free_hex_data(key_data);
++  free_hex_data(data_data);
++  free_hex_data(exp_data);
++
+   /* Test case 2 #4.3 */
+-  do_kdf(HL("4a656665"),
+-         HL("7768617420646f2079612077616e7420"
+-            "666f72206e6f7468696e673f"),
+-         HL("5bdcc146bf60754e6a042426089575c7"
+-            "5a003f089d2739839dec58b964ec3843"));
++  key_data = HL("4a656665");
++  key_len = HL_LENGTH();
++  data_data = HL("7768617420646f2079612077616e7420"
++                 "666f72206e6f7468696e673f");
++  data_len = HL_LENGTH();
++  exp_data = HL("5bdcc146bf60754e6a042426089575c7"
++                "5a003f089d2739839dec58b964ec3843");
++  exp_len = HL_LENGTH();
++  do_kdf(key_data, key_len, data_data, data_len,
++         exp_data, exp_len);
++  free_hex_data(key_data);
++  free_hex_data(data_data);
++  free_hex_data(exp_data);
++
+   /* Test case 3 #4.4 */
+-  do_kdf(HL("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+-            "aaaaaaaa"),
+-         HL("dddddddddddddddddddddddddddddddd"
+-            "dddddddddddddddddddddddddddddddd"
+-            "dddddddddddddddddddddddddddddddd"
+-            "dddd"),
+-         HL("773ea91e36800e46854db8ebd09181a7"
+-            "2959098b3ef8c122d9635514ced565fe"));
++  key_data = HL("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
++                "aaaaaaaa");
++  key_len = HL_LENGTH();
++  data_data = HL("dddddddddddddddddddddddddddddddd"
++                 "dddddddddddddddddddddddddddddddd"
++                 "dddddddddddddddddddddddddddddddd"
++                 "dddd");
++  data_len = HL_LENGTH();
++  exp_data = HL("773ea91e36800e46854db8ebd09181a7"
++                "2959098b3ef8c122d9635514ced565fe");
++  exp_len = HL_LENGTH();
++  do_kdf(key_data, key_len, data_data, data_len,
++         exp_data, exp_len);
++  free_hex_data(key_data);
++  free_hex_data(data_data);
++  free_hex_data(exp_data);
++
+   /* Test case 4 #4.5 */
+-  do_kdf(HL("0102030405060708090a0b0c0d0e0f10"
+-            "111213141516171819"),
+-         HL("cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
+-            "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
+-            "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
+-            "cdcd"),
+-         HL("82558a389a443c0ea4cc819899f2083a"
+-            "85f0faa3e578f8077a2e3ff46729665b"));
++  key_data = HL("0102030405060708090a0b0c0d0e0f10"
++                "111213141516171819");
++  key_len = HL_LENGTH();
++  data_data = HL("cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
++                 "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
++                 "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
++                 "cdcd");
++  data_len = HL_LENGTH();
++  exp_data = HL("82558a389a443c0ea4cc819899f2083a"
++                "85f0faa3e578f8077a2e3ff46729665b");
++  exp_len = HL_LENGTH();
++  do_kdf(key_data, key_len, data_data, data_len,
++         exp_data, exp_len);
++  free_hex_data(key_data);
++  free_hex_data(data_data);
++  free_hex_data(exp_data);
++
+   /* Test case 5 #4.6 */
+-  do_kdf(HL("0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c"
+-            "0c0c0c0c"),
+-         HL("546573742057697468205472756e6361"
+-            "74696f6e"),
+-         HL("a3b6167473100ee06e0c796c2955552b"));
+-  /* Test case 6 #4.7 */
+-  do_kdf(HL("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+-            "aaaaaa"),
+-         HL("54657374205573696e67204c61726765"
+-            "72205468616e20426c6f636b2d53697a"
+-            "65204b6579202d2048617368204b6579"
+-            "204669727374"),
+-         HL("60e431591ee0b67f0d8a26aacbf5b77f"
+-            "8e0bc6213728c5140546040f0ee37f54"));
++  key_data = HL("0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c"
++                "0c0c0c0c");
++  key_len = HL_LENGTH();
++  data_data = HL("546573742057697468205472756e6361"
++                 "74696f6e");
++  data_len = HL_LENGTH();
++  exp_data = HL("a3b6167473100ee06e0c796c2955552b");
++  exp_len = HL_LENGTH();
++  do_kdf(key_data, key_len, data_data, data_len,
++         exp_data, exp_len);
++  free_hex_data(key_data);
++  free_hex_data(data_data);
++  free_hex_data(exp_data);
++
+   /* Test case 6 #4.7 */
+-  do_kdf(HL("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+-            "aaaaaa"),
+-         HL("54686973206973206120746573742075"
+-            "73696e672061206c6172676572207468"
+-            "616e20626c6f636b2d73697a65206b65"
+-            "7920616e642061206c61726765722074"
+-            "68616e20626c6f636b2d73697a652064"
+-            "6174612e20546865206b6579206e6565"
+-            "647320746f2062652068617368656420"
+-            "6265666f7265206265696e6720757365"
+-            "642062792074686520484d414320616c"
+-            "676f726974686d2e"),
+-         HL("9b09ffa71b942fcb27635fbcd5b0e944"
+-            "bfdc63644f0713938a7f51535c3a35e2"));
++  key_data = HL("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
++                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
++                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
++                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
++                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
++                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
++                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
++                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
++                "aaaaaa");
++  key_len = HL_LENGTH();
++  data_data = HL("54657374205573696e67204c61726765"
++                 "72205468616e20426c6f636b2d53697a"
++                 "65204b6579202d2048617368204b6579"
++                 "204669727374");
++  data_len = HL_LENGTH();
++  exp_data = HL("60e431591ee0b67f0d8a26aacbf5b77f"
++                "8e0bc6213728c5140546040f0ee37f54");
++  exp_len = HL_LENGTH();
++  do_kdf(key_data, key_len, data_data, data_len,
++         exp_data, exp_len);
++  free_hex_data(key_data);
++  free_hex_data(data_data);
++  free_hex_data(exp_data);
++
++  /* Test case 7 #4.8 */
++  key_data = HL("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
++                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
++                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
++                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
++                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
++                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
++                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
++                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
++                "aaaaaa");
++  key_len = HL_LENGTH();
++  data_data = HL("54686973206973206120746573742075"
++                 "73696e672061206c6172676572207468"
++                 "616e20626c6f636b2d73697a65206b65"
++                 "7920616e642061206c61726765722074"
++                 "68616e20626c6f636b2d73697a652064"
++                 "6174612e20546865206b6579206e6565"
++                 "647320746f2062652068617368656420"
++                 "6265666f7265206265696e6720757365"
++                 "642062792074686520484d414320616c"
++                 "676f726974686d2e");
++  data_len = HL_LENGTH();
++  exp_data = HL("9b09ffa71b942fcb27635fbcd5b0e944"
++                "bfdc63644f0713938a7f51535c3a35e2");
++  exp_len = HL_LENGTH();
++  do_kdf(key_data, key_len, data_data, data_len,
++         exp_data, exp_len);
++  free_hex_data(key_data);
++  free_hex_data(data_data);
++  free_hex_data(exp_data);
+ }
+diff --git a/openair3/TEST/test_util.h b/openair3/TEST/test_util.h
+new file mode 100644
+index 0000000000..1b86f274e8
+--- /dev/null
++++ b/openair3/TEST/test_util.h
+@@ -0,0 +1,108 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++#ifndef TEST_UTIL_H
++#define TEST_UTIL_H
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <stdint.h>
++#include <string.h>
++#include "common/utils/utils.h"
++
++/* Global variable to store length of last HL conversion */
++extern unsigned int hl_last_length;
++
++/* Hex conversion utilities */
++static inline int hex_char_to_int(char c) {
++    if (c >= '0' && c <= '9') return c - '0';
++    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
++    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
++    return -1;
++}
++
++/* HL macro implementation - converts hex literal string to binary data */
++static inline uint8_t* HL(const char* hex_str) {
++    static unsigned int last_length = 0;
++    
++    int len = strlen(hex_str);
++    int byte_len = len / 2;
++    
++    if (len % 2 != 0) {
++        fprintf(stderr, "Invalid hex string length: %d\n", len);
++        hl_last_length = 0;
++        return NULL;
++    }
++    
++    // Allocate memory for the data
++    uint8_t *data = (uint8_t*)malloc(byte_len);
++    if (!data) {
++        fprintf(stderr, "Memory allocation failed\n");
++        hl_last_length = 0;
++        return NULL;
++    }
++    
++    hl_last_length = byte_len;
++    last_length = byte_len;
++    
++    for (int i = 0; i < byte_len; i++) {
++        int high = hex_char_to_int(hex_str[2 * i]);
++        int low = hex_char_to_int(hex_str[2 * i + 1]);
++        
++        if (high == -1 || low == -1) {
++            fprintf(stderr, "Invalid hex character in string: %s\n", hex_str);
++            free(data);
++            hl_last_length = 0;
++            last_length = 0;
++            return NULL;
++        }
++        
++        data[i] = (high << 4) | low;
++    }
++    
++    return data;
++}
++
++/* Get length of last HL conversion */
++static inline unsigned int HL_LENGTH(void) {
++    return hl_last_length;
++}
++
++/* Free hex data */
++static inline void free_hex_data(uint8_t *data) {
++    if (data) {
++        free(data);
++    }
++}
++
++/* Buffer comparison function */
++static inline int compare_buffer(const uint8_t *buf1, unsigned len1, const uint8_t *buf2, unsigned len2) {
++    if (len1 != len2) return -1;
++    return memcmp(buf1, buf2, len1);
++}
++
++/* Test failure function */
++static inline void fail(const char *message) {
++    fprintf(stderr, "%s\n", message);
++    exit(EXIT_FAILURE);
++}
++
++#endif /* TEST_UTIL_H */
+\ No newline at end of file

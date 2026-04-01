@@ -1,0 +1,26 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c b/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c
+index 7353e61711..7d314f61d7 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c
++++ b/openair2/LAYER2/NR_MAC_gNB/mac_rrc_dl_handler.c
+@@ -695,7 +695,7 @@ void dl_rrc_message_transfer(const f1ap_dl_rrc_message_t *dl_rrc)
+ 
+     nr_mac_prepare_cellgroup_update(mac, UE, oldUE->CellGroup);
+     oldUE->CellGroup = NULL;
+-    mac_remove_nr_ue(mac, *dl_rrc->old_gNB_DU_ue_id);
++    mac_remove_nr_ue(mac, (rnti_t)*dl_rrc->old_gNB_DU_ue_id);
+     pthread_mutex_unlock(&mac->sched_lock);
+     nr_rlc_remove_ue(dl_rrc->gNB_DU_ue_id);
+     nr_rlc_update_id(*dl_rrc->old_gNB_DU_ue_id, dl_rrc->gNB_DU_ue_id);
+diff --git a/openair2/RRC/NR/rrc_gNB_nsa.c b/openair2/RRC/NR/rrc_gNB_nsa.c
+index 0aad9ea503..20c0e934f8 100644
+--- a/openair2/RRC/NR/rrc_gNB_nsa.c
++++ b/openair2/RRC/NR/rrc_gNB_nsa.c
+@@ -428,7 +428,7 @@ void rrc_remove_nsa_user(gNB_RRC_INST *rrc, int rnti) {
+   // lock the scheduler before removing the UE. Note: mac_remove_nr_ue() checks
+   // that the scheduler is actually locked!
+   NR_SCHED_LOCK(&RC.nrmac[rrc->module_id]->sched_lock);
+-  mac_remove_nr_ue(RC.nrmac[rrc->module_id], rnti);
++  mac_remove_nr_ue(RC.nrmac[rrc->module_id], (rnti_t)rnti);
+   NR_SCHED_UNLOCK(&RC.nrmac[rrc->module_id]->sched_lock);
+   gtpv1u_enb_delete_tunnel_req_t tmp={0};
+   tmp.rnti=rnti;

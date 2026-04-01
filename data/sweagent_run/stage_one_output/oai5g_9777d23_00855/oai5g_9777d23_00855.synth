@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix thread-unsafe access in nfapi trace functions\n\n### Summary\nThe nfapi trace functions in debug.c were not thread-safe, causing race conditions when multiple threads called NFAPI_TRACE simultaneously. This was particularly problematic downstream of pack_cqi_indication_rel8_value where tag mismatches could trigger unsynchronized trace output.\n\nThe issue manifested as corrupted trace output and occasional crashes when running with multiple threads. The root cause was missing synchronization around stdout access and static variable initialization in the trace functions.\n\n### Changes\n- `nfapi/open-nFAPI/common/src/debug.c`: Added mutex protection around trace output and initialization code\n- `nfapi/open-nFAPI/common/src/debug.c`: Made nfapi_trace_init thread-safe with proper locking\n- `nfapi/open-nFAPI/common/src/debug.c`: Added synchronization for trace_level variable access\n\n"
+}

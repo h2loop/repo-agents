@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix missing UE ID assignment in DL info transfer indication\n\n### Summary\nThe AS simulator was not properly setting the UE ID field in downlink information transfer indications. This caused incorrect routing of NAS messages in the test environment.\n\nThe bug occurred because the `process_dl_info_transfer_req` function was missing the line to copy the UE ID from the request to the indication structure.\n\n### Changes\n- `openair3/NAS/TEST/AS_SIMULATOR/as_process.c`: Added missing `ind->UEid = req->UEid;` assignment in `process_dl_info_transfer_req` function.\n\n"
+}

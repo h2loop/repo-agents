@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix ASN.1 encoding errors in LTE scrambling initialization\n\n### Summary\nThe LTE PHY layer scrambling lookup table initialization contained indexing errors that caused malformed protocol messages downstream. The issue manifested as ASN.1 encoding failures during RRC connection establishment and handover procedures.\n\nThe root cause was in the `init_scrambling_lut` and `init_unscrambling_lut` functions where the lookup tables were not populated according to the expected memory layout for SIMD operations.\n\n### Changes\n- `openair1/PHY/LTE_TRANSPORT/dlsch_scrambling.c`: Fixed indexing logic in both initialization functions to properly populate lookup tables for 16-bit scrambling value indexing.\n\n"
+}

@@ -1,0 +1,278 @@
+diff --git a/openair2/COMMON/f1ap_messages_types.h b/openair2/COMMON/f1ap_messages_types.h
+index e44e1dccb4..8f55d3094d 100644
+--- a/openair2/COMMON/f1ap_messages_types.h
++++ b/openair2/COMMON/f1ap_messages_types.h
+@@ -671,4 +671,15 @@ typedef struct f1ap_reset_ack_t {
+   //uint16_t criticality_diagnostics; // not implemented as of now
+ } f1ap_reset_ack_t;
+ 
++// Positioning Information Request structure
++typedef struct f1ap_positioning_information_request_s {
++  uint32_t gNB_CU_UE_F1AP_ID;
++  uint32_t gNB_DU_UE_F1AP_ID;
++  
++  // Optional Requested SRS Transmission Characteristics
++  bool requested_srs_transmission_characteristics_present;
++  uint32_t requested_srs_transmission_characteristics_size;
++  uint8_t *requested_srs_transmission_characteristics;
++} f1ap_positioning_information_request_t;
++
+ #endif /* F1AP_MESSAGES_TYPES_H_ */
+diff --git a/openair2/F1AP/lib/CMakeLists.txt b/openair2/F1AP/lib/CMakeLists.txt
+index 978f69fb29..1e43b2c210 100644
+--- a/openair2/F1AP/lib/CMakeLists.txt
++++ b/openair2/F1AP/lib/CMakeLists.txt
+@@ -3,6 +3,7 @@ add_library(f1ap_lib OBJECT
+             f1ap_rrc_message_transfer.c
+             f1ap_interface_management.c
+             f1ap_ue_context.c
++            f1ap_positioning.c
+ )
+ target_link_libraries(f1ap_lib PRIVATE asn1_f1ap ds)
+ target_include_directories(f1ap_lib PUBLIC
+diff --git a/openair2/F1AP/lib/f1ap_lib_includes.h b/openair2/F1AP/lib/f1ap_lib_includes.h
+index 3f039bf6f0..1ba8034a79 100644
+--- a/openair2/F1AP/lib/f1ap_lib_includes.h
++++ b/openair2/F1AP/lib/f1ap_lib_includes.h
+@@ -47,5 +47,7 @@
+ #include "F1AP_NonDynamic5QIDescriptor.h"
+ #include "F1AP_Dynamic5QIDescriptor.h"
+ #include "F1AP_DLUPTNLInformation-ToBeSetup-Item.h"
++#include "F1AP_PositioningInformationRequest.h"
++#include "F1AP_PositioningInformationResponse.h"
+ 
+ #endif /* F1AP_LIB_INCLUDES_H_ */
+diff --git a/openair2/F1AP/lib/f1ap_positioning.c b/openair2/F1AP/lib/f1ap_positioning.c
+new file mode 100644
+index 0000000000..517f846542
+--- /dev/null
++++ b/openair2/F1AP/lib/f1ap_positioning.c
+@@ -0,0 +1,145 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++/*! \file f1ap_positioning.c
++ * \brief F1AP positioning procedures
++ * \author OpenAirInterface Software Alliance
++ * \date 2021
++ * \version 1.0
++ */
++
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <stdint.h>
++#include <string.h>
++
++#include "assertions.h"
++#include "common/utils/LOG/log.h"
++
++#include "f1ap_common.h"
++#include "f1ap_positioning.h"
++#include "f1ap_lib_includes.h"
++#include "F1AP_PositioningInformationRequest.h"
++#include "F1AP_PositioningInformationResponse.h"
++
++bool decode_positioning_information_req(
++    f1ap_positioning_information_request_t *positioning_information_request,
++    const F1AP_PositioningInformationRequest_t *positioningInformationRequest) {
++
++    DevAssert(positioning_information_request != NULL);
++    DevAssert(positioningInformationRequest != NULL);
++
++    memset(positioning_information_request, 0, sizeof(f1ap_positioning_information_request_t));
++
++    F1AP_PositioningInformationRequestIEs_t *ie = NULL;
++    // First, check mandatory IEs and validate their types immediately
++    for (int i = 0; i < positioningInformationRequest->protocolIEs.list.count; i++) {
++        ie = positioningInformationRequest->protocolIEs.list.array[i];
++
++        switch (ie->id) {
++            case F1AP_ProtocolIE_ID_id_gNB_CU_UE_F1AP_ID: {
++                if (ie->criticality == F1AP_Criticality_reject &&
++                    ie->value.present != F1AP_PositioningInformationRequestIEs__value_PR_GNB_CU_UE_F1AP_ID) {
++                    LOG_E(F1AP, "Failed to decode id-gNB-CU-UE-F1AP-ID of PositioningInformationRequest\n");
++                    return false;
++                }
++
++                positioning_information_request->gNB_CU_UE_F1AP_ID = ie->value.choice.GNB_CU_UE_F1AP_ID;
++                break;
++            }
++
++            case F1AP_ProtocolIE_ID_id_gNB_DU_UE_F1AP_ID: {
++                if (ie->criticality == F1AP_Criticality_reject &&
++                    ie->value.present != F1AP_PositioningInformationRequestIEs__value_PR_GNB_DU_UE_F1AP_ID) {
++                    LOG_E(F1AP, "Failed to decode id-gNB-DU-UE-F1AP-ID of PositioningInformationRequest\n");
++                    return false;
++                }
++
++                positioning_information_request->gNB_DU_UE_F1AP_ID = ie->value.choice.GNB_DU_UE_F1AP_ID;
++                break;
++            }
++
++            case F1AP_ProtocolIE_ID_id_RequestedSRSTransmissionCharacteristics: {
++                if (ie->value.present != F1AP_PositioningInformationRequestIEs__value_PR_RequestedSRSTransmissionCharacteristics) {
++                    LOG_W(F1AP, "Failed to decode id-RequestedSRSTransmissionCharacteristics of PositioningInformationRequest\n");
++                    break;
++                }
++
++                // Decode optional SRS transmission characteristics
++                positioning_information_request->requested_srs_transmission_characteristics_present = true;
++                
++                // Copy the bit string data
++                if (ie->value.choice.RequestedSRSTransmissionCharacteristics.size > 0) {
++                    positioning_information_request->requested_srs_transmission_characteristics_size = 
++                        ie->value.choice.RequestedSRSTransmissionCharacteristics.size;
++                    
++                    positioning_information_request->requested_srs_transmission_characteristics = 
++                        malloc(ie->value.choice.RequestedSRSTransmissionCharacteristics.size);
++                    if (positioning_information_request->requested_srs_transmission_characteristics) {
++                        memcpy(positioning_information_request->requested_srs_transmission_characteristics,
++                               ie->value.choice.RequestedSRSTransmissionCharacteristics.buf,
++                               ie->value.choice.RequestedSRSTransmissionCharacteristics.size);
++                    } else {
++                        LOG_E(F1AP, "Failed to allocate memory for SRS transmission characteristics\n");
++                        positioning_information_request->requested_srs_transmission_characteristics_size = 0;
++                        positioning_information_request->requested_srs_transmission_characteristics_present = false;
++                        // Continue processing other IEs
++                    }
++                }
++                break;
++            }
++
++            default:
++                LOG_W(F1AP, "Unknown IE %ld in PositioningInformationRequest\n", ie->id);
++                break;
++        }
++    }
++
++    return true;
++}
++
++bool encode_positioning_information_resp(
++    F1AP_PositioningInformationResponse_t *positioningInformationResponse,
++    const f1ap_positioning_information_response_t *positioning_information_response) {
++
++    DevAssert(positioningInformationResponse != NULL);
++    DevAssert(positioning_information_response != NULL);
++
++    // TODO: Implement positioning information response encoding
++    // This is a placeholder for future implementation
++    
++    return true;
++}
++
++void free_positioning_information_request(f1ap_positioning_information_request_t *positioning_information_request) {
++    if (positioning_information_request == NULL) {
++        return;
++    }
++
++    if (positioning_information_request->requested_srs_transmission_characteristics) {
++        free(positioning_information_request->requested_srs_transmission_characteristics);
++        positioning_information_request->requested_srs_transmission_characteristics = NULL;
++        positioning_information_request->requested_srs_transmission_characteristics_size = 0;
++    }
++
++    positioning_information_request->requested_srs_transmission_characteristics_present = false;
++}
+\ No newline at end of file
+diff --git a/openair2/F1AP/lib/f1ap_positioning.h b/openair2/F1AP/lib/f1ap_positioning.h
+new file mode 100644
+index 0000000000..4ba7a2c89e
+--- /dev/null
++++ b/openair2/F1AP/lib/f1ap_positioning.h
+@@ -0,0 +1,75 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++/*! \file f1ap_positioning.h
++ * \brief F1AP positioning procedures
++ * \author OpenAirInterface Software Alliance
++ * \date 2021
++ * \version 1.0
++ */
++
++
++#ifndef F1AP_POSITIONING_H_
++#define F1AP_POSITIONING_H_
++
++#include <stdint.h>
++#include <stdbool.h>
++#include "f1ap_lib_includes.h"
++#include "BIT_STRING.h"
++
++// Forward declarations for ASN.1 structures
++typedef struct F1AP_PositioningInformationRequest F1AP_PositioningInformationRequest_t;
++typedef struct F1AP_PositioningInformationResponse F1AP_PositioningInformationResponse_t;
++
++// Positioning information request structure
++typedef struct {
++    uint32_t gNB_CU_UE_F1AP_ID;
++    uint32_t gNB_DU_UE_F1AP_ID;
++    
++    // Optional Requested SRS Transmission Characteristics
++    bool requested_srs_transmission_characteristics_present;
++    uint32_t requested_srs_transmission_characteristics_size;
++    uint8_t *requested_srs_transmission_characteristics;
++} f1ap_positioning_information_request_t;
++
++// Positioning information response structure
++typedef struct {
++    uint32_t gNB_CU_UE_F1AP_ID;
++    uint32_t gNB_DU_UE_F1AP_ID;
++    
++    // TODO: Add response fields as needed
++    bool positioning_measurements_present;
++    // Placeholder for positioning measurements data
++} f1ap_positioning_information_response_t;
++
++// Function declarations
++bool decode_positioning_information_req(
++    f1ap_positioning_information_request_t *positioning_information_request,
++    const F1AP_PositioningInformationRequest_t *positioningInformationRequest);
++
++bool encode_positioning_information_resp(
++    F1AP_PositioningInformationResponse_t *positioningInformationResponse,
++    const f1ap_positioning_information_response_t *positioning_information_response);
++
++// Memory cleanup function
++void free_positioning_information_request(f1ap_positioning_information_request_t *positioning_information_request);
++
++#endif /* F1AP_POSITIONING_H_ */
+\ No newline at end of file

@@ -1,0 +1,24 @@
+diff --git a/common/utils/telnetsrv/telnetsrv_5Gue_measurements.c b/common/utils/telnetsrv/telnetsrv_5Gue_measurements.c
+index 82f791cd2a..741ba226de 100644
+--- a/common/utils/telnetsrv/telnetsrv_5Gue_measurements.c
++++ b/common/utils/telnetsrv/telnetsrv_5Gue_measurements.c
+@@ -101,7 +101,18 @@ void measurcmd_display_phycpu(telnet_printfunc_t prnt) {
+ }
+ void measurcmd_display_phyta(telnet_printfunc_t prnt)
+ {
+-  PHY_VARS_NR_UE *UE = PHY_vars_UE_g[0][0];
++  PHY_VARS_NR_UE *UE = NULL;
++  
++  // Safely access the global PHY structure with null checks
++  if (PHY_vars_UE_g != NULL && PHY_vars_UE_g[0] != NULL) {
++    UE = PHY_vars_UE_g[0][0];
++  }
++  
++  if (UE == NULL) {
++    prnt("%s PHY TA stats - UE not initialized\n", HDR);
++    return;
++  }
++  
+   prnt("%s PHY TA stats\n", HDR);
+   prnt("N_TA_offset %d\n", UE->N_TA_offset);
+   prnt("TA command %d\n", UE->ta_command);

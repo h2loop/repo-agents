@@ -1,0 +1,9 @@
+{
+  "run_id": "s00357_419770",
+  "pr_text": "## Title: Fix type confusion in RLC UM callback function signatures\n\n### Summary\nThe RLC UM reassembly logic uses callback functions to filter PDU segments based on sequence number criteria. The helper functions `less_than_vr_ur`, `outside_of_reordering_window`, and `less_than_vr_uh` were defined with concrete `rlc_entity_um_t *` parameters, but were being passed to `rlc_um_reassemble()` which expected a callback signature with `void *` entity parameter. This type mismatch created a subtle type ",
+  "trajectory_path": "data/raw/s00357_419770_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00357_419770_p2.diff",
+  "patch_lines": 7,
+  "trajectory_steps": 28,
+  "timestamp": "2026-02-10T12:51:14Z"
+}

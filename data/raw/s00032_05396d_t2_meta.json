@@ -1,0 +1,9 @@
+{
+  "run_id": "s00032_05396d",
+  "pr_text": "## Title: Fix timespec validation in time_sub to prevent NGAP interface errors\n\n### Summary\nThe `time_sub` function contained a critical bug where the calculated `tv_nsec` field could violate POSIX specifications by falling outside the valid range [0, 999999999]. This occurred due to integer overflow and insufficient bounds checking when performing timespec arithmetic. Invalid nanosecond values propagated through NGAP interface timing calculations, causing procedure failures between gNB and AMF ",
+  "trajectory_path": "data/raw/s00032_05396d_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00032_05396d_p2.diff",
+  "patch_lines": 42,
+  "trajectory_steps": 15,
+  "timestamp": "2026-02-10T10:45:44Z"
+}

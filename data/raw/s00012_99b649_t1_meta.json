@@ -1,0 +1,33 @@
+{
+  "run_id": "s00012_99b649",
+  "function": {
+    "name": "generate_subframe",
+    "file": "nfapi/open-nFAPI/vnf_sim/src/mac.cpp",
+    "start_line": 1021,
+    "end_line": 1101,
+    "body_lines": 81,
+    "signature": "void generate_subframe(mac_t *mac, uint16_t phy_id, uint16_t sfn_sf)",
+    "subsystem": "nfapi/open-nFAPI/vnf_sim",
+    "token_estimate": 218
+  },
+  "bug": {
+    "bug_id": "c_deadlock",
+    "description": "deadlock caused by inconsistent lock acquisition ordering",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a deadlock caused by inconsistent lock acquisition ordering downstream of function generate_subframe in the nfapi/open-nFAPI/vnf_sim subsystem.\nThe function is located at nfapi/open-nFAPI/vnf_sim/src/mac.cpp:1021.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00012_99b649_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00012_99b649_p1.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 25,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T07:35:28Z"
+}

@@ -1,0 +1,44 @@
+diff --git a/nfapi/open-nFAPI/common/src/nfapi.c b/nfapi/open-nFAPI/common/src/nfapi.c
+index 97352b98f7..b0c03994a6 100644
+--- a/nfapi/open-nFAPI/common/src/nfapi.c
++++ b/nfapi/open-nFAPI/common/src/nfapi.c
+@@ -691,7 +691,8 @@ uint32_t pack_vendor_extension_tlv(nfapi_tl_t *ve, uint8_t **ppWritePackedMsg, u
+         return 0;
+ 
+       ve->length = (*ppWritePackedMsg) - pStartOfValue;
+-      pack_tl(ve, &pStartOfTlv, end);
++      if (pack_tl(ve, &pStartOfTlv, end) == 0)
++        return 0;
+       return 1;
+     }
+   }
+@@ -729,7 +730,8 @@ uint32_t pack_p7_vendor_extension_tlv(nfapi_tl_t *ve, uint8_t **ppWritePackedMsg
+         return 0;
+ 
+       ve->length = (*ppWritePackedMsg) - pStartOfValue;
+-      pack_tl(ve, &pStartOfTlv, end);
++      if (pack_tl(ve, &pStartOfTlv, end) == 0)
++        return 0;
+       return 1;
+     }
+   }
+@@ -1176,7 +1178,8 @@ uint8_t pack_tlv(uint16_t tag, void *tlv, uint8_t **ppWritePackedMsg, uint8_t *e
+     // calculate the length of the value and rewrite the tl header
+     tl->length = (*ppWritePackedMsg) - pStartOfValue;
+     // rewrite the header with the correct length
+-    pack_tl(tl, &pStartOfTlv, end);
++    if (pack_tl(tl, &pStartOfTlv, end) == 0)
++      return 0;
+   } else {
+     if (tl->tag != 0) {
+       NFAPI_TRACE(NFAPI_TRACE_WARN, "Warning pack_tlv tag 0x%x does not match expected 0x%x\n", tl->tag, tag);
+@@ -1210,7 +1213,8 @@ uint8_t pack_nr_tlv(uint16_t tag, void *tlv, uint8_t **ppWritePackedMsg, uint8_t
+     // calculate the length of the value and rewrite the tl header
+     tl->length = (*ppWritePackedMsg) - pStartOfValue;
+     // rewrite the header with the correct length
+-    pack_tl(tl, &pStartOfTlv, end);
++    if (pack_tl(tl, &pStartOfTlv, end) == 0)
++      return 0;
+     // Add padding that ensures multiple of 4 bytes (SCF 225 Section 2.3.2.1)
+     int padding = get_tlv_padding(tl->length);
+     NFAPI_TRACE(NFAPI_TRACE_DEBUG, "TLV 0x%x with padding of %d bytes\n", tl->tag, padding);

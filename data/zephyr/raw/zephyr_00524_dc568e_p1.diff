@@ -1,0 +1,66 @@
+diff --git a/subsys/bluetooth/audio/shell/media_controller.c b/subsys/bluetooth/audio/shell/media_controller.c
+index e2fdc2bd..06d96360 100644
+--- a/subsys/bluetooth/audio/shell/media_controller.c
++++ b/subsys/bluetooth/audio/shell/media_controller.c
+@@ -44,6 +44,61 @@ static struct media_player *local_player;
+ static struct media_player *remote_player;
+ static struct media_player *current_player;
+ 
++/* Work structures for deferring shell print operations from interrupt context */
++struct playing_order_work_data {
++	struct k_work work;
++	struct media_player *plr;
++	int err;
++	uint8_t order;
++};
++
++struct playing_orders_supported_work_data {
++	struct k_work work;
++	struct media_player *plr;
++	int err;
++	uint16_t orders;
++};
++
++static struct playing_order_work_data playing_order_recv_work_data;
++static struct playing_order_work_data playing_order_write_work_data;
++static struct playing_orders_supported_work_data playing_orders_supported_work_data;
++
++static void playing_order_recv_work_handler(struct k_work *work)
++{
++	struct playing_order_work_data *data = CONTAINER_OF(work, struct playing_order_work_data, work);
++	
++	if (data->err) {
++		bt_shell_error("Player: %p, Playing order receive_failed (%d)", data->plr, data->err);
++		return;
++	}
++
++	bt_shell_print("Player: %p, Playing received: %u", data->plr, data->order);
++}
++
++static void playing_order_write_work_handler(struct k_work *work)
++{
++	struct playing_order_work_data *data = CONTAINER_OF(work, struct playing_order_work_data, work);
++	
++	if (data->err) {
++		bt_shell_error("Player: %p, Playing order write_failed (%d)", data->plr, data->err);
++		return;
++	}
++
++	bt_shell_print("Player: %p, Playing written: %u", data->plr, data->order);
++}
++
++static void playing_orders_supported_work_handler(struct k_work *work)
++{
++	struct playing_orders_supported_work_data *data = CONTAINER_OF(work, struct playing_orders_supported_work_data, work);
++	
++	if (data->err) {
++		bt_shell_error("Player: %p, Playing orders supported failed (%d)", data->plr, data->err);
++		return;
++	}
++
++	bt_shell_print("Player: %p, Playing orders supported: %u", data->plr, data->orders);
++}
++
+ static void local_player_instance_cb(struct media_player *plr, int err)
+ {
+ 	if (err) {

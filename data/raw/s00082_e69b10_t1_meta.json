@@ -1,0 +1,32 @@
+{
+  "run_id": "s00082_e69b10",
+  "function": {
+    "name": "CU_send_UE_CONTEXT_MODIFICATION_REQUEST",
+    "file": "openair2/F1AP/f1ap_cu_ue_context_management.c",
+    "start_line": 139,
+    "end_line": 153,
+    "body_lines": 15,
+    "signature": "int CU_send_UE_CONTEXT_MODIFICATION_REQUEST(sctp_assoc_t assoc_id, const f1ap_ue_context_mod_req_t *req)",
+    "subsystem": "openair2/F1AP",
+    "token_estimate": 42
+  },
+  "bug": {
+    "bug_id": "telecom_missing_optional_field",
+    "description": "missing optional field that is conditionally mandatory per 3GPP specification",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a missing optional field that is conditionally mandatory per 3GPP specification downstream of function CU_send_UE_CONTEXT_MODIFICATION_REQUEST in the openair2/F1AP subsystem.\nThe function is located at openair2/F1AP/f1ap_cu_ue_context_management.c:139.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00082_e69b10_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00082_e69b10_p1.diff",
+  "patch_lines": 26,
+  "trajectory_steps": 61,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:06:41Z"
+}

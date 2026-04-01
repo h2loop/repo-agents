@@ -1,0 +1,32 @@
+{
+  "run_id": "s00311_801374",
+  "function": {
+    "name": "hints",
+    "file": "common/utils/T/tracer/gui/textarea.c",
+    "start_line": 23,
+    "end_line": 29,
+    "body_lines": 7,
+    "signature": "static void hints(gui *_gui, widget *_w, int *width, int *height)",
+    "subsystem": "common/utils/T",
+    "token_estimate": 27
+  },
+  "bug": {
+    "bug_id": "telecom_missing_optional_field",
+    "description": "missing optional field that is conditionally mandatory per 3GPP specification",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a missing optional field that is conditionally mandatory per 3GPP specification downstream of function hints in the common/utils/T subsystem.\nThe function is located at common/utils/T/tracer/gui/textarea.c:23.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00311_801374_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00311_801374_p1.diff",
+  "patch_lines": 16,
+  "trajectory_steps": 34,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T14:20:43Z"
+}

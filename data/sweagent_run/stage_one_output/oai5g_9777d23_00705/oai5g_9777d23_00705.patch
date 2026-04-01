@@ -1,0 +1,65 @@
+diff --git a/openair2/LAYER2/nr_rlc/nr_rlc_entity_am.c b/openair2/LAYER2/nr_rlc/nr_rlc_entity_am.c
+index a66ebe82e5..07d0c89770 100644
+--- a/openair2/LAYER2/nr_rlc/nr_rlc_entity_am.c
++++ b/openair2/LAYER2/nr_rlc/nr_rlc_entity_am.c
+@@ -986,7 +986,10 @@ static nr_rlc_sdu_segment_t *resegment(nr_rlc_sdu_segment_t *sdu,
+   pdu_header_size = compute_pdu_header_size(entity, sdu);
+ 
+   next = calloc(1, sizeof(nr_rlc_sdu_segment_t));
+-  AssertFatal(next != NULL, "out of memory\n");
++  if (next == NULL) {
++    LOG_E(RLC, "%s:%d:%s: out of memory\n", __FILE__, __LINE__, __FUNCTION__);
++    return NULL;
++  }
+   *next = *sdu;
+ 
+   over_size = pdu_header_size + sdu->size - pdu_size;
+@@ -1618,6 +1621,10 @@ static int generate_retx_pdu(nr_rlc_entity_am_t *entity, char *buffer,
+   if (pdu_size > size) {
+     nr_rlc_sdu_segment_t *next_sdu;
+     next_sdu = resegment(sdu, entity, size);
++    if (next_sdu == NULL) {
++      /* Failed to allocate memory for segmentation */
++      return -1;  /* Return error */
++    }
+     /* put the second SDU back at the head of the retransmit list */
+     next_sdu->next = entity->retransmit_list;
+     entity->retransmit_list = next_sdu;
+@@ -1708,6 +1715,13 @@ static int generate_tx_pdu(nr_rlc_entity_am_t *entity, char *buffer, int size)
+     LOG_D(RLC, "Segmentation (header %d + data %d) / (%d)\n", pdu_header_size, size - pdu_header_size, pdu_size - pdu_header_size);
+     nr_rlc_sdu_segment_t *next_sdu;
+     next_sdu = resegment(sdu, entity, size);
++    if (next_sdu == NULL) {
++      /* Failed to allocate memory for segmentation, undo changes and return error */
++      sdu->size += pdu_size - size;  /* Restore original size */
++      sdu->is_last = 1;              /* Restore is_last flag */
++      sdu->sdu->ref_count--;         /* Undo ref_count increment */
++      return -1;                     /* Return error */
++    }
+     /* put the second SDU back at the head of the TX list */
+     next_sdu->next = entity->tx_list;
+     entity->tx_list = next_sdu;
+@@ -1807,13 +1821,22 @@ int nr_rlc_entity_am_generate_pdu(nr_rlc_entity_t *_entity,
+ 
+   if (entity->retransmit_list != NULL) {
+     ret = generate_retx_pdu(entity, buffer, size);
++    if (ret == -1) {
++      /* Error occurred during retransmission PDU generation */
++      return 0;  /* Return 0 to indicate no PDU was generated */
++    }
+     if (ret != 0) {
+       LOG_D(RLC, "RLC retransmit PDU\n");
+       return ret;
+     }
+   }
+ 
+-  return generate_tx_pdu(entity, buffer, size);
++  ret = generate_tx_pdu(entity, buffer, size);
++  if (ret == -1) {
++    /* Error occurred during transmission PDU generation */
++    return 0;  /* Return 0 to indicate no PDU was generated */
++  }
++  return ret;
+ }
+ 
+ /*************************************************************************/

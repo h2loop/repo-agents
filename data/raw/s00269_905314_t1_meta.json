@@ -1,0 +1,31 @@
+{
+  "run_id": "s00269_905314",
+  "function": {
+    "name": "threegpplte_turbo_encoder_sse",
+    "file": "openair1/PHY/CODING/3gpplte_sse.c",
+    "start_line": 271,
+    "end_line": 337,
+    "body_lines": 67,
+    "signature": "void threegpplte_turbo_encoder_sse(unsigned char *input, unsigned short input_length_bytes, unsigned char *output, unsigned char F)",
+    "subsystem": "openair1/PHY/CODING",
+    "token_estimate": 223
+  },
+  "bug": {
+    "bug_id": "c_integer_underflow",
+    "description": "integer underflow producing an unexpectedly large unsigned value",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "common"
+    ]
+  },
+  "prompt": "There is a integer underflow producing an unexpectedly large unsigned value downstream of function threegpplte_turbo_encoder_sse in the openair1/PHY/CODING subsystem.\nThe function is located at openair1/PHY/CODING/3gpplte_sse.c:271.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00269_905314_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00269_905314_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 21,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:59:15Z"
+}

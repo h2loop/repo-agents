@@ -1,0 +1,39 @@
+diff --git a/openair3/NAS/TOOLS/fs.c b/openair3/NAS/TOOLS/fs.c
+index c25f10a1e7..cbb06272f9 100644
+--- a/openair3/NAS/TOOLS/fs.c
++++ b/openair3/NAS/TOOLS/fs.c
+@@ -1,18 +1,14 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include <unistd.h>
+ 
+ #include "fs.h"
+ #include "user_api.h"
+ #include "utils.h"
+ 
+ bool file_exist_and_is_readable(const char *filename) {
+-    FILE *file ;
+-    file = fopen(filename, "r");
+-    if ( file == NULL )
+-        return false;
+-    fclose(file);
+-    return true;
++    return (access(filename, R_OK) == 0);
+ }
+ 
+ char *get_ue_filename(const char *output_dir, int user_id) {
+@@ -24,11 +20,11 @@ char *get_emm_filename(const char *output_dir, int user_id) {
+ }
+ 
+ char *get_usim_filename(const char *output_dir, int user_id) {
+-	return make_filename(output_dir, USIM_API_NVRAM_FILENAME, user_id);
++        return make_filename(output_dir, USIM_API_NVRAM_FILENAME, user_id);
+ }
+ 
+ char *make_filename(const char *output_dir, const char *filename, int ueid) {
+-	size_t size;
++        size_t size;
+     char *str_ueid, *str;
+ 
+     str_ueid = itoa(ueid);

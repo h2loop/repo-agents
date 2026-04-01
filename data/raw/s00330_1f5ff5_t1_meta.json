@@ -1,0 +1,33 @@
+{
+  "run_id": "s00330_1f5ff5",
+  "function": {
+    "name": "esm_msg_encode",
+    "file": "openair3/NAS/COMMON/ESM/MSG/esm_msg.c",
+    "start_line": 222,
+    "end_line": 349,
+    "body_lines": 128,
+    "signature": "int esm_msg_encode(ESM_msg *msg, uint8_t *buffer, uint32_t len)",
+    "subsystem": "openair3/NAS/COMMON",
+    "token_estimate": 292
+  },
+  "bug": {
+    "bug_id": "c_missing_return",
+    "description": "missing return statement in non-void function on certain code paths",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a missing return statement in non-void function on certain code paths downstream of function esm_msg_encode in the openair3/NAS/COMMON subsystem.\nThe function is located at openair3/NAS/COMMON/ESM/MSG/esm_msg.c:222.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00330_1f5ff5_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00330_1f5ff5_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 32,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:41:12Z"
+}

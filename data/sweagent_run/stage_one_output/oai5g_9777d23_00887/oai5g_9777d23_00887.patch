@@ -1,0 +1,91 @@
+diff --git a/openair1/PHY/INIT/lte_init.c b/openair1/PHY/INIT/lte_init.c
+index b9ab9adeee..f445d9ccc2 100644
+--- a/openair1/PHY/INIT/lte_init.c
++++ b/openair1/PHY/INIT/lte_init.c
+@@ -303,7 +303,51 @@ void phy_config_update_sib2_request(PHY_Config_t *phy_config) {
+ 
+   LTE_DL_FRAME_PARMS *fp = &RC.eNB[Mod_id][CC_id]->frame_parms;
+ 
+-  fp->num_MBSFN_config =  cfg->embms_mbsfn_config.num_mbsfn_config;
++  // Configure PUCCH common parameters
++  fp->pucch_config_common.deltaPUCCH_Shift = 1 + cfg->pucch_config.delta_pucch_shift.value;
++  fp->pucch_config_common.nRB_CQI = cfg->pucch_config.n_cqi_rb.value;
++  fp->pucch_config_common.nCS_AN = cfg->pucch_config.n_an_cs.value;
++  fp->pucch_config_common.n1PUCCH_AN = cfg->pucch_config.n1_pucch_an.value;
++
++  // Configure PDSCH common parameters
++  fp->pdsch_config_common.referenceSignalPower = cfg->rf_config.reference_signal_power.value;
++  fp->pdsch_config_common.p_b = cfg->subframe_config.pb.value;
++
++  // Configure PUSCH common parameters
++  fp->pusch_config_common.n_SB = cfg->pusch_config.number_of_subbands.value;
++  LOG_I (PHY, "pusch_config_common.n_SB = %d\n", fp->pusch_config_common.n_SB);
++  fp->pusch_config_common.hoppingMode = cfg->pusch_config.hopping_mode.value;
++  LOG_I (PHY, "pusch_config_common.hoppingMode = %d\n", fp->pusch_config_common.hoppingMode);
++  fp->pusch_config_common.pusch_HoppingOffset = cfg->pusch_config.hopping_offset.value;
++  LOG_I (PHY, "pusch_config_common.pusch_HoppingOffset = %d\n", fp->pusch_config_common.pusch_HoppingOffset);
++  fp->pusch_config_common.enable64QAM = 0; // Default value, can be updated later
++
++  // Configure uplink reference signals for PUSCH
++  fp->pusch_config_common.ul_ReferenceSignalsPUSCH.groupHoppingEnabled = 0;
++  fp->pusch_config_common.ul_ReferenceSignalsPUSCH.sequenceHoppingEnabled = 0;
++
++  if (cfg->uplink_reference_signal_config.uplink_rs_hopping.value == 1)
++    fp->pusch_config_common.ul_ReferenceSignalsPUSCH.groupHoppingEnabled = 1;
++
++  if (cfg->uplink_reference_signal_config.uplink_rs_hopping.value == 2)
++    fp->pusch_config_common.ul_ReferenceSignalsPUSCH.sequenceHoppingEnabled = 1;
++
++  LOG_I(PHY,"pusch_config_common.ul_ReferenceSignalsPUSCH.groupHoppingEnabled = %d\n",fp->pusch_config_common.ul_ReferenceSignalsPUSCH.groupHoppingEnabled);
++  fp->pusch_config_common.ul_ReferenceSignalsPUSCH.groupAssignmentPUSCH = cfg->uplink_reference_signal_config.group_assignment.value;
++  LOG_I(PHY,"pusch_config_common.ul_ReferenceSignalsPUSCH.groupAssignmentPUSCH = %d\n",fp->pusch_config_common.ul_ReferenceSignalsPUSCH.groupAssignmentPUSCH);
++  LOG_I (PHY, "pusch_config_common.ul_ReferenceSignalsPUSCH.sequenceHoppingEnabled = %d\n", fp->pusch_config_common.ul_ReferenceSignalsPUSCH.sequenceHoppingEnabled);
++  fp->pusch_config_common.ul_ReferenceSignalsPUSCH.cyclicShift = dmrs1_tab[cfg->uplink_reference_signal_config.cyclic_shift_1_for_drms.value];
++  LOG_I (PHY, "pusch_config_common.ul_ReferenceSignalsPUSCH.cyclicShift = %d\n", fp->pusch_config_common.ul_ReferenceSignalsPUSCH.cyclicShift);
++
++  // Configure SRS (Sounding Reference Signal) parameters
++  fp->soundingrs_ul_config_common.enabled_flag = 0; // 1; Don't know how to turn this off in NFAPI
++  fp->soundingrs_ul_config_common.srs_BandwidthConfig = cfg->srs_config.bandwidth_configuration.value;
++  fp->soundingrs_ul_config_common.srs_SubframeConfig = cfg->srs_config.srs_subframe_configuration.value;
++  fp->soundingrs_ul_config_common.ackNackSRS_SimultaneousTransmission = cfg->srs_config.srs_acknack_srs_simultaneous_transmission.value;
++  fp->soundingrs_ul_config_common.srs_MaxUpPts = cfg->srs_config.max_up_pts.value;
++
++  // Configure MBSFN parameters
++  fp->num_MBSFN_config = cfg->embms_mbsfn_config.num_mbsfn_config;
+   for( i=0; i < cfg->embms_mbsfn_config.num_mbsfn_config; i++){
+       fp->MBSFN_config[i].radioframeAllocationPeriod =  cfg->embms_mbsfn_config.radioframe_allocation_period[i];
+       fp->MBSFN_config[i].radioframeAllocationOffset =  cfg->embms_mbsfn_config.radioframe_allocation_offset[i];
+@@ -313,9 +357,24 @@ void phy_config_update_sib2_request(PHY_Config_t *phy_config) {
+               fp->MBSFN_config[i].mbsfn_SubframeConfig);
+   }
+ 
++  // Configure FeMBMS parameters if available
++  fp->NonMBSFN_config_flag = cfg->fembms_config.non_mbsfn_config_flag.value;
++  fp->FeMBMS_active = fp->NonMBSFN_config_flag;
++  if (fp->NonMBSFN_config_flag) {
++    fp->NonMBSFN_config.non_mbsfn_SubframeConfig = cfg->fembms_config.non_mbsfn_subframeconfig.value;
++    fp->NonMBSFN_config.radioframeAllocationPeriod = cfg->fembms_config.radioframe_allocation_period.value;
++    fp->NonMBSFN_config.radioframeAllocationOffset = cfg->fembms_config.radioframe_allocation_offset.value;
++    LOG_D(PHY,"eNB %d/%d frame NonMBSFN configured: %d (%x) %d/%d\n",Mod_id,CC_id,fp->NonMBSFN_config_flag,fp->NonMBSFN_config.non_mbsfn_SubframeConfig,fp->NonMBSFN_config.radioframeAllocationPeriod,
++          fp->NonMBSFN_config.radioframeAllocationOffset);
++  }
+ 
++  // Reinitialize hopping and NCS cell configurations
++  init_ul_hopping(fp);
++  init_ncs_cell(fp, RC.eNB[Mod_id][CC_id]->ncs_cell);
+ 
++  LOG_I(PHY, "SIB2 configuration updated for eNB %d/%d\n", Mod_id, CC_id);
+ }
++
+ void phy_config_update_sib13_request(PHY_Config_t *phy_config) {
+ 
+   uint8_t         Mod_id = phy_config->Mod_id;
+@@ -446,7 +505,7 @@ int phy_init_lte_eNB(PHY_VARS_eNB *eNB,
+         LOG_I(PHY,"[INIT] common_vars->txdataF[%d] = %p (%lu bytes)\n",
+               i,common_vars->txdataF[i],
+               fp->ofdm_symbol_size*fp->symbols_per_tti*10*sizeof(int32_t));
+-	if (eNB->use_DTX==0 && i<fp->nb_antenna_ports_eNB) eNB->subframe_mask[i] = malloc16_clear(fp->ofdm_symbol_size*fp->symbols_per_tti*10*sizeof(int32_t) );
++if (eNB->use_DTX==0 && i<fp->nb_antenna_ports_eNB) eNB->subframe_mask[i] = malloc16_clear(fp->ofdm_symbol_size*fp->symbols_per_tti*10*sizeof(int32_t) );
+       }
+     }
+ 

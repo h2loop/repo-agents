@@ -1,0 +1,21 @@
+diff --git a/openair3/NAS/COMMON/UTIL/nas_timer.c b/openair3/NAS/COMMON/UTIL/nas_timer.c
+index 0a521ceeb4..1905cf9e9e 100644
+--- a/openair3/NAS/COMMON/UTIL/nas_timer.c
++++ b/openair3/NAS/COMMON/UTIL/nas_timer.c
+@@ -71,6 +71,16 @@ long timer_id;          /* Timer id returned by the timer API from ITTI */
+   void *args;                 /* Callback argument parameters          */
+ } nas_timer_entry_t;
+ 
++/* Structure to wrap timer arguments for ITTI callback
++ * ---------------------------------------------------
++ * This structure is passed to the ITTI timer system and contains
++ * the original NAS timer callback and arguments.
++ */
++typedef struct {
++  nas_timer_callback_t cb;    /* Original NAS timer callback */
++  void *args;                 /* Original NAS timer arguments  */
++} nas_timer_wrapper_t;
++
+ /* Structure of a timer queue - list of active interval timer entries
+  * ------------------------------------------------------------------
+  * At any time, the first entry of the queue is always associated to the

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix integer overflow in PDCCH unscrambling function\n\n### Summary\nThe `nr_pdcch_unscrambling` function in the NR UE PDCCH processing chain could experience integer overflow when negating INT16_MIN values. This occurred during the scrambling sequence application where LLR values of -32768 would be negated to 32768, exceeding the int16_t range.\n\nThis fix adds proper overflow handling by mapping INT16_MIN to INT16_MAX during negation, preventing undefined behavior in the PDCCH decoding process.\n\n### Changes\n- `openair1/PHY/NR_UE_TRANSPORT/nr_pscch_pssch_rx.c`: Added integer overflow protection in nr_pdcch_unscrambling function and included limits.h for INT16_MIN/INT16_MAX definitions.\n\n"
+}

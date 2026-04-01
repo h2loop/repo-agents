@@ -1,0 +1,68 @@
+diff --git a/openair1/SCHED_NR_UE/phy_procedures_nr_ue_sl.c b/openair1/SCHED_NR_UE/phy_procedures_nr_ue_sl.c
+index 213ebf1fc9..f46f9f6ac4 100644
+--- a/openair1/SCHED_NR_UE/phy_procedures_nr_ue_sl.c
++++ b/openair1/SCHED_NR_UE/phy_procedures_nr_ue_sl.c
+@@ -64,7 +64,36 @@ int nr_slsch_procedures(PHY_VARS_NR_UE *ue, int frame_rx, int slot_rx, int SLSCH
+   uint16_t nb_re_dmrs;
+   uint16_t start_symbol = 1;
+   uint16_t number_symbols = pssch_pdu->pssch_numsym;
+-  ue->slsch[SLSCH_id].harq_process->harq_to_be_cleared=true;
++  
++  // Get the HARQ process for this SLSCH
++  NR_UL_UE_HARQ_t *harq_process = &ue->sl_harq_processes[harq_pid];
++  
++  // Check if this is a new transmission (NDI=1)
++  if (slsch_pdu->ndi == 1) {
++    // New transmission - initialize HARQ process
++    harq_process->round = 0;
++    harq_process->status = ACTIVE;
++    harq_process->ndi = slsch_pdu->ndi;
++    LOG_D(NR_PHY, "SLSCH: New transmission for harq_pid %d, round %d\n", harq_pid, harq_process->round);
++  } else {
++    // Retransmission - ensure process is active
++    if (harq_process->status != ACTIVE) {
++      LOG_W(NR_PHY, "SLSCH: Retransmission for inactive harq_pid %d, activating it\n", harq_pid);
++      harq_process->status = ACTIVE;
++    }
++    LOG_D(NR_PHY, "SLSCH: Retransmission for harq_pid %d, round %d\n", harq_pid, harq_process->round);
++  }
++  
++  // Calculate RV index based on HARQ round (3GPP TS 38.214 specified sequence: [0,2,3,1])
++  const uint8_t rv_sequence[4] = {0, 2, 3, 1};
++  uint8_t calculated_rv = rv_sequence[harq_process->round % 4];
++  
++  // Use the calculated RV if no explicit RV is provided
++  if (slsch_pdu->rv_index == 0 && harq_process->round > 0) {
++    slsch_pdu->rv_index = calculated_rv;
++    LOG_D(NR_PHY, "SLSCH: Using calculated RV %d for harq_pid %d, round %d\n", 
++          calculated_rv, harq_pid, harq_process->round);
++  }
+   uint8_t number_dmrs_symbols = 0;
+   for (int l = start_symbol; l < start_symbol + number_symbols; l++)
+     number_dmrs_symbols += ((pssch_pdu->dmrs_symbol_position)>>l)&0x01;
+@@ -158,6 +187,25 @@ int nr_slsch_procedures(PHY_VARS_NR_UE *ue, int frame_rx, int slot_rx, int SLSCH
+   LOG_D(NR_PHY, "%4d.%2d Calling nr_ulsch_decoding\n", frame_rx, slot_rx);
+   int nbDecode =
+       nr_ulsch_decoding(NULL, ue, SLSCH_id, ue->pssch_vars[SLSCH_id].llr, fp, &pusch_pdu, frame_rx, slot_rx, harq_pid, G, proc, phy_data, &get_nrUE_params()->Tpool, ack_nack_rcvd, num_acks);
++  
++  // Update HARQ process state after decoding attempt
++  if (nbDecode > 0) {
++    // Decoding successful
++    harq_process->round++;
++    LOG_D(NR_PHY, "SLSCH: Decoding successful for harq_pid %d, new round %d\n", harq_pid, harq_process->round);
++    
++    // Reset HARQ process after maximum retransmissions (4 rounds)
++    if (harq_process->round >= 4) {
++      harq_process->round = 0;
++      harq_process->status = SCH_IDLE;
++      LOG_D(NR_PHY, "SLSCH: HARQ process %d reset after 4 rounds\n", harq_pid);
++    }
++  } else {
++    // Decoding failed - keep process active for retransmission
++    LOG_D(NR_PHY, "SLSCH: Decoding failed for harq_pid %d, round %d - keeping process active for retransmission\n", 
++          harq_pid, harq_process->round);
++  }
++  
+   return nbDecode;
+ }
+ 

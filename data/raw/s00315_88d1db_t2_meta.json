@@ -1,0 +1,9 @@
+{
+  "run_id": "s00315_88d1db",
+  "pr_text": "## Title: Fix pointer corruption in dft4096 scaling loop\n\n### Summary\nThe `dft4096` function had a critical pointer arithmetic bug in its output scaling section that corrupted the base pointer during iteration. The loop directly incremented `y256` while performing scaling operations, causing the pointer to advance beyond the intended buffer bounds. This resulted in undefined behavior and potential memory corruption, which manifested as incorrect data in the DFT output buffer and could trigger do",
+  "trajectory_path": "data/raw/s00315_88d1db_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00315_88d1db_p2.diff",
+  "patch_lines": 36,
+  "trajectory_steps": 30,
+  "timestamp": "2026-02-11T14:23:40Z"
+}

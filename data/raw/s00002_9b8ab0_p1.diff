@@ -1,0 +1,54 @@
+diff --git a/openair1/SCHED_NR_UE/phy_procedures_nr_ue_sl.c b/openair1/SCHED_NR_UE/phy_procedures_nr_ue_sl.c
+index 213ebf1fc9..c10fa9d54b 100644
+--- a/openair1/SCHED_NR_UE/phy_procedures_nr_ue_sl.c
++++ b/openair1/SCHED_NR_UE/phy_procedures_nr_ue_sl.c
+@@ -64,7 +64,26 @@ int nr_slsch_procedures(PHY_VARS_NR_UE *ue, int frame_rx, int slot_rx, int SLSCH
+   uint16_t nb_re_dmrs;
+   uint16_t start_symbol = 1;
+   uint16_t number_symbols = pssch_pdu->pssch_numsym;
+-  ue->slsch[SLSCH_id].harq_process->harq_to_be_cleared=true;
++  
++  // Proper HARQ process management for SLSCH
++  NR_UL_UE_HARQ_t *harq_process = &ue->sl_harq_processes[harq_pid];
++  
++  // Initialize HARQ process if this is a new transmission
++  if (slsch_pdu->ndi == 1) {
++    harq_process->round = 0;
++    harq_process->status = ACTIVE;
++    memcpy(harq_process->a, slsch_pdu, sizeof(sl_nr_rx_config_pssch_pdu_t));
++  }
++  
++  // Update RV index based on HARQ round if not explicitly provided
++  if (slsch_pdu->rv_index == 0 && harq_process->round > 0) {
++    // RV sequence: 0, 2, 3, 1 (as per 3GPP TS 38.214)
++    const uint8_t rv_sequence[4] = {0, 2, 3, 1};
++    slsch_pdu->rv_index = rv_sequence[harq_process->round % 4];
++  }
++  
++  // Set flag for HARQ process clearing after successful decoding
++  ue->slsch[SLSCH_id].harq_process->harq_to_be_cleared = true;
+   uint8_t number_dmrs_symbols = 0;
+   for (int l = start_symbol; l < start_symbol + number_symbols; l++)
+     number_dmrs_symbols += ((pssch_pdu->dmrs_symbol_position)>>l)&0x01;
+@@ -158,6 +177,21 @@ int nr_slsch_procedures(PHY_VARS_NR_UE *ue, int frame_rx, int slot_rx, int SLSCH
+   LOG_D(NR_PHY, "%4d.%2d Calling nr_ulsch_decoding\n", frame_rx, slot_rx);
+   int nbDecode =
+       nr_ulsch_decoding(NULL, ue, SLSCH_id, ue->pssch_vars[SLSCH_id].llr, fp, &pusch_pdu, frame_rx, slot_rx, harq_pid, G, proc, phy_data, &get_nrUE_params()->Tpool, ack_nack_rcvd, num_acks);
++  
++  // Update HARQ process state based on decoding result
++  if (nbDecode > 0) {
++    // Successful decoding - increment HARQ round for next potential retransmission
++    harq_process->round++;
++    if (harq_process->round >= 4) {
++      // Maximum retransmissions reached, reset HARQ process
++      harq_process->round = 0;
++      harq_process->status = SCH_IDLE;
++    }
++  } else {
++    // Decoding failed - keep HARQ process active for retransmission
++    harq_process->status = ACTIVE;
++  }
++  
+   return nbDecode;
+ }
+ 

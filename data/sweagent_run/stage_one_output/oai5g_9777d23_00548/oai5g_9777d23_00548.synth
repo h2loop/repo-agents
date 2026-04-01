@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix integer underflow in SR scheduling when no SR is configured\n\n### Summary\nThe NR UE MAC scheduler contained an integer underflow bug in the SR (Scheduling Request) handling code. The bug occurred when a logical channel had no SR configured (sr_id = -1) but the scheduler still attempted to use this invalid value as an array index.\n\nThis caused a segmentation fault in the UE MAC layer during normal operation when certain logical channels were active but had no corresponding SR configuration.\n\nThe underflow was triggered when:\n1. A logical channel was configured without an SR ID (sr_id set to -1)\n2. The UE had data to transmit on that channel\n3. The nr_update_sr() function was called\n4. The code attempted to access sched_info->sr_info[-1]\n\n### Changes\n- `openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c`: Added bounds checking and early return when sr_id is invalid (-1 or out of range)\n"
+}

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix buffer overflow in M2AP message handler due to incorrect bounds checking\n\n### Summary\nThe `m2ap_handle_message` function in `openair2/M2AP/m2ap_handler.c` contains multiple bounds checking errors that can lead to buffer overflows and undefined behavior. When processing M2AP messages with invalid procedure codes or PDU present values, the function could access memory outside the bounds of the handler callback array.\n\nThis manifests as crashes or unpredictable behavior when the M2AP interface receives malformed or malicious messages.\n\n### Changes\n- `openair2/M2AP/m2ap_handler.c`: Fixed array size calculation, added proper bounds checking for pdu.present, and made array indexing safer with explicit bounds validation.\n\n"
+}

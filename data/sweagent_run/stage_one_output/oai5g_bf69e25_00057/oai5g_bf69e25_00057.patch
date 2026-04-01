@@ -1,0 +1,42 @@
+diff --git a/common/utils/T/tracer/enb.c b/common/utils/T/tracer/enb.c
+index 5bb1cb87e2..b6d3524bf1 100644
+--- a/common/utils/T/tracer/enb.c
++++ b/common/utils/T/tracer/enb.c
+@@ -890,8 +890,8 @@ restart:
+     e = get_event(enb_data.socket, &ebuf, database);
+     if (e.type == -1) goto restart;
+     if (pthread_mutex_lock(&enb_data.lock)) abort();
+-    handle_event(h, e);
+     if (pthread_mutex_unlock(&enb_data.lock)) abort();
++    handle_event(h, e);
+   }
+ 
+   return 0;
+diff --git a/common/utils/T/tracer/gnb.c b/common/utils/T/tracer/gnb.c
+index 22567492f8..b0bab90b32 100644
+--- a/common/utils/T/tracer/gnb.c
++++ b/common/utils/T/tracer/gnb.c
+@@ -281,8 +281,8 @@ restart:
+     e = get_event(gnb_data.socket, &ebuf, database);
+     if (e.type == -1) goto restart;
+     if (pthread_mutex_lock(&gnb_data.lock)) abort();
+-    handle_event(h, e);
+     if (pthread_mutex_unlock(&gnb_data.lock)) abort();
++    handle_event(h, e);
+   }
+ 
+   return 0;
+diff --git a/common/utils/T/tracer/ue.c b/common/utils/T/tracer/ue.c
+index b28f83b0f2..54fb1b8630 100644
+--- a/common/utils/T/tracer/ue.c
++++ b/common/utils/T/tracer/ue.c
+@@ -774,8 +774,8 @@ restart:
+     e = get_event(ue_data.socket, &ebuf, database);
+     if (e.type == -1) goto restart;
+     if (pthread_mutex_lock(&ue_data.lock)) abort();
+-    handle_event(h, e);
+     if (pthread_mutex_unlock(&ue_data.lock)) abort();
++    handle_event(h, e);
+   }
+ 
+   return 0;

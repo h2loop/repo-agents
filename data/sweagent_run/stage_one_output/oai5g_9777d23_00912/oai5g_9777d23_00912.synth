@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix CRC computation error in send_standalone_dummy function\n\n### Summary\nThe `send_standalone_dummy()` function in `openair2/PHY_INTERFACE/phy_stub_UE.c` was sending malformed dummy data that caused CRC computation or checking errors downstream. When no UL indication messages were generated, the function would send a simple `{0, 0}` byte array which doesn't conform to the NFAPI protocol format. This led to false positive CRC errors or missed error detection in downstream components that expected properly formatted NFAPI messages.\n\nThe fix modifies `send_standalone_dummy()` to send a properly formatted empty CRC indication message instead of dummy data, maintaining the expected NFAPI message flow while correctly indicating that no CRCs were processed.\n\n### Changes\n- `openair2/PHY_INTERFACE/phy_stub_UE.c`: Replaced dummy data sending with proper NFAPI CRC indication initialization and transmission\n"
+}

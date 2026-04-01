@@ -1,0 +1,13 @@
+diff --git a/common/utils/LOG/log.c b/common/utils/LOG/log.c
+index 1fe2280c15..e41e15af5f 100644
+--- a/common/utils/LOG/log.c
++++ b/common/utils/LOG/log.c
+@@ -76,7 +76,7 @@ typedef struct {
+ 
+ static log_mem_cnt_t log_mem_d[2];
+ static int log_mem_flag = 0;
+-static volatile int log_mem_side = 0;
++static volatile unsigned int log_mem_side = 0;
+ static pthread_mutex_t log_mem_lock;
+ static pthread_cond_t log_mem_notify;
+ static pthread_t log_mem_thread;

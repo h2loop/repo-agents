@@ -1,0 +1,9 @@
+{
+  "run_id": "s00440_815e3f",
+  "pr_text": "## Title: Replace deprecated localtime() with thread-safe localtime_r()\n\n### Summary\nReplace two occurrences of the deprecated `localtime()` function with the thread-safe `localtime_r()` alternative in the `multi-rru-clean.c` utility. The `localtime()` function returns a pointer to a statically allocated struct which is not thread-safe and can be overwritten by subsequent calls. This poses correctness risks for any future multi-threaded usage of the tracer utility. The `localtime_r()` variant st",
+  "trajectory_path": "data/raw/s00440_815e3f_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00440_815e3f_p2.diff",
+  "patch_lines": 9,
+  "trajectory_steps": 30,
+  "timestamp": "2026-02-10T13:19:28Z"
+}

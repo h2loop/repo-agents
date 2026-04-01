@@ -1,0 +1,31 @@
+{
+  "run_id": "s00254_6fdfc8",
+  "function": {
+    "name": "tx_list_remove_sn",
+    "file": "openair2/LAYER2/rlc_v2/rlc_entity_am.c",
+    "start_line": 486,
+    "end_line": 508,
+    "body_lines": 23,
+    "signature": "rlc_tx_pdu_segment_t *tx_list_remove_sn(rlc_tx_pdu_segment_t *list, int sn)",
+    "subsystem": "openair2/LAYER2/rlc_v2",
+    "token_estimate": 52
+  },
+  "bug": {
+    "bug_id": "telecom_timer_incorrect_duration",
+    "description": "protocol timer configured with incorrect duration violating 3GPP timing requirements",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a protocol timer configured with incorrect duration violating 3GPP timing requirements downstream of function tx_list_remove_sn in the openair2/LAYER2/rlc_v2 subsystem.\nThe function is located at openair2/LAYER2/rlc_v2/rlc_entity_am.c:486.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00254_6fdfc8_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00254_6fdfc8_p1.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 43,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:12:24Z"
+}

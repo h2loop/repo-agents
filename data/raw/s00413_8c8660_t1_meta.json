@@ -1,0 +1,32 @@
+{
+  "run_id": "s00413_8c8660",
+  "function": {
+    "name": "prepare_du_configuration_update",
+    "file": "openair2/LAYER2/NR_MAC_gNB/config.c",
+    "start_line": 1089,
+    "end_line": 1109,
+    "body_lines": 21,
+    "signature": "void prepare_du_configuration_update(gNB_MAC_INST *mac, f1ap_served_cell_info_t *info, NR_BCCH_BCH_Message_t *mib, const NR_BCCH_DL_SCH_Message_t *sib1)",
+    "subsystem": "openair2/LAYER2/NR_MAC_gNB",
+    "token_estimate": 61
+  },
+  "bug": {
+    "bug_id": "c_type_confusion",
+    "description": "type confusion where a pointer is cast to an incompatible struct type",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a type confusion where a pointer is cast to an incompatible struct type downstream of function prepare_du_configuration_update in the openair2/LAYER2/NR_MAC_gNB subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_gNB/config.c:1089.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00413_8c8660_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00413_8c8660_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 103,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:14:02Z"
+}

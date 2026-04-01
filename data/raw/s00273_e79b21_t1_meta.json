@@ -1,0 +1,29 @@
+{
+  "run_id": "s00273_e79b21",
+  "function": {
+    "name": "dl_tti_pdu_type_to_str",
+    "file": "nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c",
+    "start_line": 2136,
+    "end_line": 2151,
+    "body_lines": 16,
+    "signature": "static char *dl_tti_pdu_type_to_str(uint16_t pdu_type)",
+    "subsystem": "nfapi/open-nFAPI/fapi",
+    "token_estimate": 30
+  },
+  "bug": {
+    "bug_id": "telecom_crc_error",
+    "description": "CRC computation or checking error causing false positive or missed error detection",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a CRC computation or checking error causing false positive or missed error detection downstream of function dl_tti_pdu_type_to_str in the nfapi/open-nFAPI/fapi subsystem.\nThe function is located at nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c:2136.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00273_e79b21_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00273_e79b21_p1.diff",
+  "patch_lines": 44,
+  "trajectory_steps": 79,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T14:02:48Z"
+}

@@ -1,0 +1,32 @@
+{
+  "run_id": "s00184_365363",
+  "function": {
+    "name": "nr_pdcp_ue_add_srb_pdcp_entity",
+    "file": "openair2/LAYER2/nr_pdcp/nr_pdcp_ue_manager.c",
+    "start_line": 160,
+    "end_line": 176,
+    "body_lines": 17,
+    "signature": "void nr_pdcp_ue_add_srb_pdcp_entity(nr_pdcp_ue_t *ue, int srb_id, nr_pdcp_entity_t *entity)",
+    "subsystem": "openair2/LAYER2/nr_pdcp",
+    "token_estimate": 49
+  },
+  "bug": {
+    "bug_id": "c_type_confusion",
+    "description": "type confusion where a pointer is cast to an incompatible struct type",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a type confusion where a pointer is cast to an incompatible struct type downstream of function nr_pdcp_ue_add_srb_pdcp_entity in the openair2/LAYER2/nr_pdcp subsystem.\nThe function is located at openair2/LAYER2/nr_pdcp/nr_pdcp_ue_manager.c:160.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00184_365363_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00184_365363_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 35,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:02:31Z"
+}

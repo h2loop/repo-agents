@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix IMSI display formatting in NAS identity functions\n\n### Summary\nThe `imsiIdentity()` function in the AS simulator was incorrectly formatting IMSI values due to several bugs in digit handling. For IMSIs with even digit counts, digit 6 was omitted from display. For IMSIs with odd digit counts, digit 15 was not included in the output format string despite being passed as an argument.\n\nAdditionally, the function contained incorrect logic for handling the padding digit (digit 15) that attempted to display it based on its value rather than the IMSI's odd/even digit count flag.\n\nThis fix corrects the digit formatting for both odd and even length IMSIs and properly handles the padding digit according to the mobile identity specification.\n\n### Changes\n- `openair3/NAS/TEST/AS_SIMULATOR/nas_data.c`: Fixed `imsiIdentity()` function digit formatting and padding logic\n"
+}

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00207_230103",
+  "pr_text": "## Title: Fix incorrect field lookup logic in T tracer get_field function\n\n### Summary\nThe `get_field` function in the T tracer utility contains a logic error that causes it to return incorrect field indices when searching database event formats. When a field with matching name but mismatched type is encountered, the function breaks out of the loop but still returns the index of the mismatched field, rather than continuing the search.\n\nThis incorrect field indexing propagates downstream to MCS s",
+  "trajectory_path": "data/raw/s00207_230103_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00207_230103_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 6,
+  "timestamp": "2026-02-10T11:51:56Z"
+}

@@ -1,0 +1,82 @@
+diff --git a/openair2/UTIL/OMG/rwp.c b/openair2/UTIL/OMG/rwp.c
+index 8e5ab43081..6f2d048f78 100644
+--- a/openair2/UTIL/OMG/rwp.c
++++ b/openair2/UTIL/OMG/rwp.c
+@@ -322,12 +322,22 @@ update_rwp_nodes (double cur_time)
+ 
+       my_node = tmp->pair->b;
+ 
+-      while (cur_time >= tmp->pair->next_event_t) {
+-        if (my_node->mobile == 1)
+-          sleep_rwp_node (tmp->pair, cur_time);
+-        else
+-          move_rwp_node (tmp->pair, cur_time);
+-
++      // Process all overdue events one by one until we're caught up
++      double last_event_time = tmp->pair->next_event_t;
++      while ((cur_time - omg_eps) > tmp->pair->next_event_t) {
++        if (my_node->mobile == 1) {
++          sleep_rwp_node (tmp->pair, tmp->pair->next_event_t);
++        } else {
++          move_rwp_node (tmp->pair, tmp->pair->next_event_t);
++        }
++        // After each call, the next_event_t should be updated to a future time
++        // If it's not properly updated (stays the same or goes backward), break to avoid infinite loop
++        if (tmp->pair->next_event_t <= last_event_time) {
++          // This check is to prevent infinite loop in case of bug
++          // In a correct implementation, next_event_t should always move forward
++          break;
++        }
++        last_event_time = tmp->pair->next_event_t;
+       }
+     }
+     //case3: current time less than the time to next event
+@@ -365,22 +375,34 @@ get_rwp_positions_updated (double cur_time)
+           tmp->pair->b->mob->speed * (cur_time -
+                                       tmp->pair->b->mob->start_journey);
+         dx = fabs (tmp->pair->b->mob->x_from - tmp->pair->b->mob->x_to);
+-
+-        if (dx < len) {
++        dy = fabs (tmp->pair->b->mob->y_from - tmp->pair->b->mob->y_to);
++        
++        // Total distance to target
++        double total_distance = dx + dy;
++        
++        if (len >= total_distance) {
++          // We've reached or passed the target
+           tmp->pair->b->x_pos = tmp->pair->b->mob->x_to;
+-          tmp->pair->b->y_pos =
+-            tmp->pair->b->mob->y_from + (len -
+-                                         dx) *
+-            ((tmp->pair->b->mob->y_to -
+-              tmp->pair->b->mob->y_from) /
+-             fabs (tmp->pair->b->mob->y_to -
+-                   tmp->pair->b->mob->y_from));
++          tmp->pair->b->y_pos = tmp->pair->b->mob->y_to;
+         } else {
+-          tmp->pair->b->y_pos = tmp->pair->b->mob->y_from;
+-          tmp->pair->b->x_pos = tmp->pair->b->mob->x_from + len *
+-                                ((tmp->pair->b->mob->x_to - tmp->pair->b->mob->x_from)
+-                                 / fabs (tmp->pair->b->mob->x_to -
+-                                         tmp->pair->b->mob->x_from));
++          // We're still moving toward the target
++          if (len <= dx) {
++            // Still moving in x direction
++            tmp->pair->b->y_pos = tmp->pair->b->mob->y_from;
++            tmp->pair->b->x_pos = tmp->pair->b->mob->x_from + len *
++                                  ((tmp->pair->b->mob->x_to - tmp->pair->b->mob->x_from)
++                                   / fabs (tmp->pair->b->mob->x_to -
++                                           tmp->pair->b->mob->x_from + 0.000001)); // Add small value to avoid division by zero
++          } else {
++            // Finished moving in x direction, now moving in y direction
++            tmp->pair->b->x_pos = tmp->pair->b->mob->x_to;
++            tmp->pair->b->y_pos =
++              tmp->pair->b->mob->y_from + (len - dx) *
++              ((tmp->pair->b->mob->y_to -
++                tmp->pair->b->mob->y_from) /
++               (fabs (tmp->pair->b->mob->y_to -
++                      tmp->pair->b->mob->y_from) + 0.000001)); // Add small value to avoid division by zero
++          }
+         }
+ 
+       }

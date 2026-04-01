@@ -1,0 +1,15 @@
+diff --git a/openair3/NAS/UE/nas_proc.c b/openair3/NAS/UE/nas_proc.c
+index 41230696a4..54e14a0630 100644
+--- a/openair3/NAS/UE/nas_proc.c
++++ b/openair3/NAS/UE/nas_proc.c
+@@ -545,8 +545,8 @@ int nas_proc_get_loc_info(nas_user_t *user, char *tac, char *ci, int *AcT)
+ {
+   LOG_FUNC_IN;
+ 
+-  sprintf(tac, "%.4x", emm_main_get_plmn_tac(user->emm_data));  // two byte
+-  sprintf(ci, "%.8x", emm_main_get_plmn_ci(user->emm_data));    // four byte
++  snprintf(tac, 5, "%.4x", emm_main_get_plmn_tac(user->emm_data));  // two byte
++  snprintf(ci, 9, "%.8x", emm_main_get_plmn_ci(user->emm_data));    // four byte
+   *AcT = emm_main_get_plmn_rat(user->emm_data);             // E-UTRAN
+ 
+   LOG_FUNC_RETURN (RETURNok);

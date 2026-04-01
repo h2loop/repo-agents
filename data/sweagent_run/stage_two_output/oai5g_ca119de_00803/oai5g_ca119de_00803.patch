@@ -1,0 +1,35 @@
+diff --git a/openair3/NAS/UE/API/USER/at_command.c b/openair3/NAS/UE/API/USER/at_command.c
+index a6591c6748..4d9c8f4e0d 100644
+--- a/openair3/NAS/UE/API/USER/at_command.c
++++ b/openair3/NAS/UE/API/USER/at_command.c
+@@ -49,14 +49,15 @@ Description Defines the ATtention (AT) command set supported by the NAS
+ #include <string.h> // strncpy, strstr, strchr, strcmp, strncasecmp
+ // strlen, memmove, strdup, strtok
+ #include <stdarg.h> // va_start, va_arg, va_end
++#include <stdbool.h> // bool type support
+ 
+ /****************************************************************************/
+ /****************  E X T E R N A L    D E F I N I T I O N S  ****************/
+ /****************************************************************************/
+ 
+ // FIXME Put this in .h
+-extern int at_response_format_v1;
+-extern int at_error_code_suppression_q1;
++extern bool at_response_format_v1;
++extern bool at_error_code_suppression_q1;
+ extern at_error_format_t at_error_format;
+ 
+ /****************************************************************************/
+diff --git a/openair3/NAS/UE/API/USER/at_error.c b/openair3/NAS/UE/API/USER/at_error.c
+index 78a3c407e9..9813707ddd 100644
+--- a/openair3/NAS/UE/API/USER/at_error.c
++++ b/openair3/NAS/UE/API/USER/at_error.c
+@@ -50,7 +50,7 @@ Description Defines error codes returned when execution of AT command
+ /****************************************************************************/
+ 
+ // FIXME put this in .h
+-extern int at_response_format_v1;
++extern bool at_response_format_v1;
+ 
+ /*
+  * Result code suppression indicator (set by ATQ0 and ATQ1)

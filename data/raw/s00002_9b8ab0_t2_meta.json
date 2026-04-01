@@ -1,0 +1,9 @@
+{
+  "run_id": "s00002_9b8ab0",
+  "pr_text": "## Title: Fix HARQ process handling in SLSCH procedures for sidelink\n\n### Summary\nThe sidelink SLSCH procedures contain incorrect HARQ process management that causes retransmission failures and wrong redundancy version (RV) selection. The original implementation unconditionally sets `harq_to_be_cleared=true` without proper HARQ state tracking, leading to incorrect behavior for both new transmissions and retransmissions.\n\nThis fix implements proper HARQ process management for sidelink shared chan",
+  "trajectory_path": "data/raw/s00002_9b8ab0_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00002_9b8ab0_p2.diff",
+  "patch_lines": 49,
+  "trajectory_steps": 51,
+  "timestamp": "2026-02-10T10:20:15Z"
+}

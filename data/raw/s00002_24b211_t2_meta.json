@@ -1,0 +1,9 @@
+{
+  "run_id": "s00002_24b211",
+  "pr_text": "## Title: Fix memory leaks in GTP-U data path\n\n### Summary\nThe GTP-U interface has memory management issues where allocated buffers are not properly freed after use, leading to memory leaks and potential double-free errors. Specifically, the `extensionHeader` structure in `gtpv1uSendDlDeliveryStatus()` and the data buffer in the `GTPV1U_TUNNEL_DATA_REQ` message processing path are not released after being passed to downstream functions.\n\nThis fix adds the missing `free()` and `itti_free()` calls",
+  "trajectory_path": "data/raw/s00002_24b211_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00002_24b211_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 26,
+  "timestamp": "2026-02-11T07:35:26Z"
+}

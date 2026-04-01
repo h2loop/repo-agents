@@ -1,0 +1,24 @@
+diff --git a/openair1/PHY/NR_UE_TRANSPORT/nr_psbch_rx.c b/openair1/PHY/NR_UE_TRANSPORT/nr_psbch_rx.c
+index 7406855cc4..d76bf04faa 100644
+--- a/openair1/PHY/NR_UE_TRANSPORT/nr_psbch_rx.c
++++ b/openair1/PHY/NR_UE_TRANSPORT/nr_psbch_rx.c
+@@ -141,8 +141,8 @@ int nr_rx_psbch(PHY_VARS_NR_UE *ue,
+ 
+   for (int symbol = 0; symbol < numsym;) {
+     const uint16_t nb_re = SL_NR_NUM_PSBCH_DATA_RE_IN_ONE_SYMBOL;
+-    __attribute__((aligned(32))) struct complex16 rxdataF_ext[frame_parms->nb_antennas_rx][nb_re + 1];
+-    __attribute__((aligned(32))) struct complex16 dl_ch_estimates_ext[frame_parms->nb_antennas_rx][nb_re + 1];
++    __attribute__((aligned(32))) struct complex16 rxdataF_ext[frame_parms->nb_antennas_rx][nb_re];
++    __attribute__((aligned(32))) struct complex16 dl_ch_estimates_ext[frame_parms->nb_antennas_rx][nb_re];
+     // memset(dl_ch_estimates_ext,0, sizeof  dl_ch_estimates_ext);
+     nr_psbch_extract(frame_parms->samples_per_slot_wCP,
+                      rxdataF,
+@@ -166,7 +166,7 @@ int nr_rx_psbch(PHY_VARS_NR_UE *ue,
+     LOG_I(PHY, "PSBCH RX log2_maxh = %f (%d)\n", log2_maxh, max_h);
+ #endif
+ 
+-    __attribute__((aligned(32))) struct complex16 rxdataF_comp[frame_parms->nb_antennas_rx][nb_re + 1];
++    __attribute__((aligned(32))) struct complex16 rxdataF_comp[frame_parms->nb_antennas_rx][nb_re];
+     nr_pbch_channel_compensation(rxdataF_ext,
+                                  dl_ch_estimates_ext,
+                                  nb_re,

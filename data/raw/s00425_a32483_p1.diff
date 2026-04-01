@@ -1,0 +1,13 @@
+diff --git a/openair2/LAYER2/MAC/pre_processor.c b/openair2/LAYER2/MAC/pre_processor.c
+index f9f6269f43..7d09e6919b 100644
+--- a/openair2/LAYER2/MAC/pre_processor.c
++++ b/openair2/LAYER2/MAC/pre_processor.c
+@@ -835,6 +835,8 @@ int rr_ul_run(module_id_t Mod_id,
+               UE_info->UE_sched_ctrl[UE_id].round_UL[CC_id][harq_pid]);
+         continue;
+       }
++      /* Skip calculate_max_mcs_min_rb for retransmissions - HARQ parameters already set */
++      continue;
+       const uint8_t cqi = UE_info->UE_sched_ctrl[UE_id].dl_cqi[CC_id];
+       const int idx = CCE_try_allocate_ulsch(Mod_id, CC_id, subframe, UE_id, cqi);
+       if (idx < 0)

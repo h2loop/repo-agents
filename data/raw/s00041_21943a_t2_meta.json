@@ -1,0 +1,9 @@
+{
+  "run_id": "s00041_21943a",
+  "pr_text": "## Title: Initialize UE template RB allocation fields to prevent scheduling violations\n\n### Summary\nThe `mac_init_cell_params()` function in the MAC layer was not initializing critical resource block (RB) allocation fields in the `UE_TEMPLATE` structure. This left these fields with undefined values that were subsequently used by the uplink scheduler, causing incorrect RB allocation decisions and violating scheduling constraints downstream. The uninitialized fields could lead to out-of-bounds RB ",
+  "trajectory_path": "data/raw/s00041_21943a_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00041_21943a_p2.diff",
+  "patch_lines": 15,
+  "trajectory_steps": 16,
+  "timestamp": "2026-02-11T09:23:55Z"
+}

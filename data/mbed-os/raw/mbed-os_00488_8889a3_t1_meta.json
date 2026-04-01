@@ -1,0 +1,26 @@
+{
+  "run_id": "mbed-os_00488_8889a3",
+  "function": {
+    "name": "HAL_I2S_RxHalfCpltCallback",
+    "file": "targets/TARGET_STM/TARGET_STM32WL/STM32Cube_FW/STM32WLxx_HAL_Driver/stm32wlxx_hal_i2s.c",
+    "start_line": 1541,
+    "end_line": 1549,
+    "body_lines": 9,
+    "signature": "__weak void HAL_I2S_RxHalfCpltCallback(I2S_HandleTypeDef *hi2s)",
+    "subsystem": "targets/TARGET_STM/TARGET_STM32WL",
+    "token_estimate": 38
+  },
+  "bug": {
+    "bug_id": "c_deadlock",
+    "description": "deadlock caused by inconsistent lock acquisition ordering",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a deadlock caused by inconsistent lock acquisition ordering downstream of function HAL_I2S_RxHalfCpltCallback in the targets/TARGET_STM/TARGET_STM32WL subsystem.\nThe function is located at targets/TARGET_STM/TARGET_STM32WL/STM32Cube_FW/STM32WLxx_HAL_Driver/stm32wlxx_hal_i2s.c:1541.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 6,
+  "trajectory_steps": 36,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:18:42Z"
+}

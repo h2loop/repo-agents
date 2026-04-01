@@ -1,0 +1,24 @@
+diff --git a/openair2/LAYER2/MAC/config.c b/openair2/LAYER2/MAC/config.c
+index 528c979595..2e9c4de683 100644
+--- a/openair2/LAYER2/MAC/config.c
++++ b/openair2/LAYER2/MAC/config.c
+@@ -697,6 +697,19 @@ config_sib13( int Mod_id,
+               int mbsfn_Area_idx,
+              long mbsfn_AreaId_r9){
+ 
++  // Validate input parameters and system state before processing protocol message
++  AssertFatal(Mod_id >= 0 && Mod_id < MAX_MAC_INST, 
++              "[eNB%d] Invalid Mod_id %d in config_sib13 (valid range: 0-%d)\n", 
++              Mod_id, Mod_id, MAX_MAC_INST-1);
++  AssertFatal(CC_id >= 0, "[eNB%d] Invalid CC_id %d in config_sib13\n", Mod_id, CC_id);
++  AssertFatal(mbsfn_Area_idx >= 0, "[eNB%d] Invalid mbsfn_Area_idx %d in config_sib13\n", Mod_id, mbsfn_Area_idx);
++  
++  // Validate MAC instance and its components
++  AssertFatal(RC.mac != NULL, "[eNB%d] RC.mac is NULL in config_sib13\n", Mod_id);
++  AssertFatal(RC.mac[Mod_id] != NULL, "[eNB%d] RC.mac[%d] is NULL in config_sib13\n", Mod_id, Mod_id);
++  AssertFatal(RC.mac[Mod_id]->config != NULL, "[eNB%d] RC.mac[%d]->config is NULL in config_sib13\n", Mod_id, Mod_id);
++  AssertFatal(RC.mac[Mod_id]->if_inst != NULL, "[eNB%d] RC.mac[%d]->if_inst is NULL in config_sib13\n", Mod_id, Mod_id);
++
+   //nfapi_config_request_t *cfg = &RC.mac[Mod_id]->config[CC_id];
+ 
+   //work around until PHY_config_re "update" mechanisms get defined

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix resource cleanup in VCD signal dumper initialization\n\n### Summary\nThe VCD signal dumper initialization function `vcd_signal_dumper_init` in `common/utils/LOG/vcd_signal_dumper.c` had a resource leak. When the function failed to create the VCD dumper thread due to `pthread_create` failure, it would return early without closing the VCD output file that was opened earlier in the function.\n\nThis caused a file descriptor leak that would accumulate over time in scenarios where thread creation repeatedly failed.\n\nThe fix ensures proper resource cleanup by closing the VCD file descriptor before returning from the error path.\n\n### Changes\n- `common/utils/LOG/vcd_signal_dumper.c`: Added file descriptor cleanup in the pthread_create error path in `vcd_signal_dumper_init`.\n\n"
+}

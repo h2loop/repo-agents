@@ -1,0 +1,47 @@
+diff --git a/openair1/PHY/LTE_UE_TRANSPORT/dlsch_llr_computation.c b/openair1/PHY/LTE_UE_TRANSPORT/dlsch_llr_computation.c
+index bcab4cd8dd..db1bccf592 100644
+--- a/openair1/PHY/LTE_UE_TRANSPORT/dlsch_llr_computation.c
++++ b/openair1/PHY/LTE_UE_TRANSPORT/dlsch_llr_computation.c
+@@ -159,12 +159,12 @@ int dlsch_qpsk_llr(LTE_DL_FRAME_PARMS *frame_parms,
+ 
+ 
+   LOG_D(PHY,"[p %d : symb %d / FirstSym %d / Length %d]: @LLR Buff %p, @LLR Buff(symb) %p \n",
+-	frame_parms->nb_antenna_ports_eNB,
+-	symbol,
+-	first_symbol_flag,
+-	len,
+-	dlsch_llr,
+-	llr32);
++        frame_parms->nb_antenna_ports_eNB,
++        symbol,
++        first_symbol_flag,
++        len,
++        dlsch_llr,
++        llr32);
+ 
+ 
+   qpsk_llr((short *)rxF,
+@@ -179,13 +179,17 @@ void qpsk_llr(int16_t *stream0_in,
+               int length)
+ {
+   int i;
+-  for (i=0; i<2*length; i++) {
+-    *stream0_out = *stream0_in;
+-    //printf("llr %d : (%d,%d)\n",i,((int16_t*)stream0_out)[0],((int16_t*)stream0_out)[1]);
+-    stream0_in++;
+-    stream0_out++;
++  // For QPSK, each complex symbol carries 2 bits
++  // The LLR for each bit is simply the corresponding component of the received signal
++  // For a received symbol y = y_r + j*y_i:
++  // LLR for first bit (real part) = y_r
++  // LLR for second bit (imaginary part) = y_i
++  for (i = 0; i < length; i++) {
++    // Copy real part (first bit LLR)
++    stream0_out[2*i] = stream0_in[2*i];
++    // Copy imaginary part (second bit LLR)
++    stream0_out[2*i+1] = stream0_in[2*i+1];
+   }
+-
+ }
+ 
+ int32_t dlsch_qpsk_llr_SIC(LTE_DL_FRAME_PARMS *frame_parms,

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect DMRS sequence generation for SLSS ID 0 in sidelink PSBCH\n\n### Summary\nThe NR UE sidelink PSBCH DMRS sequence generation was producing incorrect sequences when SLSS ID 0 was used. This caused issues with PSBCH decoding and impacted sidelink synchronization performance.\n\nThe root cause was an improper initialization of the gold sequence generator when slss_id was 0, leading to all-zero DMRS sequences being generated.\n\n### Changes\n- `openair1/PHY/NR_REFSIG/nr_gold_ue.c`: Fixed gold sequence initialization to ensure non-zero x2 parameter\n- `openair1/PHY/INIT/nr_init_ue.c`: Improved bit extraction clarity in DMRS modulation function\n\n"
+}

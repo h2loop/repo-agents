@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect service type encoding in NAS messages\n\n### Summary\nThe `encode_u8_service_type()` function in the NAS IES module was not returning the expected value when called, causing malformed Extended Service Request messages. The issue manifested as incorrect service type values being sent to the core network, leading to rejected service requests.\n\nThis fix simplifies the encoding function and makes debug output conditional like other similar IES encoders.\n\n### Changes\n- `openair3/NAS/COMMON/IES/ServiceType.c`: Simplified `encode_u8_service_type()` implementation and made debug output conditional\n"
+}

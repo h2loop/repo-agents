@@ -1,0 +1,33 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
+index 8ae9c3dcc5..2bc236dde3 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
+@@ -373,8 +373,8 @@ NR_ControlResourceSet_t *get_coreset(gNB_MAC_INST *nrmac,
+     }
+ 
+     if (coreset) AssertFatal(coreset_id == coreset->controlResourceSetId,
+-			     "ID of common ss coreset does not correspond to id set in the "
+-			     "search space\n");
++                             "ID of common ss coreset does not correspond to id set in the "
++                             "search space\n");
+     return coreset;
+   } else {
+     const int n = ((NR_BWP_DownlinkDedicated_t*)bwp)->pdcch_Config->choice.setup->controlResourceSetToAddModList->list.count;
+@@ -796,7 +796,7 @@ void config_uldci(const NR_UE_ServingCell_Info_t *sc_info,
+   NR_PUSCH_Config_t *pusch_Config = ul_bwp->pusch_Config;
+ 
+   if (pusch_Config) AssertFatal(pusch_Config->resourceAllocation == NR_PUSCH_Config__resourceAllocation_resourceAllocationType1,
+-			"Only frequency resource allocation type 1 is currently supported\n");
++                        "Only frequency resource allocation type 1 is currently supported\n");
+   switch (dci_format) {
+     case NR_UL_DCI_FORMAT_0_0:
+       dci_pdu_rel15->format_indicator = 0;
+@@ -2324,7 +2324,7 @@ void configure_UE_BWP(gNB_MAC_INST *nr_mac,
+       NRRIV2PRBOFFSET(scc->uplinkConfigCommon->initialUplinkBWP->genericParameters.locationAndBandwidth, MAX_BWP_SIZE);
+ 
+   sc_info->dl_bw_tbslbrm = get_dlbw_tbslbrm(sc_info->initial_dl_BWPSize, servingCellConfig);
+-  sc_info->dl_bw_tbslbrm = get_ulbw_tbslbrm(sc_info->initial_ul_BWPSize, servingCellConfig);
++  sc_info->ul_bw_tbslbrm = get_ulbw_tbslbrm(sc_info->initial_ul_BWPSize, servingCellConfig);
+ 
+   if (UL_BWP->bwp_id > 0) {
+     UL_BWP->pucch_ConfigCommon = ul_bwp->bwp_Common->pucch_ConfigCommon ? ul_bwp->bwp_Common->pucch_ConfigCommon->choice.setup : NULL;

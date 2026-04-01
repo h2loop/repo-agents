@@ -1,0 +1,15 @@
+diff --git a/openair1/PHY/CODING/lte_rate_matching.c b/openair1/PHY/CODING/lte_rate_matching.c
+index 5aedde34df..c4f5320147 100644
+--- a/openair1/PHY/CODING/lte_rate_matching.c
++++ b/openair1/PHY/CODING/lte_rate_matching.c
+@@ -717,6 +717,10 @@ int lte_rate_matching_turbo_rx(uint32_t RTC,
+ 
+ #endif
+   }
++  
++  // Reset index if we reached the end of buffer to ensure proper wraparound
++  if (ind == Ncb)
++    ind = 0;
+ 
+   while(k<E) {
+     for (ind=0; (ind<Ncb)&&(k<E); ind++) {

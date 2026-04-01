@@ -1,0 +1,208 @@
+diff --git a/tests/bluetooth/tester/src/audio/btp_bap_unicast.c b/tests/bluetooth/tester/src/audio/btp_bap_unicast.c
+index df59102c..77007425 100644
+--- a/tests/bluetooth/tester/src/audio/btp_bap_unicast.c
++++ b/tests/bluetooth/tester/src/audio/btp_bap_unicast.c
+@@ -41,6 +41,9 @@ static struct bt_bap_qos_cfg_pref qos_pref =
+ static struct btp_bap_unicast_connection connections[CONFIG_BT_MAX_CONN];
+ static struct btp_bap_unicast_group cigs[CONFIG_BT_ISO_MAX_CIG];
+ 
++/* Mutex to protect access to shared stream data */
++static K_MUTEX_DEFINE(connections_mutex);
++
+ static struct btp_bap_unicast_stream *stream_bap_to_unicast(const struct bt_bap_stream *stream)
+ {
+ 	return CONTAINER_OF(CONTAINER_OF(CONTAINER_OF(stream, struct bt_cap_stream, bap_stream),
+@@ -178,13 +181,19 @@ static void btp_send_ascs_cis_connected_ev(const struct bt_bap_stream *stream)
+ {
+ 	struct btp_bap_unicast_stream *u_stream;
+ 	struct btp_ascs_cis_connected_ev ev;
++	uint8_t ase_id, cis_id;
+ 
+ 	u_stream = stream_bap_to_unicast(stream);
+ 	__ASSERT(u_stream != NULL, "Failed to get unicast_stream from %p", stream);
+ 
++	k_mutex_lock(&connections_mutex, K_FOREVER);
++	ase_id = u_stream->ase_id;
++	cis_id = u_stream->cis_id;
++	k_mutex_unlock(&connections_mutex);
++
+ 	bt_addr_le_copy(&ev.address, bt_conn_get_dst(stream->conn));
+-	ev.ase_id = u_stream->ase_id;
+-	ev.cis_id = u_stream->cis_id;
++	ev.ase_id = ase_id;
++	ev.cis_id = cis_id;
+ 
+ 	tester_event(BTP_SERVICE_ID_ASCS, BTP_ASCS_EV_CIS_CONNECTED, &ev, sizeof(ev));
+ }
+@@ -193,13 +202,19 @@ static void btp_send_ascs_cis_disconnected_ev(const struct bt_bap_stream *stream
+ {
+ 	struct btp_bap_unicast_stream *u_stream;
+ 	struct btp_ascs_cis_disconnected_ev ev;
++	uint8_t ase_id, cis_id;
+ 
+ 	u_stream = stream_bap_to_unicast(stream);
+ 	__ASSERT(u_stream != NULL, "Failed to get unicast_stream from %p", stream);
+ 
++	k_mutex_lock(&connections_mutex, K_FOREVER);
++	ase_id = u_stream->ase_id;
++	cis_id = u_stream->cis_id;
++	k_mutex_unlock(&connections_mutex);
++
+ 	bt_addr_le_copy(&ev.address, bt_conn_get_dst(stream->conn));
+-	ev.ase_id = u_stream->ase_id;
+-	ev.cis_id = u_stream->cis_id;
++	ev.ase_id = ase_id;
++	ev.cis_id = cis_id;
+ 	ev.reason = reason;
+ 
+ 	tester_event(BTP_SERVICE_ID_ASCS, BTP_ASCS_EV_CIS_DISCONNECTED, &ev, sizeof(ev));
+@@ -520,8 +535,13 @@ static void stream_state_changed(struct bt_bap_stream *stream)
+ {
+ 	struct btp_bap_unicast_stream *u_stream = stream_bap_to_unicast(stream);
+ 	struct bt_bap_ep_info info;
++	uint8_t ase_id;
+ 	int err;
+ 
++	k_mutex_lock(&connections_mutex, K_FOREVER);
++	ase_id = u_stream->ase_id;
++	k_mutex_unlock(&connections_mutex);
++
+ 	if (stream->ep == NULL) {
+ 		info.state = BT_BAP_EP_STATE_IDLE;
+ 	} else {
+@@ -533,7 +553,7 @@ static void stream_state_changed(struct bt_bap_stream *stream)
+ 		}
+ 	}
+ 
+-	btp_send_ascs_ase_state_changed_ev(stream->conn, u_stream->ase_id, info.state);
++	btp_send_ascs_ase_state_changed_ev(stream->conn, ase_id, info.state);
+ }
+ 
+ static void stream_configured_cb(struct bt_bap_stream *stream,
+@@ -619,6 +639,7 @@ static void stream_disabled_cb(struct bt_bap_stream *stream)
+ static void stream_released_cb(struct bt_bap_stream *stream)
+ {
+ 	uint8_t cig_id;
++	uint8_t ase_id;
+ 	struct bt_bap_ep_info info;
+ 	struct btp_bap_unicast_connection *u_conn;
+ 	struct btp_bap_unicast_stream *u_stream = stream_bap_to_unicast(stream);
+@@ -638,17 +659,23 @@ static void stream_released_cb(struct bt_bap_stream *stream)
+ 		}
+ 	}
+ 
++	k_mutex_lock(&connections_mutex, K_FOREVER);
++	ase_id = u_stream->ase_id;
++	k_mutex_unlock(&connections_mutex);
++
+ 	conn = bt_conn_lookup_addr_le(BT_ID_DEFAULT, &u_conn->address);
+ 	if (conn == NULL) {
+ 		LOG_ERR("Unknown connection");
+ 		return;
+ 	}
+ 
+-	btp_send_ascs_ase_state_changed_ev(conn, u_stream->ase_id, BT_BAP_EP_STATE_IDLE);
++	btp_send_ascs_ase_state_changed_ev(conn, ase_id, BT_BAP_EP_STATE_IDLE);
+ 	bt_conn_unref(conn);
+ 
++	k_mutex_lock(&connections_mutex, K_FOREVER);
+ 	cig_id = u_stream->cig_id;
+ 	btp_bap_unicast_stream_free(u_stream);
++	k_mutex_unlock(&con
+... [truncated] ...
+57,7 @@ static void unicast_client_start_cb(struct bt_bap_stream *stream,
+ 				    enum bt_bap_ascs_reason reason)
+ {
+ 	struct btp_bap_unicast_stream *u_stream = stream_bap_to_unicast(stream);
++	uint8_t ase_id;
+ 	struct bt_bap_ep_info ep_info;
+ 	int err;
+ 
+@@ -918,6 +966,10 @@ static void unicast_client_start_cb(struct bt_bap_stream *stream,
+ 	LOG_DBG("stream %p start operation rsp_code %u reason %u", stream, rsp_code, reason);
+ 	u_stream->already_sent = false;
+ 
++	k_mutex_lock(&connections_mutex, K_FOREVER);
++	ase_id = u_stream->ase_id;
++	k_mutex_unlock(&connections_mutex);
++
+ 	err = bt_bap_ep_get_info(stream->ep, &ep_info);
+ 	if (err != 0) {
+ 		LOG_ERR("Failed to get ep info: %d", err);
+@@ -926,7 +978,7 @@ static void unicast_client_start_cb(struct bt_bap_stream *stream,
+ 	}
+ 
+ 	if (ep_info.dir == BT_AUDIO_DIR_SOURCE) {
+-		btp_send_ascs_operation_completed_ev(stream->conn, u_stream->ase_id,
++		btp_send_ascs_operation_completed_ev(stream->conn, ase_id,
+ 						     BT_ASCS_START_OP, BTP_ASCS_STATUS_SUCCESS);
+ 	}
+ }
+@@ -935,10 +987,15 @@ static void unicast_client_stop_cb(struct bt_bap_stream *stream, enum bt_bap_asc
+ 				   enum bt_bap_ascs_reason reason)
+ {
+ 	struct btp_bap_unicast_stream *u_stream = stream_bap_to_unicast(stream);
++	uint8_t ase_id;
+ 
+ 	LOG_DBG("stream %p stop operation rsp_code %u reason %u", stream, rsp_code, reason);
+ 
+-	btp_send_ascs_operation_completed_ev(stream->conn, u_stream->ase_id, BT_ASCS_STOP_OP,
++	k_mutex_lock(&connections_mutex, K_FOREVER);
++	ase_id = u_stream->ase_id;
++	k_mutex_unlock(&connections_mutex);
++
++	btp_send_ascs_operation_completed_ev(stream->conn, ase_id, BT_ASCS_STOP_OP,
+ 					     rsp_code == BT_BAP_ASCS_RSP_CODE_SUCCESS
+ 						     ? BTP_ASCS_STATUS_SUCCESS
+ 						     : BTP_ASCS_STATUS_FAILED);
+@@ -949,10 +1006,15 @@ static void unicast_client_disable_cb(struct bt_bap_stream *stream,
+ 				      enum bt_bap_ascs_reason reason)
+ {
+ 	struct btp_bap_unicast_stream *u_stream = stream_bap_to_unicast(stream);
++	uint8_t ase_id;
+ 
+ 	LOG_DBG("stream %p disable operation rsp_code %u reason %u", stream, rsp_code, reason);
+ 
+-	btp_send_ascs_operation_completed_ev(stream->conn, u_stream->ase_id, BT_ASCS_DISABLE_OP,
++	k_mutex_lock(&connections_mutex, K_FOREVER);
++	ase_id = u_stream->ase_id;
++	k_mutex_unlock(&connections_mutex);
++
++	btp_send_ascs_operation_completed_ev(stream->conn, ase_id, BT_ASCS_DISABLE_OP,
+ 					     rsp_code == BT_BAP_ASCS_RSP_CODE_SUCCESS
+ 						     ? BTP_ASCS_STATUS_SUCCESS
+ 						     : BTP_ASCS_STATUS_FAILED);
+@@ -963,10 +1025,15 @@ static void unicast_client_metadata_cb(struct bt_bap_stream *stream,
+ 				       enum bt_bap_ascs_reason reason)
+ {
+ 	struct btp_bap_unicast_stream *u_stream = stream_bap_to_unicast(stream);
++	uint8_t ase_id;
+ 
+ 	LOG_DBG("stream %p metadata operation rsp_code %u reason %u", stream, rsp_code, reason);
+ 
+-	btp_send_ascs_operation_completed_ev(stream->conn, u_stream->ase_id, BT_ASCS_METADATA_OP,
++	k_mutex_lock(&connections_mutex, K_FOREVER);
++	ase_id = u_stream->ase_id;
++	k_mutex_unlock(&connections_mutex);
++
++	btp_send_ascs_operation_completed_ev(stream->conn, ase_id, BT_ASCS_METADATA_OP,
+ 					     rsp_code == BT_BAP_ASCS_RSP_CODE_SUCCESS
+ 						     ? BTP_ASCS_STATUS_SUCCESS
+ 						     : BTP_ASCS_STATUS_FAILED);
+@@ -977,10 +1044,15 @@ static void unicast_client_release_cb(struct bt_bap_stream *stream,
+ 				      enum bt_bap_ascs_reason reason)
+ {
+ 	struct btp_bap_unicast_stream *u_stream = stream_bap_to_unicast(stream);
++	uint8_t ase_id;
+ 
+ 	LOG_DBG("stream %p release operation rsp_code %u reason %u", stream, rsp_code, reason);
+ 
+-	btp_send_ascs_operation_completed_ev(stream->conn, u_stream->ase_id, BT_ASCS_RELEASE_OP,
++	k_mutex_lock(&connections_mutex, K_FOREVER);
++	ase_id = u_stream->ase_id;
++	k_mutex_unlock(&connections_mutex);
++
++	btp_send_ascs_operation_completed_ev(stream->conn, ase_id, BT_ASCS_RELEASE_OP,
+ 					     rsp_code == BT_BAP_ASCS_RSP_CODE_SUCCESS
+ 						     ? BTP_ASCS_STATUS_SUCCESS
+ 						     : BTP_ASCS_STATUS_FAILED);

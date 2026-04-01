@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect message ID handling in NR P5 packing functions\n\n### Summary\nThe NR P5 message packing functionality had incorrect message ID constants in the switch statement that prevented proper function dispatch. Specifically, `pack_nr_pnf_start_response` and related functions were never being called due to mismatched case labels.\n\nThe issue manifested when trying to pack NR PNF START/STOP response messages, where the packing would fail silently or use incorrect packing routines.\n\n### Changes\n- `nfapi/open-nFAPI/nfapi/src/nfapi_p5.c`: Fixed message ID constants in switch statement\n- `nfapi/open-nFAPI/nfapi/src/nfapi_p5.c`: Added missing NR STOP message packing functions\n- `nfapi/open-nFAPI/nfapi/src/nfapi_p5.c`: Corrected function dispatch for NR STOP messages\n\n"
+}

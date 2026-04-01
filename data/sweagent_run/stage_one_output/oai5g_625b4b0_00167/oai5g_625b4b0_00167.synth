@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect protocol state machine transition in vendor extension callback\n\n### Summary\nThe vendor extension callback functions in the VNF were not properly setting the phy_id field when sending PNF start requests after receiving vendor extension responses. This caused incorrect protocol state machine transitions that violate the 3GPP specification.\n\nThe issue manifests as the PNF not receiving proper PHY identification in start requests, leading to undefined behavior in the protocol state machine.\n\n### Changes\n- `nfapi/oai_integration/nfapi_vnf.c`: Added missing phy_id assignment in both vendor_ext_cb functions\n  - LTE version (line 1652): Added `req.header.phy_id = rsp->header.phy_id;`\n  - NR version (line 1671): Added `req.header.phy_id = rsp->header.phy_id;`\n\n"
+}

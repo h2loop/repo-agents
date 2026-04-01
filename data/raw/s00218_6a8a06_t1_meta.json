@@ -1,0 +1,32 @@
+{
+  "run_id": "s00218_6a8a06",
+  "function": {
+    "name": "device_get_fd",
+    "file": "openair3/NAS/COMMON/UTIL/device.c",
+    "start_line": 241,
+    "end_line": 248,
+    "body_lines": 8,
+    "signature": "int device_get_fd(const void* id)",
+    "subsystem": "openair3/NAS/COMMON",
+    "token_estimate": 14
+  },
+  "bug": {
+    "bug_id": "c_integer_truncation",
+    "description": "integer truncation when assigning a wider type to a narrower type",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a integer truncation when assigning a wider type to a narrower type downstream of function device_get_fd in the openair3/NAS/COMMON subsystem.\nThe function is located at openair3/NAS/COMMON/UTIL/device.c:241.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00218_6a8a06_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00218_6a8a06_p1.diff",
+  "patch_lines": 5,
+  "trajectory_steps": 41,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:24:59Z"
+}

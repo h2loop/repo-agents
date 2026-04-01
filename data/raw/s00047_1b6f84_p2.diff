@@ -1,0 +1,48 @@
+diff --git a/openair3/NAS/UE/EMM/SAP/emm_as.c b/openair3/NAS/UE/EMM/SAP/emm_as.c
+index 1c7ba03f70..a9b2e3d25c 100644
+--- a/openair3/NAS/UE/EMM/SAP/emm_as.c
++++ b/openair3/NAS/UE/EMM/SAP/emm_as.c
+@@ -1081,8 +1081,13 @@ static int _emm_as_data_req(const emm_data_t *emm_data, const emm_as_data_t *msg
+   /* Setup the NAS security header */
+   EMM_msg *emm_msg = _emm_as_set_header(&nas_msg, &msg->sctx);
+ 
++  if (emm_msg == NULL) {
++    LOG_TRACE(ERROR, "EMMAS-SAP - Failed to set NAS security header");
++    LOG_FUNC_RETURN(RETURNerror);
++  }
++
+   /* Setup the NAS information message */
+-  if (emm_msg != NULL) switch (msg->NASinfo) {
++  switch (msg->NASinfo) {
+ 
+     case EMM_AS_NAS_DATA_ATTACH:
+       size = emm_send_attach_complete(msg, &emm_msg->attach_complete);
+@@ -1174,9 +1179,12 @@ static int _emm_as_status_ind(const emm_data_t *emm_data, const emm_as_status_t
+   EMM_msg *emm_msg = _emm_as_set_header(&nas_msg, &msg->sctx);
+ 
+   /* Setup the NAS information message */
+-  if (emm_msg != NULL) {
+-    size = emm_send_status(msg, &emm_msg->emm_status);
++  if (emm_msg == NULL) {
++    LOG_TRACE(ERROR, "EMMAS-SAP - Failed to set NAS security header (missing integrity key)");
++    LOG_FUNC_RETURN(RETURNerror);
+   }
++  
++  size = emm_send_status(msg, &emm_msg->emm_status);
+ 
+   if (size > 0) {
+     emm_security_context_t    *emm_security_context   = NULL;
+@@ -1279,7 +1287,12 @@ static int _emm_as_security_res(const emm_data_t *emm_data, const emm_as_securit
+   EMM_msg *emm_msg = _emm_as_set_header(&nas_msg, &msg->sctx);
+ 
+   /* Setup the NAS security message */
+-  if (emm_msg != NULL) switch (msg->msgType) {
++  if (emm_msg == NULL) {
++    LOG_TRACE(ERROR, "EMMAS-SAP - Failed to set NAS security header (missing integrity key)");
++    LOG_FUNC_RETURN(RETURNerror);
++  }
++  
++  switch (msg->msgType) {
+     case EMM_AS_MSG_TYPE_IDENT:
+       size = emm_send_identity_response(
+                msg,

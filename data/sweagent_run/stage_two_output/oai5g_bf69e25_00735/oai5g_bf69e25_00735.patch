@@ -1,0 +1,80 @@
+diff --git a/openair3/NAS/COMMON/UTIL/nas_timer.c b/openair3/NAS/COMMON/UTIL/nas_timer.c
+index b67a3bc232..524c4f3d50 100644
+--- a/openair3/NAS/COMMON/UTIL/nas_timer.c
++++ b/openair3/NAS/COMMON/UTIL/nas_timer.c
+@@ -321,10 +321,32 @@ int nas_timer_restart(int id)
+ 
+ void nas_timer_handle_signal_expiry(long timer_id, void *arg_p)
+ {
+-  /* Get the timer entry for which the system timer expired */
+-  nas_timer_entry_t *te = _nas_timer_db.head->entry;
++  /* Check if the timer database is initialized and has active timers */
++  if (_nas_timer_db.head == NULL) {
++    return;
++  }
+ 
+-  te->cb(te->args);
++  /* Find the timer entry matching the timer_id */
++  timer_queue_t *current = _nas_timer_db.head;
++  nas_timer_entry_t *te = NULL;
++  
++  while (current != NULL) {
++    if (current->entry != NULL && current->entry->timer_id == timer_id) {
++      te = current->entry;
++      break;
++    }
++    current = current->next;
++  }
++  
++  /* If no matching timer entry found, return */
++  if (te == NULL) {
++    return;
++  }
++
++  /* Execute the callback function */
++  if (te->cb != NULL) {
++    te->cb(te->args);
++  }
+ }
+ 
+ 
+@@ -376,19 +398,27 @@ static void _nas_timer_db_init(void)
+ static int _nas_timer_db_get_id(void)
+ {
+   int i;
++  int start_index;
++
++  /* Ensure timer_id is within valid range to prevent overflow */
++  if (_nas_timer_db.timer_id < 0 || _nas_timer_db.timer_id >= TIMER_DATABASE_SIZE) {
++    _nas_timer_db.timer_id = 0;
++  }
++
++  start_index = _nas_timer_db.timer_id;
+ 
+   /* Search from the current timer entry to the last timer entry */
+   for (i = _nas_timer_db.timer_id; i < TIMER_DATABASE_SIZE; i++) {
+     if (_nas_timer_db.tq[i].id < 0 ) {
+-      _nas_timer_db.timer_id = i+1;
++      _nas_timer_db.timer_id = (i + 1) % TIMER_DATABASE_SIZE;
+       return i;
+     }
+   }
+ 
+   /* Search from the first timer entry to the current timer entry */
+-  for (i = 0; i < _nas_timer_db.timer_id; i++) {
++  for (i = 0; i < start_index; i++) {
+     if (_nas_timer_db.tq[i].id < 0 ) {
+-      _nas_timer_db.timer_id = i+1;
++      _nas_timer_db.timer_id = (i + 1) % TIMER_DATABASE_SIZE;
+       return i;
+     }
+   }
+@@ -598,7 +628,7 @@ static nas_timer_entry_t *_nas_timer_db_remove_entry(int id)
+   restart = _nas_timer_db_remove(&_nas_timer_db.tq[id]);
+   nas_timer_unlock_db();
+ 
+-  if (restart) {
++  if (restart && _nas_timer_db.head != NULL && _nas_timer_db.head->entry != NULL) {
+     int rc;
+     /* The entry was the first entry of the list;
+      * the system timer needs to be restarted */

@@ -1,0 +1,32 @@
+diff --git a/targets/TARGET_STM/TARGET_STM32F4/STM32Cube_FW/STM32F4xx_HAL_Driver/stm32f4xx_hal_i2s.c b/targets/TARGET_STM/TARGET_STM32F4/STM32Cube_FW/STM32F4xx_HAL_Driver/stm32f4xx_hal_i2s.c
+index 5febc391..a6862833 100644
+--- a/targets/TARGET_STM/TARGET_STM32F4/STM32Cube_FW/STM32F4xx_HAL_Driver/stm32f4xx_hal_i2s.c
++++ b/targets/TARGET_STM/TARGET_STM32F4/STM32Cube_FW/STM32F4xx_HAL_Driver/stm32f4xx_hal_i2s.c
+@@ -289,6 +289,9 @@ HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
+   assert_param(IS_I2S_CPOL(hi2s->Init.CPOL));
+   assert_param(IS_I2S_CLOCKSOURCE(hi2s->Init.ClockSource));
+ 
++  /* Acquire lock */
++  __HAL_LOCK(hi2s);
++
+   if (hi2s->State == HAL_I2S_STATE_RESET)
+   {
+     /* Allocate lock resource and initialize it */
+@@ -413,6 +416,7 @@ HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
+   {
+     /* Set the error code and execute error callback*/
+     SET_BIT(hi2s->ErrorCode, HAL_I2S_ERROR_PRESCALER);
++    __HAL_UNLOCK(hi2s);
+     return  HAL_ERROR;
+   }
+ 
+@@ -483,6 +487,9 @@ HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
+   hi2s->ErrorCode = HAL_I2S_ERROR_NONE;
+   hi2s->State     = HAL_I2S_STATE_READY;
+ 
++  /* Release Lock */
++  __HAL_UNLOCK(hi2s);
++
+   return HAL_OK;
+ }
+ 

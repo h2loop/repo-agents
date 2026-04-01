@@ -1,0 +1,82 @@
+diff --git a/common/utils/telnetsrv/telnetsrv_ciUE.c b/common/utils/telnetsrv/telnetsrv_ciUE.c
+index 673d904969..f5c9b5e07a 100644
+--- a/common/utils/telnetsrv/telnetsrv_ciUE.c
++++ b/common/utils/telnetsrv/telnetsrv_ciUE.c
+@@ -36,10 +36,16 @@
+ #include <stdarg.h>
+ #include "openair2/LAYER2/NR_MAC_UE/mac_defs.h"
+ #include "openair2/LAYER2/NR_MAC_UE/mac_proto.h"
++#include "openair2/RRC/NR_UE/rrc_proto.h"
++#include "openair2/COMMON/rrc_messages_types.h"
+ 
+ #define TELNETSERVERCODE
+ #include "telnetsrv.h"
+ 
++/* External declaration for RRC instances */
++extern NR_UE_RRC_INST_t *NR_UE_rrc_inst;
++extern int NB_UE_INST; // Number of UE instances
++
+ #define ERROR_MSG_RET(mSG, aRGS...) do { prnt(mSG, ##aRGS); return 1; } while (0)
+ 
+ /* UE L2 state string */
+@@ -73,9 +79,60 @@ int get_sync_state(char *buf, int debug, telnet_printfunc_t prnt)
+   return 0;
+ }
+ 
++/**
++ * Force a UE into RRC IDLE state.
++ *
++ * @param buf    User input buffer containing UE ID (optional)
++ * @param debug  Debug flag (not used)
++ * @param prnt   Function to print output
++ * @return       0 on success, error code otherwise
++ */
++int force_RRC_IDLE(char *buf, int debug, telnet_printfunc_t prnt)
++{
++  int ue_id = 0; // Default to first UE instance
++  
++  // Parse UE ID if provided
++  if (buf && strlen(buf) > 0) {
++    char *endptr;
++    ue_id = strtol(buf, &endptr, 10);
++    
++    // Check for conversion errors
++    if (buf == endptr || *endptr != '\0') {
++      ERROR_MSG_RET("Invalid UE ID provided: %s\n", buf);
++    }
++    
++    // Validate UE ID range
++    if (ue_id < 0 || ue_id >= NB_UE_INST) {
++      ERROR_MSG_RET("UE ID out of range. Valid range: 0 to %d\n", NB_UE_INST - 1);
++    }
++  }
++  
++  // Check if RRC instance is available
++  if (NR_UE_rrc_inst == NULL) {
++    ERROR_MSG_RET("RRC instance not initialized\n");
++  }
++  
++  // Check if we have valid number of instances
++  if (NB_UE_INST <= 0) {
++    ERROR_MSG_RET("No UE instances configured\n");
++  }
++  
++  NR_UE_RRC_INST_t *rrc = &NR_UE_rrc_inst[ue_id];
++  
++  // Inform user about the action
++  prnt("Forcing UE %d into RRC IDLE state...\n", ue_id);
++  
++  // Call the RRC function to transition to IDLE state
++  nr_rrc_going_to_IDLE(rrc, OTHER, NULL);
++  
++  prnt("Successfully forced UE %d into RRC IDLE state\n", ue_id);
++  return 0;
++}
++
+ /* Telnet shell command definitions */
+ static telnetshell_cmddef_t cicmds[] = {
+   {"sync_state", "[UE_ID(int,opt)]", get_sync_state},
++  {"force_RRC_IDLE", "[UE_ID(int,opt)]", force_RRC_IDLE},
+   {"", "", NULL},
+ };
+ 

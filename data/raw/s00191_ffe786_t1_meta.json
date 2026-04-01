@@ -1,0 +1,30 @@
+{
+  "run_id": "s00191_ffe786",
+  "function": {
+    "name": "configure_nfapi_pnf",
+    "file": "nfapi/oai_integration/nfapi_pnf.c",
+    "start_line": 2210,
+    "end_line": 2259,
+    "body_lines": 50,
+    "signature": "void configure_nfapi_pnf(char *vnf_ip_addr, int vnf_p5_port, char *pnf_ip_addr, int pnf_p7_port, int vnf_p7_port)",
+    "subsystem": "nfapi/oai_integration",
+    "token_estimate": 154
+  },
+  "bug": {
+    "bug_id": "telecom_state_machine_stale_state",
+    "description": "stale protocol state not cleared after procedure completion or failure",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a stale protocol state not cleared after procedure completion or failure downstream of function configure_nfapi_pnf in the nfapi/oai_integration subsystem.\nThe function is located at nfapi/oai_integration/nfapi_pnf.c:2210.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00191_ffe786_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00191_ffe786_p1.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 100,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:08:44Z"
+}

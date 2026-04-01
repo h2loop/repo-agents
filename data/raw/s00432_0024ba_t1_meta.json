@@ -1,0 +1,28 @@
+{
+  "run_id": "s00432_0024ba",
+  "function": {
+    "name": "DU_send_gNB_DU_CONFIGURATION_UPDATE",
+    "file": "openair2/F1AP/f1ap_du_interface_management.c",
+    "start_line": 196,
+    "end_line": 213,
+    "body_lines": 18,
+    "signature": "int DU_send_gNB_DU_CONFIGURATION_UPDATE(sctp_assoc_t assoc_id, f1ap_gnb_du_configuration_update_t *msg)",
+    "subsystem": "openair2/F1AP",
+    "token_estimate": 61
+  },
+  "bug": {
+    "bug_id": "telecom_sched_incorrect_rb_allocation",
+    "description": "incorrect resource block allocation violating scheduling constraints",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a incorrect resource block allocation violating scheduling constraints downstream of function DU_send_gNB_DU_CONFIGURATION_UPDATE in the openair2/F1AP subsystem.\nThe function is located at openair2/F1AP/f1ap_du_interface_management.c:196.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00432_0024ba_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00432_0024ba_p1.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 37,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:15:18Z"
+}

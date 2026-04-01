@@ -1,0 +1,105 @@
+diff --git a/openair2/UTIL/OMG/omg_hashtable.c b/openair2/UTIL/OMG/omg_hashtable.c
+index a545c5fc62..f1e78b4da7 100644
+--- a/openair2/UTIL/OMG/omg_hashtable.c
++++ b/openair2/UTIL/OMG/omg_hashtable.c
+@@ -456,12 +456,22 @@ uint16_t hash_table_do_hash(void *key, size_t key_len, uint16_t max_key) {
+  * @param len new length of the hash table
+  * @returns -1 when no elements in hash table
+  * @returns -2 when no emmory for new store house
++ * @returns -3 when failed to re-add elements during resize
+  * @returns 0 when sucess
+  */
+ int hash_table_resize(omg_hash_table_t *table, size_t len) {
+   //LOG("resizing hash table from %d to %d", table->key_num, len);
+-  hash_table_element_t **elements;
++  hash_table_element_t **elements = NULL;
+   size_t count;
++  size_t i;
++  int result = 0;
++  
++  // Save original state before any modifications
++  hash_table_element_t **original_store_house = table->store_house;
++  size_t original_key_num = table->key_num;
++  size_t original_key_count = table->key_count;
++  hash_table_mode_t original_mode = table->mode;
++  
+   // FIXME traversing the elements twice, change it some time soon
+   count = hash_table_get_elements(table, &elements);
+ 
+@@ -470,29 +480,65 @@ int hash_table_resize(omg_hash_table_t *table, size_t len) {
+     return -1;
+   }
+ 
+-  // keep the current store house in case we dont get more memory
+-  hash_table_element_t **temp = table->store_house;
++  // Allocate new store house
+   table->store_house = calloc(len, sizeof(hash_table_element_t *));
+ 
+   if (!table->store_house) {
+-    table->store_house = temp;
++    // Restore original state on allocation failure
++    table->store_house = original_store_house;
+     //INFO("No Memory for new store house");
++    free(elements);
+     return -2;
+   }
+ 
++  // Update table size
+   table->key_num = len;
+-  // fool the new hash table so if refers even previously copied values
+-  int mode = table->mode;
++  table->key_count = 0; // Reset count, will be incremented as elements are added
++  
++  // Fool the new hash table so it refers even previously copied values
+   table->mode = MODE_ALLREF;
+ 
+-  while(count>0) {
+-    hash_table_element_t *elem = elements[--count];
+-    hash_table_add(table, elem->key, elem->key_len, elem->value, elem->value_len);
++  // Re-add elements using incrementing for-loop for clarity
++  for (i = 0; i < count; i++) {
++    hash_table_element_t *elem = elements[i];
++    result = hash_table_add(table, elem->key, elem->key_len, elem->value, elem->value_len);
++    
++    if (result != 0) {
++      // Failed to re-add element - need to rollback
++      //INFO("Failed to re-add element during resize at index %d", i);
++      
++      // Clean up successfully added elements from new store house
++      size_t j;
++      for (j = 0; j < i; j++) {
++        hash_table_element_t *elem_to_delete = elements[j];
++        hash_table_remove(table, elem_to_delete->key, elem_to_delete->key_len);
++      }
++      
++      // Free the new store house
++      free(table->store_house);
++      
++      // Restore original state
++      table->store_house = original_store_house;
++      table->key_num = original_key_num;
++      table->key_count = original_key_count;
++      table->mode = original_mode;
++      
++      // Clean up elements array
++      free(elements);
++      
++      return -3;
++    }
+   }
+ 
+-  table->mode = mode;
+-  // free old store house
+-  free(temp);
++  // Restore original mode
++  table->mode = original_mode;
++  
++  // Free old store house
++  free(original_store_house);
++  
++  // Clean up elements array
++  free(elements);
++  
+   return 0;
+ }
+ 

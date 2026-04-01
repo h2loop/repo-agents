@@ -1,0 +1,40 @@
+diff --git a/openair2/LAYER2/nr_rlc/nr_rlc_entity_am.c b/openair2/LAYER2/nr_rlc/nr_rlc_entity_am.c
+index 783aa6e849..1614c586dd 100644
+--- a/openair2/LAYER2/nr_rlc/nr_rlc_entity_am.c
++++ b/openair2/LAYER2/nr_rlc/nr_rlc_entity_am.c
+@@ -209,7 +209,6 @@ static void reassemble_and_deliver(nr_rlc_entity_am_t *entity, int sn)
+       memcpy(sdu + so, pdu->data + so - pdu->so, len);
+       so += len;
+     }
+-    free(pdu->data);
+     pdu->data = NULL;
+     entity->rx_size -= pdu->size;
+     pdu = pdu->next;
+diff --git a/openair2/LAYER2/nr_rlc/nr_rlc_entity_um.c b/openair2/LAYER2/nr_rlc/nr_rlc_entity_um.c
+index 43a2189c51..ff227758b0 100644
+--- a/openair2/LAYER2/nr_rlc/nr_rlc_entity_um.c
++++ b/openair2/LAYER2/nr_rlc/nr_rlc_entity_um.c
+@@ -166,7 +166,6 @@ static void reassemble_and_deliver(nr_rlc_entity_um_t *entity, int sn)
+       memcpy(sdu + so, pdu->data + so - pdu->so, len);
+       so += len;
+     }
+-    free(pdu->data);
+     pdu->data = NULL;
+     entity->rx_size -= pdu->size;
+     pdu->size = 0;
+diff --git a/openair2/LAYER2/nr_rlc/nr_rlc_pdu.c b/openair2/LAYER2/nr_rlc/nr_rlc_pdu.c
+index c5b1eb04e7..b2d1a2cf98 100644
+--- a/openair2/LAYER2/nr_rlc/nr_rlc_pdu.c
++++ b/openair2/LAYER2/nr_rlc/nr_rlc_pdu.c
+@@ -58,7 +58,10 @@ nr_rlc_pdu_t *nr_rlc_new_pdu(int sn, int so, int is_first,
+ 
+ void nr_rlc_free_pdu(nr_rlc_pdu_t *pdu)
+ {
+-  free(pdu->data);
++  if (pdu->data != NULL) {
++    free(pdu->data);
++    pdu->data = NULL;
++  }
+   free(pdu);
+ }
+ 

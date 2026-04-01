@@ -1,0 +1,35 @@
+diff --git a/openair1/SIMULATION/NR_PHY/psbchsim.c b/openair1/SIMULATION/NR_PHY/psbchsim.c
+index f56735809d..377511a0b7 100644
+--- a/openair1/SIMULATION/NR_PHY/psbchsim.c
++++ b/openair1/SIMULATION/NR_PHY/psbchsim.c
+@@ -15,6 +15,7 @@
+ #include "NR_MasterInformationBlockSidelink.h"
+ #include "PHY/INIT/phy_init.h"
+ #include "openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.h"
++#include "openair2/LAYER2/MAC/mac.h"
+ #include "openair1/SIMULATION/TOOLS/sim.h"
+ #include "common/utils/nr/nr_common.h"
+ #include "openair2/RRC/NR/nr_rrc_extern.h"
+@@ -77,6 +78,22 @@ int8_t nr_mac_rrc_data_req_ue(const module_id_t Mod_idP,
+                               const rb_id_t Srb_id,
+                               uint8_t *buffer_pP)
+ {
++  // Handle SL_DISCOVERY SRB requests for sidelink operations
++  if (Srb_id == SL_DISCOVERY) {
++    // Generate test data for sidelink discovery message
++    static uint8_t test_data[] = {
++      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
++      0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F
++    };
++    
++    // Copy test data to buffer
++    memcpy(buffer_pP, test_data, sizeof(test_data));
++    
++    // Return the size of the test data
++    return sizeof(test_data);
++  }
++  
++  // For other SRB requests, return 0 as before
+   return 0;
+ }
+ 

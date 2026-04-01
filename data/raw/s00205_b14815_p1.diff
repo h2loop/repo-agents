@@ -1,0 +1,101 @@
+diff --git a/openair3/NGAP/ngap_gNB_handlers.c b/openair3/NGAP/ngap_gNB_handlers.c
+index b80902add9..463575227c 100644
+--- a/openair3/NGAP/ngap_gNB_handlers.c
++++ b/openair3/NGAP/ngap_gNB_handlers.c
+@@ -188,14 +188,68 @@ static int ngap_gNB_handle_ng_setup_response(sctp_assoc_t assoc_id, uint32_t str
+     return -1;
+   }
+ 
+-  NGAP_FIND_PROTOCOLIE_BY_ID(NGAP_NGSetupResponseIEs_t, ie, container,
+-                             NGAP_ProtocolIE_ID_id_ServedGUAMIList, true);
+-
+-  /* The list of served guami can contain at most 256 elements.
+-   * NR related guami is the first element in the list, i.e with an id of 0.
+-   */
+-  DevAssert(ie->value.choice.ServedGUAMIList.list.count > 0);
+-  DevAssert(ie->value.choice.ServedGUAMIList.list.count <= NGAP_maxnoofServedGUAMIs);
++  /* Clear existing protocol state to prevent memory leaks and stale data */
++  {
++    struct served_guami_s *guami_item, *guami_tmp;
++    struct plmn_identity_s *plmn_item;
++    struct served_region_id_s *region_item;
++    struct amf_set_id_s *set_item;
++    struct amf_pointer_s *pointer_item;
++    struct plmn_support_s *plmn_support, *plmn_support_tmp;
++    struct slice_support_s *slice_support, *slice_support_tmp;
++    
++    /* Clean up served_guami list and all sub-lists */
++    STAILQ_FOREACH_SAFE(guami_item, &amf_desc_p->served_guami, next, guami_tmp) {
++      STAILQ_REMOVE(&amf_desc_p->served_guami, guami_item, served_guami_s, next);
++      
++      /* Clean up sub-lists in guami_item */
++      while (!STAILQ_EMPTY(&guami_item->served_plmns)) {
++        plmn_item = STAILQ_FIRST(&guami_item->served_plmns);
++        STAILQ_REMOVE_HEAD(&guami_item->served_plmns, next);
++        free(plmn_item);
++      }
++      while (!STAILQ_EMPTY(&guami_item->served_region_ids)) {
++        region_item = STAILQ_FIRST(&guami_item->served_region_ids);
++        STAILQ_REMOVE_HEAD(&guami_item->served_region_ids, next);
++        free(region_item);
++      }
++      while (!STAILQ_EMPTY(&guami_item->amf_set_ids)) {
++        set_item = STAILQ_FIRST(&guami_item->amf_set_ids);
++        STAILQ_REMOVE_HEAD(&guami_item->amf_set_ids, next);
++        free(set_item);
++      }
++      while (!STAILQ_EMPTY(&guami_item->amf_pointers)) {
++        pointer_item = STAILQ_FIRST(&guami_item->amf_pointers);
++        STAILQ_REMOVE_HEAD(&guami_item->amf_pointers, next);
++        free(pointer_item);
++      }
++      
++      free(guami_item);
++    }
++    
++    /* Clean up plmn_supports list and slice_supports sub-lists */
++    STAILQ_FOREACH_SAFE(plmn_support, &amf_desc_p->plmn_supports, next, plmn_support_tmp) {
++      STAILQ_REMOVE(&amf_desc_p->plmn_supports, plmn_support, plmn_support_s, next);
++      
++      /* Clean up slice_supports sub-list */
++      STAILQ_FOREACH_SAFE(slice_support, &plmn_support->slice_supports, next, slice_support_tmp) {
++        STAILQ_REMOVE(&plmn_support->slice_supports, slice_support, slice_support_s, next);
++        free(slice_support);
++      }
++      
++      free(plmn_support);
++    }
++    
++    /* Clean up amf_name if allocated */
++    if (amf_desc_p->amf_name) {
++      free(amf_desc_p->amf_name);
++      amf_desc_p->amf_name = NULL;
++    }
++    
++    /* Reinitialize the queues */
++    STAILQ_INIT(&amf_desc_p->served_guami);
++    STAILQ_INIT(&amf_desc_p->plmn_supports);
++  }
+ 
+   for (i = 0; i < ie->value.choice.ServedGUAMIList.list.count; i++) {
+     NGAP_ServedGUAMIItem_t  *guami_item_p;
+@@ -263,6 +317,19 @@ static int ngap_gNB_handle_ng_setup_response(sctp_assoc_t assoc_id, uint32_t str
+   DevAssert(ie->value.choice.PLMNSupportList.list.count > 0);
+   DevAssert(ie->value.choice.PLMNSupportList.list.count <= NGAP_maxnoofPLMNs);
+ 
++  /* Clear existing plmn_supports if any */
++  struct plmn_support_s *plmn_support, *plmn_support_tmp;
++  struct slice_support_s *slice_support, *slice_support_tmp;
++  STAILQ_FOREACH_SAFE(plmn_support, &amf_desc_p->plmn_supports, next, plmn_support_tmp) {
++    STAILQ_REMOVE(&amf_desc_p->plmn_supports, plmn_support, plmn_support_s, next);
++    /* Free slice supports within this PLMN */
++    STAILQ_FOREACH_SAFE(slice_support, &plmn_support->slice_supports, next, slice_support_tmp) {
++      STAILQ_REMOVE(&plmn_support->slice_supports, slice_support, slice_support_s, next);
++      free(slice_support);
++    }
++    free(plmn_support);
++  }
++  
+   STAILQ_INIT(&amf_desc_p->plmn_supports);
+ 
+   for (i = 0; i < ie->value.choice.PLMNSupportList.list.count; i++) {

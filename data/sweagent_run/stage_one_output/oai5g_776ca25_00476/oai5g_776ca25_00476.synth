@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect bit shifting in PUCCH format 2 decoding\n\n### Summary\nThe NR gNB PUCCH format 2 decoder contained incorrect bit shifting operations that caused UCI payload corruption when extracting HARQ, SR, and CSI information. The bug manifested when UEs transmitted PUCCH format 2 with mixed payload types (e.g., HARQ+CSI).\n\nThe incorrect bit shifts were causing payload bytes to be extracted with wrong bit alignments, leading to incorrect ACK/NACK decisions and CQI reporting.\n\n### Changes\n- `openair1/PHY/NR_TRANSPORT/pucch_rx.c`: Fixed bit shifting operations in `nr_decode_pucch2` function for proper UCI payload extraction\n- Corrected PUCCH format assignment from hardcoded value to actual format type\n- Fixed HARQ payload bit extraction by using correct bit offset\n- Fixed CSI part1 payload bit extraction by using correct bit offset  \n- Added missing CSI part2 payload extraction logic\n\n"
+}

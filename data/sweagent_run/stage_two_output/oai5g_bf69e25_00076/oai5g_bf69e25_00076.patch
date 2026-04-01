@@ -1,0 +1,21 @@
+diff --git a/common/utils/ds/seq_arr.c b/common/utils/ds/seq_arr.c
+index 50a332a16b..7a135298f7 100644
+--- a/common/utils/ds/seq_arr.c
++++ b/common/utils/ds/seq_arr.c
+@@ -46,7 +46,7 @@ static void maybe_shrink(seq_arr_t* arr)
+   if (arr->size > MIN_SIZE && occ < 0.25) {
+     assert(arr->cap > MIN_SIZE);
+     seq_arr_t tmp = {.data = NULL, .size = arr->size, .elt_size = arr->elt_size, .cap = arr->cap / 2};
+-    tmp.data = calloc(tmp.cap, tmp.cap);
++    tmp.data = calloc(tmp.cap, arr->elt_size);
+     assert(tmp.data != NULL && "Memory exhausted");
+     assert(arr->size <= tmp.cap);
+     memcpy(tmp.data, arr->data, arr->size * arr->elt_size);
+@@ -153,6 +153,7 @@ size_t seq_arr_size(seq_arr_t const* arr)
+ void* seq_arr_front(seq_arr_t const* arr)
+ {
+   assert(arr != NULL);
++  assert(arr->data != NULL && "Array data is null");
+   return arr->data;
+ }
+ 

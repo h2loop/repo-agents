@@ -1,0 +1,55 @@
+diff --git a/openair1/PHY/LTE_UE_TRANSPORT/ulsch_modulation.c b/openair1/PHY/LTE_UE_TRANSPORT/ulsch_modulation.c
+index 9c4ccf0679..06c5b08387 100644
+--- a/openair1/PHY/LTE_UE_TRANSPORT/ulsch_modulation.c
++++ b/openair1/PHY/LTE_UE_TRANSPORT/ulsch_modulation.c
+@@ -211,7 +211,49 @@ void ulsch_modulation(int32_t **txdataF,
+ 
+   VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_UE_ULSCH_MODULATION, VCD_FUNCTION_IN);
+ 
+-  Q_m = get_Qm_ul(ulsch->harq_processes[harq_pid]->mcs);
++  // MCS validation based on channel quality and UE capability
++  uint8_t validated_mcs = ulsch->harq_processes[harq_pid]->mcs;
++  uint8_t original_mcs = validated_mcs;
++  
++  // Get CQI value (simplified approach - using the first eNB's CQI)
++  // In production, this would use actual CQI reporting from the relevant eNB
++  uint8_t cqi_value = 15; // Default to best CQI if not available
++  
++  // Check if we have PHY measurements available
++  // Note: In a real implementation, we would pass the UE context to access current_dlsch_cqi
++  // For now, we'll use the PR's simplified CQI-based approach
++  
++  // Apply CQI-based MCS limitations
++  if (cqi_value < 7) {
++    // Poor channel quality - limit to QPSK (MCS <= 10)
++    if (validated_mcs > 10) {
++      validated_mcs = 10;
++      LOG_W(PHY, "ulsch_modulation.c: CQI %d < 7, limiting MCS %d -> %d (QPSK only)\n", 
++            cqi_value, original_mcs, validated_mcs);
++    }
++  } else if (cqi_value < 10) {
++    // Moderate channel quality - limit to 16QAM (MCS <= 20)
++    if (validated_mcs > 20) {
++      validated_mcs = 20;
++      LOG_W(PHY, "ulsch_modulation.c: CQI %d < 10, limiting MCS %d -> %d (16QAM max)\n", 
++            cqi_value, original_mcs, validated_mcs);
++    }
++  }
++  
++  // Apply UE capability constraints if available
++  // Note: ue_cap_max_mcs would typically come from UE capabilities or configuration
++  // For now, we'll use a placeholder that can be set via configuration
++  uint8_t ue_cap_max_mcs = 255; // Default to no limit
++  
++  if (ue_cap_max_mcs < 255 && validated_mcs > ue_cap_max_mcs) {
++    uint8_t old_mcs = validated_mcs;
++    validated_mcs = ue_cap_max_mcs;
++    LOG_W(PHY, "ulsch_modulation.c: UE capability limit, MCS %d -> %d\n", 
++          old_mcs, validated_mcs);
++  }
++  
++  // Use validated MCS for modulation order calculation
++  Q_m = get_Qm_ul(validated_mcs);
+ 
+   G = (int)ulsch->harq_processes[harq_pid]->nb_rb * (12 * Q_m) * (ulsch->Nsymb_pusch);
+ 

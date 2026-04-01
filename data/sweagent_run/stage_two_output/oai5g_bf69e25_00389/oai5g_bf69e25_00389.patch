@@ -1,0 +1,195 @@
+diff --git a/openair3/NAS/UE/UEprocess.c b/openair3/NAS/UE/UEprocess.c
+index 1de5db45ab..1a29a37536 100644
+--- a/openair3/NAS/UE/UEprocess.c
++++ b/openair3/NAS/UE/UEprocess.c
+@@ -47,12 +47,20 @@
+ #include "nas_network.h"
+ #include "nas_parser.h"
+ #include "user_defs.h"
++#include "utils.h"
++#include "common/utils/mem/oai_memory.h"
++#include "API/USIM/usim_api.h"
++#include "EMM/emmData.h"
++#include "COMMON/userDef.h"
++#include "common/utils/system.h"
+ 
+ #include <stdlib.h> // exit
+ #include <poll.h>   // poll
+ #include <string.h> // memset
+ #include <signal.h> // sigaction
+ #include <pthread.h>
++#include <stdio.h>  // sprintf
++#include <sched.h>  // sched_get_priority_min
+ 
+ /****************************************************************************/
+ /****************  E X T E R N A L    D E F I N I T I O N S  ****************/
+@@ -73,10 +81,34 @@ static void _nas_signal_handler(int signal);
+ static void _nas_clean(user_api_id_t *user_api_id, int net_fd);
+ 
+ uint8_t usim_test = 0;
+-// FIXME user must be set up with right itti message instance
+-// FIXME allocate user and initialize its fields
++// Allocate user structure properly
+ nas_user_t *user = NULL;
+ 
++// Helper function to create port string from ueid
++char *make_port_str_from_ueid(const char *base_port_str, int ueid) {
++  int port;
++  int base_port;
++  char *endptr = NULL;
++
++  base_port = strtol(base_port_str, &endptr, 10);
++  if ( base_port_str == endptr ) {
++    return NULL;
++  }
++
++  port = base_port + ueid;
++  if ( port<1 || port > 65535 ) {
++    return NULL;
++  }
++
++  // Simple integer to string conversion (itoa is not standard)
++  char *port_str = malloc(10);
++  if (port_str == NULL) {
++    return NULL;
++  }
++  sprintf(port_str, "%d", port);
++  return port_str;
++}
++
+ /****************************************************************************/
+ /******************  E X P O R T E D    F U N C T I O N S  ******************/
+ /****************************************************************************/
+@@ -84,7 +116,6 @@ nas_user_t *user = NULL;
+ /****************************************************************************/
+ int main(int argc, const char *argv[])
+ {
+-  // FIXME allocate and put it in user
+   user_api_id_t *user_api_id = NULL;
+   /*
+    * Get the command line options
+@@ -99,6 +130,33 @@ int main(int argc, const char *argv[])
+    */
+   nas_log_init (nas_parser_get_trace_level ());
+ 
++  /*
++   * Allocate and initialize the user structure
++   */
++  user = calloc_or_fail(1, sizeof(nas_user_t));
++  user->ueid = nas_parser_get_ueid();
++
++  /* Get USIM data application filename */
++  user->usim_data_store = memory_get_path_from_ueid(USIM_API_NVRAM_DIRNAME, USIM_API_NVRAM_FILENAME, user->ueid);
++  if (user->usim_data_store == NULL) {
++    LOG_TRACE(ERROR, "UE-MAIN   - Failed to get USIM data application filename");
++    exit (EXIT_FAILURE);
++  }
++
++  /* Get UE's data pathname */
++  user->user_nvdata_store = memory_get_path_from_ueid(USER_NVRAM_DIRNAME, USER_NVRAM_FILENAME, user->ueid);
++  if (user->user_nvdata_store == NULL) {
++    LOG_TRACE(ERROR, "UE-MAIN   - Failed to get UE nvdata filename");
++    exit (EXIT_FAILURE);
++  }
++
++  /* Get EMM data pathname */
++  user->emm_nvdata_store = memory_get_path_from_ueid(EMM_NVRAM_DIRNAME, EMM_NVRAM_FILENAME, user->ueid);
++  if (user->emm_nvdata_store == NULL) {
++    LOG_TRACE(ERROR, "UE-MAIN   - Failed to get EMM nvdata filename");
++    exit (EXIT_FAILURE);
++  }
++
+   const char *uhost = nas_parser_get_user_host ();
+   const char *uport = nas_parser_get_user_port ();
+   const char *devpath = nas_parser_get_device_path ();
+@@ -114,6 +172,10 @@ int main(int argc, const char *argv[])
+   /*
+    * Initialize the User interface
+    */
++  // Allocate user_api_id structure
++  user_api_id = calloc_or_fail(1, sizeof(user_api_id_t));
++  user->user_api_id = user_api_id;
++  
+   if (user_api_initialize (user_api_id, uhost, uport, devpath, devparams) != RETURNok) {
+     LOG_TRACE (ERROR, "UE-MAIN   - user_api_initialize() failed");
+     exit (EXIT_FAILURE);
+@@ -135,6 +197,11 @@ int main(int argc, const char *argv[])
+   /*
+    * Initialize the NAS contexts
+    */
++  // Allocate needed structures for the user
++  user->user_at_commands = calloc_or_fail(1, sizeof(user_at_commands_t));
++  user->at_response = calloc_or_fail(1, sizeof(at_response_t));
++  user->lowerlayer_data = calloc_or_fail(1, sizeof(lowerlayer_data_t));
++  
+   nas_user_initialize (user, &user_api_emm_callback, &user_api_esm_callback,
+                        FIRMWARE_VERSION);
+   nas_network_initialize ();
+@@ -155,7 +222,7 @@ int main(int argc, const char *argv[])
+    */
+   pthread_t user_mngr;
+ 
+-  threadCreate (&user_mngr, , _nas_user_mngr, &user_fd, "UE-nas", -1, OAI_PRIORITY_RT_LOW) ;
++  threadCreate (&user_mngr, _nas_user_mngr, &user_fd, "UE-nas", -1, OAI_PRIORITY_RT_LOW) ;
+ 
+   /*
+    * Start thread use to manage the network connection endpoint
+@@ -366,8 +433,14 @@ static void _nas_signal_handler(int signal)
+   LOG_FUNC_IN;
+ 
+   LOG_TRACE (WARNING, "UE-MAIN   - Signal %d received", signal);
+-  // FIXME acces to global
+-  _nas_clean (user->user_api_id, network_api_get_fd ());
++  // Handle the case where user might be NULL
++  if (user != NULL && user->user_api_id != NULL) {
++    _nas_clean (user->user_api_id, network_api_get_fd ());
++  } else {
++    // Just close network connection and exit
++    network_api_close (network_api_get_fd ());
++    exit (EXIT_SUCCESS);
++  }
+   exit (EXIT_SUCCESS);
+ 
+   LOG_FUNC_OUT
+@@ -403,6 +476,41 @@ static void _nas_clean(user_api_id_t *user_api_id, int net_fd)
+   user_api_close (user_api_id);
+   network_api_close (net_fd);
+ 
++  // Clean up allocated memory
++  if (user != NULL) {
++    // Free file path strings (they were allocated by memory_get_path_from_ueid)
++    free((void*)user->usim_data_store);
++    free((void*)user->user_nvdata_store);
++    free((void*)user->emm_nvdata_store);
++    
++    // Free allocated sub-structures
++    free(user->user_api_id);
++    free(user->user_at_commands);
++    free(user->at_response);
++    free(user->lowerlayer_data);
++    free(user->nas_user_nvdata);
++    free(user->nas_user_context);
++    free(user->authentication_data);
++    free(user->security_data);
++    if (user->emm_data != NULL) {
++      free(user->emm_data->imei);
++      if (user->emm_data->security != NULL) {
++        free(user->emm_data->security->kasme.value);
++        free(user->emm_data->security);
++      }
++      free(user->emm_data);
++    }
++    free(user->emm_plmn_list);
++    free(user->esm_data);
++    free(user->esm_pt_data);
++    free(user->esm_ebr_data);
++    free(user->default_eps_bearer_context_data);
++    
++    // Finally free the user structure itself
++    free(user);
++    user = NULL;
++  }
++
+   LOG_FUNC_OUT
+   ;
+ }

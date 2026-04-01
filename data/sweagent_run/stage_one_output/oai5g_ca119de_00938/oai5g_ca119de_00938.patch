@@ -1,0 +1,24 @@
+diff --git a/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_bnProc/bnProcPc_gen_BG2_avx2.c b/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_bnProc/bnProcPc_gen_BG2_avx2.c
+index a7b7244944..bff9a22363 100644
+--- a/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_bnProc/bnProcPc_gen_BG2_avx2.c
++++ b/openair1/PHY/CODING/nrLDPC_decoder/nrLDPC_tools/generator_bnProc/bnProcPc_gen_BG2_avx2.c
+@@ -108,8 +108,8 @@ void nrLDPC_bnProcPc_BG2_generator_AVX2(const char *dir, int R)
+        // cnOffsetInGroup = (lut_numBnInBnGroups[0]*NR_LDPC_ZMAX)>>4;
+ 
+         // Set pointers to start of group 2
+-        fprintf(fd,"    p_bnProcBuf     = (__m128i*) &bnProcBuf    [%d];\n",lut_startAddrBnGroups[idxBnGroup]);
+-        fprintf(fd,"    p_bnProcBufRes     = (__m256i*) &bnProcBufRes    [%d];\n",lut_startAddrBnGroups[idxBnGroup]);
++        fprintf(fd,"    p_bnProcBuf     = (__m128i*) &bnProcBuf    [%u];\n",lut_startAddrBnGroups[idxBnGroup]);
++        fprintf(fd,"    p_bnProcBufRes     = (__m256i*) &bnProcBufRes    [%u];\n",lut_startAddrBnGroups[idxBnGroup]);
+         fprintf(fd,"    p_llrProcBuf    = (__m128i*) &llrProcBuf   [%d];\n",lut_startAddrBnGroupsLlr[idxBnGroup]);
+          fprintf(fd,"   p_llrProcBuf256   = (__m256i*) &llrProcBuf   [%d];\n",lut_startAddrBnGroupsLlr[idxBnGroup]);
+         fprintf(fd,"    p_llrRes        = (__m256i*) &llrRes       [%d];\n",lut_startAddrBnGroupsLlr[idxBnGroup]);
+@@ -898,7 +898,7 @@ fprintf(fd,  "// Process group with 15 CNs \n");
+         // Set pointers to start of group 2
+         fprintf(fd,"    p_bnProcBuf     = (__m128i*) &bnProcBuf    [%u];\n",lut_startAddrBnGroups[idxBnGroup]);
+         fprintf(fd,"    p_llrProcBuf    = (__m128i*) &llrProcBuf   [%d];\n",lut_startAddrBnGroupsLlr[idxBnGroup]);
+-        fprintf(fd,"    p_llrRes        = (__m256i*) &llrRes       [%u];\n",lut_startAddrBnGroupsLlr[idxBnGroup]);
++        fprintf(fd,"    p_llrRes        = (__m256i*) &llrRes       [%d];\n",lut_startAddrBnGroupsLlr[idxBnGroup]);
+         // Loop over BNs
+         fprintf(fd,"        for (int i=0,j=0;i<M;i++,j+=2) {\n");
+             // First 16 LLRs of first CN

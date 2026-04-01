@@ -1,0 +1,9 @@
+{
+  "run_id": "s00272_89dec7",
+  "pr_text": "## Title: Fix missed UE scheduling opportunities after E1 setup failure\n\n### Summary\nWhen an E1 setup failure occurs, UEs with pending data downstream were not being rescheduled, causing them to miss scheduling opportunities. The `e1apCUCP_send_SETUP_FAILURE()` function handled the failure response but did not trigger any mechanism to resume scheduling for affected UEs. This resulted in stalled data transmission until the next periodic scheduling cycle, impacting latency and throughput.\n\nThe fix",
+  "trajectory_path": "data/raw/s00272_89dec7_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00272_89dec7_p2.diff",
+  "patch_lines": 8,
+  "trajectory_steps": 49,
+  "timestamp": "2026-02-10T12:19:42Z"
+}

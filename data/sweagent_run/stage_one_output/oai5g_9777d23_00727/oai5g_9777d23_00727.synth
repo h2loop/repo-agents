@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix byte ordering issues in NFAPI packing functions causing incorrect bf_vector serialization\n\n### Summary\nThe NFAPI implementation in OAI5G had incorrect byte ordering logic in all push/pull functions for 16-bit and 32-bit values. This caused `pack_bf_vector()` and related functions to serialize data with wrong byte order, leading to interoperability issues with other NFAPI implementations.\n\nThe bug was particularly noticeable when packing beamforming vectors where 16-bit IQ values were being byte-swapped incorrectly during serialization.\n\n### Changes\n- `nfapi/open-nFAPI/common/src/nfapi.c`: Fixed byte ordering in push16/pull16, push32/pull32, pushs16/pulls16, and pushs32/pulls32 functions\n- Big-endian mode now correctly stores MSB at lower addresses\n- Little-endian mode now correctly stores LSB at lower addresses\n\n"
+}

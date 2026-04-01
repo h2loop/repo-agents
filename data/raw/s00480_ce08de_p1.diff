@@ -1,0 +1,78 @@
+diff --git a/openair1/PHY/CODING/TESTBENCH/coding_unitary_defs.h b/openair1/PHY/CODING/TESTBENCH/coding_unitary_defs.h
+index 644751e80e..c9053f7c14 100644
+--- a/openair1/PHY/CODING/TESTBENCH/coding_unitary_defs.h
++++ b/openair1/PHY/CODING/TESTBENCH/coding_unitary_defs.h
+@@ -37,6 +37,12 @@ void exit_function(const char* file, const char* function, const int line, const
+ int8_t quantize(double D, double x, uint8_t B) {
+   double qxd;
+   int16_t maxlev;
++  
++  // Check for invalid inputs that could cause floor() to fail
++  if (isnan(D) || isinf(D) || D == 0.0 || isnan(x) || isinf(x)) {
++    return -128; // Return error indicator
++  }
++  
+   qxd = floor(x / D);
+   maxlev = 1 << (B - 1); //(char)(pow(2,B-1));
+ 
+diff --git a/openair1/PHY/CODING/TESTBENCH/ldpctest.c b/openair1/PHY/CODING/TESTBENCH/ldpctest.c
+index 97b39beaf8..7044f37d4f 100644
+--- a/openair1/PHY/CODING/TESTBENCH/ldpctest.c
++++ b/openair1/PHY/CODING/TESTBENCH/ldpctest.c
+@@ -49,6 +49,12 @@ ldpc_interface_t ldpc_orig, ldpc_toCompare;
+ int8_t quantize4bit(double D, double x)
+ {
+   double qxd;
++  
++  // Check for invalid inputs that could cause floor() to fail
++  if (isnan(D) || isinf(D) || D == 0.0 || isnan(x) || isinf(x)) {
++    return -128; // Return error indicator
++  }
++  
+   qxd = floor(x / D);
+   //  printf("x=%f,qxd=%f\n",x,qxd);
+ 
+@@ -64,6 +70,12 @@ int8_t quantize8bit(double D, double x)
+ {
+   double qxd;
+   // int8_t maxlev;
++  
++  // Check for invalid inputs that could cause floor() to fail
++  if (isnan(D) || isinf(D) || D == 0.0 || isnan(x) || isinf(x)) {
++    return -128; // Return error indicator
++  }
++  
+   qxd = floor(x / D);
+ 
+   // maxlev = 1<<(B-1);
+@@ -92,6 +104,7 @@ typedef struct {
+   unsigned int errors_bit;
+   double errors_bit_uncoded;
+   unsigned int crc_misses;
++  unsigned int quantization_errors;  // Track quantization failures
+   time_stats_t time_optim;
+   time_stats_t time_decoder;
+   n_iter_stats_t dec_iter;
+@@ -328,6 +341,12 @@ one_measurement_t test_ldpc(short max_iterations,
+         channel_output_fixed[j][i] =
+             (int8_t)quantize(sigma / 4.0 / 4.0, modulated_input[j][i] + sigma * gaussdouble(0.0, 1.0), qbits);
+ 
++        // Check for quantization error
++        if (channel_output_fixed[j][i] == -128) {  // Error indicator
++          ret.quantization_errors++;
++          printf("Error: quantize() failed at segment %d, position %d\n", j, i);
++        }
++
+         // Uncoded BER
+         uint8_t channel_output_uncoded = channel_output_fixed[j][i] < 0 ? 1 /* QPSK demod */ : 0;
+         if (channel_output_uncoded != ((channel_input_optim[i - 2 * Zc] >> j) & 0x1))
+@@ -568,6 +587,9 @@ int main(int argc, char *argv[])
+     dec_iter[i].bler = (float)decoded_errors[i] / (float)n_trials;
+     printf("SNR %f, BLER %f (%u/%d)\n", SNR, dec_iter[i].bler, decoded_errors[i], n_trials);
+     printf("SNR %f, BER %f (%u/%d)\n", SNR, dec_iter[i].ber, decoded_errors[i], n_trials);
++    if (res.quantization_errors > 0) {
++      printf("SNR %f, Quantization Errors: %u\n", SNR, res.quantization_errors);
++    }
+     printf("SNR %f, Uncoded BER %f (%u/%d)\n",
+            SNR,
+            res.errors_bit_uncoded / (float)n_trials / (double)n_segments,

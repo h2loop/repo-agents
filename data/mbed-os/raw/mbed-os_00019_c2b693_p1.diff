@@ -1,0 +1,157 @@
+diff --git a/targets/TARGET_GigaDevice/TARGET_GD32F30X/GD32F30x_standard_peripheral/Source/gd32f30x_dac.c b/targets/TARGET_GigaDevice/TARGET_GD32F30X/GD32F30x_standard_peripheral/Source/gd32f30x_dac.c
+index e803b436..6140d19d 100644
+--- a/targets/TARGET_GigaDevice/TARGET_GD32F30X/GD32F30x_standard_peripheral/Source/gd32f30x_dac.c
++++ b/targets/TARGET_GigaDevice/TARGET_GD32F30X/GD32F30x_standard_peripheral/Source/gd32f30x_dac.c
+@@ -57,7 +57,7 @@ void dac_deinit(void)
+ */
+ void dac_enable(uint32_t dac_periph)
+ {
+-    if (DAC0 == dac_periph) {
++    if ((uint32_t)DAC0 == dac_periph) {
+         DAC_CTL |= DAC_CTL_DEN0;
+     } else {
+         DAC_CTL |= DAC_CTL_DEN1;
+@@ -73,7 +73,7 @@ void dac_enable(uint32_t dac_periph)
+ */
+ void dac_disable(uint32_t dac_periph)
+ {
+-    if (DAC0 == dac_periph) {
++    if ((uint32_t)DAC0 == dac_periph) {
+         DAC_CTL &= ~DAC_CTL_DEN0;
+     } else {
+         DAC_CTL &= ~DAC_CTL_DEN1;
+@@ -89,7 +89,7 @@ void dac_disable(uint32_t dac_periph)
+ */
+ void dac_dma_enable(uint32_t dac_periph)
+ {
+-    if (DAC0 == dac_periph) {
++    if ((uint32_t)DAC0 == dac_periph) {
+         DAC_CTL |= DAC_CTL_DDMAEN0;
+     } else {
+         DAC_CTL |= DAC_CTL_DDMAEN1;
+@@ -105,7 +105,7 @@ void dac_dma_enable(uint32_t dac_periph)
+ */
+ void dac_dma_disable(uint32_t dac_periph)
+ {
+-    if (DAC0 == dac_periph) {
++    if ((uint32_t)DAC0 == dac_periph) {
+         DAC_CTL &= ~DAC_CTL_DDMAEN0;
+     } else {
+         DAC_CTL &= ~DAC_CTL_DDMAEN1;
+@@ -121,7 +121,7 @@ void dac_dma_disable(uint32_t dac_periph)
+ */
+ void dac_output_buffer_enable(uint32_t dac_periph)
+ {
+-    if (DAC0 == dac_periph) {
++    if ((uint32_t)DAC0 == dac_periph) {
+         DAC_CTL &= ~DAC_CTL_DBOFF0;
+     } else {
+         DAC_CTL &= ~DAC_CTL_DBOFF1;
+@@ -137,7 +137,7 @@ void dac_output_buffer_enable(uint32_t dac_periph)
+ */
+ void dac_output_buffer_disable(uint32_t dac_periph)
+ {
+-    if (DAC0 == dac_periph) {
++    if ((uint32_t)DAC0 == dac_periph) {
+         DAC_CTL |= DAC_CTL_DBOFF0;
+     } else {
+         DAC_CTL |= DAC_CTL_DBOFF1;
+@@ -153,7 +153,7 @@ void dac_output_buffer_disable(uint32_t dac_periph)
+ */
+ void dac_trigger_enable(uint32_t dac_periph)
+ {
+-    if (DAC0 == dac_periph) {
++    if ((uint32_t)DAC0 == dac_periph) {
+         DAC_CTL |= DAC_CTL_DTEN0;
+     } else {
+         DAC_CTL |= DAC_CTL_DTEN1;
+@@ -169,7 +169,7 @@ void dac_trigger_enable(uint32_t dac_periph)
+ */
+ void dac_trigger_disable(uint32_t dac_periph)
+ {
+-    if (DAC0 == dac_periph) {
++    if ((uint32_t)DAC0 == dac_periph) {
+         DAC_CTL &= ~DAC_CTL_DTEN0;
+     } else {
+         DAC_CTL &= ~DAC_CTL_DTEN1;
+@@ -184,7 +184,7 @@ void dac_trigger_disable(uint32_t dac_periph)
+ */
+ void dac_software_trigger_enable(uint32_t dac_periph)
+ {
+-    if (DAC0 == dac_periph) {
++    if ((uint32_t)DAC0 == dac_periph) {
+         DAC_SWT |= DAC_SWT_SWTR0;
+     } else {
+         DAC_SWT |= DAC_SWT_SWTR1;
+@@ -200,7 +200,7 @@ void dac_software_trigger_enable(uint32_t dac_periph)
+ */
+ void dac_software_trigger_disable(uint32_t dac_periph)
+ {
+-    if (DAC0 == dac_periph) {
++    if ((uint32_t)DAC0 == dac_periph) {
+         DAC_SWT &= ~DAC_SWT_SWTR0;
+     } else {
+         DAC_SWT &= ~DAC_SWT_SWTR1;
+@@ -226,7 +226,7 @@ void dac_software_trigger_disable(uint32_t dac_periph)
+ */
+ void dac_trigger_source_config(uint32_t dac_periph, uint32_t triggersource)
+ {
+-    if (DAC0 == dac_periph) {
++    if ((uint32_t)DAC0 == dac_periph) {
+         DAC_CTL &= ~DAC_CTL_DTSEL0;
+         DAC_CTL |= triggersource;
+     } else {
+@@ -248,7 +248,7 @@ void dac_trigger_source_config(uint32_t dac_periph, uint32_t triggersource)
+ */
+ void dac_wave_mode_config(uint32_t dac_periph, uint32_t wave_mode)
+ {
+-    if (DAC0 == dac_periph) {
++    if ((uint32_t)DAC0 == dac_periph) {
+         DAC_CTL &= ~DAC_CTL_DWM0;
+         DAC_CTL |= wave_mode;
+     } else {
+@@ -279,7 +279,7 @@ void dac_wave_mode_config(uint32_t dac_periph, uint32_t wave_mode)
+ */
+ void dac_wave_bit_width_config(uint32_t dac_periph, uint32_t bit_width)
+ {
+-    if (DAC0 == dac_periph) {
++    if ((uint32_t)DAC0 == dac_periph) {
+         DAC_CTL &= ~DAC_CTL_DWBW0;
+         DAC_CTL |= bit_width;
+     } else {
+@@ -310,7 +310,7 @@ void dac_wave_bit_width_config(uint32_t dac_periph, uint32_t bit_width)
+ */
+ void dac_lfsr_noise_config(uint32_t dac_periph, uint32_t unmask_bits)
+ {
+-    if (DAC0 == dac_periph) {
++    if ((uint32_t)DAC0 == dac_periph) {
+         DAC_CTL &= ~DAC_CTL_DWBW0;
+         DAC_CTL |= unmask_bits;
+     } else {
+@@ -341,7 +341,7 @@ void dac_lfsr_noise_config(uint32_t dac_periph, uint32_t unmask_bits)
+ */
+ void dac_triangle_noise_config(uint32_t dac_periph, uint32_t amplitude)
+ {
+-    if (DAC0 == dac_periph) {
++    if ((uint32_t)DAC0 == dac_periph) {
+         DAC_CTL &= ~DAC_CTL_DWBW0;
+         DAC_CTL |= amplitude;
+     } else {
+@@ -360,7 +360,7 @@ void dac_triangle_noise_config(uint32_t dac_periph, uint32_t amplitude)
+ uint16_t dac_output_value_get(uint32_t dac_periph)
+ {
+     uint16_t data = 0U;
+-    if (DAC0 == dac_periph) {
++    if ((uint32_t)DAC0 == dac_periph) {
+         data = (uint16_t)DAC0_DO;
+     } else {
+         data = (uint16_t)DAC1_DO;
+@@ -460,7 +460,7 @@ void dac_concurrent_output_buffer_disable(void)
+ */
+ void dac_data_set(uint32_t dac_periph, uint32_t dac_align, uint16_t data)
+ {
+-    if (DAC0 == dac_periph) {
++    if ((uint32_t)DAC0 == dac_periph) {
+         switch (dac_align) {
+             /* data right 12b alignment */
+             case DAC_ALIGN_12B_R:

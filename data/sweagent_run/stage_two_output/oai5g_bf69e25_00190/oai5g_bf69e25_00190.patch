@@ -1,0 +1,79 @@
+diff --git a/openair2/RRC/LTE/rrc_eNB.c b/openair2/RRC/LTE/rrc_eNB.c
+index 6b78e27f63..104887b308 100644
+--- a/openair2/RRC/LTE/rrc_eNB.c
++++ b/openair2/RRC/LTE/rrc_eNB.c
+@@ -3899,7 +3899,8 @@ check_handovers(
+         rrc_eNB_generate_HO_RRCConnectionReconfiguration(ctxt_pP, ue_context_p,
+             X2AP_HANDOVER_REQ_ACK(msg).rrc_buffer,
+             sizeof(X2AP_HANDOVER_REQ_ACK(msg).rrc_buffer),
+-            &X2AP_HANDOVER_REQ_ACK(msg).rrc_buffer_size);
++            &X2AP_HANDOVER_REQ_ACK(msg).rrc_buffer_size,
++            1);
+         rrc_eNB_configure_rbs_handover(ue_context_p,ctxt_pP);
+         X2AP_HANDOVER_REQ_ACK(msg).rnti = ue_context_p->ue_context.rnti;
+         X2AP_HANDOVER_REQ_ACK(msg).x2_id_target = ue_context_p->ue_context.handover_info->x2_id;
+@@ -4061,8 +4062,8 @@ rrc_eNB_generate_HO_RRCConnectionReconfiguration(const protocol_ctxt_t *const ct
+     rrc_eNB_ue_context_t  *const ue_context_pP,
+     uint8_t               *buffer,
+     size_t                 buffer_size,
+-    int                    *_size
+-    //const uint8_t        ho_state
++    int                    *_size,
++    const uint8_t        ho_state
+                                                 )
+ //-----------------------------------------------------------------------------
+ {
+@@ -4975,8 +4976,7 @@ rrc_eNB_generate_HO_RRCConnectionReconfiguration(const protocol_ctxt_t *const ct
+     dedicatedInfoNASList = NULL;
+   }
+ 
+-  measurements_enabled = RC.rrc[ENB_INSTANCE_TO_MODULE_ID(ctxt_pP->instance)]->configuration.enable_x2 ||
+-                         RC.rrc[ENB_INSTANCE_TO_MODULE_ID(ctxt_pP->instance)]->configuration.enable_measurement_reports;
++  measurements_enabled = (ho_state == 1);
+   memset(buffer, 0, buffer_size);
+   char rrc_buf[1000 /* arbitrary, should be big enough, has to be less than size of return buf by a few bits/bytes */];
+   int rrc_size;
+@@ -6179,7 +6179,7 @@ is_dl_256QAM_supported(
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R118
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R11a
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE != NULL // R125
+-	 && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250 != NULL
++         && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250 != NULL
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250 != NULL
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array != NULL
+          && c->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->NCE->rf_Parameters_v1250->supportedBandListEUTRA_v1250->list.array[0]->dl_256QAM_r12 != NULL
+@@ -6497,7 +6497,7 @@ rrc_eNB_decode_dcch(
+                   ue_context_p->ue_context.enb_gtp_ebi[i]  = 0;
+                 }
+               }
+-	      gtpv1u_delete_s1u_tunnel(ctxt_pP->instance, &delete_tunnels);
++              gtpv1u_delete_s1u_tunnel(ctxt_pP->instance, &delete_tunnels);
+               //S1AP_E_RAB_RELEASE_RESPONSE
+               rrc_eNB_send_S1AP_E_RAB_RELEASE_RESPONSE(ctxt_pP,
+                   ue_context_p,
+@@ -7230,8 +7230,8 @@ void rrc_subframe_process(protocol_ctxt_t *const ctxt_pP, const int CC_id) {
+           get_ue_Category(ue_context_p->ue_context.UE_Capability,&catDL,&catUL);
+           fprintf(fd,"RRC UE cap: CatDL %ld, CatUL %ld, 64QAM UL %s, 256 QAM DL %s, 256 QAM UL %s, ENDC %s,\n",
+                 catDL,catUL,
+-		is_ul_64QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
+-		is_dl_256QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
++                is_ul_64QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
++                is_dl_256QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
+                 is_ul_256QAM_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no",
+                 is_en_dc_supported(ue_context_p->ue_context.UE_Capability) == 1 ? "yes" : "no");
+         }
+diff --git a/openair2/RRC/LTE/rrc_proto.h b/openair2/RRC/LTE/rrc_proto.h
+index a54a7a7336..42175c29ce 100644
+--- a/openair2/RRC/LTE/rrc_proto.h
++++ b/openair2/RRC/LTE/rrc_proto.h
+@@ -307,8 +307,8 @@ rrc_eNB_generate_HO_RRCConnectionReconfiguration(const protocol_ctxt_t *const ct
+     rrc_eNB_ue_context_t  *const ue_context_pP,
+     uint8_t               *buffer,
+     size_t                 buffer_size,
+-    int                    *_size
+-    //const uint8_t        ho_state
++    int                    *_size,
++    const uint8_t        ho_state
+                                                 );
+ void
+ rrc_eNB_configure_rbs_handover(struct rrc_eNB_ue_context_s *ue_context_p, protocol_ctxt_t *const ctxt_pP);

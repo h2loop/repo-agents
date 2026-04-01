@@ -1,0 +1,44 @@
+diff --git a/openair1/PHY/TOOLS/oai_dfts.c b/openair1/PHY/TOOLS/oai_dfts.c
+index 233590b51f..cd7991d8a7 100644
+--- a/openair1/PHY/TOOLS/oai_dfts.c
++++ b/openair1/PHY/TOOLS/oai_dfts.c
+@@ -3758,7 +3758,7 @@ void dft18432(int16_t *input, int16_t *output,unsigned char scale) {
+ 
+   for (i=0,i2=0; i<12288; i+=8,i2+=4)  {
+     bfly3((simd_q15_t*)(&tmpo[0][i2]),(simd_q15_t*)(&tmpo[1][i2]),(simd_q15_t*)(&tmpo[2][i2]),
+-          (simd_q15_t*)(output+i),(simd_q15_t*)(output+12288+i),(simd_q15_t*)(output+24576+i),
++          (simd_q15_t*)(output+i),(simd_q15_t*)(output+6144+i),(simd_q15_t*)(output+12288+i),
+           (simd_q15_t*)(twa18432+i),(simd_q15_t*)(twb18432+i));
+   }
+   if (scale==1) {
+@@ -3806,7 +3806,7 @@ void idft18432(int16_t *input, int16_t *output,unsigned char scale) {
+ 
+   for (i=0,i2=0; i<12288; i+=8,i2+=4)  {
+     ibfly3((simd_q15_t*)(&tmpo[0][i2]),(simd_q15_t*)(&tmpo[1][i2]),(simd_q15_t*)(&tmpo[2][i2]),
+-	   (simd_q15_t*)(output+i),(simd_q15_t*)(output+12288+i),(simd_q15_t*)(output+24576+i),
++	   (simd_q15_t*)(output+i),(simd_q15_t*)(output+6144+i),(simd_q15_t*)(output+12288+i),
+ 	   (simd_q15_t*)(twa18432+i),(simd_q15_t*)(twb18432+i));
+   }
+   if (scale==1) {
+diff --git a/openair1/PHY/TOOLS/oai_dfts_neon.c b/openair1/PHY/TOOLS/oai_dfts_neon.c
+index 058d4601b3..2829af6f2d 100644
+--- a/openair1/PHY/TOOLS/oai_dfts_neon.c
++++ b/openair1/PHY/TOOLS/oai_dfts_neon.c
+@@ -3190,7 +3190,7 @@ void dft18432(int16_t *input, int16_t *output,unsigned char scale) {
+ 
+   for (i=0,i2=0; i<12288; i+=8,i2+=4)  {
+     bfly3((simd_q15_t*)(&tmpo[0][i2]),(simd_q15_t*)(&tmpo[1][i2]),(simd_q15_t*)(&tmpo[2][i2]),
+-          (simd_q15_t*)(output+i),(simd_q15_t*)(output+12288+i),(simd_q15_t*)(output+24576+i),
++          (simd_q15_t*)(output+i),(simd_q15_t*)(output+6144+i),(simd_q15_t*)(output+12288+i),
+           (simd_q15_t*)(twa18432+i),(simd_q15_t*)(twb18432+i));
+   }
+   if (scale==1) {
+@@ -3236,7 +3236,7 @@ void idft18432(int16_t *input, int16_t *output,unsigned char scale) {
+ 
+   for (i=0,i2=0; i<12288; i+=8,i2+=4)  {
+     ibfly3((simd_q15_t*)(&tmpo[0][i2]),(simd_q15_t*)(&tmpo[1][i2]),(simd_q15_t*)(&tmpo[2][i2]),
+-	   (simd_q15_t*)(output+i),(simd_q15_t*)(output+12288+i),(simd_q15_t*)(output+24576+i),
++	   (simd_q15_t*)(output+i),(simd_q15_t*)(output+6144+i),(simd_q15_t*)(output+12288+i),
+ 	   (simd_q15_t*)(twa18432+i),(simd_q15_t*)(twb18432+i));
+   }
+   if (scale==1) {

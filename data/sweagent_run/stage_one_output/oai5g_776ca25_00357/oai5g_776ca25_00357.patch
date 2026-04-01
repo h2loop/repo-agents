@@ -1,0 +1,12 @@
+diff --git a/openair3/NAS/COMMON/nr_common.c b/openair3/NAS/COMMON/nr_common.c
+index 0a7aae2a17..511417aac5 100644
+--- a/openair3/NAS/COMMON/nr_common.c
++++ b/openair3/NAS/COMMON/nr_common.c
+@@ -30,6 +30,7 @@ void servingNetworkName(uint8_t *msg, char * imsiStr, int nmc_size) {
+   // TS 24.501: If the MNC of the serving PLMN has two digits, then a zero is added at the beginning.
+   const char *format="5G:mnc000.mcc000.3gppnetwork.org";
+   memcpy(msg,format, strlen(format));
++  msg[strlen(format)] = '\0'; // Ensure null termination
+ 
+   if (nmc_size == 2)
+     memcpy(msg+7, imsiStr+3, 2);

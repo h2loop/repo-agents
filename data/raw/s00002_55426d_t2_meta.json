@@ -1,0 +1,9 @@
+{
+  "run_id": "s00002_55426d",
+  "pr_text": "## Title: Fix type confusion in paramlist array handling\n\n### Summary\nFix a type confusion bug in the configuration library where `paramlist_def_t.paramarray` was declared as `paramdef_t **` but used as a flat array of `paramdef_t` structures. The incorrect type declaration led to incompatible pointer casting and unnecessary double-pointer indirection. This change corrects the type to `paramdef_t *` and updates the allocation/access logic to use a single contiguous memory block, improving type s",
+  "trajectory_path": "data/raw/s00002_55426d_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00002_55426d_p2.diff",
+  "patch_lines": 10,
+  "trajectory_steps": 26,
+  "timestamp": "2026-02-10T10:38:13Z"
+}

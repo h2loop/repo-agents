@@ -1,0 +1,26 @@
+{
+  "run_id": "mbed-os_00959_9152f2",
+  "function": {
+    "name": "LL_ADC_StartCalibration",
+    "file": "targets/TARGET_STM/TARGET_STM32F0/STM32Cube_FW/STM32F0xx_HAL_Driver/stm32f0xx_ll_adc.h",
+    "start_line": 2827,
+    "end_line": 2835,
+    "body_lines": 9,
+    "signature": "__STATIC_INLINE void LL_ADC_StartCalibration(ADC_TypeDef *ADCx)",
+    "subsystem": "targets/TARGET_STM/TARGET_STM32F0",
+    "token_estimate": 45
+  },
+  "bug": {
+    "bug_id": "c_race_condition",
+    "description": "race condition on shared data accessed from multiple threads without synchronization",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a race condition on shared data accessed from multiple threads without synchronization downstream of function LL_ADC_StartCalibration in the targets/TARGET_STM/TARGET_STM32F0 subsystem.\nThe function is located at targets/TARGET_STM/TARGET_STM32F0/STM32Cube_FW/STM32F0xx_HAL_Driver/stm32f0xx_ll_adc.h:2827.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 15,
+  "trajectory_steps": 66,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:19:58Z"
+}

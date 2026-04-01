@@ -1,0 +1,55 @@
+diff --git a/openair2/RRC/NR_UE/rrc_UE.c b/openair2/RRC/NR_UE/rrc_UE.c
+index 87cb68303a..19c4b79531 100644
+--- a/openair2/RRC/NR_UE/rrc_UE.c
++++ b/openair2/RRC/NR_UE/rrc_UE.c
+@@ -2243,11 +2243,18 @@ void *rrc_nrue(void *notUsed)
+ {
+   MessageDef *msg_p = NULL;
+   itti_receive_msg(TASK_RRC_NRUE, &msg_p);
++  
++  // Check if we received a valid message
++  if (msg_p == NULL) {
++    // No message received, possibly due to file descriptor events
++    return NULL;
++  }
++  
+   instance_t instance = ITTI_MSG_DESTINATION_INSTANCE(msg_p);
+   LOG_D(NR_RRC, "[UE %ld] Received %s\n", instance, ITTI_MSG_NAME(msg_p));
+ 
+   NR_UE_RRC_INST_t *rrc = &NR_UE_rrc_inst[instance];
+-  AssertFatal(instance == rrc->ue_id, "Instance %ld received from ITTI doesn't matach with UE-ID %ld\n", instance, rrc->ue_id);
++  AssertFatal(instance == rrc->ue_id, "Instance %ld received from ITTI doesn't match with UE-ID %ld\n", instance, rrc->ue_id);
+ 
+   switch (ITTI_MSG_ID(msg_p)) {
+   case TERMINATE_MESSAGE:
+@@ -2335,11 +2342,11 @@ void *rrc_nrue(void *notUsed)
+ 
+   case NR_RRC_DCCH_DATA_IND:
+     nr_rrc_ue_decode_dcch(rrc,
+-			  NR_RRC_DCCH_DATA_IND(msg_p).dcch_index,
+-			  NR_RRC_DCCH_DATA_IND(msg_p).sdu_p,
+-			  NR_RRC_DCCH_DATA_IND(msg_p).sdu_size,
+-			  NR_RRC_DCCH_DATA_IND(msg_p).gNB_index,
+-			  &NR_RRC_DCCH_DATA_IND(msg_p).msg_integrity);
++                          NR_RRC_DCCH_DATA_IND(msg_p).dcch_index,
++                          NR_RRC_DCCH_DATA_IND(msg_p).sdu_p,
++                          NR_RRC_DCCH_DATA_IND(msg_p).sdu_size,
++                          NR_RRC_DCCH_DATA_IND(msg_p).gNB_index,
++                          &NR_RRC_DCCH_DATA_IND(msg_p).msg_integrity);
+     /* this is allocated by itti_malloc in PDCP task (deliver_sdu_srb)
+        then passed to the RRC task and freed after use */
+     free(NR_RRC_DCCH_DATA_IND(msg_p).sdu_p);
+@@ -2386,8 +2393,11 @@ void *rrc_nrue(void *notUsed)
+     break;
+   }
+   LOG_D(NR_RRC, "[UE %ld] RRC Status %d\n", rrc->ue_id, rrc->nrRrcState);
+-  int result = itti_free(ITTI_MSG_ORIGIN_ID(msg_p), msg_p);
+-  AssertFatal(result == EXIT_SUCCESS, "Failed to free memory (%d)!\n", result);
++  // Only free the message if it's not NULL
++  if (msg_p != NULL) {
++    int result = itti_free(ITTI_MSG_ORIGIN_ID(msg_p), msg_p);
++    AssertFatal(result == EXIT_SUCCESS, "Failed to free memory (%d)!\n", result);
++  }
+   return NULL;
+ }
+ 

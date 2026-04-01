@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix type confusion in M2AP MBMS initialization\n\n### Summary\nThe M2AP MBMS initialization function `rrc_M2AP_openair_rrc_top_init_MBMS` was causing a type confusion where it incorrectly modified ALL carriers' MBMS flags based on a single carrier's value. This function was a duplicate implementation that conflicted with the proper initialization in `openair_rrc_top_init_eNB`.\n\nThis fix removes the duplicate function and its incorrect calls, allowing the proper carrier-specific MBMS flag initialization to work correctly.\n\n### Changes\n- `openair2/RRC/LTE/rrc_eNB_M2AP.c`: Removed duplicate `rrc_M2AP_openair_rrc_top_init_MBMS` function and replaced its incorrect calls with explanatory comments.\n"
+}

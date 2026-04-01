@@ -1,0 +1,28 @@
+diff --git a/openair1/SIMULATION/TOOLS/random_channel.c b/openair1/SIMULATION/TOOLS/random_channel.c
+index e9c26e9abd..5fbe71a744 100644
+--- a/openair1/SIMULATION/TOOLS/random_channel.c
++++ b/openair1/SIMULATION/TOOLS/random_channel.c
+@@ -579,16 +579,16 @@ channel_desc_t *new_channel_desc_scm(uint8_t nb_tx,
+ 
+   channel_desc_t *chan_desc = (channel_desc_t *)calloc(1,sizeof(channel_desc_t));
+ 
+-  for(int i=0; i<max_chan; i++) {
+-    if (defined_channels[i] == NULL) {
+-      defined_channels[i]=chan_desc;
+-      chan_desc->chan_idx=i;
++  int slot_idx;
++  for(slot_idx=0; slot_idx<max_chan; slot_idx++) {
++    if (defined_channels[slot_idx] == NULL) {
++      defined_channels[slot_idx]=chan_desc;
++      chan_desc->chan_idx=slot_idx;
+       break;
+-    } else {
+-      AssertFatal(i<(max_chan-1),
+-                  "No more channel descriptors available, increase channelmod.max_chan parameter above %u\n",max_chan);
+     }
+   }
++  AssertFatal(slot_idx<max_chan,
++              "No more channel descriptors available, increase channelmod.max_chan parameter above %u\n",max_chan);
+ 
+   uint16_t i,j;
+   double sum_amps;

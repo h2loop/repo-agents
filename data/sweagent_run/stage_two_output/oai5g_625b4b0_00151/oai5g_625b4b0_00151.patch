@@ -1,0 +1,56 @@
+diff --git a/radio/fhi_72/oran-config.c b/radio/fhi_72/oran-config.c
+index ddee538dfd..855d374792 100644
+--- a/radio/fhi_72/oran-config.c
++++ b/radio/fhi_72/oran-config.c
+@@ -123,23 +123,23 @@ static void print_fh_init_io_cfg(const struct xran_io_cfg *io_cfg)
+       io_cfg->id == 0 ? "O-DU" : "O-RU",
+       io_cfg->num_vfs,
+       io_cfg->num_rxq,
+-      io_cfg->dpdk_dev[XRAN_UP_VF],
+-      io_cfg->dpdk_dev[XRAN_CP_VF],
+-      io_cfg->dpdk_dev[XRAN_UP_VF1],
+-      io_cfg->dpdk_dev[XRAN_CP_VF1],
+-      io_cfg->dpdk_dev[XRAN_UP_VF2],
+-      io_cfg->dpdk_dev[XRAN_CP_VF2],
+-      io_cfg->dpdk_dev[XRAN_UP_VF3],
+-      io_cfg->dpdk_dev[XRAN_CP_VF3],
+-      io_cfg->dpdk_dev[XRAN_UP_VF4],
+-      io_cfg->dpdk_dev[XRAN_CP_VF4],
+-      io_cfg->dpdk_dev[XRAN_UP_VF5],
+-      io_cfg->dpdk_dev[XRAN_CP_VF5],
+-      io_cfg->dpdk_dev[XRAN_UP_VF6],
+-      io_cfg->dpdk_dev[XRAN_CP_VF6],
+-      io_cfg->dpdk_dev[XRAN_UP_VF7],
+-      io_cfg->dpdk_dev[XRAN_CP_VF7],
+-      io_cfg->bbdev_dev[0],
++      io_cfg->dpdk_dev[XRAN_UP_VF] ? io_cfg->dpdk_dev[XRAN_UP_VF] : "",
++      io_cfg->dpdk_dev[XRAN_CP_VF] ? io_cfg->dpdk_dev[XRAN_CP_VF] : "",
++      io_cfg->dpdk_dev[XRAN_UP_VF1] ? io_cfg->dpdk_dev[XRAN_UP_VF1] : "",
++      io_cfg->dpdk_dev[XRAN_CP_VF1] ? io_cfg->dpdk_dev[XRAN_CP_VF1] : "",
++      io_cfg->dpdk_dev[XRAN_UP_VF2] ? io_cfg->dpdk_dev[XRAN_UP_VF2] : "",
++      io_cfg->dpdk_dev[XRAN_CP_VF2] ? io_cfg->dpdk_dev[XRAN_CP_VF2] : "",
++      io_cfg->dpdk_dev[XRAN_UP_VF3] ? io_cfg->dpdk_dev[XRAN_UP_VF3] : "",
++      io_cfg->dpdk_dev[XRAN_CP_VF3] ? io_cfg->dpdk_dev[XRAN_CP_VF3] : "",
++      io_cfg->dpdk_dev[XRAN_UP_VF4] ? io_cfg->dpdk_dev[XRAN_UP_VF4] : "",
++      io_cfg->dpdk_dev[XRAN_CP_VF4] ? io_cfg->dpdk_dev[XRAN_CP_VF4] : "",
++      io_cfg->dpdk_dev[XRAN_UP_VF5] ? io_cfg->dpdk_dev[XRAN_UP_VF5] : "",
++      io_cfg->dpdk_dev[XRAN_CP_VF5] ? io_cfg->dpdk_dev[XRAN_CP_VF5] : "",
++      io_cfg->dpdk_dev[XRAN_UP_VF6] ? io_cfg->dpdk_dev[XRAN_UP_VF6] : "",
++      io_cfg->dpdk_dev[XRAN_CP_VF6] ? io_cfg->dpdk_dev[XRAN_CP_VF6] : "",
++      io_cfg->dpdk_dev[XRAN_UP_VF7] ? io_cfg->dpdk_dev[XRAN_UP_VF7] : "",
++      io_cfg->dpdk_dev[XRAN_CP_VF7] ? io_cfg->dpdk_dev[XRAN_CP_VF7] : "",
++      io_cfg->bbdev_dev[0] ? io_cfg->bbdev_dev[0] : "",
+       io_cfg->bbdev_mode,
+       io_cfg->dpdkIoVaMode,
+       io_cfg->dpdkMemorySize);
+@@ -237,8 +237,8 @@ void print_fh_init(const struct xran_fh_init *fh_init)
+   mtu %d\n",
+       fh_init->xran_ports,
+       fh_init->dpdkBasebandFecMode,
+-      fh_init->dpdkBasebandDevice,
+-      fh_init->filePrefix,
++      fh_init->dpdkBasebandDevice ? fh_init->dpdkBasebandDevice : "",
++      fh_init->filePrefix ? fh_init->filePrefix : "",
+       fh_init->mtu);
+   print_ether_addr("  p_o_du_addr", fh_init->xran_ports * fh_init->io_cfg.num_vfs, (struct rte_ether_addr *)fh_init->p_o_du_addr);
+   print_ether_addr("  p_o_ru_addr", fh_init->xran_ports * fh_init->io_cfg.num_vfs, (struct rte_ether_addr *)fh_init->p_o_ru_addr);

@@ -1,0 +1,25 @@
+diff --git a/openair1/PHY/CODING/nrLDPC_encoder/ldpc_BG2_Zc176_byte.c b/openair1/PHY/CODING/nrLDPC_encoder/ldpc_BG2_Zc176_byte.c
+index b7837aa6dc..a611304cfd 100644
+--- a/openair1/PHY/CODING/nrLDPC_encoder/ldpc_BG2_Zc176_byte.c
++++ b/openair1/PHY/CODING/nrLDPC_encoder/ldpc_BG2_Zc176_byte.c
+@@ -8,6 +8,20 @@ static inline __attribute__ ((no_sanitize("address", "undefined"))) void ldpc_BG
+   int i2;
+   for (i2=0; i2<11; i2++) {
+      c2=&csimd[i2];
++     // Precompute common XOR subexpressions to eliminate redundant calculations
++     simde__m128i xor_1_226 = xor_1_226;
++     simde__m128i xor_1572_905 = xor_1572_905;
++     simde__m128i xor_1086_1964 = xor_1086_1964;
++     simde__m128i xor_2405_1086_1964 = xor_2405_1086_1964;
++     simde__m128i xor_2386_3044 = xor_2386_3044;
++     simde__m128i xor_1919_2386_3044 = xor_1919_2386_3044;
++     simde__m128i xor_1036_1919_2386_3044 = xor_1036_1919_2386_3044;
++     simde__m128i xor_133_1036_1919_2386_3044 = xor_133_1036_1919_2386_3044;
++     simde__m128i xor_1455_133_1036_1919_2386_3044 = simde_mm_xor_si128(c2[1455], xor_133_1036_1919_2386_3044);
++     simde__m128i xor_1674_1455_133_1036_1919_2386_3044 = simde_mm_xor_si128(c2[1674], xor_1455_133_1036_1919_2386_3044);
++     simde__m128i xor_177_2405_1086_1964 = xor_177_2405_1086_1964;
++     simde__m128i xor_70_2272_3171_313_2958_110_3197_1674 = simde_mm_xor_si128(c2[70], simde_mm_xor_si128(c2[2272], simde_mm_xor_si128(c2[3171], simde_mm_xor_si128(c2[313], simde_mm_xor_si128(c2[2958], simde_mm_xor_si128(c2[110], simde_mm_xor_si128(c2[3197], c2[1674])))))));
++
+      d2=&dsimd[i2];
+ 
+ //row: 0

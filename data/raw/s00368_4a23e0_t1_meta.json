@@ -1,0 +1,31 @@
+{
+  "run_id": "s00368_4a23e0",
+  "function": {
+    "name": "phy_nr_slot_indication",
+    "file": "nfapi/oai_integration/nfapi_vnf.c",
+    "start_line": 906,
+    "end_line": 960,
+    "body_lines": 55,
+    "signature": "int phy_nr_slot_indication(nfapi_nr_slot_indication_scf_t *ind)",
+    "subsystem": "nfapi/oai_integration",
+    "token_estimate": 194
+  },
+  "bug": {
+    "bug_id": "c_deprecated_api_usage",
+    "description": "usage of deprecated API function that has known safety or correctness issues",
+    "domain": "generic_c",
+    "subsystems": [
+      "common",
+      "executables",
+      "radio",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a usage of deprecated API function that has known safety or correctness issues downstream of function phy_nr_slot_indication in the nfapi/oai_integration subsystem.\nThe function is located at nfapi/oai_integration/nfapi_vnf.c:906.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00368_4a23e0_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00368_4a23e0_p1.diff",
+  "patch_lines": 35,
+  "trajectory_steps": 93,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:56:21Z"
+}

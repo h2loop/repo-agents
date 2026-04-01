@@ -1,0 +1,26 @@
+{
+  "run_id": "zephyr_00290_aabb59",
+  "function": {
+    "name": "lsm6dsv320x_accel_get_mode",
+    "file": "drivers/sensor/st/lsm6dsvxxx/lsm6dsv320x.c",
+    "start_line": 262,
+    "end_line": 297,
+    "body_lines": 36,
+    "signature": "static int32_t lsm6dsv320x_accel_get_mode(const struct device *dev, int32_t *mode)",
+    "subsystem": "drivers/sensor/st",
+    "token_estimate": 76
+  },
+  "bug": {
+    "bug_id": "c_off_by_one",
+    "description": "off-by-one error in array indexing or loop boundary",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a off-by-one error in array indexing or loop boundary downstream of function lsm6dsv320x_accel_get_mode in the drivers/sensor/st subsystem.\nThe function is located at drivers/sensor/st/lsm6dsvxxx/lsm6dsv320x.c:262.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 24,
+  "trajectory_steps": 26,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:05:20Z"
+}

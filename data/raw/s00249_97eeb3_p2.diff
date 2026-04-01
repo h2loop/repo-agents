@@ -1,0 +1,13 @@
+diff --git a/nfapi/oai_integration/nfapi_vnf.c b/nfapi/oai_integration/nfapi_vnf.c
+index c742a7088a..d1d770d376 100644
+--- a/nfapi/oai_integration/nfapi_vnf.c
++++ b/nfapi/oai_integration/nfapi_vnf.c
+@@ -2050,7 +2050,7 @@ int oai_nfapi_ul_config_req(nfapi_ul_config_request_t *ul_config_req) {
+       }
+       remove_ul_config_req_pdu(j, ul_config_req);
+       j--;
+-      num_pdus--;
++      num_pdus = ul_config_req->ul_config_request_body.number_of_pdus;
+ 
+       LOG_E(MAC, "Problem, two cqis being sent to a single UE for rnti %x dropping one\n",
+             rnti_i);

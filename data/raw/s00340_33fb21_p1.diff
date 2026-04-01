@@ -1,0 +1,12 @@
+diff --git a/openair2/UTIL/OPT/probe.c b/openair2/UTIL/OPT/probe.c
+index a4994421c2..123c057f9d 100644
+--- a/openair2/UTIL/OPT/probe.c
++++ b/openair2/UTIL/OPT/probe.c
+@@ -193,7 +193,6 @@ static int PCAP_WritePDU(const uint8_t *PDU,
+   fwrite(&IPheader, sizeof(IPV4_HDR), 1, file_fd);
+   fwrite(&UDPheader, sizeof(UDP_HDR), 1, file_fd);
+   fwrite(PDU, 1, length, file_fd);
+-  fflush(file_fd);
+   return length;
+ }
+ 

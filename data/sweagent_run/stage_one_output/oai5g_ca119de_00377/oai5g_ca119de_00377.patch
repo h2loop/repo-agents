@@ -1,0 +1,33 @@
+diff --git a/executables/lte-uesoftmodem.c b/executables/lte-uesoftmodem.c
+index d5b47a198c..5f77976d0d 100644
+--- a/executables/lte-uesoftmodem.c
++++ b/executables/lte-uesoftmodem.c
+@@ -516,7 +516,7 @@ static void init_pdcp(int ue_id) {
+ // Stupid function addition because UE itti messages queues definition is common with eNB
+ void *rrc_enb_process_msg(void *notUsed) {
+ AssertFatal(false,"");
+-	return NULL;
++        return NULL;
+ }
+ 
+ int NB_UE_INST = 1;
+@@ -567,14 +567,12 @@ int main( int argc, char **argv ) {
+ 
+   init_opt();
+   ue_id_g = (node_number == 0) ? 0 : node_number-2; //ue_id_g = 0, 1, ...,
+-  if(node_number == 0)
+-  {
+-    init_pdcp(0);
+-  }
+-  else
+-  {
+-    init_pdcp(node_number-1);
++  // Validate that we don't pass negative UE IDs to PDCP
++  if (ue_id_g < 0) {
++    LOG_E(PDCP, "Invalid UE ID calculated: %d. node_number must be 0 or >= 2\n", ue_id_g);
++    exit(EXIT_FAILURE);
+   }
++  init_pdcp(ue_id_g);
+ 
+   //TTN for D2D
+   printf ("RRC control socket\n");

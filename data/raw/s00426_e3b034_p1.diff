@@ -1,0 +1,72 @@
+diff --git a/openair1/PHY/TOOLS/oai_dfts.c b/openair1/PHY/TOOLS/oai_dfts.c
+index dcb206b5a4..1c5e2752a8 100644
+--- a/openair1/PHY/TOOLS/oai_dfts.c
++++ b/openair1/PHY/TOOLS/oai_dfts.c
+@@ -7891,7 +7891,7 @@ void dft_implementation(uint8_t sizeidx, int16_t *input, int16_t *output, unsign
+           if (sizeidx==DFT_12) // This case does 8 DFTs in //
+             sz*=8;
+           int16_t tmp[sz*2] __attribute__ ((aligned(32))); // input and output are not in right type (int16_t instead of c16_t)
+-          memcpy(tmp, input, sizeof tmp);
++          memcpy(tmp, input, sz*2*sizeof(int16_t));
+           dft_ftab[sizeidx].func(tmp,output,scale_flag);
+         } else
+           dft_ftab[sizeidx].func(input,output,scale_flag);
+@@ -7901,13 +7901,14 @@ void idft_implementation(uint8_t sizeidx, int16_t *input, int16_t *output, unsig
+ {
+   AssertFatal((sizeidx>=0 && sizeidx<DFT_SIZE_IDXTABLESIZE),"Invalid idft size index %i\n",sizeidx);
+         int algn=0xF;
+-	algn=0x1F;
++        if ( (idft_ftab[sizeidx].size%3) != 0 ) // there is no AVX2 implementation for multiples of 3 IDFTs
++          algn=0x1F;
+         AssertFatal( ((intptr_t)output&algn)==0,"Buffers should be 16 bytes aligned %p",output);
+         if (((intptr_t)input)&algn ) {  
+-          LOG_D(PHY, "DFT called with input not aligned, add a memcpy\n");
++          LOG_D(PHY, "IDFT called with input not aligned, add a memcpy\n");
+           int sz=idft_ftab[sizeidx].size;
+           int16_t tmp[sz*2] __attribute__ ((aligned(32))); // input and output are not in right type (int16_t instead of c16_t)
+-          memcpy(tmp, input, sizeof tmp);
++          memcpy(tmp, input, sz*2*sizeof(int16_t));
+           idft_ftab[sizeidx].func(tmp,output,scale_flag);
+         } else
+           idft_ftab[sizeidx].func(input,output,scale_flag);
+diff --git a/openair1/PHY/TOOLS/oai_dfts_neon.c b/openair1/PHY/TOOLS/oai_dfts_neon.c
+index f3a2e5cb46..0d2a8626fe 100644
+--- a/openair1/PHY/TOOLS/oai_dfts_neon.c
++++ b/openair1/PHY/TOOLS/oai_dfts_neon.c
+@@ -7103,6 +7103,8 @@ void dft_implementation(uint8_t sizeidx, int16_t *input, int16_t *output, unsign
+ {
+   AssertFatal((sizeidx >= 0 && sizeidx<DFT_SIZE_IDXTABLESIZE),"Invalid dft size index %i\n",sizeidx);
+         int algn=0xF;
++        if ( (dft_ftab[sizeidx].size%3) != 0 ) // there is no NEON implementation for multiples of 3 DFTs
++          algn=0x1F;
+         AssertFatal(((intptr_t)output&algn)==0,"Buffers should be aligned %p",output);
+         if (((intptr_t)input)&algn) {
+           LOG_D(PHY, "DFT called with input not aligned, add a memcpy, size %d\n", sizeidx);
+@@ -7110,7 +7112,7 @@ void dft_implementation(uint8_t sizeidx, int16_t *input, int16_t *output, unsign
+           if (sizeidx==DFT_12) // This case does 8 DFTs in //
+             sz*=8;
+           int16_t tmp[sz*2] __attribute__ ((aligned(32))); // input and output are not in right type (int16_t instead of c16_t)
+-          memcpy(tmp, input, sizeof tmp);
++          memcpy(tmp, input, sz*2*sizeof(int16_t));
+           dft_ftab[sizeidx].func(tmp,output,scale_flag);
+         } else
+           dft_ftab[sizeidx].func(input,output,scale_flag);
+@@ -7120,13 +7122,15 @@ void idft_implementation(uint8_t sizeidx, int16_t *input, int16_t *output, unsig
+ {
+   AssertFatal((sizeidx>=0 && sizeidx<DFT_SIZE_IDXTABLESIZE),"Invalid idft size index %i\n",sizeidx);
+         int algn=0xF;
++        if ( (idft_ftab[sizeidx].size%3) != 0 ) // there is no NEON implementation for multiples of 3 IDFTs
++          algn=0x1F;
+         AssertFatal( ((intptr_t)output&algn)==0,"Buffers should be 16 bytes aligned %p",output);
+         if (((intptr_t)input)&algn ) {  
+-          LOG_D(PHY, "DFT called with input not aligned, add a memcpy\n");
++          LOG_D(PHY, "IDFT called with input not aligned, add a memcpy\n");
+           int sz=idft_ftab[sizeidx].size;
+           int16_t tmp[sz*2] __attribute__ ((aligned(32))); // input and output are not in right type (int16_t instead of c16_t)
+-          memcpy(tmp, input, sizeof tmp);
+-          dft_ftab[sizeidx].func(tmp,output,scale_flag);
++          memcpy(tmp, input, sz*2*sizeof(int16_t));
++          idft_ftab[sizeidx].func(tmp,output,scale_flag);
+         } else
+           idft_ftab[sizeidx].func(input,output,scale_flag);
+ };

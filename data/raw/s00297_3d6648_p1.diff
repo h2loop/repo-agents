@@ -1,0 +1,64 @@
+diff --git a/openair2/E1AP/lib/e1ap_bearer_context_management.c b/openair2/E1AP/lib/e1ap_bearer_context_management.c
+index 2c4f938a24..3f227179b3 100644
+--- a/openair2/E1AP/lib/e1ap_bearer_context_management.c
++++ b/openair2/E1AP/lib/e1ap_bearer_context_management.c
+@@ -445,7 +445,7 @@ static bool e1_decode_pdu_session_to_setup_item(pdu_session_to_setup_t *out, E1A
+   E1AP_DRB_To_Setup_List_NG_RAN_t *drb2SetupList = &item->dRB_To_Setup_List_NG_RAN;
+   _E1_EQ_CHECK_GENERIC(drb2SetupList->list.count > 0, "%d", drb2SetupList->list.count, 0);
+   out->numDRB2Setup = drb2SetupList->list.count;
+-  _E1_EQ_CHECK_INT(out->numDRB2Setup, 1); // can only handle one DRB per PDU session
++  _E1_EQ_CHECK_INT(out->numDRB2Setup, E1AP_MAX_DRB_PER_PDU_SESSION); // can only handle one DRB per PDU session
+   for (int j = 0; j < drb2SetupList->list.count; j++) {
+     DRB_nGRAN_to_setup_t *drb = out->DRBnGRanList + j;
+     E1AP_DRB_To_Setup_Item_NG_RAN_t *drb2Setup = drb2SetupList->list.array[j];
+@@ -696,7 +696,7 @@ bool decode_E1_bearer_context_setup_request(const E1AP_E1AP_PDU_t *pdu, e1ap_bea
+             (E1AP_ProtocolIE_Container_4932P19_t *)System_BearerContextSetupRequest->choice.nG_RAN_BearerContextSetupRequest;
+         E1AP_NG_RAN_BearerContextSetupRequest_t *msgNGRAN = msgNGRAN_list->list.array[0];
+         // NG-RAN
+-        _E1_EQ_CHECK_INT(msgNGRAN_list->list.count, 1); // only one RAN is expected
++        _E1_EQ_CHECK_INT(msgNGRAN_list->list.count, E1AP_MAX_RAN_COUNT); // only one RAN is expected
+         _E1_EQ_CHECK_LONG(msgNGRAN->id, E1AP_ProtocolIE_ID_id_PDU_Session_Resource_To_Setup_List);
+         _E1_EQ_CHECK_INT(msgNGRAN->value.present,
+                          E1AP_NG_RAN_BearerContextSetupRequest__value_PR_PDU_Session_Resource_To_Setup_List);
+@@ -966,7 +966,7 @@ bool decode_E1_bearer_context_setup_response(const E1AP_E1AP_PDU_t *pdu, e1ap_be
+             E1AP_ProtocolIE_Container_4932P22_t *msgNGRAN_list =
+                 (E1AP_ProtocolIE_Container_4932P22_t *)
+                     ie->value.choice.System_BearerContextSetupResponse.choice.nG_RAN_BearerContextSetupResponse;
+-            _E1_EQ_CHECK_INT(msgNGRAN_list->list.count, 1);
++            _E1_EQ_CHECK_INT(msgNGRAN_list->list.count, E1AP_MAX_RAN_COUNT);
+             E1AP_NG_RAN_BearerContextSetupResponse_t *msgNGRAN = msgNGRAN_list->list.array[0];
+             _E1_EQ_CHECK_LONG(msgNGRAN->id, E1AP_ProtocolIE_ID_id_PDU_Session_Resource_Setup_List);
+             _E1_EQ_CHECK_INT(msgNGRAN->value.present,
+@@ -1613,7 +1613,7 @@ static bool e1_decode_pdu_session_to_setup_mod_item(pdu_session_to_setup_t *out,
+   const E1AP_DRB_To_Setup_Mod_List_NG_RAN_t *drb2SetupList = &item->dRB_To_Setup_Mod_List_NG_RAN;
+   _E1_EQ_CHECK_GENERIC(drb2SetupList->list.count > 0, "%d", drb2SetupList->list.count, 0);
+   out->numDRB2Setup = drb2SetupList->list.count;
+-  _E1_EQ_CHECK_INT(out->numDRB2Setup, 1); // can only handle one DRB per PDU session
++  _E1_EQ_CHECK_INT(out->numDRB2Setup, E1AP_MAX_DRB_PER_PDU_SESSION); // can only handle one DRB per PDU session
+   for (int j = 0; j < drb2SetupList->list.count; j++) {
+     DRB_nGRAN_to_setup_t *drb = out->DRBnGRanList + j;
+     const E1AP_DRB_To_Setup_Mod_Item_NG_RAN_t *drb2Setup = drb2SetupList->list.array[j];
+@@ -2225,7 +2225,7 @@ bool decode_E1_bearer_context_mod_response(e1ap_bearer_modif_resp_t *out, const
+         _E1_EQ_CHECK_INT(system->present, E1AP_System_BearerContextModificationResponse_PR_nG_RAN_BearerContextModificationResponse);
+         // NG-RAN List
+         E1AP_ProtocolIE_Container_4932P29_t *msgNGRAN_list = (E1AP_ProtocolIE_Container_4932P29_t *)system->choice.nG_RAN_BearerContextModificationResponse;
+-        _E1_EQ_CHECK_INT(msgNGRAN_list->list.count, 1);
++        _E1_EQ_CHECK_INT(msgNGRAN_list->list.count, E1AP_MAX_RAN_COUNT);
+         E1AP_NG_RAN_BearerContextModificationResponse_t *msgNGRAN = msgNGRAN_list->list.array[0];
+         _E1_EQ_CHECK_LONG(msgNGRAN->id, E1AP_ProtocolIE_ID_id_PDU_Session_Resource_Modified_List);
+         _E1_EQ_CHECK_INT(msgNGRAN->value.present, E1AP_NG_RAN_BearerContextModificationResponse__value_PR_PDU_Session_Resource_Modified_List);
+diff --git a/openair2/E1AP/lib/e1ap_lib_common.h b/openair2/E1AP/lib/e1ap_lib_common.h
+index ea6aa7f2ef..11115b933f 100644
+--- a/openair2/E1AP/lib/e1ap_lib_common.h
++++ b/openair2/E1AP/lib/e1ap_lib_common.h
+@@ -107,6 +107,10 @@
+     }                                                                    \
+   } while (0)
+ 
++/* Symbolic constants for magic numbers used in equality checks */
++#define E1AP_MAX_DRB_PER_PDU_SESSION 1  /**< Maximum number of DRBs per PDU session */
++#define E1AP_MAX_NG_RAN_PER_REQUEST 1 /**< Maximum number of NG-RAN nodes per request */
++
+ struct E1AP_Cause;
+ struct E1AP_Cause e1_encode_cause_ie(const e1ap_cause_t *cause);
+ e1ap_cause_t e1_decode_cause_ie(const struct E1AP_Cause *ie);

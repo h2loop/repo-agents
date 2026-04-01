@@ -1,0 +1,15 @@
+diff --git a/openair2/RRC/LTE/rrc_eNB_UE_context.c b/openair2/RRC/LTE/rrc_eNB_UE_context.c
+index c9077bfb24..f8a4cc867e 100644
+--- a/openair2/RRC/LTE/rrc_eNB_UE_context.c
++++ b/openair2/RRC/LTE/rrc_eNB_UE_context.c
+@@ -121,6 +121,10 @@ rrc_eNB_find_ue_context_from_gnb_rnti(
+   int gnb_rnti)
+ //------------------------------------------------------------------------------
+ {
++  if (gnb_rnti < 0) {
++    return NULL;
++  }
++  
+   struct rrc_eNB_ue_context_s   *ue_context_p = NULL;
+   RB_FOREACH(ue_context_p, rrc_ue_tree_s, &(rrc_instance_pP->rrc_ue_head)) {
+     if (ue_context_p->ue_context.gnb_rnti == gnb_rnti) {

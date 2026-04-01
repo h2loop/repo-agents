@@ -1,0 +1,12 @@
+diff --git a/openair3/NAS/COMMON/ESM/MSG/esm_msg.c b/openair3/NAS/COMMON/ESM/MSG/esm_msg.c
+index f4d3dd94dd..158a7a98ff 100644
+--- a/openair3/NAS/COMMON/ESM/MSG/esm_msg.c
++++ b/openair3/NAS/COMMON/ESM/MSG/esm_msg.c
+@@ -370,6 +370,7 @@ int esm_msg_encode(ESM_msg *msg, uint8_t *buffer, uint32_t len)
+   if (encode_result < 0) {
+     LOG_TRACE(ERROR, "ESM-MSG   - Failed to encode L3 ESM message 0x%x "
+               "(%d)", msg->header.message_type, encode_result);
++    LOG_FUNC_RETURN(encode_result);
+   } else {
+ #if ((defined(NAS_BUILT_IN_EPC) && defined(NAS_MME)) || (defined(ENABLE_NAS_UE_LOGGING) && defined(NAS_BUILT_IN_UE) && defined(NAS_UE)))
+     nas_itti_plain_msg((char *) buffer_log, (nas_message_t *) msg, header_result + encode_result, down_link);

@@ -1,0 +1,124 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi.c b/nfapi/open-nFAPI/nfapi/src/nfapi.c
+index b4b078cbed..2456c98bbc 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi.c
+@@ -103,11 +103,11 @@ uint8_t push16(uint16_t in, uint8_t **out, uint8_t *end) {
+ 
+   if((end - pOut) >= 2) {
+ #ifdef FAPI_BYTE_ORDERING_BIG_ENDIAN
+-    pOut[1] = (in & 0xFF00) >> 8;
+-    pOut[0] = (in & 0xFF);
+-#else
+     pOut[0] = (in & 0xFF00) >> 8;
+     pOut[1] = (in & 0xFF);
++#else
++    pOut[0] = (in & 0xFF);
++    pOut[1] = (in & 0xFF00) >> 8;
+ #endif
+     (*out)+=2;
+     return 2;
+@@ -123,11 +123,11 @@ uint8_t pushs16(int16_t in, uint8_t **out, uint8_t *end) {
+ 
+   if((end - pOut) >= 2) {
+ #ifdef FAPI_BYTE_ORDERING_BIG_ENDIAN
+-    pOut[1] = (in & 0xFF00) >> 8;
+-    pOut[0] = (in & 0xFF);
+-#else
+     pOut[0] = (in & 0xFF00) >> 8;
+     pOut[1] = (in & 0xFF);
++#else
++    pOut[0] = (in & 0xFF);
++    pOut[1] = (in & 0xFF00) >> 8;
+ #endif
+     (*out)+=2;
+     return 2;
+@@ -143,15 +143,15 @@ uint8_t push32(uint32_t in, uint8_t **out, uint8_t *end) {
+ 
+   if((end - pOut) >= 4) {
+ #ifdef FAPI_BYTE_ORDERING_BIG_ENDIAN
+-    pOut[3] = (in & 0xFF000000) >> 24;
+-    pOut[2] = (in & 0xFF0000) >> 16;
+-    pOut[1] = (in & 0xFF00) >> 8;
+-    pOut[0] = (in & 0xFF);
+-#else
+     pOut[0] = (in & 0xFF000000) >> 24;
+     pOut[1] = (in & 0xFF0000) >> 16;
+     pOut[2] = (in & 0xFF00) >> 8;
+     pOut[3] = (in & 0xFF);
++#else
++    pOut[0] = (in & 0xFF);
++    pOut[1] = (in & 0xFF00) >> 8;
++    pOut[2] = (in & 0xFF0000) >> 16;
++    pOut[3] = (in & 0xFF000000) >> 24;
+ #endif
+     (*out)+=4;
+     return 4;
+@@ -167,15 +167,15 @@ uint8_t pushs32(int32_t in, uint8_t **out, uint8_t *end) {
+ 
+   if((end - pOut) >= 4) {
+ #ifdef FAPI_BYTE_ORDERING_BIG_ENDIAN
+-    pOut[3] = (in & 0xFF000000) >> 24;
+-    pOut[2] = (in & 0xFF0000) >> 16;
+-    pOut[1] = (in & 0xFF00) >> 8;
+-    pOut[0] = (in & 0xFF);
+-#else
+     pOut[0] = (in & 0xFF000000) >> 24;
+     pOut[1] = (in & 0xFF0000) >> 16;
+     pOut[2] = (in & 0xFF00) >> 8;
+     pOut[3] = (in & 0xFF);
++#else
++    pOut[0] = (in & 0xFF);
++    pOut[1] = (in & 0xFF00) >> 8;
++    pOut[2] = (in & 0xFF0000) >> 16;
++    pOut[3] = (in & 0xFF000000) >> 24;
+ #endif
+     (*out)+=4;
+     return 4;
+@@ -219,9 +219,9 @@ uint8_t pull16(uint8_t **in, uint16_t *out, uint8_t *end) {
+ 
+   if((end - pIn) >=2 ) {
+ #ifdef FAPI_BYTE_ORDERING_BIG_ENDIAN
+-    *out = ((pIn[1]) << 8) | pIn[0];
+-#else
+     *out = ((pIn[0]) << 8) | pIn[1];
++#else
++    *out = ((pIn[1]) << 8) | pIn[0];
+ #endif
+     (*in)+=2;
+     return 2;
+@@ -237,9 +237,9 @@ uint8_t pulls16(uint8_t **in, int16_t *out, uint8_t *end) {
+ 
+   if((end - pIn) >=2 ) {
+ #ifdef FAPI_BYTE_ORDERING_BIG_ENDIAN
+-    *out = ((pIn[1]) << 8) | pIn[0];
+-#else
+     *out = ((pIn[0]) << 8) | pIn[1];
++#else
++    *out = ((pIn[1]) << 8) | pIn[0];
+ #endif
+     (*in)+=2;
+     return 2;
+@@ -255,9 +255,9 @@ uint8_t pull32(uint8_t **in, uint32_t *out, uint8_t *end) {
+ 
+   if((end - pIn) >= 4) {
+ #ifdef FAPI_BYTE_ORDERING_BIG_ENDIAN
+-    *out = ((uint32_t)pIn[3] << 24) | (pIn[2] << 16) | (pIn[1] << 8) | pIn[0];
+-#else
+     *out = ((uint32_t)pIn[0] << 24) | (pIn[1] << 16) | (pIn[2] << 8) | pIn[3];
++#else
++    *out = ((uint32_t)pIn[3] << 24) | (pIn[2] << 16) | (pIn[1] << 8) | pIn[0];
+ #endif
+     (*in) += 4;
+     return 4;
+@@ -273,9 +273,9 @@ uint8_t pulls32(uint8_t **in, int32_t *out, uint8_t *end) {
+ 
+   if((end - pIn) >=4 ) {
+ #ifdef FAPI_BYTE_ORDERING_BIG_ENDIAN
+-    *out = (pIn[3] << 24) | (pIn[2] << 16) | (pIn[1] << 8) | pIn[0];
+-#else
+     *out = (pIn[0] << 24) | (pIn[1] << 16) | (pIn[2] << 8) | pIn[3];
++#else
++    *out = (pIn[3] << 24) | (pIn[2] << 16) | (pIn[1] << 8) | pIn[0];
+ #endif
+     (*in)+=4;
+     return 4;

@@ -1,0 +1,15 @@
+diff --git a/openair1/PHY/TOOLS/get_sin_cos.c b/openair1/PHY/TOOLS/get_sin_cos.c
+index 1795b36554..4978a27c30 100644
+--- a/openair1/PHY/TOOLS/get_sin_cos.c
++++ b/openair1/PHY/TOOLS/get_sin_cos.c
+@@ -43,6 +43,10 @@ c16_t get_sin_cos(double phase)
+   if (phase < 0) {
+     index = (int)(-phase * 4 * LUT_SIN_RESOL + 0.5) % (4 * LUT_SIN_RESOL);
+     index = 4 * LUT_SIN_RESOL - index;
++    // Ensure index doesn't exceed the maximum valid value
++    if (index == 4 * LUT_SIN_RESOL) {
++      index = 0;
++    }
+   } else {
+     index = (int)(phase * 4 * LUT_SIN_RESOL + 0.5) % (4 * LUT_SIN_RESOL);
+   }

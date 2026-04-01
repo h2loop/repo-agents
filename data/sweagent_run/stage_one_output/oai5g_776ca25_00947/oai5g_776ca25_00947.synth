@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix CRC computation error in idft64 function\n\n### Summary\nThe `idft64` function in the PHY DFT tools was producing incorrect results due to a copy-paste error in the input data processing. Lines 2712-2714 were incorrectly duplicated from line 2711, causing all four SIMD processing lanes to operate on the same input data instead of processing distinct input segments.\n\nThis bug manifested as CRC computation or checking errors in downstream signal processing, particularly affecting PDSCH decoding performance in certain channel conditions.\n\n### Changes\n- `openair1/PHY/TOOLS/oai_dfts.c`: Fixed copy-paste error in `idft64` function (lines 2711-2714) to correctly process input indices x256[4], x256[5], x256[6], and x256[7].\n- `openair1/PHY/TOOLS/oai_dfts.c`: Updated corresponding comments in `dft64` function for consistency.\n\n"
+}

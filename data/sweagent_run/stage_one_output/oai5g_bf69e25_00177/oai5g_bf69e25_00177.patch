@@ -1,0 +1,50 @@
+diff --git a/openair2/RRC/NR/rrc_gNB_NGAP.c b/openair2/RRC/NR/rrc_gNB_NGAP.c
+index bf8a797a49..5881601999 100644
+--- a/openair2/RRC/NR/rrc_gNB_NGAP.c
++++ b/openair2/RRC/NR/rrc_gNB_NGAP.c
+@@ -535,12 +535,17 @@ int rrc_gNB_process_NGAP_INITIAL_CONTEXT_SETUP_REQ(MessageDef *msg_p, instance_t
+   return 0;
+ }
+ 
+-static gtpu_tunnel_t cp_gtp_tunnel(const gtpu_tunnel_t in)
++static gtpu_tunnel_t cp_gtp_tunnel(const gtpu_tunnel_t *in)
+ {
+   gtpu_tunnel_t out = {0};
+-  out.teid = in.teid;
+-  out.addr.length = in.addr.length;
+-  memcpy(out.addr.buffer, in.addr.buffer, out.addr.length);
++  out.teid = in->teid;
++  out.addr.length = in->addr.length;
++  // Make sure we don't overflow the buffer
++  if (out.addr.length > sizeof(out.addr.buffer)) {
++    LOG_E(NR_RRC, "Invalid address length %d, truncating to %zu\n", out.addr.length, sizeof(out.addr.buffer));
++    out.addr.length = sizeof(out.addr.buffer);
++  }
++  memcpy(out.addr.buffer, in->addr.buffer, out.addr.length);
+   return out;
+ }
+ 
+@@ -551,7 +556,7 @@ static pdusession_setup_t fill_ngap_pdusession_setup(pdusession_t *session)
+   pdusession_setup_t out = {0};
+   out.pdusession_id = session->pdusession_id;
+   out.pdu_session_type = session->pdu_session_type;
+-  out.n3_outgoing = cp_gtp_tunnel(session->n3_outgoing);
++  out.n3_outgoing = cp_gtp_tunnel(&session->n3_outgoing);
+   FOR_EACH_SEQ_ARR(nr_rrc_qos_t *, qos_session, &session->qos) {
+     DevAssert(out.nb_of_qos_flow < MAX_QOS_FLOWS);
+     pdusession_associate_qosflow_t *q = &out.associated_qos_flows[out.nb_of_qos_flow++];
+@@ -1426,8 +1431,13 @@ void rrc_gNB_send_NGAP_HANDOVER_REQUEST_ACKNOWLEDGE(gNB_RRC_INST *rrc, gNB_RRC_U
+     // Handover Request Acknowledge Transfer
+     ho_request_ack_transfer_t *transfer = &pdu->ack_transfer;
+     transfer->gtp_teid = session->param.n3_outgoing.teid;
+-    memcpy(transfer->gNB_addr.buffer, session->param.n3_outgoing.addr.buffer, session->param.n3_outgoing.addr.length);
+     transfer->gNB_addr.length = session->param.n3_outgoing.addr.length;
++    // Make sure we don't overflow the buffer
++    if (transfer->gNB_addr.length > sizeof(transfer->gNB_addr.buffer)) {
++      LOG_E(NR_RRC, "Invalid address length %d, truncating to %zu\n", transfer->gNB_addr.length, sizeof(transfer->gNB_addr.buffer));
++      transfer->gNB_addr.length = sizeof(transfer->gNB_addr.buffer);
++    }
++    memcpy(transfer->gNB_addr.buffer, session->param.n3_outgoing.addr.buffer, transfer->gNB_addr.length);
+     FOR_EACH_SEQ_ARR(nr_rrc_qos_t *, qos, &session->param.qos) {
+       DevAssert(transfer->nb_of_qos_flow < MAX_QOS_FLOWS);
+       pdusession_associate_qosflow_t *qos_setup = &transfer->qos_setup_list[transfer->nb_of_qos_flow++];

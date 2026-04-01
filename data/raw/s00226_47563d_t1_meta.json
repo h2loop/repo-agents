@@ -1,0 +1,32 @@
+{
+  "run_id": "s00226_47563d",
+  "function": {
+    "name": "nr_pdcp_manager_unlock",
+    "file": "openair2/LAYER2/nr_pdcp/nr_pdcp_ue_manager.c",
+    "start_line": 75,
+    "end_line": 82,
+    "body_lines": 8,
+    "signature": "void nr_pdcp_manager_unlock(nr_pdcp_ue_manager_t *_m)",
+    "subsystem": "openair2/LAYER2/nr_pdcp",
+    "token_estimate": 20
+  },
+  "bug": {
+    "bug_id": "telecom_config_range_check_missing",
+    "description": "missing range validation on configuration parameter allowing out-of-spec values",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a missing range validation on configuration parameter allowing out-of-spec values downstream of function nr_pdcp_manager_unlock in the openair2/LAYER2/nr_pdcp subsystem.\nThe function is located at openair2/LAYER2/nr_pdcp/nr_pdcp_ue_manager.c:75.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00226_47563d_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00226_47563d_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 20,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:29:16Z"
+}

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix missing mutex lock around critical section in NAS message encoding\n\n### Summary\nThe NAS message encoding functions in the EPC stack accessed shared state without proper synchronization. When multiple threads called `_nas_message_plain_encode` concurrently, they could corrupt the global `errorCodeDecoder` variable.\n\nThis fix adds mutex protection around the critical sections that access shared state in the NAS message encoding and decoding functions.\n\n### Changes\n- `openair3/NAS/COMMON/API/NETWORK/nas_message.c`: Added mutex locking around `_nas_message_plain_encode` and `_nas_message_plain_decode` functions.\n- `openair3/NAS/COMMON/UTIL/TLVDecoder.h`: Added pthread.h include and mutex declaration.\n- `openair3/NAS/COMMON/UTIL/TLVDecoder.c`: Added mutex definition and initialization.\n\n"
+}

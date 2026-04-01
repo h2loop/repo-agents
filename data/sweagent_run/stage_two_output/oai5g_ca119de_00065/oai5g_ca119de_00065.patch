@@ -1,0 +1,15 @@
+diff --git a/openair2/UTIL/OMG/trace.c b/openair2/UTIL/OMG/trace.c
+index e86d8102e5..ff85109ddd 100644
+--- a/openair2/UTIL/OMG/trace.c
++++ b/openair2/UTIL/OMG/trace.c
+@@ -151,8 +151,8 @@ place_trace_node (node_struct * node, node_data * n)
+ 
+   node->mob->speed = n_ptr->speed;
+   node->mob->journey_time = 0.0;
+-  // node->start_journey=(double) n_ptr->time;      //time of initial position
+-  // node->mob->target_time=(double) n_ptr->next->time;  //time of next destination
++  node->mob->start_journey = (double) n_ptr->time;      //time of initial position
++  node->mob->target_time = (double) n_ptr->next->time;  //time of next destination
+   LOG_I (OMG,
+          "[TRACE] Initial position of node ID: %d type: %d (X = %.2f, Y = %.2f) speed = %.2f \n ",
+          node->id, node->type, node->x_pos, node->y_pos, node->mob->speed);

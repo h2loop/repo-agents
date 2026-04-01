@@ -1,0 +1,392 @@
+[
+  {
+    "bug_id": "c_buffer_overflow",
+    "description": "buffer overflow vulnerability",
+    "domain": "generic_c",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/LAYER2/RLC", "openair2/LAYER2/PDCP", "openair2/RRC", "openair2/NAS", "openair3/NAS", "openair3/S1AP", "openair3/NGAP", "common", "executables", "radio", "nfapi"]
+  },
+  {
+    "bug_id": "c_heap_buffer_overflow",
+    "description": "heap buffer overflow due to incorrect size calculation",
+    "domain": "generic_c",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/LAYER2/RLC", "openair2/LAYER2/PDCP", "openair2/RRC", "common", "nfapi"]
+  },
+  {
+    "bug_id": "c_stack_buffer_overflow",
+    "description": "stack buffer overflow from unbounded copy into fixed-size local array",
+    "domain": "generic_c",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/RRC", "openair3/S1AP", "openair3/NGAP", "common", "executables"]
+  },
+  {
+    "bug_id": "c_use_after_free",
+    "description": "use-after-free vulnerability where freed memory is subsequently accessed",
+    "domain": "generic_c",
+    "subsystems": ["openair2/LAYER2/MAC", "openair2/LAYER2/RLC", "openair2/LAYER2/PDCP", "openair2/RRC", "openair3/NAS", "openair3/S1AP", "openair3/NGAP", "common"]
+  },
+  {
+    "bug_id": "c_double_free",
+    "description": "double free where the same memory allocation is freed twice",
+    "domain": "generic_c",
+    "subsystems": ["openair2/LAYER2/MAC", "openair2/LAYER2/RLC", "openair2/LAYER2/PDCP", "openair2/RRC", "openair3/NAS", "openair3/S1AP", "openair3/NGAP", "common"]
+  },
+  {
+    "bug_id": "c_memory_leak",
+    "description": "memory leak where allocated memory is never freed on certain code paths",
+    "domain": "generic_c",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/LAYER2/RLC", "openair2/LAYER2/PDCP", "openair2/RRC", "openair2/NAS", "openair3/NAS", "openair3/S1AP", "openair3/NGAP", "common", "executables", "nfapi"]
+  },
+  {
+    "bug_id": "c_null_pointer_dereference",
+    "description": "null pointer dereference due to missing NULL check before access",
+    "domain": "generic_c",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/LAYER2/RLC", "openair2/LAYER2/PDCP", "openair2/RRC", "openair2/NAS", "openair3/NAS", "openair3/S1AP", "openair3/NGAP", "common", "executables", "radio", "nfapi"]
+  },
+  {
+    "bug_id": "c_uninitialized_memory_read",
+    "description": "read of uninitialized memory leading to undefined behavior",
+    "domain": "generic_c",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/LAYER2/RLC", "openair2/RRC", "common", "radio", "nfapi"]
+  },
+  {
+    "bug_id": "c_race_condition",
+    "description": "race condition on shared data accessed from multiple threads without synchronization",
+    "domain": "generic_c",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/LAYER2/RLC", "openair2/LAYER2/PDCP", "openair2/RRC", "common", "executables", "radio"]
+  },
+  {
+    "bug_id": "c_deadlock",
+    "description": "deadlock caused by inconsistent lock acquisition ordering",
+    "domain": "generic_c",
+    "subsystems": ["openair2/LAYER2/MAC", "openair2/LAYER2/RLC", "openair2/LAYER2/PDCP", "openair2/RRC", "common", "executables"]
+  },
+  {
+    "bug_id": "c_missing_mutex",
+    "description": "missing mutex lock around critical section accessing shared state",
+    "domain": "generic_c",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/LAYER2/RLC", "openair2/LAYER2/PDCP", "openair2/RRC", "common", "executables", "radio"]
+  },
+  {
+    "bug_id": "c_thread_unsafe_access",
+    "description": "thread-unsafe access to global or shared variable without proper synchronization",
+    "domain": "generic_c",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/RRC", "common", "executables", "radio"]
+  },
+  {
+    "bug_id": "c_integer_overflow",
+    "description": "integer overflow leading to incorrect computation or wraparound",
+    "domain": "generic_c",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/LAYER2/RLC", "openair2/RRC", "common", "nfapi"]
+  },
+  {
+    "bug_id": "c_integer_underflow",
+    "description": "integer underflow producing an unexpectedly large unsigned value",
+    "domain": "generic_c",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/LAYER2/RLC", "common"]
+  },
+  {
+    "bug_id": "c_signed_unsigned_mismatch",
+    "description": "signed/unsigned integer comparison mismatch leading to incorrect branch",
+    "domain": "generic_c",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/LAYER2/RLC", "openair2/RRC", "common", "nfapi"]
+  },
+  {
+    "bug_id": "c_integer_truncation",
+    "description": "integer truncation when assigning a wider type to a narrower type",
+    "domain": "generic_c",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/RRC", "common", "nfapi"]
+  },
+  {
+    "bug_id": "c_off_by_one",
+    "description": "off-by-one error in array indexing or loop boundary",
+    "domain": "generic_c",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/LAYER2/RLC", "openair2/LAYER2/PDCP", "openair2/RRC", "common", "nfapi"]
+  },
+  {
+    "bug_id": "c_missing_break",
+    "description": "missing break statement in switch case causing unintended fallthrough",
+    "domain": "generic_c",
+    "subsystems": ["openair2/LAYER2/MAC", "openair2/RRC", "openair3/S1AP", "openair3/NGAP", "common", "executables"]
+  },
+  {
+    "bug_id": "c_unreachable_code",
+    "description": "unreachable code path due to incorrect conditional logic",
+    "domain": "generic_c",
+    "subsystems": ["openair2/LAYER2/MAC", "openair2/RRC", "openair3/NAS", "common", "executables"]
+  },
+  {
+    "bug_id": "c_incorrect_loop_bounds",
+    "description": "incorrect loop bounds causing iteration over invalid indices",
+    "domain": "generic_c",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/LAYER2/RLC", "openair2/RRC", "common", "nfapi"]
+  },
+  {
+    "bug_id": "c_missing_return",
+    "description": "missing return statement in non-void function on certain code paths",
+    "domain": "generic_c",
+    "subsystems": ["openair2/LAYER2/MAC", "openair2/LAYER2/RLC", "openair2/RRC", "openair3/S1AP", "openair3/NGAP", "common"]
+  },
+  {
+    "bug_id": "c_incorrect_cast",
+    "description": "incorrect type cast causing data corruption or misinterpretation",
+    "domain": "generic_c",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/RRC", "openair3/S1AP", "openair3/NGAP", "common", "nfapi"]
+  },
+  {
+    "bug_id": "c_type_confusion",
+    "description": "type confusion where a pointer is cast to an incompatible struct type",
+    "domain": "generic_c",
+    "subsystems": ["openair2/LAYER2/MAC", "openair2/RRC", "openair3/S1AP", "openair3/NGAP", "common"]
+  },
+  {
+    "bug_id": "c_unchecked_return_value",
+    "description": "unchecked return value from a function that can indicate failure",
+    "domain": "generic_c",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/LAYER2/RLC", "openair2/LAYER2/PDCP", "openair2/RRC", "openair3/NAS", "common", "executables", "radio"]
+  },
+  {
+    "bug_id": "c_missing_error_propagation",
+    "description": "missing error propagation where a failure is silently ignored",
+    "domain": "generic_c",
+    "subsystems": ["openair2/LAYER2/MAC", "openair2/LAYER2/RLC", "openair2/LAYER2/PDCP", "openair2/RRC", "openair3/S1AP", "openair3/NGAP", "common", "executables"]
+  },
+  {
+    "bug_id": "c_incorrect_errno_usage",
+    "description": "incorrect errno usage where errno is checked after an intervening call has overwritten it",
+    "domain": "generic_c",
+    "subsystems": ["common", "executables", "radio"]
+  },
+  {
+    "bug_id": "c_missing_null_check_after_alloc",
+    "description": "missing NULL check after memory allocation that can fail",
+    "domain": "generic_c",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/LAYER2/RLC", "openair2/LAYER2/PDCP", "openair2/RRC", "openair3/NAS", "openair3/S1AP", "openair3/NGAP", "common", "nfapi"]
+  },
+  {
+    "bug_id": "c_fd_leak",
+    "description": "file descriptor leak where an opened fd is not closed on error paths",
+    "domain": "generic_c",
+    "subsystems": ["common", "executables", "radio"]
+  },
+  {
+    "bug_id": "c_socket_leak",
+    "description": "socket resource leak where a socket is not closed after use or on error",
+    "domain": "generic_c",
+    "subsystems": ["openair3/S1AP", "openair3/NGAP", "common", "executables", "nfapi"]
+  },
+  {
+    "bug_id": "c_missing_cleanup",
+    "description": "missing cleanup of allocated resources on early return or error path",
+    "domain": "generic_c",
+    "subsystems": ["openair2/LAYER2/MAC", "openair2/LAYER2/RLC", "openair2/LAYER2/PDCP", "openair2/RRC", "openair3/S1AP", "openair3/NGAP", "common", "executables"]
+  },
+  {
+    "bug_id": "c_wrong_arg_order",
+    "description": "incorrect argument order in function call swapping similarly-typed parameters",
+    "domain": "generic_c",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/RRC", "openair3/S1AP", "openair3/NGAP", "common", "nfapi"]
+  },
+  {
+    "bug_id": "c_wrong_flags",
+    "description": "incorrect flags or bitmask passed to a system or library function",
+    "domain": "generic_c",
+    "subsystems": ["common", "executables", "radio"]
+  },
+  {
+    "bug_id": "c_deprecated_api_usage",
+    "description": "usage of deprecated API function that has known safety or correctness issues",
+    "domain": "generic_c",
+    "subsystems": ["common", "executables", "radio", "nfapi"]
+  },
+  {
+    "bug_id": "c_string_buffer_overrun",
+    "description": "string buffer overrun from unbounded string copy or concatenation",
+    "domain": "generic_c",
+    "subsystems": ["openair2/LAYER2/MAC", "openair2/RRC", "openair3/NAS", "common", "executables"]
+  },
+  {
+    "bug_id": "c_format_string_vulnerability",
+    "description": "format string vulnerability where user-controlled data is passed as format argument",
+    "domain": "generic_c",
+    "subsystems": ["common", "executables"]
+  },
+  {
+    "bug_id": "c_missing_null_terminator",
+    "description": "missing null terminator on a string buffer leading to out-of-bounds read",
+    "domain": "generic_c",
+    "subsystems": ["openair2/RRC", "openair3/NAS", "common", "executables"]
+  },
+  {
+    "bug_id": "c_dead_code",
+    "description": "dead code that is never executed and may mask intended logic",
+    "domain": "generic_c",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/RRC", "common", "executables"]
+  },
+  {
+    "bug_id": "c_redundant_computation",
+    "description": "redundant computation performing the same calculation multiple times unnecessarily",
+    "domain": "generic_c",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "common"]
+  },
+  {
+    "bug_id": "c_magic_number",
+    "description": "magic number used without symbolic constant making intent unclear and maintenance error-prone",
+    "domain": "generic_c",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/RRC", "common", "nfapi"]
+  },
+  {
+    "bug_id": "c_copy_paste_error",
+    "description": "copy-paste error where duplicated code was not correctly updated for its new context",
+    "domain": "generic_c",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/RRC", "openair3/S1AP", "openair3/NGAP", "common"]
+  },
+  {
+    "bug_id": "telecom_state_machine_invalid_transition",
+    "description": "incorrect protocol state machine transition that violates 3GPP specification",
+    "domain": "telecom_5g",
+    "subsystems": ["openair2/RRC", "openair2/NAS", "openair3/NAS"]
+  },
+  {
+    "bug_id": "telecom_state_machine_missing_validation",
+    "description": "missing state validation before processing a protocol message",
+    "domain": "telecom_5g",
+    "subsystems": ["openair2/RRC", "openair2/NAS", "openair3/NAS", "openair3/S1AP", "openair3/NGAP"]
+  },
+  {
+    "bug_id": "telecom_state_machine_stale_state",
+    "description": "stale protocol state not cleared after procedure completion or failure",
+    "domain": "telecom_5g",
+    "subsystems": ["openair2/RRC", "openair2/NAS", "openair3/NAS"]
+  },
+  {
+    "bug_id": "telecom_timer_incorrect_duration",
+    "description": "protocol timer configured with incorrect duration violating 3GPP timing requirements",
+    "domain": "telecom_5g",
+    "subsystems": ["openair2/LAYER2/MAC", "openair2/RRC", "openair2/NAS", "openair3/NAS"]
+  },
+  {
+    "bug_id": "telecom_timer_missing_start_stop",
+    "description": "protocol timer not started or stopped at the required point in the procedure",
+    "domain": "telecom_5g",
+    "subsystems": ["openair2/LAYER2/MAC", "openair2/RRC", "openair2/NAS", "openair3/NAS"]
+  },
+  {
+    "bug_id": "telecom_timer_race",
+    "description": "race condition between timer expiry handler and normal message processing",
+    "domain": "telecom_5g",
+    "subsystems": ["openair2/LAYER2/MAC", "openair2/RRC", "openair2/NAS", "openair3/NAS"]
+  },
+  {
+    "bug_id": "telecom_asn1_encoding_error",
+    "description": "ASN.1 encoding error producing malformed protocol message",
+    "domain": "telecom_5g",
+    "subsystems": ["openair2/RRC", "openair3/S1AP", "openair3/NGAP"]
+  },
+  {
+    "bug_id": "telecom_incorrect_ie",
+    "description": "incorrect information element value set in outgoing protocol message",
+    "domain": "telecom_5g",
+    "subsystems": ["openair2/RRC", "openair2/NAS", "openair3/NAS", "openair3/S1AP", "openair3/NGAP"]
+  },
+  {
+    "bug_id": "telecom_missing_optional_field",
+    "description": "missing optional field that is conditionally mandatory per 3GPP specification",
+    "domain": "telecom_5g",
+    "subsystems": ["openair2/RRC", "openair2/NAS", "openair3/NAS", "openair3/S1AP", "openair3/NGAP"]
+  },
+  {
+    "bug_id": "telecom_config_range_check_missing",
+    "description": "missing range validation on configuration parameter allowing out-of-spec values",
+    "domain": "telecom_5g",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/RRC", "common", "executables"]
+  },
+  {
+    "bug_id": "telecom_config_wrong_default",
+    "description": "wrong default configuration value not matching 3GPP specification default",
+    "domain": "telecom_5g",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/RRC", "common"]
+  },
+  {
+    "bug_id": "telecom_config_layer_mismatch",
+    "description": "configuration mismatch between protocol layers causing inconsistent behavior",
+    "domain": "telecom_5g",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/LAYER2/RLC", "openair2/LAYER2/PDCP", "openair2/RRC"]
+  },
+  {
+    "bug_id": "telecom_sched_incorrect_rb_allocation",
+    "description": "incorrect resource block allocation violating scheduling constraints",
+    "domain": "telecom_5g",
+    "subsystems": ["openair2/LAYER2/MAC"]
+  },
+  {
+    "bug_id": "telecom_sched_missed_opportunity",
+    "description": "missed scheduling opportunity where a UE with pending data is not scheduled",
+    "domain": "telecom_5g",
+    "subsystems": ["openair2/LAYER2/MAC"]
+  },
+  {
+    "bug_id": "telecom_sched_priority_inversion",
+    "description": "scheduling priority inversion where lower-priority traffic is served before higher-priority",
+    "domain": "telecom_5g",
+    "subsystems": ["openair2/LAYER2/MAC"]
+  },
+  {
+    "bug_id": "telecom_harq_error",
+    "description": "HARQ process error such as incorrect retransmission or wrong redundancy version",
+    "domain": "telecom_5g",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC"]
+  },
+  {
+    "bug_id": "telecom_wrong_mcs",
+    "description": "incorrect MCS selection not matching channel quality or UE capability",
+    "domain": "telecom_5g",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC"]
+  },
+  {
+    "bug_id": "telecom_crc_error",
+    "description": "CRC computation or checking error causing false positive or missed error detection",
+    "domain": "telecom_5g",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC"]
+  },
+  {
+    "bug_id": "telecom_missing_mandatory_ie",
+    "description": "missing mandatory information element in outgoing signaling message",
+    "domain": "telecom_5g",
+    "subsystems": ["openair2/RRC", "openair2/NAS", "openair3/NAS", "openair3/S1AP", "openair3/NGAP"]
+  },
+  {
+    "bug_id": "telecom_wrong_procedure_sequence",
+    "description": "incorrect signaling procedure sequence violating 3GPP message flow",
+    "domain": "telecom_5g",
+    "subsystems": ["openair2/RRC", "openair2/NAS", "openair3/NAS", "openair3/S1AP", "openair3/NGAP"]
+  },
+  {
+    "bug_id": "telecom_power_control_error",
+    "description": "power control error causing incorrect transmit power level",
+    "domain": "telecom_5g",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "radio"]
+  },
+  {
+    "bug_id": "telecom_interface_f1ap_error",
+    "description": "F1AP interface handling error between CU and DU causing message loss or corruption",
+    "domain": "telecom_5g",
+    "subsystems": ["openair2/RRC", "openair2/LAYER2/MAC", "nfapi"]
+  },
+  {
+    "bug_id": "telecom_interface_ngap_error",
+    "description": "NGAP interface handling error between gNB and AMF causing procedure failure",
+    "domain": "telecom_5g",
+    "subsystems": ["openair3/NGAP", "openair2/RRC"]
+  },
+  {
+    "bug_id": "telecom_cross_layer_mismatch",
+    "description": "cross-layer parameter mismatch between PHY, MAC, and RRC causing inconsistent operation",
+    "domain": "telecom_5g",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/RRC"]
+  },
+  {
+    "bug_id": "telecom_missing_critical_log",
+    "description": "missing log statement for critical failure event hindering debugging",
+    "domain": "telecom_5g",
+    "subsystems": ["openair1/PHY", "openair2/LAYER2/MAC", "openair2/RRC", "openair3/S1AP", "openair3/NGAP", "common", "executables"]
+  }
+]

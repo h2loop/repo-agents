@@ -1,0 +1,35 @@
+{
+  "run_id": "s00647_b5765e",
+  "function": {
+    "name": "nr_ulsch_pre_encoding",
+    "file": "openair1/PHY/NR_UE_TRANSPORT/nr_ulsch_coding.c",
+    "start_line": 37,
+    "end_line": 158,
+    "body_lines": 122,
+    "signature": "int nr_ulsch_pre_encoding(PHY_VARS_NR_UE *ue, const NR_UE_ULSCH_t *ulsch, const uint32_t frame, const uint8_t slot, const unsigned int *G, const int nb_ulsch, const uint8_t *ULSCH_ids)",
+    "subsystem": "openair1/PHY/NR_UE_TRANSPORT",
+    "token_estimate": 582
+  },
+  "bug": {
+    "bug_id": "c_use_after_free",
+    "description": "use-after-free vulnerability where freed memory is subsequently accessed",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a use-after-free vulnerability where freed memory is subsequently accessed downstream of function nr_ulsch_pre_encoding in the openair1/PHY/NR_UE_TRANSPORT subsystem.\nThe function is located at openair1/PHY/NR_UE_TRANSPORT/nr_ulsch_coding.c:37.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00647_b5765e_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00647_b5765e_p1.diff",
+  "patch_lines": 19,
+  "trajectory_steps": 75,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T17:41:38Z"
+}

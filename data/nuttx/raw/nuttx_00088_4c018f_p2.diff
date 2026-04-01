@@ -1,0 +1,34 @@
+diff --git a/boards/arm/nrf52/nrf9160-dk-nrf52/src/nrf52_bringup.c b/boards/arm/nrf52/nrf9160-dk-nrf52/src/nrf52_bringup.c
+index 95b50900..8c0c3a6b 100644
+--- a/boards/arm/nrf52/nrf9160-dk-nrf52/src/nrf52_bringup.c
++++ b/boards/arm/nrf52/nrf9160-dk-nrf52/src/nrf52_bringup.c
+@@ -28,6 +28,7 @@
+ 
+ #include <sys/types.h>
+ #include <syslog.h>
++#include <errno.h>
+ 
+ #include <nuttx/fs/fs.h>
+ 
+@@ -67,6 +68,7 @@ int nrf52_bringup(void)
+     {
+       syslog(LOG_ERR,
+              "ERROR: Failed to mount the PROC filesystem: %d\n",  ret);
++      return ret;
+     }
+ #endif /* CONFIG_FS_PROCFS */
+ 
+@@ -74,11 +76,11 @@ int nrf52_bringup(void)
+   ret = nrf52_ieee802154_initialize();
+   if (ret < 0)
+     {
+-      syslog(LOG_ERR, "ERROR: Failed to initialize IEE802154 radio: %d\n",
++      syslog(LOG_ERR, "ERROR: Failed to initialize IEEE802154 radio: %d\n",
+              ret);
++      return ret;
+     }
+ #endif
+ 
+-  UNUSED(ret);
+   return OK;
+ }

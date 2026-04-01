@@ -1,0 +1,64 @@
+diff --git a/openair2/F1AP/f1ap_du_ue_context_management.c b/openair2/F1AP/f1ap_du_ue_context_management.c
+index 98de177af1..e295a412b8 100644
+--- a/openair2/F1AP/f1ap_du_ue_context_management.c
++++ b/openair2/F1AP/f1ap_du_ue_context_management.c
+@@ -655,9 +655,11 @@ int DU_send_UE_CONTEXT_SETUP_RESPONSE(sctp_assoc_t assoc_id, f1ap_ue_context_set
+   /* encode */
+   if (f1ap_encode_pdu(&pdu, &buffer, &len) < 0) {
+     LOG_E(F1AP, "Failed to encode F1 UE CONTEXT SETUP RESPONSE\n");
++    ASN_STRUCT_FREE(asn_DEF_F1AP_F1AP_PDU, pdu);
+     return -1;
+   }
+ 
++  ASN_STRUCT_FREE(asn_DEF_F1AP_F1AP_PDU, pdu);
+   f1ap_itti_send_sctp_data_req(assoc_id, buffer, len);
+   return 0;
+ }
+@@ -732,9 +734,11 @@ int DU_send_UE_CONTEXT_RELEASE_REQUEST(sctp_assoc_t assoc_id, f1ap_ue_context_re
+   /* encode */
+   if (f1ap_encode_pdu(&pdu, &buffer, &len) < 0) {
+     LOG_E(F1AP, "Failed to encode F1 context release request\n");
++    ASN_STRUCT_FREE(asn_DEF_F1AP_F1AP_PDU, pdu);
+     return -1;
+   }
+ 
++  ASN_STRUCT_FREE(asn_DEF_F1AP_F1AP_PDU, pdu);
+   f1ap_itti_send_sctp_data_req(assoc_id, buffer, len);
+   return 0;
+ }
+@@ -879,9 +883,11 @@ int DU_send_UE_CONTEXT_RELEASE_COMPLETE(sctp_assoc_t assoc_id, f1ap_ue_context_r
+ 
+   if (f1ap_encode_pdu(&pdu, &buffer, &len) < 0) {
+     LOG_E(F1AP, "Failed to encode F1 context release complete\n");
++    ASN_STRUCT_FREE(asn_DEF_F1AP_F1AP_PDU, pdu);
+     return -1;
+   }
+ 
++  ASN_STRUCT_FREE(asn_DEF_F1AP_F1AP_PDU, pdu);
+   f1ap_itti_send_sctp_data_req(assoc_id, buffer, len);
+   return 0;
+ }
+@@ -1414,9 +1420,11 @@ int DU_send_UE_CONTEXT_MODIFICATION_RESPONSE(sctp_assoc_t assoc_id, f1ap_ue_cont
+   /* encode */
+   if (f1ap_encode_pdu(&pdu, &buffer, &len) < 0) {
+     LOG_E(F1AP, "Failed to encode F1 UE CONTEXT MODIFICATION RESPONSE\n");
++    ASN_STRUCT_FREE(asn_DEF_F1AP_F1AP_PDU, pdu);
+     return -1;
+   }
+ 
++  ASN_STRUCT_FREE(asn_DEF_F1AP_F1AP_PDU, pdu);
+   f1ap_itti_send_sctp_data_req(assoc_id, buffer, len);
+   return 0;
+ }
+@@ -1538,9 +1546,11 @@ int DU_send_UE_CONTEXT_MODIFICATION_REQUIRED(sctp_assoc_t assoc_id, f1ap_ue_cont
+   uint32_t len = 0;
+   if (f1ap_encode_pdu(&pdu, &buffer, &len) < 0) {
+     LOG_E(F1AP, "Failed to encode F1 context release request\n");
++    ASN_STRUCT_FREE(asn_DEF_F1AP_F1AP_PDU, pdu);
+     return -1;
+   }
+ 
++  ASN_STRUCT_FREE(asn_DEF_F1AP_F1AP_PDU, pdu);
+   f1ap_itti_send_sctp_data_req(assoc_id, buffer, len);
+   return 0;
+ }

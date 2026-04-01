@@ -1,0 +1,17 @@
+diff --git a/nfapi/open-nFAPI/common/src/nfapi.c b/nfapi/open-nFAPI/common/src/nfapi.c
+index f997552c1e..d9782903ad 100644
+--- a/nfapi/open-nFAPI/common/src/nfapi.c
++++ b/nfapi/open-nFAPI/common/src/nfapi.c
+@@ -1635,6 +1635,12 @@ uint8_t unpack_stop_response(uint8_t **ppReadPackedMsg, uint8_t *end, void *msg,
+ uint8_t pack_measurement_request(void *msg, uint8_t **ppWritePackedMsg, uint8_t *end, nfapi_p4_p5_codec_config_t *config)
+ {
+   nfapi_measurement_request_t *pNfapiMsg = (nfapi_measurement_request_t *)msg;
++  
++  // Set the tags for each TLV before packing
++  pNfapiMsg->dl_rs_tx_power.tl.tag = NFAPI_MEASUREMENT_REQUEST_DL_RS_XTX_POWER_TAG;
++  pNfapiMsg->received_interference_power.tl.tag = NFAPI_MEASUREMENT_REQUEST_RECEIVED_INTERFERENCE_POWER_TAG;
++  pNfapiMsg->thermal_noise_power.tl.tag = NFAPI_MEASUREMENT_REQUEST_THERMAL_NOISE_POWER_TAG;
++  
+   return pack_tlv(NFAPI_MEASUREMENT_REQUEST_DL_RS_XTX_POWER_TAG,
+                   &(pNfapiMsg->dl_rs_tx_power),
+                   ppWritePackedMsg,

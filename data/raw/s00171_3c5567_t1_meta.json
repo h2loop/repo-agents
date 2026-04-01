@@ -1,0 +1,40 @@
+{
+  "run_id": "s00171_3c5567",
+  "function": {
+    "name": "mmse_processing_core",
+    "file": "openair1/PHY/LTE_UE_TRANSPORT/dlsch_demodulation.c",
+    "start_line": 2529,
+    "end_line": 2618,
+    "body_lines": 90,
+    "signature": "void mmse_processing_core(int32_t **rxdataF_ext, int32_t **dl_ch_estimates_ext, int noise_power, int n_tx, int n_rx, int length, int start_point)",
+    "subsystem": "openair1/PHY/LTE_UE_TRANSPORT",
+    "token_estimate": 185
+  },
+  "bug": {
+    "bug_id": "c_null_pointer_dereference",
+    "description": "null pointer dereference due to missing NULL check before access",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables",
+      "radio",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a null pointer dereference due to missing NULL check before access downstream of function mmse_processing_core in the openair1/PHY/LTE_UE_TRANSPORT subsystem.\nThe function is located at openair1/PHY/LTE_UE_TRANSPORT/dlsch_demodulation.c:2529.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00171_3c5567_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00171_3c5567_p1.diff",
+  "patch_lines": 93,
+  "trajectory_steps": 32,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:38:46Z"
+}

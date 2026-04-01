@@ -1,0 +1,88 @@
+diff --git a/openair1/PHY/LTE_TRANSPORT/dlsch_scrambling.c b/openair1/PHY/LTE_TRANSPORT/dlsch_scrambling.c
+index 8bdceceed8..2332d7bb6d 100644
+--- a/openair1/PHY/LTE_TRANSPORT/dlsch_scrambling.c
++++ b/openair1/PHY/LTE_TRANSPORT/dlsch_scrambling.c
+@@ -40,6 +40,13 @@
+ #include "transport_eNB.h"
+ #include "PHY/phy_extern.h"
+ #include "common/utils/LOG/vcd_signal_dumper.h"
++#include <pthread.h>
++
++// Static mutex and initialization flags for thread-safe LUT initialization
++static pthread_mutex_t scrambling_lut_mutex = PTHREAD_MUTEX_INITIALIZER;
++static pthread_mutex_t unscrambling_lut_mutex = PTHREAD_MUTEX_INITIALIZER;
++static int scrambling_lut_initialized = 0;
++static int unscrambling_lut_initialized = 0;
+ 
+ void dlsch_scrambling(LTE_DL_FRAME_PARMS *frame_parms,
+                       int mbsfn_flag,
+@@ -164,15 +171,29 @@ void dlsch_scrambling(LTE_DL_FRAME_PARMS *frame_parms,
+ }
+ 
+ uint8_t scrambling_lut[65536*16] __attribute__((aligned(32)));
+-void init_scrambling_lut(void) {
+-  uint32_t s;
+-  int i=0,j;
+ 
+-  for (s=0; s<=65535; s++) {
+-    for (j=0; j<16; j++) {
+-      scrambling_lut[i++] = (uint8_t)((s>>j)&1);
++void init_scrambling_lut(void) {
++  // Double-checked locking for thread-safe initialization
++  if (scrambling_lut_initialized) {
++    return;
++  }
++  
++  pthread_mutex_lock(&scrambling_lut_mutex);
++  
++  // Check again after acquiring lock
++  if (!scrambling_lut_initialized) {
++    uint32_t s;
++    int i=0,j;
++
++    for (s=0; s<=65535; s++) {
++      for (j=0; j<16; j++) {
++        scrambling_lut[i++] = (uint8_t)((s>>j)&1);
++      }
+     }
++    scrambling_lut_initialized = 1;
+   }
++  
++  pthread_mutex_unlock(&scrambling_lut_mutex);
+ }
+ 
+ void dlsch_unscrambling(LTE_DL_FRAME_PARMS *frame_parms,
+@@ -215,13 +236,27 @@ void dlsch_unscrambling(LTE_DL_FRAME_PARMS *frame_parms,
+ }
+ 
+ int16_t unscrambling_lut[65536*16] __attribute__((aligned(32)));
+-void init_unscrambling_lut(void) {
+-  uint32_t s;
+-  int i=0,j;
+ 
+-  for (s=0; s<=65535; s++) {
+-    for (j=0; j<16; j++) {
+-      unscrambling_lut[i++] = (int16_t)((((s>>j)&1)<<1)-1);
++void init_unscrambling_lut(void) {
++  // Double-checked locking for thread-safe initialization
++  if (unscrambling_lut_initialized) {
++    return;
++  }
++  
++  pthread_mutex_lock(&unscrambling_lut_mutex);
++  
++  // Check again after acquiring lock
++  if (!unscrambling_lut_initialized) {
++    uint32_t s;
++    int i=0,j;
++
++    for (s=0; s<=65535; s++) {
++      for (j=0; j<16; j++) {
++        unscrambling_lut[i++] = (int16_t)((((s>>j)&1)<<1)-1);
++      }
+     }
++    unscrambling_lut_initialized = 1;
+   }
++  
++  pthread_mutex_unlock(&unscrambling_lut_mutex);
+ }

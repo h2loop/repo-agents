@@ -1,0 +1,39 @@
+diff --git a/common/utils/T/tracer/gnb.c b/common/utils/T/tracer/gnb.c
+index 6629a1efd6..1f290672c7 100644
+--- a/common/utils/T/tracer/gnb.c
++++ b/common/utils/T/tracer/gnb.c
+@@ -114,12 +114,30 @@ void reset_ue_ids(void)
+ static void click(void *private, gui *g, char *notification, widget *w, void *notification_data)
+ {
+   int *d = notification_data;
+-  int button = d[0];
+-  gnb_data *ed = private;
+-  gnb_gui *e = ed->e;
+-  int ue = ed->ue;
++  int button;
++  gnb_data *ed;
++  gnb_gui *e;
++  int ue;
+   int do_reset = 0;
+ 
++  /* Validate input parameters */
++  if (!private || !notification_data) {
++    fprintf(stderr, "Error: click called with NULL parameters\n");
++    return;
++  }
++
++  ed = (gnb_data *)private;
++  
++  /* Validate gnb_data structure state */
++  if (!ed->e || !ed->database) {
++    fprintf(stderr, "Error: gnb_data not properly initialized\n");
++    return;
++  }
++
++  button = d[0];
++  e = ed->e;
++  ue = ed->ue;
++
+   if (button != 1) return;
+   if (w == e->prev_ue_button) { ue--; if (ue < 0) ue = 0; }
+   if (w == e->next_ue_button) ue++;

@@ -1,0 +1,12 @@
+diff --git a/common/utils/ocp_itti/intertask_interface.cpp b/common/utils/ocp_itti/intertask_interface.cpp
+index b0d05c6aca..3445c2250e 100644
+--- a/common/utils/ocp_itti/intertask_interface.cpp
++++ b/common/utils/ocp_itti/intertask_interface.cpp
+@@ -446,6 +446,7 @@ extern "C" {
+     static const char msg[] = "\n** Caught SIGTERM, shutting down\n";
+     __attribute__((unused))
+     int unused = write(STDOUT_FILENO, msg, sizeof(msg) - 1);
++    LOG_E(ITTI, "Caught SIGTERM/SIGINT, shutting down\n");
+     itti_wait_tasks_unblock();
+   }
+ 

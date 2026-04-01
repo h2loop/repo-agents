@@ -1,0 +1,14 @@
+diff --git a/common/utils/T/tracer/vcd.c b/common/utils/T/tracer/vcd.c
+index e62fc046eb..4936748fed 100644
+--- a/common/utils/T/tracer/vcd.c
++++ b/common/utils/T/tracer/vcd.c
+@@ -64,7 +64,8 @@ static void *gui_thread(void *_g)
+ {
+   gui *g = _g;
+   gui_loop(g);
+-  return NULL;
++  /* gui_loop only returns on error - abort to indicate failure */
++  abort();
+ }
+ 
+ static void vcd_main_gui(gui *g, event_handler *h, void *database)

@@ -1,0 +1,31 @@
+diff --git a/openair1/PHY/LTE_TRANSPORT/if4_tools.c b/openair1/PHY/LTE_TRANSPORT/if4_tools.c
+index 6fdcfbd96f..c811732ed6 100644
+--- a/openair1/PHY/LTE_TRANSPORT/if4_tools.c
++++ b/openair1/PHY/LTE_TRANSPORT/if4_tools.c
+@@ -434,7 +434,7 @@ void gen_IF4p5_dl_header(IF4p5_header_t *dl_packet,
+   dl_packet->rsvd = 0;
+   // Set frame status
+   dl_packet->frame_status = 0;
+-  dl_packet->frame_status |= (frame&0xffff)<<6;
++  dl_packet->frame_status |= (frame&0x3ff)<<6;  // Mask frame to 10 bits (0-1023)
+   dl_packet->frame_status |= (subframe&0x000f)<<22;
+ }
+ 
+@@ -448,7 +448,7 @@ void gen_IF4p5_ul_header(IF4p5_header_t *ul_packet,
+   ul_packet->rsvd = 0;
+   // Set frame status
+   ul_packet->frame_status = 0;
+-  ul_packet->frame_status |= (frame&0xffff)<<6;
++  ul_packet->frame_status |= (frame&0x3ff)<<6;  // Mask frame to 10 bits (0-1023)
+   ul_packet->frame_status |= (subframe&0x000f)<<22;
+ }
+ 
+@@ -461,7 +461,7 @@ void gen_IF4p5_prach_header(IF4p5_header_t *prach_packet,
+   prach_packet->rsvd = 0;
+   // Set LTE Prach configuration
+   prach_packet->frame_status = 0;
+-  prach_packet->frame_status |= (frame&0xffff)<<6;
++  prach_packet->frame_status |= (frame&0x3ff)<<6;  // Mask frame to 10 bits (0-1023)
+   prach_packet->frame_status |= (subframe&0x000f)<<22;
+ }
+ 

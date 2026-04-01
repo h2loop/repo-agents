@@ -1,0 +1,32 @@
+{
+  "run_id": "s00318_f80f68",
+  "function": {
+    "name": "gui_thread",
+    "file": "common/utils/T/tracer/vcd.c",
+    "start_line": 63,
+    "end_line": 68,
+    "body_lines": 6,
+    "signature": "static void *gui_thread(void *_g)",
+    "subsystem": "common/utils/T",
+    "token_estimate": 13
+  },
+  "bug": {
+    "bug_id": "c_dead_code",
+    "description": "dead code that is never executed and may mask intended logic",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a dead code that is never executed and may mask intended logic downstream of function gui_thread in the common/utils/T subsystem.\nThe function is located at common/utils/T/tracer/vcd.c:63.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00318_f80f68_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00318_f80f68_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 39,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:37:10Z"
+}

@@ -1,0 +1,32 @@
+{
+  "run_id": "s00450_ae5d81",
+  "function": {
+    "name": "rrc_eNB_process_MeasurementReport",
+    "file": "openair2/RRC/LTE/rrc_eNB.c",
+    "start_line": 3327,
+    "end_line": 3608,
+    "body_lines": 282,
+    "signature": "void rrc_eNB_process_MeasurementReport( const protocol_ctxt_t *const ctxt_pP, rrc_eNB_ue_context_t *ue_context_pP, const LTE_MeasResults_t *const measResults2 ) //-----------------------------------------------------------------------------",
+    "subsystem": "openair2/RRC/LTE",
+    "token_estimate": 917
+  },
+  "bug": {
+    "bug_id": "telecom_incorrect_ie",
+    "description": "incorrect information element value set in outgoing protocol message",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a incorrect information element value set in outgoing protocol message downstream of function rrc_eNB_process_MeasurementReport in the openair2/RRC/LTE subsystem.\nThe function is located at openair2/RRC/LTE/rrc_eNB.c:3327.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00450_ae5d81_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00450_ae5d81_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 35,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:22:38Z"
+}

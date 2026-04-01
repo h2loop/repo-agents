@@ -1,0 +1,16 @@
+diff --git a/openair1/SIMULATION/TOOLS/multipath_tv_channel.c b/openair1/SIMULATION/TOOLS/multipath_tv_channel.c
+index 12175ea385..34e39cd77b 100644
+--- a/openair1/SIMULATION/TOOLS/multipath_tv_channel.c
++++ b/openair1/SIMULATION/TOOLS/multipath_tv_channel.c
+@@ -189,6 +189,11 @@ void tv_channel(channel_desc_t *desc,double complex ***H,uint32_t length){
+ // time varying convolution
+ void tv_conv(double complex **h, double complex *x, double complex *y, uint32_t nb_samples, uint8_t nb_taps, uint64_t dd)
+ {
++  // Prevent integer underflow when dd > nb_samples
++  if (dd >= nb_samples) {
++    return; // No samples to process
++  }
++  
+   for(int i = 0; i < ((int)nb_samples-dd); i++) {
+     for(int j = 0; j < nb_taps; j++) {
+       if(i >= j)

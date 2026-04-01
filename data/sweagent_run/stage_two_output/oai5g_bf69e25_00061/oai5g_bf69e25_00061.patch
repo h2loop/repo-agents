@@ -1,0 +1,19 @@
+diff --git a/common/utils/T/tracer/multi.c b/common/utils/T/tracer/multi.c
+index 8e49ff43a1..d327c75de7 100644
+--- a/common/utils/T/tracer/multi.c
++++ b/common/utils/T/tracer/multi.c
+@@ -177,12 +177,12 @@ int connect_to_tracee(char *ip, int port, int number_of_events, int *is_on)
+ 
+ void usage(void)
+ {
+-  printf(
++  fprintf(stderr,
+ "options:\n"
+ "    -d <database file>        this option is mandatory\n"
+ "    -ip <host>                connect to given IP address (default %s)\n"
+ "    -p <port>                 connect to given port (default %d)\n"
+-"    -lp <port>                listen on local port (default %d)\n",
++"    -lp <port>                listen on local port (default %d)\n\n",
+   DEFAULT_REMOTE_IP,
+   DEFAULT_REMOTE_PORT,
+   DEFAULT_LOCAL_PORT

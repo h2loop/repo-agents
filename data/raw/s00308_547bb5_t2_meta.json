@@ -1,0 +1,9 @@
+{
+  "run_id": "s00308_547bb5",
+  "pr_text": "## Title: Fix incorrect slot boundary calculation causing protocol state machine violation\n\n### Summary\nThe `get_slot_from_timestamp()` function in the PHY initialization layer contains an off-by-one error in its slot boundary detection logic that violates 3GPP timing specifications. The while loop condition uses strict inequality (`>`) instead of inclusive (`>=`) when comparing timestamps against slot boundaries. This causes timestamps that fall exactly on slot boundaries to be assigned to the ",
+  "trajectory_path": "data/raw/s00308_547bb5_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00308_547bb5_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 10,
+  "timestamp": "2026-02-11T14:19:05Z"
+}

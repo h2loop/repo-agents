@@ -1,0 +1,9 @@
+{
+  "run_id": "s00118_2fd5b5",
+  "pr_text": "## Title: Fix unsafe direct access to PHY_vars_UE_g global structure\n\n### Summary\nThe `measurcmd_display_phyta()` function in the telnet measurement server directly accessed the global `PHY_vars_UE_g[0][0]` structure without null checks. This unsafe access pattern could cause segmentation faults when the PHY layer is not initialized or during early system startup. The deprecated direct array access pattern lacked proper validation that the global structures were allocated and ready.\n\nThe fix add",
+  "trajectory_path": "data/raw/s00118_2fd5b5_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00118_2fd5b5_p2.diff",
+  "patch_lines": 16,
+  "trajectory_steps": 21,
+  "timestamp": "2026-02-10T11:18:53Z"
+}

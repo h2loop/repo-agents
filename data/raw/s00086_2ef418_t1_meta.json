@@ -1,0 +1,32 @@
+{
+  "run_id": "s00086_2ef418",
+  "function": {
+    "name": "getTime",
+    "file": "openair3/NAS/TEST/AS_SIMULATOR/as_data.c",
+    "start_line": 67,
+    "end_line": 77,
+    "body_lines": 11,
+    "signature": "const char* getTime(void)",
+    "subsystem": "openair3/NAS/TEST",
+    "token_estimate": 28
+  },
+  "bug": {
+    "bug_id": "telecom_missing_mandatory_ie",
+    "description": "missing mandatory information element in outgoing signaling message",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a missing mandatory information element in outgoing signaling message downstream of function getTime in the openair3/NAS/TEST subsystem.\nThe function is located at openair3/NAS/TEST/AS_SIMULATOR/as_data.c:67.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00086_2ef418_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00086_2ef418_p1.diff",
+  "patch_lines": 21,
+  "trajectory_steps": 86,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:11:20Z"
+}

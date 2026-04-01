@@ -1,0 +1,90 @@
+diff --git a/openair3/NAS/UE/ESM/PdnConnectivity.c b/openair3/NAS/UE/ESM/PdnConnectivity.c
+index a79320cccb..ba42af840f 100644
+--- a/openair3/NAS/UE/ESM/PdnConnectivity.c
++++ b/openair3/NAS/UE/ESM/PdnConnectivity.c
+@@ -142,6 +142,16 @@ int esm_proc_pdn_connectivity(nas_user_t *user, int cid, int is_to_define,
+     int pid = cid - 1;
+     esm_data_t *esm_data = user-> esm_data;
+     esm_pt_data_t *esm_pt_data = user-> esm_pt_data;
++    
++    // Create null-terminated copy of APN for safe string operations
++    char apn_str[256]; // Safe buffer size for APN
++    if (apn != NULL && apn->value != NULL && apn->length > 0) {
++        int len = (apn->length < sizeof(apn_str) - 1) ? apn->length : sizeof(apn_str) - 1;
++        memcpy(apn_str, apn->value, len);
++        apn_str[len] = '\0';
++    } else {
++        apn_str[0] = '\0';
++    }
+ 
+     if (!is_to_define) {
+         LOG_TRACE(INFO, "ESM-PROC  - Undefine PDN connection (cid=%d)", cid);
+@@ -179,7 +189,7 @@ int esm_proc_pdn_connectivity(nas_user_t *user, int cid, int is_to_define,
+     LOG_TRACE(INFO,"ESM-PROC  - Define new %s PDN connection to APN %s (cid=%d)",
+               (pdn_type == ESM_PDN_TYPE_IPV4)? "IPv4" :
+               (pdn_type == ESM_PDN_TYPE_IPV6)? "IPv6" : "IPv4v6",
+-              (apn!=NULL)?apn->value:0, cid);
++              apn_str, cid);
+ 
+     if (is_emergency && esm_data->emergency) {
+         /* The UE shall not request additional PDN connection for
+@@ -215,13 +225,13 @@ int esm_proc_pdn_connectivity(nas_user_t *user, int cid, int is_to_define,
+                         LOG_TRACE(WARNING, "ESM-PROC  - %s PDN connectivity to "
+                                   "%s is not allowed by the network",
+                                   (pdn_type != ESM_PDN_TYPE_IPV4)? "IPv6" :
+-                                  "IPv4", apn->value);
++                                  "IPv4", apn_str);
+                     } else {
+                         LOG_TRACE(WARNING, "ESM-PROC  - %s PDN connection to %s "
+                                   "already exists",
+                                   (esm_data->pdn[pid].data->type !=
+                                    ESM_PDN_TYPE_IPV4)? "IPv6" : "IPv4",
+-                                  apn->value);
++                                  apn_str);
+                     }
+ 
+                     LOG_FUNC_RETURN (RETURNerror);
+@@ -233,7 +243,7 @@ int esm_proc_pdn_connectivity(nas_user_t *user, int cid, int is_to_define,
+                           "already exists",
+                           (esm_data->pdn[pid].data->type != ESM_PDN_TYPE_IPV4)?
+                           (esm_data->pdn[pid].data->type != ESM_PDN_TYPE_IPV6)?
+-                          "IPv4v6" : "IPv6" : "IPv4", apn->value);
++                          "IPv4v6" : "IPv6" : "IPv4", apn_str);
+                 LOG_FUNC_RETURN (RETURNerror);
+             }
+         }
+@@ -357,6 +367,16 @@ int esm_proc_pdn_connectivity_accept(nas_user_t *user, int pti, esm_proc_pdn_typ
+     char    apn_first_char[4];
+ 
+     char str[128] __attribute__((unused));
++    
++    // Create null-terminated copy of APN for safe string operations
++    char apn_str[256]; // Safe buffer size for APN
++    if (apn != NULL && apn->value != NULL && apn->length > 0) {
++        int len = (apn->length < sizeof(apn_str) - 1) ? apn->length : sizeof(apn_str) - 1;
++        memcpy(apn_str, apn->value, len);
++        apn_str[len] = '\0';
++    } else {
++        apn_str[0] = '\0';
++    }
+ 
+     if (isprint(apn->value[0])) {
+         apn_first_char[0] = '\0';
+@@ -365,7 +385,7 @@ int esm_proc_pdn_connectivity_accept(nas_user_t *user, int pti, esm_proc_pdn_typ
+     }
+ 
+     LOG_TRACE(INFO, "ESM-PROC  - PDN connectivity accepted by the network "
+-              "(pti=%d) APN = %s\"%s\", IP address = %s", pti, apn_first_char, isprint(apn->value[0]) ? &apn->value[0] : &apn->value[1],
++              "(pti=%d) APN = %s\"%s\", IP address = %s", pti, apn_first_char, isprint(apn->value[0]) ? apn_str : (apn->length > 1 ? apn_str + 1 : ""),
+               (pdn_type == ESM_PDN_TYPE_IPV4)? esm_data_get_ipv4_addr(pdn_addr, str) :
+               (pdn_type == ESM_PDN_TYPE_IPV6)? esm_data_get_ipv6_addr(pdn_addr, str) :
+               esm_data_get_ipv4v6_addr(pdn_addr, str));
+@@ -399,7 +419,7 @@ int esm_proc_pdn_connectivity_accept(nas_user_t *user, int pti, esm_proc_pdn_typ
+             /* No any PDN connection has been defined to establish connectivity
+              * to this APN */
+             LOG_TRACE(WARNING, "ESM-PROC  - PDN connection entry for "
+-                      "APN \"%s\" (type=%d) not found", apn->value, pdn_type);
++                      "APN \"%s\" (type=%d) not found", apn_str, pdn_type);
+             *esm_cause = ESM_CAUSE_UNKNOWN_ACCESS_POINT_NAME;
+             LOG_FUNC_RETURN(RETURNerror);
+         }

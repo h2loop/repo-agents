@@ -1,0 +1,21 @@
+diff --git a/openair1/PHY/TOOLS/lte_enb_scope.c b/openair1/PHY/TOOLS/lte_enb_scope.c
+index 6c51cebac3..e6414ad7cf 100644
+--- a/openair1/PHY/TOOLS/lte_enb_scope.c
++++ b/openair1/PHY/TOOLS/lte_enb_scope.c
+@@ -78,13 +78,13 @@ static void *scope_thread_eNB(void *arg) {
+     ue_cnt=0;
+ 
+     for(UE_id=0; UE_id<NUMBER_OF_UE_MAX; UE_id++) {
+-      for(CC_id=0; CC_id<MAX_NUM_CCs; CC_id++) {
+-        if ((ue_cnt<scope_enb_num_ue)) {
++      if (ue_cnt < scope_enb_num_ue) {
++        for(CC_id=0; CC_id<MAX_NUM_CCs; CC_id++) {
+           phy_scope_eNB(form_enb[CC_id][ue_cnt],
+                         RC.eNB[0][CC_id],
+                         UE_id);
+-          ue_cnt++;
+         }
++        ue_cnt++;
+       }
+     }
+ 

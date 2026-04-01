@@ -1,0 +1,157 @@
+diff --git a/openair3/NGAP/ngap_gNB_handlers.c b/openair3/NGAP/ngap_gNB_handlers.c
+index 59b2792602..e380d1298a 100644
+--- a/openair3/NGAP/ngap_gNB_handlers.c
++++ b/openair3/NGAP/ngap_gNB_handlers.c
+@@ -41,6 +41,7 @@
+ #include "ngap_gNB_trace.h"
+ #include "ngap_gNB_nas_procedures.h"
+ #include "ngap_gNB_management_procedures.h"
++#include "ngap_gNB_overload.h"
+ 
+ #include "ngap_gNB_default_values.h"
+ 
+@@ -1272,7 +1273,7 @@ static int ngap_gNB_handle_ng_path_switch_request_failure(sctp_assoc_t assoc_id,
+ static int ngap_gNB_handle_ng_ENDC_pdusession_modification_confirm(sctp_assoc_t assoc_id, uint32_t stream, NGAP_NGAP_PDU_t *pdu)
+ {
+   LOG_W(NGAP, "Implementation of NGAP Pdusession Modification confirm handler is pending...\n");
+-	return 0;
++        return 0;
+ }
+ 
+ /* Handlers matrix. Only gNB related procedure present here */
+@@ -1299,8 +1300,8 @@ const ngap_message_decoded_callback ngap_messages_callback[][3] = {
+     {0, 0, 0}, /* NASNonDeliveryIndication */
+     {0, 0, 0}, /* NGReset */
+     {0, ngap_gNB_handle_ng_setup_response, ngap_gNB_handle_ng_setup_failure}, /* NGSetup */
+-    {0, 0, 0}, /* OverloadStart */
+-    {0, 0, 0}, /* OverloadStop */
++    {ngap_gNB_handle_overload_start, 0, 0}, /* OverloadStart */
++    {ngap_gNB_handle_overload_stop, 0, 0}, /* OverloadStop */
+     {ngap_gNB_handle_paging, 0, 0}, /* Paging */
+     {0, ngap_gNB_handle_ng_path_switch_request_ack, ngap_gNB_handle_ng_path_switch_request_failure}, /* PathSwitchRequest */
+     {ngap_gNB_handle_pdusession_modify_request, 0, 0}, /* PDUSessionResourceModify */
+diff --git a/openair3/NGAP/ngap_gNB_overload.c b/openair3/NGAP/ngap_gNB_overload.c
+index d8512c0695..7c43765a11 100644
+--- a/openair3/NGAP/ngap_gNB_overload.c
++++ b/openair3/NGAP/ngap_gNB_overload.c
+@@ -47,7 +47,103 @@
+ 
+ int ngap_gNB_handle_overload_start(sctp_assoc_t assoc_id, uint32_t stream, NGAP_NGAP_PDU_t *pdu)
+ {
+-    //TODO
++    NGAP_OverloadStart_t    *container;
++    NGAP_OverloadStartIEs_t *ie;
++    ngap_gNB_amf_data_t     *amf_desc_p;
++    long traffic_load_reduction_indication = 0;
++    
++    DevAssert(pdu != NULL);
++    container = &pdu->choice.initiatingMessage->value.choice.OverloadStart;
++
++    /* Overload Start == Non UE-related procedure -> stream 0 */
++    if (stream != 0) {
++        NGAP_WARN("[SCTP %u] Received overload start on stream != 0 (%u)\n",
++                  assoc_id, stream);
++    }
++
++    if ((amf_desc_p = ngap_gNB_get_AMF(NULL, assoc_id, 0)) == NULL) {
++        NGAP_ERROR("[SCTP %u] Received overload start for non existing "
++                   "AMF context\n", assoc_id);
++        return -1;
++    }
++
++    /* Update AMF state to indicate overload condition */
++    amf_desc_p->state = NGAP_GNB_STATE_CONNECTED; /* Keep connection state */
++    amf_desc_p->overload_state = NGAP_OVERLOAD_REJECT_MO_DATA; /* Default overload state */
++
++    /* Parse optional OverloadResponse IE (ID = 2) */
++    NGAP_FIND_PROTOCOLIE_BY_ID(NGAP_OverloadStartIEs_t, ie, container,
++                               2, false);
++
++    if (ie != NULL) {
++        /* Process OverloadResponse - for now we just log it */
++        switch (ie->value.choice.OverloadResponse.present) {
++            case NGAP_OverloadResponse_PR_NOTHING:
++                NGAP_DEBUG("Overload response: NOTHING\n");
++                break;
++            case NGAP_OverloadResponse_PR_overloadAction:
++                NGAP_DEBUG("Overload response: overloadAction %ld\n",
++                           ie->value.choice.OverloadResponse.choice.overloadAction);
++                /* Map overload action to internal overload state */
++                switch (ie->value.choice.OverloadResponse.choice.overloadAction) {
++                    case NGAP_OverloadAction_reject_non_emergency_mo_dt:
++                        amf_desc_p->overload_state = NGAP_OVERLOAD_REJECT_MO_DATA;
++                        break;
++                    case NGAP_OverloadAction_reject_rrc_cr_sig:
++                        amf_desc_p->overload_state = NGAP_OVERLOAD_REJECT_ALL_SIGNALLING;
++                        break;
++                    case NGAP_OverloadAction_permit_emergency_sessions_and_mobile_terminated_services_only:
++                        amf_desc_p->overload_state = NGAP_OVERLOAD_ONLY_EMERGENCY_AND_MT;
++                        break;
++                    default:
++                        NGAP_WARN("Unknown overload action: %ld\n",
++                                  ie->value.choice.OverloadResponse.choice.overloadAction);
++                        break;
++                }
++                break;
++            default:
++                NGAP_WARN("Unknown OverloadResponse present: %d\n",
++                          ie->value.choice.OverloadResponse.present);
++                break;
++        }
++    }
++
++    /* Parse optional TrafficLoadReductionIndication IE (ID = 9) */
++    NGAP_FIND_PROTOCOLIE_BY_ID(NGAP_OverloadStartIEs_t, ie, container,
++                               9, false);
++
++    if (ie != NULL) {
++        traffic_load_reduction_indication = ie->value.choice.TrafficLoadReductionIndication;
++        NGAP_DEBUG("Traffic load reduction indication: %ld%%\n", traffic_load_reduction_indication);
++        
++        /* If we have a traffic load reduction indication but no overload response,
++         * we might want to set a default overload state based on the percentage
++         */
++        if (amf_desc_p->overload_state == NGAP_NO_OVERLOAD) {
++            if (traffic_load_reduction_indication >= 90) {
++                amf_desc_p->overload_state = NGAP_OVERLOAD_REJECT_ALL_SIGNALLING;
++            } else if (traffic_load_reduction_indication >= 70) {
++                amf_desc_p->overload_state = NGAP_OVERLOAD_REJECT_MO_DATA;
++            } else {
++                amf_desc_p->overload_state = NGAP_OVERLOAD_ONLY_EMERGENCY_AND_MT;
++            }
++        }
++    }
++
++    /* Parse optional OverloadStartNSSAIList IE (ID = 49) */
++    NGAP_FIND_PROTOCOLIE_BY_ID(NGAP_OverloadStartIEs_t, ie, container,
++                               49, false);
++
++    if (ie != NULL) {
++        NGAP_DEBUG("OverloadStartNSSAIList present with %d items\n",
++                   ie->value.choice.OverloadStartNSSAIList.list.count);
++        /* For now, we just log the presence of NSSAI-specific overload information */
++        /* In a more complete implementation, we might handle per-slice overload */
++    }
++
++    NGAP_INFO("AMF overload started: assoc_id %u, overload_state %d\n",
++              assoc_id, amf_desc_p->overload_state);
++
+     return 0;
+ }
+ 
+@@ -66,10 +162,15 @@ int ngap_gNB_handle_overload_stop(sctp_assoc_t assoc_id, uint32_t stream, NGAP_N
+ 
+     if ((amf_desc_p = ngap_gNB_get_AMF(NULL, assoc_id, 0)) == NULL) {
+         /* No AMF context associated */
++        NGAP_ERROR("[SCTP %u] Received overload stop for non existing AMF context\n", assoc_id);
+         return -1;
+     }
+ 
++    /* Update AMF state to indicate normal operation */
+     amf_desc_p->state = NGAP_GNB_STATE_CONNECTED;
+     amf_desc_p->overload_state = NGAP_NO_OVERLOAD;
++    
++    NGAP_INFO("AMF overload stopped: assoc_id %u\n", assoc_id);
++
+     return 0;
+ }

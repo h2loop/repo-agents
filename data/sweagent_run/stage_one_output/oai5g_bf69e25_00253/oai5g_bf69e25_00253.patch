@@ -1,0 +1,99 @@
+diff --git a/openair2/NR_PHY_INTERFACE/NR_IF_Module.c b/openair2/NR_PHY_INTERFACE/NR_IF_Module.c
+index 117b028c9a..9bb9249e2e 100644
+--- a/openair2/NR_PHY_INTERFACE/NR_IF_Module.c
++++ b/openair2/NR_PHY_INTERFACE/NR_IF_Module.c
+@@ -317,18 +317,27 @@ static bool rx_ind_has_rnti(nfapi_nr_rx_data_indication_t *rx_ind, uint16_t rnti
+   return false;
+ }
+ 
+-static void match_crc_rx_pdu(nfapi_nr_rx_data_indication_t *rx_ind, nfapi_nr_crc_indication_t *crc_ind) {
++static int match_crc_rx_pdu(nfapi_nr_rx_data_indication_t *rx_ind, nfapi_nr_crc_indication_t *crc_ind) {
+   AssertFatal(crc_ind->number_crcs > 0 &&  rx_ind->number_of_pdus > 0,
+               "Invalid number of crc_ind->number_crcs %d or rx_ind->number_of_pdus %d\n",
+               crc_ind->number_crcs, rx_ind->number_of_pdus);
+   if (crc_ind->number_crcs > rx_ind->number_of_pdus) {
+     int num_unmatched_crcs = 0;
+     nfapi_nr_crc_indication_t *crc_ind_unmatched = calloc(1, sizeof(*crc_ind_unmatched));
++    if (!crc_ind_unmatched) {
++      LOG_E(NR_PHY, "Failed to allocate memory for crc_ind_unmatched.\n");
++      return -1;
++    }
+     crc_ind_unmatched->header = crc_ind->header;
+     crc_ind_unmatched->sfn = crc_ind->sfn;
+     crc_ind_unmatched->slot = crc_ind->slot;
+     crc_ind_unmatched->number_crcs = crc_ind->number_crcs - rx_ind->number_of_pdus;
+     crc_ind_unmatched->crc_list = calloc(crc_ind_unmatched->number_crcs, sizeof(nfapi_nr_crc_t));
++    if (!crc_ind_unmatched->crc_list) {
++      LOG_E(NR_PHY, "Failed to allocate memory for crc_ind_unmatched->crc_list.\n");
++      free(crc_ind_unmatched);
++      return -1;
++    }
+     for (int i = 0; i < crc_ind->number_crcs; i++) {
+       if (!rx_ind_has_rnti(rx_ind, crc_ind->crc_list[i].rnti)) {
+           LOG_I(NR_MAC, "crc_ind->crc_list[%d].rnti %x does not match any rx_ind pdu rnti\n",
+@@ -348,16 +357,26 @@ static void match_crc_rx_pdu(nfapi_nr_rx_data_indication_t *rx_ind, nfapi_nr_crc
+       LOG_E(NR_PHY, "requeue failed for crc_ind_unmatched.\n");
+       free_and_zero(crc_ind_unmatched->crc_list);
+       free_and_zero(crc_ind_unmatched);
++      return -1;
+     }
+   }
+   else if (crc_ind->number_crcs < rx_ind->number_of_pdus) {
+     int num_unmatched_rxs = 0;
+     nfapi_nr_rx_data_indication_t *rx_ind_unmatched = calloc(1, sizeof(*rx_ind_unmatched));
++    if (!rx_ind_unmatched) {
++      LOG_E(NR_PHY, "Failed to allocate memory for rx_ind_unmatched.\n");
++      return -1;
++    }
+     rx_ind_unmatched->header = rx_ind->header;
+     rx_ind_unmatched->sfn = rx_ind->sfn;
+     rx_ind_unmatched->slot = rx_ind->slot;
+     rx_ind_unmatched->number_of_pdus = rx_ind->number_of_pdus - crc_ind->number_crcs;
+     rx_ind_unmatched->pdu_list = calloc(rx_ind_unmatched->number_of_pdus, sizeof(nfapi_nr_pdu_t));
++    if (!rx_ind_unmatched->pdu_list) {
++      LOG_E(NR_PHY, "Failed to allocate memory for rx_ind_unmatched->pdu_list.\n");
++      free(rx_ind_unmatched);
++      return -1;
++    }
+     for (int i = 0; i < rx_ind->number_of_pdus; i++) {
+       if (!crc_ind_has_rnti(crc_ind, rx_ind->pdu_list[i].rnti)) {
+         LOG_I(NR_MAC, "rx_ind->pdu_list[%d].rnti %d does not match any crc_ind pdu rnti\n",
+@@ -377,12 +396,14 @@ static void match_crc_rx_pdu(nfapi_nr_rx_data_indication_t *rx_ind, nfapi_nr_crc
+       LOG_E(NR_PHY, "requeue failed for rx_ind_unmatched.\n");
+       free_and_zero(rx_ind_unmatched->pdu_list);
+       free_and_zero(rx_ind_unmatched);
++      return -1;
+     }
+   }
+   else {
+     LOG_E(NR_MAC, "The number of crc pdus %d = the number of rx pdus %d\n",
+           crc_ind->number_crcs, rx_ind->number_of_pdus);
+   }
++  return 0;
+ }
+ 
+ void NR_UL_indication(NR_UL_IND_t *UL_info) {
+@@ -433,10 +454,19 @@ void NR_UL_indication(NR_UL_IND_t *UL_info) {
+       else {
+         AssertFatal(rx_ind->number_of_pdus > 0, "Invalid number of PDUs\n");
+         AssertFatal(crc_ind->number_crcs > 0, "Invalid number of PDUs\n");
+-        if (crc_ind->number_crcs != rx_ind->number_of_pdus)
+-          match_crc_rx_pdu(rx_ind, crc_ind);
+-        UL_info->rx_ind = *rx_ind;
+-        UL_info->crc_ind = *crc_ind;
++        if (crc_ind->number_crcs != rx_ind->number_of_pdus) {
++          if (match_crc_rx_pdu(rx_ind, crc_ind) < 0) {
++            LOG_E(NR_PHY, "Failed to match CRC and RX PDUs.\n");
++            // Set pointers to NULL so the cleanup code at the end doesn't try to free them
++            rx_ind = NULL;
++            crc_ind = NULL;
++            // Continue with the rest of the processing, but with NULL indications
++          }
++        }
++        if (rx_ind && crc_ind) {
++          UL_info->rx_ind = *rx_ind;
++          UL_info->crc_ind = *crc_ind;
++        }
+       }
+     }
+   }

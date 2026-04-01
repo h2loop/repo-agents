@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix redundant scaling in composite DFT functions\n\n### Summary\nSeveral composite DFT functions were performing redundant scaling operations. Each function was calling sub-DFTs with scale_flag=1 causing individual scalings, then applying final scaling. This resulted in unnecessary computational overhead.\n\n### Changes\n- `openair1/PHY/TOOLS/oai_dfts.c`: Modified scale_flag parameter from 1 to 0 in sub-DFT calls for functions dft600, dft900, dft1200, dft1500, dft1620, dft1800, dft1920, dft2160, dft2400, dft2700, dft2880, dft3000, and dft3240.\n\n### Reproduction\nWhen running PHY layer simulations with large FFT sizes, users may observe higher than expected CPU utilization during DFT computations. Performance profiling will show multiple scaling operations being performed on the same data elements within composite DFT functions.\n"
+}

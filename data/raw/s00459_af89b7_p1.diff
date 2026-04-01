@@ -1,0 +1,14 @@
+diff --git a/common/utils/T/tracer/hacks/multi-rru-clean.c b/common/utils/T/tracer/hacks/multi-rru-clean.c
+index 1887c9bb2b..8bf27bacd4 100644
+--- a/common/utils/T/tracer/hacks/multi-rru-clean.c
++++ b/common/utils/T/tracer/hacks/multi-rru-clean.c
+@@ -33,6 +33,9 @@ void clear_cache(int n, cache_t *c)
+     c[i].filled = 0;
+     c[i].error = 0;
+     c[i].b.osize = 0;
++    /* Reset timestamp to prevent HARQ process errors downstream */
++    c[i].t.tv_sec = 0;
++    c[i].t.tv_nsec = 0;
+   }
+ }
+ 

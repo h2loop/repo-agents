@@ -1,0 +1,32 @@
+{
+  "run_id": "s00052_37108f",
+  "function": {
+    "name": "pnf_handle_pnf_start_request",
+    "file": "nfapi/open-nFAPI/pnf/src/pnf.c",
+    "start_line": 303,
+    "end_line": 343,
+    "body_lines": 41,
+    "signature": "void pnf_handle_pnf_start_request(pnf_t* pnf, void *pRecvMsg, int recvMsgLen)",
+    "subsystem": "nfapi/open-nFAPI/pnf",
+    "token_estimate": 88
+  },
+  "bug": {
+    "bug_id": "c_socket_leak",
+    "description": "socket resource leak where a socket is not closed after use or on error",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a socket resource leak where a socket is not closed after use or on error downstream of function pnf_handle_pnf_start_request in the nfapi/open-nFAPI/pnf subsystem.\nThe function is located at nfapi/open-nFAPI/pnf/src/pnf.c:303.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00052_37108f_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00052_37108f_p1.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 33,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:50:59Z"
+}

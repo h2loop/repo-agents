@@ -1,0 +1,9 @@
+{
+  "run_id": "s00369_97304b",
+  "pr_text": "## Title: Clear stale protocol state in NR DL-SCH layer demapping\n\n### Summary\nThe NR downlink shared channel (DL-SCH) demodulation module had a bug where LLR (Log-Likelihood Ratio) buffers retained stale data from previous procedure calls. This occurred because the `layer_llr` pointer array was not initialized to NULL, and the `nr_dlsch_layer_demapping` function did not clear buffers when codewords were absent (marked by `codeword_TB0/1 == -1`). This stale state could cause incorrect demodulati",
+  "trajectory_path": "data/raw/s00369_97304b_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00369_97304b_p2.diff",
+  "patch_lines": 12,
+  "trajectory_steps": 64,
+  "timestamp": "2026-02-10T12:57:46Z"
+}

@@ -1,0 +1,33 @@
+diff --git a/openair1/SCHED_UE/srs_pc.c b/openair1/SCHED_UE/srs_pc.c
+index ad3cde7609..f850735f5f 100644
+--- a/openair1/SCHED_UE/srs_pc.c
++++ b/openair1/SCHED_UE/srs_pc.c
+@@ -73,6 +73,12 @@ void srs_power_cntl(PHY_VARS_UE *ue,UE_rxtx_proc_t *proc,uint8_t eNB_id,uint8_t
+   {
+     Msrs    = Nb_81_110[Csrs][Bsrs];
+   }
++  else
++  {
++    // For N_RB_UL >= 111, use the same table as for 81-110 RBs
++    Msrs    = Nb_81_110[Csrs][Bsrs];
++    LOG_W(PHY," SRS Power Control: N_RB_UL %d >= 111, using Nb_81_110 table\n", pframe_parms->N_RB_UL);
++  }
+ 
+   // SRS Power control 36.213 5.1.3.1
+   // P_srs   =  P_srs_offset+ 10log10(Msrs) + P_opusch(j) + alpha*PL + f(i))
+@@ -90,7 +96,14 @@ void srs_power_cntl(PHY_VARS_UE *ue,UE_rxtx_proc_t *proc,uint8_t eNB_id,uint8_t
+   LOG_D(PHY," SRS Power Control; eNB_id %d, pSRS_Offset[dB] %d, Msrs %d, PL %d, f_pusch %d \n",eNB_id,Psrs_offset,Msrs,PL,f_pusch);
+ 
+   P_srs  = (p0_NominalPUSCH + p0_UE_PUSCH) + Psrs_offset + f_pusch;
+-  P_srs += (((int32_t)alpha * (int32_t)PL) + hundred_times_log10_NPRB[Msrs-1])/100 ;
++  
++  // Prevent buffer underflow when Msrs is 0
++  if (Msrs > 0) {
++    P_srs += (((int32_t)alpha * (int32_t)PL) + hundred_times_log10_NPRB[Msrs-1])/100 ;
++  } else {
++    LOG_W(PHY," SRS Power Control: Msrs is 0, skipping log10 term\n");
++    // When Msrs is 0, 10*log10(Msrs) would be undefined, so we skip this term
++  }
+   
+   ue->ulsch[eNB_id]->Po_SRS = P_srs;
+   if(ue->ulsch[eNB_id]->Po_SRS > ue->tx_power_max_dBm)

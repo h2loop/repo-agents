@@ -1,0 +1,29 @@
+{
+  "run_id": "s00272_b686ba",
+  "function": {
+    "name": "setup_ra_response_window",
+    "file": "openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c",
+    "start_line": 778,
+    "end_line": 818,
+    "body_lines": 41,
+    "signature": "static void setup_ra_response_window(NR_UE_MAC_INST_t *mac, RA_config_t *ra, NR_RACH_ConfigGeneric_t *configGeneric, NR_RACH_ConfigGenericTwoStepRA_r16_t *twostep)",
+    "subsystem": "openair2/LAYER2/NR_MAC_UE",
+    "token_estimate": 186
+  },
+  "bug": {
+    "bug_id": "telecom_interface_ngap_error",
+    "description": "NGAP interface handling error between gNB and AMF causing procedure failure",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair3/NGAP",
+      "openair2/RRC"
+    ]
+  },
+  "prompt": "There is a NGAP interface handling error between gNB and AMF causing procedure failure downstream of function setup_ra_response_window in the openair2/LAYER2/NR_MAC_UE subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c:778.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00272_b686ba_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00272_b686ba_p1.diff",
+  "patch_lines": 9,
+  "trajectory_steps": 48,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T14:01:49Z"
+}

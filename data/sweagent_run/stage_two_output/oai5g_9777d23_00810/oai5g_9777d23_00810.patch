@@ -1,0 +1,35 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c b/openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c
+index 26b2f35e0f..fe94d68df6 100644
+--- a/openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c
++++ b/openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c
+@@ -115,9 +115,20 @@ fapi_nr_ul_config_request_pdu_t *lockGet_ul_config(NR_UE_MAC_INST_t *mac, frame_
+ 
+ static nr_lcordered_info_t *get_lc_info_from_lcid(NR_UE_MAC_INST_t *mac, NR_LogicalChannelIdentity_t lcid)
+ {
++  // Validate mac instance pointer
++  if (mac == NULL) {
++    return NULL;
++  }
++
++  // Validate lc_ordered_list array and count
++  if (mac->lc_ordered_list.array == NULL || mac->lc_ordered_list.count <= 0) {
++    return NULL;
++  }
++
+   nr_lcordered_info_t *lc_info = NULL;
+   for (int i = 0; i < mac->lc_ordered_list.count; i++) {
+-    if (mac->lc_ordered_list.array[i]->lcid == lcid) {
++    // Add null pointer check for individual array elements
++    if (mac->lc_ordered_list.array[i] != NULL && mac->lc_ordered_list.array[i]->lcid == lcid) {
+       lc_info = mac->lc_ordered_list.array[i];
+       break;
+     }
+@@ -2144,7 +2155,7 @@ static void map_ssb_to_ro(NR_UE_MAC_INST_t *mac)
+         for (int i = 0; i < prach_period->nb_of_prach_conf_period && !done; i++, prach_configuration_period_idx++) {
+           // Build the association period with its association PRACH Configuration indexes
+           prach_period->prach_conf_period_list[i] = &prach_assoc_pattern->prach_conf_period_list[prach_configuration_period_idx];
+-	  prach_conf_period_t *prach_conf = prach_period->prach_conf_period_list[i];
++          prach_conf_period_t *prach_conf = prach_period->prach_conf_period_list[i];
+           for (; frame < prach_conf->nb_of_frame; frame++) {
+             for (; slot < prach_conf->nb_of_slot; slot++) {
+               prach_occasion_slot_t *slot_map = &prach_conf->prach_occasion_slot_map[frame][slot];

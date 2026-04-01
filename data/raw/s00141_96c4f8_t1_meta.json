@@ -1,0 +1,31 @@
+{
+  "run_id": "s00141_96c4f8",
+  "function": {
+    "name": "_emm_main_callback",
+    "file": "openair3/NAS/UE/EMM/emm_main.c",
+    "start_line": 898,
+    "end_line": 908,
+    "body_lines": 11,
+    "signature": "static int _emm_main_callback(user_api_id_t *user_api_id, emm_data_t *emm_data, int size)",
+    "subsystem": "openair3/NAS/UE",
+    "token_estimate": 32
+  },
+  "bug": {
+    "bug_id": "telecom_timer_incorrect_duration",
+    "description": "protocol timer configured with incorrect duration violating 3GPP timing requirements",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a protocol timer configured with incorrect duration violating 3GPP timing requirements downstream of function _emm_main_callback in the openair3/NAS/UE subsystem.\nThe function is located at openair3/NAS/UE/EMM/emm_main.c:898.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00141_96c4f8_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00141_96c4f8_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 28,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:26:09Z"
+}

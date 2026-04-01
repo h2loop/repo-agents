@@ -1,0 +1,333 @@
+'{"env":{"deployment":{"image":"oai5g-sera:776ca25","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_776ca25_00867","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix incomplete QPSK LUT initialization in TM2 transmit diversity\n\n### Summary\nThe
+  `init_modulation_LUT_qam4_tm2_p2()` function was only initializing 16 entries instead
+  of the required 256 entries for 4 QPSK symbols. This caused incorrect modulation
+  mapping when using TM2 transmit diversity with QPSK, leading to degraded throughput
+  and incorrect signal constellation patterns.\n\nThis fix corrects the array sizing
+  and loop bounds to process all 8-bit input combinations.\n\n### Changes\n- `openair1/PHY/LTE_TRANSPORT/dlsch_modulation.c`:
+  \n  - Changed qam4_tm2_p2 array declarations from [8][16] to [8][256]\n  - Updated
+  loop bounds from index<16 to index<256\n  - Fixed bit extraction logic to properly
+  handle all 8 bits for 4 QPSK symbols\n  - Corrected TM2 precoding implementation
+  for 4-symbol mapping\n\n### Reproduction\nTo reproduce the issue:\n1. Configure
+  eNB with TM2 transmit diversity mode\n2. Set modulation to QPSK\n3. Transmit data
+  continuously \n4. Observe degraded BLER performance and constellation distortion\n5.
+  Memory analysis shows only 16 LUT entries were initialized instead of 256\n\nThe
+  symptoms manifest as poor link performance specifically with QPSK in TM2 mode, while
+  16QAM and 64QAM work correctly since their LUT initialization was already properly
+  implemented.\n","extra_fields":{"bug_description":"missing break statement in switch
+  case causing unintended fallthrough","bug_id":"c_missing_break","stage_one_patch":"diff
+  --git a/openair1/PHY/LTE_TRANSPORT/dlsch_modulation.c b/openair1/PHY/LTE_TRANSPORT/dlsch_modulation.c\nindex
+  3bc7a32d60..f45bd89662 100644\n--- a/openair1/PHY/LTE_TRANSPORT/dlsch_modulation.c\n+++
+  b/openair1/PHY/LTE_TRANSPORT/dlsch_modulation.c\n@@ -721,9 +721,9 @@ int allocate_REs_in_RB_no_pilots_QPSK_tm2(PHY_VARS_eNB*
+  phy_vars_eNB,\n \n   // 8-bits corresponds to 4 QPSK symbols input which generates
+  4 QPSK symbols on 2 TX antenna ports\n   qam4_table_offset=(((uint32_t)x0p[0]))|\n-\t            (((uint32_t)x0p[1])<<1)|\n+                    (((uint32_t)x0p[1])<<1)|\n                     (((uint32_t)x0p[2])<<2)|\n-\t\t    (((uint32_t)x0p[3])<<3);\n+                    (((uint32_t)x0p[3])<<3);\n
+  \n   memcpy(txF0, &qam_table4_0[qam4_table_offset], sizeof(*txF0));\n   memcpy(txF1,
+  &qam_table4_1[qam4_table_offset], sizeof(*txF1));\n@@ -738,9 +738,9 @@ int allocate_REs_in_RB_no_pilots_QPSK_tm2(PHY_VARS_eNB*
+  phy_vars_eNB,\n \n   x0p+=4;\n   qam4_table_offset=(((uint32_t)x0p[0]))|\n-\t            (((uint32_t)x0p[1])<<1)|\n+                    (((uint32_t)x0p[1])<<1)|\n                     (((uint32_t)x0p[2])<<2)|\n-\t\t    (((uint32_t)x0p[3])<<3);\n+                    (((uint32_t)x0p[3])<<3);\n
+  \n   memcpy(txF0+2, &qam_table4_0[qam4_table_offset], sizeof(*txF0));\n   memcpy(txF1+2,
+  &qam_table4_1[qam4_table_offset], sizeof(*txF1));\n@@ -753,9 +753,9 @@ int allocate_REs_in_RB_no_pilots_QPSK_tm2(PHY_VARS_eNB*
+  phy_vars_eNB,\n     }\n     x0p+=4;\n     qam4_table_offset=(((uint32_t)x0p[0]))|\n-\t              (((uint32_t)x0p[1])<<1)|\n+                      (((uint32_t)x0p[1])<<1)|\n                       (((uint32_t)x0p[2])<<2)|\n-\t  \t      (((uint32_t)x0p[3])<<3);\n+                      (((uint32_t)x0p[3])<<3);\n
+  \n     memcpy(txF0+3, &qam_table4_0[qam4_table_offset], sizeof(*txF0));\n     memcpy(txF1+3,
+  &qam_table4_1[qam4_table_offset], sizeof(*txF1));\n@@ -769,9 +769,9 @@ int allocate_REs_in_RB_no_pilots_QPSK_tm2(PHY_VARS_eNB*
+  phy_vars_eNB,\n     memcpy(txF1+4, &qam_table4_1[qam4_table_offset], sizeof(*txF1));\n     x0p+=4;\n     qam4_table_offset=(((uint32_t)x0p[0]))|\n-      \t              (((uint32_t)x0p[1])<<1)|\n+                      (((uint32_t)x0p[1])<<1)|\n                       (((uint32_t)x0p[2])<<2)|\n-\t\t      (((uint32_t)x0p[3])<<3);\n+                      (((uint32_t)x0p[3])<<3);\n     memcpy(txF0+5,
+  &qam_table4_0[qam4_table_offset], sizeof(*txF0));\n     memcpy(txF1+5, &qam_table4_1[qam4_table_offset],
+  sizeof(*txF1));\n   }\n@@ -1069,17 +1069,17 @@ int allocate_REs_in_RB_pilots_QPSK_tm2(PHY_VARS_eNB*
+  phy_vars_eNB,\n   uint64_t tmp1[4];\n \n   qam4_table_offset=(((uint32_t)x0p[0]))|\n-\t             (((uint32_t)x0p[1])<<1)|\n+                     (((uint32_t)x0p[1])<<1)|\n                      (((uint32_t)x0p[2])<<2)|\n-\t\t     (((uint32_t)x0p[3])<<3);\n+                     (((uint32_t)x0p[3])<<3);\n
+  \n   tmp0[0]=qam_table4_0[qam4_table_offset];\n   tmp1[0]=qam_table4_1[qam4_table_offset];\n   x0p+=4;\n   qam4_table_offset=(((uint32_t)x0p[0]))|\n-\t            (((uint32_t)x0p[1])<<1)|\n+                    (((uint32_t)x0p[1])<<1)|\n                     (((uint32_t)x0p[2])<<2)|\n-\t\t    (((uint32_t)x0p[3])<<3);\n+                    (((uint32_t)x0p[3])<<3);\n
+  \n   tmp0[1]=qam_table4_0[qam4_table_offset];\n   tmp1[1]=qam_table4_1[qam4_table_offset];\n@@
+  -1087,17 +1087,17 @@ int allocate_REs_in_RB_pilots_QPSK_tm2(PHY_VARS_eNB* phy_vars_eNB,\n   if(skip_half==0)
+  {\n     x0p+=4;\n     qam4_table_offset=(((uint32_t)x0p[0]))|\n-  \t               (((uint32_t)x0p[1])<<1)|\n+                       (((uint32_t)x0p[1])<<1)|\n                        (((uint32_t)x0p[2])<<2)|\n-\t   \t       (((uint32_t)x0p[3])<<3);\n+                       (((uint32_t)x0p[3])<<3);\n
+  \n     tmp0[2]=qam_table4_0[qam4_table_offset];\n     tmp1[2]=qam_table4_1[qam4_table_offset];\n     x0p+=4;\n     qam4_table_offset=(((uint32_t)x0p[0]))|\n-\t               (((uint32_t)x0p[1])<<1)|\n+                       (((uint32_t)x0p[1])<<1)|\n                        (((uint32_t)x0p[2])<<2)|\n-\t\t       (((uint32_t)x0p[3])<<3);\n+                       (((uint32_t)x0p[3])<<3);\n
+  \n     tmp0[3]=qam_table4_0[qam4_table_offset];\n     tmp1[3]=qam_table4_1[qam4_table_offset];\n@@
+  -1150,7 +1150,7 @@ int allocate_REs_in_RB_pilots_QPSK_tm2(PHY_VARS_eNB* phy_vars_eNB,\n       txdataF[0][tti_offset+5]=((uint32_t*)tmp0)[7];
+  \n       txdataF[1][tti_offset+5]=((uint32_t*)tmp1)[7];\n     }\n-  } else { //pilots
+  in 2,5,8,11\t  \n+  } else { //pilots in 2,5,8,11   \n     tti_offset=symbol_offset+re_offset+re;\n     txdataF[0][tti_offset+0]=((uint32_t*)tmp0)[0];
+  \n     txdataF[1][tti_offset+0]=((uint32_t*)tmp1)[0];\n@@ -1423,7 +1423,7 @@ int
+  allocate_REs_in_RB_pilots_16QAM_tm2(PHY_VARS_eNB* phy_vars_eNB,\n       txdataF[0][tti_offset+5]=((uint32_t*)tmp0)[7];
+  \n       txdataF[1][tti_offset+5]=((uint32_t*)tmp1)[7];\n     }\n-  } else { //pilots
+  in 2,5,8,11\t  \n+  } else { //pilots in 2,5,8,11   \n     tti_offset=symbol_offset+re_offset+re;\n     txdataF[0][tti_offset+0]=((uint32_t*)tmp0)[0];
+  \n     txdataF[1][tti_offset+0]=((uint32_t*)tmp1)[0];\n@@ -1589,7 +1589,7 @@ int
+  allocate_REs_in_RB_pilots_64QAM_tm2(PHY_VARS_eNB* phy_vars_eNB,\n       txdataF[0][tti_offset+5]=((uint32_t*)tmp0)[7];
+  \n       txdataF[1][tti_offset+5]=((uint32_t*)tmp1)[7];\n     }\n-  } else { //pilots
+  in 2,5,8,11\t  \n+  } else { //pilots in 2,5,8,11   \n     tti_offset=symbol_offset+re_offset+re;\n     txdataF[0][tti_offset+0]=((uint32_t*)tmp0)[0];
+  \n     txdataF[1][tti_offset+0]=((uint32_t*)tmp1)[0];\n@@ -1888,7 +1888,7 @@ int
+  allocate_REs_in_RB(PHY_VARS_eNB* phy_vars_eNB,\n           ((int16_t*)&tmp_sample2)[1]
+  = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;\n           *jj=*jj+1;\n \n-\t  //gain_lin_QPSK
+  (=amp/sqrt(2)) is already contains the power offset from rho_a/rho_b, so here we
+  do not need divide by sqrt(2) anymore\n+          //gain_lin_QPSK (=amp/sqrt(2))
+  is already contains the power offset from rho_a/rho_b, so here we do not need divide
+  by sqrt(2) anymore\n           // normalization for 2 tx antennas\n           ((int16_t*)&txdataF[0][tti_offset])[0]
+  = (int16_t)((((int16_t*)&tmp_sample1)[0]));\n           ((int16_t*)&txdataF[0][tti_offset])[1]
+  = (int16_t)((((int16_t*)&tmp_sample1)[1]));\n@@ -1920,9 +1920,9 @@ int allocate_REs_in_RB(PHY_VARS_eNB*
+  phy_vars_eNB,\n \n           //((int16_t *)&txdataF[0][tti_offset])[0]+=(int16_t)(((int32_t)amp*qam16_table[qam16_table_offset_re])>>15);\n           //((int16_t
+  *)&txdataF[0][tti_offset])[1]+=(int16_t)(((int32_t)amp*qam16_table[qam16_table_offset_im])>>15);\n-\t  //gain_lin_QPSK
+  (=amp/sqrt(2)) is already contains the power offset from rho_a/rho_b, so here we
+  do not need divide by sqrt(2) anymore\n-\t  ((int16_t *)&txdataF[0][tti_offset])[0]=(qam_table_s0[qam16_table_offset_re]);\n-\t  ((int16_t
+  *)&txdataF[0][tti_offset])[1]=(qam_table_s0[qam16_table_offset_im]);\n+          //gain_lin_QPSK
+  (=amp/sqrt(2)) is already contains the power offset from rho_a/rho_b, so here we
+  do not need divide by sqrt(2) anymore\n+          ((int16_t *)&txdataF[0][tti_offset])[0]=(qam_table_s0[qam16_table_offset_re]);\n+          ((int16_t
+  *)&txdataF[0][tti_offset])[1]=(qam_table_s0[qam16_table_offset_im]);\n \n           //
+  Antenna 1 position n Real part -> -x1*\n \n@@ -1946,9 +1946,9 @@ int allocate_REs_in_RB(PHY_VARS_eNB*
+  phy_vars_eNB,\n \n           //((int16_t *)&txdataF[1][tti_offset])[0]+=-(int16_t)(((int32_t)amp*qam16_table[qam16_table_offset_re])>>15);\n           //((int16_t
+  *)&txdataF[1][tti_offset])[1]+=(int16_t)(((int32_t)amp*qam16_table[qam16_table_offset_im])>>15);\n-\t  //qam_table_s0
+  already contains the power offset from rho_a/rho_b, so here we do not need divide
+  by sqrt(2) anymore\n-\t  ((int16_t *)&txdataF[1][tti_offset])[0]=-(qam_table_s0[qam16_table_offset_re]);\n-\t  ((int16_t
+  *)&txdataF[1][tti_offset])[1]=(qam_table_s0[qam16_table_offset_im]);\n+          //qam_table_s0
+  already contains the power offset from rho_a/rho_b, so here we do not need divide
+  by sqrt(2) anymore\n+          ((int16_t *)&txdataF[1][tti_offset])[0]=-(qam_table_s0[qam16_table_offset_re]);\n+          ((int16_t
+  *)&txdataF[1][tti_offset])[1]=(qam_table_s0[qam16_table_offset_im]);\n \n          //((int16_t
+  *)&txdataF[1][tti_offset])[0]+=-qam_table_s0[qam16_table_offset_re];\n          //((int16_t
+  *)&txdataF[1][tti_offset])[1]+=qam_table_s0[qam16_table_offset_im];\n@@ -1982,9
+  +1982,9 @@ int allocate_REs_in_RB(PHY_VARS_eNB* phy_vars_eNB,\n \n           //((int16_t
+  *)&txdataF[0][tti_offset])[0]+=(int16_t)(((int32_t)amp*qam64_table[qam64_table_offset_re])>>15);\n           //((int16_t
+  *)&txdataF[0][tti_offset])[1]+=(int16_t)(((int32_t)amp*qam64_table[qam64_table_offset_im])>>15);\n-\t  //qam_table_s0
+  already contains the power offset from rho_a/rho_b, so here we do not need divide
+  by sqrt(2) anymore\n-\t  ((int16_t *)&txdataF[0][tti_offset])[0]=(qam_table_s0[qam64_table_offset_re]);\n-\t  ((int16_t
+  *)&txdataF[0][tti_offset])[1]=(qam_table_s0[qam64_table_offset_im]);\n+          //qam_table_s0
+  already contains the power offset from rho_a/rho_b, so here we do not need divide
+  by sqrt(2) anymore\n+          ((int16_t *)&txdataF[0][tti_offset])[0]=(qam_table_s0[qam64_table_offset_re]);\n+          ((int16_t
+  *)&txdataF[0][tti_offset])[1]=(qam_table_s0[qam64_table_offset_im]);\n \n \n           //
+  Antenna 1 => -x1*\n@@ -2011,9 +2011,9 @@ int allocate_REs_in_RB(PHY_VARS_eNB* phy_vars_eNB,\n
+  \n           //((int16_t *)&txdataF[1][tti_offset])[0]+=-(int16_t)(((int32_t)amp*qam64_table[qam64_table_offset_re])>>15);\n           //((int16_t
+  *)&txdataF[1][tti_offset])[1]+=(int16_t)(((int32_t)amp*qam64_table[qam64_table_offset_im])>>15);\n-\t  //qam_table_s0
+  already contains the power offset from rho_a/rho_b, so here we do not need divide
+  by sqrt(2) anymore\n-\t  ((int16_t *)&txdataF[1][tti_offset])[0]=-(qam_table_s0[qam64_table_offset_re]);\n-\t  ((int16_t
+  *)&txdataF[1][tti_offset])[1]=(qam_table_s0[qam64_table_offset_im]);\n+          //qam_table_s0
+  already contains the power offset from rho_a/rho_b, so here we do not need divide
+  by sqrt(2) anymore\n+          ((int16_t *)&txdataF[1][tti_offset])[0]=-(qam_table_s0[qam64_table_offset_re]);\n+          ((int16_t
+  *)&txdataF[1][tti_offset])[1]=(qam_table_s0[qam64_table_offset_im]);\n \n \n           break;\n@@
+  -3025,10 +3025,10 @@ inline int check_skip_dc(int rb,LTE_DL_FRAME_PARMS *frame_parms)
+  {\n }\n \n \n-uint64_t qam4_tm2_p2_0[8][16] __attribute__ ((aligned(32)));\n-uint64_t
+  qam4_tm2_p2_1[8][16] __attribute__ ((aligned(32)));\n-uint64_t qam4_tm2_p2_b0[8][4][16]
+  __attribute__ ((aligned(32)));\n-uint64_t qam4_tm2_p2_b1[8][4][16] __attribute__
+  ((aligned(32)));\n+uint64_t qam4_tm2_p2_0[8][256] __attribute__ ((aligned(32)));\n+uint64_t
+  qam4_tm2_p2_1[8][256] __attribute__ ((aligned(32)));\n+uint64_t qam4_tm2_p2_b0[8][4][256]
+  __attribute__ ((aligned(32)));\n+uint64_t qam4_tm2_p2_b1[8][4][256] __attribute__
+  ((aligned(32)));\n \n uint64_t qam16_tm2_p2_0[8][256] __attribute__ ((aligned(32)));\n
+  uint64_t qam16_tm2_p2_1[8][256] __attribute__ ((aligned(32)));\n@@ -3051,59 +3051,72
+  @@ void init_modulation_LUT_qam4_tm2_p2() {\n    int16_t sqrt_rhoA,amp_rho_a,sqrt_rhoB,amp_rho_b;\n    int
+  qam4_table_offset_re,qam4_table_offset_im;\n \n-   for (int index=0;index<16;index++)
+  {\n+   for (int index=0;index<256;index++) {\n      for (int pa=0;pa<8;pa++) {\n         rhoA_dB   =
+  computeRhoA_eNB(pa, NULL, 1, 2);\n         sqrt_rhoA = (int16_t)(pow(10,(0.05*rhoA_dB))*pow(2,13));\n         amp_rho_a
+  = (int16_t)(((int32_t)AMP*sqrt_rhoA)>>13);\n-\ts0 = &qam4_tm2_p2_0[pa][index];\n-\ts1
+  = &qam4_tm2_p2_1[pa][index];\n-        // Antenna 0\n+        s0 = &qam4_tm2_p2_0[pa][index];\n+        s1
+  = &qam4_tm2_p2_1[pa][index];\n+        // Antenna 0 (first symbol)\n         qam4_table_offset_re
+  = index&1;\n         qam4_table_offset_im = (index>>1)&1;\n \n-\t((int16_t*)s0)[0]=(int16_t)(((int32_t)qpsk_table[qam4_table_offset_re]*amp_rho_a)>>15);\n-\t((int16_t*)s0)[1]=(int16_t)(((int32_t)qpsk_table[qam4_table_offset_im]*amp_rho_a)>>15);\n+        ((int16_t*)s0)[0]=(int16_t)(((int32_t)qpsk_table[qam4_table_offset_re]*amp_rho_a)>>15);\n+        ((int16_t*)s0)[1]=(int16_t)(((int32_t)qpsk_table[qam4_table_offset_im]*amp_rho_a)>>15);\n
+  \n-        // Antenna 1 => -x1*\n+        // Antenna 1 => -x1* (first symbol)\n         qam4_table_offset_re
+  = (index>>2)&1;\n         qam4_table_offset_im = (index>>3)&1;\n       \n-\t((int16_t*)s1)[0]=-(int16_t)(((int32_t)qpsk_table[qam4_table_offset_re]*amp_rho_a)>>15);\n-\t((int16_t*)s1)[1]=(int16_t)(((int32_t)qpsk_table[qam4_table_offset_im]*amp_rho_a)>>15);\n+        ((int16_t*)s1)[0]=-(int16_t)(((int32_t)qpsk_table[qam4_table_offset_re]*amp_rho_a)>>15);\n+        ((int16_t*)s1)[1]=(int16_t)(((int32_t)qpsk_table[qam4_table_offset_im]*amp_rho_a)>>15);\n         \n-\t((int16_t*)s0)[2]
+  = -((int16_t*)s1)[0]; //=-x1*\n-        ((int16_t*)s0)[3] = ((int16_t*)s1)[1];\n-        ((int16_t*)s1)[2]
+  = ((int16_t*)s0)[0];  //x0*\n-        ((int16_t*)s1)[3] = -((int16_t*)s0)[1];\n-\tfor
+  (int pb=0;pb<4;pb++) {\n+        // Second symbol for Antenna 0: -x1* (second symbol)\n+        qam4_table_offset_re
+  = (index>>4)&1;\n+        qam4_table_offset_im = (index>>5)&1;\n+        ((int16_t*)s0)[2]=-(int16_t)(((int32_t)qpsk_table[qam4_table_offset_re]*amp_rho_a)>>15);\n+        ((int16_t*)s0)[3]=(int16_t)(((int32_t)qpsk_table[qam4_table_offset_im]*amp_rho_a)>>15);\n+        \n+        //
+  Second symbol for Antenna 1: x0* (second symbol)\n+        qam4_table_offset_re
+  = (index>>6)&1;\n+        qam4_table_offset_im = (index>>7)&1;\n+        ((int16_t*)s1)[2]=(int16_t)(((int32_t)qpsk_table[qam4_table_offset_re]*amp_rho_a)>>15);\n+        ((int16_t*)s1)[3]=-(int16_t)(((int32_t)qpsk_table[qam4_table_offset_im]*amp_rho_a)>>15);\n+        \n+        for
+  (int pb=0;pb<4;pb++) {\n           rhoB_dB   = computeRhoB_eNB(pa,pb, 2, NULL, 1);\n           sqrt_rhoB
+  = (int16_t)(pow(10,(0.05*rhoB_dB))*pow(2,13));\n           amp_rho_b = (int16_t)(((int32_t)AMP*sqrt_rhoB)>>13);\n-\t  s0
+  = &qam4_tm2_p2_b0[pa][pb][index];\n-\t  s1 = &qam4_tm2_p2_b1[pa][pb][index];\n-          //
+  Antenna 0\n+          s0 = &qam4_tm2_p2_b0[pa][pb][index];\n+          s1 = &qam4_tm2_p2_b1[pa][pb][index];\n+          //
+  Antenna 0 (first symbol)\n           qam4_table_offset_re = index&1;\n           qam4_table_offset_im
+  = (index>>1)&1;\n \n+          ((int16_t*)s0)[0]=(int16_t)(((int32_t)qpsk_table[qam4_table_offset_re]*amp_rho_b)>>15);\n+          ((int16_t*)s0)[1]=(int16_t)(((int32_t)qpsk_table[qam4_table_offset_im]*amp_rho_b)>>15);\n
+  \n-\t  ((int16_t*)s0)[0]=(int16_t)(((int32_t)qpsk_table[qam4_table_offset_re]*amp_rho_b)>>15);\n-\t  ((int16_t*)s0)[1]=(int16_t)(((int32_t)qpsk_table[qam4_table_offset_im]*amp_rho_b)>>15);\n-\n-\n-          //
+  Antenna 1 => -x1*\n+          // Antenna 1 => -x1* (first symbol)\n           qam4_table_offset_re
+  = (index>>2)&1;\n           qam4_table_offset_im = (index>>3)&1;\n       \n-\t  ((int16_t*)s1)[0]=-(int16_t)(((int32_t)qpsk_table[qam4_table_offset_re]*amp_rho_b)>>15);\n-\t  ((int16_t*)s1)[1]=(int16_t)(((int32_t)qpsk_table[qam4_table_offset_im]*amp_rho_b)>>15);\n+          ((int16_t*)s1)[0]=-(int16_t)(((int32_t)qpsk_table[qam4_table_offset_re]*amp_rho_b)>>15);\n+          ((int16_t*)s1)[1]=(int16_t)(((int32_t)qpsk_table[qam4_table_offset_im]*amp_rho_b)>>15);\n         \n-\t  ((int16_t*)s0)[2]
+  = -((int16_t*)s1)[0]; //=-x1*\n-          ((int16_t*)s0)[3] = ((int16_t*)s1)[1];\n-          ((int16_t*)s1)[2]
+  = ((int16_t*)s0)[0];  //x0*\n-          ((int16_t*)s1)[3] = -((int16_t*)s0)[1];\n-\t}\n-     }\t\n+          //
+  Second symbol for Antenna 0: -x1* (second symbol)\n+          qam4_table_offset_re
+  = (index>>4)&1;\n+          qam4_table_offset_im = (index>>5)&1;\n+          ((int16_t*)s0)[2]=-(int16_t)(((int32_t)qpsk_table[qam4_table_offset_re]*amp_rho_b)>>15);\n+          ((int16_t*)s0)[3]=(int16_t)(((int32_t)qpsk_table[qam4_table_offset_im]*amp_rho_b)>>15);\n+          \n+          //
+  Second symbol for Antenna 1: x0* (second symbol)\n+          qam4_table_offset_re
+  = (index>>6)&1;\n+          qam4_table_offset_im = (index>>7)&1;\n+          ((int16_t*)s1)[2]=(int16_t)(((int32_t)qpsk_table[qam4_table_offset_re]*amp_rho_b)>>15);\n+          ((int16_t*)s1)[3]=-(int16_t)(((int32_t)qpsk_table[qam4_table_offset_im]*amp_rho_b)>>15);\n+        }\n+     }  \n    }\n
+  }\n void init_modulation_LUT_qam16_tm2_p2() {\n@@ -3121,57 +3134,57 @@ void init_modulation_LUT_qam16_tm2_p2()
+  {\n         rhoA_dB   = computeRhoA_eNB(pa, NULL, 1, 2);\n         sqrt_rhoA = (int16_t)(pow(10,(0.05*rhoA_dB))*pow(2,13));\n         amp_rho_a
+  = (int16_t)(((int32_t)AMP*sqrt_rhoA)>>13);\n-\ts0 = &qam16_tm2_p2_0[pa][index];\n-\ts1
+  = &qam16_tm2_p2_1[pa][index];\n+        s0 = &qam16_tm2_p2_0[pa][index];\n+        s1
+  = &qam16_tm2_p2_1[pa][index];\n         // Antenna 0\n         qam16_table_offset_re
+  = index&3;\n         qam16_table_offset_im = (index>>2)&3;\n \n \n-\t((int16_t*)s0)[0]=(int16_t)(((int32_t)qam16_table[qam16_table_offset_re]*amp_rho_a)>>15);\n-\t((int16_t*)s0)[1]=(int16_t)(((int32_t)qam16_table[qam16_table_offset_im]*amp_rho_a)>>15);\n+        ((int16_t*)s0)[0]=(int16_t)(((int32_t)qam16_table[qam16_table_offset_re]*amp_rho_a)>>15);\n+        ((int16_t*)s0)[1]=(int16_t)(((int32_t)qam16_table[qam16_table_offset_im]*amp_rho_a)>>15);\n
+  \n \n         // Antenna 1 => -x1*\n         qam16_table_offset_re = (index>>4)&3;\n         qam16_table_offset_im
+  = (index>>6)&3;\n       \n-\t((int16_t*)s1)[0]=-(int16_t)(((int32_t)qam16_table[qam16_table_offset_re]*amp_rho_a)>>15);\n-\t((int16_t*)s1)[1]=(int16_t)(((int32_t)qam16_table[qam16_table_offset_im]*amp_rho_a)>>15);\n+        ((int16_t*)s1)[0]=-(int16_t)(((int32_t)qam16_table[qam16_table_offset_re]*amp_rho_a)>>15);\n+        ((int16_t*)s1)[1]=(int16_t)(((int32_t)qam16_table[qam16_table_offset_im]*amp_rho_a)>>15);\n         \n-\t((int16_t*)s0)[2]
+  = -((int16_t*)s1)[0]; //=-x1*\n+        ((int16_t*)s0)[2] = -((int16_t*)s1)[0];
+  //=-x1*\n         ((int16_t*)s0)[3] = ((int16_t*)s1)[1];\n         ((int16_t*)s1)[2]
+  = ((int16_t*)s0)[0];  //x0*\n         ((int16_t*)s1)[3] = -((int16_t*)s0)[1];\n-\tfor
+  (int pb=0;pb<4;pb++) {\n+        for (int pb=0;pb<4;pb++) {\n           rhoB_dB   =
+  computeRhoB_eNB(pa,pb, 2, NULL, 1);\n           sqrt_rhoB = (int16_t)(pow(10,(0.05*rhoB_dB))*pow(2,13));\n           amp_rho_b
+  = (int16_t)(((int32_t)AMP*sqrt_rhoB)>>13);\n-\t  s0 = &qam16_tm2_p2_b0[pa][pb][index];\n-\t  s1
+  = &qam16_tm2_p2_b1[pa][pb][index];\n+          s0 = &qam16_tm2_p2_b0[pa][pb][index];\n+          s1
+  = &qam16_tm2_p2_b1[pa][pb][index];\n           // Antenna 0\n           qam16_table_offset_re
+  = index&3;\n           qam16_table_offset_im = (index>>2)&3;\n \n \n-\t  ((int16_t*)s0)[0]=(int16_t)(((int32_t)qam16_table[qam16_table_offset_re]*amp_rho_b)>>15);\n-\t  ((int16_t*)s0)[1]=(int16_t)(((int32_t)qam16_table[qam16_table_offset_im]*amp_rho_b)>>15);\n+          ((int16_t*)s0)[0]=(int16_t)(((int32_t)qam16_table[qam16_table_offset_re]*amp_rho_b)>>15);\n+          ((int16_t*)s0)[1]=(int16_t)(((int32_t)qam16_table[qam16_table_offset_im]*amp_rho_b)>>15);\n
+  \n \n           // Antenna 1 => -x1*\n           qam16_table_offset_re = (index>>4)&3;\n           qam16_table_offset_im
+  = (index>>6)&3;\n       \n-\t  ((int16_t*)s1)[0]=-(int16_t)(((int32_t)qam16_table[qam16_table_offset_re]*amp_rho_b)>>15);\n-\t  ((int16_t*)s1)[1]=(int16_t)(((int32_t)qam16_table[qam16_table_offset_im]*amp_rho_b)>>15);\n+          ((int16_t*)s1)[0]=-(int16_t)(((int32_t)qam16_table[qam16_table_offset_re]*amp_rho_b)>>15);\n+          ((int16_t*)s1)[1]=(int16_t)(((int32_t)qam16_table[qam16_table_offset_im]*amp_rho_b)>>15);\n         \n-\t  ((int16_t*)s0)[2]
+  = -((int16_t*)s1)[0]; //=-x1*\n+          ((int16_t*)s0)[2] = -((int16_t*)s1)[0];
+  //=-x1*\n           ((int16_t*)s0)[3] = ((int16_t*)s1)[1];\n           ((int16_t*)s1)[2]
+  = ((int16_t*)s0)[0];  //x0*\n           ((int16_t*)s1)[3] = -((int16_t*)s0)[1];\n
+  \n-\t}\n-     }\t\n+        }\n+     }  \n    }\n }\n void init_modulation_LUT_qam64_tm2_p2()
+  {\n@@ -3189,57 +3202,57 @@ void init_modulation_LUT_qam64_tm2_p2() {\n         rhoA_dB   =
+  computeRhoA_eNB(pa, NULL, 1, 2);\n         sqrt_rhoA = (int16_t)(pow(10,(0.05*rhoA_dB))*pow(2,13));\n         amp_rho_a
+  = (int16_t)(((int32_t)AMP*sqrt_rhoA)>>13);\n-\ts0 = &qam64_tm2_p2_0[pa][index];\n-\ts1
+  = &qam64_tm2_p2_1[pa][index];\n+        s0 = &qam64_tm2_p2_0[pa][index];\n+        s1
+  = &qam64_tm2_p2_1[pa][index];\n         // Antenna 0\n         qam64_table_offset_re
+  = index&7;\n         qam64_table_offset_im = (index>>3)&7;\n \n \n-\t((int16_t*)s0)[0]=(int16_t)(((int32_t)qam64_table[qam64_table_offset_re]*amp_rho_a)>>15);\n-\t((int16_t*)s0)[1]=(int16_t)(((int32_t)qam64_table[qam64_table_offset_im]*amp_rho_a)>>15);\n+        ((int16_t*)s0)[0]=(int16_t)(((int32_t)qam64_table[qam64_table_offset_re]*amp_rho_a)>>15);\n+        ((int16_t*)s0)[1]=(int16_t)(((int32_t)qam64_table[qam64_table_offset_im]*amp_rho_a)>>15);\n
+  \n \n         // Antenna 1 => -x1*\n         qam64_table_offset_re = (index>>6)&7;\n         qam64_table_offset_im
+  = (index>>9)&7;\n       \n-\t((int16_t*)s1)[0]=-(int16_t)(((int32_t)qam64_table[qam64_table_offset_re]*amp_rho_a)>>15);\n-\t((int16_t*)s1)[1]=(int16_t)(((int32_t)qam64_table[qam64_table_offset_im]*amp_rho_a)>>15);\n+        ((int16_t*)s1)[0]=-(int16_t)(((int32_t)qam64_table[qam64_table_offset_re]*amp_rho_a)>>15);\n+        ((int16_t*)s1)[1]=(int16_t)(((int32_t)qam64_table[qam64_table_offset_im]*amp_rho_a)>>15);\n         \n-\t((int16_t*)s0)[2]
+  = -((int16_t*)s1)[0]; //=-x1*\n+        ((int16_t*)s0)[2] = -((int16_t*)s1)[0];
+  //=-x1*\n         ((int16_t*)s0)[3] = ((int16_t*)s1)[1];\n         ((int16_t*)s1)[2]
+  = ((int16_t*)s0)[0];  //x0*\n         ((int16_t*)s1)[3] = -((int16_t*)s0)[1];\n-\tfor
+  (int pb=0;pb<4;pb++) {\n+        for (int pb=0;pb<4;pb++) {\n           rhoB_dB   =
+  computeRhoB_eNB(pa,pb, 2, NULL, 1);\n           sqrt_rhoB = (int16_t)(pow(10,(0.05*rhoB_dB))*pow(2,13));\n           amp_rho_b
+  = (int16_t)(((int32_t)AMP*sqrt_rhoB)>>13);\n-\t  s0 = &qam64_tm2_p2_b0[pa][pb][index];\n-\t  s1
+  = &qam64_tm2_p2_b1[pa][pb][index];\n+          s0 = &qam64_tm2_p2_b0[pa][pb][index];\n+          s1
+  = &qam64_tm2_p2_b1[pa][pb][index];\n           // Antenna 0\n           qam64_table_offset_re
+  = index&7;\n           qam64_table_offset_im = (index>>3)&7;\n \n \n-\t  ((int16_t*)s0)[0]=(int16_t)(((int32_t)qam64_table[qam64_table_offset_re]*amp_rho_b)>>15);\n-\t  ((int16_t*)s0)[1]=(int16_t)(((int32_t)qam64_table[qam64_table_offset_im]*amp_rho_b)>>15);\n+          ((int16_t*)s0)[0]=(int16_t)(((int32_t)qam64_table[qam64_table_offset_re]*amp_rho_b)>>15);\n+          ((int16_t*)s0)[1]=(int16_t)(((int32_t)qam64_table[qam64_table_offset_im]*amp_rho_b)>>15);\n
+  \n \n           // Antenna 1 => -x1*\n           qam64_table_offset_re = (index>>6)&7;\n           qam64_table_offset_im
+  = (index>>9)&7;\n       \n-\t  ((int16_t*)s1)[0]=-(int16_t)(((int32_t)qam64_table[qam64_table_offset_re]*amp_rho_b)>>15);\n-\t  ((int16_t*)s1)[1]=(int16_t)(((int32_t)qam64_table[qam64_table_offset_im]*amp_rho_b)>>15);\n+          ((int16_t*)s1)[0]=-(int16_t)(((int32_t)qam64_table[qam64_table_offset_re]*amp_rho_b)>>15);\n+          ((int16_t*)s1)[1]=(int16_t)(((int32_t)qam64_table[qam64_table_offset_im]*amp_rho_b)>>15);\n         \n-\t  ((int16_t*)s0)[2]
+  = -((int16_t*)s1)[0]; //=-x1*\n+          ((int16_t*)s0)[2] = -((int16_t*)s1)[0];
+  //=-x1*\n           ((int16_t*)s0)[3] = ((int16_t*)s1)[1];\n           ((int16_t*)s1)[2]
+  = ((int16_t*)s0)[0];  //x0*\n           ((int16_t*)s1)[3] = -((int16_t*)s0)[1];\n
+  \n-\t}\n-     }\t\n+        }\n+     }  \n    }\n }\n \n@@ -3499,17 +3512,17 @@
+  int dlsch_modulation(PHY_VARS_eNB* phy_vars_eNB,\n       /*\n       for (int ru_id=0;ru_id<RC.nb_RU;ru_id++)
+  {\n         RU_t *ru;\n-\tru = RC.ru[ru_id];\n-\tfor (int eNB_id=0;eNB_id<ru->num_eNB;eNB_id++){\n-\t  if
+  (phy_vars_eNB == ru->eNB_list[eNB_id]) {\n-\t    for (int aa=0;aa<ru->nb_tx;aa++){\n+        ru
+  = RC.ru[ru_id];\n+        for (int eNB_id=0;eNB_id<ru->num_eNB;eNB_id++){\n+          if
+  (phy_vars_eNB == ru->eNB_list[eNB_id]) {\n+            for (int aa=0;aa<ru->nb_tx;aa++){\n               LOG_I(PHY,\"ru_id:%d
+  eNB_id:%d aa:%d memcpy(ru->beam_weights, dlsch0->ue_spec_bf_weights[ru_id][0],)\\n\",
+  ru_id, eNB_id, aa);\n-\t      memcpy(ru->beam_weights[eNB_id][5][aa],\n-\t\t     dlsch0->ue_spec_bf_weights[ru_id][0],\n-\t\t     frame_parms->ofdm_symbol_size*sizeof(int32_t));\n-\t    }\n-\t  }\n-\t}\n+              memcpy(ru->beam_weights[eNB_id][5][aa],\n+                     dlsch0->ue_spec_bf_weights[ru_id][0],\n+                     frame_parms->ofdm_symbol_size*sizeof(int32_t));\n+            }\n+          }\n+        }\n       }\n       */\n
+  \n@@ -3522,14 +3535,14 @@ int dlsch_modulation(PHY_VARS_eNB* phy_vars_eNB,\n \n     if
+  (pilots>0) {  // compute pilot arrays, could be done statically if performance suffers\n       if
+  (frame_parms->nb_antenna_ports_eNB == 1) {\n-\t//\tLOG_I(PHY,\"l %d, nushift %d,
+  offset %d\\n\",l,frame_parms->nushift,offset);\n-\tfor (i=0,i2=0;i<12;i++) {\n-\t  if
+  ((i!=(frame_parms->nushift+offset)) && (i!=((frame_parms->nushift+6+offset)%12)))\n-\t    P1_SHIFT[i2++]=1;\n-\t  else\n-\t    P1_SHIFT[i2++]=2;\n-\t}\n-\tP1_SHIFT[0]--;\n+        //      LOG_I(PHY,\"l
+  %d, nushift %d, offset %d\\n\",l,frame_parms->nushift,offset);\n+        for (i=0,i2=0;i<12;i++)
+  {\n+          if ((i!=(frame_parms->nushift+offset)) && (i!=((frame_parms->nushift+6+offset)%12)))\n+            P1_SHIFT[i2++]=1;\n+          else\n+            P1_SHIFT[i2++]=2;\n+        }\n+        P1_SHIFT[0]--;\n       }\n       else
+  {\n         for (i=0,i2=0;i<12;i++) {\n@@ -3551,79 +3564,79 @@ int dlsch_modulation(PHY_VARS_eNB*
+  phy_vars_eNB,\n     case 2:\n       qam_table_s0 = NULL;\n       if (pilots) {\n-\tif
+  (dlsch0->harq_processes[harq_pid]->mimo_mode == SISO) {\n+        if (dlsch0->harq_processes[harq_pid]->mimo_mode
+  == SISO) {\n           qam_table_s0 = qpsk_table_b0;\n           allocate_REs =
+  allocate_REs_in_RB_pilots_QPSK_siso; \n-\t}\n-\telse if (dlsch0->harq_processes[harq_pid]->mimo_mode
+  == ALAMOUTI) {\n+        }\n+        else if (dlsch0->harq_processes[harq_pid]->mimo_mode
+  == ALAMOUTI) {\n           qam_table_s0 = (int16_t*)qam4_tm2_p2_b0[dlsch0->pa][dlsch0->pb];\n           qam_table_s1
+  = (int16_t*)qam4_tm2_p2_b1[dlsch0->pa][dlsch0->pb];\n-\t  P2_SHIFT[0]=nushiftmod3;\n+          P2_SHIFT[0]=nushiftmod3;\n           allocate_REs
+  = allocate_REs_in_RB_pilots_QPSK_tm2;\n-\t}\n+        }\n       }\n       else {\n-\tif
+  (dlsch0->harq_processes[harq_pid]->mimo_mode == SISO) {\n+        if (dlsch0->harq_processes[harq_pid]->mimo_mode
+  == SISO) {\n           qam_table_s0 = qpsk_table_a0;\n           allocate_REs =
+  allocate_REs_in_RB_no_pilots_QPSK_siso;\n-\t}\n-\telse if (dlsch0->harq_processes[harq_pid]->mimo_mode
+  == ALAMOUTI) {\n+        }\n+        else if (dlsch0->harq_processes[harq_pid]->mimo_mode
+  == ALAMOUTI) {\n           qam_table_s0 = (int16_t*)qam4_tm2_p2_0[dlsch0->pa];\n           qam_table_s1
+  = (int16_t*)qam4_tm2_p2_1[dlsch0->pa];\n-\t  allocate_REs = allocate_REs_in_RB_no_pilots_QPSK_tm2;\n-\t}\n+          allocate_REs
+  = allocate_REs_in_RB_no_pilots_QPSK_tm2;\n+        }\n       }\n       break;\n     case
+  4:\n       if (pilots) {\n-\tif (dlsch0->harq_processes[harq_pid]->mimo_mode ==
+  SISO) {\n+        if (dlsch0->harq_processes[harq_pid]->mimo_mode == SISO) {\n           qam_table_s0
+  = qam16_table_b0;\n           allocate_REs = allocate_REs_in_RB_pilots_16QAM_siso;\n         }\n         else
+  if (dlsch0->harq_processes[harq_pid]->mimo_mode == ALAMOUTI) {\n           qam_table_s0
+  = (int16_t*)qam16_tm2_p2_b0[dlsch0->pa][dlsch0->pb];\n           qam_table_s1 =
+  (int16_t*)qam16_tm2_p2_b1[dlsch0->pa][dlsch0->pb];\n-\t  P2_SHIFT[0]=nushiftmod3;\n+          P2_SHIFT[0]=nushiftmod3;\n           allocate_REs
+  = allocate_REs_in_RB_pilots_16QAM_tm2;\n-\t}\n+        }\n       }\n       else
+  {\n-\tif (dlsch0->harq_processes[harq_pid]->mimo_mode == SISO) {\n+        if (dlsch0->harq_processes[harq_pid]->mimo_mode
+  == SISO) {\n           qam_table_s0 = qam16_table_a0;\n           allocate_REs =
+  allocate_REs_in_RB_no_pilots_16QAM_siso;\n-\t}\n-\telse if (dlsch0->harq_processes[harq_pid]->mimo_mode
+  == ALAMOUTI) {\n+        }\n+        else if (dlsch0->harq_processes[harq_pid]->mimo_mode
+  == ALAMOUTI) {\n           qam_table_s0 = (int16_t*)qam16_tm2_p2_0[dlsch0->pa];\n           qam_table_s1
+  = (int16_t*)qam16_tm2_p2_1[dlsch0->pa];\n-\t  allocate_REs = allocate_REs_in_RB_no_pilots_16QAM_tm2;\n-\t}\n+          allocate_REs
+  = allocate_REs_in_RB_no_pilots_16QAM_tm2;\n+        }\n       }\n       break;\n
+  \n     case 6:\n       if (pilots) {\n-\tif (dlsch0->harq_processes[harq_pid]->mimo_mode
+  == SISO) {\n+        if (dlsch0->harq_processes[harq_pid]->mimo_mode == SISO) {\n           qam_table_s0
+  = qam64_table_b0;\n           allocate_REs = allocate_REs_in_RB_pilots_64QAM_siso;\n         }\n-\telse
+  if (dlsch0->harq_processes[harq_pid]->mimo_mode == ALAMOUTI) {\n+        else if
+  (dlsch0->harq_processes[harq_pid]->mimo_mode == ALAMOUTI) {\n           qam_table_s0
+  = (int16_t*)qam64_tm2_p2_b0[dlsch0->pa][dlsch0->pb];\n           qam_table_s1 =
+  (int16_t*)qam64_tm2_p2_b1[dlsch0->pa][dlsch0->pb];\n-\t  P2_SHIFT[0]=nushiftmod3;\n+          P2_SHIFT[0]=nushiftmod3;\n           allocate_REs
+  = allocate_REs_in_RB_pilots_64QAM_tm2;\n         }\n       }\n       else {\n-\tif
+  (dlsch0->harq_processes[harq_pid]->mimo_mode == SISO) {\n+        if (dlsch0->harq_processes[harq_pid]->mimo_mode
+  == SISO) {\n           qam_table_s0 = qam64_table_a0;\n           allocate_REs =
+  allocate_REs_in_RB_no_pilots_64QAM_siso;\n-\t}\n-\telse if (dlsch0->harq_processes[harq_pid]->mimo_mode
+  == ALAMOUTI) {\n-\t  LOG_D(PHY,\"Calling qam64_tm2 modulation no CS-RS pa %d\\n\",dlsch0->pa);\n+        }\n+        else
+  if (dlsch0->harq_processes[harq_pid]->mimo_mode == ALAMOUTI) {\n+          LOG_D(PHY,\"Calling
+  qam64_tm2 modulation no CS-RS pa %d\\n\",dlsch0->pa);\n           qam_table_s0 =
+  (int16_t*)qam64_tm2_p2_0[dlsch0->pa];\n           qam_table_s1 = (int16_t*)qam64_tm2_p2_1[dlsch0->pa];\n-\t  allocate_REs
+  = allocate_REs_in_RB_no_pilots_64QAM_tm2;\n-\t}\n+          allocate_REs = allocate_REs_in_RB_no_pilots_64QAM_tm2;\n+        }\n       }\n       /*
+  TODO: this is a quick hack to be removed. There is a problem\n        * with above
+  code that needs to be analyzed and fixed. In the\n","start_fn":"init_modulation_LUT_qam4_tm2_p2","start_fn_file":"openair1/PHY/LTE_TRANSPORT/dlsch_modulation.c","subsystem":"openair1/PHY/LTE_TRANSPORT"},"type":"text","id":"oai5g_776ca25_00867"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

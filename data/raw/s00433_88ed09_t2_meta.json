@@ -1,0 +1,9 @@
+{
+  "run_id": "s00433_88ed09",
+  "pr_text": "## Title: Fix buffer overflow vulnerability in S1AP UE Context Release Request\n\n### Summary\nThe S1AP protocol specifies that eNB UE S1AP ID is a 24-bit integer per 3GPP standards. The function `rrc_eNB_send_S1AP_UE_CONTEXT_RELEASE_REQ` was directly assigning the eNB_ue_s1ap_id from the UE context to the S1AP message without validation. If the ID exceeded 24 bits, this could cause a buffer overflow in downstream S1AP encoding functions when the message is serialized for transmission over the S1 i",
+  "trajectory_path": "data/raw/s00433_88ed09_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00433_88ed09_p2.diff",
+  "patch_lines": 10,
+  "trajectory_steps": 15,
+  "timestamp": "2026-02-10T13:18:28Z"
+}

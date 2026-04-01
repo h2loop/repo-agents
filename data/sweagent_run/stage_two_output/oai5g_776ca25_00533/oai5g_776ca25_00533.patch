@@ -1,0 +1,13 @@
+diff --git a/openair2/UTIL/OTG/otg_models.c b/openair2/UTIL/OTG/otg_models.c
+index d866713ecb..25071f14f2 100644
+--- a/openair2/UTIL/OTG/otg_models.c
++++ b/openair2/UTIL/OTG/otg_models.c
+@@ -75,7 +75,7 @@ double tarmaCalculateSample( double inputSamples[], tarmaProcess_t *proc)
+     proc->arHist[cnt] = proc->arHist[cnt-1];
+   }
+ 
+-  proc->arHist[0]=0;  /* caution: arHist[0] must not be used for the filter processing! */
++  /* caution: arHist[0] contains the previous filter output and should not be modified before filter processing */
+ 
+   /* filter processing */
+   Y=0;

@@ -1,0 +1,32 @@
+{
+  "run_id": "s00117_f1b466",
+  "function": {
+    "name": "unpack_dl_tti_pdcch_pdu_rel15_value",
+    "file": "nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c",
+    "start_line": 501,
+    "end_line": 537,
+    "body_lines": 37,
+    "signature": "static uint8_t unpack_dl_tti_pdcch_pdu_rel15_value(void *tlv, uint8_t **ppReadPackedMsg, uint8_t *end)",
+    "subsystem": "nfapi/open-nFAPI/fapi",
+    "token_estimate": 146
+  },
+  "bug": {
+    "bug_id": "c_magic_number",
+    "description": "magic number used without symbolic constant making intent unclear and maintenance error-prone",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a magic number used without symbolic constant making intent unclear and maintenance error-prone downstream of function unpack_dl_tti_pdcch_pdu_rel15_value in the nfapi/open-nFAPI/fapi subsystem.\nThe function is located at nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c:501.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00117_f1b466_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00117_f1b466_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 41,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:18:13Z"
+}

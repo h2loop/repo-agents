@@ -1,0 +1,100 @@
+diff --git a/openair2/GNB_APP/gnb_config.c b/openair2/GNB_APP/gnb_config.c
+index 94e9012855..886ab507e0 100644
+--- a/openair2/GNB_APP/gnb_config.c
++++ b/openair2/GNB_APP/gnb_config.c
+@@ -2261,6 +2261,9 @@ gNB_RRC_INST *RCconfig_NRRRC()
+   config_rlc(config_get_if(), &rrc->rlc_config);
+   config_pdcp(config_get_if(), &rrc->pdcp_config);
+ 
++  // Initialize measurement mutex
++  pthread_mutex_init(&rrc->measurement_mutex, NULL);
++
+   return rrc;
+ }
+ 
+diff --git a/openair2/RRC/NR/nr_rrc_defs.h b/openair2/RRC/NR/nr_rrc_defs.h
+index 68a83c9545..9b34c325f2 100644
+--- a/openair2/RRC/NR/nr_rrc_defs.h
++++ b/openair2/RRC/NR/nr_rrc_defs.h
+@@ -392,6 +392,7 @@ typedef struct gNB_RRC_INST_s {
+   cucp_cuup_if_t cucp_cuup;
+   seq_arr_t *neighbour_cell_configuration;
+   nr_measurement_configuration_t measurementConfiguration;
++  pthread_mutex_t measurement_mutex; // protects measurementConfiguration
+ 
+   RB_HEAD(rrc_du_tree, nr_rrc_du_container_t) dus; // DUs, indexed by assoc_id
+   size_t num_dus;
+diff --git a/openair2/RRC/NR/rrc_gNB.c b/openair2/RRC/NR/rrc_gNB.c
+index 000c4f46cb..b424a1cb44 100644
+--- a/openair2/RRC/NR/rrc_gNB.c
++++ b/openair2/RRC/NR/rrc_gNB.c
+@@ -469,19 +469,31 @@ static void rrc_gNB_process_RRCSetupComplete(gNB_RRC_INST *rrc, gNB_RRC_UE_t *UE
+ 
+ static nr_a3_event_t *get_a3_configuration(gNB_RRC_INST *rrc, int pci)
+ {
++  // Lock measurement mutex to protect measurementConfiguration access
++  pthread_mutex_lock(&rrc->measurement_mutex);
++  
+   nr_measurement_configuration_t *measurementConfiguration = &rrc->measurementConfiguration;
+-  if (!measurementConfiguration->a3_event_list)
++  if (!measurementConfiguration->a3_event_list) {
++    pthread_mutex_unlock(&rrc->measurement_mutex);
+     return NULL;
++  }
+ 
++  nr_a3_event_t *result = NULL;
+   for (uint8_t i = 0; i < measurementConfiguration->a3_event_list->size; i++) {
+     nr_a3_event_t *a3_event = (nr_a3_event_t *)seq_arr_at(measurementConfiguration->a3_event_list, i);
+-    if (a3_event->pci == pci)
+-      return a3_event;
++    if (a3_event->pci == pci) {
++      result = a3_event;
++      pthread_mutex_unlock(&rrc->measurement_mutex);
++      return result;
++    }
+   }
+ 
+-  if (measurementConfiguration->is_default_a3_configuration_exists)
++  if (measurementConfiguration->is_default_a3_configuration_exists) {
++    pthread_mutex_unlock(&rrc->measurement_mutex);
+     return get_a3_configuration(rrc, -1);
+-
++  }
++  
++  pthread_mutex_unlock(&rrc->measurement_mutex);
+   return NULL;
+ }
+ 
+@@ -587,12 +599,17 @@ void free_RRCReconfiguration_params(nr_rrc_reconfig_param_t params)
+ 
+ NR_MeasConfig_t *nr_rrc_get_measconfig(const gNB_RRC_INST *rrc, uint64_t nr_cellid)
+ {
++  // Lock measurement mutex to protect measurementConfiguration access
++  pthread_mutex_lock((pthread_mutex_t*)&rrc->measurement_mutex);
++  
+   nr_rrc_du_container_t *du = get_du_by_cell_id((gNB_RRC_INST *)rrc, nr_cellid);
+   DevAssert(du != NULL);
+   f1ap_served_cell_info_t *cell_info = &du->setup_req->cell[0].info;
+   NR_ReportConfigToAddMod_t *rc_PER = NULL;
+   NR_ReportConfigToAddMod_t *rc_A2 = NULL;
+   seq_arr_t *rc_A3_seq = NULL;
++  NR_MeasConfig_t *result = NULL;
++  
+   if (du->mtc != NULL) {
+     int scs = get_ssb_scs(cell_info);
+     int band = get_dl_band(cell_info);
+@@ -626,9 +643,12 @@ NR_MeasConfig_t *nr_rrc_get_measconfig(const gNB_RRC_INST *rrc, uint64_t nr_cell
+       rc_PER = prepare_periodic_event_report(rrc->measurementConfiguration.per_event);
+     if (rrc->measurementConfiguration.a2_event)
+       rc_A2 = prepare_a2_event_report(rrc->measurementConfiguration.a2_event);
+-    return get_MeasConfig(mt, band, scs, rc_PER, rc_A2, rc_A3_seq, neighbour_cells);
++    result = get_MeasConfig(mt, band, scs, rc_PER, rc_A2, rc_A3_seq, neighbour_cells);
+   }
+-  return NULL;
++  
++  // Unlock measurement mutex before returning
++  pthread_mutex_unlock((pthread_mutex_t*)&rrc->measurement_mutex);
++  return result;
+ }
+ 
+ /** @brief Prepare the instance of RRCReconfigurationParams to be pass to RRC encoding */

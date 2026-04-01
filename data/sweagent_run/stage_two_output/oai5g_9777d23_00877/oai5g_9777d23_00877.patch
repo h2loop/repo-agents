@@ -1,0 +1,32 @@
+diff --git a/openair2/E2AP/RAN_FUNCTION/CUSTOMIZED/ran_func_slice.c b/openair2/E2AP/RAN_FUNCTION/CUSTOMIZED/ran_func_slice.c
+index 11ce8b513b..153260e34a 100644
+--- a/openair2/E2AP/RAN_FUNCTION/CUSTOMIZED/ran_func_slice.c
++++ b/openair2/E2AP/RAN_FUNCTION/CUSTOMIZED/ran_func_slice.c
+@@ -51,14 +51,19 @@ sm_ag_if_ans_t write_ctrl_slice_sm(void const* data)
+   slice_ctrl_req_data_t const* slice_req_ctrl = (slice_ctrl_req_data_t const* )data; // &data->slice_req_ctrl;
+   slice_ctrl_msg_t const* msg = &slice_req_ctrl->msg;
+ 
+-  if(msg->type == SLICE_CTRL_SM_V0_ADD){
+-    printf("[E2 Agent]: SLICE CONTROL ADD rx\n");
+-  } else if (msg->type == SLICE_CTRL_SM_V0_DEL){
+-    printf("[E2 Agent]: SLICE CONTROL DEL rx\n");
+-  } else if (msg->type == SLICE_CTRL_SM_V0_UE_SLICE_ASSOC){
+-    printf("[E2 Agent]: SLICE CONTROL ASSOC rx\n");
+-  } else {
+-    assert(0!=0 && "Unknown msg_type!");
++  switch(msg->type) {
++    case SLICE_CTRL_SM_V0_ADD:
++      printf("[E2 Agent]: SLICE CONTROL ADD rx\n");
++      break;
++    case SLICE_CTRL_SM_V0_DEL:
++      printf("[E2 Agent]: SLICE CONTROL DEL rx\n");
++      break;
++    case SLICE_CTRL_SM_V0_UE_SLICE_ASSOC:
++      printf("[E2 Agent]: SLICE CONTROL ASSOC rx\n");
++      break;
++    default:
++      assert(0!=0 && "Unknown msg_type!");
++      break;
+   }
+ 
+   sm_ag_if_ans_t ans = {.type = CTRL_OUTCOME_SM_AG_IF_ANS_V0};

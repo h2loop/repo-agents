@@ -1,0 +1,27 @@
+diff --git a/openair2/E1AP/e1ap_api.c b/openair2/E1AP/e1ap_api.c
+index cf167f64e8..79e0540cff 100644
+--- a/openair2/E1AP/e1ap_api.c
++++ b/openair2/E1AP/e1ap_api.c
+@@ -33,6 +33,7 @@
+ #include "e1ap_asnc.h"
+ #include "e1ap_common.h"
+ #include "e1ap.h"
++#include "common/utils/LOG/log.h"
+ 
+ struct NR_DRB_ToAddMod;
+ static void fill_DRB_configList_e1(NR_DRB_ToAddModList_t *DRB_configList, pdu_session_to_setup_t *pdu) {
+@@ -100,7 +101,13 @@ static int drb_config_N3gtpu_create(e1ap_bearer_setup_req_t * const req,
+   for (int i=0; i < req->numPDUSessions; i++) {
+     pdu_session_to_setup_t *const pdu = &req->pduSession[i];
+     create_tunnel_req.pdusession_id[i] = pdu->sessionId;
+-    create_tunnel_req.incoming_rb_id[i] = pdu->DRBnGRanList[0].id; // taking only the first DRB. TODO:change this
++    // Check if there are DRBs to setup before accessing DRBnGRanList[0]
++    if (pdu->numDRB2Setup > 0) {
++      create_tunnel_req.incoming_rb_id[i] = pdu->DRBnGRanList[0].id; // taking only the first DRB. TODO:change this
++    } else {
++      LOG_W(E1AP, "No DRBs to setup for PDU session %ld, using default RB ID 1\n", pdu->sessionId);
++      create_tunnel_req.incoming_rb_id[i] = 1; // Default RB ID
++    }
+     memcpy(&create_tunnel_req.dst_addr[i].buffer,
+            &pdu->tlAddress,
+            sizeof(uint8_t)*4);

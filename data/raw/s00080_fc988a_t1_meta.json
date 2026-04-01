@@ -1,0 +1,32 @@
+{
+  "run_id": "s00080_fc988a",
+  "function": {
+    "name": "esm_data_get_ipv6_addr",
+    "file": "openair3/NAS/UE/ESM/esm_ip.c",
+    "start_line": 37,
+    "end_line": 49,
+    "body_lines": 13,
+    "signature": "char *esm_data_get_ipv6_addr(const OctetString *ip_addr, char *ret)",
+    "subsystem": "openair3/NAS/UE",
+    "token_estimate": 28
+  },
+  "bug": {
+    "bug_id": "telecom_missing_mandatory_ie",
+    "description": "missing mandatory information element in outgoing signaling message",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a missing mandatory information element in outgoing signaling message downstream of function esm_data_get_ipv6_addr in the openair3/NAS/UE subsystem.\nThe function is located at openair3/NAS/UE/ESM/esm_ip.c:37.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00080_fc988a_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00080_fc988a_p1.diff",
+  "patch_lines": 9,
+  "trajectory_steps": 21,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:02:38Z"
+}

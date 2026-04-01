@@ -1,0 +1,35 @@
+{
+  "run_id": "s00020_dee8c6",
+  "function": {
+    "name": "vcd_signal_dumper_dump_function_by_name",
+    "file": "common/utils/LOG/vcd_signal_dumper.c",
+    "start_line": 932,
+    "end_line": 963,
+    "body_lines": 32,
+    "signature": "void vcd_signal_dumper_dump_function_by_name(vcd_signal_dump_functions function_name, vcd_signal_dump_in_out in_out)",
+    "subsystem": "common/utils/LOG",
+    "token_estimate": 96
+  },
+  "bug": {
+    "bug_id": "c_missing_mutex",
+    "description": "missing mutex lock around critical section accessing shared state",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a missing mutex lock around critical section accessing shared state downstream of function vcd_signal_dumper_dump_function_by_name in the common/utils/LOG subsystem.\nThe function is located at common/utils/LOG/vcd_signal_dumper.c:932.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00020_dee8c6_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00020_dee8c6_p1.diff",
+  "patch_lines": 7,
+  "trajectory_steps": 23,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T07:38:50Z"
+}

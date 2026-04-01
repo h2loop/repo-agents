@@ -1,0 +1,27 @@
+diff --git a/openair3/NAS/COMMON/IES/UeRadioCapabilityInformationUpdateNeeded.c b/openair3/NAS/COMMON/IES/UeRadioCapabilityInformationUpdateNeeded.c
+index a56400c54d..42e4b48c04 100644
+--- a/openair3/NAS/COMMON/IES/UeRadioCapabilityInformationUpdateNeeded.c
++++ b/openair3/NAS/COMMON/IES/UeRadioCapabilityInformationUpdateNeeded.c
+@@ -65,8 +65,7 @@ int encode_ue_radio_capability_information_update_needed(UeRadioCapabilityInform
+ #if defined (NAS_DEBUG)
+   dump_ue_radio_capability_information_update_needed_xml(ueradiocapabilityinformationupdateneeded, iei);
+ #endif
+-  *(buffer + encoded) = 0x00 | (iei & 0xf0) |
+-                        (*ueradiocapabilityinformationupdateneeded & 0x1);
++  *(buffer + encoded) = (iei & 0xf0) | 0x00 | (*ueradiocapabilityinformationupdateneeded & 0x1);
+   encoded++;
+   return encoded;
+ }
+@@ -76,10 +75,9 @@ uint8_t encode_u8_ue_radio_capability_information_update_needed(UeRadioCapabilit
+   uint8_t bufferReturn;
+   uint8_t *buffer = &bufferReturn;
+   uint8_t encoded = 0;
+-  uint8_t iei = 0;
++  uint8_t iei = 0xA0; // Default IEI for UE Radio Capability Information Update Needed
+   dump_ue_radio_capability_information_update_needed_xml(ueradiocapabilityinformationupdateneeded, 0);
+-  *(buffer + encoded) = 0x00 | (iei & 0xf0) |
+-                        (*ueradiocapabilityinformationupdateneeded & 0x1);
++  *(buffer + encoded) = (iei & 0xf0) | 0x00 | (*ueradiocapabilityinformationupdateneeded & 0x1);
+   encoded++;
+ 
+   return bufferReturn;

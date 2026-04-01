@@ -1,0 +1,77 @@
+diff --git a/openair1/PHY/TOOLS/imscope/imscope.cpp b/openair1/PHY/TOOLS/imscope/imscope.cpp
+index a80b5cfd98..c787d232da 100644
+--- a/openair1/PHY/TOOLS/imscope/imscope.cpp
++++ b/openair1/PHY/TOOLS/imscope/imscope.cpp
+@@ -419,6 +419,38 @@ struct ScrollingBuffer {
+       Offset = 0;
+     }
+   }
++  // Get data in chronological order for plotting
++  void GetPlotData(const float*& xs, const float*& ys, int& count) const
++  {
++    if (Data.empty()) {
++      xs = nullptr;
++      ys = nullptr;
++      count = 0;
++      return;
++    }
++    
++    if (Data.size() < MaxSize) {
++      // Buffer not full, data is already in chronological order
++      xs = &Data[0].x;
++      ys = &Data[0].y;
++      count = Data.size();
++    } else {
++      // Buffer is full, data is circular
++      // We need to provide data in chronological order starting from Offset
++      static thread_local std::vector<ImVec2> plot_data;
++      plot_data.resize(MaxSize);
++      
++      // Copy data in chronological order
++      for (int i = 0; i < MaxSize; i++) {
++        int src_index = (Offset + i) % MaxSize;
++        plot_data[i] = Data[src_index];
++      }
++      
++      xs = &plot_data[0].x;
++      ys = &plot_data[0].y;
++      count = MaxSize;
++    }
++  }
+ };
+ 
+ void ShowUeScope(void *data_void_ptr, float t)
+@@ -441,11 +473,30 @@ void ShowUeScope(void *data_void_ptr, float t)
+     ImPlot::SetupAxis(ImAxis_Y2, "bler [%]", ImPlotAxisFlags_AuxDefault);
+     ImPlot::SetupAxis(ImAxis_Y3, "MCS", ImPlotAxisFlags_AuxDefault);
+     ImPlot::SetAxes(ImAxis_X1, ImAxis_Y1);
+-    ImPlot::PlotLine("noOfRbs", &rbs_buffer.Data[0].x, &rbs_buffer.Data[0].y, rbs_buffer.Data.size(), 0, 0, 2 * sizeof(float));
++    
++    const float* rbs_xs;
++    const float* rbs_ys;
++    int rbs_count;
++    rbs_buffer.GetPlotData(rbs_xs, rbs_ys, rbs_count);
++    if (rbs_xs && rbs_ys && rbs_count > 0)
++      ImPlot::PlotLine("noOfRbs", rbs_xs, rbs_ys, rbs_count, 0, 0, 2 * sizeof(float));
++    
+     ImPlot::SetAxes(ImAxis_X1, ImAxis_Y2);
+-    ImPlot::PlotLine("bler", &bler.Data[0].x, &bler.Data[0].y, bler.Data.size(), 0, 0, 2 * sizeof(float));
++    const float* bler_xs;
++    const float* bler_ys;
++    int bler_count;
++    bler.GetPlotData(bler_xs, bler_ys, bler_count);
++    if (bler_xs && bler_ys && bler_count > 0)
++      ImPlot::PlotLine("bler", bler_xs, bler_ys, bler_count, 0, 0, 2 * sizeof(float));
++    
+     ImPlot::SetAxes(ImAxis_X1, ImAxis_Y3);
+-    ImPlot::PlotLine("mcs", &mcs.Data[0].x, &mcs.Data[0].y, mcs.Data.size(), 0, 0, 2 * sizeof(float));
++    const float* mcs_xs;
++    const float* mcs_ys;
++    int mcs_count;
++    mcs.GetPlotData(mcs_xs, mcs_ys, mcs_count);
++    if (mcs_xs && mcs_ys && mcs_count > 0)
++      ImPlot::PlotLine("mcs", mcs_xs, mcs_ys, mcs_count, 0, 0, 2 * sizeof(float));
++    
+     ImPlot::EndPlot();
+   }
+   ImGui::End();

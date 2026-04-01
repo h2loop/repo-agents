@@ -1,0 +1,73 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/config.c b/openair2/LAYER2/NR_MAC_gNB/config.c
+index 6dd3a073b7..d7fd46fd41 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/config.c
++++ b/openair2/LAYER2/NR_MAC_gNB/config.c
+@@ -59,7 +59,18 @@ static void process_rlcBearerConfig(struct NR_CellGroupConfig__rlc_BearerToAddMo
+                                     struct NR_CellGroupConfig__rlc_BearerToReleaseList *rlc_bearer2release_list,
+                                     NR_UE_sched_ctrl_t *sched_ctrl)
+ {
++  /* Range validation for configuration parameters */
++  const int MAX_LC_ID = 32; /* Maximum LCID per 3GPP spec */
++  const int MAX_LC_NUM = sizeof(sched_ctrl->dl_lc_ids) / sizeof(sched_ctrl->dl_lc_ids[0]);
++
+   if (rlc_bearer2release_list) {
++    /* Validate list count to prevent buffer overflow */
++    if (rlc_bearer2release_list->list.count > MAX_LC_NUM) {
++      LOG_E(NR_MAC, "Invalid rlc_bearer2release_list count %d exceeds maximum %d\n",
++            rlc_bearer2release_list->list.count, MAX_LC_NUM);
++      return;
++    }
++    
+     for (int i = 0; i < rlc_bearer2release_list->list.count; i++) {
+       for (int idx = 0; idx < sched_ctrl->dl_lc_num; idx++) {
+         if (sched_ctrl->dl_lc_ids[idx] == *rlc_bearer2release_list->list.array[i]) {
+@@ -73,9 +84,23 @@ static void process_rlcBearerConfig(struct NR_CellGroupConfig__rlc_BearerToAddMo
+   }
+ 
+   if (rlc_bearer2add_list) {
++    /* Validate list count to prevent buffer overflow */
++    if (rlc_bearer2add_list->list.count > MAX_LC_NUM) {
++      LOG_E(NR_MAC, "Invalid rlc_bearer2add_list count %d exceeds maximum %d\n",
++            rlc_bearer2add_list->list.count, MAX_LC_NUM);
++      return;
++    }
++    
+     // keep lcids
+     for (int i = 0; i < rlc_bearer2add_list->list.count; i++) {
+       const int lcid = rlc_bearer2add_list->list.array[i]->logicalChannelIdentity;
++      
++      /* Validate LCID range according to 3GPP spec */
++      if (lcid < 0 || lcid > MAX_LC_ID) {
++        LOG_E(NR_MAC, "Invalid LCID %d: must be in range [0, %d]\n", lcid, MAX_LC_ID);
++        continue;
++      }
++      
+       bool found = false;
+       for (int idx = 0; idx < sched_ctrl->dl_lc_num; idx++) {
+         if (sched_ctrl->dl_lc_ids[idx] == lcid) {
+@@ -85,6 +110,13 @@ static void process_rlcBearerConfig(struct NR_CellGroupConfig__rlc_BearerToAddMo
+       }
+ 
+       if (!found) {
++        /* Validate that we don't exceed array bounds */
++        if (sched_ctrl->dl_lc_num >= MAX_LC_NUM) {
++          LOG_E(NR_MAC, "Cannot add LCID %d: maximum number of logical channels (%d) reached\n",
++                lcid, MAX_LC_NUM);
++          continue;
++        }
++        
+         sched_ctrl->dl_lc_num++;
+         sched_ctrl->dl_lc_ids[sched_ctrl->dl_lc_num - 1] = lcid;
+         LOG_D(NR_MAC, "Adding LCID %d (%s %d)\n", lcid, lcid < 4 ? "SRB" : "DRB", lcid);
+@@ -92,9 +124,9 @@ static void process_rlcBearerConfig(struct NR_CellGroupConfig__rlc_BearerToAddMo
+     }
+   }
+ 
+-  LOG_D(NR_MAC, "In %s: total num of active bearers %d) \n",
++  LOG_D(NR_MAC, "In %s: total num of active bearers %d (max %d)\n",
+       __FUNCTION__,
+-      sched_ctrl->dl_lc_num);
++      sched_ctrl->dl_lc_num, MAX_LC_NUM);
+ 
+ }
+ 

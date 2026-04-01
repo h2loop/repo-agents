@@ -1,0 +1,9 @@
+{
+  "run_id": "s00313_47e148",
+  "pr_text": "## Title: Remove AssertFatal from unimplemented E1AP notification function\n\n### Summary\nThe stub function `e1apCUUP_send_BEARER_CONTEXT_INACTIVITY_NOTIFICATION` unconditionally calls `AssertFatal`, which terminates execution and renders all downstream code paths unreachable. This prevents proper error handling in calling code and makes the function unsafe to call even in non-critical paths. Since this is an unimplemented feature, it should return an error code to allow graceful degradation rathe",
+  "trajectory_path": "data/raw/s00313_47e148_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00313_47e148_p2.diff",
+  "patch_lines": 0,
+  "trajectory_steps": 9,
+  "timestamp": "2026-02-11T14:22:05Z"
+}

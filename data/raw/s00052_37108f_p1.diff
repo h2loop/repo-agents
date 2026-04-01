@@ -1,0 +1,52 @@
+diff --git a/nfapi/open-nFAPI/pnf/src/pnf.c b/nfapi/open-nFAPI/pnf/src/pnf.c
+index f16fd776d2..583d7612cd 100644
+--- a/nfapi/open-nFAPI/pnf/src/pnf.c
++++ b/nfapi/open-nFAPI/pnf/src/pnf.c
+@@ -1861,6 +1861,7 @@ int pnf_connect(pnf_t* pnf)
+ 			if (setsockopt(pnf->p5_sock, IPPROTO_SCTP, SCTP_INITMSG, &initMsg, sizeof(initMsg)) < 0)
+ 			{
+ 				NFAPI_TRACE(NFAPI_TRACE_ERROR, "After setsockopt errno: %d\n", errno);
++				close(pnf->p5_sock);
+ 				freeaddrinfo(servinfo);
+ 				return -1;
+ 			}
+@@ -1868,6 +1869,7 @@ int pnf_connect(pnf_t* pnf)
+ 			if (setsockopt(pnf->p5_sock, IPPROTO_SCTP, SCTP_NODELAY, &noDelay, sizeof(noDelay)) < 0)
+ 			{
+ 				NFAPI_TRACE(NFAPI_TRACE_ERROR, "After setsockopt errno: %d\n", errno);
++				close(pnf->p5_sock);
+ 				freeaddrinfo(servinfo);
+ 				return -1;
+ 
+@@ -1880,6 +1882,7 @@ int pnf_connect(pnf_t* pnf)
+ 			if(setsockopt(pnf->p5_sock, SOL_SCTP, SCTP_EVENTS, (const void *)&events, sizeof(events)) < 0)
+ 			{
+ 				NFAPI_TRACE(NFAPI_TRACE_ERROR, "After setsockopt errno: %d\n", errno);
++				close(pnf->p5_sock);
+ 				freeaddrinfo(servinfo);
+ 				return -1;
+ 			}
+@@ -1904,6 +1907,7 @@ int pnf_connect(pnf_t* pnf)
+ 
+ 			if(errno == EINVAL)
+ 			{
++				close(pnf->p5_sock);
+ 				freeaddrinfo(servinfo);
+ 				return -1;
+ 			}
+@@ -1911,6 +1915,7 @@ int pnf_connect(pnf_t* pnf)
+ 			{
+ 				if(pnf->terminate != 0)
+ 				{
++					close(pnf->p5_sock);
+ 					freeaddrinfo(servinfo);
+ 					return 0;
+ 				}
+@@ -1951,6 +1956,7 @@ int pnf_connect(pnf_t* pnf)
+ 		if (getsockopt(pnf->p5_sock, IPPROTO_SCTP, SCTP_STATUS, &status, &optLen) < 0)
+ 		{
+ 			NFAPI_TRACE(NFAPI_TRACE_ERROR, "After getsockopt errno: %d\n", errno);
++			close(pnf->p5_sock);
+ 			return -1;
+ 		}
+ 		else

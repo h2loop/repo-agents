@@ -1,0 +1,31 @@
+{
+  "run_id": "s00292_b20147",
+  "function": {
+    "name": "decode_pdn_disconnect_reject",
+    "file": "openair3/NAS/COMMON/ESM/MSG/PdnDisconnectReject.c",
+    "start_line": 32,
+    "end_line": 74,
+    "body_lines": 43,
+    "signature": "int decode_pdn_disconnect_reject(pdn_disconnect_reject_msg *pdn_disconnect_reject, uint8_t *buffer, uint32_t len)",
+    "subsystem": "openair3/NAS/COMMON",
+    "token_estimate": 151
+  },
+  "bug": {
+    "bug_id": "telecom_timer_race",
+    "description": "race condition between timer expiry handler and normal message processing",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a race condition between timer expiry handler and normal message processing downstream of function decode_pdn_disconnect_reject in the openair3/NAS/COMMON subsystem.\nThe function is located at openair3/NAS/COMMON/ESM/MSG/PdnDisconnectReject.c:32.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00292_b20147_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00292_b20147_p1.diff",
+  "patch_lines": 16,
+  "trajectory_steps": 71,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T14:10:30Z"
+}

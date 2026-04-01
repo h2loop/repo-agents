@@ -1,0 +1,160 @@
+diff --git a/common/utils/time_manager/time_source.c b/common/utils/time_manager/time_source.c
+index 02a7ce0fa6..4d6322d37c 100644
+--- a/common/utils/time_manager/time_source.c
++++ b/common/utils/time_manager/time_source.c
+@@ -57,44 +57,148 @@ typedef struct {
+ static void init_mutex(time_source_common_t *t)
+ {
+   int ret = pthread_mutex_init(&t->mutex, NULL);
+-  DevAssert(ret == 0);
++  if (ret != 0) {
++    fprintf(stderr, "pthread_mutex_init failed with error %d\n", ret);
++    switch (ret) {
++      case EINVAL:
++        fprintf(stderr, "EINVAL: Mutex attributes are invalid\n");
++        break;
++      case ENOMEM:
++        fprintf(stderr, "ENOMEM: Insufficient memory\n");
++        break;
++      default:
++        fprintf(stderr, "Unknown error code\n");
++        break;
++    }
++    // Don't crash the program, just log the error and continue
++  }
+ }
+ 
+ static void init_cond(time_source_common_t *t)
+ {
+   int ret = pthread_cond_init(&t->cond, NULL);
+-  DevAssert(ret == 0);
++  if (ret != 0) {
++    fprintf(stderr, "pthread_cond_init failed with error %d\n", ret);
++    switch (ret) {
++      case EINVAL:
++        fprintf(stderr, "EINVAL: Condition variable attributes are invalid\n");
++        break;
++      case ENOMEM:
++        fprintf(stderr, "ENOMEM: Insufficient memory\n");
++        break;
++      default:
++        fprintf(stderr, "Unknown error code\n");
++        break;
++    }
++    // Don't crash the program, just log the error and continue
++  }
+ }
+ 
+ static void lock(time_source_common_t *t)
+ {
+   int ret = pthread_mutex_lock(&t->mutex);
+-  DevAssert(ret == 0);
++  if (ret != 0) {
++    fprintf(stderr, "pthread_mutex_lock failed with error %d\n", ret);
++    // Handle specific error cases
++    switch (ret) {
++      case EINVAL:
++        fprintf(stderr, "EINVAL: Mutex is not initialized or is corrupted\n");
++        break;
++      case EAGAIN:
++        fprintf(stderr, "EAGAIN: The mutex could not be acquired\n");
++        break;
++      case EDEADLK:
++        fprintf(stderr, "EDEADLK: A deadlock was detected\n");
++        break;
++      default:
++        fprintf(stderr, "Unknown error code\n");
++        break;
++    }
++    // Don't crash the program, just log the error and continue
++  }
+ }
+ 
+ static void unlock(time_source_common_t *t)
+ {
+   int ret = pthread_mutex_unlock(&t->mutex);
+-  DevAssert(ret == 0);
++  if (ret != 0) {
++    fprintf(stderr, "pthread_mutex_unlock failed with error %d\n", ret);
++    // Handle specific error cases
++    switch (ret) {
++      case EINVAL:
++        fprintf(stderr, "EINVAL: Mutex is not initialized or is corrupted\n");
++        break;
++      case EPERM:
++        fprintf(stderr, "EPERM: Thread does not own the mutex\n");
++        break;
++      case EAGAIN:
++        fprintf(stderr, "EAGAIN: The mutex could not be acquired\n");
++        break;
++      default:
++        fprintf(stderr, "Unknown error code\n");
++        break;
++    }
++    // Don't crash the program, just log the error and continue
++    // This allows the calling function to potentially handle the error
++  }
+ }
+ 
+ static void condwait(time_source_common_t *t)
+ {
+   int ret = pthread_cond_wait(&t->cond, &t->mutex);
+-  DevAssert(ret == 0);
++  if (ret != 0) {
++    fprintf(stderr, "pthread_cond_wait failed with error %d\n", ret);
++    switch (ret) {
++      case EINVAL:
++        fprintf(stderr, "EINVAL: Condition variable or mutex is invalid\n");
++        break;
++      case EPERM:
++        fprintf(stderr, "EPERM: Mutex not owned by thread\n");
++        break;
++      default:
++        fprintf(stderr, "Unknown error code\n");
++        break;
++    }
++    // Don't crash the program, just log the error and continue
++  }
+ }
+ 
+ static void condsignal(time_source_common_t *t)
+ {
+   int ret = pthread_cond_signal(&t->cond);
+-  DevAssert(ret == 0);
++  if (ret != 0) {
++    fprintf(stderr, "pthread_cond_signal failed with error %d\n", ret);
++    if (ret == EINVAL) {
++      fprintf(stderr, "EINVAL: Condition variable is invalid\n");
++    } else {
++      fprintf(stderr, "Unknown error code\n");
++    }
++    // Don't crash the program, just log the error and continue
++  }
+ }
+ 
+ static void wait_thread_termination(time_source_common_t *t)
+ {
+   void *retval;
+   int ret = pthread_join(t->thread_id, &retval);
+-  DevAssert(ret == 0);
++  if (ret != 0) {
++    fprintf(stderr, "pthread_join failed with error %d\n", ret);
++    switch (ret) {
++      case EINVAL:
++        fprintf(stderr, "EINVAL: Thread is not joinable or another thread is already waiting\n");
++        break;
++      case ESRCH:
++        fprintf(stderr, "ESRCH: No thread found with given ID\n");
++        break;
++      case EDEADLK:
++        fprintf(stderr, "EDEADLK: A deadlock was detected\n");
++        break;
++      default:
++        fprintf(stderr, "Unknown error code\n");
++        break;
++    }
++    // Don't crash the program, just log the error and continue
++  }
+ }
+ 
+ static struct timespec next_ms(struct timespec t)

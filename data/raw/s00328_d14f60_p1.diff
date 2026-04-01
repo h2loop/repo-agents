@@ -1,0 +1,29 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
+index 6dadbc412b..bf9523d2a7 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
+@@ -500,10 +500,20 @@ NR_pusch_dmrs_t get_ul_dmrs_params(const NR_ServingCellConfigCommon_t *scc,
+   else
+     dmrs.num_dmrs_cdm_grps_no_data = 2;
+ 
+-  NR_DMRS_UplinkConfig_t *NR_DMRS_UplinkConfig = ul_bwp->pusch_Config ?
+-                                                 (tda_info->mapping_type == typeA ?
+-                                                 ul_bwp->pusch_Config->dmrs_UplinkForPUSCH_MappingTypeA->choice.setup :
+-                                                 ul_bwp->pusch_Config->dmrs_UplinkForPUSCH_MappingTypeB->choice.setup) : NULL;
++  NR_DMRS_UplinkConfig_t *NR_DMRS_UplinkConfig = NULL;
++  if (ul_bwp->pusch_Config) {
++    if (tda_info->mapping_type == typeA) {
++      if (ul_bwp->pusch_Config->dmrs_UplinkForPUSCH_MappingTypeA != NULL &&
++          ul_bwp->pusch_Config->dmrs_UplinkForPUSCH_MappingTypeA->choice.setup != NULL) {
++        NR_DMRS_UplinkConfig = ul_bwp->pusch_Config->dmrs_UplinkForPUSCH_MappingTypeA->choice.setup;
++      }
++    } else {
++      if (ul_bwp->pusch_Config->dmrs_UplinkForPUSCH_MappingTypeB != NULL &&
++          ul_bwp->pusch_Config->dmrs_UplinkForPUSCH_MappingTypeB->choice.setup != NULL) {
++        NR_DMRS_UplinkConfig = ul_bwp->pusch_Config->dmrs_UplinkForPUSCH_MappingTypeB->choice.setup;
++      }
++    }
++  }
+ 
+   dmrs.dmrs_config_type = NR_DMRS_UplinkConfig && NR_DMRS_UplinkConfig->dmrs_Type ? 1 : 0;
+ 

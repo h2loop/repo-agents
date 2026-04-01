@@ -1,0 +1,32 @@
+{
+  "run_id": "s00230_34be7b",
+  "function": {
+    "name": "MCE_handle_MBMS_SESSION_START_REQUEST",
+    "file": "openair3/M3AP/m3ap_MCE_interface_management.c",
+    "start_line": 60,
+    "end_line": 91,
+    "body_lines": 32,
+    "signature": "int MCE_handle_MBMS_SESSION_START_REQUEST(instance_t instance, sctp_assoc_t assoc_id, uint32_t stream, M3AP_M3AP_PDU_t *pdu)",
+    "subsystem": "openair3/M3AP",
+    "token_estimate": 98
+  },
+  "bug": {
+    "bug_id": "telecom_missing_optional_field",
+    "description": "missing optional field that is conditionally mandatory per 3GPP specification",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a missing optional field that is conditionally mandatory per 3GPP specification downstream of function MCE_handle_MBMS_SESSION_START_REQUEST in the openair3/M3AP subsystem.\nThe function is located at openair3/M3AP/m3ap_MCE_interface_management.c:60.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00230_34be7b_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00230_34be7b_p1.diff",
+  "patch_lines": 91,
+  "trajectory_steps": 28,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:59:43Z"
+}

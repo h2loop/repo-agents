@@ -1,0 +1,46 @@
+diff --git a/openair3/NAS/COMMON/EMM/MSG/GutiReallocationComplete.c b/openair3/NAS/COMMON/EMM/MSG/GutiReallocationComplete.c
+index 16083176ae..4875e21626 100644
+--- a/openair3/NAS/COMMON/EMM/MSG/GutiReallocationComplete.c
++++ b/openair3/NAS/COMMON/EMM/MSG/GutiReallocationComplete.c
+@@ -28,12 +28,22 @@
+ #include "TLVEncoder.h"
+ #include "TLVDecoder.h"
+ #include "GutiReallocationComplete.h"
++#include "nas_log.h"
+ 
+ int decode_guti_reallocation_complete(guti_reallocation_complete_msg *guti_reallocation_complete, uint8_t *buffer, uint32_t len)
+ {
+   uint32_t decoded = 0;
+   // Check if we got a NULL pointer and if buffer length is >= minimum length expected for the message.
+-  CHECK_PDU_POINTER_AND_LENGTH_DECODER(buffer, GUTI_REALLOCATION_COMPLETE_MINIMUM_LENGTH, len);
++  if (buffer == NULL) {
++    LOG_TRACE(ERROR, "decode_guti_reallocation_complete: Got NULL pointer for the payload");
++    return TLV_DECODE_BUFFER_NULL;
++  }
++  
++  if (len < GUTI_REALLOCATION_COMPLETE_MINIMUM_LENGTH) {
++    LOG_TRACE(ERROR, "decode_guti_reallocation_complete: Expecting at least %d bytes, got %u", 
++              GUTI_REALLOCATION_COMPLETE_MINIMUM_LENGTH, len);
++    return TLV_DECODE_BUFFER_TOO_SHORT;
++  }
+ 
+   /* Decoding mandatory fields */
+   return decoded;
+@@ -43,7 +53,16 @@ int encode_guti_reallocation_complete(guti_reallocation_complete_msg *guti_reall
+ {
+   int encoded = 0;
+   /* Checking IEI and pointer */
+-  CHECK_PDU_POINTER_AND_LENGTH_ENCODER(buffer, GUTI_REALLOCATION_COMPLETE_MINIMUM_LENGTH, len);
++  if (buffer == NULL) {
++    LOG_TRACE(ERROR, "encode_guti_reallocation_complete: Got NULL pointer for the payload");
++    return TLV_ENCODE_BUFFER_NULL;
++  }
++  
++  if (len < GUTI_REALLOCATION_COMPLETE_MINIMUM_LENGTH) {
++    LOG_TRACE(ERROR, "encode_guti_reallocation_complete: Expecting at least %d bytes, got %u", 
++              GUTI_REALLOCATION_COMPLETE_MINIMUM_LENGTH, len);
++    return TLV_ENCODE_BUFFER_TOO_SHORT;
++  }
+ 
+   return encoded;
+ }

@@ -1,0 +1,32 @@
+{
+  "run_id": "s00042_bd28e0",
+  "function": {
+    "name": "ptrs_estimate_from_slope",
+    "file": "openair1/PHY/NR_REFSIG/ptrs_nr.c",
+    "start_line": 357,
+    "end_line": 368,
+    "body_lines": 12,
+    "signature": "void ptrs_estimate_from_slope(int16_t *error_est, double *slope_p, uint8_t start, uint8_t end)",
+    "subsystem": "openair1/PHY/NR_REFSIG",
+    "token_estimate": 58
+  },
+  "bug": {
+    "bug_id": "telecom_config_layer_mismatch",
+    "description": "configuration mismatch between protocol layers causing inconsistent behavior",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC"
+    ]
+  },
+  "prompt": "There is a configuration mismatch between protocol layers causing inconsistent behavior downstream of function ptrs_estimate_from_slope in the openair1/PHY/NR_REFSIG subsystem.\nThe function is located at openair1/PHY/NR_REFSIG/ptrs_nr.c:357.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00042_bd28e0_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00042_bd28e0_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 21,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T09:22:57Z"
+}

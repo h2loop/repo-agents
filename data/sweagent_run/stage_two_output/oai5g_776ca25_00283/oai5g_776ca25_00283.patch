@@ -1,0 +1,17 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
+index 264150f314..6cfb71eec9 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
+@@ -3458,8 +3458,10 @@ void nr_mac_clean_cellgroup(NR_CellGroupConfig_t *cell_group)
+     cell_group->rlc_BearerToReleaseList = NULL;
+   }
+   /* remove reestablishRLC, we don't need it anymore */
+-  for (int i = 0; i < cell_group->rlc_BearerToAddModList->list.count; ++i)
+-    free_and_zero(cell_group->rlc_BearerToAddModList->list.array[i]->reestablishRLC);
++  if (cell_group->rlc_BearerToAddModList != NULL) {
++    for (int i = 0; i < cell_group->rlc_BearerToAddModList->list.count; ++i)
++      free_and_zero(cell_group->rlc_BearerToAddModList->list.array[i]->reestablishRLC);
++  }
+ }
+ 
+ int nr_mac_get_reconfig_delay_slots(NR_SubcarrierSpacing_t scs)

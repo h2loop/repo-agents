@@ -1,0 +1,4 @@
+{
+    "is_good_patch": false,
+    "synth_pr": "\n## Title: Fix magic number usage in RRC reconfiguration trigger for handover\n\n### Summary\nThe `rrc_gNB_trigger_reconfiguration_for_handover` function and related code was using magic number 0 for BWP ID parameters without symbolic constants. This makes the intent unclear and is error-prone for maintenance. \n\nThe value 0 indicates \"no BWP change should be applied\" but this wasn't obvious from the code. Added `NR_BWP_ID_NO_CHANGE` constant and updated function calls and documentation.\n\n### Changes\n- `openair2/RRC/NR/nr_rrc_defs.h`: Added `NR_BWP_ID_NO_CHANGE` symbolic constant\n- `openair2/RRC/NR/rrc_gNB.c`: Replaced magic number 0 with `NR_BWP_ID_NO_CHANGE` in function call\n- `openair2/RRC/NR/nr_rrc_proto.h`: Added documentation for `nr_rrc_reconfiguration_req` parameters\n\n"
+}

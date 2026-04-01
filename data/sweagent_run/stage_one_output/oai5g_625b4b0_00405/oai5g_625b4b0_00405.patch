@@ -1,0 +1,205 @@
+diff --git a/openair2/M2AP/m2ap_eNB_management_procedures.c b/openair2/M2AP/m2ap_eNB_management_procedures.c
+index 014ecf08d8..1f5f51ebcf 100644
+--- a/openair2/M2AP/m2ap_eNB_management_procedures.c
++++ b/openair2/M2AP/m2ap_eNB_management_procedures.c
+@@ -29,6 +29,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <stdint.h>
++#include <pthread.h>
+ 
+ #include "intertask_interface.h"
+ 
+@@ -51,6 +52,7 @@ static int                  indent = 0;
+ 
+ 
+ m2ap_eNB_internal_data_t m2ap_eNB_internal_data;
++static pthread_mutex_t m2ap_eNB_internal_data_mutex = PTHREAD_MUTEX_INITIALIZER;
+ 
+ RB_GENERATE(m2ap_enb_map, m2ap_eNB_data_s, entry, m2ap_eNB_compare_assoc_id);
+ 
+@@ -125,7 +127,7 @@ printf("---------------------------------------------\n");
+ struct m2ap_eNB_data_s *m2ap_get_eNB(m2ap_eNB_instance_t *instance_p, sctp_assoc_t assoc_id, uint16_t cnx_id)
+ {
+   struct m2ap_eNB_data_s  temp;
+-  struct m2ap_eNB_data_s *found;
++  struct m2ap_eNB_data_s *found = NULL;
+ 
+ printf("m2ap_get_eNB at 1 (looking for assoc_id %d cnx_id %d)\n", assoc_id, cnx_id);
+ dump_trees_m2();
+@@ -135,36 +137,56 @@ dump_trees_m2();
+   temp.assoc_id = assoc_id;
+   temp.cnx_id   = cnx_id;
+ 
++  if (pthread_mutex_lock(&m2ap_eNB_internal_data_mutex)) {
++    M2AP_ERROR("Failed to lock mutex in m2ap_get_eNB");
++    return NULL;
++  }
++
+   if (instance_p == NULL) {
+     STAILQ_FOREACH(instance_p, &m2ap_eNB_internal_data.m2ap_eNB_instances_head,
+                    m2ap_eNB_entries) {
+       found = RB_FIND(m2ap_enb_map, &instance_p->m2ap_enb_head, &temp);
+ 
+       if (found != NULL) {
+-        return found;
++        goto unlock_and_return;
+       }
+     }
+   } else {
+-    return RB_FIND(m2ap_enb_map, &instance_p->m2ap_enb_head, &temp);
++    found = RB_FIND(m2ap_enb_map, &instance_p->m2ap_enb_head, &temp);
+   }
+ 
+-  return NULL;
++unlock_and_return:
++  if (pthread_mutex_unlock(&m2ap_eNB_internal_data_mutex)) {
++    M2AP_ERROR("Failed to unlock mutex in m2ap_get_eNB");
++  }
++  return found;
+ }
+ 
+ 
+ m2ap_eNB_instance_t *m2ap_eNB_get_instance(instance_t instance)
+ {
+   m2ap_eNB_instance_t *temp = NULL;
++  m2ap_eNB_instance_t *result = NULL;
++
++  if (pthread_mutex_lock(&m2ap_eNB_internal_data_mutex)) {
++    M2AP_ERROR("Failed to lock mutex in m2ap_eNB_get_instance");
++    return NULL;
++  }
+ 
+   STAILQ_FOREACH(temp, &m2ap_eNB_internal_data.m2ap_eNB_instances_head,
+                  m2ap_eNB_entries) {
+     if (temp->instance == instance) {
+       /* Matching occurence */
+-      return temp;
++      result = temp;
++      goto unlock_and_return;
+     }
+   }
+ 
+-  return NULL;
++unlock_and_return:
++  if (pthread_mutex_unlock(&m2ap_eNB_internal_data_mutex)) {
++    M2AP_ERROR("Failed to unlock mutex in m2ap_eNB_get_instance");
++  }
++  return result;
+ }
+ 
+ /// utility functions
+@@ -179,10 +201,19 @@ m2ap_dump_eNB_list (void) {
+ 
+    memset(&temp, 0, sizeof(struct m2ap_eNB_data_s));
+ 
++   if (pthread_mutex_lock(&m2ap_eNB_internal_data_mutex)) {
++     M2AP_ERROR("Failed to lock mutex in m2ap_dump_eNB_list");
++     return;
++   }
++
+   STAILQ_FOREACH (inst, &m2ap_eNB_internal_data.m2ap_eNB_instances_head,  m2ap_eNB_entries) {
+     found = RB_FIND(m2ap_enb_map, &inst->m2ap_enb_head, &temp);
+     m2ap_dump_eNB (found);
+   }
++
++  if (pthread_mutex_unlock(&m2ap_eNB_internal_data_mutex)) {
++    M2AP_ERROR("Failed to unlock mutex in m2ap_dump_eNB_list");
++  }
+ }
+ 
+ void m2ap_dump_eNB (m2ap_eNB_data_t  * eNB_ref) {
+@@ -207,31 +238,56 @@ m2ap_eNB_data_t  * m2ap_is_eNB_pci_in_list (const uint32_t pci)
+ {
+   m2ap_eNB_instance_t    *inst;
+   struct m2ap_eNB_data_s *elm;
++  m2ap_eNB_data_t *result = NULL;
++
++  if (pthread_mutex_lock(&m2ap_eNB_internal_data_mutex)) {
++    M2AP_ERROR("Failed to lock mutex in m2ap_is_eNB_pci_in_list");
++    return NULL;
++  }
+ 
+   STAILQ_FOREACH(inst, &m2ap_eNB_internal_data.m2ap_eNB_instances_head, m2ap_eNB_entries) {
+     RB_FOREACH(elm, m2ap_enb_map, &inst->m2ap_enb_head) {
+       for (int i = 0; i<elm->num_cc; i++) {
+         if (elm->Nid_cell[i] == pci) {
+-          return elm;
++          result = elm;
++          goto unlock_and_return;
+         }
+       }
+     }
+   }
+-  return NULL;
++
++unlock_and_return:
++  if (pthread_mutex_unlock(&m2ap_eNB_internal_data_mutex)) {
++    M2AP_ERROR("Failed to unlock mutex in m2ap_is_eNB_pci_in_list");
++  }
++  return result;
+ }
+ 
+ m2ap_eNB_data_t  * m2ap_is_eNB_id_in_list (const uint32_t eNB_id)
+ {
+   m2ap_eNB_instance_t    *inst;
+   struct m2ap_eNB_data_s *elm;
++  m2ap_eNB_data_t *result = NULL;
++
++  if (pthread_mutex_lock(&m2ap_eNB_internal_data_mutex)) {
++    M2AP_ERROR("Failed to lock mutex in m2ap_is_eNB_id_in_list");
++    return NULL;
++  }
+ 
+   STAILQ_FOREACH(inst, &m2ap_eNB_internal_data.m2ap_eNB_instances_head, m2ap_eNB_entries) {
+     RB_FOREACH(elm, m2ap_enb_map, &inst->m2ap_enb_head) {
+-      if (elm->eNB_id == eNB_id)
+-        return elm;
++      if (elm->eNB_id == eNB_id) {
++        result = elm;
++        goto unlock_and_return;
++      }
+     }
+   }
+-  return NULL;
++
++unlock_and_return:
++  if (pthread_mutex_unlock(&m2ap_eNB_internal_data_mutex)) {
++    M2AP_ERROR("Failed to unlock mutex in m2ap_is_eNB_id_in_list");
++  }
++  return result;
+ }
+ 
+ m2ap_eNB_data_t  * m2ap_is_eNB_assoc_id_in_list (const uint32_t sctp_assoc_id)
+@@ -239,17 +295,29 @@ m2ap_eNB_data_t  * m2ap_is_eNB_assoc_id_in_list (const uint32_t sctp_assoc_id)
+   m2ap_eNB_instance_t    *inst;
+   struct m2ap_eNB_data_s *found;
+   struct m2ap_eNB_data_s temp;
++  m2ap_eNB_data_t *result = NULL;
+ 
+   temp.assoc_id = sctp_assoc_id;
+   temp.cnx_id = -1;
+ 
++  if (pthread_mutex_lock(&m2ap_eNB_internal_data_mutex)) {
++    M2AP_ERROR("Failed to lock mutex in m2ap_is_eNB_assoc_id_in_list");
++    return NULL;
++  }
++
+   STAILQ_FOREACH(inst, &m2ap_eNB_internal_data.m2ap_eNB_instances_head, m2ap_eNB_entries) {
+     found = RB_FIND(m2ap_enb_map, &inst->m2ap_enb_head, &temp);
+     if (found != NULL){
+       if (found->assoc_id == sctp_assoc_id) {
+-	return found;
++        result = found;
++        goto unlock_and_return;
+       }
+     }
+   }
+-  return NULL;
++
++unlock_and_return:
++  if (pthread_mutex_unlock(&m2ap_eNB_internal_data_mutex)) {
++    M2AP_ERROR("Failed to unlock mutex in m2ap_is_eNB_assoc_id_in_list");
++  }
++  return result;
+ }

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix missing minimum length check in NAS message container decoder\n\n### Summary\nThe `decode_nas_message_container` function in the NAS IES module was missing a critical minimum length validation that was present in its encoding counterpart. This inconsistency could lead to buffer overreads when processing malformed or truncated NAS messages.\n\nThe issue manifests when the UE receives a NAS message container with an insufficient payload length. Without the proper length check, the decoder attempts to access memory beyond the buffer boundaries, potentially causing a segmentation fault or undefined behavior.\n\nThis fix adds the missing minimum length validation using the existing `NAS_MESSAGE_CONTAINER_MINIMUM_LENGTH` symbolic constant, making the decoder consistent with the encoder.\n\n### Changes\n- `openair3/NAS/COMMON/IES/NasMessageContainer.c`: Added missing minimum length check in decode function\n"
+}

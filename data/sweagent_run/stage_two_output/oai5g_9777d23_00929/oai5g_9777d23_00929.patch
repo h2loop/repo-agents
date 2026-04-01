@@ -1,0 +1,280 @@
+diff --git a/nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c b/nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c
+index 3315ee2a4c..791d6acb42 100644
+--- a/nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c
++++ b/nfapi/open-nFAPI/fapi/src/nr_fapi_p7.c
+@@ -2134,16 +2134,23 @@ static uint8_t unpack_nr_uci_pucch_2_3_4(nfapi_nr_uci_pucch_pdu_format_2_3_4_t *
+   if (value->pduBitmap & 0x01) { // SR
+     if (!pull16(ppReadPackedMsg, &value->sr.sr_bit_len, end))
+       return 0;
+-    const uint16_t sr_len = value->sr.sr_bit_len / 8 + 1;
+-    value->sr.sr_payload = calloc(sr_len, sizeof(*value->sr.sr_payload));
++    // Extract SR indication from payload[0] bit 0
++    value->sr.sr_indication = 0; // Default to no SR
++    if (value->sr.sr_bit_len > 0) {
++      const uint16_t sr_len = value->sr.sr_bit_len / 8 + 1;
++      value->sr.sr_payload = calloc(sr_len, sizeof(*value->sr.sr_payload));
++
++      if (value->sr.sr_payload == NULL) {
++        NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s failed to allocate value->sr.sr_payload\n", __FUNCTION__);
++        return 0;
++      }
+ 
+-    if (value->sr.sr_payload == NULL) {
+-      NFAPI_TRACE(NFAPI_TRACE_ERROR, "%s failed to allocate value->sr.sr_payload\n", __FUNCTION__);
+-      return 0;
++      if (!pullarray8(ppReadPackedMsg, value->sr.sr_payload, sr_len, sr_len, end))
++        return 0;
++      
++      // Extract SR indication from the first bit of the payload
++      value->sr.sr_indication = (value->sr.sr_payload[0] & 0x01);
+     }
+-
+-    if (!pullarray8(ppReadPackedMsg, value->sr.sr_payload, sr_len, sr_len, end))
+-      return 0;
+   }
+ 
+   if ((value->pduBitmap >> 1) & 0x01) { // HARQ
+diff --git a/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c b/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c
+index fb645707ad..f10f24801f 100644
+--- a/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c
++++ b/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c
+@@ -1656,6 +1656,7 @@ void copy_uci_indication_sr_pdu_0_1(const nfapi_nr_sr_pdu_0_1_t *src, nfapi_nr_s
+ void copy_uci_indication_sr_pdu_2_3_4(const nfapi_nr_sr_pdu_2_3_4_t *src, nfapi_nr_sr_pdu_2_3_4_t *dst)
+ {
+   dst->sr_bit_len = src->sr_bit_len;
++  dst->sr_indication = src->sr_indication;
+   const uint16_t sr_len = (dst->sr_bit_len / 8) + 1;
+   dst->sr_payload = calloc(sr_len, sizeof(*dst->sr_payload));
+   for (int i = 0; i < sr_len; ++i) {
+diff --git a/nfapi/open-nFAPI/nfapi/public_inc/nfapi_nr_interface_scf.h b/nfapi/open-nFAPI/nfapi/public_inc/nfapi_nr_interface_scf.h
+index 10e6b7c14a..ba885e3b1e 100644
+--- a/nfapi/open-nFAPI/nfapi/public_inc/nfapi_nr_interface_scf.h
++++ b/nfapi/open-nFAPI/nfapi/public_inc/nfapi_nr_interface_scf.h
+@@ -269,7 +269,7 @@ typedef struct
+ //3.3.2 CONFIG
+ 
+ /*typedef struct {
+-	nfapi_nr_config_errors_e error_code;
++        nfapi_nr_config_errors_e error_code;
+   uint8_t number_of_invalid_tlvs_that_can_only_be_configured_in_idle;
+   uint8_t unmber_of_missing_tlvs;
+   //? ↓
+@@ -533,59 +533,59 @@ typedef enum {    // Table 2-27
+ 
+ //PNF P5 NR 
+ typedef struct {
+-	nfapi_nr_p4_p5_message_header_t header;
+-	nfapi_vendor_extension_tlv_t vendor_extension;
++        nfapi_nr_p4_p5_message_header_t header;
++        nfapi_vendor_extension_tlv_t vendor_extension;
+ } nfapi_nr_pnf_param_request_t;
+ 
+ typedef struct {
+-	nfapi_nr_p4_p5_message_header_t header;
+-	uint8_t error_code;
++        nfapi_nr_p4_p5_message_header_t header;
++        uint8_t error_code;
+   uint8_t num_tlvs;
+-	nfapi_pnf_param_general_t pnf_param_general;
+-	nfapi_pnf_phy_t pnf_phy;
+-	nfapi_vendor_extension_tlv_t vendor_extension;
++        nfapi_pnf_param_general_t pnf_param_general;
++        nfapi_pnf_phy_t pnf_phy;
++        nfapi_vendor_extension_tlv_t vendor_extension;
+ } nfapi_nr_pnf_param_response_t;
+ 
+ typedef struct {
+-	nfapi_nr_p4_p5_message_header_t header;
+-	uint8_t num_tlvs;
+-	nfapi_pnf_phy_rf_config_t pnf_phy_rf_config;
+-	nfapi_vendor_extension_tlv_t vendor_extension;
++        nfapi_nr_p4_p5_message_header_t header;
++        uint8_t num_tlvs;
++        nfapi_pnf_phy_rf_config_t pnf_phy_rf_config;
++        nfapi_vendor_extension_tlv_t vendor_extension;
+ } nfapi_nr_pnf_config_request_t;
+ 
+ typedef struct {
+-	nfapi_nr_p4_p5_message_header_t header;
+-	uint8_t error_code;
+-	nfapi_vendor_extension_tlv_t vendor_extension;
++        nfapi_nr_p4_p5_message_header_t header;
++        uint8_t error_code;
++        nfapi_vendor_extension_tlv_t vendor_extension;
+ } nfapi_nr_pnf_config_response_t;
+ 
+ typedef struct {
+-	nfapi_nr_p4_p5_message_header_t header;
+-	nfapi_vendor_extension_tlv_t vendor_extension;
++        nfapi_nr_p4_p5_message_header_t header;
++        nfapi_vendor_extension_tlv_t vendor_extension;
+ } nfapi_nr_pnf_start_request_t;
+ 
+ typedef struct {
+-	nfapi_nr_p4_p5_message_header_t header;
+-	uint32_t error_code;
+-	nfapi_vendor_extension_tlv_t vendor_extension;
++        nfapi_nr_p4_p5_message_header_t header;
++        uint32_t error_code;
++        nfapi_vendor_extension_tlv_t vendor_extension;
+ } nfapi_nr_pnf_start_response_t;
+ 
+ typedef struct {
+-	nfapi_nr_p4_p5_message_header_t header;
+-	nfapi_vendor_extension_tlv_t vendor_extension;
++        nfapi_nr_p4_p5_message_header_t header;
++        nfapi_vendor_extension_tlv_t vendor_extension;
+ } nfapi_nr_pnf_stop_request_t;
+ 
+ typedef struct {
+-	nfapi_nr_p4_p5_message_header_t header;
+-	uint32_t error_code;
+-	nfapi_vendor_extension_tlv_t vendor_extension;
++        nfapi_nr_p4_p5_message_header_t header;
++        uint32_t error_code;
++        nfapi_vendor_extension_tlv_t vendor_extension;
+ } nfapi_nr_pnf_stop_response_t;
+ 
+ 
+ /* PARAM.REQUEST */
+ typedef struct {
+   nfapi_nr_p4_p5_message_header_t  header;
+-	nfapi_vendor_extension_tlv_t  vendor_extension;
++        nfapi_vendor_extension_tlv_t  vendor_extension;
+ } nfapi_nr_param_request_scf_t;
+ 
+ /* PARAM.RESPONSE */
+@@ -667,8 +667,8 @@ typedef struct {
+ //3.3.3 START
+ 
+ typedef struct {
+-	nfapi_nr_p4_p5_message_header_t header;
+-	nfapi_vendor_extension_tlv_t vendor_extension;
++        nfapi_nr_p4_p5_message_header_t header;
++        nfapi_vendor_extension_tlv_t vendor_extension;
+ } nfapi_nr_start_request_scf_t;
+ 
+ typedef struct {
+@@ -1135,18 +1135,18 @@ typedef struct {
+ 
+ 
+ typedef struct {
+-	nfapi_nr_p7_message_header_t header;
+-	uint32_t t1;
+-	int32_t delta_sfn_slot;
+-	nfapi_vendor_extension_tlv_t vendor_extension;
++        nfapi_nr_p7_message_header_t header;
++        uint32_t t1;
++        int32_t delta_sfn_slot;
++        nfapi_vendor_extension_tlv_t vendor_extension;
+ } nfapi_nr_dl_node_sync_t;
+ 
+ typedef struct {
+-	nfapi_nr_p7_message_header_t header;
+-	uint32_t t1;
+-	uint32_t t2;
+-	uint32_t t3;	
+-	nfapi_vendor_extension_tlv_t vendor_extension;
++        nfapi_nr_p7_message_header_t header;
++        uint32_t t1;
++        uint32_t t2;
++        uint32_t t3;    
++        nfapi_vendor_extension_tlv_t vendor_extension;
+ } nfapi_nr_ul_node_sync_t;
+ 
+ typedef struct {
+@@ -1217,7 +1217,7 @@ typedef struct
+ 
+ //3.4.2 dl_tti_request
+ typedef struct {
+-	uint16_t sfn; //0->1023   
++        uint16_t sfn; //0->1023   
+   uint16_t slot;//0->319
+   uint8_t n_pdus;//Number of PDUs that are included in this message. All PDUs in the message are numbered in order. Value 0 -> 255
+   uint8_t n_group;//Number of UE Groups included in this message. Value 0 -> 255
+@@ -1610,7 +1610,7 @@ typedef struct
+ } nfapi_nr_tx_data_request_t;
+ 
+ typedef enum {
+-	NFAPI_NR_DL_DATA_MSG_INVALID_STATE,
++        NFAPI_NR_DL_DATA_MSG_INVALID_STATE,
+   NFAPI_NR_DL_DATA_MSG_INVALID_SFN,
+   NFAPI_NR_DL_DATA_MSG_TX_ERR
+ 
+@@ -1685,6 +1685,7 @@ typedef struct
+ typedef struct
+ {
+   uint16_t sr_bit_len;
++  uint8_t sr_indication;
+   //! fixme
+   uint8_t* sr_payload;//sr_payload[ceil(sr_bit_len/8)];
+ 
+diff --git a/nfapi/tests/p7/nr_fapi_uci_indication_test.c b/nfapi/tests/p7/nr_fapi_uci_indication_test.c
+index 53f8469325..dc1a924f1c 100644
+--- a/nfapi/tests/p7/nr_fapi_uci_indication_test.c
++++ b/nfapi/tests/p7/nr_fapi_uci_indication_test.c
+@@ -31,10 +31,19 @@ static void fill_uci_indication_sr_pdu_0_1(nfapi_nr_sr_pdu_0_1_t *pdu)
+ static void fill_uci_indication_sr_pdu_2_3_4(nfapi_nr_sr_pdu_2_3_4_t *pdu)
+ {
+   pdu->sr_bit_len = rand16_range(1, 8);
++  pdu->sr_indication = (pdu->sr_bit_len > 0) ? (rand8_range(0, 1)) : 0;
+   pdu->sr_payload = calloc(((pdu->sr_bit_len / 8) + 1), sizeof(*pdu->sr_payload));
+   for (int i = 0; i < (pdu->sr_bit_len / 8) + 1; ++i) {
+     pdu->sr_payload[i] = rand8();
+   }
++  // Set the first bit of the payload to match sr_indication
++  if (pdu->sr_bit_len > 0) {
++    if (pdu->sr_indication) {
++      pdu->sr_payload[0] |= 0x01;  // Set LSB to 1
++    } else {
++      pdu->sr_payload[0] &= 0xFE;  // Clear LSB to 0
++    }
++  }
+ }
+ 
+ static void fill_uci_indication_harq_pdu_0_1(nfapi_nr_harq_pdu_0_1_t *pdu)
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_uci.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_uci.c
+index ac0803e1e3..63eccd80f7 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_uci.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_uci.c
+@@ -53,9 +53,9 @@ static void nr_fill_nfapi_pucch(gNB_MAC_INST *nrmac, frame_t frame, slot_t slot,
+   if (future_ul_tti_req->n_pdus >= sizeofArray(future_ul_tti_req->pdus_list) ) {
+     LOG_E(NR_MAC,
+           "future_ul_tti_req->n_pdus %d is full, slot: %d, sr flag %d dropping request\n",
+-	  future_ul_tti_req->n_pdus,
+-	  pucch->ul_slot,
+-	  pucch->sr_flag);
++          future_ul_tti_req->n_pdus,
++          pucch->ul_slot,
++          pucch->sr_flag);
+     return;
+   }
+   future_ul_tti_req->pdus_list[future_ul_tti_req->n_pdus].pdu_type = NFAPI_NR_UL_CONFIG_PUCCH_PDU_TYPE;
+@@ -666,9 +666,9 @@ static void evaluate_cqi_report(uint8_t *payload,
+ 
+   uint8_t temp_cqi = pickandreverse_bits(payload, 4, cumul_bits);
+ 
+-  // NR_CSI_ReportConfig__cqi_Table_table1	= 0
+-  // NR_CSI_ReportConfig__cqi_Table_table2	= 1
+-  // NR_CSI_ReportConfig__cqi_Table_table3	= 2
++  // NR_CSI_ReportConfig__cqi_Table_table1      = 0
++  // NR_CSI_ReportConfig__cqi_Table_table2      = 1
++  // NR_CSI_ReportConfig__cqi_Table_table3      = 2
+   sched_ctrl->CSI_report.cri_ri_li_pmi_cqi_report.cqi_table = cqi_Table;
+   sched_ctrl->CSI_report.cri_ri_li_pmi_cqi_report.wb_cqi_1tb = temp_cqi;
+   LOG_D(MAC,"Wide-band CQI for the first TB %d\n", temp_cqi);
+@@ -998,8 +998,13 @@ void handle_nr_uci_pucch_2_3_4(module_id_t mod_id, frame_t frame, slot_t slot, c
+     sched_ctrl->tpc1 = nr_limit_tpc(sched_ctrl->tpc1, uci_234->rssi, rssi_threshold);
+   }
+ 
+-  // TODO: handle SR
++  // handle SR
+   if (uci_234->pduBitmap & 0x1) {
++    if (uci_234->sr.sr_indication && uci_234->ul_cqi >= 148) {
++      // SR detected with SNR >= 10dB
++      sched_ctrl->SR |= true;
++      LOG_D(NR_MAC, "SR UE %04x ul_cqi %d\n", uci_234->rnti, uci_234->ul_cqi);
++    }
+     free(uci_234->sr.sr_payload);
+   }
+ 

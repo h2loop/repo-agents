@@ -1,0 +1,189 @@
+diff --git a/openair2/RRC/LTE/rrc_UE.c b/openair2/RRC/LTE/rrc_UE.c
+index 2079b84438..6f38641f98 100644
+--- a/openair2/RRC/LTE/rrc_UE.c
++++ b/openair2/RRC/LTE/rrc_UE.c
+@@ -206,7 +206,7 @@ rrc_ue_process_MBMSCountingRequest(
+   const protocol_ctxt_t *const ctxt_pP,
+   LTE_MBMSCountingRequest_r10_t *MBMSCountingRequest,
+   uint8_t eNB_index
+-		);
++                );
+ 
+ static void process_nr_nsa_msg(nsa_msg_t *msg, int msg_len);
+ static void nsa_sendmsg_to_nrue(const void *message, size_t msg_len, Rrc_Msg_Type_t msg_type);
+@@ -2602,14 +2602,14 @@ const char *SIB2SoundingPresent( int value ) {
+   return "ERR";
+ }
+ const char *SIB2numberOfRA_Preambles( long value ) {
+-  static char temp[4] = {0};
+-
+   if (value < 0 || value > 15)
+     return "ERR";
+ 
+-  snprintf( temp, sizeof(temp), "n%ld", value*4 + 4 );
+-  temp[3] = 0; // terminate string
+-  return temp;
++  static const char * const str[16] = {
++    "n4", "n8", "n12", "n16", "n20", "n24", "n28", "n32",
++    "n36", "n40", "n44", "n48", "n52", "n56", "n60", "n64"
++  };
++  return str[value];
+ }
+ const char *SIB2powerRampingStep( long value ) {
+   if (value < 0 || value > 3)
+@@ -2619,84 +2619,59 @@ const char *SIB2powerRampingStep( long value ) {
+   return str[value];
+ }
+ const char *SIB2preambleInitialReceivedTargetPower( long value ) {
+-  static char temp[8] = {0};
+-
+   if (value < 0 || value > 15)
+     return "ERR";
+ 
+-  snprintf( temp, sizeof(temp), "dBm-%ld", 120 - value*2 );
+-  temp[7] = 0; // terminate string
+-  return temp;
++  static const char * const str[16] = {
++    "dBm-120", "dBm-118", "dBm-116", "dBm-114", "dBm-112", "dBm-110", "dBm-108", "dBm-106",
++    "dBm-104", "dBm-102", "dBm-100", "dBm-98", "dBm-96", "dBm-94", "dBm-92", "dBm-90"
++  };
++  return str[value];
+ }
+ const char *SIB2preambleTransMax( long value ) {
+-  static char temp[5] = {0};
+-
+   if (value < 0 || value > 10)
+     return "ERR";
+ 
+-  if (value <= 5) {
+-    snprintf( temp, sizeof(temp), "n%ld", value+3 );
+-    return temp;
+-  }
+-
+-  switch (value) {
+-    case 6:
+-      return "n10";
+-
+-    case 7:
+-      return "n20";
+-
+-    case 8:
+-      return "n50";
+-
+-    case 9:
+-      return "n100";
+-
+-    case 10:
+-      return "n200";
+-  }
+-
+-  /* unreachable but gcc warns... */
+-  return "ERR";
++  static const char * const str[11] = {
++    "n3", "n4", "n5", "n6", "n7", "n8", "n10", "n20", "n50", "n100", "n200"
++  };
++  return str[value];
+ }
+ const char *SIB2ra_ResponseWindowSize( long value ) {
+-  static char temp[4] = {0};
+-
+   if (value < 0 || value > 7)
+     return "ERR";
+ 
+-  if (value == 7)
+-    return "sf10";
+-
+-  snprintf( temp, sizeof(temp), "sf%ld", value+2 );
+-  return temp;
++  static const char * const str[8] = {
++    "sf2", "sf3", "sf4", "sf5", "sf6", "sf7", "sf8", "sf10"
++  };
++  return str[value];
+ }
+ const char *SIB2mac_ContentionResolutionTimer( long value ) {
+-  static char temp[5] = {0};
+-
+   if (value < 0 || value > 7)
+     return "ERR";
+ 
+-  snprintf( temp, sizeof(temp), "sf%ld", 8 + value*8 );
+-  return temp;
++  static const char * const str[8] = {
++    "sf8", "sf16", "sf24", "sf32", "sf40", "sf48", "sf56", "sf64"
++  };
++  return str[value];
+ }
+ const char *SIB2modificationPeriodCoeff( long value ) {
+-  static char temp[32] = {0};
+-
+   if (value < 0 || value > 3)
+     return "ERR";
+ 
+-  snprintf( temp, sizeof(temp), "n%d", (int)pow(2,value+1) );
+-  return temp;
++  static const char * const str[4] = {
++    "n2", "n4", "n8", "n16"
++  };
++  return str[value];
+ }
+ const char *SIB2defaultPagingCycle( long value ) {
+-  static char temp[32] = {0};
+-
+   if (value < 0 || value > 3)
+     return "ERR";
+ 
+-  snprintf( temp, sizeof(temp), "rf%d", (int)pow(2,value+4) );
+-  return temp;
++  static const char * const str[4] = {
++    "rf32", "rf64", "rf128", "rf256"
++  };
++  return str[value];
+ }
+ const char *SIB2nB( long value ) {
+   if (value < 0 || value > 7)
+@@ -4747,23 +4722,23 @@ int decode_MCCH_Message( const protocol_ctxt_t *const ctxt_pP, const uint8_t eNB
+       LOG_D(RRC,"[UE %d] Found mcch message \n",
+             ctxt_pP->module_id);
+         if(mcch->message.choice.later.present == LTE_MCCH_MessageType__later_PR_c2){
+-		if(mcch->message.choice.later.choice.c2.present == LTE_MCCH_MessageType__later__c2_PR_mbmsCountingRequest_r10){
+-        		LOG_I(RRC,"[UE %d] Frame %d : Found MBMSCountingRequest from eNB %d %p\n",
+-              			ctxt_pP->module_id,
+-              			ctxt_pP->frame,
+-              			eNB_index,&mcch->message.choice.later.choice.c2.choice.mbmsCountingRequest_r10);
++                if(mcch->message.choice.later.choice.c2.present == LTE_MCCH_MessageType__later__c2_PR_mbmsCountingRequest_r10){
++                        LOG_I(RRC,"[UE %d] Frame %d : Found MBMSCountingRequest from eNB %d %p\n",
++                                ctxt_pP->module_id,
++                                ctxt_pP->frame,
++                                eNB_index,&mcch->message.choice.later.choice.c2.choice.mbmsCountingRequest_r10);
+ 
+-  			rrc_ue_process_MBMSCountingRequest(ctxt_pP,&mcch->message.choice.later.choice.c2.choice.mbmsCountingRequest_r10,eNB_index);
++                        rrc_ue_process_MBMSCountingRequest(ctxt_pP,&mcch->message.choice.later.choice.c2.choice.mbmsCountingRequest_r10,eNB_index);
+ 
+-			decode_MBMSCountingRequest(
+-          			ctxt_pP->module_id,
+-          			eNB_index,
+-          			ctxt_pP->frame,
+-          			mbsfn_sync_area);
++                        decode_MBMSCountingRequest(
++                                ctxt_pP->module_id,
++                                eNB_index,
++                                ctxt_pP->frame,
++                                mbsfn_sync_area);
+ 
+ 
+-		}
+-	}
++                }
++        }
+     }
+ 
+   }
+@@ -4822,7 +4797,7 @@ void decode_MBSFNAreaConfiguration( module_id_t ue_mod_idP, uint8_t eNB_index, f
+                         (LTE_MBSFN_AreaInfoList_r9_t *)NULL
+                        );
+   if(1/*UE_rrc_inst[ue_mod_idP].Info[eNB_index].State >= RRC_CONNECTED*/ /*|| UE_rrc_inst[ue_mod_idP].Info[eNB_index].State == RRC_RECONFIGURED*/)
+-  	UE_rrc_inst[ue_mod_idP].Info[eNB_index].MCCHStatus[mbsfn_sync_area] = 1;
++        UE_rrc_inst[ue_mod_idP].Info[eNB_index].MCCHStatus[mbsfn_sync_area] = 1;
+   PROTOCOL_CTXT_SET_BY_MODULE_ID(&ctxt, ue_mod_idP, ENB_FLAG_NO, UE_rrc_inst[ue_mod_idP].Info[eNB_index].rnti, frameP, 0,eNB_index);
+   // Config Radio Bearer for MBMS user data (similar way to configure for eNB side in init_MBMS function)
+   rrc_pdcp_config_asn1_req(&ctxt,

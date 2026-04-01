@@ -1,0 +1,26 @@
+{
+  "run_id": "zephyr_00033_a138bc",
+  "function": {
+    "name": "ull_adv_aux_reset_finalize",
+    "file": "subsys/bluetooth/controller/ll_sw/ull_adv_aux.c",
+    "start_line": 1443,
+    "end_line": 1453,
+    "body_lines": 11,
+    "signature": "int ull_adv_aux_reset_finalize(void)",
+    "subsystem": "subsys/bluetooth/controller",
+    "token_estimate": 17
+  },
+  "bug": {
+    "bug_id": "c_missing_mutex",
+    "description": "missing mutex lock around critical section accessing shared state",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a missing mutex lock around critical section accessing shared state downstream of function ull_adv_aux_reset_finalize in the subsys/bluetooth/controller subsystem.\nThe function is located at subsys/bluetooth/controller/ll_sw/ull_adv_aux.c:1443.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 8,
+  "trajectory_steps": 51,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:08:15Z"
+}

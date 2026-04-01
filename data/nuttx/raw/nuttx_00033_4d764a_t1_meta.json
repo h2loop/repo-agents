@@ -1,0 +1,26 @@
+{
+  "run_id": "nuttx_00033_4d764a",
+  "function": {
+    "name": "usb_hstd_write_data_control_pipe",
+    "file": "arch/renesas/src/rx65n/rx65n_usbhost.c",
+    "start_line": 2123,
+    "end_line": 2208,
+    "body_lines": 86,
+    "signature": "uint16_t usb_hstd_write_data_control_pipe(uint8_t * buf_add, size_t buf_size)",
+    "subsystem": "arch/renesas/src",
+    "token_estimate": 190
+  },
+  "bug": {
+    "bug_id": "embedded_watchdog_not_fed",
+    "description": "watchdog timer not serviced on a long-running code path causing unexpected reset",
+    "domain": "embedded",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a watchdog timer not serviced on a long-running code path causing unexpected reset downstream of function usb_hstd_write_data_control_pipe in the arch/renesas/src subsystem.\nThe function is located at arch/renesas/src/rx65n/rx65n_usbhost.c:2123.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 27,
+  "trajectory_steps": 70,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:24:20Z"
+}

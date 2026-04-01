@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix KDF key derivation in NAS security mode control\n\n### Summary\nThe `_security_kdf` function in SecurityModeControl.c was incorrectly copying the last 16 bytes of the KDF output instead of the first 16 bytes for NAS key derivation. This caused incorrect NAS encryption and integrity keys to be generated, leading to security mode command failures.\n\n### Changes\n- `openair3/NAS/UE/EMM/SecurityModeControl.c`: Fixed key derivation by copying from start of output buffer\n\n### Reproduction\nWhen UE attempts to establish a security context, the derived NAS keys are incorrect due to the wrong bytes being used from the KDF output. This results in failed integrity protection and encryption during security mode command processing. Users may observe authentication failures or connection drops during the security setup phase.\n\n"
+}

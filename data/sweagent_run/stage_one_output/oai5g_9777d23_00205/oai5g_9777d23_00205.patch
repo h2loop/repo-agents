@@ -1,0 +1,51 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c b/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
+index 58269f769a..a365e8a126 100644
+--- a/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
++++ b/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
+@@ -659,7 +659,7 @@ static int nr_get_RA_window_2Step_v17(long msgB_ResponseWindow)
+       return 1920;
+       break;
+     case NR_RACH_ConfigGenericTwoStepRA_r16__ext1__msgB_ResponseWindow_v1700_sl2560:
+-      return 2590;
++      return 2560;
+     default:
+       AssertFatal(false, "illegal msgB_responseWindow value %ld\n", msgB_ResponseWindow);
+       break;
+@@ -698,7 +698,7 @@ static int nr_get_RA_window_2Step_v16(long msgB_ResponseWindow)
+       return 160;
+       break;
+     case NR_RACH_ConfigGenericTwoStepRA_r16__msgB_ResponseWindow_r16_sl320:
+-      return 360;
++      return 320;
+       break;
+     default:
+       AssertFatal(false, "illegal msgB_responseWindow value %ld\n", msgB_ResponseWindow);
+@@ -736,7 +736,7 @@ static int nr_get_RA_window_4Step_v17(long ra_ResponseWindow)
+     case NR_RACH_ConfigGeneric__ext2__ra_ResponseWindow_v1700_sl1920:
+       return 1920;
+     case NR_RACH_ConfigGeneric__ext2__ra_ResponseWindow_v1700_sl2560:
+-      return 2590;
++      return 2560;
+     default:
+       AssertFatal(false, "illegal msgB_responseWindow value %ld\n", ra_ResponseWindow);
+   }
+@@ -801,15 +801,13 @@ static void setup_ra_response_window(RA_config_t *ra,
+     AssertFatal(respwind_value != 0 && respwind_value <= slots_40ms, "Invalid MSGB response window value\n");
+   } else {
+     AssertFatal(ra->ra_type == RA_4_STEP, "Invalid RA type\n");
+-    long *response_window = NULL;
+-    if (configGeneric->ext1 && configGeneric->ext1->ra_ResponseWindow_v1610)
++    if (configGeneric->ext1 && configGeneric->ext1->ra_ResponseWindow_v1610) {
+       respwind_value = nr_get_RA_window_4Step_v16(*configGeneric->ext1->ra_ResponseWindow_v1610);
+-    if (configGeneric->ext2 && configGeneric->ext2->ra_ResponseWindow_v1700) {
+-      AssertFatal(response_window == NULL, "ra_ResponseWindow_v1610 and ra_ResponseWindow_v1700 are mutually exclusive\n");
++    } else if (configGeneric->ext2 && configGeneric->ext2->ra_ResponseWindow_v1700) {
+       respwind_value = nr_get_RA_window_4Step_v17(*configGeneric->ext2->ra_ResponseWindow_v1700);
+-    }
+-    if (!response_window)
++    } else {
+       respwind_value = nr_get_RA_window_4Step(configGeneric->ra_ResponseWindow);
++    }
+     // The network configures a value lower than or equal to 10ms
+     AssertFatal(respwind_value != 0, "Invalid RAR response window value\n");
+     if (respwind_value > slots_per_frame)

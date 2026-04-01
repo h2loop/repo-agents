@@ -1,0 +1,203 @@
+diff --git a/openair2/UTIL/OMG/omg.c b/openair2/UTIL/OMG/omg.c
+index 67a78d245a..c531c0dfe2 100644
+--- a/openair2/UTIL/OMG/omg.c
++++ b/openair2/UTIL/OMG/omg.c
+@@ -38,6 +38,7 @@
+ #include <getopt.h>
+ #include <math.h>
+ #include <time.h>
++#include <pthread.h>
+ #include "omg.h"
+ #include "static.h"
+ #include "rwp.h"
+@@ -51,16 +52,46 @@
+ #include "../OMV/structures.h"
+ //#define STANDALONE
+ 
+-float n_frames = 20.0;
++// Helper functions to safely access global vectors
++job_list* get_job_vector_safe(int mobility_type) {
++  job_list* result;
++  pthread_mutex_lock(&omg_mutex);
++  result = job_vector[mobility_type];
++  pthread_mutex_unlock(&omg_mutex);
++  return result;
++}
++
++node_list* get_node_vector_safe(int node_type) {
++  node_list* result;
++  pthread_mutex_lock(&omg_mutex);
++  result = node_vector[node_type];
++  pthread_mutex_unlock(&omg_mutex);
++  return result;
++}
++
++int get_job_vector_len_safe(int mobility_type) {
++  int result;
++  pthread_mutex_lock(&omg_mutex);
++  result = job_vector_len[mobility_type];
++  pthread_mutex_unlock(&omg_mutex);
++  return result;
++}
+ 
+ int omv_write (int pfd, node_list *ue_node_list, Data_Flow_Unit omv_data);
+ void omv_end (int pfd, Data_Flow_Unit omv_data);
+ int omv_enabled;
+ 
++/* Mutex to protect shared data structures */
++pthread_mutex_t omg_mutex = PTHREAD_MUTEX_INITIALIZER;
++
+ /*initialze global parameters*/
+ void
+ init_omg_global_params (void) {
+   int mob_t, node_t, i;
++  
++  // Lock mutex before accessing shared data structures
++  pthread_mutex_lock(&omg_mutex);
++  
+   xloc_div = 10.0;
+   yloc_div = 10.0;
+   grid = 0;
+@@ -81,6 +112,9 @@ init_omg_global_params (void) {
+     event_sum[i] = 0;
+     events[i] = 0;
+   }
++  
++  // Unlock mutex after finishing with shared data structures
++  pthread_mutex_unlock(&omg_mutex);
+ }
+ 
+ /*initiate mobility generator*/
+@@ -168,11 +202,17 @@ update_nodes (double cur_time) {
+   //LOG_D(OMG, "UPDATE NODES" );
+   int i = 0;
+ 
++  // Lock mutex before accessing shared data structures
++  pthread_mutex_lock(&omg_mutex);
++
+   for (i = (STATIC + 1); i < MAX_NUM_MOB_TYPES; i++) {
+     if (job_vector[i] != NULL) {
+       update_node_vector (i, cur_time);
+     }
+   }
++  
++  // Unlock mutex after finishing with shared data structures
++  pthread_mutex_unlock(&omg_mutex);
+ }
+ 
+ 
+@@ -213,8 +253,18 @@ update_node_vector (int mobility_type, double cur_time) {
+ /*return updated node position for a given node type*/
+ node_list *
+ get_current_positions (int mobility_type, int node_type, double cur_time) {
++  node_list *result;
++  
++  // Lock mutex before accessing shared data structures
++  pthread_mutex_lock(&omg_mutex);
++  
+   get_nodes_positions (mobility_type, cur_time);
+-  return node_vector[node_type];
++  result = node_vector[node_type];
++  
++  // Unlock mutex after finishing with shared data structures
++  pthread_mutex_unlock(&omg_mutex);
++  
++  return result;
+ }
+ 
+ /*update current position of nodes for specific mobility type*/
+@@ -259,17 +309,27 @@ get_nodes_positions (int mobility_type, double cur_time) {
+ 
+ node_struct *
+ get_node_position (int node_type, int nid) {
++  node_struct *result = NULL;
+   node_list *tmp;
++  
++  // Lock mutex before accessing shared data structures
++  pthread_mutex_lock(&omg_mutex);
++  
+   tmp = node_vector[node_type];
+ 
+   while (tmp != NULL) {
+-    if (tmp->node->id == nid)
+-      return tmp->node;
++    if (tmp->node->id == nid) {
++      result = tmp->node;
++      break;
++    }
+ 
+     tmp = tmp->next;
+   }
++  
++  // Unlock mutex after finishing with shared data structures
++  pthread_mutex_unlock(&omg_mutex);
+ 
+-  return NULL;
++  return result;
+ }
+ 
+ 
+@@ -281,6 +341,10 @@ set_new_mob_type (int id, int node_t, int mob_t, double cur_time) {
+   //job_list *tmp2, *prev_job;
+   pair_struct *pair;
+   double pause_p;
++  
++  // Lock mutex before accessing shared data structures
++  pthread_mutex_lock(&omg_mutex);
++  
+   //find previous mobility type
+   tmp = node_vector[node_t];
+ 
+@@ -367,6 +431,9 @@ set_new_mob_type (int id, int node_t, int mob_t, double cur_time) {
+         LOG_E (OMG, " Unsupported generator \n");
+     }
+   }
++  
++  // Unlock mutex after finishing with shared data structures
++  pthread_mutex_unlock(&omg_mutex);
+ }
+ 
+ #ifdef STANDALONE
+@@ -889,17 +956,16 @@ main (int argc, char *argv[]) {
+ 
+       if (current_positions != NULL)
+         display_job_list (emu_info_time,
+-                          job_vector[omg_param_list
+-                                     [node_type].mobility_type]);
++                          get_job_vector_safe(omg_param_list[node_type].mobility_type));
+ 
+       /*if(current_positions!= NULL && time_s %1000==0)
+          LOG_D(OMG, "%.2f  %d\n",emu_info_time,
+-         nodes_avgspeed(job_vector[omg_param_list [node_type].mobility_type])); */
++         nodes_avgspeed(get_job_vector_safe(omg_param_list [node_type].mobility_type))); */
+     }
+ 
+     //display current postion of nodes
+     if (omv_enabled == 1)
+-      omv_write (pfd[1], node_vector[SUMO], omv_data);
++      omv_write (pfd[1], get_node_vector_safe(SUMO), omv_data);
+   }
+ 
+   /*LOG_I(OMG,"#-----event average-----\n");
+diff --git a/openair2/UTIL/OMG/omg_vars.h b/openair2/UTIL/OMG/omg_vars.h
+index bf0a13e5b5..c404c28247 100644
+--- a/openair2/UTIL/OMG/omg_vars.h
++++ b/openair2/UTIL/OMG/omg_vars.h
+@@ -29,6 +29,7 @@
+ #define __OMG_VARS_H__
+ 
+ #include "omg.h"
++#include <pthread.h>
+ 
+ /*!A global variable used to store all the nodes information. It is an array in which every cell stocks the nodes information for a given mobility type. Its length is equal to the maximum number of mobility models that can exist in a single simulation scenario */
+ node_list* node_vector[MAX_NUM_NODE_TYPES + 10 /*FIXME bad workaround for indexing node_vector with SUMO*/];
+@@ -47,6 +48,9 @@ job_list* job_vector_end[MAX_NUM_MOB_TYPES];
+ /*! A global variable which represents the length of the Job_Vector */
+ int job_vector_len[MAX_NUM_MOB_TYPES];
+ 
++/*! Mutex to protect access to shared data structures */
++extern pthread_mutex_t omg_mutex;
++
+ /*! A global variable used gather the fondamental parameters needed to launch a simulation scenario*/
+ omg_global_param omg_param_list[MAX_NUM_NODE_TYPES];
+ 

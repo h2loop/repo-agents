@@ -1,0 +1,195 @@
+'{"env":{"deployment":{"image":"oai5g-sera:776ca25","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_776ca25_00721","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix incorrect signaling procedure sequence in E1AP RESET ACKNOWLEDGE handling\n\n###
+  Summary\nThe E1AP RESET ACKNOWLEDGE handling function `e1ap_handle_RESET_ACKNOWLEDGE`
+  was implemented with only an AssertFatal statement, causing the program to abort
+  whenever a RESET ACKNOWLEDGE message was received. This violated the 3GPP message
+  flow and prevented proper downstream signaling sequence continuation.\n\nThis fix
+  implements the complete RESET procedure according to 3GPP TS 38.462 specification.\n\n###
+  Changes\n- `openair2/E1AP/e1ap.c`: \n  * Fixed procedure code extraction logic to
+  handle all PDU types correctly\n  * Updated message processing table to route RESET
+  messages to proper handlers\n  * Implemented `e1apCUCP_handle_RESET` and `e1apCUUP_handle_RESET_ACKNOWLEDGE`
+  functions\n  * Added `e1ap_send_RESET` and `e1ap_send_RESET_ACKNOWLEDGE` functions\n  *
+  Properly implemented `e1ap_handle_RESET_ACKNOWLEDGE` to avoid AssertFatal abort\n-
+  `openair2/COMMON/e1ap_messages_def.h`: Added RESET message definitions\n- `openair2/COMMON/e1ap_messages_types.h`:
+  Added RESET type definitions\n\n### Reproduction\nTo reproduce the original issue:\n1.
+  Establish an E1AP connection between CUCP and CUUP\n2. Trigger a RESET procedure
+  from either side\n3. When the RESET ACKNOWLEDGE is sent back, the receiving node
+  will crash with AssertFatal\n4. The signaling sequence will be interrupted and downstream
+  procedures will not execute\n\nWith this fix, the RESET ACKNOWLEDGE is properly
+  handled and the signaling sequence continues as expected per 3GPP specification.\n","extra_fields":{"bug_description":"incorrect
+  signaling procedure sequence violating 3GPP message flow","bug_id":"telecom_wrong_procedure_sequence","stage_one_patch":"diff
+  --git a/openair2/COMMON/e1ap_messages_def.h b/openair2/COMMON/e1ap_messages_def.h\nindex
+  70533f8add..5b503e6b44 100644\n--- a/openair2/COMMON/e1ap_messages_def.h\n+++ b/openair2/COMMON/e1ap_messages_def.h\n@@
+  -31,3 +31,7 @@ MESSAGE_DEF(E1AP_BEARER_CONTEXT_SETUP_RESP , MESSAGE_PRIORITY_MED
+  , e1ap_bearer_\n \n MESSAGE_DEF(E1AP_BEARER_CONTEXT_MODIFICATION_REQ , MESSAGE_PRIORITY_MED
+  , e1ap_bearer_setup_req_t , e1ap_bearer_mod_req)\n \n+MESSAGE_DEF(E1AP_RESET_REQ
+  , MESSAGE_PRIORITY_MED, e1ap_reset_t, e1ap_reset_req)\n+\n+MESSAGE_DEF(E1AP_RESET_ACK
+  , MESSAGE_PRIORITY_MED, e1ap_reset_ack_t, e1ap_reset_ack)\n+\ndiff --git a/openair2/COMMON/e1ap_messages_types.h
+  b/openair2/COMMON/e1ap_messages_types.h\nindex 7a88344efc..522adccd07 100644\n---
+  a/openair2/COMMON/e1ap_messages_types.h\n+++ b/openair2/COMMON/e1ap_messages_types.h\n@@
+  -224,4 +224,17 @@ typedef struct e1ap_bearer_setup_resp_s {\n   pdu_session_setup_t
+  pduSession[E1AP_MAX_NUM_PDU_SESSIONS];\n } e1ap_bearer_setup_resp_t;\n \n+typedef
+  struct e1ap_reset_s {\n+  long cause_type;\n+  long cause;\n+} e1ap_reset_t;\n+\n+typedef
+  struct e1ap_reset_ack_s {\n+  // Reset Acknowledge typically doesn''t carry additional
+  information\n+  // beyond the transaction ID, which is handled by the protocol\n+}
+  e1ap_reset_ack_t;\n+\n+#define E1AP_RESET_REQ(mSGpTR)           (mSGpTR)->ittiMsg.e1ap_reset_req\n+#define
+  E1AP_RESET_ACK(mSGpTR)           (mSGpTR)->ittiMsg.e1ap_reset_ack\n+\n #endif /*
+  E1AP_MESSAGES_TYPES_H */\ndiff --git a/openair2/E1AP/e1ap.c b/openair2/E1AP/e1ap.c\nindex
+  6c33ddf973..a6172ea234 100644\n--- a/openair2/E1AP/e1ap.c\n+++ b/openair2/E1AP/e1ap.c\n@@
+  -38,7 +38,7 @@\n typedef int (*e1ap_message_processing_t)(e1ap_upcp_inst_t *inst,
+  const E1AP_E1AP_PDU_t *message_p);\n e1ap_message_processing_t e1ap_message_processing[E1AP_NUM_MSG_HANDLERS][3]
+  = {\n \n-  { 0, 0, 0 }, /* Reset */\n+  { e1apCUCP_handle_RESET, e1apCUUP_handle_RESET_ACKNOWLEDGE,
+  0 }, /* Reset */\n   { 0, 0, 0 }, /* ErrorIndication */\n   { 0, 0, 0 }, /* privateMessage
+  */\n   { e1apCUCP_handle_SETUP_REQUEST, e1apCUUP_handle_SETUP_RESPONSE, e1apCUUP_handle_SETUP_FAILURE
+  }, /* gNBCUUPE1Setup */\n@@ -74,7 +74,25 @@ int e1ap_handle_message(instance_t instance,
+  uint32_t assoc_id,\n     LOG_E(E1AP, \"Failed to decode PDU\\n\");\n     return
+  -1;\n   }\n-  const E1AP_ProcedureCode_t procedureCode = pdu.choice.initiatingMessage->procedureCode;\n+  E1AP_ProcedureCode_t
+  procedureCode;\n+  \n+  /* Extract procedure code based on message type */\n+  switch
+  (pdu.present) {\n+    case E1AP_E1AP_PDU_PR_initiatingMessage:\n+      procedureCode
+  = pdu.choice.initiatingMessage->procedureCode;\n+      break;\n+    case E1AP_E1AP_PDU_PR_successfulOutcome:\n+      procedureCode
+  = pdu.choice.successfulOutcome->procedureCode;\n+      break;\n+    case E1AP_E1AP_PDU_PR_unsuccessfulOutcome:\n+      procedureCode
+  = pdu.choice.unsuccessfulOutcome->procedureCode;\n+      break;\n+    default:\n+      LOG_E(E1AP,
+  \"[SCTP %d] Invalid PDU present value %d\\n\", assoc_id, pdu.present);\n+      ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_E1AP_E1AP_PDU,
+  &pdu);\n+      return -1;\n+  }\n+  \n   /* Checking procedure Code and direction
+  of message */\n   if ((procedureCode >= E1AP_NUM_MSG_HANDLERS) || (pdu.present >
+  E1AP_E1AP_PDU_PR_unsuccessfulOutcome) || (pdu.present <= E1AP_E1AP_PDU_PR_NOTHING))
+  {\n     LOG_E(E1AP, \"[SCTP %d] Either procedureCode %ld or direction %d exceed
+  expected\\n\", assoc_id, procedureCode, pdu.present);\n@@ -1743,4 +1761,135 @@ void
+  *E1AP_CUUP_task(void *arg) {\n \n   }\n }\n+/*\n+ * RESET and RESET ACKNOWLEDGE
+  handlers\n+ */\n+int e1apCUCP_handle_RESET(e1ap_upcp_inst_t *inst, const E1AP_E1AP_PDU_t
+  *pdu) {\n+  LOG_D(E1AP, \"Handling RESET message at CUCP side\\n\");\n+  \n+  DevAssert(pdu
+  != NULL);\n+  DevAssert(pdu->present == E1AP_E1AP_PDU_PR_initiatingMessage);\n+  //
+  Note: We can''t check the procedure code here as it would require knowing the exact
+  value\n+  \n+  // Extract RESET information if needed\n+  // For now, we just send
+  RESET ACKNOWLEDGE\n+  \n+  // Send RESET ACKNOWLEDGE\n+  E1AP_E1AP_PDU_t ack_pdu
+  = {0};\n+  \n+  // Create RESET ACKNOWLEDGE PDU\n+  ack_pdu.present = E1AP_E1AP_PDU_PR_successfulOutcome;\n+  asn1cCalloc(ack_pdu.choice.successfulOutcome,
+  successMsg);\n+  successMsg->procedureCode = 0; // RESET procedure code\n+  successMsg->criticality
+  = E1AP_Criticality_reject;\n+  successMsg->value.present = E1AP_SuccessfulOutcome__value_PR_ResetAcknowledge;\n+  \n+  E1AP_ResetAcknowledge_t
+  *resetAck = &successMsg->value.choice.ResetAcknowledge;\n+  \n+  // Add Transaction
+  ID if needed\n+  // This would typically be extracted from the RESET message\n+  \n+  //
+  Send the RESET ACKNOWLEDGE\n+  return e1ap_encode_send(CPtype, &inst->setupReq,
+  &ack_pdu, 0, __func__);\n+}\n+\n+int e1apCUUP_handle_RESET_ACKNOWLEDGE(e1ap_upcp_inst_t
+  *inst, const E1AP_E1AP_PDU_t *pdu) {\n+  LOG_D(E1AP, \"Handling RESET ACKNOWLEDGE
+  message at CUUP side\\n\");\n+  \n+  DevAssert(pdu != NULL);\n+  DevAssert(pdu->present
+  == E1AP_E1AP_PDU_PR_successfulOutcome);\n+  // Note: We can''t check the procedure
+  code here as it would require knowing the exact value\n+  DevAssert(pdu->choice.successfulOutcome->value.present
+  == E1AP_SuccessfulOutcome__value_PR_ResetAcknowledge);\n+  \n+  // Process RESET
+  ACKNOWLEDGE\n+  // This completes the RESET procedure\n+  \n+  LOG_I(E1AP, \"RESET
+  procedure completed successfully\\n\");\n+  \n+  // Notify higher layers if needed\n+  MessageDef
+  *msg_p = itti_alloc_new_message(TASK_CUUP_E1, 0, E1AP_RESET_ACK);\n+  // Fill in
+  reset ack information if needed\n+  itti_send_msg_to_task(TASK_RRC_GNB, 0, msg_p);\n+  \n+  return
+  0;\n+}\n+\n+void e1ap_send_RESET(bool isCu, e1ap_setup_req_t *setupReq, E1AP_Reset_t
+  *Reset) {\n+  LOG_D(E1AP, \"Sending RESET message\\n\");\n+  \n+  E1AP_E1AP_PDU_t
+  pdu = {0};\n+  \n+  // Create RESET PDU\n+  pdu.present = E1AP_E1AP_PDU_PR_initiatingMessage;\n+  asn1cCalloc(pdu.choice.initiatingMessage,
+  initMsg);\n+  initMsg->procedureCode = 0; // RESET procedure code\n+  initMsg->criticality
+  = E1AP_Criticality_reject;\n+  initMsg->value.present = E1AP_InitiatingMessage__value_PR_Reset;\n+  \n+  E1AP_Reset_t
+  *reset = &initMsg->value.choice.Reset;\n+  \n+  // Copy reset information if provided\n+  if
+  (Reset != NULL) {\n+    // Copy reset parameters\n+    // This would depend on the
+  specific reset parameters needed\n+  }\n+  \n+  // Send the RESET message\n+  e1ap_encode_send(isCu
+  ? CPtype : UPtype, setupReq, &pdu, 0, __func__);\n+}\n+\n+int e1ap_send_RESET_ACKNOWLEDGE(instance_t
+  instance, E1AP_Reset_t *Reset) {\n+  LOG_D(E1AP, \"Sending RESET ACKNOWLEDGE message\\n\");\n+  \n+  e1ap_upcp_inst_t
+  *inst = getCxtE1(instance);\n+  if (!inst) {\n+    LOG_E(E1AP, \"Failed to get E1AP
+  instance\\n\");\n+    return -1;\n+  }\n+  \n+  E1AP_E1AP_PDU_t pdu = {0};\n+  \n+  //
+  Create RESET ACKNOWLEDGE PDU\n+  pdu.present = E1AP_E1AP_PDU_PR_successfulOutcome;\n+  asn1cCalloc(pdu.choice.successfulOutcome,
+  successMsg);\n+  successMsg->procedureCode = 0; // RESET procedure code\n+  successMsg->criticality
+  = E1AP_Criticality_reject;\n+  successMsg->value.present = E1AP_SuccessfulOutcome__value_PR_ResetAcknowledge;\n+  \n+  E1AP_ResetAcknowledge_t
+  *resetAck = &successMsg->value.choice.ResetAcknowledge;\n+  \n+  // Send the RESET
+  ACKNOWLEDGE\n+  return e1ap_encode_send(inst->type, &inst->setupReq, &pdu, 0, __func__);\n+}\n+\n+//
+  These functions maintain the original signatures for backward compatibility\n+int
+  e1ap_handle_RESET(instance_t instance,\n+                      uint32_t assoc_id,\n+                      uint32_t
+  stream,\n+                      E1AP_E1AP_PDU_t *pdu) {\n+  LOG_D(E1AP, \"Handling
+  RESET message\\n\");\n+  \n+  e1ap_upcp_inst_t *inst = getCxtE1(instance);\n+  if
+  (!inst) {\n+    LOG_E(E1AP, \"Failed to get E1AP instance\\n\");\n+    return -1;\n+  }\n+  \n+  return
+  e1apCUCP_handle_RESET(inst, pdu);\n+}\n+\n+int e1ap_handle_RESET_ACKNOWLEDGE(instance_t
+  instance,\n+                                  uint32_t assoc_id,\n+                                  uint32_t
+  stream,\n+                                  E1AP_E1AP_PDU_t *pdu) {\n+  LOG_D(E1AP,
+  \"Handling RESET ACKNOWLEDGE message\\n\");\n+  \n+  e1ap_upcp_inst_t *inst = getCxtE1(instance);\n+  if
+  (!inst) {\n+    LOG_E(E1AP, \"Failed to get E1AP instance\\n\");\n+    return -1;\n+  }\n+  \n+  return
+  e1apCUUP_handle_RESET_ACKNOWLEDGE(inst, pdu);\n+}\n \n","start_fn":"e1ap_handle_RESET_ACKNOWLEDGE","start_fn_file":"openair2/E1AP/e1ap.c","subsystem":"openair2/E1AP"},"type":"text","id":"oai5g_776ca25_00721"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

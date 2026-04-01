@@ -1,0 +1,183 @@
+diff --git a/openair3/NAS/UE/EMM/SAP/EmmRegisteredAttemptingToUpdate.c b/openair3/NAS/UE/EMM/SAP/EmmRegisteredAttemptingToUpdate.c
+index cf95cd3f56..173d135822 100644
+--- a/openair3/NAS/UE/EMM/SAP/EmmRegisteredAttemptingToUpdate.c
++++ b/openair3/NAS/UE/EMM/SAP/EmmRegisteredAttemptingToUpdate.c
+@@ -48,6 +48,11 @@ Description Implements the EPS Mobility Management procedures executed
+ #include "emm_fsm.h"
+ #include "commonDef.h"
+ #include "nas_log.h"
++#include "nas_timer.h"
++#include "emmData.h"
++#include "emm_proc.h"
++#include "emm_sap.h"
++#include "emm_timers.h"
+ 
+ #include <assert.h>
+ 
+@@ -82,11 +87,98 @@ int EmmRegisteredAttemptingToUpdate(nas_user_t *user, const emm_reg_t *evt)
+ {
+   LOG_FUNC_IN;
+ 
+-  assert(emm_fsm_get_status(user) == EMM_REGISTERED_ATTEMPTING_TO_UPDATE);
++  int rc = RETURNerror;
+ 
+-  /* TODO */
++  assert(emm_fsm_get_status(user) == EMM_REGISTERED_ATTEMPTING_TO_UPDATE);
+ 
+-  LOG_FUNC_RETURN (RETURNok);
++  switch (evt->primitive) {
++  case _EMMREG_TAU_REQ:
++    /*
++     * Tracking Area Update procedure has to be restarted (timer T3411
++     * expired)
++     */
++
++    /* Move to the corresponding initial EMM state */
++    rc = emm_fsm_set_status(user, EMM_REGISTERED_INITIATED);
++
++    if (rc != RETURNerror) {
++      /* TODO: Restart the tracking area update procedure */
++      LOG_TRACE(ERROR, "EMM-FSM   - Tracking Area Update procedure "
++                "restart is not implemented");
++    }
++
++    break;
++
++  case _EMMREG_TAU_CNF:
++    /*
++     * EPS tracking area update accepted by the network;
++     * enter state EMM-REGISTERED.
++     */
++    rc = emm_fsm_set_status(user, EMM_REGISTERED);
++
++    break;
++
++  case _EMMREG_TAU_REJ:
++    /*
++     * EPS tracking area update rejected by the network;
++     * enter state EMM-REGISTERED.ATTEMPTING-TO-UPDATE and restart T3411.
++     */
++    rc = emm_fsm_set_status(user, EMM_REGISTERED_ATTEMPTING_TO_UPDATE);
++    
++    if (rc != RETURNerror) {
++      emm_timers_t *emm_timers = user->emm_data->emm_timers;
++      /* Restart T3411 timer */
++      emm_timers->T3411.id = nas_timer_start(emm_timers->T3411.sec, emm_tau_t3411_handler, user);
++      LOG_TRACE(INFO, "EMM-PROC  - Timer T3411 (%d) expires in %ld seconds",
++                emm_timers->T3411.id, emm_timers->T3411.sec);
++    }
++
++    break;
++
++  case _EMMREG_DETACH_INIT:
++    /*
++     * Initiate detach procedure for EPS services
++     */
++    rc = emm_proc_detach(user, EMM_DETACH_TYPE_EPS, evt->u.detach.switch_off);
++    break;
++
++  case _EMMREG_DETACH_REQ:
++    /*
++     * An EPS network detach has been requested (Detach Request
++     * message successfully delivered to the network);
++     * enter state EMM-DEREGISTERED-INITIATED
++     */
++    rc = emm_fsm_set_status(user, EMM_DEREGISTERED_INITIATED);
++    break;
++
++  case _EMMREG_LOWERLAYER_SUCCESS:
++    /*
++     * Data transfer message has been successfully delivered
++     */
++    rc = emm_proc_lowerlayer_success(user->lowerlayer_data);
++    break;
++
++  case _EMMREG_LOWERLAYER_FAILURE:
++    /*
++     * Data transfer message failed to be delivered
++     */
++    rc = emm_proc_lowerlayer_failure(user->lowerlayer_data, false);
++    break;
++
++  case _EMMREG_LOWERLAYER_RELEASE:
++    /*
++     * NAS signalling connection has been released
++     */
++    rc = emm_proc_lowerlayer_release(user->lowerlayer_data);
++    break;
++
++  default:
++    LOG_TRACE(ERROR, "EMM-FSM   - Primitive is not valid (%d)",
++              evt->primitive);
++    break;
++  }
++
++  LOG_FUNC_RETURN (rc);
+ }
+ 
+ /****************************************************************************/
+diff --git a/openair3/NAS/UE/EMM/TrackingAreaUpdate.c b/openair3/NAS/UE/EMM/TrackingAreaUpdate.c
+index b8632ef257..fb704bca3c 100644
+--- a/openair3/NAS/UE/EMM/TrackingAreaUpdate.c
++++ b/openair3/NAS/UE/EMM/TrackingAreaUpdate.c
+@@ -120,4 +120,48 @@ void *emm_tau_t3430_handler(void *args)
+   LOG_FUNC_RETURN(NULL);
+ }
+ 
++/****************************************************************************
++ **                                                                        **
++ ** Name:        _emm_tau_t3411_handler()                                  **
++ **                                                                        **
++ ** Description: T3411 timeout handler                                     **
++ **                                                                        **
++ **              3GPP TS 24.301, section 5.5.3.2.6                         **
++ **      Upon T3411 timer expiration, the tracking area update **
++ **      procedure shall be restarted.                             **
++ **                                                                        **
++ ** Inputs:      args:          handler parameters                         **
++ **              Others:        None                                       **
++ **                                                                        **
++ ** Outputs:     None                                                      **
++ **              Return:        None                                       **
++ **              Others:        None                                       **
++ **                                                                        **
++ ***************************************************************************/
++void *emm_tau_t3411_handler(void *args)
++{
++  LOG_FUNC_IN;
++  nas_user_t *user = args;
++  emm_timers_t *emm_timers = user->emm_data->emm_timers;
++  emm_sap_t emm_sap;
++
++  LOG_TRACE(WARNING, "EMM-PROC  - T3411 timer expired");
++
++  /* Stop T3411 timer */
++  emm_timers->T3411.id = nas_timer_stop(emm_timers->T3411.id);
++  
++  /*
++   * Notify EMM that timer T3411 expired and tracking area update procedure 
++   * has to be restarted
++   */
++  emm_sap.primitive = EMMREG_TAU_REQ;
++  emm_sap.u.emm_reg.primitive = _EMMREG_TAU_REQ;
++  emm_sap.u.emm_reg.ueid = user->ueid;
++  emm_sap.u.emm_reg.ctx = user->emm_data;
++
++  (void) emm_sap_send(user, &emm_sap);
++
++  LOG_FUNC_RETURN(NULL);
++}
++
+ 
+diff --git a/openair3/NAS/UE/EMM/emm_timers.h b/openair3/NAS/UE/EMM/emm_timers.h
+index abf7c9ff87..5dfd220794 100644
+--- a/openair3/NAS/UE/EMM/emm_timers.h
++++ b/openair3/NAS/UE/EMM/emm_timers.h
+@@ -9,6 +9,7 @@ void *emm_attach_t3410_handler(void *);
+ void *emm_service_t3417_handler(void *);
+ void *emm_detach_t3421_handler(void *);
+ void *emm_tau_t3430_handler(void *);
++void *emm_tau_t3411_handler(void *);
+ 
+ 
+ #endif

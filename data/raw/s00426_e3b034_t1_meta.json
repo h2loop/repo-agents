@@ -1,0 +1,30 @@
+{
+  "run_id": "s00426_e3b034",
+  "function": {
+    "name": "main",
+    "file": "openair1/PHY/TOOLS/oai_dfts.c",
+    "start_line": 7898,
+    "end_line": 8681,
+    "body_lines": 784,
+    "signature": "int main(int argc, char**argv)",
+    "subsystem": "openair1/PHY/TOOLS",
+    "token_estimate": 1596
+  },
+  "bug": {
+    "bug_id": "telecom_power_control_error",
+    "description": "power control error causing incorrect transmit power level",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "radio"
+    ]
+  },
+  "prompt": "There is a power control error causing incorrect transmit power level downstream of function main in the openair1/PHY/TOOLS subsystem.\nThe function is located at openair1/PHY/TOOLS/oai_dfts.c:7898.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00426_e3b034_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00426_e3b034_p1.diff",
+  "patch_lines": 13,
+  "trajectory_steps": 44,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:15:27Z"
+}

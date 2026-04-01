@@ -1,0 +1,116 @@
+diff --git a/drivers/sensors/veml6070.c b/drivers/sensors/veml6070.c
+index fad1aab0..39da735e 100644
+--- a/drivers/sensors/veml6070.c
++++ b/drivers/sensors/veml6070.c
+@@ -235,6 +235,8 @@ static ssize_t veml6070_write(FAR struct file *filep,
+   return -ENOSYS;
+ }
+ 
++
++
+ /****************************************************************************
+  * Public Functions
+  ****************************************************************************/
+@@ -284,6 +286,7 @@ int veml6070_register(FAR const char *devpath, FAR struct i2c_master_s *i2c,
+   if (ret < 0)
+     {
+       snerr("ERROR: Failed to initialize the VEML6070!\n");
++      kmm_free(priv);
+       return ret;
+     }
+ 
+@@ -294,9 +297,65 @@ int veml6070_register(FAR const char *devpath, FAR struct i2c_master_s *i2c,
+     {
+       snerr("ERROR: Failed to register driver: %d\n", ret);
+       kmm_free(priv);
++      return ret;
+     }
+ 
+   return ret;
+ }
+ 
++/****************************************************************************
++ * Name: veml6070_unregister
++ *
++ * Description:
++ *   Unregister the VEML6070 character device
++ *
++ * Input Parameters:
++ *   devpath - The full path to the driver to unregister. E.g., "/dev/uvlight0"
++ *
++ * Returned Value:
++ *   Zero (OK) on success; a negated errno value on failure.
++ *
++ ****************************************************************************/
++
++int veml6070_unregister(FAR const char *devpath)
++{
++  FAR struct inode *inode;
++  FAR struct veml6070_dev_s *priv;
++  int ret;
++
++  /* Find the inode for the device path to get the private data */
++
++  ret = inode_find(devpath, &inode);
++  if (ret < 0)
++    {
++      snerr("ERROR: Failed to find inode for %s: %d\n", devpath, ret);
++      return ret;
++    }
++
++  /* Get the private data */
++
++  DEBUGASSERT(inode->i_private);
++  priv = inode->i_private;
++
++  /* Release the inode reference */
++
++  inode_release(inode);
++
++  /* Unregister the character driver */
++
++  ret = unregister_driver(devpath);
++  if (ret < 0)
++    {
++      snerr("ERROR: Failed to unregister driver %s: %d\n", devpath, ret);
++      return ret;
++    }
++
++  /* Free the private data structure that was allocated in veml6070_register
++   * This prevents a memory leak when the driver is unregistered.
++   */
++
++  kmm_free(priv);
++  return OK;
++}
++
+ #endif /* CONFIG_I2C && CONFIG_SENSORS_VEML6070 */
+diff --git a/include/nuttx/sensors/veml6070.h b/include/nuttx/sensors/veml6070.h
+index 94c80028..f5d8a9ee 100644
+--- a/include/nuttx/sensors/veml6070.h
++++ b/include/nuttx/sensors/veml6070.h
+@@ -94,9 +94,24 @@ extern "C"
+  *
+  ****************************************************************************/
+ 
++/****************************************************************************
++ * Name: veml6070_unregister
++ *
++ * Description:
++ *   Unregister the VEML6070 character device
++ *
++ * Input Parameters:
++ *   devpath - The full path to the driver to unregister. E.g., "/dev/uvlight0"
++ *
++ * Returned Value:
++ *   Zero (OK) on success; a negated errno value on failure.
++ *
++ ****************************************************************************/
++
+ struct i2c_master_s;
+ int veml6070_register(FAR const char *devpath, FAR struct i2c_master_s *i2c,
+                        uint8_t addr);
++int veml6070_unregister(FAR const char *devpath);
+ 
+ #undef EXTERN
+ #ifdef __cplusplus

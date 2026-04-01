@@ -1,0 +1,132 @@
+diff --git a/openair2/F1AP/f1ap_cu_rrc_message_transfer.c b/openair2/F1AP/f1ap_cu_rrc_message_transfer.c
+index 224a98ebde..d31432704a 100644
+--- a/openair2/F1AP/f1ap_cu_rrc_message_transfer.c
++++ b/openair2/F1AP/f1ap_cu_rrc_message_transfer.c
+@@ -111,6 +111,33 @@ int CU_handle_INITIAL_UL_RRC_MESSAGE_TRANSFER(instance_t instance, sctp_assoc_t
+ int CU_send_DL_RRC_MESSAGE_TRANSFER(sctp_assoc_t assoc_id, f1ap_dl_rrc_message_t *f1ap_dl_rrc)
+ {
+   LOG_D(F1AP, "CU send DL_RRC_MESSAGE_TRANSFER \n");
++  
++  // Validate input parameters
++  if (f1ap_dl_rrc == NULL) {
++    LOG_E(F1AP, "Invalid input parameter: f1ap_dl_rrc is NULL\n");
++    return -1;
++  }
++  
++  if (f1ap_dl_rrc->gNB_CU_ue_id == 0) {
++    LOG_E(F1AP, "Invalid gNB_CU_ue_id: 0\n");
++    return -1;
++  }
++  
++  if (f1ap_dl_rrc->gNB_DU_ue_id == 0) {
++    LOG_E(F1AP, "Invalid gNB_DU_ue_id: 0\n");
++    return -1;
++  }
++  
++  if (f1ap_dl_rrc->rrc_container == NULL) {
++    LOG_E(F1AP, "Invalid rrc_container: NULL\n");
++    return -1;
++  }
++  
++  if (f1ap_dl_rrc->rrc_container_length <= 0) {
++    LOG_E(F1AP, "Invalid rrc_container_length: %d\n", f1ap_dl_rrc->rrc_container_length);
++    return -1;
++  }
++  
+   F1AP_F1AP_PDU_t                 pdu= {0};
+   F1AP_DLRRCMessageTransfer_t    *out;
+   uint8_t  *buffer=NULL;
+@@ -169,7 +196,6 @@ int CU_send_DL_RRC_MESSAGE_TRANSFER(sctp_assoc_t assoc_id, f1ap_dl_rrc_message_t
+     ie5->value.choice.ExecuteDuplication = F1AP_ExecuteDuplication_true;
+   }
+ 
+-  // issue in here
+   /* mandatory */
+   /* c6. RRCContainer */
+   asn1cSequenceAdd(out->protocolIEs.list, F1AP_DLRRCMessageTransferIEs_t, ie6);
+diff --git a/openair2/F1AP/f1ap_du_rrc_message_transfer.c b/openair2/F1AP/f1ap_du_rrc_message_transfer.c
+index 4a3526dd0a..498abe45da 100644
+--- a/openair2/F1AP/f1ap_du_rrc_message_transfer.c
++++ b/openair2/F1AP/f1ap_du_rrc_message_transfer.c
+@@ -141,6 +141,24 @@ int DU_handle_DL_RRC_MESSAGE_TRANSFER(instance_t instance, sctp_assoc_t assoc_id
+ /*  UL RRC Message Transfer */
+ int DU_send_INITIAL_UL_RRC_MESSAGE_TRANSFER(sctp_assoc_t assoc_id, const f1ap_initial_ul_rrc_message_t *msg)
+ {
++  LOG_D(F1AP, "Sending INITIAL UL RRC MESSAGE TRANSFER\n");
++  
++  // Validate input parameters
++  if (msg == NULL) {
++    LOG_E(F1AP, "Invalid input parameter: msg is NULL\n");
++    return -1;
++  }
++  
++  if (msg->rrc_container == NULL) {
++    LOG_E(F1AP, "Invalid rrc_container: NULL\n");
++    return -1;
++  }
++  
++  if (msg->rrc_container_length <= 0) {
++    LOG_E(F1AP, "Invalid rrc_container_length: %d\n", msg->rrc_container_length);
++    return -1;
++  }
++  
+   F1AP_F1AP_PDU_t                       pdu= {0};
+   F1AP_InitialULRRCMessageTransfer_t    *out;
+   uint8_t  *buffer=NULL;
+@@ -187,6 +205,11 @@ int DU_send_INITIAL_UL_RRC_MESSAGE_TRANSFER(sctp_assoc_t assoc_id, const f1ap_in
+   /* optional */
+   /* c5. DUtoCURRCContainer */
+   if (msg->du2cu_rrc_container != NULL) {
++    if (msg->du2cu_rrc_container_length <= 0) {
++      LOG_E(F1AP, "Invalid du2cu_rrc_container_length: %d\n", msg->du2cu_rrc_container_length);
++      return -1;
++    }
++    
+     asn1cSequenceAdd(out->protocolIEs.list, F1AP_InitialULRRCMessageTransferIEs_t, ie5);
+     ie5->id                             = F1AP_ProtocolIE_ID_id_DUtoCURRCContainer;
+     ie5->criticality                    = F1AP_Criticality_reject;
+@@ -215,15 +238,32 @@ int DU_send_INITIAL_UL_RRC_MESSAGE_TRANSFER(sctp_assoc_t assoc_id, const f1ap_in
+ 
+ int DU_send_UL_NR_RRC_MESSAGE_TRANSFER(sctp_assoc_t assoc_id, const f1ap_ul_rrc_message_t *msg)
+ {
+-  F1AP_F1AP_PDU_t                pdu= {0};
+-  F1AP_ULRRCMessageTransfer_t    *out;
+-  uint8_t *buffer = NULL;
+-  uint32_t len;
+   LOG_D(F1AP,
+         "size %d UE RNTI %x in SRB %d\n",
+         msg->rrc_container_length,
+         msg->gNB_DU_ue_id,
+         msg->srb_id);
++  
++  // Validate input parameters
++  if (msg == NULL) {
++    LOG_E(F1AP, "Invalid input parameter: msg is NULL\n");
++    return -1;
++  }
++  
++  if (msg->rrc_container == NULL) {
++    LOG_E(F1AP, "Invalid rrc_container: NULL\n");
++    return -1;
++  }
++  
++  if (msg->rrc_container_length <= 0) {
++    LOG_E(F1AP, "Invalid rrc_container_length: %d\n", msg->rrc_container_length);
++    return -1;
++  }
++  
++  F1AP_F1AP_PDU_t                pdu= {0};
++  F1AP_ULRRCMessageTransfer_t    *out;
++  uint8_t *buffer = NULL;
++  uint32_t len;
+   //for (int i = 0;i < msg->rrc_container_length; i++)
+   //  printf("%02x ", msg->rrc_container[i]);
+   //printf("\n");
+@@ -256,7 +296,6 @@ int DU_send_UL_NR_RRC_MESSAGE_TRANSFER(sctp_assoc_t assoc_id, const f1ap_ul_rrc_
+   ie3->criticality                   = F1AP_Criticality_reject;
+   ie3->value.present                 = F1AP_ULRRCMessageTransferIEs__value_PR_SRBID;
+   ie3->value.choice.SRBID            = msg->srb_id;
+-  // issue in here
+   /* mandatory */
+   /* c4. RRCContainer */
+   asn1cSequenceAdd(out->protocolIEs.list, F1AP_ULRRCMessageTransferIEs_t, ie4);

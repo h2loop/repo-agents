@@ -1,0 +1,64 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
+index 6dadbc412b..5c35a976a4 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
+@@ -187,8 +187,8 @@ NR_ControlResourceSet_t *get_coreset(gNB_MAC_INST *nrmac,
+     }
+ 
+     if (coreset) AssertFatal(coreset_id == coreset->controlResourceSetId,
+-			     "ID of common ss coreset does not correspond to id set in the "
+-			     "search space\n");
++                             "ID of common ss coreset does not correspond to id set in the "
++                             "search space\n");
+     return coreset;
+   } else {
+     const int n = ((NR_BWP_DownlinkDedicated_t*)bwp)->pdcch_Config->choice.setup->controlResourceSetToAddModList->list.count;
+@@ -555,7 +555,7 @@ void config_uldci(const NR_SIB1_t *sib1,
+   NR_PUSCH_Config_t *pusch_Config = ul_bwp->pusch_Config;
+ 
+   if (pusch_Config) AssertFatal(pusch_Config->resourceAllocation == NR_PUSCH_Config__resourceAllocation_resourceAllocationType1,
+-			"Only frequency resource allocation type 1 is currently supported\n");
++                        "Only frequency resource allocation type 1 is currently supported\n");
+   switch (dci_format) {
+     case NR_UL_DCI_FORMAT_0_0:
+       dci_pdu_rel15->format_indicator = 0;
+@@ -747,7 +747,7 @@ void nr_configure_pucch(nfapi_nr_pucch_pdu_t* pucch_pdu,
+       LOG_D(NR_MAC,"pucch_acknak: Filling dedicated configuration for PUCCH\n");
+ 
+       AssertFatal(pucch_Config->resourceSetToAddModList!=NULL,
+-		    "PUCCH resourceSetToAddModList is null\n");
++                    "PUCCH resourceSetToAddModList is null\n");
+ 
+       n_set = pucch_Config->resourceSetToAddModList->list.count;
+       AssertFatal(n_set>0,"PUCCH resourceSetToAddModList is empty\n");
+@@ -755,14 +755,14 @@ void nr_configure_pucch(nfapi_nr_pucch_pdu_t* pucch_pdu,
+       LOG_D(NR_MAC, "UCI n_set= %d\n", n_set);
+ 
+       N2 = 2;
+-	// procedure to select pucch resource id from resource sets according to
+-	// number of uci bits and pucch resource indicator pucch_resource
+-	// ( see table 9.2.3.2 in 38.213)
++        // procedure to select pucch resource id from resource sets according to
++        // number of uci bits and pucch resource indicator pucch_resource
++        // ( see table 9.2.3.2 in 38.213)
+       for (int i=0; i<n_set; i++) {
+-	pucchresset = pucch_Config->resourceSetToAddModList->list.array[i];
+-	n_list = pucchresset->resourceList.list.count;
+-	if (pucchresset->pucch_ResourceSetId == 0 && O_uci<3) {
+-	  if (pucch_resource < n_list)
++        pucchresset = pucch_Config->resourceSetToAddModList->list.array[i];
++        n_list = pucchresset->resourceList.list.count;
++        if (pucchresset->pucch_ResourceSetId == 0 && O_uci<3) {
++          if (pucch_resource < n_list)
+             resource_id = pucchresset->resourceList.list.array[pucch_resource];
+           else
+             AssertFatal(1==0,"Couldn't fine pucch resource indicator %d in PUCCH resource set %d for %d UCI bits",pucch_resource,i,O_uci);
+@@ -2132,7 +2132,7 @@ void set_sched_pucch_list(NR_UE_sched_ctrl_t *sched_ctrl,
+   const int n_ul_slots_period = tdd ? tdd->nrofUplinkSlots + (tdd->nrofUplinkSymbols > 0 ? 1 : 0) : n_slots_frame;
+   // PUCCH list size is given by the number of UL slots in the PUCCH period
+   // the length PUCCH period is determined by max_fb_time since we may need to prepare PUCCH for ACK/NACK max_fb_time slots ahead
+-  const int list_size = n_ul_slots_period << (ul_bwp->max_fb_time/nr_slots_period);
++  const int list_size = n_ul_slots_period * CEILIDIV(ul_bwp->max_fb_time, nr_slots_period);
+   if(!sched_ctrl->sched_pucch) {
+     sched_ctrl->sched_pucch = calloc(list_size, sizeof(*sched_ctrl->sched_pucch));
+     sched_ctrl->sched_pucch_size = list_size;

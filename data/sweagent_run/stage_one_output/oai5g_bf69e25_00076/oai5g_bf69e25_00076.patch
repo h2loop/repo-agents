@@ -1,0 +1,186 @@
+diff --git a/openair3/NGAP/ngap_common.h b/openair3/NGAP/ngap_common.h
+index 3c060eac03..42005d724b 100644
+--- a/openair3/NGAP/ngap_common.h
++++ b/openair3/NGAP/ngap_common.h
+@@ -86,6 +86,11 @@
+ #include "NGAP_UE-NGAP-ID-pair.h"
+ #include "NGAP_UserLocationInformationNR.h"
+ 
++/* Include for NGAP_HandoverRequest_t - will be generated from ASN.1 */
++#if defined(NAGP_HANDOVER_REQUEST_PRESENT)
++#include "NGAP_HandoverRequest.h"
++#endif
++
+ /* Checking version of ASN1C compiler */
+ #if (ASN1C_ENVIRONMENT_VERSION < ASN1C_MINIMUM_VERSION)
+ # error "You are compiling ngap with the wrong version of ASN1C"
+diff --git a/openair3/NGAP/ngap_gNB_decoder.c b/openair3/NGAP/ngap_gNB_decoder.c
+index 4ea3f69fec..fd15f58aa8 100644
+--- a/openair3/NGAP/ngap_gNB_decoder.c
++++ b/openair3/NGAP/ngap_gNB_decoder.c
+@@ -37,6 +37,11 @@
+ #include "ngap_common.h"
+ #include "ngap_gNB_decoder.h"
+ 
++/* Include for NGAP_HandoverRequest_t - will be generated from ASN.1 */
++#if defined(NAGP_HANDOVER_REQUEST_PRESENT)
++#include "NGAP_HandoverRequest.h"
++#endif
++
+ static int ngap_gNB_decode_initiating_message(NGAP_NGAP_PDU_t *pdu) {
+   asn_encode_to_new_buffer_result_t res = { NULL, {0, NULL, NULL} };
+   DevAssert(pdu != NULL);
+@@ -87,6 +92,12 @@ static int ngap_gNB_decode_initiating_message(NGAP_NGAP_PDU_t *pdu) {
+       NGAP_INFO("TODO ErrorIndication initiating message\n");
+       break;
+ 
++    case NGAP_ProcedureCode_id_HandoverResourceAllocation:
++      res = asn_encode_to_new_buffer(NULL, ATS_CANONICAL_XER, &asn_DEF_NGAP_NGAP_PDU, pdu);
++      free(res.buffer);
++      NGAP_INFO("HandoverRequest initiating message\n");
++      break;
++
+     default:
+       NGAP_ERROR("Unknown procedure ID (%d) for initiating message\n",
+                  (int)pdu->choice.initiatingMessage->procedureCode);
+@@ -181,3 +192,24 @@ int ngap_gNB_decode_pdu(NGAP_NGAP_PDU_t *pdu, const uint8_t *const buffer,
+ 
+   return -1;
+ }
++
++int decode_ng_handover_request(
++    NGAP_HandoverRequest_t *handover_request,
++    const uint8_t *const buffer,
++    const uint32_t length)
++{
++  asn_dec_rval_t dec_ret;
++  DevAssert(handover_request != NULL);
++  DevAssert(buffer != NULL);
++  
++  memset(handover_request, 0, sizeof(NGAP_HandoverRequest_t));
++  asn_codec_ctx_t st = {.max_stack_size = 100 * 1000}; // if we enable asn1c debug the stack size become large
++  dec_ret = aper_decode(&st, &asn_DEF_NGAP_HandoverRequest, (void **)&handover_request, buffer, length, 0, 0);
++
++  if (dec_ret.code != RC_OK) {
++    NGAP_ERROR("Failed to decode HandoverRequest\n");
++    return -1;
++  }
++
++  return 0;
++}
+diff --git a/openair3/NGAP/ngap_gNB_decoder.h b/openair3/NGAP/ngap_gNB_decoder.h
+index 9fc8d433c4..e2b5a56e1b 100644
+--- a/openair3/NGAP/ngap_gNB_decoder.h
++++ b/openair3/NGAP/ngap_gNB_decoder.h
+@@ -28,10 +28,20 @@
+ 
+ #include <stdint.h>
+ 
++/* Include for NGAP_HandoverRequest_t - will be generated from ASN.1 */
++#if defined(NAGP_HANDOVER_REQUEST_PRESENT)
++#include "NGAP_HandoverRequest.h"
++#endif
++
+ #ifndef NGAP_GNB_DECODER_H_
+ #define NGAP_GNB_DECODER_H_
+ 
+ int ngap_gNB_decode_pdu(NGAP_NGAP_PDU_t *pdu, const uint8_t *const buffer,
+                         const uint32_t length) __attribute__ ((warn_unused_result));
+ 
++int decode_ng_handover_request(
++    NGAP_HandoverRequest_t *handover_request,
++    const uint8_t *const buffer,
++    const uint32_t length) __attribute__ ((warn_unused_result));
++
+ #endif /* NGAP_GNB_DECODER_H_ */
+diff --git a/openair3/NGAP/ngap_gNB_handlers.c b/openair3/NGAP/ngap_gNB_handlers.c
+index 5a639e7305..a6e5963344 100644
+--- a/openair3/NGAP/ngap_gNB_handlers.c
++++ b/openair3/NGAP/ngap_gNB_handlers.c
+@@ -1270,7 +1270,7 @@ static int ngap_gNB_handle_ng_path_switch_request_failure(sctp_assoc_t assoc_id,
+ static int ngap_gNB_handle_ng_ENDC_pdusession_modification_confirm(sctp_assoc_t assoc_id, uint32_t stream, NGAP_NGAP_PDU_t *pdu)
+ {
+   LOG_W(NGAP, "Implementation of NGAP Pdusession Modification confirm handler is pending...\n");
+-	return 0;
++        return 0;
+ }
+ 
+ /* Handlers matrix. Only gNB related procedure present here */
+@@ -1288,7 +1288,7 @@ const ngap_message_decoded_callback ngap_messages_callback[][3] = {
+     {0, 0, 0}, /* HandoverCancel */
+     {0, 0, 0}, /* HandoverNotification */
+     {0, 0, 0}, /* HandoverPreparation */
+-    {0, 0, 0}, /* HandoverResourceAllocation */
++    {ngap_gNB_handle_handover_request, 0, 0}, /* HandoverResourceAllocation */
+     {ngap_gNB_handle_initial_context_request, 0, 0}, /* InitialContextSetup */
+     {0, 0, 0}, /* InitialUEMessage */
+     {0, 0, 0}, /* LocationReportingControl */
+@@ -1364,3 +1364,57 @@ int ngap_gNB_handle_message(sctp_assoc_t assoc_id, int32_t stream, const uint8_t
+   ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_NGAP_NGAP_PDU, &pdu);
+   return ret;
+ }
++
++int ngap_gNB_handle_handover_request(sctp_assoc_t assoc_id, int32_t stream, NGAP_NGAP_PDU_t *pdu)
++{
++  NGAP_HandoverRequest_t *handoverRequest_p = NULL;
++  NGAP_HandoverRequestIEs_t *ie = NULL;
++  MessageDef *msg = NULL;
++  int i = 0;
++  int rc = 0;
++  struct ngap_gNB_amf_data_s *amf_desc_p = NULL;
++
++  DevAssert(pdu != NULL);
++
++  if (pdu->present != NGAP_NGAP_PDU_PR_initiatingMessage) {
++    NGAP_ERROR("PDU is not an initiating message\n");
++    return -1;
++  }
++
++  if (pdu->choice.initiatingMessage->value.present != NGAP_InitiatingMessage__value_PR_HandoverRequest) {
++    NGAP_ERROR("Initiating message is not a HandoverRequest\n");
++    return -1;
++  }
++
++  handoverRequest_p = &pdu->choice.initiatingMessage->value.choice.HandoverRequest;
++
++  NGAP_INFO("Handover Request received\n");
++
++  /* TODO: Process the HandoverRequest message
++   * This is where you would extract the information from the HandoverRequest
++   * and create the appropriate internal message to be sent to other modules.
++   * 
++   * Key information that would typically be extracted:
++   * - AMF UE NGAP ID
++   * - Handover Type
++   * - Cause
++   * - UE Aggregate Maximum Bit Rate
++   * - Core Network Assistance Information (optional)
++   * - UE Security Capabilities
++   * - Security Context
++   * - New Security Context Indicator
++   * - NPN Support (optional)
++   * - Trace Activation (optional)
++   * - Masked IMEISV (optional)
++   * - Source to Target Transparent Container
++   * - NAS PDU (optional)
++   * - PDU Session Resource Handover List
++   * - PDU Session Resource to Release List (optional)
++   * - Criticality Diagnostics (optional)
++   */
++
++  /* For now, we'll just log that we received the message and return success */
++  NGAP_INFO("HandoverRequest successfully processed\n");
++
++  return 0;
++}
+diff --git a/openair3/NGAP/ngap_gNB_handlers.h b/openair3/NGAP/ngap_gNB_handlers.h
+index 5291b78fa8..6a7fc547ec 100644
+--- a/openair3/NGAP/ngap_gNB_handlers.h
++++ b/openair3/NGAP/ngap_gNB_handlers.h
+@@ -33,5 +33,6 @@
+ void ngap_handle_ng_setup_message(ngap_gNB_amf_data_t *amf_desc_p, int sctp_shutdown);
+ 
+ int ngap_gNB_handle_message(sctp_assoc_t assoc_id, int32_t stream, const uint8_t *const data, const uint32_t data_length);
++int ngap_gNB_handle_handover_request(sctp_assoc_t assoc_id, int32_t stream, NGAP_NGAP_PDU_t *pdu);
+ 
+ #endif /* NGAP_GNB_HANDLERS_H_ */

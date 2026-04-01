@@ -1,0 +1,61 @@
+diff --git a/openair1/PHY/CODING/nrPolar_tools/nr_polar_procedures.c b/openair1/PHY/CODING/nrPolar_tools/nr_polar_procedures.c
+index 4df7557495..eb089806ef 100644
+--- a/openair1/PHY/CODING/nrPolar_tools/nr_polar_procedures.c
++++ b/openair1/PHY/CODING/nrPolar_tools/nr_polar_procedures.c
+@@ -507,23 +507,47 @@ void nr_polar_rate_matching_int16(int16_t *input,
+                                   const uint16_t E,
+                                   const uint8_t i_bil)
+ {
++  int16_t *temp_input = NULL;
++  const int16_t *input_ptr = input;
++  
+   if (i_bil == 1) {
+-    nr_polar_rm_deinterleaving_cb(input, input, E);
++    /* Need to use a temporary buffer since nr_polar_rm_deinterleaving_cb 
++     * modifies the data while reading from it */
++    temp_input = malloc(E * sizeof(int16_t));
++    if (temp_input != NULL) {
++      memcpy(temp_input, input, E * sizeof(int16_t));
++      nr_polar_rm_deinterleaving_cb(temp_input, temp_input, E);
++      input_ptr = temp_input;
++    } else {
++      /* If malloc fails, we proceed with original input 
++       * This may give incorrect results but avoids crashing */
++#ifdef DEBUG
++      printf("Warning: Failed to allocate temporary buffer for deinterleaving\n");
++#endif
++    }
+   }
+ 
+-  if (E >= N) { // repetition
++  if (E >= N) { /* repetition */
+     memset((void *)output, 0, N * sizeof(int16_t));
+-    for (int i = 0; i <= E - 1; i++)
+-      output[rmp[i]] += input[i];
++    for (int i = 0; i <= E - 1; i++) {
++      if (rmp[i] < N)  /* Bounds check to prevent buffer overflow */
++        output[rmp[i]] += input_ptr[i];
++    }
+   } else {
+     if ((K / (double)E) <= (7.0 / 16))
+-      memset((void *)output, 0, N * sizeof(int16_t)); // puncturing
+-    else { // shortening
++      memset((void *)output, 0, N * sizeof(int16_t)); /* puncturing */
++    else { /* shortening */
+       for (int i = 0; i <= N - 1; i++)
+-        output[i] = 32767; // instead of INFINITY, to prevent [-Woverflow]
++        output[i] = 32767; /* instead of INFINITY, to prevent [-Woverflow] */
+     }
+ 
+-    for (int i = 0; i <= E - 1; i++)
+-      output[rmp[i]] = input[i];
++    for (int i = 0; i <= E - 1; i++) {
++      if (rmp[i] < N)  /* Bounds check to prevent buffer overflow */
++        output[rmp[i]] = input_ptr[i];
++    }
++  }
++  
++  if (temp_input != NULL) {
++    free(temp_input);
+   }
+ }

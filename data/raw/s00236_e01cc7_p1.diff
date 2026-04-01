@@ -1,0 +1,12 @@
+diff --git a/openair3/NAS/UE/API/USER/at_command.c b/openair3/NAS/UE/API/USER/at_command.c
+index a6591c6748..f0c3b286b4 100644
+--- a/openair3/NAS/UE/API/USER/at_command.c
++++ b/openair3/NAS/UE/API/USER/at_command.c
+@@ -1003,6 +1003,7 @@ static int parse_clac_test(const char* string, int position, at_command_t* at_co
+ {
+   /* CLAC test command - No parameter */
+   at_command->id = AT_CLAC;
++  at_command->mask = AT_COMMAND_CLAC_MASK;
+   return at_command->id;
+ }
+ 

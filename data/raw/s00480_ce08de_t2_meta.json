@@ -1,0 +1,9 @@
+{
+  "run_id": "s00480_ce08de",
+  "pr_text": "## Title: Add error propagation to quantization functions in LDPC testbench\n\n### Summary\nThe quantization functions (`quantize4bit`, `quantize8bit`, and `quantize`) in the LDPC testbench silently failed when given invalid inputs (NaN, Inf, or zero denominator), causing undefined behavior in the floor() operation and potential data corruption. This change adds input validation and error propagation so callers can detect and handle quantization failures appropriately.\n\n### Changes\n- `openair1/PHY/",
+  "trajectory_path": "data/raw/s00480_ce08de_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00480_ce08de_p2.diff",
+  "patch_lines": 23,
+  "trajectory_steps": 48,
+  "timestamp": "2026-02-10T13:39:14Z"
+}

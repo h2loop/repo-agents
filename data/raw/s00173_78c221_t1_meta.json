@@ -1,0 +1,35 @@
+{
+  "run_id": "s00173_78c221",
+  "function": {
+    "name": "nr_scan_ssb",
+    "file": "openair1/PHY/NR_UE_TRANSPORT/nr_initial_sync.c",
+    "start_line": 282,
+    "end_line": 387,
+    "body_lines": 106,
+    "signature": "void nr_scan_ssb(void *arg)",
+    "subsystem": "openair1/PHY/NR_UE_TRANSPORT",
+    "token_estimate": 356
+  },
+  "bug": {
+    "bug_id": "c_double_free",
+    "description": "double free where the same memory allocation is freed twice",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a double free where the same memory allocation is freed twice downstream of function nr_scan_ssb in the openair1/PHY/NR_UE_TRANSPORT subsystem.\nThe function is located at openair1/PHY/NR_UE_TRANSPORT/nr_initial_sync.c:282.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00173_78c221_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00173_78c221_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 23,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:38:30Z"
+}

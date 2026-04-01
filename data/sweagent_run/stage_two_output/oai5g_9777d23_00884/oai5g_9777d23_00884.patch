@@ -1,0 +1,33 @@
+diff --git a/executables/nr-gnb.c b/executables/nr-gnb.c
+index 2e9716c40c..8f42a1911d 100644
+--- a/executables/nr-gnb.c
++++ b/executables/nr-gnb.c
+@@ -439,8 +439,11 @@ void init_eNB_afterRU(void) {
+   PHY_VARS_gNB *gNB;
+   LOG_I(PHY,"%s() RC.nb_nr_inst:%d\n", __FUNCTION__, RC.nb_nr_inst);
+ 
+-  if(NFAPI_MODE == NFAPI_MODE_PNF)
++  if(NFAPI_MODE == NFAPI_MODE_PNF) {
++    pthread_mutex_lock(&RC.ru_mutex);
+     RC.nb_nr_inst = 1;
++    pthread_mutex_unlock(&RC.ru_mutex);
++  }
+   for (inst=0; inst<RC.nb_nr_inst; inst++) {
+     LOG_I(PHY,"RC.nb_nr_CC[inst:%d]:%p\n", inst, RC.gNB[inst]);
+ 
+@@ -457,11 +460,11 @@ void init_eNB_afterRU(void) {
+ 
+     for (ru_id=0,aa=0; ru_id<gNB->num_RU; ru_id++) {
+       AssertFatal(gNB->RU_list[ru_id]->common.rxdataF!=NULL,
+-		  "RU %d : common.rxdataF is NULL\n",
+-		  gNB->RU_list[ru_id]->idx);
++                  "RU %d : common.rxdataF is NULL\n",
++                  gNB->RU_list[ru_id]->idx);
+       AssertFatal(gNB->RU_list[ru_id]->prach_rxsigF!=NULL,
+-		  "RU %d : prach_rxsigF is NULL\n",
+-		  gNB->RU_list[ru_id]->idx);
++                  "RU %d : prach_rxsigF is NULL\n",
++                  gNB->RU_list[ru_id]->idx);
+       
+       for (i=0; i<gNB->RU_list[ru_id]->nb_rx; aa++,i++) {
+         LOG_I(PHY,"Attaching RU %d antenna %d to gNB antenna %d\n",gNB->RU_list[ru_id]->idx,i,aa);

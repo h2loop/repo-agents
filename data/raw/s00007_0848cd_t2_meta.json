@@ -1,0 +1,9 @@
+{
+  "run_id": "s00007_0848cd",
+  "pr_text": "## Title: Fix unreachable code in LTE eNB I0 measurements due to extraneous closing brace\n\n### Summary\nAn extraneous closing brace in the `lte_eNB_I0_measurements` function caused downstream code to be unreachable, preventing proper noise power calculations and RB processing. The misplaced brace at line 100 prematurely closed a conditional block, making all subsequent code\u2014including critical noise floor initialization and RB loop iterations\u2014inaccessible during execution. This likely led to incor",
+  "trajectory_path": "data/raw/s00007_0848cd_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00007_0848cd_p2.diff",
+  "patch_lines": 0,
+  "trajectory_steps": 19,
+  "timestamp": "2026-02-10T10:30:01Z"
+}

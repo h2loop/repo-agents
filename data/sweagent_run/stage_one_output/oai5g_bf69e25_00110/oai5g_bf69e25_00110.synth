@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix deprecated API usage in telnet server measurements\n\n### Summary\nThe telnet server measurements module was using deprecated direct access to global PHY variables without safety checks. This could lead to segmentation faults when the PHY variables were not properly initialized.\n\nSpecifically, functions `measurcmd_display_phycpu` and `measurcmd_display_phyta` in `telnetsrv_5Gue_measurements.c` directly accessed `PHY_vars_UE_g[0][0]` without verifying the pointers were valid.\n\nThis fix adds proper safety checks using `AssertFatal` before accessing these global variables, following the same pattern used elsewhere in the codebase.\n\n### Changes\n- `common/utils/telnetsrv/telnetsrv_5Gue_measurements.c`: Added safety checks before accessing PHY variables and included the assertions header.\n"
+}

@@ -1,0 +1,34 @@
+{
+  "run_id": "s00251_2ea397",
+  "function": {
+    "name": "update_nodes",
+    "file": "openair2/UTIL/OMG/omg.c",
+    "start_line": 166,
+    "end_line": 176,
+    "body_lines": 11,
+    "signature": "void update_nodes (double cur_time)",
+    "subsystem": "openair2/UTIL/OMG",
+    "token_estimate": 35
+  },
+  "bug": {
+    "bug_id": "c_uninitialized_memory_read",
+    "description": "read of uninitialized memory leading to undefined behavior",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "common",
+      "radio",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a read of uninitialized memory leading to undefined behavior downstream of function update_nodes in the openair2/UTIL/OMG subsystem.\nThe function is located at openair2/UTIL/OMG/omg.c:166.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00251_2ea397_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00251_2ea397_p1.diff",
+  "patch_lines": 17,
+  "trajectory_steps": 63,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:47:58Z"
+}

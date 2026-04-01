@@ -1,0 +1,145 @@
+diff --git a/openair1/PHY/LTE_TRANSPORT/pmch_common.c b/openair1/PHY/LTE_TRANSPORT/pmch_common.c
+index 8d65dd2744..247071b3c5 100644
+--- a/openair1/PHY/LTE_TRANSPORT/pmch_common.c
++++ b/openair1/PHY/LTE_TRANSPORT/pmch_common.c
+@@ -58,7 +58,7 @@ int is_fembms_cas_subframe(uint32_t frame, int subframe, LTE_DL_FRAME_PARMS *fra
+            break;
+       }
+    }
+-	
++        
+   }
+ 
+   return (0);
+@@ -123,63 +123,56 @@ int is_fembms_pmch_subframe(uint32_t frame, int subframe, LTE_DL_FRAME_PARMS *fr
+ 
+     if ((frame % period) == frame_parms->NonMBSFN_config.radioframeAllocationOffset) {
+       switch (subframe) {
+- 	case 0:
+-            return(0);
+-  	  break;
++        case 0:
++            return(0); // subframe 0 is not PMCH (CAS)
++          break;
+         case 1:
+           if ((frame_parms->NonMBSFN_config.non_mbsfn_SubframeConfig & 0x100) > 0)
+-            return(0);
+-
++            return(0); // subframe 1 is non-MBSFN
+           break;
+ 
+         case 2:
+           if ((frame_parms->NonMBSFN_config.non_mbsfn_SubframeConfig & 0x80) > 0)
+-            return(0);
+-
++            return(0); // subframe 2 is non-MBSFN
+           break;
+ 
+         case 3:
+           if ((frame_parms->NonMBSFN_config.non_mbsfn_SubframeConfig & 0x40) > 0)
+-            return(0);
+-
++            return(0); // subframe 3 is non-MBSFN
+           break;
+ 
+         case 4:
+           if ((frame_parms->NonMBSFN_config.non_mbsfn_SubframeConfig & 0x20) > 0)
+-            return(0);
+-
++            return(0); // subframe 4 is non-MBSFN
+           break;
+ 
+         case 5:
+           if ((frame_parms->NonMBSFN_config.non_mbsfn_SubframeConfig & 0x10) > 0)
+-            return(0);
+-
++            return(0); // subframe 5 is non-MBSFN
+           break;
+ 
+         case 6:
+           if ((frame_parms->NonMBSFN_config.non_mbsfn_SubframeConfig & 0x8) > 0)
+-            return(0);
+-
++            return(0); // subframe 6 is non-MBSFN
+           break;
+ 
+         case 7:
+           if ((frame_parms->NonMBSFN_config.non_mbsfn_SubframeConfig & 0x4) > 0)
+-            return(0);
+-
++            return(0); // subframe 7 is non-MBSFN
+           break;
+ 
+         case 8:
+           if ((frame_parms->NonMBSFN_config.non_mbsfn_SubframeConfig & 0x2) > 0)
+-            return(0);
+-
++            return(0); // subframe 8 is non-MBSFN
+           break;
+ 
+         case 9:
+           if ((frame_parms->NonMBSFN_config.non_mbsfn_SubframeConfig & 0x1) > 0)
+-            return(0);
+-
++            return(0); // subframe 9 is non-MBSFN
+           break;
+       }
++      // If we reach here, the subframe is not in the non-MBSFN configuration, so it's PMCH
++      return(1);
+     } else if((frame_parms->FeMBMS_active == 1 || frame_parms->NonMBSFN_config_flag == 1 ) && !is_fembms_cas_subframe(frame,subframe,frame_parms) ) { //Then regular MBSFN FeMBMS subframe
+       return(1);
+     }
+@@ -281,7 +274,7 @@ int is_pmch_subframe(uint32_t frame, int subframe, LTE_DL_FRAME_PARMS *frame_par
+           if (frame_parms->frame_type == FDD) {
+             switch (subframe) {
+               case 1:
+-                if (((frame_parms->MBSFN_config[i].mbsfn_SubframeConfig)  & (0x800000>>(j*6))) > 0) {
++                if (((frame_parms->MBSFN_config[i].mbsfn_SubframeConfig>>(j*6)) & MBSFN_FDD_SF1) > 0) {
+                   //LOG_E(PHY,"SubframeConfig<<6(%x),MBSFN_FDD_SF1(%x)\n",frame_parms->MBSFN_config[i].mbsfn_SubframeConfig,0x800000>>(j*6));
+                   return(1);
+                 }
+@@ -289,7 +282,7 @@ int is_pmch_subframe(uint32_t frame, int subframe, LTE_DL_FRAME_PARMS *frame_par
+                 break;
+ 
+               case 2:
+-                if (((frame_parms->MBSFN_config[i].mbsfn_SubframeConfig) & (0x400000>>(j*6))) > 0) {
++                if (((frame_parms->MBSFN_config[i].mbsfn_SubframeConfig>>(j*6)) & MBSFN_FDD_SF2) > 0) {
+                   //LOG_E(PHY,"SubframeConfig<<6(%x),MBSFN_FDD_SF1(%x)\n",frame_parms->MBSFN_config[i].mbsfn_SubframeConfig,0x400000>>(j*6));
+                   return(1);
+                 }
+@@ -297,7 +290,7 @@ int is_pmch_subframe(uint32_t frame, int subframe, LTE_DL_FRAME_PARMS *frame_par
+                 break;
+ 
+               case 3:
+-                if (((frame_parms->MBSFN_config[i].mbsfn_SubframeConfig) & (0x200000>>(j*6))) > 0) {
++                if (((frame_parms->MBSFN_config[i].mbsfn_SubframeConfig>>(j*6)) & MBSFN_FDD_SF3) > 0) {
+                   //LOG_E(PHY,"SubframeConfig<<6(%x),MBSFN_FDD_SF1(%x)\n",frame_parms->MBSFN_config[i].mbsfn_SubframeConfig,0x200000>>(j*6));
+                   return(1);
+                 }
+@@ -305,7 +298,7 @@ int is_pmch_subframe(uint32_t frame, int subframe, LTE_DL_FRAME_PARMS *frame_par
+                 break;
+ 
+               case 6:
+-                if (((frame_parms->MBSFN_config[i].mbsfn_SubframeConfig) & (0x100000>>(j*6))) > 0) {
++                if (((frame_parms->MBSFN_config[i].mbsfn_SubframeConfig>>(j*6)) & MBSFN_FDD_SF6) > 0) {
+                   //LOG_E(PHY,"SubframeConfig<<6(%x),MBSFN_FDD_SF1(%x)\n",frame_parms->MBSFN_config[i].mbsfn_SubframeConfig,0x100000>>(j*6));
+                   return(1);
+                 }
+@@ -313,7 +306,7 @@ int is_pmch_subframe(uint32_t frame, int subframe, LTE_DL_FRAME_PARMS *frame_par
+                 break;
+ 
+               case 7:
+-                if (((frame_parms->MBSFN_config[i].mbsfn_SubframeConfig) & (0x80000>>(j*6))) > 0) {
++                if (((frame_parms->MBSFN_config[i].mbsfn_SubframeConfig>>(j*6)) & MBSFN_FDD_SF7) > 0) {
+                   //LOG_E(PHY,"SubframeConfig<<6(%x),MBSFN_FDD_SF1(%x)\n",frame_parms->MBSFN_config[i].mbsfn_SubframeConfig,0x80000>>(j*6));
+                   return(1);
+                 }
+@@ -321,7 +314,7 @@ int is_pmch_subframe(uint32_t frame, int subframe, LTE_DL_FRAME_PARMS *frame_par
+                 break;
+ 
+               case 8:
+-                if (((frame_parms->MBSFN_config[i].mbsfn_SubframeConfig) & (0x40000>>(j*6))) > 0) {
++                if (((frame_parms->MBSFN_config[i].mbsfn_SubframeConfig>>(j*6)) & MBSFN_FDD_SF8) > 0) {
+                   //LOG_E(PHY,"SubframeConfig<<6(%x),MBSFN_FDD_SF1(%x)\n",frame_parms->MBSFN_config[i].mbsfn_SubframeConfig,0x40000>>(j*6));
+                   return(1);
+                 }

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00475_fc2749",
+  "pr_text": "## Title: Fix missed scheduling opportunity in LTE PHY simulator\n\n### Summary\nThe `eNB_scheduler` function in the LTE PHY simulation code was only printing a debug message without performing actual scheduling logic. This caused a bug where UEs with pending data in their buffers were never scheduled downstream, resulting in missed scheduling opportunities and stalled data transmission in simulation scenarios.\n\nThe fix adds a call to `get_dci()` within the scheduler function to trigger DCI (Downli",
+  "trajectory_path": "data/raw/s00475_fc2749_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00475_fc2749_p2.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 7,
+  "timestamp": "2026-02-10T13:32:15Z"
+}

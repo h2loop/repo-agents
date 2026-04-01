@@ -1,0 +1,33 @@
+{
+  "run_id": "s00263_ab3927",
+  "function": {
+    "name": "nr_ue_configure_pucch",
+    "file": "openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c",
+    "start_line": 1520,
+    "end_line": 1771,
+    "body_lines": 252,
+    "signature": "int nr_ue_configure_pucch(NR_UE_MAC_INST_t *mac, int slot, frame_t frame, uint16_t rnti, PUCCH_sched_t *pucch, fapi_nr_ul_config_pucch_pdu *pucch_pdu)",
+    "subsystem": "openair2/LAYER2/NR_MAC_UE",
+    "token_estimate": 836
+  },
+  "bug": {
+    "bug_id": "c_copy_paste_error",
+    "description": "copy-paste error where duplicated code was not correctly updated for its new context",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a copy-paste error where duplicated code was not correctly updated for its new context downstream of function nr_ue_configure_pucch in the openair2/LAYER2/NR_MAC_UE subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c:1520.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00263_ab3927_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00263_ab3927_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 20,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:12:59Z"
+}

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00104_1b40a5",
+  "pr_text": "## Title: Fix use-after-free vulnerability in bfly5_tw1 FFT butterfly function\n\n### Summary\nThe `bfly5_tw1` function in the OAI DFT library performs a 5-point butterfly operation for FFT computations using SIMD intrinsics. The original implementation repeatedly dereferenced input pointers (`x0` through `x4`) throughout the function body. If the caller freed the input memory buffer after the first dereference (or during the function execution in multi-threaded contexts), subsequent accesses would",
+  "trajectory_path": "data/raw/s00104_1b40a5_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00104_1b40a5_p2.diff",
+  "patch_lines": 30,
+  "trajectory_steps": 17,
+  "timestamp": "2026-02-10T11:13:15Z"
+}

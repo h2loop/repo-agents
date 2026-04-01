@@ -1,0 +1,40 @@
+{
+  "run_id": "s00020_aed65a",
+  "function": {
+    "name": "encode_imeisv_mobile_identity",
+    "file": "openair3/NAS/COMMON/IES/MobileIdentity.c",
+    "start_line": 575,
+    "end_line": 607,
+    "body_lines": 33,
+    "signature": "static int encode_imeisv_mobile_identity(ImeisvMobileIdentity_t *imeisv, uint8_t *buffer)",
+    "subsystem": "openair3/NAS/COMMON",
+    "token_estimate": 161
+  },
+  "bug": {
+    "bug_id": "c_buffer_overflow",
+    "description": "buffer overflow vulnerability",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables",
+      "radio",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a buffer overflow vulnerability downstream of function encode_imeisv_mobile_identity in the openair3/NAS/COMMON subsystem.\nThe function is located at openair3/NAS/COMMON/IES/MobileIdentity.c:575.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00020_aed65a_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00020_aed65a_p1.diff",
+  "patch_lines": 7,
+  "trajectory_steps": 48,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:41:42Z"
+}

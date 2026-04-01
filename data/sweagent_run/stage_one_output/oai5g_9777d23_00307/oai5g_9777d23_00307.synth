@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect binomial coefficient calculation in SRS resource indicator sizing\n\n### Summary\nThe binomial function used in SRS resource indicator bit sizing had two critical issues:\n\n1. Incorrect overflow detection that could miss potential integer overflows\n2. Overly complex calculation formula that was hard to verify\n\nThis could lead to incorrect SRS resource indicator sizes being calculated, potentially causing issues with uplink scheduling.\n\n### Changes\n- `openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c`: Fixed overflow check condition and simplified calculation in binomial function\n- Changed overflow detection from `(c / i > UINT_MAX/n)` to `(c > UINT_MAX / n)`\n- Simplified calculation from `c = c / i * n + c % i * n / i` to `c = (c * n) / i`\n\n"
+}

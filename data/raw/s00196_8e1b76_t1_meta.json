@@ -1,0 +1,40 @@
+{
+  "run_id": "s00196_8e1b76",
+  "function": {
+    "name": "sctp_get_cnx",
+    "file": "openair3/SCTP/sctp_eNB_task.c",
+    "start_line": 96,
+    "end_line": 113,
+    "body_lines": 18,
+    "signature": "struct sctp_cnx_list_elm_s *sctp_get_cnx(sctp_assoc_t assoc_id, int sd)",
+    "subsystem": "openair3/SCTP",
+    "token_estimate": 43
+  },
+  "bug": {
+    "bug_id": "c_buffer_overflow",
+    "description": "buffer overflow vulnerability",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables",
+      "radio",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a buffer overflow vulnerability downstream of function sctp_get_cnx in the openair3/SCTP subsystem.\nThe function is located at openair3/SCTP/sctp_eNB_task.c:96.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00196_8e1b76_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00196_8e1b76_p1.diff",
+  "patch_lines": 10,
+  "trajectory_steps": 21,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:12:06Z"
+}

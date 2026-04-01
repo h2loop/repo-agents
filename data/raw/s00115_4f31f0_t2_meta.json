@@ -1,0 +1,9 @@
+{
+  "run_id": "s00115_4f31f0",
+  "pr_text": "## Title: Fix cross-layer RNTI type mismatches in mac_remove_nr_ue calls\n\n### Summary\nThe `mac_remove_nr_ue()` function expects an `rnti_t` type for its second parameter, but several cross-layer call sites were passing raw integer types without explicit casting. This parameter mismatch between MAC and RRC layers could lead to inconsistent type handling and potential truncation issues on platforms where `rnti_t` differs from the caller's integer type. The root cause is missing explicit type casts",
+  "trajectory_path": "data/raw/s00115_4f31f0_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00115_4f31f0_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 33,
+  "timestamp": "2026-02-10T11:20:00Z"
+}

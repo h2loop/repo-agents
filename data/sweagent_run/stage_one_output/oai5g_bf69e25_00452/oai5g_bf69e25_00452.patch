@@ -1,0 +1,20 @@
+diff --git a/openair2/LAYER2/nr_rlc/nr_rlc_entity_am.c b/openair2/LAYER2/nr_rlc/nr_rlc_entity_am.c
+index 783aa6e849..f7ffc1677f 100644
+--- a/openair2/LAYER2/nr_rlc/nr_rlc_entity_am.c
++++ b/openair2/LAYER2/nr_rlc/nr_rlc_entity_am.c
+@@ -1767,9 +1767,12 @@ static void check_t_poll_retransmit(nr_rlc_entity_am_t *entity)
+    */
+   cur = entity->wait_list;
+ 
+-  /* todo: do we need to for check cur == NULL?
+-   * It seems that no, the wait list should not be empty here, but not sure.
+-   */
++  /* Check if wait list is empty */
++  if (cur == NULL) {
++    LOG_W(RLC, "%s:%d:%s: warning: t_poll_retransmit expired but wait_list is empty\n",
++          __FILE__, __LINE__, __FUNCTION__);
++    return;
++  }
+ 
+   entity->wait_list = cur->next;
+   if (entity->wait_list == NULL)

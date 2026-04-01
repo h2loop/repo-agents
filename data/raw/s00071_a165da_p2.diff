@@ -1,0 +1,160 @@
+diff --git a/openair3/ocp-gtpu/gtp_itf.cpp b/openair3/ocp-gtpu/gtp_itf.cpp
+index 9fb8f159fe..10e9f2cfad 100644
+--- a/openair3/ocp-gtpu/gtp_itf.cpp
++++ b/openair3/ocp-gtpu/gtp_itf.cpp
+@@ -940,9 +940,152 @@ static int Gtpv1uHandleError(int h,
+                              uint32_t msgBufLen,
+                              uint16_t peerPort,
+                              uint32_t peerIp) {
+-  LOG_E(GTPU, "Received GTP error indication (error handling is missing/not implemented)\n");
+-  int rc = GTPNOK;
+-  return rc;
++  LOG_I(GTPU, "Received GTP error indication from peer %s:%d\n", 
++        inet_ntoa(*(struct in_addr *)&peerIp), peerPort);
++
++  // Validate message buffer
++  if (msgBuf == NULL || msgBufLen < sizeof(Gtpv1uMsgHeaderT)) {
++    LOG_E(GTPU, "[%d] Received malformed GTP error indication - invalid buffer\n", h);
++    return GTPNOK;
++  }
++
++  Gtpv1uMsgHeaderT *msgHdr = (Gtpv1uMsgHeaderT *)msgBuf;
++
++  // Validate GTP header
++  if (msgHdr->version != 1 || msgHdr->PT != 1) {
++    LOG_E(GTPU, "[%d] Received a packet that is not a valid GTP header\n", h);
++    return GTPNOK;
++  }
++
++  // GTP error indication should have TEID = 0 (TS 29.281)
++  teid_t teid = ntohl(msgHdr->teid);
++  if (teid != 0) {
++    LOG_W(GTPU, "[%d] GTP error indication with non-zero TEID: %x\n", h, teid);
++  }
++
++  // Calculate minimum header length based on flags
++  uint32_t minHeaderLen = sizeof(Gtpv1uMsgHeaderT);
++  if (msgHdr->E || msgHdr->S || msgHdr->PN) {
++    minHeaderLen += 4; // Optional fields (seq num + npdu num + next ext header)
++  }
++
++  // Validate message length
++  if (msgBufLen < minHeaderLen) {
++    LOG_E(GTPU, "[%d] Received malformed GTP error indication - insufficient length: %d < %d\n", 
++          h, msgBufLen, minHeaderLen);
++    return GTPNOK;
++  }
++
++  pthread_mutex_lock(&globGtp.gtp_lock);
++
++  // Get instance from socket handle
++  auto instChk = globGtp.instances.find(h);
++  if (instChk == globGtp.instances.end()) {
++    LOG_E(GTPU, "[%d] GTP error indication on unknown instance\n", h);
++    pthread_mutex_unlock(&globGtp.gtp_lock);
++    return GTPNOK;
++  }
++  gtpEndPoint *inst = &instChk->second;
++
++  // For error indication, we need to extract the TEID from the GTP payload
++  // According to TS 29.281, error indication contains the original packet's TEID
++  uint32_t originalTeid = 0;
++  uint32_t payloadOffset = minHeaderLen;
++
++  // Look for TEID in the payload (should be at the beginning of the payload)
++  if (msgBufLen > payloadOffset + sizeof(teid_t)) {
++    originalTeid = ntohl(*(teid_t *)(msgBuf + payloadOffset));
++    LOG_D(GTPU, "[%d] Extracted original TEID from error indication: %x\n", h, originalTeid);
++  } else {
++    LOG_W(GTPU, "[%d] GTP error indication without original TEID in payload\n", h);
++    pthread_mutex_unlock(&globGtp.gtp_lock);
++    return GTPNOK;
++  }
++
++  // Look up UE context using the TEID-to-UE mapping
++  auto tunnel = globGtp.te2ue_mapping.find(originalTeid);
++  if (tunnel == globGtp.te2ue_mapping.end()) {
++    LOG_E(GTPU, "[%d] GTP error indication for unknown TEID %x - no UE context found\n", 
++          h, originalTeid);
++    pthread_mutex_unlock(&globGtp.gtp_lock);
++    return GTPNOK;
++  }
++
++  ueidData_t *ueData = &tunnel->second;
++  LOG_I(GTPU, "[%d] GTP error indication mapped to UE ID: %lu, Bearer ID: %d, Instance: %ld\n",
++        h, ueData->ue_id, ueData->incoming_rb_id, ueData->outgoing_teid);
++
++  // Construct protocol context for callback
++  protocol_ctxt_t ctxt;
++  ctxt.module_id = 0;
++  ctxt.enb_flag = 1;
++  ctxt.instance = inst->addr.originInstance;
++  ctxt.rntiMaybeUEid = ueData->ue_id;
++  ctxt.frame = 0;
++  ctxt.subframe = 0;
++  ctxt.eNB_index = 0;
++  ctxt.brOption = 0;
++
++  const srb_flag_t srb_flag = SRB_FLAG_NO;
++  const rb_id_t rb_id = ueData->incoming_rb_id;
++  const mui_t mui = RLC_MUI_UNDEFINED;
++  const confirm_t confirm = RLC_SDU_CONFIRM_NO;
++  const pdcp_transmission_mode_t mode = PDCP_TRANSMISSION_MODE_DATA;
++  const uint32_t sourceL2Id = 0;
++  const uint32_t destinationL2Id = 0;
++
++  // Use zero-length payload to signal error condition to upper layers
++  unsigned char *emptyPayload = NULL;
++  sdu_size_t payloadSize = 0;
++
++  // Notify upper layers via callback
++  bool callbackResult = false;
++  if (ueData->callBackSDAP != NULL) {
++    // Use SDAP callback if available (5G)
++    LOG_D(GTPU, "[%d] Notifying upper layer via SDAP callback for UE %lu, bearer %d\n",
++          h, ueData->ue_id, ueData->incoming_rb_id);
++    callbackResult = ueData->callBackSDAP(&ctxt,
++                                           ueData->ue_id,
++                                           srb_flag,
++                                           rb_id,
++                                           mui,
++                                           confirm,
++                                           payloadSize,
++                                           emptyPayload,
++                                           mode,
++                                           &sourceL2Id,
++                                           &destinationL2Id,
++                                           0, // qfi
++                                           false, // rqi
++                                           ueData->pdusession_id);
++  } else if (ueData->callBack != NULL) {
++    // Use standard callback (4G)
++    LOG_D(GTPU, "[%d] Notifying upper layer via standard callback for UE %lu, bearer %d\n",
++          h, ueData->ue_id, ueData->incoming_rb_id);
++    callbackResult = ueData->callBack(&ctxt,
++                                      srb_flag,
++                                      rb_id,
++                                      mui,
++                                      confirm,
++                                      payloadSize,
++                                      emptyPayload,
++                                      mode,
++                                      &sourceL2Id,
++                                      &destinationL2Id);
++  } else {
++    LOG_E(GTPU, "[%d] No callback registered for UE %lu, bearer %d\n",
++          h, ueData->ue_id, ueData->incoming_rb_id);
++  }
++
++  if (!callbackResult) {
++    LOG_E(GTPU, "[%d] Upper layer callback failed for GTP error indication\n", h);
++  } else {
++    LOG_I(GTPU, "[%d] Successfully notified upper layers of GTP error for UE %lu, bearer %d\n",
++          h, ueData->ue_id, ueData->incoming_rb_id);
++  }
++
++  pthread_mutex_unlock(&globGtp.gtp_lock);
++  return !GTPNOK;
+ }
+ 
+ static int Gtpv1uHandleSupportedExt(int h,

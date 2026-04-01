@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect memory allocation in beam management initialization\n\n### Summary\nThe beam management initialization code had incorrect sizeof calculations when allocating memory for beam allocation structures. This caused memory corruption and unpredictable behavior when beamforming was enabled.\n\nThe issue manifested as segmentation faults during gNB initialization when analog beamforming parameters were configured.\n\n### Changes\n- `openair2/GNB_APP/gnb_config.c`: Fixed memory allocation size for beam_allocation array\n- `openair2/LAYER2/NR_MAC_gNB/config.c`: Fixed memory allocation size for individual beam allocation entries\n\n"
+}

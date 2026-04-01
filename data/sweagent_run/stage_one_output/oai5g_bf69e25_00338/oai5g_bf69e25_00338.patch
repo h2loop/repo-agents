@@ -1,0 +1,248 @@
+diff --git a/openair2/M2AP/m2ap_MCE_management_procedures.c b/openair2/M2AP/m2ap_MCE_management_procedures.c
+index 3934a57c74..f42b45d616 100644
+--- a/openair2/M2AP/m2ap_MCE_management_procedures.c
++++ b/openair2/M2AP/m2ap_MCE_management_procedures.c
+@@ -29,6 +29,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <stdint.h>
++#include <inttypes.h>
+ 
+ #include "intertask_interface.h"
+ 
+@@ -102,7 +103,7 @@ void dump_mce_tree_m2(m2ap_MCE_data_t *t)
+ {
+   if (t == NULL) return;
+   printf("-----------------------\n");
+-  printf("MCE id %d %s\n", t->MCE_id, t->MCE_name);
++  printf("MCE id %d %s\n", t->MCE_id, t->MCE_name ? t->MCE_name : "NULL");
+   printf("state %d\n", t->state);
+   printf("nextstream %d\n", t->nextstream);
+   printf("in_streams %d out_streams %d\n", t->in_streams, t->out_streams);
+@@ -114,17 +115,26 @@ void dump_mce_tree_m2(m2ap_MCE_data_t *t)
+ void dump_mce_trees_m2(void)
+ {
+ m2ap_MCE_instance_t *zz;
++struct m2ap_MCE_data_s *elm;
++
+ STAILQ_FOREACH(zz, &m2ap_MCE_internal_data.m2ap_MCE_instances_head,
+                m2ap_MCE_entries) {
+-//printf("here comes the tree (instance %d):\n---------------------------------------------\n", zz->instance);
+-dump_mce_tree_m2(zz->m2ap_mce_head.rbh_root);
+-//printf("---------------------------------------------\n");
++  printf("here comes the tree (instance %ld):\n---------------------------------------------\n", (long)zz->instance);
++  RB_FOREACH(elm, m2ap_mce_map, &zz->m2ap_mce_head) {
++    printf("-----------------------\n");
++    printf("MCE id %d %s\n", elm->MCE_id, elm->MCE_name ? elm->MCE_name : "NULL");
++    printf("state %d\n", elm->state);
++    printf("nextstream %d\n", elm->nextstream);
++    printf("in_streams %d out_streams %d\n", elm->in_streams, elm->out_streams);
++    printf("cnx_id %d assoc_id %d\n", elm->cnx_id, elm->assoc_id);
++  }
++  printf("---------------------------------------------\n");
+ }
+ }
+ 
+ struct m2ap_MCE_data_s *m2ap_get_MCE(m2ap_MCE_instance_t *instance_p,
+-				     int32_t assoc_id,
+-				     uint16_t cnx_id)
++                                     int32_t assoc_id,
++                                     uint16_t cnx_id)
+ {
+   struct m2ap_MCE_data_s  temp;
+   struct m2ap_MCE_data_s *found;
+@@ -249,7 +259,7 @@ m2ap_MCE_data_t  * m2ap_is_MCE_assoc_id_in_list (const uint32_t sctp_assoc_id)
+     found = RB_FIND(m2ap_mce_map, &inst->m2ap_mce_head, &temp);
+     if (found != NULL){
+       if (found->assoc_id == sctp_assoc_id) {
+-	return found;
++        return found;
+       }
+     }
+   }
+diff --git a/openair2/M2AP/m2ap_eNB_management_procedures.c b/openair2/M2AP/m2ap_eNB_management_procedures.c
+index 59d91afb74..eaa5acbb2d 100644
+--- a/openair2/M2AP/m2ap_eNB_management_procedures.c
++++ b/openair2/M2AP/m2ap_eNB_management_procedures.c
+@@ -29,6 +29,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <stdint.h>
++#include <inttypes.h>
+ 
+ #include "intertask_interface.h"
+ 
+@@ -102,7 +103,7 @@ void dump_tree_m2(m2ap_eNB_data_t *t)
+ {
+   if (t == NULL) return;
+   printf("-----------------------\n");
+-  printf("eNB id %d %s\n", t->eNB_id, t->eNB_name);
++  printf("eNB id %d %s\n", t->eNB_id, t->eNB_name ? t->eNB_name : "NULL");
+   printf("state %d\n", t->state);
+   printf("nextstream %d\n", t->nextstream);
+   printf("in_streams %d out_streams %d\n", t->in_streams, t->out_streams);
+@@ -114,17 +115,26 @@ void dump_tree_m2(m2ap_eNB_data_t *t)
+ void dump_trees_m2(void)
+ {
+ m2ap_eNB_instance_t *zz;
++struct m2ap_eNB_data_s *elm;
++
+ STAILQ_FOREACH(zz, &m2ap_eNB_internal_data.m2ap_eNB_instances_head,
+                m2ap_eNB_entries) {
+-printf("here comes the tree (instance %ld):\n---------------------------------------------\n", zz->instance);
+-dump_tree_m2(zz->m2ap_enb_head.rbh_root);
+-printf("---------------------------------------------\n");
++  printf("here comes the tree (instance %ld):\n---------------------------------------------\n", (long)zz->instance);
++  RB_FOREACH(elm, m2ap_enb_map, &zz->m2ap_enb_head) {
++    printf("-----------------------\n");
++    printf("eNB id %d %s\n", elm->eNB_id, elm->eNB_name ? elm->eNB_name : "NULL");
++    printf("state %d\n", elm->state);
++    printf("nextstream %d\n", elm->nextstream);
++    printf("in_streams %d out_streams %d\n", elm->in_streams, elm->out_streams);
++    printf("cnx_id %d assoc_id %d\n", elm->cnx_id, elm->assoc_id);
++  }
++  printf("---------------------------------------------\n");
+ }
+ }
+ 
+ struct m2ap_eNB_data_s *m2ap_get_eNB(m2ap_eNB_instance_t *instance_p,
+-				     int32_t assoc_id,
+-				     uint16_t cnx_id)
++                                     int32_t assoc_id,
++                                     uint16_t cnx_id)
+ {
+   struct m2ap_eNB_data_s  temp;
+   struct m2ap_eNB_data_s *found;
+@@ -249,7 +259,7 @@ m2ap_eNB_data_t  * m2ap_is_eNB_assoc_id_in_list (const uint32_t sctp_assoc_id)
+     found = RB_FIND(m2ap_enb_map, &inst->m2ap_enb_head, &temp);
+     if (found != NULL){
+       if (found->assoc_id == sctp_assoc_id) {
+-	return found;
++        return found;
+       }
+     }
+   }
+diff --git a/openair3/M3AP/m3ap_MCE_management_procedures.c b/openair3/M3AP/m3ap_MCE_management_procedures.c
+index 065d4b9616..bf501dbb77 100644
+--- a/openair3/M3AP/m3ap_MCE_management_procedures.c
++++ b/openair3/M3AP/m3ap_MCE_management_procedures.c
+@@ -29,6 +29,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <stdint.h>
++#include <inttypes.h>
+ 
+ #include "intertask_interface.h"
+ 
+@@ -102,7 +103,7 @@ void dump_tree_m3(m3ap_MCE_data_t *t)
+ {
+   if (t == NULL) return;
+   printf("-----------------------\n");
+-  printf("MCE id %d %s\n", t->MCE_id, t->MCE_name);
++  printf("MCE id %d %s\n", t->MCE_id, t->MCE_name ? t->MCE_name : "NULL");
+   printf("state %d\n", t->state);
+   printf("nextstream %d\n", t->nextstream);
+   printf("in_streams %d out_streams %d\n", t->in_streams, t->out_streams);
+@@ -114,17 +115,26 @@ void dump_tree_m3(m3ap_MCE_data_t *t)
+ void dump_trees_m3(void)
+ {
+ m3ap_MCE_instance_t *zz;
++struct m3ap_MCE_data_s *elm;
++
+ STAILQ_FOREACH(zz, &m3ap_MCE_internal_data.m3ap_MCE_instances_head,
+                m3ap_MCE_entries) {
+-printf("here comes the tree (instance %ld):\n---------------------------------------------\n", zz->instance);
+-dump_tree_m3(zz->m3ap_mce_head.rbh_root);
+-printf("---------------------------------------------\n");
++  printf("here comes the tree (instance %ld):\n---------------------------------------------\n", (long)zz->instance);
++  RB_FOREACH(elm, m3ap_mce_map, &zz->m3ap_mce_head) {
++    printf("-----------------------\n");
++    printf("MCE id %d %s\n", elm->MCE_id, elm->MCE_name ? elm->MCE_name : "NULL");
++    printf("state %d\n", elm->state);
++    printf("nextstream %d\n", elm->nextstream);
++    printf("in_streams %d out_streams %d\n", elm->in_streams, elm->out_streams);
++    printf("cnx_id %d assoc_id %d\n", elm->cnx_id, elm->assoc_id);
++  }
++  printf("---------------------------------------------\n");
+ }
+ }
+ 
+ struct m3ap_MCE_data_s *m3ap_get_MCE(m3ap_MCE_instance_t *instance_p,
+-				     int32_t assoc_id,
+-				     uint16_t cnx_id)
++                                     int32_t assoc_id,
++                                     uint16_t cnx_id)
+ {
+   struct m3ap_MCE_data_s  temp;
+   struct m3ap_MCE_data_s *found;
+@@ -249,7 +259,7 @@ m3ap_MCE_data_t  * m3ap_is_MCE_assoc_id_in_list (const uint32_t sctp_assoc_id)
+     found = RB_FIND(m3ap_mce_map, &inst->m3ap_mce_head, &temp);
+     if (found != NULL){
+       if (found->assoc_id == sctp_assoc_id) {
+-	return found;
++        return found;
+       }
+     }
+   }
+diff --git a/openair3/M3AP/m3ap_MME_management_procedures.c b/openair3/M3AP/m3ap_MME_management_procedures.c
+index 151aba04e4..31749be063 100644
+--- a/openair3/M3AP/m3ap_MME_management_procedures.c
++++ b/openair3/M3AP/m3ap_MME_management_procedures.c
+@@ -29,6 +29,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <stdint.h>
++#include <inttypes.h>
+ 
+ #include "intertask_interface.h"
+ 
+@@ -102,7 +103,7 @@ void dump_mme_tree_m2(m3ap_MME_data_t *t)
+ {
+   if (t == NULL) return;
+   printf("-----------------------\n");
+-  printf("MME id %d %s\n", t->MME_id, t->MME_name);
++  printf("MME id %d %s\n", t->MME_id, t->MME_name ? t->MME_name : "NULL");
+   printf("state %d\n", t->state);
+   printf("nextstream %d\n", t->nextstream);
+   printf("in_streams %d out_streams %d\n", t->in_streams, t->out_streams);
+@@ -114,17 +115,26 @@ void dump_mme_tree_m2(m3ap_MME_data_t *t)
+ void dump_mme_trees_m2(void)
+ {
+ m3ap_MME_instance_t *zz;
++struct m3ap_MME_data_s *elm;
++
+ STAILQ_FOREACH(zz, &m3ap_MME_internal_data.m3ap_MME_instances_head,
+                m3ap_MME_entries) {
+-printf("here comes the tree (instance %ld):\n---------------------------------------------\n", zz->instance);
+-dump_mme_tree_m2(zz->m3ap_mme_head.rbh_root);
+-printf("---------------------------------------------\n");
++  printf("here comes the tree (instance %ld):\n---------------------------------------------\n", (long)zz->instance);
++  RB_FOREACH(elm, m3ap_mme_map, &zz->m3ap_mme_head) {
++    printf("-----------------------\n");
++    printf("MME id %d %s\n", elm->MME_id, elm->MME_name ? elm->MME_name : "NULL");
++    printf("state %d\n", elm->state);
++    printf("nextstream %d\n", elm->nextstream);
++    printf("in_streams %d out_streams %d\n", elm->in_streams, elm->out_streams);
++    printf("cnx_id %d assoc_id %d\n", elm->cnx_id, elm->assoc_id);
++  }
++  printf("---------------------------------------------\n");
+ }
+ }
+ 
+ struct m3ap_MME_data_s *m3ap_get_MME(m3ap_MME_instance_t *instance_p,
+-				     int32_t assoc_id,
+-				     uint16_t cnx_id)
++                                     int32_t assoc_id,
++                                     uint16_t cnx_id)
+ {
+   struct m3ap_MME_data_s  temp;
+   struct m3ap_MME_data_s *found;
+@@ -249,7 +259,7 @@ m3ap_MME_data_t  * m3ap_is_MME_assoc_id_in_list (const uint32_t sctp_assoc_id)
+     found = RB_FIND(m3ap_mme_map, &inst->m3ap_mme_head, &temp);
+     if (found != NULL){
+       if (found->assoc_id == sctp_assoc_id) {
+-	return found;
++        return found;
+       }
+     }
+   }

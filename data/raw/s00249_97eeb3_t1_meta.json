@@ -1,0 +1,32 @@
+{
+  "run_id": "s00249_97eeb3",
+  "function": {
+    "name": "remove_ul_config_req_pdu",
+    "file": "nfapi/oai_integration/nfapi_vnf.c",
+    "start_line": 2015,
+    "end_line": 2032,
+    "body_lines": 18,
+    "signature": "static void remove_ul_config_req_pdu(int index, nfapi_ul_config_request_t *ul_config_req)",
+    "subsystem": "nfapi/oai_integration",
+    "token_estimate": 54
+  },
+  "bug": {
+    "bug_id": "c_unreachable_code",
+    "description": "unreachable code path due to incorrect conditional logic",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/NAS",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a unreachable code path due to incorrect conditional logic downstream of function remove_ul_config_req_pdu in the nfapi/oai_integration subsystem.\nThe function is located at nfapi/oai_integration/nfapi_vnf.c:2015.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00249_97eeb3_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00249_97eeb3_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 15,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:44:28Z"
+}

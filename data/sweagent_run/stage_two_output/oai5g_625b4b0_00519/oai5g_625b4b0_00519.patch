@@ -1,0 +1,11 @@
+diff --git a/common/utils/time_manager/time_server.c b/common/utils/time_manager/time_server.c
+index a1a95d8ebe..cb9833f1ce 100644
+--- a/common/utils/time_manager/time_server.c
++++ b/common/utils/time_manager/time_server.c
+@@ -245,5 +245,5 @@ static void time_server_tick_callback(void *ts)
+ void time_server_attach_time_source(time_server_t *time_server,
+                                     time_source_t *time_source)
+ {
+-  time_source_set_callback(time_source, time_server_tick_callback, time_server);
++  time_source_set_callback(time_source, time_server_tick_callback, (time_server_private_t *)time_server);
+ }

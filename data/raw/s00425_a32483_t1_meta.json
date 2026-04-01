@@ -1,0 +1,29 @@
+{
+  "run_id": "s00425_a32483",
+  "function": {
+    "name": "calculate_max_mcs_min_rb",
+    "file": "openair2/LAYER2/MAC/pre_processor.c",
+    "start_line": 729,
+    "end_line": 772,
+    "body_lines": 44,
+    "signature": "void calculate_max_mcs_min_rb(module_id_t mod_id, int CC_id, int bytes, int phr, int max_mcs, int *mcs, int max_rbs, int *rb_index, int *tx_power)",
+    "subsystem": "openair2/LAYER2/MAC",
+    "token_estimate": 176
+  },
+  "bug": {
+    "bug_id": "telecom_harq_error",
+    "description": "HARQ process error such as incorrect retransmission or wrong redundancy version",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a HARQ process error such as incorrect retransmission or wrong redundancy version downstream of function calculate_max_mcs_min_rb in the openair2/LAYER2/MAC subsystem.\nThe function is located at openair2/LAYER2/MAC/pre_processor.c:729.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00425_a32483_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00425_a32483_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 52,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:13:39Z"
+}

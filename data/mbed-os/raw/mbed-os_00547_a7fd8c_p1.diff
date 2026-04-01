@@ -1,0 +1,96 @@
+diff --git a/targets/TARGET_STM/TARGET_STM32F3/STM32Cube_FW/STM32F3xx_HAL_Driver/stm32f3xx_hal_irda.c b/targets/TARGET_STM/TARGET_STM32F3/STM32Cube_FW/STM32F3xx_HAL_Driver/stm32f3xx_hal_irda.c
+index 61ea67fe..8e860759 100644
+--- a/targets/TARGET_STM/TARGET_STM32F3/STM32Cube_FW/STM32F3xx_HAL_Driver/stm32f3xx_hal_irda.c
++++ b/targets/TARGET_STM/TARGET_STM32F3/STM32Cube_FW/STM32F3xx_HAL_Driver/stm32f3xx_hal_irda.c
+@@ -2785,18 +2785,38 @@ static void IRDA_Transmit_IT(IRDA_HandleTypeDef *hirda)
+     }
+     else
+     {
++      /* Check for buffer underflow before reading data */
+       if ((hirda->Init.WordLength == IRDA_WORDLENGTH_9B) && (hirda->Init.Parity == IRDA_PARITY_NONE))
+       {
+-        tmp = (uint16_t *) hirda->pTxBuffPtr; /* Derogation R.11.3 */
+-        hirda->Instance->TDR = (uint16_t)(*tmp & 0x01FFU);
+-        hirda->pTxBuffPtr += 2U;
++        /* For 9-bit data, ensure we have at least 2 bytes left in buffer */
++        if (hirda->TxXferCount >= 2U)
++        {
++          tmp = (uint16_t *) hirda->pTxBuffPtr; /* Derogation R.11.3 */
++          hirda->Instance->TDR = (uint16_t)(*tmp & 0x01FFU);
++          hirda->pTxBuffPtr += 2U;
++          hirda->TxXferCount -= 2U;
++        }
++        else
++        {
++          /* Not enough data for 2 bytes, stop transmission */
++          hirda->TxXferCount = 0U;
++        }
+       }
+       else
+       {
+-        hirda->Instance->TDR = (uint8_t)(*hirda->pTxBuffPtr & 0xFFU);
+-        hirda->pTxBuffPtr++;
++        /* For 8-bit data, ensure we have at least 1 byte left in buffer */
++        if (hirda->TxXferCount >= 1U)
++        {
++          hirda->Instance->TDR = (uint8_t)(*hirda->pTxBuffPtr & 0xFFU);
++          hirda->pTxBuffPtr++;
++          hirda->TxXferCount--;
++        }
++        else
++        {
++          /* Not enough data for 1 byte, stop transmission */
++          hirda->TxXferCount = 0U;
++        }
+       }
+-      hirda->TxXferCount--;
+     }
+   }
+ }
+@@ -2842,19 +2862,40 @@ static void IRDA_Receive_IT(IRDA_HandleTypeDef *hirda)
+   if (hirda->RxState == HAL_IRDA_STATE_BUSY_RX)
+   {
+     uhdata = (uint16_t) READ_REG(hirda->Instance->RDR);
++    
++    /* Check for buffer overflow before writing data */
+     if ((hirda->Init.WordLength == IRDA_WORDLENGTH_9B) && (hirda->Init.Parity == IRDA_PARITY_NONE))
+     {
+-      tmp = (uint16_t *) hirda->pRxBuffPtr; /* Derogation R.11.3 */
+-      *tmp = (uint16_t)(uhdata & uhMask);
+-      hirda->pRxBuffPtr  += 2U;
++      /* For 9-bit data, ensure we have at least 2 bytes left in buffer */
++      if (hirda->RxXferCount >= 2U)
++      {
++        tmp = (uint16_t *) hirda->pRxBuffPtr; /* Derogation R.11.3 */
++        *tmp = (uint16_t)(uhdata & uhMask);
++        hirda->pRxBuffPtr  += 2U;
++        hirda->RxXferCount -= 2U;
++      }
++      else
++      {
++        /* Not enough space for 2 bytes, stop reception */
++        hirda->RxXferCount = 0U;
++      }
+     }
+     else
+     {
+-      *hirda->pRxBuffPtr = (uint8_t)(uhdata & (uint8_t)uhMask);
+-      hirda->pRxBuffPtr++;
++      /* For 8-bit data, ensure we have at least 1 byte left in buffer */
++      if (hirda->RxXferCount >= 1U)
++      {
++        *hirda->pRxBuffPtr = (uint8_t)(uhdata & (uint8_t)uhMask);
++        hirda->pRxBuffPtr++;
++        hirda->RxXferCount--;
++      }
++      else
++      {
++        /* Not enough space for 1 byte, stop reception */
++        hirda->RxXferCount = 0U;
++      }
+     }
+ 
+-    hirda->RxXferCount--;
+     if (hirda->RxXferCount == 0U)
+     {
+       /* Disable the IRDA Parity Error Interrupt and RXNE interrupt */

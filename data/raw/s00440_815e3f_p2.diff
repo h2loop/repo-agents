@@ -1,0 +1,55 @@
+diff --git a/common/utils/T/tracer/hacks/multi-rru-clean.c b/common/utils/T/tracer/hacks/multi-rru-clean.c
+index fd94253fb0..611c31770b 100644
+--- a/common/utils/T/tracer/hacks/multi-rru-clean.c
++++ b/common/utils/T/tracer/hacks/multi-rru-clean.c
+@@ -58,7 +58,7 @@ int get_field(database_event_format *f, char *field, char *type)
+ void process_cache(FILE *out, cache_t *c, int n, int frame, int subframe)
+ {
+   int i;
+-  struct tm *t;
++  struct tm t;
+ 
+   for (i = 0; i < n; i++)
+     if (c[i].filled == 0 || c[i].error == 1)
+@@ -73,9 +73,9 @@ void process_cache(FILE *out, cache_t *c, int n, int frame, int subframe)
+ error:
+   printf("ERROR: incorrect data at frame %d subframe %d", frame, subframe);
+   for (i = 0; i < n; i++) if (c[i].filled) {
+-    t = localtime(&c[i].t.tv_sec);
++    localtime_r(&c[i].t.tv_sec, &t);
+     printf(" [tag %d time %2.2d:%2.2d:%2.2d.%9.9ld]", i,
+-           t->tm_hour, t->tm_min, t->tm_sec, c[i].t.tv_nsec);
++           t.tm_hour, t.tm_min, t.tm_sec, c[i].t.tv_nsec);
+   }
+   printf("\n");
+   clear_cache(n, c);
+@@ -196,11 +196,11 @@ int main(int n, char **v)
+     tag      = e.e[tag_arg].i;
+ 
+     if (tag < 0 || tag >= number_of_tags) {
+-      struct tm *tt;
+-      tt = localtime(&t.tv_sec);
++      struct tm tt;
++      localtime_r(&t.tv_sec, &tt);
+       printf("ERROR: invalid tag (%d), skipping event for frame %d subframe %d (time %2.2d:%2.2d:%2.2d.%9.9ld)\n",
+              tag, frame, subframe,
+-             tt->tm_hour, tt->tm_min, tt->tm_sec, t.tv_nsec);
++             tt.tm_hour, tt.tm_min, tt.tm_sec, t.tv_nsec);
+       continue;
+     }
+ 
+@@ -212,11 +212,11 @@ int main(int n, char **v)
+     cur_subframe = subframe;
+ 
+     if (cache[tag].filled) {
+-      struct tm *tt;
+-      tt = localtime(&t.tv_sec);
++      struct tm tt;
++      localtime_r(&t.tv_sec, &tt);
+       printf("ERROR: tag %d present twice at frame %d subframe %d (time %2.2d:%2.2d:%2.2d.%9.9ld)\n",
+              tag, frame, subframe,
+-             tt->tm_hour, tt->tm_min, tt->tm_sec, t.tv_nsec);
++             tt.tm_hour, tt.tm_min, tt.tm_sec, t.tv_nsec);
+       cache[tag].error = 1;
+       continue;
+     }

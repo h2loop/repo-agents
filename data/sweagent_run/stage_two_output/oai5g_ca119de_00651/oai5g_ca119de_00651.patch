@@ -1,0 +1,108 @@
+diff --git a/common/utils/ocp_itti/intertask_interface.cpp b/common/utils/ocp_itti/intertask_interface.cpp
+index 8ad5f63a50..9e579370be 100644
+--- a/common/utils/ocp_itti/intertask_interface.cpp
++++ b/common/utils/ocp_itti/intertask_interface.cpp
+@@ -25,11 +25,14 @@
+ #include <map>
+ #include <sys/eventfd.h>
+ #include <semaphore.h>
++#include <errno.h>
++#include <string.h>
+ 
+ 
+ extern "C" {
+ #include <intertask_interface.h>
+ #include <common/utils/system.h>
++#include <common/utils/utils.h>
+ #include "executables/softmodem-common.h"
+ 
+ typedef struct timer_elm_s {
+@@ -102,14 +105,38 @@ typedef struct timer_elm_s {
+     //return itti_alloc_new_message_sized(origin_task_id, message_id, messages_info[message_id].size);
+   }
+ 
+-  static inline int itti_send_msg_to_task_locked(task_id_t destination_task_id, instance_t destinationInstance, MessageDef *message) {
+-    task_list_t *t=tasks[destination_task_id];
++  int itti_send_msg_to_task_locked(task_id_t destination_task_id, instance_t destinationInstance, MessageDef *message) {
++    // Check for null pointer
++    if (message == NULL) {
++      LOG_E(ITTI, "Message is NULL\n");
++      return -1;
++    }
++
++    // Validate task ID
++    if (destination_task_id >= sizeofArray(tasks_info) || destination_task_id < 0) {
++      LOG_E(ITTI, "Invalid destination task ID: %d\n", destination_task_id);
++      return -1;
++    }
++
++    // Check if tasks array is initialized
++    if (tasks == NULL) {
++      LOG_E(ITTI, "Tasks array is not initialized\n");
++      return -1;
++    }
++
++    // Check if the specific task is initialized
++    if (tasks[destination_task_id] == NULL) {
++      LOG_E(ITTI, "Task %d is not initialized\n", destination_task_id);
++      return -1;
++    }
++
++    task_list_t *t = tasks[destination_task_id];
+     message->ittiMsgHeader.destinationTaskId = destination_task_id;
+     message->ittiMsgHeader.destinationInstance = destinationInstance;
+     message->ittiMsgHeader.lte_time.frame = 0;
+     message->ittiMsgHeader.lte_time.slot = 0;
+     int message_id = message->ittiMsgHeader.messageId;
+-    size_t s=t->message_queue.size();
++    size_t s = t->message_queue.size();
+ 
+     // to reduce the number of logs, we give a message each increase of 25%
+     if ((s > t->last_log_size * 1.25) && (s > t->admin.queue_size / 10)) {
+@@ -131,7 +158,15 @@ typedef struct timer_elm_s {
+ 
+     t->message_queue.insert(t->message_queue.begin(), message);
+     eventfd_t sem_counter = 1;
+-    AssertFatal ( sizeof(sem_counter) == write(t->sem_fd, &sem_counter, sizeof(sem_counter)), "");
++    
++    // Proper error handling for system call
++    ssize_t ret = write(t->sem_fd, &sem_counter, sizeof(sem_counter));
++    if (ret != sizeof(sem_counter)) {
++      LOG_E(ITTI, "Failed to write to eventfd for task %s: %s\n", 
++            itti_get_task_name(destination_task_id), strerror(errno));
++      return -1;
++    }
++    
+     LOG_D(ITTI, "sent messages id=%s messages_info to %s\n", messages_info[message_id].name, t->admin.name);
+     return 0;
+   }
+diff --git a/common/utils/ocp_itti/intertask_interface.h b/common/utils/ocp_itti/intertask_interface.h
+index d23e62365d..739e35a2f2 100644
+--- a/common/utils/ocp_itti/intertask_interface.h
++++ b/common/utils/ocp_itti/intertask_interface.h
+@@ -426,12 +426,22 @@ extern "C" {
+ #endif
+ 
+ /** \brief Send a message to a task (could be itself)
+-  \param task_id Task ID
+-  \param instance Instance of the task used for virtualization
++  \param destination_task_id Task ID
++  \param destinationInstance Instance of the task used for virtualization
+   \param message Pointer to the message to send
+   @returns -1 on failure, 0 otherwise
+  **/
+-int itti_send_msg_to_task(task_id_t task_id, instance_t instance, MessageDef *message);
++int itti_send_msg_to_task(task_id_t destination_task_id, instance_t destinationInstance, MessageDef *message);
++
++/** \brief Send a message to a task (non-blocking). Should only be called when the task queue is already locked.
++    NOTE: The function will not release the memory. It has to be freed by the receiver.
++    NOTE: Only to be called when the task queue is already locked.
++  \param destination_task_id Task ID of the receiving task
++  \param destinationInstance Instance of the task used for virtualization
++  \param message Pointer to the message to send
++  @returns -1 on failure, 0 otherwise
++ **/
++int itti_send_msg_to_task_locked(task_id_t destination_task_id, instance_t destinationInstance, MessageDef *message);
+ 
+ /** \brief Add a new fd to monitor.
+    NOTE: it is up to the user to read data associated with the fd

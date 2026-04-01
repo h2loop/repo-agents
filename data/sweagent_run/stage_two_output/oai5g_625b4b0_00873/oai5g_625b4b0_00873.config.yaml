@@ -1,0 +1,265 @@
+'{"env":{"deployment":{"image":"oai5g-sera:625b4b0","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_625b4b0_00873","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix buffer overflow in F1AP setup request handling\n\n### Summary\nThe F1AP
+  interface management code contained a critical buffer overflow vulnerability in
+  the `cp_f1ap_setup_request` function and related copy/decode functions. The issue
+  occurred when processing setup requests with more cells than the statically allocated
+  arrays could hold, leading to out-of-bounds memory writes.\n\nThis could result
+  in memory corruption and \"type confusion where a pointer is cast to an incompatible
+  struct type downstream\" as observed in some deployment scenarios. The bug was particularly
+  problematic when handling gNB-DU configuration updates with large cell lists.\n\nThe
+  vulnerability was introduced during the initial implementation when bounds checking
+  was not properly enforced for array accesses in the F1AP message copying functions.\n\n###
+  Changes\n- `openair2/F1AP/lib/f1ap_interface_management.c`: Added bounds checking
+  to prevent buffer overflows in all F1AP copy and decode functions\n  - `cp_f1ap_setup_request`:
+  Added validation for `num_cells_available` against `F1AP_MAX_NB_CELLS`\n  - `cp_f1ap_du_configuration_update`:
+  Added bounds checking for all cell arrays\n  - `cp_f1ap_du_configuration_update_acknowledge`:
+  Added bounds checking for cell activation arrays  \n  - `cp_f1ap_cu_configuration_update_acknowledge`:
+  Added bounds checking for cells, TNL associations, and UE lists\n  - `cp_f1ap_reset`
+  and `cp_f1ap_reset_ack`: Added bounds checking for UE arrays\n  - All corresponding
+  decode functions: Added bounds validation when setting array counts from ASN.1 decoded
+  data\n\n### Reproduction\nThe issue can be triggered by sending an F1AP Setup Request
+  or gNB-DU Configuration Update message with more cells than `F1AP_MAX_NB_CELLS`
+  (currently 2). Under high load conditions with multiple concurrent connections,
+  this leads to:\n- Memory corruption in adjacent data structures\n- Segmentation
+  faults in downstream processing functions\n- Incorrect behavior where pointers are
+  interpreted as incompatible struct types\n- Potential crashes in the RRC layer when
+  processing corrupted F1AP messages\n\nThe bug manifests most consistently when the
+  gNB is processing multiple DU connections simultaneously and one DU sends a malformed
+  setup request with an excessive number of served cells.\n","extra_fields":{"bug_description":"type
+  confusion where a pointer is cast to an incompatible struct type","bug_id":"c_type_confusion","stage_one_patch":"diff
+  --git a/openair2/F1AP/lib/f1ap_interface_management.c b/openair2/F1AP/lib/f1ap_interface_management.c\nindex
+  acd6859ad7..4e1cc3e8ac 100644\n--- a/openair2/F1AP/lib/f1ap_interface_management.c\n+++
+  b/openair2/F1AP/lib/f1ap_interface_management.c\n@@ -187,6 +187,9 @@ bool decode_f1ap_reset(const
+  F1AP_F1AP_PDU_t *pdu, f1ap_reset_t *out)\n           out->reset_type = F1AP_RESET_PART_OF_F1_INTERFACE;\n           const
+  F1AP_UE_associatedLogicalF1_ConnectionListRes_t *con_list = ie->value.choice.ResetType.choice.partOfF1_Interface;\n           AssertError(con_list->list.count
+  > 0, return false, \"no UEs for partially reset F1 interface\\n\");\n+          AssertError(con_list->list.count
+  <= F1AP_MAX_NO_OF_INDIVIDUAL_CONNECTIONS_TO_RESET, return false,\n+                      \"num_ue_to_reset
+  (%d) exceeds maximum allowed (%d)\",\n+                      con_list->list.count,
+  F1AP_MAX_NO_OF_INDIVIDUAL_CONNECTIONS_TO_RESET);\n           out->num_ue_to_reset
+  = con_list->list.count;\n           out->ue_to_reset = calloc_or_fail(out->num_ue_to_reset,
+  sizeof(*out->ue_to_reset));\n           for (int i = 0; i < out->num_ue_to_reset;
+  ++i) {\n@@ -244,6 +247,9 @@ f1ap_reset_t cp_f1ap_reset(const f1ap_reset_t *orig)\n   };\n   if
+  (orig->reset_type == F1AP_RESET_PART_OF_F1_INTERFACE) {\n     DevAssert(orig->num_ue_to_reset
+  > 0);\n+    AssertFatal(orig->num_ue_to_reset <= F1AP_MAX_NO_OF_INDIVIDUAL_CONNECTIONS_TO_RESET,\n+                \"num_ue_to_reset
+  (%d) exceeds maximum allowed (%d)\",\n+                orig->num_ue_to_reset, F1AP_MAX_NO_OF_INDIVIDUAL_CONNECTIONS_TO_RESET);\n     cp.num_ue_to_reset
+  = orig->num_ue_to_reset;\n     cp.ue_to_reset = calloc_or_fail(cp.num_ue_to_reset,
+  sizeof(*cp.ue_to_reset));\n     for (int i = 0; i < cp.num_ue_to_reset; ++i)\n@@
+  -320,6 +326,9 @@ bool decode_f1ap_reset_ack(const struct F1AP_F1AP_PDU *pdu, f1ap_reset_ack_t
+  *ou\n         {\n           const F1AP_UE_associatedLogicalF1_ConnectionListResAck_t
+  *conn_list = &ie->value.choice.UE_associatedLogicalF1_ConnectionListResAck;\n           AssertError(conn_list->list.count
+  > 0, return false, \"no UEs for partially reset F1 interface\\n\");\n+          AssertError(conn_list->list.count
+  <= F1AP_MAX_NO_OF_INDIVIDUAL_CONNECTIONS_TO_RESET, return false,\n+                      \"num_ue_to_reset
+  (%d) exceeds maximum allowed (%d)\",\n+                      conn_list->list.count,
+  F1AP_MAX_NO_OF_INDIVIDUAL_CONNECTIONS_TO_RESET);\n           out->num_ue_to_reset
+  = conn_list->list.count;\n           out->ue_to_reset = calloc_or_fail(out->num_ue_to_reset,
+  sizeof(*out->ue_to_reset));\n           for (int i = 0; i < out->num_ue_to_reset;
+  ++i) {\n@@ -360,6 +369,9 @@ f1ap_reset_ack_t cp_f1ap_reset_ack(const f1ap_reset_ack_t
+  *orig)\n {\n   f1ap_reset_ack_t cp = {.transaction_id = orig->transaction_id, .num_ue_to_reset
+  = orig->num_ue_to_reset};\n   if (cp.num_ue_to_reset > 0) {\n+    AssertFatal(cp.num_ue_to_reset
+  <= F1AP_MAX_NO_OF_INDIVIDUAL_CONNECTIONS_TO_RESET,\n+                \"num_ue_to_reset
+  (%d) exceeds maximum allowed (%d)\",\n+                cp.num_ue_to_reset, F1AP_MAX_NO_OF_INDIVIDUAL_CONNECTIONS_TO_RESET);\n     cp.ue_to_reset
+  = calloc_or_fail(cp.num_ue_to_reset, sizeof(*cp.ue_to_reset));\n     for (int i
+  = 0; i < cp.num_ue_to_reset; ++i)\n       cp.ue_to_reset[i] = cp_f1ap_ue_to_reset(&orig->ue_to_reset[i]);\n@@
+  -842,6 +854,9 @@ bool decode_f1ap_setup_request(const F1AP_F1AP_PDU_t *pdu, f1ap_setup_req_t
+  *out\n         /* GNB_DU_Served_Cells_List */\n         out->num_cells_available
+  = ie->value.choice.GNB_DU_Served_Cells_List.list.count;\n         AssertError(out->num_cells_available
+  > 0, return false, \"at least 1 cell must be present\");\n+        AssertError(out->num_cells_available
+  <= F1AP_MAX_NB_CELLS, return false, \n+                    \"num_cells_available
+  (%d) exceeds maximum allowed (%d)\",\n+                    out->num_cells_available,
+  F1AP_MAX_NB_CELLS);\n         /* Loop over gNB-DU Served Cells Items */\n         for
+  (int i = 0; i < out->num_cells_available; i++) {\n           F1AP_GNB_DU_Served_Cells_Item_t
+  *served_cells_item =\n@@ -952,6 +967,9 @@ f1ap_setup_req_t cp_f1ap_setup_request(const
+  f1ap_setup_req_t *msg)\n   cp.transaction_id = msg->transaction_id;\n   /* num_cells_available
+  */\n   cp.num_cells_available = msg->num_cells_available;\n+  AssertFatal(cp.num_cells_available
+  <= F1AP_MAX_NB_CELLS, \n+              \"num_cells_available (%d) exceeds maximum
+  allowed (%d)\",\n+              cp.num_cells_available, F1AP_MAX_NB_CELLS);\n   for
+  (int n = 0; n < msg->num_cells_available; n++) {\n     /* cell.info */\n     cp.cell[n].info
+  = copy_f1ap_served_cell_info(&msg->cell[n].info);\n@@ -1131,6 +1149,9 @@ bool decode_f1ap_setup_response(const
+  F1AP_F1AP_PDU_t *pdu, f1ap_setup_resp_t *o\n         out->num_cells_to_activate
+  = Cells_to_be_Activated_List->list.count;\n         // Loop Cells to be Activated
+  List Items (count >= 1)\n         AssertError(out->num_cells_to_activate > 0, return
+  false, \"At least 1 cell must be present\");\n+        AssertError(out->num_cells_to_activate
+  <= F1AP_MAX_NB_CELLS, return false,\n+                    \"num_cells_to_activate
+  (%d) exceeds maximum allowed (%d)\",\n+                    out->num_cells_to_activate,
+  F1AP_MAX_NB_CELLS);\n         for (int i = 0; i < out->num_cells_to_activate; i++)
+  {\n           const F1AP_Cells_to_be_Activated_List_ItemIEs_t *itemIEs\n             =
+  (F1AP_Cells_to_be_Activated_List_ItemIEs_t *)Cells_to_be_Activated_List->list.array[i];\n@@
+  -1507,6 +1528,9 @@ bool decode_f1ap_du_configuration_update(const F1AP_F1AP_PDU_t
+  *pdu, f1ap_gnb_du\n         /* Served Cells To Add List */\n         out->num_cells_to_add
+  = ie->value.choice.Served_Cells_To_Add_List.list.count;\n         AssertError(out->num_cells_to_add
+  > 0, return false, \"at least 1 cell to add shall to be present\");\n+        AssertError(out->num_cells_to_add
+  <= F1AP_MAX_NB_CELLS, return false,\n+                    \"num_cells_to_add (%d)
+  exceeds maximum allowed (%d)\",\n+                    out->num_cells_to_add, F1AP_MAX_NB_CELLS);\n         for
+  (int i = 0; i < out->num_cells_to_add; i++) {\n           F1AP_Served_Cells_To_Add_Item_t
+  *served_cells_item =\n               &((F1AP_Served_Cells_To_Add_ItemIEs_t *)ie->value.choice.Served_Cells_To_Add_List.list.array[i])\n@@
+  -1525,6 +1549,9 @@ bool decode_f1ap_du_configuration_update(const F1AP_F1AP_PDU_t
+  *pdu, f1ap_gnb_du\n         /* Served Cells To Modify List (O) */\n         out->num_cells_to_modify
+  = ie->value.choice.Served_Cells_To_Modify_List.list.count;\n         AssertError(out->num_cells_to_modify
+  > 0, return false, \"at least 1 cell to modify shall to be present\");\n+        AssertError(out->num_cells_to_modify
+  <= F1AP_MAX_NB_CELLS, return false,\n+                    \"num_cells_to_modify
+  (%d) exceeds maximum allowed (%d)\",\n+                    out->num_cells_to_modify,
+  F1AP_MAX_NB_CELLS);\n         for (int i = 0; i < out->num_cells_to_modify; i++)
+  {\n           /* Served Cells To Modify List item (count >= 1) */\n           F1AP_Served_Cells_To_Modify_Item_t
+  *served_cells_item =\n@@ -1550,6 +1577,9 @@ bool decode_f1ap_du_configuration_update(const
+  F1AP_F1AP_PDU_t *pdu, f1ap_gnb_du\n         /* Served Cells To Delete List */\n         out->num_cells_to_delete
+  = ie->value.choice.Served_Cells_To_Delete_List.list.count;\n         AssertError(out->num_cells_to_delete
+  > 0, return false, \"at least 1 cell to delete shall to be present\");\n+        AssertError(out->num_cells_to_delete
+  <= F1AP_MAX_NB_CELLS, return false,\n+                    \"num_cells_to_delete
+  (%d) exceeds maximum allowed (%d)\",\n+                    out->num_cells_to_delete,
+  F1AP_MAX_NB_CELLS);\n         for (int i = 0; i < out->num_cells_to_delete; i++)
+  {\n           F1AP_Served_Cells_To_Delete_Item_t *served_cells_item =\n               &((F1AP_Served_Cells_To_Delete_ItemIEs_t
+  *)ie->value.choice.Served_Cells_To_Delete_List.list.array[i])\n@@ -1673,18 +1703,27
+  @@ f1ap_gnb_du_configuration_update_t cp_f1ap_du_configuration_update(const f1ap_gn\n   cp.transaction_id
+  = msg->transaction_id;\n   /* to add */\n   cp.num_cells_to_add = msg->num_cells_to_add;\n+  AssertFatal(cp.num_cells_to_add
+  <= F1AP_MAX_NB_CELLS, \n+              \"num_cells_to_add (%d) exceeds maximum allowed
+  (%d)\",\n+              cp.num_cells_to_add, F1AP_MAX_NB_CELLS);\n   for (int i
+  = 0; i < cp.num_cells_to_add; ++i) {\n     cp.cell_to_add[i].info = copy_f1ap_served_cell_info(&msg->cell_to_add[i].info);\n     cp.cell_to_add[i].sys_info
+  = copy_f1ap_gnb_du_system_info(msg->cell_to_add[i].sys_info);\n   }\n   /* to delete
+  */\n   cp.num_cells_to_delete = msg->num_cells_to_delete;\n+  AssertFatal(cp.num_cells_to_delete
+  <= F1AP_MAX_NB_CELLS, \n+              \"num_cells_to_delete (%d) exceeds maximum
+  allowed (%d)\",\n+              cp.num_cells_to_delete, F1AP_MAX_NB_CELLS);\n   for
+  (int i = 0; i < cp.num_cells_to_delete; i++) {\n     cp.cell_to_delete[i].nr_cellid
+  = msg->cell_to_delete[i].nr_cellid;\n     cp.cell_to_delete[i].plmn = msg->cell_to_delete[i].plmn;\n   }\n   /*
+  to modify */\n   cp.num_cells_to_modify = msg->num_cells_to_modify;\n+  AssertFatal(cp.num_cells_to_modify
+  <= F1AP_MAX_NB_CELLS, \n+              \"num_cells_to_modify (%d) exceeds maximum
+  allowed (%d)\",\n+              cp.num_cells_to_modify, F1AP_MAX_NB_CELLS);\n   for
+  (int i = 0; i < cp.num_cells_to_modify; i++) {\n     cp.cell_to_modify[i].old_plmn
+  = msg->cell_to_modify[i].old_plmn;\n     cp.cell_to_modify[i].old_nr_cellid = msg->cell_to_modify[i].old_nr_cellid;\n@@
+  -1693,6 +1732,9 @@ f1ap_gnb_du_configuration_update_t cp_f1ap_du_configuration_update(const
+  f1ap_gn\n   }\n   /* cell status */\n   cp.num_status  = msg->num_status;\n+  AssertFatal(cp.num_status
+  <= F1AP_MAX_NB_CELLS, \n+              \"num_status (%d) exceeds maximum allowed
+  (%d)\",\n+              cp.num_status, F1AP_MAX_NB_CELLS);\n   for (int i = 0; i
+  < cp.num_status; ++i)\n     cp.status[i] = msg->status[i];\n   return cp;\n@@ -1768,6
+  +1810,9 @@ bool decode_f1ap_cu_configuration_update(const F1AP_F1AP_PDU_t *pdu,
+  f1ap_gnb_cu\n         F1AP_Cells_to_be_Activated_List_t *Cells_to_be_Activated_List
+  = &ie->value.choice.Cells_to_be_Activated_List;\n         out->num_cells_to_activate
+  = Cells_to_be_Activated_List->list.count;\n         AssertError(out->num_cells_to_activate
+  > 0, return false, \"At least 1 cell to activate must be present\");\n+        AssertError(out->num_cells_to_activate
+  <= F1AP_MAX_NB_CELLS, return false,\n+                    \"num_cells_to_activate
+  (%d) exceeds maximum allowed (%d)\",\n+                    out->num_cells_to_activate,
+  F1AP_MAX_NB_CELLS);\n         for (int i = 0; i < out->num_cells_to_activate; i++)
+  {\n           if (!decode_cells_to_activate(&out->cells_to_activate[i],\n                                         (F1AP_Cells_to_be_Activated_List_ItemIEs_t
+  *)Cells_to_be_Activated_List->list.array[i]))\n@@ -2008,18 +2053,30 @@ f1ap_gnb_cu_configuration_update_acknowledge_t
+  cp_f1ap_cu_configuration_update_a\n   cp.transaction_id = msg->transaction_id;\n   //
+  number of cells failed to be activated\n   cp.num_cells_failed_to_be_activated =
+  msg->num_cells_failed_to_be_activated;\n+  AssertFatal(cp.num_cells_failed_to_be_activated
+  <= F1AP_MAX_NB_CELLS,\n+              \"num_cells_failed_to_be_activated (%d) exceeds
+  maximum allowed (%d)\",\n+              cp.num_cells_failed_to_be_activated, F1AP_MAX_NB_CELLS);\n   for
+  (int i = 0; i < cp.num_cells_failed_to_be_activated; i++)\n     cp.cells_failed_to_be_activated[i]
+  = msg->cells_failed_to_be_activated[i];\n   // TNL Associations to setup\n   cp.noofTNLAssociations_to_setup
+  = msg->noofTNLAssociations_to_setup;\n+  AssertFatal(cp.noofTNLAssociations_to_setup
+  <= F1AP_MAX_NO_OF_TNL_ASSOCIATIONS,\n+              \"noofTNLAssociations_to_setup
+  (%d) exceeds maximum allowed (%d)\",\n+              cp.noofTNLAssociations_to_setup,
+  F1AP_MAX_NO_OF_TNL_ASSOCIATIONS);\n   for (int i = 0; i < cp.noofTNLAssociations_to_setup;
+  i++)\n     cp.tnlAssociations_to_setup[i] = msg->tnlAssociations_to_setup[i];\n   //
+  TNL Associations failed to setup\n   cp.noofTNLAssociations_failed = msg->noofTNLAssociations_failed;\n+  AssertFatal(cp.noofTNLAssociations_failed
+  <= F1AP_MAX_NO_OF_TNL_ASSOCIATIONS,\n+              \"noofTNLAssociations_failed
+  (%d) exceeds maximum allowed (%d)\",\n+              cp.noofTNLAssociations_failed,
+  F1AP_MAX_NO_OF_TNL_ASSOCIATIONS);\n   for (int i = 0; i < cp.noofTNLAssociations_failed;
+  i++)\n     cp.tnlAssociations_failed[i] = msg->tnlAssociations_failed[i];\n   //
+  Dedicated SI Delivery Needed UE List\n   cp.noofDedicatedSIDeliveryNeededUEs = msg->noofDedicatedSIDeliveryNeededUEs;\n+  AssertFatal(cp.noofDedicatedSIDeliveryNeededUEs
+  <= F1AP_MAX_NO_UE_ID,\n+              \"noofDedicatedSIDeliveryNeededUEs (%d) exceeds
+  maximum allowed (%d)\",\n+              cp.noofDedicatedSIDeliveryNeededUEs, F1AP_MAX_NO_UE_ID);\n   for
+  (int i = 0; i < cp.noofDedicatedSIDeliveryNeededUEs; i++)\n     cp.dedicatedSIDeliveryNeededUEs[i]
+  = msg->dedicatedSIDeliveryNeededUEs[i];\n   return cp;\n@@ -2094,6 +2151,9 @@ bool
+  decode_f1ap_du_configuration_update_acknowledge(const F1AP_F1AP_PDU_t *pdu,\n         _F1_EQ_CHECK_INT(ie->value.present,
+  F1AP_GNBDUConfigurationUpdateAcknowledgeIEs__value_PR_Cells_to_be_Activated_List);\n         F1AP_Cells_to_be_Activated_List_t
+  *list = &ie->value.choice.Cells_to_be_Activated_List;\n         out->num_cells_to_activate
+  = list->list.count;\n+        AssertError(out->num_cells_to_activate <= F1AP_MAX_NB_CELLS,
+  return false,\n+                    \"num_cells_to_activate (%d) exceeds maximum
+  allowed (%d)\",\n+                    out->num_cells_to_activate, F1AP_MAX_NB_CELLS);\n         for
+  (int j = 0; j < out->num_cells_to_activate; j++) {\n           const F1AP_Cells_to_be_Activated_List_ItemIEs_t
+  *itemIE =\n               (F1AP_Cells_to_be_Activated_List_ItemIEs_t *)list->list.array[j];\n@@
+  -2147,6 +2207,9 @@ f1ap_gnb_du_configuration_update_acknowledge_t cp_f1ap_du_configuration_update_a\n   cp.transaction_id
+  = msg->transaction_id;\n   // number of cells to activate\n   cp.num_cells_to_activate
+  = msg->num_cells_to_activate;\n+  AssertFatal(cp.num_cells_to_activate <= F1AP_MAX_NB_CELLS,
+  \n+              \"num_cells_to_activate (%d) exceeds maximum allowed (%d)\",\n+              cp.num_cells_to_activate,
+  F1AP_MAX_NB_CELLS);\n   // Loop through cells to activate\n   for (int i = 0; i
+  < cp.num_cells_to_activate; i++) {\n     cp.cells_to_activate[i] = msg->cells_to_activate[i];\n","start_fn":"cp_f1ap_setup_request","start_fn_file":"openair2/F1AP/lib/f1ap_interface_management.c","subsystem":"openair2/F1AP/lib"},"type":"text","id":"oai5g_625b4b0_00873"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

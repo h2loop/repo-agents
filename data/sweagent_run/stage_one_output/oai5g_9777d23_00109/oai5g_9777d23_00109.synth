@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect X2AP TimeToWait IE handling in setup failure response\n\n### Summary\nWhen generating X2AP setup failure messages, the TimeToWait IE was always included even when it had no valid value (time_to_wait = -1). This caused malformed X2AP messages that were rejected by peer eNBs.\n\nThe issue was reproduced by triggering X2 setup failure scenarios and capturing the generated X2AP PDU, which showed the TimeToWait IE present with invalid content.\n\n### Changes\n- `openair2/X2AP/x2ap_eNB_generate_messages.c`: Modified `x2ap_eNB_generate_x2_setup_failure()` to only include TimeToWait IE when time_to_wait > -1\n- Restored missing function definition that was accidentally removed in previous refactoring\n\n"
+}

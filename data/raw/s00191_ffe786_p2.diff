@@ -1,0 +1,20 @@
+diff --git a/nfapi/oai_integration/nfapi_pnf.c b/nfapi/oai_integration/nfapi_pnf.c
+index a933aba614..d5500c698c 100644
+--- a/nfapi/oai_integration/nfapi_pnf.c
++++ b/nfapi/oai_integration/nfapi_pnf.c
+@@ -2115,6 +2115,7 @@ void *pnf_start_thread(void *ptr) {
+   sp.sched_priority = 20;
+   pthread_setschedparam(pthread_self(),SCHED_FIFO,&sp);
+   nfapi_pnf_start(config);
++  nfapi_pnf_config_destroy(config);
+   return (void *)0;
+ }
+ 
+@@ -2125,6 +2126,7 @@ void *pnf_nr_start_thread(void *ptr) {
+   sp.sched_priority = 20;
+   pthread_setschedparam(pthread_self(),SCHED_FIFO,&sp);
+   nfapi_nr_pnf_start(config);
++  nfapi_pnf_config_destroy(config);
+   return (void *)0;
+ }
+ 

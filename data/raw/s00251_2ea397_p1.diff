@@ -1,0 +1,39 @@
+diff --git a/openair2/UTIL/OMG/omg.c b/openair2/UTIL/OMG/omg.c
+index 67a78d245a..d25b14565f 100644
+--- a/openair2/UTIL/OMG/omg.c
++++ b/openair2/UTIL/OMG/omg.c
+@@ -169,9 +169,25 @@ update_nodes (double cur_time) {
+   int i = 0;
+ 
+   for (i = (STATIC + 1); i < MAX_NUM_MOB_TYPES; i++) {
++#ifdef SUMO_IF
++    if (job_vector[i] != NULL) {
++      update_node_vector (i, cur_time);
++    }
++#else
++    /* Skip SUMO mobility type when SUMO_IF is not defined */
++    if (i == SUMO) {
++      continue;
++    }
++    if (job_vector[i] != NULL) {
++      update_node_vector (i, cur_time);
++    }
++#endif
++  }
++}
+     if (job_vector[i] != NULL) {
+       update_node_vector (i, cur_time);
+     }
++#endif
+   }
+ }
+ 
+@@ -315,7 +331,7 @@ set_new_mob_type (int id, int node_t, int mob_t, double cur_time) {
+       tmp->node->mob->speed = 0.0;
+       tmp->node->generator = mob_t;
+ 
+-      if (prev_mob != STATIC)
++      if (prev_mob != STATIC && prev_mob != SUMO)
+         job_vector[prev_mob] =
+           remove_job (job_vector[prev_mob], id, node_t);
+     }

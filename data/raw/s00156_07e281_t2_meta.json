@@ -1,0 +1,9 @@
+{
+  "run_id": "s00156_07e281",
+  "pr_text": "## Title: Fix file descriptor leak in itti_create_task error paths\n\n### Summary\nReplace the `threadCreate` wrapper in `itti_create_task` with explicit pthread creation to fix resource leaks on error paths. The original implementation used `AssertFatal` for error handling, which aborted the process without cleaning up pthread attributes or file descriptors. The new code adds proper error checking and cleanup, returning -1 on failure instead of crashing.\n\n### Changes\n- `common/utils/ocp_itti/inter",
+  "trajectory_path": "data/raw/s00156_07e281_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00156_07e281_p2.diff",
+  "patch_lines": 68,
+  "trajectory_steps": 24,
+  "timestamp": "2026-02-10T11:36:07Z"
+}

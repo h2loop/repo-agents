@@ -1,0 +1,187 @@
+diff --git a/openair2/LAYER2/MAC/eNB_scheduler_dlsch.c b/openair2/LAYER2/MAC/eNB_scheduler_dlsch.c
+index 5930c57898..5b4e10583b 100644
+--- a/openair2/LAYER2/MAC/eNB_scheduler_dlsch.c
++++ b/openair2/LAYER2/MAC/eNB_scheduler_dlsch.c
+@@ -1045,7 +1045,7 @@ schedule_ue_spec(module_id_t module_idP,
+ 
+             if (snr > target_snr + PUCCH_PCHYST) {
+               tpc = 0;  //-1
+-	      ue_sched_ctrl->pucch_tpc_accumulated[CC_id]--;
++              ue_sched_ctrl->pucch_tpc_accumulated[CC_id]--;
+             } else if (snr < target_snr - PUCCH_PCHYST) {
+               tpc = 2;  //+1
+               ue_sched_ctrl->pucch_tpc_accumulated[CC_id]--;
+@@ -1059,7 +1059,7 @@ schedule_ue_spec(module_id_t module_idP,
+                   subframeP,
+                   harq_pid,
+                   tpc,
+-		  ue_sched_ctrl->pucch_tpc_accumulated[CC_id],
++                  ue_sched_ctrl->pucch_tpc_accumulated[CC_id],
+                   snr,
+                   target_snr);
+           } // Po_PUCCH has been updated
+@@ -1927,8 +1927,27 @@ update_ul_dci(module_id_t module_idP,
+     int limit = HI_DCI0_req->hi_dci0_request_body.number_of_dci + HI_DCI0_req->hi_dci0_request_body.number_of_hi;
+ 
+     for (int i = 0; i < limit; i++, hi_dci0_pdu++) {
+-      if (hi_dci0_pdu->pdu_type == NFAPI_HI_DCI0_DCI_PDU_TYPE && hi_dci0_pdu->dci_pdu.dci_pdu_rel8.rnti == rntiP)
+-        hi_dci0_pdu->dci_pdu.dci_pdu_rel8.dl_assignment_index = (daiP - 1) & 3;
++      switch (hi_dci0_pdu->pdu_type) {
++        case NFAPI_HI_DCI0_DCI_PDU_TYPE:
++          if (hi_dci0_pdu->dci_pdu.dci_pdu_rel8.rnti == rntiP)
++            hi_dci0_pdu->dci_pdu.dci_pdu_rel8.dl_assignment_index = (daiP - 1) & 3;
++          break;
++          
++        case NFAPI_HI_DCI0_EPDCCH_DCI_PDU_TYPE:
++          if (hi_dci0_pdu->epdcch_dci_pdu.epdcch_dci_pdu_rel8.rnti == rntiP)
++            hi_dci0_pdu->epdcch_dci_pdu.epdcch_dci_pdu_rel8.dl_assignment_index = (daiP - 1) & 3;
++          break;
++          
++        case NFAPI_HI_DCI0_MPDCCH_DCI_PDU_TYPE:
++          if (hi_dci0_pdu->mpdcch_dci_pdu.mpdcch_dci_pdu_rel13.rnti == rntiP)
++            hi_dci0_pdu->mpdcch_dci_pdu.mpdcch_dci_pdu_rel13.dl_assignment_index = (daiP - 1) & 3;
++          break;
++          
++        case NFAPI_HI_DCI0_NPDCCH_DCI_PDU_TYPE:
++          if (hi_dci0_pdu->npdcch_dci_pdu.npdcch_dci_pdu_rel13.rnti == rntiP)
++            hi_dci0_pdu->npdcch_dci_pdu.npdcch_dci_pdu_rel13.dl_assignment_index = (daiP - 1) & 3;
++          break;
++      }
+     }
+   }
+ 
+diff --git a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+index 60b5528096..7052f0e2b0 100644
+--- a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
++++ b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+@@ -1367,9 +1367,30 @@ get_V_UL_DAI(module_id_t module_idP,
+   nfapi_hi_dci0_request_pdu_t *hi_dci0_pdu  = &HI_DCI0_req->hi_dci0_pdu_list[0];
+ 
+   for (int i = 0; i < HI_DCI0_req->number_of_dci; i++) {
+-    if (hi_dci0_pdu[i].pdu_type == NFAPI_HI_DCI0_DCI_PDU_TYPE &&
+-        hi_dci0_pdu[i].dci_pdu.dci_pdu_rel8.rnti == rntiP) {
+-      return hi_dci0_pdu[i].dci_pdu.dci_pdu_rel8.dl_assignment_index;
++    switch (hi_dci0_pdu[i].pdu_type) {
++      case NFAPI_HI_DCI0_DCI_PDU_TYPE:
++        if (hi_dci0_pdu[i].dci_pdu.dci_pdu_rel8.rnti == rntiP) {
++          return hi_dci0_pdu[i].dci_pdu.dci_pdu_rel8.dl_assignment_index;
++        }
++        break;
++        
++      case NFAPI_HI_DCI0_EPDCCH_DCI_PDU_TYPE:
++        if (hi_dci0_pdu[i].epdcch_dci_pdu.epdcch_dci_pdu_rel8.rnti == rntiP) {
++          return hi_dci0_pdu[i].epdcch_dci_pdu.epdcch_dci_pdu_rel8.dl_assignment_index;
++        }
++        break;
++        
++      case NFAPI_HI_DCI0_MPDCCH_DCI_PDU_TYPE:
++        if (hi_dci0_pdu[i].mpdcch_dci_pdu.mpdcch_dci_pdu_rel13.rnti == rntiP) {
++          return hi_dci0_pdu[i].mpdcch_dci_pdu.mpdcch_dci_pdu_rel13.dl_assignment_index;
++        }
++        break;
++        
++      case NFAPI_HI_DCI0_NPDCCH_DCI_PDU_TYPE:
++        if (hi_dci0_pdu[i].npdcch_dci_pdu.npdcch_dci_pdu_rel13.rnti == rntiP) {
++          return hi_dci0_pdu[i].npdcch_dci_pdu.npdcch_dci_pdu_rel13.dl_assignment_index;
++        }
++        break;
+     }
+   }
+ 
+diff --git a/openair2/LAYER2/MAC/eNB_scheduler_ulsch.c b/openair2/LAYER2/MAC/eNB_scheduler_ulsch.c
+index 1fe2b6967b..231c67d449 100644
+--- a/openair2/LAYER2/MAC/eNB_scheduler_ulsch.c
++++ b/openair2/LAYER2/MAC/eNB_scheduler_ulsch.c
+@@ -158,7 +158,7 @@ rx_sdu(const module_id_t enb_mod_idP,
+           current_rnti,
+           UE_id,
+           ul_cqi,
+-	  timing_advance);
++          timing_advance);
+     AssertFatal(UE_scheduling_control->round_UL[CC_idP][harq_pid] < 8, "round >= 8\n");
+ 
+     if (sduP != NULL) {
+@@ -214,7 +214,7 @@ rx_sdu(const module_id_t enb_mod_idP,
+             ul_cqi,
+             UE_id,
+             current_rnti,
+-	    sdu_lenP);
++            sdu_lenP);
+ 
+       if (ul_cqi > 200) { // too high energy pattern
+         UE_scheduling_control->pusch_snr[CC_idP] = (5 * ul_cqi - 640) / 10;
+@@ -297,12 +297,12 @@ rx_sdu(const module_id_t enb_mod_idP,
+           enb_mod_idP,
+           harq_pid,
+           CC_idP,
+-	  sduP!=NULL ? "OK" : "in error",
++          sduP!=NULL ? "OK" : "in error",
+           ra->msg3_round,
+           current_rnti,
+           RA_id,
+           ul_cqi,
+-	  timing_advance);
++          timing_advance);
+ 
+     first_rb = ra->msg3_first_rb;
+ 
+@@ -332,7 +332,7 @@ rx_sdu(const module_id_t enb_mod_idP,
+       if (ra->msg3_round >= mac->common_channels[CC_idP].radioResourceConfigCommon->rach_ConfigCommon.maxHARQ_Msg3Tx - 1) {
+ 
+         // Release RNTI of LTE PHY when RA does not succeed
+-	put_UE_in_freelist(enb_mod_idP, current_rnti, true);
++        put_UE_in_freelist(enb_mod_idP, current_rnti, true);
+ 
+         cancel_ra_proc(enb_mod_idP, CC_idP, frameP, current_rnti);
+         nfapi_hi_dci0_request_t *hi_dci0_req = NULL;
+@@ -432,7 +432,7 @@ rx_sdu(const module_id_t enb_mod_idP,
+       case POWER_HEADROOM:
+         if (UE_id != -1) {
+           /*UE_template_ptr->phr_info = (payload_ptr[0] & 0x3f) - PHR_MAPPING_OFFSET + (int8_t)(hundred_times_log10_NPRB[UE_template_ptr->nb_rb_ul[harq_pid] - 1] / 100);i*/
+-	  UE_template_ptr->phr_info = (payload_ptr[0] & 0x3f) - PHR_MAPPING_OFFSET + estimate_ue_tx_power(0,sdu_lenP*8,UE_template_ptr->nb_rb_ul[harq_pid],0,mac->common_channels[CC_idP].Ncp,0);
++          UE_template_ptr->phr_info = (payload_ptr[0] & 0x3f) - PHR_MAPPING_OFFSET + estimate_ue_tx_power(0,sdu_lenP*8,UE_template_ptr->nb_rb_ul[harq_pid],0,mac->common_channels[CC_idP].Ncp,0);
+ 
+           if (UE_template_ptr->phr_info > 40) {
+             UE_template_ptr->phr_info = 40;
+@@ -1478,12 +1478,37 @@ schedule_ulsch_rnti(module_id_t   module_idP,
+ 
+     /* verify it is the right UE */
+     hi_dci0_pdu = &hi_dci0_req_body->hi_dci0_pdu_list[dci_ul_pdu_idx];
+-    if (hi_dci0_pdu->pdu_type != NFAPI_HI_DCI0_DCI_PDU_TYPE
+-        || hi_dci0_pdu->dci_pdu.dci_pdu_rel8.rnti != rnti) {
+-      LOG_E(MAC, "illegal hi_dci0_pdu_list index %d for UE %d/RNTI %04x\n",
++    
++    rnti_t pdu_rnti = 0;
++    switch (hi_dci0_pdu->pdu_type) {
++      case NFAPI_HI_DCI0_DCI_PDU_TYPE:
++        pdu_rnti = hi_dci0_pdu->dci_pdu.dci_pdu_rel8.rnti;
++        break;
++        
++      case NFAPI_HI_DCI0_EPDCCH_DCI_PDU_TYPE:
++        pdu_rnti = hi_dci0_pdu->epdcch_dci_pdu.epdcch_dci_pdu_rel8.rnti;
++        break;
++        
++      case NFAPI_HI_DCI0_MPDCCH_DCI_PDU_TYPE:
++        pdu_rnti = hi_dci0_pdu->mpdcch_dci_pdu.mpdcch_dci_pdu_rel13.rnti;
++        break;
++        
++      case NFAPI_HI_DCI0_NPDCCH_DCI_PDU_TYPE:
++        pdu_rnti = hi_dci0_pdu->npdcch_dci_pdu.npdcch_dci_pdu_rel13.rnti;
++        break;
++        
++      default:
++        pdu_rnti = 0; // Invalid PDU type for UL scheduling
++        break;
++    }
++    
++    if (pdu_rnti != rnti) {
++      LOG_E(MAC, "illegal hi_dci0_pdu_list index %d for UE %d/RNTI %04x (PDU type %d, PDU RNTI %04x)\n",
+             dci_ul_pdu_idx,
+             UE_id,
+-            rnti);
++            rnti,
++            hi_dci0_pdu->pdu_type,
++            pdu_rnti);
+       continue;
+     }
+ 

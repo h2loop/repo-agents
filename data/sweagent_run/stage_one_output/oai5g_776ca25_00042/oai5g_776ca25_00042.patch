@@ -1,0 +1,22 @@
+diff --git a/openair1/PHY/NR_TRANSPORT/nr_prach.c b/openair1/PHY/NR_TRANSPORT/nr_prach.c
+index e42c02953c..f7374c86d7 100644
+--- a/openair1/PHY/NR_TRANSPORT/nr_prach.c
++++ b/openair1/PHY/NR_TRANSPORT/nr_prach.c
+@@ -40,7 +40,7 @@ void init_prach_list(prach_list_t *l)
+ {
+   pthread_mutex_init(&l->prach_list_mutex, NULL);
+   for (prach_item_t *p = l->list; p < l->list + NUMBER_OF_NR_PRACH_MAX; p++)
+-    *p = (prach_item_t){.frame = -1, .slot = -1};
++    *p = (prach_item_t){.frame = -1, .slot = -1, .num_slots = 0};
+ }
+ 
+ void free_nr_prach_entry(prach_list_t *l, prach_item_t *p)
+@@ -48,7 +48,7 @@ void free_nr_prach_entry(prach_list_t *l, prach_item_t *p)
+   pthread_mutex_lock(&l->prach_list_mutex);
+   if (p->frame == -1)
+     LOG_E(NR_PHY_RACH, "Freeing a not allocated prach entry\n");
+-  *p = (prach_item_t){.frame = -1, .slot = -1, .num_slots = -1};
++  *p = (prach_item_t){.frame = -1, .slot = -1, .num_slots = 0};
+   pthread_mutex_unlock(&l->prach_list_mutex);
+ }
+ 

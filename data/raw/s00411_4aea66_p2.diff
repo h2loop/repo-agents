@@ -1,0 +1,15 @@
+diff --git a/nfapi/open-nFAPI/pnf_sim/src/main.cpp b/nfapi/open-nFAPI/pnf_sim/src/main.cpp
+index 251e2a48cb..c3d3f75aef 100644
+--- a/nfapi/open-nFAPI/pnf_sim/src/main.cpp
++++ b/nfapi/open-nFAPI/pnf_sim/src/main.cpp
+@@ -1712,6 +1712,10 @@ int phy_ul_config_req(nfapi_pnf_p7_config_t* pnf_p7, nfapi_ul_config_request_t*
+ 
+ 	fapi_ul_config_req_t fapi_req;
+ 	// convert
++	if(phy->fapi == NULL) {
++		printf("[PNF_SIM] phy_ul_config_req: phy->fapi is NULL\n");
++		return -1;
++	}
+ 	fapi_ul_config_request(phy->fapi, &fapi_req);
+ 
+ 	return 0;

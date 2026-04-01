@@ -1,0 +1,28 @@
+{
+  "run_id": "s00272_89dec7",
+  "function": {
+    "name": "e1apCUCP_send_SETUP_FAILURE",
+    "file": "openair2/E1AP/e1ap.c",
+    "start_line": 174,
+    "end_line": 179,
+    "body_lines": 6,
+    "signature": "static void e1apCUCP_send_SETUP_FAILURE(sctp_assoc_t assoc_id, const e1ap_setup_fail_t *msg)",
+    "subsystem": "openair2/E1AP",
+    "token_estimate": 28
+  },
+  "bug": {
+    "bug_id": "telecom_sched_missed_opportunity",
+    "description": "missed scheduling opportunity where a UE with pending data is not scheduled",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a missed scheduling opportunity where a UE with pending data is not scheduled downstream of function e1apCUCP_send_SETUP_FAILURE in the openair2/E1AP subsystem.\nThe function is located at openair2/E1AP/e1ap.c:174.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00272_89dec7_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00272_89dec7_p1.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 36,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:17:16Z"
+}

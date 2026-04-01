@@ -1,0 +1,32 @@
+{
+  "run_id": "s00411_4aea66",
+  "function": {
+    "name": "phy_info",
+    "file": "nfapi/open-nFAPI/pnf_sim/src/main.cpp",
+    "start_line": 93,
+    "end_line": 112,
+    "body_lines": 20,
+    "signature": "phy_info() : first_subframe_ind(0), fapi(0), dl_ues_per_subframe(0), ul_ues_per_subframe(0), timing_window(0), timing_info_mode(0), timing_info_period(0)",
+    "subsystem": "nfapi/open-nFAPI/pnf_sim",
+    "token_estimate": 50
+  },
+  "bug": {
+    "bug_id": "telecom_state_machine_missing_validation",
+    "description": "missing state validation before processing a protocol message",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a missing state validation before processing a protocol message downstream of function phy_info in the nfapi/open-nFAPI/pnf_sim subsystem.\nThe function is located at nfapi/open-nFAPI/pnf_sim/src/main.cpp:93.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00411_4aea66_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00411_4aea66_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 55,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:11:31Z"
+}

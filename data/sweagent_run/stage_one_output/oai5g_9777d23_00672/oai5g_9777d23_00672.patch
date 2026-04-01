@@ -1,0 +1,159 @@
+diff --git a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+index ccd5289a6f..f052ffd454 100644
+--- a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
++++ b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+@@ -227,7 +227,36 @@ get_Msg3alloc(COMMON_channels_t *cc,
+   } else {      // TDD
+     subframeAssignment = (int) cc->tdd_Config->subframeAssignment;
+ 
+-    if (subframeAssignment == 1) {
++    if (subframeAssignment == 0) {
++      // TDD Configuration 0: DSUUUDSUUU
++      // DL subframes: 0,1,5,6,7,8,9
++      switch (current_subframe) {
++        case 0:
++        case 5:
++          *subframe = 7;
++          *frame = current_frame;
++          break;
++          
++        case 1:
++        case 6:
++          *subframe = 2;
++          *frame = (current_frame + 1) & 1023;
++          break;
++          
++        case 7:
++        case 8:
++        case 9:
++          *subframe = 7;
++          *frame = (current_frame + 1) & 1023;
++          break;
++          
++        default:
++          // For other subframes, use FDD-like timing as fallback
++          *subframe = (current_subframe + 6) % 10;
++          *frame = (current_subframe + 6 > 9) ? ((current_frame + 1) & 1023) : current_frame;
++          break;
++      }
++    } else if (subframeAssignment == 1) {
+       switch (current_subframe) {
+         case 0:
+           *subframe = 7;
+@@ -248,6 +277,44 @@ get_Msg3alloc(COMMON_channels_t *cc,
+           *subframe = 7;
+           *frame = (current_frame + 1) & 1023;
+           break;
++          
++        default:
++          // For other subframes, use FDD-like timing as fallback
++          *subframe = (current_subframe + 6) % 10;
++          *frame = (current_subframe + 6 > 9) ? ((current_frame + 1) & 1023) : current_frame;
++          break;
++      }
++    } else if (subframeAssignment == 2) {
++      // TDD Configuration 2: DSUDSUDSUDSU
++      // DL subframes: 0,4,5,6,1,2,3,7,8,9
++      switch (current_subframe) {
++        case 0:
++        case 4:
++        case 5:
++          *subframe = 2;
++          *frame = (current_frame + 1) & 1023;
++          break;
++          
++        case 6:
++          *subframe = 7;
++          *frame = current_frame;
++          break;
++          
++        case 1:
++        case 2:
++        case 3:
++        case 7:
++        case 8:
++        case 9:
++          *subframe = 2;
++          *frame = (current_frame + 1) & 1023;
++          break;
++          
++        default:
++          // For other subframes, use FDD-like timing as fallback
++          *subframe = (current_subframe + 6) % 10;
++          *frame = (current_subframe + 6 > 9) ? ((current_frame + 1) & 1023) : current_frame;
++          break;
+       }
+     } else if (subframeAssignment == 3) {
+       switch (current_subframe) {
+@@ -272,6 +339,12 @@ get_Msg3alloc(COMMON_channels_t *cc,
+           *subframe = 2;
+           *frame = (current_frame + 2) & 1023;
+           break;
++          
++        default:
++          // For other subframes, use FDD-like timing as fallback
++          *subframe = (current_subframe + 6) % 10;
++          *frame = (current_subframe + 6 > 9) ? ((current_frame + 1) & 1023) : current_frame;
++          break;
+       }
+     } else if (subframeAssignment == 4) {
+       switch (current_subframe) {
+@@ -293,6 +366,12 @@ get_Msg3alloc(COMMON_channels_t *cc,
+           *subframe = 2;
+           *frame = (current_frame + 2) & 1023;
+           break;
++          
++        default:
++          // For other subframes, use FDD-like timing as fallback
++          *subframe = (current_subframe + 6) % 10;
++          *frame = (current_subframe + 6 > 9) ? ((current_frame + 1) & 1023) : current_frame;
++          break;
+       }
+     } else if (subframeAssignment == 5) {
+       switch (current_subframe) {
+@@ -310,7 +389,45 @@ get_Msg3alloc(COMMON_channels_t *cc,
+           *subframe = 2;
+           *frame = (current_frame + 2) & 1023;
+           break;
++          
++        default:
++          // For other subframes, use FDD-like timing as fallback
++          *subframe = (current_subframe + 6) % 10;
++          *frame = (current_subframe + 6 > 9) ? ((current_frame + 1) & 1023) : current_frame;
++          break;
+       }
++    } else if (subframeAssignment == 6) {
++      // TDD Configuration 6: DDDDDDDDDDS
++      // DL subframes: 0,1,2,3,4,5,6,7,8,9
++      switch (current_subframe) {
++        case 0:
++        case 1:
++        case 2:
++        case 3:
++        case 4:
++        case 5:
++        case 6:
++        case 7:
++        case 8:
++          *subframe = (current_subframe + 6) % 10;
++          *frame = (current_subframe + 6 > 9) ? ((current_frame + 1) & 1023) : current_frame;
++          break;
++          
++        case 9:
++          *subframe = 5;
++          *frame = (current_frame + 1) & 1023;
++          break;
++          
++        default:
++          // For other subframes, use FDD-like timing as fallback
++          *subframe = (current_subframe + 6) % 10;
++          *frame = (current_subframe + 6 > 9) ? ((current_frame + 1) & 1023) : current_frame;
++          break;
++      }
++    } else {
++      // For unknown TDD configurations, use FDD-like timing as fallback
++      *subframe = (current_subframe + 6) % 10;
++      *frame = (current_subframe + 6 > 9) ? ((current_frame + 1) & 1023) : current_frame;
+     }
+   }
+ 

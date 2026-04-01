@@ -1,0 +1,33 @@
+{
+  "run_id": "s00214_0c7d19",
+  "function": {
+    "name": "log2_approx64",
+    "file": "openair1/PHY/TOOLS/log2_approx.c",
+    "start_line": 52,
+    "end_line": 65,
+    "body_lines": 14,
+    "signature": "unsigned char log2_approx64(unsigned long long int x)",
+    "subsystem": "openair1/PHY/TOOLS",
+    "token_estimate": 45
+  },
+  "bug": {
+    "bug_id": "c_copy_paste_error",
+    "description": "copy-paste error where duplicated code was not correctly updated for its new context",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a copy-paste error where duplicated code was not correctly updated for its new context downstream of function log2_approx64 in the openair1/PHY/TOOLS subsystem.\nThe function is located at openair1/PHY/TOOLS/log2_approx.c:52.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00214_0c7d19_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00214_0c7d19_p1.diff",
+  "patch_lines": 5,
+  "trajectory_steps": 15,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:54:34Z"
+}

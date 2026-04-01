@@ -1,0 +1,19 @@
+diff --git a/common/utils/T/tracer/config.c b/common/utils/T/tracer/config.c
+index 723902ec9c..f87ca36e35 100644
+--- a/common/utils/T/tracer/config.c
++++ b/common/utils/T/tracer/config.c
+@@ -3,10 +3,10 @@
+ #include <stdlib.h>
+ #include <string.h>
+ 
+-static char *local;
+-static int local_size;
+-static char *remote;
+-static int remote_size;
++static char *local = NULL;
++static int local_size = 0;
++static char *remote = NULL;
++static int remote_size = 0;
+ 
+ static char *PUT(char *to, int tosize, char c)
+ {

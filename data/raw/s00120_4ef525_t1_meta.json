@@ -1,0 +1,32 @@
+{
+  "run_id": "s00120_4ef525",
+  "function": {
+    "name": "obj_hashtable_remove",
+    "file": "common/utils/hashtable/obj_hashtable.c",
+    "start_line": 173,
+    "end_line": 203,
+    "body_lines": 31,
+    "signature": "hashtable_rc_t obj_hashtable_remove(obj_hash_table_t *hashtblP, const void *keyP, int key_sizeP)",
+    "subsystem": "common/utils/hashtable",
+    "token_estimate": 62
+  },
+  "bug": {
+    "bug_id": "telecom_state_machine_missing_validation",
+    "description": "missing state validation before processing a protocol message",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a missing state validation before processing a protocol message downstream of function obj_hashtable_remove in the common/utils/hashtable subsystem.\nThe function is located at common/utils/hashtable/obj_hashtable.c:173.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00120_4ef525_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00120_4ef525_p1.diff",
+  "patch_lines": 16,
+  "trajectory_steps": 19,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T12:05:38Z"
+}

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00434_d093a2",
+  "pr_text": "## Title: Fix off-by-one error in Snow3G cryptographic multiplication loops\n\n### Summary\nCorrect an off-by-one loop boundary error in the Snow3G implementation that caused the MUL64 function and precomputation table generation to perform one extra iteration beyond the valid range. The Snow3G algorithm (used for NAS EEA1/EIA1 security) operates on 63-bit polynomials, but loops were incorrectly iterating 64 times (0-63 inclusive). This could result in incorrect authentication tag generation or cip",
+  "trajectory_path": "data/raw/s00434_d093a2_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00434_d093a2_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 15,
+  "timestamp": "2026-02-10T13:22:03Z"
+}

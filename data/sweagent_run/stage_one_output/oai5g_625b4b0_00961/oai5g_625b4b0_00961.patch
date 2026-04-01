@@ -1,0 +1,37 @@
+diff --git a/common/utils/load_module_shlib.c b/common/utils/load_module_shlib.c
+index 825012ce6a..1ebd61b0f0 100644
+--- a/common/utils/load_module_shlib.c
++++ b/common/utils/load_module_shlib.c
+@@ -43,9 +43,14 @@
+ 
+ #include "common/config/config_userapi.h"
+ #include "load_module_shlib.h"
+-loader_data_t loader_data;
++loader_data_t loader_data = {0}; // Initialize to zero
+ 
+ void loader_init(void) {
++  // Check if already initialized to make this function idempotent
++  if (loader_data.shlibs != NULL) {
++    return;
++  }
++  
+   paramdef_t LoaderParams[] = LOADER_PARAMS_DESC;
+ 
+   loader_data.mainexec_buildversion = OAI_PACKAGE_VERSION;
+@@ -133,7 +138,7 @@ int load_module_version_shlib(char *modname, char *version, loader_shlibfunc_t *
+     return -1;
+   }
+ 
+-  if (!loader_data.shlibpath) {
++  if (loader_data.shlibs == NULL) {
+      loader_init();
+   }
+ 
+@@ -283,4 +288,7 @@ void loader_reset()
+     loader_data.shlibpath=NULL;
+   }
+   free(loader_data.shlibs);
++  loader_data.shlibs = NULL;
++  loader_data.numshlibs = 0;
++  loader_data.maxshlibs = 0;
+ }

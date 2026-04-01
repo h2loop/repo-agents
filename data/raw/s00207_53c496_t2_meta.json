@@ -1,0 +1,9 @@
+{
+  "run_id": "s00207_53c496",
+  "pr_text": "## Title: Fix memory leak in F1AP ID management unit tests\n\n### Summary\nThe unit test functions `cu_data_test()` and `du_data_test()` allocate hashtables via `cu_init_f1_ue_data()` and `du_init_f1_ue_data()` but never free them, causing memory leaks on both success and error paths. This is particularly problematic when running tests under valgrind or in continuous integration environments where tests execute repeatedly.\n\nI add symmetric cleanup functions to properly destroy the hashtables and up",
+  "trajectory_path": "data/raw/s00207_53c496_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00207_53c496_p2.diff",
+  "patch_lines": 21,
+  "trajectory_steps": 24,
+  "timestamp": "2026-02-11T13:18:06Z"
+}

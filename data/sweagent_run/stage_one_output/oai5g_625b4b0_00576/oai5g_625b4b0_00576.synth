@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix ShortMAC IE length validation in Service Request encoding\n\n### Summary\nThe encode_short_mac function in the NAS layer was rejecting valid Service Request messages due to incorrect length validation. When the ShortMAC IE was encoded without an IEI (as required in Service Request), the function would fail with a buffer too short error, even though the 2-byte MAC value was correctly provided.\n\nThis occurred because SHORT_MAC_MINIMUM_LENGTH was set to 3, assuming an IEI would always be present. However, in Service Request messages per TS 24.501, the ShortMAC IE appears without an IEI and should be exactly 2 bytes.\n\nThe fix adjusts the length definitions to properly handle both cases:\n- Without IEI: 2 bytes (uint16_t MAC value only)  \n- With IEI: 3 bytes (1 byte IEI + 2 byte MAC)\n\n### Changes\n- `openair3/NAS/COMMON/IES/ShortMac.h`: Changed SHORT_MAC_MINIMUM_LENGTH from 3 to 2\n"
+}

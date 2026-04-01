@@ -1,0 +1,32 @@
+diff --git a/openair3/NAS/COMMON/ESM/MSG/esm_cause.h b/openair3/NAS/COMMON/ESM/MSG/esm_cause.h
+index 124663e05b..b45142dd77 100644
+--- a/openair3/NAS/COMMON/ESM/MSG/esm_cause.h
++++ b/openair3/NAS/COMMON/ESM/MSG/esm_cause.h
+@@ -47,6 +47,8 @@ Description Defines error cause code returned upon receiving unknown,
+ /*
+  * Cause code used to notify that the EPS session management procedure
+  * has been successfully processed
++ * NOTE: -1 is used as a special value to indicate success, which is
++ * distinguishable from standard ESM cause codes (0-255)
+  */
+ #define ESM_CAUSE_SUCCESS     (-1)
+ 
+diff --git a/openair3/NAS/TEST/AS_SIMULATOR/nas_process.c b/openair3/NAS/TEST/AS_SIMULATOR/nas_process.c
+index 9b2245acd0..e510bad540 100644
+--- a/openair3/NAS/TEST/AS_SIMULATOR/nas_process.c
++++ b/openair3/NAS/TEST/AS_SIMULATOR/nas_process.c
+@@ -1050,8 +1050,12 @@ _esm_status(
+   int index = 0;
+ 
+   /* ESM cause code */
+-  index += snprintf(buffer + index, length - index, ", EsmCause = %s (%d)",
+-                    esmCauseCode(msg->esmcause), msg->esmcause);
++  if (msg->esmcause == ESM_CAUSE_SUCCESS) {
++    index += snprintf(buffer + index, length - index, ", EsmCause = SUCCESS");
++  } else {
++    index += snprintf(buffer + index, length - index, ", EsmCause = %s (%d)",
++                      esmCauseCode(msg->esmcause), msg->esmcause);
++  }
+ 
+   return (index);
+ }

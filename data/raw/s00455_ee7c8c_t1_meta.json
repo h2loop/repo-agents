@@ -1,0 +1,32 @@
+{
+  "run_id": "s00455_ee7c8c",
+  "function": {
+    "name": "unpack_nr_dl_node_sync",
+    "file": "nfapi/open-nFAPI/nfapi/src/nfapi_p7.c",
+    "start_line": 5693,
+    "end_line": 5698,
+    "body_lines": 6,
+    "signature": "static uint8_t unpack_nr_dl_node_sync(uint8_t **ppReadPackedMsg, uint8_t *end, void *msg, nfapi_p7_codec_config_t *config)",
+    "subsystem": "nfapi/open-nFAPI/nfapi",
+    "token_estimate": 32
+  },
+  "bug": {
+    "bug_id": "c_magic_number",
+    "description": "magic number used without symbolic constant making intent unclear and maintenance error-prone",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a magic number used without symbolic constant making intent unclear and maintenance error-prone downstream of function unpack_nr_dl_node_sync in the nfapi/open-nFAPI/nfapi subsystem.\nThe function is located at nfapi/open-nFAPI/nfapi/src/nfapi_p7.c:5693.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00455_ee7c8c_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00455_ee7c8c_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 55,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:27:16Z"
+}

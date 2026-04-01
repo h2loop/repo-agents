@@ -1,0 +1,499 @@
+diff --git a/nfapi/open-nFAPI/Makefile.am b/nfapi/open-nFAPI/Makefile.am
+index 900cf2bbcf..9be88c88c5 100644
+--- a/nfapi/open-nFAPI/Makefile.am
++++ b/nfapi/open-nFAPI/Makefile.am
+@@ -1,15 +1,16 @@
+ ACLOCAL_AMFLAGS = -I m4
+ 
+ SUBDIRS =common/ \
+-	 sim_common/ \
+-	 nfapi/ \
+-	 pnf/ \
+-	 vnf/ \
+-	 nfapi/tests \
+-	 pnf/tests \
+-	 vnf/tests \
+-	 pnf_sim/ \
+-	 vnf_sim/ \
+-	 integration_tests/ \
+-	 docs/ \
+-	 $(NULL)
++         sim_common/ \
++         nfapi/ \
++         fapi/ \
++         pnf/ \
++         vnf/ \
++         nfapi/tests \
++         pnf/tests \
++         vnf/tests \
++         pnf_sim/ \
++         vnf_sim/ \
++         integration_tests/ \
++         docs/ \
++         $(NULL)
+diff --git a/nfapi/open-nFAPI/fapi/CMakeLists.txt b/nfapi/open-nFAPI/fapi/CMakeLists.txt
+index 1e2208172f..c741650fb0 100644
+--- a/nfapi/open-nFAPI/fapi/CMakeLists.txt
++++ b/nfapi/open-nFAPI/fapi/CMakeLists.txt
+@@ -1,6 +1,7 @@
+ add_library(nr_fapi_p5
+         src/nr_fapi_p5.c
+         src/nr_fapi_p5_utils.c
++        src/nr_fapi_p7_utils.c
+ )
+ target_include_directories(nr_fapi_p5 PUBLIC inc)
+ target_link_libraries(nr_fapi_p5 PUBLIC nfapi_common)
+diff --git a/nfapi/open-nFAPI/fapi/Makefile.am b/nfapi/open-nFAPI/fapi/Makefile.am
+new file mode 100644
+index 0000000000..fb24623c72
+--- /dev/null
++++ b/nfapi/open-nFAPI/fapi/Makefile.am
+@@ -0,0 +1,26 @@
++#
++# Copyright 2017 Cisco Systems, Inc.
++# 
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++# 
++# http://www.apache.org/licenses/LICENSE-2.0
++# 
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++# 
++
++AUTOMAKE_OPTIONS=subdir-objects
++AM_CPPFLAGS = -I$(top_srcdir)/nfapi/public_inc -I$(top_srcdir)/nfapi/inc -I$(top_srcdir)/common/public_inc -I$(top_srcdir)/fapi/inc $(BOOST_CPPFLAGS) -Wall -Werror -g
++
++noinst_LIBRARIES = libnfapi_fapi.a
++
++libnfapi_fapi_a_SOURCES = src/nr_fapi_p5.c src/nr_fapi_p5_utils.c src/nr_fapi_p7_utils.c
++libnfapi_fapi_a_CFLAGS =$(AM_CFLAGS)
++
++lib_LTLIBRARIES = libnfapi_fapi.la
++libnfapi_fapi_la_SOURCES = src/nr_fapi_p5.c src/nr_fapi_p5_utils.c src/nr_fapi_p7_utils.c
+\ No newline at end of file
+diff --git a/nfapi/open-nFAPI/fapi/inc/nr_fapi_p7_utils.h b/nfapi/open-nFAPI/fapi/inc/nr_fapi_p7_utils.h
+new file mode 100644
+index 0000000000..8e10546b32
+--- /dev/null
++++ b/nfapi/open-nFAPI/fapi/inc/nr_fapi_p7_utils.h
+@@ -0,0 +1,105 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++/*! \file nfapi/open-nFAPI/fapi/inc/nr_fapi_p7_utils.h
++ * \brief
++ * \author OpenAirInterface Software Alliance
++ * \date 2024
++ * \version 0.1
++ * \company OpenAirInterface Software Alliance
++ * \email: contact@openairinterface.org
++ * \note
++ * \warning
++ */
++
++#ifndef OPENAIRINTERFACE_NR_FAPI_P7_UTILS_H
++#define OPENAIRINTERFACE_NR_FAPI_P7_UTILS_H
++
++#include "stdio.h"
++#include "stdint.h"
++#include "nr_fapi.h"
++#include "nfapi/oai_integration/vendor_ext.h"
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++/**
++ * @brief Copy UCI indication for PUSCH PDU
++ * This function copies the UCI indication data specifically for PUSCH from source to destination
++ * 
++ * @param src Source UCI PUSCH PDU structure
++ * @param dst Destination UCI PUSCH PDU structure
++ * @return void
++ */
++void copy_uci_indication_PUSCH(const nfapi_nr_uci_pusch_pdu_t *src, nfapi_nr_uci_pusch_pdu_t *dst);
++
++/**
++ * @brief Free allocated memory in UCI indication for PUSCH PDU
++ * This function frees the dynamically allocated memory in the UCI PUSCH PDU structure
++ * 
++ * @param uci_pusch_pdu UCI PUSCH PDU structure to free
++ * @return void
++ */
++void free_uci_indication_PUSCH(nfapi_nr_uci_pusch_pdu_t *uci_pusch_pdu);
++
++/**
++ * @brief Copy a single UCI indication entry
++ * This function copies a single UCI indication entry, handling the different PDU types properly
++ * 
++ * @param src Source UCI indication entry
++ * @param dst Destination UCI indication entry
++ * @return void
++ */
++void copy_uci_indication_entry(const nfapi_nr_uci_t *src, nfapi_nr_uci_t *dst);
++
++/**
++ * @brief Free allocated memory in a single UCI indication entry
++ * This function frees the dynamically allocated memory in a UCI indication entry
++ * 
++ * @param uci_entry UCI indication entry to free
++ * @return void
++ */
++void free_uci_indication_entry(nfapi_nr_uci_t *uci_entry);
++
++/**
++ * @brief Copy entire UCI indication message
++ * This function copies the entire UCI indication message, including all entries
++ * 
++ * @param src Source UCI indication message
++ * @param dst Destination UCI indication message
++ * @return void
++ */
++void copy_uci_indication(const nfapi_nr_uci_indication_t *src, nfapi_nr_uci_indication_t *dst);
++
++/**
++ * @brief Free allocated memory in UCI indication message
++ * This function frees the dynamically allocated memory in the UCI indication message
++ * 
++ * @param uci_ind UCI indication message to free
++ * @return void
++ */
++void free_uci_indication(nfapi_nr_uci_indication_t *uci_ind);
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif // OPENAIRINTERFACE_NR_FAPI_P7_UTILS_H
+\ No newline at end of file
+diff --git a/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c b/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c
+new file mode 100644
+index 0000000000..fbd9f85f55
+--- /dev/null
++++ b/nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c
+@@ -0,0 +1,302 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++/*! \file nfapi/open-nFAPI/fapi/src/nr_fapi_p7_utils.c
++ * \brief
++ * \author OpenAirInterface Software Alliance
++ * \date 2024
++ * \version 0.1
++ * \company OpenAirInterface Software Alliance
++ * \email: contact@openairinterface.org
++ * \note
++ * \warning
++ */
++
++#include "nr_fapi_p7_utils.h"
++#include "nr_fapi.h"
++#include <stdlib.h>
++#include <string.h>
++
++void copy_uci_indication_PUSCH(const nfapi_nr_uci_pusch_pdu_t *src, nfapi_nr_uci_pusch_pdu_t *dst)
++{
++  if (!src || !dst) {
++    return;
++  }
++
++  // Copy basic fields
++  dst->pduBitmap = src->pduBitmap;
++  dst->handle = src->handle;
++  dst->rnti = src->rnti;
++  dst->ul_cqi = src->ul_cqi;
++  dst->timing_advance = src->timing_advance;
++  dst->rssi = src->rssi;
++
++  // Copy HARQ information
++  dst->harq.harq_crc = src->harq.harq_crc;
++  dst->harq.harq_bit_len = src->harq.harq_bit_len;
++  // For harq_payload, we need to allocate memory and copy the data
++  if (src->harq.harq_payload && src->harq.harq_bit_len > 0) {
++    int payload_size = (src->harq.harq_bit_len + 7) / 8; // Convert bits to bytes
++    dst->harq.harq_payload = (uint8_t*)malloc(payload_size);
++    if (dst->harq.harq_payload) {
++      memcpy(dst->harq.harq_payload, src->harq.harq_payload, payload_size);
++    }
++  } else {
++    dst->harq.harq_payload = NULL;
++  }
++
++  // Copy CSI Part 1 information
++  dst->csi_part1.csi_part1_crc = src->csi_part1.csi_part1_crc;
++  dst->csi_part1.csi_part1_bit_len = src->csi_part1.csi_part1_bit_len;
++  // For csi_part1_payload, we need to allocate memory and copy the data
++  if (src->csi_part1.csi_part1_payload && src->csi_part1.csi_part1_bit_len > 0) {
++    int payload_size = (src->csi_part1.csi_part1_bit_len + 7) / 8; // Convert bits to bytes
++    dst->csi_part1.csi_part1_payload = (uint8_t*)malloc(payload_size);
++    if (dst->csi_part1.csi_part1_payload) {
++      memcpy(dst->csi_part1.csi_part1_payload, src->csi_part1.csi_part1_payload, payload_size);
++    }
++  } else {
++    dst->csi_part1.csi_part1_payload = NULL;
++  }
++
++  // Copy CSI Part 2 information
++  dst->csi_part2.csi_part2_crc = src->csi_part2.csi_part2_crc;
++  dst->csi_part2.csi_part2_bit_len = src->csi_part2.csi_part2_bit_len;
++  // For csi_part2_payload, we need to allocate memory and copy the data
++  if (src->csi_part2.csi_part2_payload && src->csi_part2.csi_part2_bit_len > 0) {
++    int payload_size = (src->csi_part2.csi_part2_bit_len + 7) / 8; // Convert bits to bytes
++    dst->csi_part2.csi_part2_payload = (uint8_t*)malloc(payload_size);
++    if (dst->csi_part2.csi_part2_payload) {
++      memcpy(dst->csi_part2.csi_part2_payload, src->csi_part2.csi_part2_payload, payload_size);
++    }
++  } else {
++    dst->csi_part2.csi_part2_payload = NULL;
++  }
++}
++
++void free_uci_indication_PUSCH(nfapi_nr_uci_pusch_pdu_t *uci_pusch_pdu)
++{
++  if (!uci_pusch_pdu) {
++    return;
++  }
++
++  // Free HARQ payload if allocated
++  if (uci_pusch_pdu->harq.harq_payload) {
++    free(uci_pusch_pdu->harq.harq_payload);
++    uci_pusch_pdu->harq.harq_payload = NULL;
++  }
++
++  // Free CSI Part 1 payload if allocated
++  if (uci_pusch_pdu->csi_part1.csi_part1_payload) {
++    free(uci_pusch_pdu->csi_part1.csi_part1_payload);
++    uci_pusch_pdu->csi_part1.csi_part1_payload = NULL;
++  }
++
++  // Free CSI Part 2 payload if allocated
++  if (uci_pusch_pdu->csi_part2.csi_part2_payload) {
++    free(uci_pusch_pdu->csi_part2.csi_part2_payload);
++    uci_pusch_pdu->csi_part2.csi_part2_payload = NULL;
++  }
++}
++
++void copy_uci_indication_entry(const nfapi_nr_uci_t *src, nfapi_nr_uci_t *dst)
++{
++  if (!src || !dst) {
++    return;
++  }
++
++  // Copy basic fields
++  dst->pdu_type = src->pdu_type;
++  dst->pdu_size = src->pdu_size;
++
++  // Handle different PDU types
++  switch (src->pdu_type) {
++    case NFAPI_NR_UCI_PUSCH_PDU_TYPE: {
++      copy_uci_indication_PUSCH(&src->pusch_pdu, &dst->pusch_pdu);
++      break;
++    }
++    case NFAPI_NR_UCI_FORMAT_0_1_PDU_TYPE: {
++      // For PUCCH Format 0/1, copy the structure directly since it doesn't seem to have dynamic payloads
++      dst->pucch_pdu_format_0_1 = src->pucch_pdu_format_0_1;
++      break;
++    }
++    case NFAPI_NR_UCI_FORMAT_2_3_4_PDU_TYPE: {
++      // For PUCCH Format 2/3/4, copy basic fields
++      dst->pucch_pdu_format_2_3_4.pduBitmap = src->pucch_pdu_format_2_3_4.pduBitmap;
++      dst->pucch_pdu_format_2_3_4.handle = src->pucch_pdu_format_2_3_4.handle;
++      dst->pucch_pdu_format_2_3_4.rnti = src->pucch_pdu_format_2_3_4.rnti;
++      dst->pucch_pdu_format_2_3_4.pucch_format = src->pucch_pdu_format_2_3_4.pucch_format;
++      dst->pucch_pdu_format_2_3_4.ul_cqi = src->pucch_pdu_format_2_3_4.ul_cqi;
++      dst->pucch_pdu_format_2_3_4.timing_advance = src->pucch_pdu_format_2_3_4.timing_advance;
++      dst->pucch_pdu_format_2_3_4.rssi = src->pucch_pdu_format_2_3_4.rssi;
++
++      // Copy SR information
++      dst->pucch_pdu_format_2_3_4.sr.sr_crc = src->pucch_pdu_format_2_3_4.sr.sr_crc;
++      dst->pucch_pdu_format_2_3_4.sr.sr_bit_len = src->pucch_pdu_format_2_3_4.sr.sr_bit_len;
++      if (src->pucch_pdu_format_2_3_4.sr.sr_payload && src->pucch_pdu_format_2_3_4.sr.sr_bit_len > 0) {
++        int payload_size = (src->pucch_pdu_format_2_3_4.sr.sr_bit_len + 7) / 8;
++        dst->pucch_pdu_format_2_3_4.sr.sr_payload = (uint8_t*)malloc(payload_size);
++        if (dst->pucch_pdu_format_2_3_4.sr.sr_payload) {
++          memcpy(dst->pucch_pdu_format_2_3_4.sr.sr_payload, src->pucch_pdu_format_2_3_4.sr.sr_payload, payload_size);
++        }
++      } else {
++        dst->pucch_pdu_format_2_3_4.sr.sr_payload = NULL;
++      }
++
++      // Copy HARQ information
++      dst->pucch_pdu_format_2_3_4.harq.harq_crc = src->pucch_pdu_format_2_3_4.harq.harq_crc;
++      dst->pucch_pdu_format_2_3_4.harq.harq_bit_len = src->pucch_pdu_format_2_3_4.harq.harq_bit_len;
++      if (src->pucch_pdu_format_2_3_4.harq.harq_payload && src->pucch_pdu_format_2_3_4.harq.harq_bit_len > 0) {
++        int payload_size = (src->pucch_pdu_format_2_3_4.harq.harq_bit_len + 7) / 8;
++        dst->pucch_pdu_format_2_3_4.harq.harq_payload = (uint8_t*)malloc(payload_size);
++        if (dst->pucch_pdu_format_2_3_4.harq.harq_payload) {
++          memcpy(dst->pucch_pdu_format_2_3_4.harq.harq_payload, src->pucch_pdu_format_2_3_4.harq.harq_payload, payload_size);
++        }
++      } else {
++        dst->pucch_pdu_format_2_3_4.harq.harq_payload = NULL;
++      }
++
++      // Copy CSI Part 1 information
++      dst->pucch_pdu_format_2_3_4.csi_part1.csi_part1_crc = src->pucch_pdu_format_2_3_4.csi_part1.csi_part1_crc;
++      dst->pucch_pdu_format_2_3_4.csi_part1.csi_part1_bit_len = src->pucch_pdu_format_2_3_4.csi_part1.csi_part1_bit_len;
++      if (src->pucch_pdu_format_2_3_4.csi_part1.csi_part1_payload && src->pucch_pdu_format_2_3_4.csi_part1.csi_part1_bit_len > 0) {
++        int payload_size = (src->pucch_pdu_format_2_3_4.csi_part1.csi_part1_bit_len + 7) / 8;
++        dst->pucch_pdu_format_2_3_4.csi_part1.csi_part1_payload = (uint8_t*)malloc(payload_size);
++        if (dst->pucch_pdu_format_2_3_4.csi_part1.csi_part1_payload) {
++          memcpy(dst->pucch_pdu_format_2_3_4.csi_part1.csi_part1_payload, src->pucch_pdu_format_2_3_4.csi_part1.csi_part1_payload, payload_size);
++        }
++      } else {
++        dst->pucch_pdu_format_2_3_4.csi_part1.csi_part1_payload = NULL;
++      }
++
++      // Copy CSI Part 2 information
++      dst->pucch_pdu_format_2_3_4.csi_part2.csi_part2_crc = src->pucch_pdu_format_2_3_4.csi_part2.csi_part2_crc;
++      dst->pucch_pdu_format_2_3_4.csi_part2.csi_part2_bit_len = src->pucch_pdu_format_2_3_4.csi_part2.csi_part2_bit_len;
++      if (src->pucch_pdu_format_2_3_4.csi_part2.csi_part2_payload && src->pucch_pdu_format_2_3_4.csi_part2.csi_part2_bit_len > 0) {
++        int payload_size = (src->pucch_pdu_format_2_3_4.csi_part2.csi_part2_bit_len + 7) / 8;
++        dst->pucch_pdu_format_2_3_4.csi_part2.csi_part2_payload = (uint8_t*)malloc(payload_size);
++        if (dst->pucch_pdu_format_2_3_4.csi_part2.csi_part2_payload) {
++          memcpy(dst->pucch_pdu_format_2_3_4.csi_part2.csi_part2_payload, src->pucch_pdu_format_2_3_4.csi_part2.csi_part2_payload, payload_size);
++        }
++      } else {
++        dst->pucch_pdu_format_2_3_4.csi_part2.csi_part2_payload = NULL;
++      }
++      break;
++    }
++    default:
++      // Unknown PDU type, just copy the union as-is
++      dst->pusch_pdu = src->pusch_pdu; // This will copy whatever is in the union
++      break;
++  }
++}
++
++void free_uci_indication_entry(nfapi_nr_uci_t *uci_entry)
++{
++  if (!uci_entry) {
++    return;
++  }
++
++  // Handle different PDU types
++  switch (uci_entry->pdu_type) {
++    case NFAPI_NR_UCI_PUSCH_PDU_TYPE: {
++      free_uci_indication_PUSCH(&uci_entry->pusch_pdu);
++      break;
++    }
++    case NFAPI_NR_UCI_FORMAT_0_1_PDU_TYPE: {
++      // For PUCCH Format 0/1, no dynamic memory to free
++      break;
++    }
++    case NFAPI_NR_UCI_FORMAT_2_3_4_PDU_TYPE: {
++      // Free SR payload if allocated
++      if (uci_entry->pucch_pdu_format_2_3_4.sr.sr_payload) {
++        free(uci_entry->pucch_pdu_format_2_3_4.sr.sr_payload);
++        uci_entry->pucch_pdu_format_2_3_4.sr.sr_payload = NULL;
++      }
++
++      // Free HARQ payload if allocated
++      if (uci_entry->pucch_pdu_format_2_3_4.harq.harq_payload) {
++        free(uci_entry->pucch_pdu_format_2_3_4.harq.harq_payload);
++        uci_entry->pucch_pdu_format_2_3_4.harq.harq_payload = NULL;
++      }
++
++      // Free CSI Part 1 payload if allocated
++      if (uci_entry->pucch_pdu_format_2_3_4.csi_part1.csi_part1_payload) {
++        free(uci_entry->pucch_pdu_format_2_3_4.csi_part1.csi_part1_payload);
++        uci_entry->pucch_pdu_format_2_3_4.csi_part1.csi_part1_payload = NULL;
++      }
++
++      // Free CSI Part 2 payload if allocated
++      if (uci_entry->pucch_pdu_format_2_3_4.csi_part2.csi_part2_payload) {
++        free(uci_entry->pucch_pdu_format_2_3_4.csi_part2.csi_part2_payload);
++        uci_entry->pucch_pdu_format_2_3_4.csi_part2.csi_part2_payload = NULL;
++      }
++      break;
++    }
++    default:
++      // Unknown PDU type, nothing to free
++      break;
++  }
++}
++
++void copy_uci_indication(const nfapi_nr_uci_indication_t *src, nfapi_nr_uci_indication_t *dst)
++{
++  if (!src || !dst) {
++    return;
++  }
++
++  // Copy header
++  dst->header = src->header;
++  
++  // Copy basic fields
++  dst->sfn = src->sfn;
++  dst->slot = src->slot;
++  dst->num_ucis = src->num_ucis;
++
++  // Allocate memory for UCI list
++  if (src->num_ucis > 0 && src->uci_list) {
++    dst->uci_list = (nfapi_nr_uci_t*)calloc(src->num_ucis, sizeof(nfapi_nr_uci_t));
++    if (dst->uci_list) {
++      // Copy each UCI entry
++      for (int i = 0; i < src->num_ucis; i++) {
++        copy_uci_indication_entry(&src->uci_list[i], &dst->uci_list[i]);
++      }
++    }
++  } else {
++    dst->uci_list = NULL;
++  }
++}
++
++void free_uci_indication(nfapi_nr_uci_indication_t *uci_ind)
++{
++  if (!uci_ind) {
++    return;
++  }
++
++  // Free each UCI entry
++  if (uci_ind->uci_list && uci_ind->num_ucis > 0) {
++    for (int i = 0; i < uci_ind->num_ucis; i++) {
++      free_uci_indication_entry(&uci_ind->uci_list[i]);
++    }
++    free(uci_ind->uci_list);
++    uci_ind->uci_list = NULL;
++  }
++  
++  uci_ind->num_ucis = 0;
++}
+\ No newline at end of file

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix potential buffer overflows in RLC entity management\n\n### Summary\nThe RLC entity management code in the NR stack had several potential buffer overflows due to missing bounds checking when accessing SRB and DRB entity arrays. These issues could be triggered by malformed RRC messages containing invalid RB IDs.\n\nThis fix adds proper bounds checking to all array accesses and improves error handling in the RLC entity management functions.\n\n### Changes\n- `openair2/LAYER2/nr_rlc/nr_rlc_oai_api.c`: \n  - Added bounds checking in `release_rlc_entity_from_lcid` for SRB/DRB IDs\n  - Added bounds checking in `get_rlc_entity_from_lcid` for SRB/DRB IDs  \n  - Added bounds checking in `nr_rlc_srb_recv_sdu` for SRB LCIDs\n  - Made bounds checking consistent in `nr_rlc_get_statistics`\n  - Added NULL check in `nr_rlc_test_trigger_reestablishment`\n\n"
+}

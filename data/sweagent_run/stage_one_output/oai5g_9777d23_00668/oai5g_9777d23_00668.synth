@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix negative modulo handling in PUSCH frame/slot calculation\n\n### Summary\nThe `get_pusch_frame_slot` function in the NR UE MAC scheduler was not properly handling negative modulo operations when calculating transmission frame and slot numbers. This caused incorrect scheduling when negative K2 values were received in DCI, leading to ULSCH transmission at wrong frame/slot positions.\n\nThe issue was particularly noticeable when false DCI was received with negative K2 values, causing modulo operations to return negative results instead of properly wrapping around.\n\n### Changes\n- `openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c`: Added proper negative modulo handling in `get_pusch_frame_slot` function to ensure correct frame and slot calculations even with negative offsets.\n\n"
+}

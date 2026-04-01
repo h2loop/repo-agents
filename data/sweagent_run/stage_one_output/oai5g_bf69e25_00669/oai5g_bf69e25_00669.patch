@@ -1,0 +1,259 @@
+diff --git a/openair2/M2AP/m2ap_eNB_management_procedures.c b/openair2/M2AP/m2ap_eNB_management_procedures.c
+index 014ecf08d8..d3ff158870 100644
+--- a/openair2/M2AP/m2ap_eNB_management_procedures.c
++++ b/openair2/M2AP/m2ap_eNB_management_procedures.c
+@@ -57,7 +57,8 @@ RB_GENERATE(m2ap_enb_map, m2ap_eNB_data_s, entry, m2ap_eNB_compare_assoc_id);
+ int m2ap_eNB_compare_assoc_id(
+   struct m2ap_eNB_data_s *p1, struct m2ap_eNB_data_s *p2)
+ {
+-  if (p1->assoc_id == -1) {
++  /* If both have invalid assoc_id, compare by cnx_id */
++  if ((p1->assoc_id == -1) && (p2->assoc_id == -1)) {
+     if (p1->cnx_id < p2->cnx_id) {
+       return -1;
+     }
+@@ -65,7 +66,9 @@ int m2ap_eNB_compare_assoc_id(
+     if (p1->cnx_id > p2->cnx_id) {
+       return 1;
+     }
+-  } else {
++  } 
++  /* If both have valid assoc_id, compare by assoc_id */
++  else if ((p1->assoc_id != -1) && (p2->assoc_id != -1)) {
+     if (p1->assoc_id < p2->assoc_id) {
+       return -1;
+     }
+@@ -74,6 +77,14 @@ int m2ap_eNB_compare_assoc_id(
+       return 1;
+     }
+   }
++  /* If p1 has invalid assoc_id and p2 has valid, p1 should come first (smaller) */
++  else if ((p1->assoc_id == -1) && (p2->assoc_id != -1)) {
++    return -1;
++  }
++  /* If p1 has valid assoc_id and p2 has invalid, p1 should come after (larger) */
++  else if ((p1->assoc_id != -1) && (p2->assoc_id == -1)) {
++    return 1;
++  }
+ 
+   /* Matching reference */
+   return 0;
+@@ -247,7 +258,7 @@ m2ap_eNB_data_t  * m2ap_is_eNB_assoc_id_in_list (const uint32_t sctp_assoc_id)
+     found = RB_FIND(m2ap_enb_map, &inst->m2ap_enb_head, &temp);
+     if (found != NULL){
+       if (found->assoc_id == sctp_assoc_id) {
+-	return found;
++        return found;
+       }
+     }
+   }
+diff --git a/openair2/X2AP/x2ap_eNB_management_procedures.c b/openair2/X2AP/x2ap_eNB_management_procedures.c
+index 465949a58e..3ebd930390 100644
+--- a/openair2/X2AP/x2ap_eNB_management_procedures.c
++++ b/openair2/X2AP/x2ap_eNB_management_procedures.c
+@@ -57,7 +57,8 @@ RB_GENERATE(x2ap_enb_map, x2ap_eNB_data_s, entry, x2ap_eNB_compare_assoc_id);
+ int x2ap_eNB_compare_assoc_id(
+   struct x2ap_eNB_data_s *p1, struct x2ap_eNB_data_s *p2)
+ {
+-  if (p1->assoc_id == -1) {
++  /* If both have invalid assoc_id, compare by cnx_id */
++  if ((p1->assoc_id == -1) && (p2->assoc_id == -1)) {
+     if (p1->cnx_id < p2->cnx_id) {
+       return -1;
+     }
+@@ -65,7 +66,9 @@ int x2ap_eNB_compare_assoc_id(
+     if (p1->cnx_id > p2->cnx_id) {
+       return 1;
+     }
+-  } else {
++  } 
++  /* If both have valid assoc_id, compare by assoc_id */
++  else if ((p1->assoc_id != -1) && (p2->assoc_id != -1)) {
+     if (p1->assoc_id < p2->assoc_id) {
+       return -1;
+     }
+@@ -74,6 +77,14 @@ int x2ap_eNB_compare_assoc_id(
+       return 1;
+     }
+   }
++  /* If p1 has invalid assoc_id and p2 has valid, p1 should come first (smaller) */
++  else if ((p1->assoc_id == -1) && (p2->assoc_id != -1)) {
++    return -1;
++  }
++  /* If p1 has valid assoc_id and p2 has invalid, p1 should come after (larger) */
++  else if ((p1->assoc_id != -1) && (p2->assoc_id == -1)) {
++    return 1;
++  }
+ 
+   /* Matching reference */
+   return 0;
+@@ -247,7 +258,7 @@ x2ap_eNB_data_t  * x2ap_is_eNB_assoc_id_in_list (const uint32_t sctp_assoc_id)
+     found = RB_FIND(x2ap_enb_map, &inst->x2ap_enb_head, &temp);
+     if (found != NULL){
+       if (found->assoc_id == sctp_assoc_id) {
+-	return found;
++        return found;
+       }
+     }
+   }
+diff --git a/openair3/M3AP/m3ap_MME_management_procedures.c b/openair3/M3AP/m3ap_MME_management_procedures.c
+index 1225db2213..4b248e3ff4 100644
+--- a/openair3/M3AP/m3ap_MME_management_procedures.c
++++ b/openair3/M3AP/m3ap_MME_management_procedures.c
+@@ -57,7 +57,8 @@ RB_GENERATE(m3ap_mme_map, m3ap_MME_data_s, entry, m3ap_MME_compare_assoc_id);
+ int m3ap_MME_compare_assoc_id(
+   struct m3ap_MME_data_s *p1, struct m3ap_MME_data_s *p2)
+ {
+-  if (p1->assoc_id == -1) {
++  /* If both have invalid assoc_id, compare by cnx_id */
++  if ((p1->assoc_id == -1) && (p2->assoc_id == -1)) {
+     if (p1->cnx_id < p2->cnx_id) {
+       return -1;
+     }
+@@ -65,7 +66,9 @@ int m3ap_MME_compare_assoc_id(
+     if (p1->cnx_id > p2->cnx_id) {
+       return 1;
+     }
+-  } else {
++  } 
++  /* If both have valid assoc_id, compare by assoc_id */
++  else if ((p1->assoc_id != -1) && (p2->assoc_id != -1)) {
+     if (p1->assoc_id < p2->assoc_id) {
+       return -1;
+     }
+@@ -74,6 +77,14 @@ int m3ap_MME_compare_assoc_id(
+       return 1;
+     }
+   }
++  /* If p1 has invalid assoc_id and p2 has valid, p1 should come first (smaller) */
++  else if ((p1->assoc_id == -1) && (p2->assoc_id != -1)) {
++    return -1;
++  }
++  /* If p1 has valid assoc_id and p2 has invalid, p1 should come after (larger) */
++  else if ((p1->assoc_id != -1) && (p2->assoc_id == -1)) {
++    return 1;
++  }
+ 
+   /* Matching reference */
+   return 0;
+@@ -247,7 +258,7 @@ m3ap_MME_data_t  * m3ap_is_MME_assoc_id_in_list (const uint32_t sctp_assoc_id)
+     found = RB_FIND(m3ap_mme_map, &inst->m3ap_mme_head, &temp);
+     if (found != NULL){
+       if (found->assoc_id == sctp_assoc_id) {
+-	return found;
++        return found;
+       }
+     }
+   }
+diff --git a/openair3/NGAP/ngap_gNB_management_procedures.c b/openair3/NGAP/ngap_gNB_management_procedures.c
+index 6ed06d9324..bcc51ac05f 100644
+--- a/openair3/NGAP/ngap_gNB_management_procedures.c
++++ b/openair3/NGAP/ngap_gNB_management_procedures.c
+@@ -48,7 +48,8 @@ RB_GENERATE(ngap_amf_map, ngap_gNB_amf_data_s, entry, ngap_gNB_compare_assoc_id)
+ int ngap_gNB_compare_assoc_id(
+   struct ngap_gNB_amf_data_s *p1, struct ngap_gNB_amf_data_s *p2)
+ {
+-  if (p1->assoc_id == -1) {
++  /* If both have invalid assoc_id, compare by cnx_id */
++  if ((p1->assoc_id == -1) && (p2->assoc_id == -1)) {
+     if (p1->cnx_id < p2->cnx_id) {
+       return -1;
+     }
+@@ -56,7 +57,9 @@ int ngap_gNB_compare_assoc_id(
+     if (p1->cnx_id > p2->cnx_id) {
+       return 1;
+     }
+-  } else {
++  } 
++  /* If both have valid assoc_id, compare by assoc_id */
++  else if ((p1->assoc_id != -1) && (p2->assoc_id != -1)) {
+     if (p1->assoc_id < p2->assoc_id) {
+       return -1;
+     }
+@@ -65,6 +68,14 @@ int ngap_gNB_compare_assoc_id(
+       return 1;
+     }
+   }
++  /* If p1 has invalid assoc_id and p2 has valid, p1 should come first (smaller) */
++  else if ((p1->assoc_id == -1) && (p2->assoc_id != -1)) {
++    return -1;
++  }
++  /* If p1 has valid assoc_id and p2 has invalid, p1 should come after (larger) */
++  else if ((p1->assoc_id != -1) && (p2->assoc_id == -1)) {
++    return 1;
++  }
+ 
+   /* Matching reference */
+   return 0;
+diff --git a/openair3/S1AP/s1ap_eNB_management_procedures.c b/openair3/S1AP/s1ap_eNB_management_procedures.c
+index e9effa7824..99ba77fb1d 100644
+--- a/openair3/S1AP/s1ap_eNB_management_procedures.c
++++ b/openair3/S1AP/s1ap_eNB_management_procedures.c
+@@ -48,7 +48,8 @@ RB_GENERATE(s1ap_mme_map, s1ap_eNB_mme_data_s, entry, s1ap_eNB_compare_assoc_id)
+ int s1ap_eNB_compare_assoc_id(
+   struct s1ap_eNB_mme_data_s *p1, struct s1ap_eNB_mme_data_s *p2)
+ {
+-  if (p1->assoc_id == -1) {
++  /* If both have invalid assoc_id, compare by cnx_id */
++  if ((p1->assoc_id == -1) && (p2->assoc_id == -1)) {
+     if (p1->cnx_id < p2->cnx_id) {
+       return -1;
+     }
+@@ -56,7 +57,9 @@ int s1ap_eNB_compare_assoc_id(
+     if (p1->cnx_id > p2->cnx_id) {
+       return 1;
+     }
+-  } else {
++  } 
++  /* If both have valid assoc_id, compare by assoc_id */
++  else if ((p1->assoc_id != -1) && (p2->assoc_id != -1)) {
+     if (p1->assoc_id < p2->assoc_id) {
+       return -1;
+     }
+@@ -65,6 +68,14 @@ int s1ap_eNB_compare_assoc_id(
+       return 1;
+     }
+   }
++  /* If p1 has invalid assoc_id and p2 has valid, p1 should come first (smaller) */
++  else if ((p1->assoc_id == -1) && (p2->assoc_id != -1)) {
++    return -1;
++  }
++  /* If p1 has valid assoc_id and p2 has invalid, p1 should come after (larger) */
++  else if ((p1->assoc_id != -1) && (p2->assoc_id == -1)) {
++    return 1;
++  }
+ 
+   /* Matching reference */
+   return 0;
+@@ -183,21 +194,21 @@ void s1ap_eNB_remove_mme_desc(s1ap_eNB_instance_t * instance)
+       while (!STAILQ_EMPTY(&mme->served_gummei)) {
+         gummeiInfo = STAILQ_FIRST(&mme->served_gummei);
+         STAILQ_REMOVE_HEAD(&mme->served_gummei, next);
+-	
++        
+         while (!STAILQ_EMPTY(&gummeiInfo->served_plmns)) {
+-	  plmnInfo = STAILQ_FIRST(&gummeiInfo->served_plmns);
+-	  STAILQ_REMOVE_HEAD(&gummeiInfo->served_plmns, next);
+-	  free(plmnInfo);
++          plmnInfo = STAILQ_FIRST(&gummeiInfo->served_plmns);
++          STAILQ_REMOVE_HEAD(&gummeiInfo->served_plmns, next);
++          free(plmnInfo);
+         }
+         while (!STAILQ_EMPTY(&gummeiInfo->served_group_ids)) {
+-	  groupInfo = STAILQ_FIRST(&gummeiInfo->served_group_ids);
+-	  STAILQ_REMOVE_HEAD(&gummeiInfo->served_group_ids, next);
+-	  free(groupInfo);
++          groupInfo = STAILQ_FIRST(&gummeiInfo->served_group_ids);
++          STAILQ_REMOVE_HEAD(&gummeiInfo->served_group_ids, next);
++          free(groupInfo);
+         }
+         while (!STAILQ_EMPTY(&gummeiInfo->mme_codes)) {
+-	  mmeCode = STAILQ_FIRST(&gummeiInfo->mme_codes);
+-	  STAILQ_REMOVE_HEAD(&gummeiInfo->mme_codes, next);
+-	  free(mmeCode);
++          mmeCode = STAILQ_FIRST(&gummeiInfo->mme_codes);
++          STAILQ_REMOVE_HEAD(&gummeiInfo->mme_codes, next);
++          free(mmeCode);
+         }
+         free(gummeiInfo);
+       }

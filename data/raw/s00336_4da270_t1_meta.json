@@ -1,0 +1,33 @@
+{
+  "run_id": "s00336_4da270",
+  "function": {
+    "name": "get_numnarrowbands",
+    "file": "openair2/LAYER2/MAC/eNB_scheduler_primitives.c",
+    "start_line": 1821,
+    "end_line": 1828,
+    "body_lines": 8,
+    "signature": "int get_numnarrowbands(long dl_Bandwidth) //------------------------------------------------------------------------------",
+    "subsystem": "openair2/LAYER2/MAC",
+    "token_estimate": 30
+  },
+  "bug": {
+    "bug_id": "c_missing_return",
+    "description": "missing return statement in non-void function on certain code paths",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a missing return statement in non-void function on certain code paths downstream of function get_numnarrowbands in the openair2/LAYER2/MAC subsystem.\nThe function is located at openair2/LAYER2/MAC/eNB_scheduler_primitives.c:1821.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00336_4da270_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00336_4da270_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 7,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:39:05Z"
+}

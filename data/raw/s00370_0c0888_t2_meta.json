@@ -1,0 +1,9 @@
+{
+  "run_id": "s00370_0c0888",
+  "pr_text": "## Title: Replace magic number with INSTANCE_DEFAULT constant in E1AP\n\n### Summary\nThe E1AP subsystem was using the literal value `0` as a magic number when calling `itti_alloc_new_message()`, representing a default/unused instance parameter. This practice makes the code's intent unclear and maintenance error-prone. This change replaces all occurrences of the magic number `0` with the symbolic constant `INSTANCE_DEFAULT`, which is already defined in the ITTI interface header.\n\n### Changes\n- `ope",
+  "trajectory_path": "data/raw/s00370_0c0888_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00370_0c0888_p2.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 43,
+  "timestamp": "2026-02-11T18:56:33Z"
+}

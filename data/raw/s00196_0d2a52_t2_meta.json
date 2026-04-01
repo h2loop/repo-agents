@@ -1,0 +1,9 @@
+{
+  "run_id": "s00196_0d2a52",
+  "pr_text": "## Title: Fix race condition and deadlock in LTE scrambling LUT initialization\n\n### Summary\nThe `init_scrambling_lut()` and `init_unscrambling_lut()` functions in the LTE downlink scrambling module were not thread-safe, causing race conditions and potential deadlocks when multiple PHY threads initialized the global lookup tables concurrently. The functions populate large static arrays (`scrambling_lut` and `unscrambling_lut`) used for bit-level scrambling operations, but lacked synchronization p",
+  "trajectory_path": "data/raw/s00196_0d2a52_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00196_0d2a52_p2.diff",
+  "patch_lines": 32,
+  "trajectory_steps": 20,
+  "timestamp": "2026-02-10T11:50:57Z"
+}

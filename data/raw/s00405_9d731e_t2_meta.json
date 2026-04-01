@@ -1,0 +1,9 @@
+{
+  "run_id": "s00405_9d731e",
+  "pr_text": "## Title: Fix signed/unsigned integer comparison mismatch in pipe I/O functions\n\n### Summary\nCorrect type mismatches in the `write_pipe()` and `read_pipe()` helper functions to align with POSIX specifications for the `write()` and `read()` system calls. The functions previously used signed `int` types for both the buffer size parameter and return value, while the underlying system calls expect `size_t` (unsigned) for the count parameter and return `ssize_t` (signed). This mismatch could trigger ",
+  "trajectory_path": "data/raw/s00405_9d731e_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00405_9d731e_p2.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 37,
+  "timestamp": "2026-02-10T13:07:20Z"
+}

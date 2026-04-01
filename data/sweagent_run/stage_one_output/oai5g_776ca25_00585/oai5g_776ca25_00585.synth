@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix potential buffer underflow in SRS power control calculation\n\n### Summary\nThe SRS power control function contained a potential buffer underflow when indexing into the `hundred_times_log10_NPRB` array. The bug manifested when the UE was configured with a high number of UL RBs (>= 111), causing `Msrs` to remain at its initial value of 0.\n\nWhen `Msrs` was 0, the code attempted to access `hundred_times_log10_NPRB[Msrs-1]` which evaluated to `hundred_times_log10_NPRB[-1]`, causing an out-of-bounds array access.\n\nThe issue was introduced during initial implementation when the edge case of `Msrs = 0` was not properly handled in the power calculation formula.\n\n### Changes\n- `openair1/SCHED_UE/srs_pc.c`: Added bounds check to prevent array underflow when `Msrs` is 0 and added warning log.\n\n"
+}

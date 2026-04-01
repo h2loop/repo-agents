@@ -1,0 +1,40 @@
+{
+  "run_id": "s00314_eb42bc",
+  "function": {
+    "name": "nr_fill_du",
+    "file": "openair1/PHY/NR_TRANSPORT/nr_prach_common.c",
+    "start_line": 68,
+    "end_line": 84,
+    "body_lines": 17,
+    "signature": "void nr_fill_du(uint16_t N_ZC, const uint16_t* prach_root_sequence_map, uint16_t nr_du[NR_PRACH_SEQ_LEN_L - 1])",
+    "subsystem": "openair1/PHY/NR_TRANSPORT",
+    "token_estimate": 32
+  },
+  "bug": {
+    "bug_id": "c_null_pointer_dereference",
+    "description": "null pointer dereference due to missing NULL check before access",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables",
+      "radio",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a null pointer dereference due to missing NULL check before access downstream of function nr_fill_du in the openair1/PHY/NR_TRANSPORT subsystem.\nThe function is located at openair1/PHY/NR_TRANSPORT/nr_prach_common.c:68.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00314_eb42bc_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00314_eb42bc_p1.diff",
+  "patch_lines": 5,
+  "trajectory_steps": 18,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T14:22:02Z"
+}

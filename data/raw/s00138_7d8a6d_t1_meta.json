@@ -1,0 +1,35 @@
+{
+  "run_id": "s00138_7d8a6d",
+  "function": {
+    "name": "allocate_ul_retransmission",
+    "file": "openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c",
+    "start_line": 1777,
+    "end_line": 1913,
+    "body_lines": 137,
+    "signature": "static bool allocate_ul_retransmission(gNB_MAC_INST *nrmac, post_process_pusch_t *pp_pusch, uint16_t *rballoc_mask, int *n_rb_sched, int dci_beam_idx, NR_UE_info_t *UE, int harq_pid, const NR_ServingCellConfigCommon_t *scc, const int tda, const NR_tda_info_t *tda_info)",
+    "subsystem": "openair2/LAYER2/NR_MAC_gNB",
+    "token_estimate": 558
+  },
+  "bug": {
+    "bug_id": "c_double_free",
+    "description": "double free where the same memory allocation is freed twice",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a double free where the same memory allocation is freed twice downstream of function allocate_ul_retransmission in the openair2/LAYER2/NR_MAC_gNB subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch.c:1777.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00138_7d8a6d_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00138_7d8a6d_p1.diff",
+  "patch_lines": 9,
+  "trajectory_steps": 55,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:26:09Z"
+}

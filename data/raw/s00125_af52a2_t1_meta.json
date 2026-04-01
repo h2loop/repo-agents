@@ -1,0 +1,32 @@
+{
+  "run_id": "s00125_af52a2",
+  "function": {
+    "name": "cuup_compare",
+    "file": "openair2/RRC/NR/rrc_gNB_cuup.c",
+    "start_line": 47,
+    "end_line": 54,
+    "body_lines": 8,
+    "signature": "static int cuup_compare(const nr_rrc_cuup_container_t *a, const nr_rrc_cuup_container_t *b)",
+    "subsystem": "openair2/RRC/NR",
+    "token_estimate": 29
+  },
+  "bug": {
+    "bug_id": "c_type_confusion",
+    "description": "type confusion where a pointer is cast to an incompatible struct type",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a type confusion where a pointer is cast to an incompatible struct type downstream of function cuup_compare in the openair2/RRC/NR subsystem.\nThe function is located at openair2/RRC/NR/rrc_gNB_cuup.c:47.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00125_af52a2_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00125_af52a2_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 21,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:20:03Z"
+}

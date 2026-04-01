@@ -1,0 +1,136 @@
+diff --git a/openair3/NGAP/ngap_common.h b/openair3/NGAP/ngap_common.h
+index 3c060eac03..e10d1046fb 100644
+--- a/openair3/NGAP/ngap_common.h
++++ b/openair3/NGAP/ngap_common.h
+@@ -86,6 +86,10 @@
+ #include "NGAP_UE-NGAP-ID-pair.h"
+ #include "NGAP_UserLocationInformationNR.h"
+ 
++#ifdef CONDITIONALLY_INCLUDE_NGAP_HANDOVER_REQUEST
++#include "NGAP_HandoverRequest.h"
++#endif
++
+ /* Checking version of ASN1C compiler */
+ #if (ASN1C_ENVIRONMENT_VERSION < ASN1C_MINIMUM_VERSION)
+ # error "You are compiling ngap with the wrong version of ASN1C"
+diff --git a/openair3/NGAP/ngap_gNB_decoder.c b/openair3/NGAP/ngap_gNB_decoder.c
+index 4ea3f69fec..2f631faa9a 100644
+--- a/openair3/NGAP/ngap_gNB_decoder.c
++++ b/openair3/NGAP/ngap_gNB_decoder.c
+@@ -87,6 +87,12 @@ static int ngap_gNB_decode_initiating_message(NGAP_NGAP_PDU_t *pdu) {
+       NGAP_INFO("TODO ErrorIndication initiating message\n");
+       break;
+ 
++    case NGAP_ProcedureCode_id_HandoverResourceAllocation:
++      res = asn_encode_to_new_buffer(NULL, ATS_CANONICAL_XER, &asn_DEF_NGAP_NGAP_PDU, pdu);
++      free(res.buffer);
++      NGAP_INFO("HandoverRequest initiating message\n");
++      break;
++
+     default:
+       NGAP_ERROR("Unknown procedure ID (%d) for initiating message\n",
+                  (int)pdu->choice.initiatingMessage->procedureCode);
+@@ -151,6 +157,34 @@ static int ngap_gNB_decode_unsuccessful_outcome(NGAP_NGAP_PDU_t *pdu) {
+   return 0;
+ }
+ 
++int decode_ng_handover_request(
++  NGAP_HandoverRequest_t *handover_request_p,
++  const uint8_t *const buffer,
++  const uint32_t length)
++{
++  asn_dec_rval_t dec_ret;
++  DevAssert(handover_request_p != NULL);
++  DevAssert(buffer != NULL);
++  
++  memset(handover_request_p, 0, sizeof(NGAP_HandoverRequest_t));
++  
++  asn_codec_ctx_t st = {.max_stack_size = 100 * 1000}; // if we enable asn1c debug the stack size become large
++  dec_ret = aper_decode(&st, 
++                        &asn_DEF_NGAP_HandoverRequest, 
++                        (void **)&handover_request_p, 
++                        buffer, 
++                        length, 
++                        0, 
++                        0);
++
++  if (dec_ret.code != RC_OK) {
++    NGAP_ERROR("Failed to decode HandoverRequest\n");
++    return -1;
++  }
++
++  return 0;
++}
++
+ int ngap_gNB_decode_pdu(NGAP_NGAP_PDU_t *pdu, const uint8_t *const buffer,
+                         const uint32_t length) {
+   asn_dec_rval_t dec_ret;
+diff --git a/openair3/NGAP/ngap_gNB_decoder.h b/openair3/NGAP/ngap_gNB_decoder.h
+index 9fc8d433c4..129c809d76 100644
+--- a/openair3/NGAP/ngap_gNB_decoder.h
++++ b/openair3/NGAP/ngap_gNB_decoder.h
+@@ -34,4 +34,9 @@
+ int ngap_gNB_decode_pdu(NGAP_NGAP_PDU_t *pdu, const uint8_t *const buffer,
+                         const uint32_t length) __attribute__ ((warn_unused_result));
+ 
++int decode_ng_handover_request(
++  NGAP_HandoverRequest_t *handover_request_p,
++  const uint8_t *const buffer,
++  const uint32_t length) __attribute__ ((warn_unused_result));
++
+ #endif /* NGAP_GNB_DECODER_H_ */
+diff --git a/openair3/NGAP/ngap_gNB_handlers.c b/openair3/NGAP/ngap_gNB_handlers.c
+index 5a639e7305..f001af52b6 100644
+--- a/openair3/NGAP/ngap_gNB_handlers.c
++++ b/openair3/NGAP/ngap_gNB_handlers.c
+@@ -1270,7 +1270,29 @@ static int ngap_gNB_handle_ng_path_switch_request_failure(sctp_assoc_t assoc_id,
+ static int ngap_gNB_handle_ng_ENDC_pdusession_modification_confirm(sctp_assoc_t assoc_id, uint32_t stream, NGAP_NGAP_PDU_t *pdu)
+ {
+   LOG_W(NGAP, "Implementation of NGAP Pdusession Modification confirm handler is pending...\n");
+-	return 0;
++        return 0;
++}
++
++static int ngap_gNB_handle_handover_request(sctp_assoc_t assoc_id, uint32_t stream, NGAP_NGAP_PDU_t *pdu)
++{
++  NGAP_HandoverRequest_t *container;
++  ngap_gNB_amf_data_t *amf_desc_p = NULL;
++  DevAssert(pdu != NULL);
++  
++  container = &pdu->choice.initiatingMessage->value.choice.HandoverRequest;
++  
++  if ((amf_desc_p = ngap_gNB_get_AMF(NULL, assoc_id, stream)) == NULL) {
++    NGAP_ERROR("[SCTP %u] Received handover request for non existing AMF context\n", assoc_id);
++    return -1;
++  }
++  
++  NGAP_INFO("Received HandoverRequest message\n");
++  
++  /* TODO: Process HandoverRequest message properly */
++  /* This is a placeholder implementation - in a real implementation, 
++     we would extract the handover parameters and initiate the handover procedure */
++  
++  return 0;
+ }
+ 
+ /* Handlers matrix. Only gNB related procedure present here */
+@@ -1288,7 +1310,7 @@ const ngap_message_decoded_callback ngap_messages_callback[][3] = {
+     {0, 0, 0}, /* HandoverCancel */
+     {0, 0, 0}, /* HandoverNotification */
+     {0, 0, 0}, /* HandoverPreparation */
+-    {0, 0, 0}, /* HandoverResourceAllocation */
++    {ngap_gNB_handle_handover_request, 0, 0}, /* HandoverResourceAllocation */
+     {ngap_gNB_handle_initial_context_request, 0, 0}, /* InitialContextSetup */
+     {0, 0, 0}, /* InitialUEMessage */
+     {0, 0, 0}, /* LocationReportingControl */
+diff --git a/openair3/NGAP/ngap_gNB_handlers.h b/openair3/NGAP/ngap_gNB_handlers.h
+index 5291b78fa8..991c87602e 100644
+--- a/openair3/NGAP/ngap_gNB_handlers.h
++++ b/openair3/NGAP/ngap_gNB_handlers.h
+@@ -34,4 +34,6 @@ void ngap_handle_ng_setup_message(ngap_gNB_amf_data_t *amf_desc_p, int sctp_shut
+ 
+ int ngap_gNB_handle_message(sctp_assoc_t assoc_id, int32_t stream, const uint8_t *const data, const uint32_t data_length);
+ 
++int ngap_gNB_handle_handover_request(sctp_assoc_t assoc_id, uint32_t stream, NGAP_NGAP_PDU_t *pdu);
++
+ #endif /* NGAP_GNB_HANDLERS_H_ */

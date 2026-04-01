@@ -1,0 +1,20 @@
+diff --git a/openair1/PHY/NR_TRANSPORT/nr_sss.c b/openair1/PHY/NR_TRANSPORT/nr_sss.c
+index 45835f8206..aabfc554dd 100644
+--- a/openair1/PHY/NR_TRANSPORT/nr_sss.c
++++ b/openair1/PHY/NR_TRANSPORT/nr_sss.c
+@@ -49,10 +49,14 @@ int nr_generate_sss(  c16_t *txdataF,
+     x1[i+7] = (x1[i + 1] + x1[i]) % 2;
+   }
+ 
+-  int m0 = 15*(Nid1/112) + (5*Nid2);
++  int m0 = (15*Nid1 + Nid2) % 112;
+   int m1 = Nid1 % 112;
+ 
+ #ifdef NR_SSS_DEBUG
++  int16_t d_sss[NR_SSS_LENGTH];
++  for (int i = 0; i < NR_SSS_LENGTH; i++) {
++    d_sss[i] = (1 - 2*x0[(i + m0) % NR_SSS_LENGTH] ) * (1 - 2*x1[(i + m1) % NR_SSS_LENGTH] ) * 23170;
++  }
+   write_output("d_sss.m", "d_sss", (void*)d_sss, NR_SSS_LENGTH, 1, 1);
+ #endif
+ 

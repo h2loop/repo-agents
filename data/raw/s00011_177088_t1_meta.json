@@ -1,0 +1,35 @@
+{
+  "run_id": "s00011_177088",
+  "function": {
+    "name": "nr_rrc_handle_msg3_indication",
+    "file": "openair2/RRC/NR_UE/rrc_UE.c",
+    "start_line": 1947,
+    "end_line": 2000,
+    "body_lines": 54,
+    "signature": "static void nr_rrc_handle_msg3_indication(NR_UE_RRC_INST_t *rrc, rnti_t rnti)",
+    "subsystem": "openair2/RRC/NR_UE",
+    "token_estimate": 168
+  },
+  "bug": {
+    "bug_id": "c_race_condition",
+    "description": "race condition on shared data accessed from multiple threads without synchronization",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a race condition on shared data accessed from multiple threads without synchronization downstream of function nr_rrc_handle_msg3_indication in the openair2/RRC/NR_UE subsystem.\nThe function is located at openair2/RRC/NR_UE/rrc_UE.c:1947.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00011_177088_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00011_177088_p1.diff",
+  "patch_lines": 12,
+  "trajectory_steps": 59,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:35:25Z"
+}

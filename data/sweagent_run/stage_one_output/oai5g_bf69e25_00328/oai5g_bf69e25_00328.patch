@@ -1,0 +1,70 @@
+diff --git a/common/utils/T/tracer/view/xy.c b/common/utils/T/tracer/view/xy.c
+index 96a44cf512..35c7a3fbee 100644
+--- a/common/utils/T/tracer/view/xy.c
++++ b/common/utils/T/tracer/view/xy.c
+@@ -14,7 +14,7 @@ struct xy {
+   float refresh_rate;
+   pthread_mutex_t lock;
+   int length;
+-  int max_length;      /* used in XY_FORCED_MODE */
++  int max_length;      /* maximum size of the buffer */
+   float *x;
+   float *y;
+   int insert_point;
+@@ -54,11 +54,20 @@ static void append_loop(view *_this, float *x, float *y, int length)
+   for (i = 0; i < length; i++) {
+     this->x[ip] = x[i];
+     this->y[ip] = y[i];
+-    ip++; if (ip == this->length) ip = 0;
++    ip++; if (ip == this->max_length) ip = 0;
+   }
+ 
+   this->insert_point = ip;
+ 
++  /* Update the length if we haven't filled the buffer yet */
++  if (this->length < this->max_length) {
++    this->length = this->insert_point;
++    /* If we've wrapped around, the buffer is full */
++    if (this->insert_point == 0) {
++      this->length = this->max_length;
++    }
++  }
++
+   if (pthread_mutex_unlock(&this->lock)) abort();
+ }
+ 
+@@ -93,9 +102,10 @@ static void set(view *_this, char *name, ...)
+ 
+     free(this->x);
+     free(this->y);
+-    this->length = va_arg(ap, int);
+-    this->x = calloc(this->length, sizeof(float)); if (this->x==NULL)abort();
+-    this->y = calloc(this->length, sizeof(float)); if (this->y==NULL)abort();
++    this->length = 0;  /* Reset length since we're allocating new buffer */
++    this->max_length = va_arg(ap, int);
++    this->x = calloc(this->max_length, sizeof(float)); if (this->x==NULL)abort();
++    this->y = calloc(this->max_length, sizeof(float)); if (this->y==NULL)abort();
+     this->insert_point = 0;
+ 
+     va_end(ap);
+@@ -120,7 +130,8 @@ view *new_view_xy(int length, float refresh_rate, gui *g, widget *w,
+   case XY_LOOP_MODE:
+     ret->common.append = (void (*)(view *, ...))append_loop;
+     ret->common.set = set;
+-    ret->length = length;
++    ret->length = 0;
++    ret->max_length = length;
+     ret->insert_point = 0;
+     break;
+   case XY_FORCED_MODE:
+@@ -136,8 +147,8 @@ view *new_view_xy(int length, float refresh_rate, gui *g, widget *w,
+   ret->w = w;
+   ret->plot = xy_plot_new_plot(g, w, color);
+ 
+-  ret->x = calloc(length, sizeof(float)); if (ret->x == NULL) abort();
+-  ret->y = calloc(length, sizeof(float)); if (ret->y == NULL) abort();
++  ret->x = calloc(ret->max_length, sizeof(float)); if (ret->x == NULL) abort();
++  ret->y = calloc(ret->max_length, sizeof(float)); if (ret->y == NULL) abort();
+ 
+   if (pthread_mutex_init(&ret->lock, NULL)) abort();
+ 

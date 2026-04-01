@@ -1,0 +1,32 @@
+{
+  "run_id": "s00274_8a15bf",
+  "function": {
+    "name": "oai_nfapi_rach_ind",
+    "file": "nfapi/oai_integration/nfapi_pnf.c",
+    "start_line": 2343,
+    "end_line": 2347,
+    "body_lines": 5,
+    "signature": "int oai_nfapi_rach_ind(nfapi_rach_indication_t *rach_ind)",
+    "subsystem": "nfapi/oai_integration",
+    "token_estimate": 28
+  },
+  "bug": {
+    "bug_id": "c_integer_truncation",
+    "description": "integer truncation when assigning a wider type to a narrower type",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a integer truncation when assigning a wider type to a narrower type downstream of function oai_nfapi_rach_ind in the nfapi/oai_integration subsystem.\nThe function is located at nfapi/oai_integration/nfapi_pnf.c:2343.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00274_8a15bf_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00274_8a15bf_p1.diff",
+  "patch_lines": 12,
+  "trajectory_steps": 109,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:22:11Z"
+}

@@ -1,0 +1,31 @@
+{
+  "run_id": "s00246_f38c4d",
+  "function": {
+    "name": "decoding_setmode",
+    "file": "openair1/PHY/CODING/coding_load.c",
+    "start_line": 81,
+    "end_line": 107,
+    "body_lines": 27,
+    "signature": "void decoding_setmode (int mode)",
+    "subsystem": "openair1/PHY/CODING",
+    "token_estimate": 37
+  },
+  "bug": {
+    "bug_id": "c_missing_null_terminator",
+    "description": "missing null terminator on a string buffer leading to out-of-bounds read",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/RRC",
+      "openair3/NAS",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a missing null terminator on a string buffer leading to out-of-bounds read downstream of function decoding_setmode in the openair1/PHY/CODING subsystem.\nThe function is located at openair1/PHY/CODING/coding_load.c:81.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00246_f38c4d_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00246_f38c4d_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 14,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:06:40Z"
+}

@@ -1,0 +1,34 @@
+diff --git a/openair2/LAYER2/MAC/main.c b/openair2/LAYER2/MAC/main.c
+index 48fb32de8d..a5d2be4f9b 100644
+--- a/openair2/LAYER2/MAC/main.c
++++ b/openair2/LAYER2/MAC/main.c
+@@ -221,7 +221,7 @@ void mac_top_init_eNB(void)
+ void mac_init_cell_params(int Mod_idP, int CC_idP)
+ {
+ 
+-    int j;
++    int j, k;
+     UE_TEMPLATE *UE_template;
+ 
+     //COMMON_channels_t *cc = &RC.mac[Mod_idP]->common_channels[CC_idP];
+@@ -235,6 +235,20 @@ void mac_init_cell_params(int Mod_idP, int CC_idP)
+ 	// initiallize the eNB to UE statistics
+ 	memset(&RC.mac[Mod_idP]->UE_info.eNB_UE_stats[CC_idP][j], 0,
+ 	       sizeof(eNB_UE_STATS));
++	
++	// Initialize RB allocation fields to prevent scheduling violations
++	UE_template[j].pre_allocated_nb_rb_ul = 0;
++	UE_template[j].pre_first_nb_rb_ul = 0;
++	UE_template[j].pre_assigned_mcs_ul = 0;
++	UE_template[j].total_allocated_rbs = 0;
++	UE_template[j].pre_allocated_rb_table_index_ul = -1; // -1 indicates no pre-allocation
++	UE_template[j].assigned_mcs_ul = 0;
++	
++	// Initialize HARQ process arrays for UL RB allocation
++	for (k = 0; k < 8; k++) {
++	    UE_template[j].nb_rb_ul[k] = 0;
++	    UE_template[j].first_rb_ul[k] = 0;
++	}
+     }
+ 
+ }

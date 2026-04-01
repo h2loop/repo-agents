@@ -1,0 +1,39 @@
+diff --git a/openair3/NAS/UE/ESM/esm_pt.c b/openair3/NAS/UE/ESM/esm_pt.c
+index 4c76850c94..e9921d0c62 100644
+--- a/openair3/NAS/UE/ESM/esm_pt.c
++++ b/openair3/NAS/UE/ESM/esm_pt.c
+@@ -268,19 +268,33 @@ int esm_pt_start_timer(nas_user_t *user, int pti, const OctetString *msg,
+       ctx->args->pti = pti;
+       /* Reset the retransmission counter */
+       ctx->args->count = 0;
++      /* Initialize message length to 0 before any allocation attempt */
++      ctx->args->msg.length = 0;
++      ctx->args->msg.value = NULL;
+       /* Set the ESM message to be re-transmited */
+       ctx->args->msg.value = (uint8_t *)malloc(msg->length);
+-      ctx->args->msg.length = 0;
+ 
+       if (ctx->args->msg.value) {
+         memcpy(ctx->args->msg.value, msg->value, msg->length);
+         ctx->args->msg.length = msg->length;
++      } else {
++        /* Message buffer allocation failed, clean up and log error */
++        LOG_TRACE(ERROR, "ESM-FSM   - Failed to allocate message buffer "
++                  "(pti=%d, length=%d)", pti, msg->length);
++        free(ctx->args);
++        ctx->args = NULL;
++        LOG_FUNC_RETURN (RETURNerror);
+       }
+ 
+       /* Setup the retransmission timer to expire at the given
+        * time interval */
+       ctx->timer.id = nas_timer_start(sec, cb, ctx->args);
+       ctx->timer.sec = sec;
++    } else {
++      /* Args structure allocation failed, log error */
++      LOG_TRACE(ERROR, "ESM-FSM   - Failed to allocate timer data structure "
++                "(pti=%d)", pti);
++      LOG_FUNC_RETURN (RETURNerror);
+     }
+   }
+ 

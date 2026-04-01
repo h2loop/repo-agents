@@ -1,0 +1,65 @@
+diff --git a/openair2/UTIL/MATH/oml.c b/openair2/UTIL/MATH/oml.c
+index 70e1a87cdc..d416b962a7 100644
+--- a/openair2/UTIL/MATH/oml.c
++++ b/openair2/UTIL/MATH/oml.c
+@@ -45,11 +45,16 @@ void init_seeds(int seed)
+ {
+ 
+   set_taus_seed(seed);
++  // Initialize Wichmann-Hill random number generator seeds
++  // Ensure all seeds are non-zero and properly distributed
++  x = (seed > 0) ? (seed % 30268) + 1 : 171;
++  y = (seed > 0) ? (seed % 30306) + 1 : 172;
++  z = (seed > 0) ? (seed % 30322) + 1 : 170;
+   LOG_I(OTG,"set taus seed to %d done \n", seed);
+ 
+ }
+ 
+-double uniform_rng()
++double uniform_rng(void)
+ {
+   double random;
+   random = (double)(taus(OTG)%0xffffffff)/((double)0xffffffff);
+@@ -224,34 +229,22 @@ double lognormal_dist(double mean, double std_dev)
+ 
+ 
+ 
+-double wichman_hill()   // not used
++double wichman_hill(void)
+ {
+ 
+   double temp, random;
+-  int modx = x % 177;
+-  int mody = y % 176;
+-  int modz = z % 178;
+ 
+-  //First  Generator
+-  x = (171 * modx) - (2 * modx);
++  //First Generator
++  x = (171 * (x % 177)) % 30269;
+ 
+-  if (x < 0)
+-    x += 30269;
+-
+-  //Second  Generator
+-  y = (172 * mody) - (35 * mody);
+-
+-  if (y < 0)
+-    y += 30307;
++  //Second Generator
++  y = (172 * (y % 176)) % 30307;
+ 
+   //Third Generator
+-  z = (170 * modz) - (63 * modz);
+-
+-  if (z < 0)
+-    z += 30323;
++  z = (170 * (z % 178)) % 30323;
+ 
+-  temp = (x / 30269.0) + (y / 30307.0) + (z / 30323.0);
+-  random = temp - (int)temp;
++  temp = (double)x / 30269.0 + (double)y / 30307.0 + (double)z / 30323.0;
++  random = temp - floor(temp);
+ 
+   return random;
+ }

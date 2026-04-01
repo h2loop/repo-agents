@@ -1,0 +1,46 @@
+diff --git a/openair1/SIMULATION/TOOLS/rangen_double.c b/openair1/SIMULATION/TOOLS/rangen_double.c
+index 9c38e33ce9..87cfc1d708 100644
+--- a/openair1/SIMULATION/TOOLS/rangen_double.c
++++ b/openair1/SIMULATION/TOOLS/rangen_double.c
+@@ -28,6 +28,7 @@
+ static inline void tableNor(unsigned long seed);
+ static unsigned int urseed, iy, ir[98]; /// uniformrandom
+ static bool tableNordDone = false; /// gaussZiggurat
++static bool uniformRandomInitDone = false; /// uniformrandom/gaussdouble
+ 
+ /*!\brief Generate a random number form `/dev/urandom`. */
+ void fill_random(void *buf, size_t sz)
+@@ -81,6 +82,9 @@ void randominit()
+ 
+   // initialize gaussZiggurat RNG
+   tableNor(seed);
++  
++  // mark uniform random generator as initialized
++  uniformRandomInitDone = true;
+ }
+ 
+ /*
+@@ -92,6 +96,11 @@ void randominit()
+ 
+ double uniformrandom(void)
+ {
++  if (!__builtin_expect(uniformRandomInitDone, 1)) {
++    fprintf(stderr, "%s(): RNG not initialized, run randominit() first\n", __func__);
++    abort();
++  }
++  
+   const double mod = 4294967296.0; /* is 2**32 */
+   int j = 1 + 97.0 * iy / mod;
+   iy = ir[j];
+@@ -109,6 +118,11 @@ double uniformrandom(void)
+ 
+ double __attribute__ ((no_sanitize_address)) gaussdouble(double mean, double variance)
+ {
++  if (!__builtin_expect(uniformRandomInitDone, 1)) {
++    fprintf(stderr, "%s(): RNG not initialized, run randominit() first\n", __func__);
++    abort();
++  }
++  
+   static int iset=0;
+   static double gset;
+   double fac,r,v1,v2;

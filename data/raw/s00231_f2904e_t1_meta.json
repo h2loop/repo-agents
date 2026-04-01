@@ -1,0 +1,28 @@
+{
+  "run_id": "s00231_f2904e",
+  "function": {
+    "name": "read_DU_IP_config",
+    "file": "openair2/LAYER2/NR_MAC_gNB/mac_rrc_ul_f1ap.c",
+    "start_line": 36,
+    "end_line": 54,
+    "body_lines": 19,
+    "signature": "static f1ap_net_config_t read_DU_IP_config(const eth_params_t* f1_params, const char *f1u_ip_addr)",
+    "subsystem": "openair2/LAYER2/NR_MAC_gNB",
+    "token_estimate": 54
+  },
+  "bug": {
+    "bug_id": "telecom_sched_missed_opportunity",
+    "description": "missed scheduling opportunity where a UE with pending data is not scheduled",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC"
+    ]
+  },
+  "prompt": "There is a missed scheduling opportunity where a UE with pending data is not scheduled downstream of function read_DU_IP_config in the openair2/LAYER2/NR_MAC_gNB subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_gNB/mac_rrc_ul_f1ap.c:36.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00231_f2904e_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00231_f2904e_p1.diff",
+  "patch_lines": 45,
+  "trajectory_steps": 81,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:03:09Z"
+}

@@ -1,0 +1,26 @@
+{
+  "run_id": "nuttx_00012_d0f61b",
+  "function": {
+    "name": "board_autoled_initialize",
+    "file": "boards/arm/xmc4/xmc4700-relax/src/xmc4_autoleds.c",
+    "start_line": 151,
+    "end_line": 157,
+    "body_lines": 7,
+    "signature": "void board_autoled_initialize(void)",
+    "subsystem": "boards/arm/xmc4",
+    "token_estimate": 13
+  },
+  "bug": {
+    "bug_id": "c_memory_leak",
+    "description": "memory leak where allocated memory is never freed on certain code paths",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a memory leak where allocated memory is never freed on certain code paths downstream of function board_autoled_initialize in the boards/arm/xmc4 subsystem.\nThe function is located at boards/arm/xmc4/xmc4700-relax/src/xmc4_autoleds.c:151.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 162,
+  "trajectory_steps": 33,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:02:57Z"
+}

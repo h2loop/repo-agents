@@ -1,0 +1,29 @@
+diff --git a/common/utils/time_manager/time_server.c b/common/utils/time_manager/time_server.c
+index a1a95d8ebe..31c7eaf36a 100644
+--- a/common/utils/time_manager/time_server.c
++++ b/common/utils/time_manager/time_server.c
+@@ -102,7 +102,7 @@ static void *time_server_thread(void *ts)
+             free(socket_fds);
+             socket_fds = NULL;
+           } else {
+-            memmove(&socket_fds[i + 1], &socket_fds[i + 2], sizeof(int) * (client_count - i - 1));
++            memmove(&socket_fds[i], &socket_fds[i + 1], sizeof(int) * (client_count - i));
+             socket_fds = realloc(socket_fds, sizeof(int) * client_count);
+           }
+           polls = realloc(polls, sizeof(struct pollfd) * (client_count + 2));
+@@ -148,12 +148,12 @@ static void *time_server_thread(void *ts)
+         free(socket_fds);
+         socket_fds = NULL;
+       } else {
+-        memmove(&socket_fds[i + 1], &socket_fds[i + 2], sizeof(int) * (client_count - i - 1));
++        memmove(&socket_fds[i], &socket_fds[i + 1], sizeof(int) * (client_count - i));
+         socket_fds = realloc(socket_fds, sizeof(int) * client_count);
+-        AssertFatal(socket_fds != NULL, "realloco() failed\n");
++        AssertFatal(socket_fds != NULL, "realloc() failed\n");
+       }
+       if (client_count)
+-        memmove(&polls[i + 2 + 1], &polls[i + 2 + 2], sizeof(struct pollfd) * (client_count - i - 1));
++        memmove(&polls[i + 2], &polls[i + 3], sizeof(struct pollfd) * (client_count - i - 1));
+       polls = realloc(polls, sizeof(struct pollfd) * (client_count + 2));
+       AssertFatal(polls != NULL, "realloc() failed\n");
+     }

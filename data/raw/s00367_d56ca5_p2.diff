@@ -1,0 +1,22 @@
+diff --git a/openair2/RRC/LTE/MESSAGES/asn1_msg.c b/openair2/RRC/LTE/MESSAGES/asn1_msg.c
+index 6ab23569af..cfb1db86c0 100644
+--- a/openair2/RRC/LTE/MESSAGES/asn1_msg.c
++++ b/openair2/RRC/LTE/MESSAGES/asn1_msg.c
+@@ -3596,7 +3596,16 @@ uint16_t do_RRCConnectionReconfiguration_BR(const protocol_ctxt_t        *const
+   }
+ 
+   LOG_I(RRC,"RRCConnectionReconfiguration Encoded %d bits (%d bytes)\n",(int)enc_rval.encoded,(int)(enc_rval.encoded+7)/8);
+-  return((enc_rval.encoded+7)/8);
++  
++  // Check for buffer overflow
++  size_t encoded_bytes = (enc_rval.encoded + 7) / 8;
++  if (encoded_bytes > buffer_size) {
++    LOG_E(RRC, "Buffer overflow detected in RRCConnectionReconfiguration_BR: encoded %zu bytes but buffer size is %zu\n",
++          encoded_bytes, buffer_size);
++    return 0;
++  }
++  
++  return encoded_bytes;
+ }
+ 
+ //------------------------------------------------------------------------------

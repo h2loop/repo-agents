@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix payload offset handling in pdcp_data_ind for MBMS packets\n\n### Summary\nThe `pdcp_data_ind()` function in the PDCP layer incorrectly handled payload offset calculation for MBMS packets, causing corrupted data delivery to upper layers. When processing MBMS traffic, the function was setting `payload_offset` to the PDCP header length instead of 0, resulting in incorrect payload extraction.\n\nThis issue manifested as missing or corrupted application data when receiving multicast traffic over MBMS bearers. The problem was traced to inverted logic in the MBMS payload offset handling section of the function.\n\n### Changes\n- `openair2/LAYER2/PDCP_v10.1.0/pdcp.c`: \n  - Line 966: Fixed payload offset calculation for MBMS packets (set to 0 instead of pdcp_header_len)\n  - Lines 1107-1109: Added guard condition to only update sequence number statistics for non-MBMS packets\n"
+}

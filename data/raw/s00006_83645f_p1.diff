@@ -1,0 +1,130 @@
+diff --git a/openair2/UTIL/OMG/defs.h b/openair2/UTIL/OMG/defs.h
+index 1102a69cc5..bc35096e18 100644
+--- a/openair2/UTIL/OMG/defs.h
++++ b/openair2/UTIL/OMG/defs.h
+@@ -329,6 +329,14 @@ void display_job_list(double curr_t, job_list* job_vector);
+ *time average of nodes speed
+ */
+ unsigned int nodes_avgspeed(job_list* job_vector);
++
++/**
++ * \fn void clear_job_list(job_list** list)
++ * \brief Clear all jobs from the list and free associated memory to prevent stale protocol state
++ * \param list pointer to the job list pointer to be cleared
++ */
++void clear_job_list(job_list** list);
++
+ /**
+  * \fn Job_list job_list_sort (Job_list list, Job_list end)
+  * \brief Called by the function Job_list quick_sort (Job_list list), it executes the quick sort
+diff --git a/openair2/UTIL/OMG/job.c b/openair2/UTIL/OMG/job.c
+index 1df44cb2c0..54be285540 100644
+--- a/openair2/UTIL/OMG/job.c
++++ b/openair2/UTIL/OMG/job.c
+@@ -132,7 +132,69 @@ nodes_avgspeed (job_list * job_vector)
+   return avg / cnt;
+ }
+ 
+-// quick sort of the linked list
++// clear all jobs from the list to prevent stale protocol state
++void
++clear_job_list (job_list ** list)
++{
++  job_list *current, *next;
++
++  if (list == NULL || *list == NULL) {
++    return;
++  }
++
++  current = *list;
++  while (current != NULL) {
++    next = current->next;
++    if (current->pair != NULL) {
++      if (current->pair->b != NULL) {
++        if (current->pair->b->mob != NULL) {
++          free (current->pair->b->mob);
++        }
++        free (current->pair->b);
++      }
++      free (current->pair);
++    }
++    free (current);
++    current = next;
++  }
++
++  *list = NULL;
++}
++
++// clear all jobs from the list
++void
++clear_job_list (job_list ** list)
++{
++  job_list *current, *next;
++
++  if (list == NULL || *list == NULL) {
++    return;
++  }
++
++  current = *list;
++  while (current != NULL) {
++    next = current->next;
++    if (current->pair != NULL) {
++      if (current->pair->b != NULL) {
++        if (current->pair->b->mob != NULL) {
++          free (current->pair->b->mob);
++        }
++        free (current->pair->b);
++      }
++      if (current->pair->a != NULL) {
++        free (current->pair->a);
++      }
++      free (current->pair);
++    }
++    free (current);
++    current = next;
++  }
++
++  *list = NULL;
++}
++
++// clear all jobs from the list
++void
+ job_list *
+ job_list_sort (job_list * list, job_list * end)
+ {
+@@ -199,3 +261,35 @@ remove_job (job_list * list, int nid, int node_type)
+   return list;
+ 
+ }
++
++// clear all jobs from the list
++void
++clear_job_list (job_list ** list)
++{
++  job_list *current, *next;
++
++  if (list == NULL || *list == NULL) {
++    return;
++  }
++
++  current = *list;
++  while (current != NULL) {
++    next = current->next;
++    if (current->pair != NULL) {
++      if (current->pair->b != NULL) {
++        if (current->pair->b->mob != NULL) {
++          free (current->pair->b->mob);
++        }
++        free (current->pair->b);
++      }
++      if (current->pair->a != NULL) {
++        free (current->pair->a);
++      }
++      free (current->pair);
++    }
++    free (current);
++    current = next;
++  }
++
++  *list = NULL;
++}

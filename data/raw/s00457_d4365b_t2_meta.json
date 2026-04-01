@@ -1,0 +1,9 @@
+{
+  "run_id": "s00457_d4365b",
+  "pr_text": "## Title: Add error handling for thread scheduling and PNF start operations\n\n### Summary\nThe `pnf_start_thread` function in the NFAPI PNF integration layer previously ignored return values from critical system calls, potentially masking failures during thread initialization and PNF startup. Specifically, `pthread_setschedparam()` and `nfapi_pnf_start()` could fail without any error reporting or propagation, leading to undefined behavior and difficult-to-diagnose issues in the NFAPI subsystem.\n\nT",
+  "trajectory_path": "data/raw/s00457_d4365b_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00457_d4365b_p2.diff",
+  "patch_lines": 13,
+  "trajectory_steps": 26,
+  "timestamp": "2026-02-10T13:28:42Z"
+}

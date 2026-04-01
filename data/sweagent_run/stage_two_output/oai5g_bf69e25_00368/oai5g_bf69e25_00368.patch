@@ -1,0 +1,191 @@
+diff --git a/openair1/PHY/LTE_TRANSPORT/pmch_common.c b/openair1/PHY/LTE_TRANSPORT/pmch_common.c
+index 8d65dd2744..7210194596 100644
+--- a/openair1/PHY/LTE_TRANSPORT/pmch_common.c
++++ b/openair1/PHY/LTE_TRANSPORT/pmch_common.c
+@@ -58,7 +58,7 @@ int is_fembms_cas_subframe(uint32_t frame, int subframe, LTE_DL_FRAME_PARMS *fra
+            break;
+       }
+    }
+-	
++        
+   }
+ 
+   return (0);
+@@ -115,6 +115,12 @@ int is_fembms_nonMBSFN_subframe(uint32_t frame, int subframe, LTE_DL_FRAME_PARMS
+     return (0);
+ }
+ 
++/*! \brief This function identifies if a subframe is a PMCH subframe for FeMBMS
++  \param frame Frame number
++  \param subframe Subframe number (0..9)
++  \param frame_parms Pointer to LTE DL frame parameters
++  \return 1 if subframe is PMCH, 0 otherwise
++*/
+ int is_fembms_pmch_subframe(uint32_t frame, int subframe, LTE_DL_FRAME_PARMS *frame_parms) {
+   uint32_t period;
+ 
+@@ -123,73 +129,73 @@ int is_fembms_pmch_subframe(uint32_t frame, int subframe, LTE_DL_FRAME_PARMS *fr
+ 
+     if ((frame % period) == frame_parms->NonMBSFN_config.radioframeAllocationOffset) {
+       switch (subframe) {
+- 	case 0:
+-            return(0);
+-  	  break;
++        case 0:
++          return(0); // Subframe 0 is never PMCH
++          break;
+         case 1:
+           if ((frame_parms->NonMBSFN_config.non_mbsfn_SubframeConfig & 0x100) > 0)
+-            return(0);
+-
++            return(0); // Marked as non-MBSFN
+           break;
+ 
+         case 2:
+           if ((frame_parms->NonMBSFN_config.non_mbsfn_SubframeConfig & 0x80) > 0)
+-            return(0);
+-
++            return(0); // Marked as non-MBSFN
+           break;
+ 
+         case 3:
+           if ((frame_parms->NonMBSFN_config.non_mbsfn_SubframeConfig & 0x40) > 0)
+-            return(0);
+-
++            return(0); // Marked as non-MBSFN
+           break;
+ 
+         case 4:
+           if ((frame_parms->NonMBSFN_config.non_mbsfn_SubframeConfig & 0x20) > 0)
+-            return(0);
+-
++            return(0); // Marked as non-MBSFN
+           break;
+ 
+         case 5:
+           if ((frame_parms->NonMBSFN_config.non_mbsfn_SubframeConfig & 0x10) > 0)
+-            return(0);
+-
++            return(0); // Marked as non-MBSFN
+           break;
+ 
+         case 6:
+           if ((frame_parms->NonMBSFN_config.non_mbsfn_SubframeConfig & 0x8) > 0)
+-            return(0);
+-
++            return(0); // Marked as non-MBSFN
+           break;
+ 
+         case 7:
+           if ((frame_parms->NonMBSFN_config.non_mbsfn_SubframeConfig & 0x4) > 0)
+-            return(0);
+-
++            return(0); // Marked as non-MBSFN
+           break;
+ 
+         case 8:
+           if ((frame_parms->NonMBSFN_config.non_mbsfn_SubframeConfig & 0x2) > 0)
+-            return(0);
+-
++            return(0); // Marked as non-MBSFN
+           break;
+ 
+         case 9:
+           if ((frame_parms->NonMBSFN_config.non_mbsfn_SubframeConfig & 0x1) > 0)
+-            return(0);
+-
++            return(0); // Marked as non-MBSFN
+           break;
+       }
++      // If we reach here in the matching frame, it's a PMCH subframe
++      return(1);
+     } else if((frame_parms->FeMBMS_active == 1 || frame_parms->NonMBSFN_config_flag == 1 ) && !is_fembms_cas_subframe(frame,subframe,frame_parms) ) { //Then regular MBSFN FeMBMS subframe
+       return(1);
+     }
+-    return(1);
++    // Not in the matching frame, not PMCH
++    return(0);
+   }
+ 
+   return(0);
+ }
+ 
+ 
++/*! \brief This function identifies if a subframe is a PMCH subframe
++  \param frame Frame number
++  \param subframe Subframe number (0..9)
++  \param frame_parms Pointer to LTE DL frame parameters
++  \return 1 if subframe is PMCH, 0 otherwise
++*/
+ int is_pmch_subframe(uint32_t frame, int subframe, LTE_DL_FRAME_PARMS *frame_parms) {
+   uint32_t period;
+   uint8_t i;
+@@ -276,53 +282,56 @@ int is_pmch_subframe(uint32_t frame, int subframe, LTE_DL_FRAME_PARMS *frame_par
+         }
+       }
+     } else { // handle 4 frames case
++      // In 4-frames mode, the 24-bit mbsfn_SubframeConfig contains 4 groups of 6 bits
++      // Each 6-bit group represents the subframe allocation for one of the 4 consecutive frames
++      // Group 0 (bits 23-18): Frame 0, Group 1 (bits 17-12): Frame 1, etc.
+       for(j=0; j<4; j++) {
+         if ((frame % period) == (frame_parms->MBSFN_config[i].radioframeAllocationOffset + j)) {
+           if (frame_parms->frame_type == FDD) {
+             switch (subframe) {
+               case 1:
+-                if (((frame_parms->MBSFN_config[i].mbsfn_SubframeConfig)  & (0x800000>>(j*6))) > 0) {
+-                  //LOG_E(PHY,"SubframeConfig<<6(%x),MBSFN_FDD_SF1(%x)\n",frame_parms->MBSFN_config[i].mbsfn_SubframeConfig,0x800000>>(j*6));
++                if (((frame_parms->MBSFN_config[i].mbsfn_SubframeConfig >> (j*6)) & MBSFN_FDD_SF1) > 0) {
++                  //LOG_E(PHY,"SubframeConfig>>%d (%x),MBSFN_FDD_SF1(%x)\n",(j*6),frame_parms->MBSFN_config[i].mbsfn_SubframeConfig>> (j*6),MBSFN_FDD_SF1);
+                   return(1);
+                 }
+ 
+                 break;
+ 
+               case 2:
+-                if (((frame_parms->MBSFN_config[i].mbsfn_SubframeConfig) & (0x400000>>(j*6))) > 0) {
+-                  //LOG_E(PHY,"SubframeConfig<<6(%x),MBSFN_FDD_SF1(%x)\n",frame_parms->MBSFN_config[i].mbsfn_SubframeConfig,0x400000>>(j*6));
++                if (((frame_parms->MBSFN_config[i].mbsfn_SubframeConfig >> (j*6)) & MBSFN_FDD_SF2) > 0) {
++                  //LOG_E(PHY,"SubframeConfig>>%d (%x),MBSFN_FDD_SF2(%x)\n",(j*6),frame_parms->MBSFN_config[i].mbsfn_SubframeConfig>> (j*6),MBSFN_FDD_SF2);
+                   return(1);
+                 }
+ 
+                 break;
+ 
+               case 3:
+-                if (((frame_parms->MBSFN_config[i].mbsfn_SubframeConfig) & (0x200000>>(j*6))) > 0) {
+-                  //LOG_E(PHY,"SubframeConfig<<6(%x),MBSFN_FDD_SF1(%x)\n",frame_parms->MBSFN_config[i].mbsfn_SubframeConfig,0x200000>>(j*6));
++                if (((frame_parms->MBSFN_config[i].mbsfn_SubframeConfig >> (j*6)) & MBSFN_FDD_SF3) > 0) {
++                  //LOG_E(PHY,"SubframeConfig>>%d (%x),MBSFN_FDD_SF3(%x)\n",(j*6),frame_parms->MBSFN_config[i].mbsfn_SubframeConfig>> (j*6),MBSFN_FDD_SF3);
+                   return(1);
+                 }
+ 
+                 break;
+ 
+               case 6:
+-                if (((frame_parms->MBSFN_config[i].mbsfn_SubframeConfig) & (0x100000>>(j*6))) > 0) {
+-                  //LOG_E(PHY,"SubframeConfig<<6(%x),MBSFN_FDD_SF1(%x)\n",frame_parms->MBSFN_config[i].mbsfn_SubframeConfig,0x100000>>(j*6));
++                if (((frame_parms->MBSFN_config[i].mbsfn_SubframeConfig >> (j*6)) & MBSFN_FDD_SF6) > 0) {
++                  //LOG_E(PHY,"SubframeConfig>>%d (%x),MBSFN_FDD_SF6(%x)\n",(j*6),frame_parms->MBSFN_config[i].mbsfn_SubframeConfig>> (j*6),MBSFN_FDD_SF6);
+                   return(1);
+                 }
+ 
+                 break;
+ 
+               case 7:
+-                if (((frame_parms->MBSFN_config[i].mbsfn_SubframeConfig) & (0x80000>>(j*6))) > 0) {
+-                  //LOG_E(PHY,"SubframeConfig<<6(%x),MBSFN_FDD_SF1(%x)\n",frame_parms->MBSFN_config[i].mbsfn_SubframeConfig,0x80000>>(j*6));
++                if (((frame_parms->MBSFN_config[i].mbsfn_SubframeConfig >> (j*6)) & MBSFN_FDD_SF7) > 0) {
++                  //LOG_E(PHY,"SubframeConfig>>%d (%x),MBSFN_FDD_SF7(%x)\n",(j*6),frame_parms->MBSFN_config[i].mbsfn_SubframeConfig>> (j*6),MBSFN_FDD_SF7);
+                   return(1);
+                 }
+ 
+                 break;
+ 
+               case 8:
+-                if (((frame_parms->MBSFN_config[i].mbsfn_SubframeConfig) & (0x40000>>(j*6))) > 0) {
+-                  //LOG_E(PHY,"SubframeConfig<<6(%x),MBSFN_FDD_SF1(%x)\n",frame_parms->MBSFN_config[i].mbsfn_SubframeConfig,0x40000>>(j*6));
++                if (((frame_parms->MBSFN_config[i].mbsfn_SubframeConfig >> (j*6)) & MBSFN_FDD_SF8) > 0) {
++                  //LOG_E(PHY,"SubframeConfig>>%d (%x),MBSFN_FDD_SF8(%x)\n",(j*6),frame_parms->MBSFN_config[i].mbsfn_SubframeConfig>> (j*6),MBSFN_FDD_SF8);
+                   return(1);
+                 }
+ 

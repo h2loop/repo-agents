@@ -1,0 +1,26 @@
+{
+  "run_id": "mbed-os_00122_151ee0",
+  "function": {
+    "name": "HAL_I2S_Init",
+    "file": "targets/TARGET_STM/TARGET_STM32F4/STM32Cube_FW/STM32F4xx_HAL_Driver/stm32f4xx_hal_i2s.c",
+    "start_line": 265,
+    "end_line": 487,
+    "body_lines": 223,
+    "signature": "HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)",
+    "subsystem": "targets/TARGET_STM/TARGET_STM32F4",
+    "token_estimate": 812
+  },
+  "bug": {
+    "bug_id": "c_missing_mutex",
+    "description": "missing mutex lock around critical section accessing shared state",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a missing mutex lock around critical section accessing shared state downstream of function HAL_I2S_Init in the targets/TARGET_STM/TARGET_STM32F4 subsystem.\nThe function is located at targets/TARGET_STM/TARGET_STM32F4/STM32Cube_FW/STM32F4xx_HAL_Driver/stm32f4xx_hal_i2s.c:265.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 7,
+  "trajectory_steps": 24,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:23:08Z"
+}

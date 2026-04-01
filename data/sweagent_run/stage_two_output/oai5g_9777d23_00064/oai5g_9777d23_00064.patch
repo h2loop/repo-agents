@@ -1,0 +1,20 @@
+diff --git a/openair2/NR_PHY_INTERFACE/NR_IF_Module.c b/openair2/NR_PHY_INTERFACE/NR_IF_Module.c
+index 2352870ace..e0e4ae1099 100644
+--- a/openair2/NR_PHY_INTERFACE/NR_IF_Module.c
++++ b/openair2/NR_PHY_INTERFACE/NR_IF_Module.c
+@@ -331,6 +331,7 @@ static void match_crc_rx_pdu(nfapi_nr_rx_data_indication_t *rx_ind, nfapi_nr_crc
+           crc_ind_unmatched->crc_list[num_unmatched_crcs] = crc_ind->crc_list[i];
+           num_unmatched_crcs++;
+           remove_crc_pdu(crc_ind, i);
++          i--; // Decrement i to account for the removed element
+       }
+       if (crc_ind->number_crcs == rx_ind->number_of_pdus) {
+         break;
+@@ -359,6 +360,7 @@ static void match_crc_rx_pdu(nfapi_nr_rx_data_indication_t *rx_ind, nfapi_nr_crc
+         rx_ind_unmatched->pdu_list[num_unmatched_rxs] = rx_ind->pdu_list[i];
+         num_unmatched_rxs++;
+         remove_rx_pdu(rx_ind, i);
++        i--; // Decrement i to account for the removed element
+       }
+       if (rx_ind->number_of_pdus == crc_ind->number_crcs) {
+         break;

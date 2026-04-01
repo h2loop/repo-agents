@@ -1,0 +1,24 @@
+diff --git a/openair3/NGAP/ngap_gNB_nas_procedures.c b/openair3/NGAP/ngap_gNB_nas_procedures.c
+index 29541d8acf..fc5db4703a 100644
+--- a/openair3/NGAP/ngap_gNB_nas_procedures.c
++++ b/openair3/NGAP/ngap_gNB_nas_procedures.c
+@@ -428,8 +428,7 @@ int ngap_gNB_nas_uplink(instance_t instance, ngap_uplink_nas_t *ngap_uplink_nas_
+     ie->id = NGAP_ProtocolIE_ID_id_NAS_PDU;
+     ie->criticality = NGAP_Criticality_reject;
+     ie->value.present = NGAP_UplinkNASTransport_IEs__value_PR_NAS_PDU;
+-    ie->value.choice.NAS_PDU.buf = ngap_uplink_nas_p->nas_pdu.buffer;
+-    ie->value.choice.NAS_PDU.size = ngap_uplink_nas_p->nas_pdu.length;
++    allocCopy(&ie->value.choice.NAS_PDU, ngap_uplink_nas_p->nas_pdu);
+   }
+   /* mandatory */
+   {
+@@ -524,8 +523,7 @@ int ngap_gNB_nas_non_delivery_ind(instance_t instance,
+     ie->id = NGAP_ProtocolIE_ID_id_NAS_PDU;
+     ie->criticality = NGAP_Criticality_ignore;
+     ie->value.present = NGAP_NASNonDeliveryIndication_IEs__value_PR_NAS_PDU;
+-    ie->value.choice.NAS_PDU.buf = ngap_nas_non_delivery_ind->nas_pdu.buffer;
+-    ie->value.choice.NAS_PDU.size = ngap_nas_non_delivery_ind->nas_pdu.length;
++    allocCopy(&ie->value.choice.NAS_PDU, ngap_nas_non_delivery_ind->nas_pdu);
+   }
+   /* mandatory */
+   {

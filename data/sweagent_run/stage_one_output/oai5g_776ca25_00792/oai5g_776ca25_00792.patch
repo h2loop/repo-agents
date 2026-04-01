@@ -1,0 +1,23 @@
+diff --git a/openair1/PHY/NR_UE_TRANSPORT/dci_nr.c b/openair1/PHY/NR_UE_TRANSPORT/dci_nr.c
+index cd233bca26..30d9fca95e 100644
+--- a/openair1/PHY/NR_UE_TRANSPORT/dci_nr.c
++++ b/openair1/PHY/NR_UE_TRANSPORT/dci_nr.c
+@@ -312,10 +312,17 @@ static void nr_pdcch_detection_mrc(int nb_ant, int sz, c16_t rxdataF_comp[][sz])
+   c16_t *rx0 = rxdataF_comp[0];
+   // MRC on each re of rb
+   // input always aligned and accepting tail padding to process all actual samples
++  
++  // First, scale the first antenna's data by 1/2
++  for (int i = 0; i < sz; i += 4) {
++    *(simde__m128i *)(rx0 + i) = simde_mm_srai_epi16(*(simde__m128i *)(rx0 + i), 1);
++  }
++  
++  // Then add each subsequent antenna's data scaled by 1/2
+   for (int a = 1; a < nb_ant; a++) {
+     c16_t *rx = rxdataF_comp[a];
+     for (int i = 0; i < sz; i += 4) {
+-      *(simde__m128i *)(rx0 + i) = simde_mm_adds_epi16(simde_mm_srai_epi16(*(simde__m128i *)(rx0 + i), 1),
++      *(simde__m128i *)(rx0 + i) = simde_mm_adds_epi16(*(simde__m128i *)(rx0 + i),
+                                                        simde_mm_srai_epi16(*(simde__m128i *)(rx + i), 1));
+     }
+   }

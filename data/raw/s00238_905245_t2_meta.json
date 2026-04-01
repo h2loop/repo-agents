@@ -1,0 +1,9 @@
+{
+  "run_id": "s00238_905245",
+  "pr_text": "## Title: Fix signed/unsigned integer comparison mismatch in CSI resource config lookup\n\n### Summary\nThe `find_CSI_resourceconfig()` function in the UE MAC scheduler used an unsigned return type (`NR_CSI_ResourceConfigId_t`) but returned -1 as a sentinel value when no matching configuration was found. This created a signed/unsigned comparison mismatch at the call site where the result was checked with `if(csi_res_id < 0)`. With an unsigned type, this comparison would always evaluate to false, ca",
+  "trajectory_path": "data/raw/s00238_905245_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00238_905245_p2.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 16,
+  "timestamp": "2026-02-11T13:41:33Z"
+}

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00194_4e172d",
+  "pr_text": "## Title: Fix resource leaks in shared memory creation function\n\n### Summary\nThe `create_shm()` function in the gNB tracer application had resource management issues where file descriptors and shared memory segments could leak on error paths. The function opened a file with `open()` but never closed the file descriptor, and on failure conditions (ftok error, shmget failure, shmat failure), it would call `err_exit()` without proper cleanup. This could lead to resource exhaustion in long-running p",
+  "trajectory_path": "data/raw/s00194_4e172d_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00194_4e172d_p2.diff",
+  "patch_lines": 32,
+  "trajectory_steps": 20,
+  "timestamp": "2026-02-11T13:09:23Z"
+}

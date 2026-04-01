@@ -1,0 +1,12 @@
+diff --git a/openair2/LAYER2/MAC/mac.h b/openair2/LAYER2/MAC/mac.h
+index 635155b5a2..20cc67c57b 100644
+--- a/openair2/LAYER2/MAC/mac.h
++++ b/openair2/LAYER2/MAC/mac.h
+@@ -1102,6 +1102,7 @@ typedef struct {
+ typedef struct {
+   int head;
+   int next[MAX_MOBILES_PER_ENB];
++  pthread_mutex_t mutex;  //!< Mutex to protect list operations
+ } UE_list_t;
+ 
+ /*! \brief UE info used by eNB to order UEs/CC for scheduling*/

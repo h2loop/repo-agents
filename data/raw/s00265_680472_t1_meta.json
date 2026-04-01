@@ -1,0 +1,32 @@
+{
+  "run_id": "s00265_680472",
+  "function": {
+    "name": "lte_ul_channel_estimation_RRU",
+    "file": "openair1/PHY/LTE_ESTIMATION/lte_ul_channel_estimation.c",
+    "start_line": 293,
+    "end_line": 496,
+    "body_lines": 204,
+    "signature": "int32_t lte_ul_channel_estimation_RRU(LTE_DL_FRAME_PARMS *frame_parms, c16_t **ul_ch_estimates, c16_t **ul_ch_estimates_time, c16_t **rxdataF_ext, int N_rb_alloc, int frame_rx, int subframe_rx, uint32_t u, uint32_t v, uint32_t cyclic_shift, unsigned char l, int interpolate, uint16_t rnti)",
+    "subsystem": "openair1/PHY/LTE_ESTIMATION",
+    "token_estimate": 676
+  },
+  "bug": {
+    "bug_id": "telecom_wrong_procedure_sequence",
+    "description": "incorrect signaling procedure sequence violating 3GPP message flow",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a incorrect signaling procedure sequence violating 3GPP message flow downstream of function lte_ul_channel_estimation_RRU in the openair1/PHY/LTE_ESTIMATION subsystem.\nThe function is located at openair1/PHY/LTE_ESTIMATION/lte_ul_channel_estimation.c:293.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00265_680472_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00265_680472_p1.diff",
+  "patch_lines": 23,
+  "trajectory_steps": 87,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:59:00Z"
+}

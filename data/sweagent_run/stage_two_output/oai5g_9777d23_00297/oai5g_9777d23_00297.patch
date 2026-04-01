@@ -1,0 +1,197 @@
+diff --git a/openair1/PHY/NR_TRANSPORT/nr_prach.c b/openair1/PHY/NR_TRANSPORT/nr_prach.c
+index 76d9b1185f..fd3fedbc7a 100644
+--- a/openair1/PHY/NR_TRANSPORT/nr_prach.c
++++ b/openair1/PHY/NR_TRANSPORT/nr_prach.c
+@@ -35,6 +35,7 @@
+ #include "PHY/NR_TRANSPORT/nr_transport_proto.h"
+ #include "PHY/NR_TRANSPORT/nr_transport_common_proto.h"
+ #include "openair1/PHY/NR_TRANSPORT/nr_prach.h"
++#include "common/utils/nr/nr_common.h"
+ 
+ void init_prach_list(PHY_VARS_gNB *gNB)
+ {
+@@ -169,10 +170,42 @@ void rx_nr_prach_ru(RU_t *ru,
+ {
+   AssertFatal(ru != NULL,"ru is null\n");
+ 
++  // Bounds checking for prachOccasion
++  if (prachOccasion < 0 || prachOccasion >= NUMBER_OF_NR_RU_PRACH_OCCASIONS_MAX) {
++    LOG_E(PHY, "Invalid prachOccasion %d, should be between 0 and %d\n", prachOccasion, NUMBER_OF_NR_RU_PRACH_OCCASIONS_MAX - 1);
++    return;
++  }
++
++  // Bounds checking for numRA
++  if (numRA < 0) {
++    LOG_E(PHY, "Invalid numRA %d, should be non-negative\n", numRA);
++    return;
++  }
++
++  // Bounds checking for prachStartSymbol
++  if (prachStartSymbol < 0 || prachStartSymbol >= NR_NUMBER_OF_SYMBOLS_PER_SLOT) {
++    LOG_E(PHY, "Invalid prachStartSymbol %d, should be between 0 and %d\n", prachStartSymbol, NR_NUMBER_OF_SYMBOLS_PER_SLOT - 1);
++    return;
++  }
++
+   NR_DL_FRAME_PARMS *fp = ru->nr_frame_parms;
+   int slot2 = slot;
++  
++  // Safety check for ru->nb_rx
++  if (ru->nb_rx <= 0) {
++    LOG_E(PHY, "Invalid nb_rx %d, should be positive\n", ru->nb_rx);
++    return;
++  }
++  
+   int16_t *prach[ru->nb_rx];
+   int prach_sequence_length = ru->config.prach_config.prach_sequence_length.value;
++  
++  // Additional bounds checking for numRA when accessing config array
++  if (numRA >= ru->config.prach_config.num_prach_fd_occasions) {
++    LOG_E(PHY, "Invalid numRA %d, exceeds configured number of PRACH FD occasions %d\n", numRA, ru->config.prach_config.num_prach_fd_occasions);
++    return;
++  }
++  
+   int msg1_frequencystart = ru->config.prach_config.num_prach_fd_occasions_list[numRA].k1.value;
+   const uint8_t prach_mu = ru->config.prach_config.prach_sub_c_spacing.value;
+ 
+@@ -201,6 +234,12 @@ void rx_nr_prach_ru(RU_t *ru,
+         prachOccasion);
+ 
+   int16_t **rxsigF = ru->prach_rxsigF[prachOccasion];
++  
++  // Safety check for rxsigF
++  if (rxsigF == NULL) {
++    LOG_E(PHY, "rxsigF is NULL for prachOccasion %d\n", prachOccasion);
++    return;
++  }
+ 
+   AssertFatal(ru->if_south == LOCAL_RF || ru->if_south == REMOTE_IF5,
+               "we shouldn't call this if if_south != LOCAL_RF or REMOTE_IF5\n");
+@@ -208,7 +247,15 @@ void rx_nr_prach_ru(RU_t *ru,
+   for (int aa = 0; aa < ru->nb_rx; aa++) { 
+     if (prach_sequence_length == 0)
+       slot2 = prachStartSlot;
+-    int idx = aa + beam * ru->nb_rx;
++    
++    // Safe beam index calculation
++    int idx;
++    if (ru->nb_rx > 0) {
++      idx = aa + beam * ru->nb_rx;
++    } else {
++      idx = aa; // fallback if nb_rx is somehow zero despite our earlier check
++    }
++    
+     prach[aa] = (int16_t*)&ru->common.rxdata[idx][fp->get_samples_slot_timestamp(slot2, fp, 0) + sample_offset_slot - ru->N_TA_offset];
+   } 
+ 
+@@ -220,11 +267,11 @@ void rx_nr_prach_ru(RU_t *ru,
+   if (prach_sequence_length == 0) {
+     LOG_D(PHY,
+           "PRACH (ru %d) in %d.%d, format %d, msg1_frequencyStart %d\n",
+-	  ru->idx,
+-	  frame,
+-	  slot2,
+-	  prachFormat,
+-	  msg1_frequencystart);
++          ru->idx,
++          frame,
++          slot2,
++          prachFormat,
++          msg1_frequencystart);
+     switch (prachFormat) {
+     case 0:
+       reps = 1;
+@@ -258,12 +305,12 @@ void rx_nr_prach_ru(RU_t *ru,
+   else {
+     LOG_D(PHY,
+           "PRACH (ru %d) in %d.%d, format %s, msg1_frequencyStart %d,startSymbol %d\n",
+-	  ru->idx,
+-	  frame,
+-	  slot,
+-	  prachfmt[prachFormat],
+-	  msg1_frequencystart,
+-	  prachStartSymbol);
++          ru->idx,
++          frame,
++          slot,
++          prachfmt[prachFormat],
++          msg1_frequencystart,
++          prachStartSymbol);
+     switch (prachFormat) {
+     case 4: //A1
+       reps = 2;
+@@ -417,6 +464,12 @@ void rx_nr_prach_ru(RU_t *ru,
+ 
+   for (int aa=0; aa<ru->nb_rx; aa++) {
+     AssertFatal(prach[aa]!=NULL,"prach[%d] is null\n",aa);
++    
++    // Safety check for rxsigF[aa]
++    if (rxsigF[aa] == NULL) {
++      LOG_E(PHY, "rxsigF[%d] is NULL\n", aa);
++      continue; // Skip this antenna
++    }
+ 
+     // do DFT
+     int16_t *prach2 = prach[aa] + (2*Ncp); // times 2 for complex samples
+@@ -434,10 +487,31 @@ void rx_nr_prach_ru(RU_t *ru,
+ 
+     for (int j=0;j<N_ZC<<1;j++,k2++) {
+       if (k2==(dftlen<<1)) k2=0;
+-      rxsigF_tmp[j] = rxsigF2[k2];
+-      for (int i=1;i<reps;i++) rxsigF_tmp[j] += rxsigF2[k2+(i*dftlen<<1)];
++      
++      // Boundary checking for rxsigF2 access
++      if (k2 >= 0 && k2 < (dftlen << 1)) {
++        rxsigF_tmp[j] = rxsigF2[k2];
++      } else {
++        rxsigF_tmp[j] = 0; // Set to zero if out of bounds
++        LOG_W(PHY, "Out of bounds access attempt in PRACH combining: k2=%d, dftlen=%d\n", k2, dftlen);
++      }
++      
++      // Boundary checking for repetition combining
++      for (int i=1;i<reps;i++) {
++        int rep_index = k2+(i*dftlen<<1);
++        if (rep_index >= 0 && rep_index < (dftlen << 1)) {
++          rxsigF_tmp[j] += rxsigF2[rep_index];
++        } else {
++          LOG_W(PHY, "Out of bounds access attempt in PRACH repetition combining: rep_index=%d, dftlen=%d\n", rep_index, dftlen);
++        }
++      }
++    }
++    // Boundary check for memcpy
++    if (N_ZC << 2 <= dftlen << 2) {
++      memcpy((void*)rxsigF2,(void *)rxsigF_tmp,N_ZC<<2);
++    } else {
++      LOG_E(PHY, "memcpy would exceed buffer size: N_ZC=%d, dftlen=%d\n", N_ZC, dftlen);
+     }
+-    memcpy((void*)rxsigF2,(void *)rxsigF_tmp,N_ZC<<2);
+   }
+ }
+ 
+@@ -563,9 +637,9 @@ void rx_nr_prach(PHY_VARS_gNB *gNB,
+           int index = (rootSequenceIndex + preamble_offset) % N_ZC;
+ 
+           u = prach_root_sequence_map[index];
+-	  
++          
+           uint16_t n_group_ra = 0;
+-	  
++          
+           if ((nr_du[u] < (N_ZC / 3)) && (nr_du[u] >= NCS) ) {
+             n_shift_ra = nr_du[u] / NCS;
+             d_start = (nr_du[u] << 1) + (n_shift_ra * NCS);
+@@ -636,13 +710,13 @@ void rx_nr_prach(PHY_VARS_gNB *gNB,
+       }
+ 
+       for (int aa = 0; aa < nb_rx; aa++) {
+-	// Do componentwise product with Xu* on each antenna 
++        // Do componentwise product with Xu* on each antenna 
+ 
+         for (int offset = 0; offset < (N_ZC << 1); offset += 2) {
+           prachF[offset] = (int16_t)(((int32_t)Xu[offset]*rxsigF[aa][offset] + (int32_t)Xu[offset+1]*rxsigF[aa][offset+1])>>15);
+           prachF[offset+1] = (int16_t)(((int32_t)Xu[offset]*rxsigF[aa][offset+1] - (int32_t)Xu[offset+1]*rxsigF[aa][offset])>>15);
+         }
+-	
++        
+         // Now do IFFT of size 1024 (N_ZC=839) or 256 (N_ZC=139)
+         if (N_ZC == 839) {
+           idft(IDFT_1024, prachF, prach_ifft_tmp, 1);

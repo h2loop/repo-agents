@@ -1,0 +1,51 @@
+diff --git a/openair2/GNB_APP/gnb_config.c b/openair2/GNB_APP/gnb_config.c
+index 94e9012855..f090c5deff 100644
+--- a/openair2/GNB_APP/gnb_config.c
++++ b/openair2/GNB_APP/gnb_config.c
+@@ -2159,6 +2159,9 @@ gNB_RRC_INST *RCconfig_NRRRC()
+   // Allocate memory for 1 RRC instance
+   gNB_RRC_INST *rrc = calloc(1, sizeof(*rrc));
+ 
++  // Initialize measurement configuration mutex
++  pthread_mutex_init(&rrc->measurement_mutex, NULL);
++
+   int num_gnbs = 0;
+   int32_t gnb_id = 0;
+   int k = 0;
+diff --git a/openair2/RRC/NR/nr_rrc_defs.h b/openair2/RRC/NR/nr_rrc_defs.h
+index 68a83c9545..9b34c325f2 100644
+--- a/openair2/RRC/NR/nr_rrc_defs.h
++++ b/openair2/RRC/NR/nr_rrc_defs.h
+@@ -392,6 +392,7 @@ typedef struct gNB_RRC_INST_s {
+   cucp_cuup_if_t cucp_cuup;
+   seq_arr_t *neighbour_cell_configuration;
+   nr_measurement_configuration_t measurementConfiguration;
++  pthread_mutex_t measurement_mutex; // protects measurementConfiguration
+ 
+   RB_HEAD(rrc_du_tree, nr_rrc_du_container_t) dus; // DUs, indexed by assoc_id
+   size_t num_dus;
+diff --git a/openair2/RRC/NR/rrc_gNB.c b/openair2/RRC/NR/rrc_gNB.c
+index 000c4f46cb..14e212b65e 100644
+--- a/openair2/RRC/NR/rrc_gNB.c
++++ b/openair2/RRC/NR/rrc_gNB.c
+@@ -594,6 +594,7 @@ NR_MeasConfig_t *nr_rrc_get_measconfig(const gNB_RRC_INST *rrc, uint64_t nr_cell
+   NR_ReportConfigToAddMod_t *rc_A2 = NULL;
+   seq_arr_t *rc_A3_seq = NULL;
+   if (du->mtc != NULL) {
++    pthread_mutex_lock((pthread_mutex_t *)&rrc->measurement_mutex);
+     int scs = get_ssb_scs(cell_info);
+     int band = get_dl_band(cell_info);
+     const NR_MeasTimingList_t *mtlist = du->mtc->criticalExtensions.choice.c1->choice.measTimingConf->measTiming;
+@@ -626,8 +627,11 @@ NR_MeasConfig_t *nr_rrc_get_measconfig(const gNB_RRC_INST *rrc, uint64_t nr_cell
+       rc_PER = prepare_periodic_event_report(rrc->measurementConfiguration.per_event);
+     if (rrc->measurementConfiguration.a2_event)
+       rc_A2 = prepare_a2_event_report(rrc->measurementConfiguration.a2_event);
+-    return get_MeasConfig(mt, band, scs, rc_PER, rc_A2, rc_A3_seq, neighbour_cells);
++    NR_MeasConfig_t *meas_config = get_MeasConfig(mt, band, scs, rc_PER, rc_A2, rc_A3_seq, neighbour_cells);
++    pthread_mutex_unlock((pthread_mutex_t *)&rrc->measurement_mutex);
++    return meas_config;
+   }
++  pthread_mutex_unlock((pthread_mutex_t *)&rrc->measurement_mutex);
+   return NULL;
+ }
+ 

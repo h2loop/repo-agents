@@ -1,0 +1,49 @@
+diff --git a/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c b/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c
+index 1a5431bdd2..bf0df32118 100644
+--- a/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c
++++ b/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c
+@@ -2904,6 +2904,8 @@ uint16_t nr_dci_size(const NR_UE_DL_BWP_t *DL_BWP,
+       LOG_D(NR_MAC, "dci_pdu->precoding_informaiton.nbits=%d\n", dci_pdu->precoding_information.nbits);
+       // Antenna ports
+       long transformPrecoder = get_transformPrecoding(UL_BWP, format, 0);
++      // Store transform precoding value in UL_BWP structure for downstream message construction
++      UL_BWP->transform_precoding = transformPrecoder;
+       NR_DMRS_UplinkConfig_t *NR_DMRS_UplinkConfig = NULL;
+       int xa = 0;
+       int xb = 0;
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_RA.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_RA.c
+index 6e93e0467c..a2f3340800 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_RA.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_RA.c
+@@ -883,11 +883,14 @@ static void nr_generate_Msg3_retransmission(module_id_t module_idP,
+                 "Invalid future_ul_tti_req->n_pdus %d\n", future_ul_tti_req->n_pdus);
+     future_ul_tti_req->pdus_list[future_ul_tti_req->n_pdus].pdu_type = NFAPI_NR_UL_CONFIG_PUSCH_PDU_TYPE;
+     future_ul_tti_req->pdus_list[future_ul_tti_req->n_pdus].pdu_size = sizeof(nfapi_nr_pusch_pdu_t);
++    long transformPrecoder = get_transformPrecoding(ul_bwp, NR_UL_DCI_FORMAT_0_0, 0);
++    // Store transform precoding value in ul_bwp structure for downstream message construction
++    ul_bwp->transform_precoding = transformPrecoder;
+     nfapi_nr_pusch_pdu_t *pusch_pdu = prepare_pusch_pdu(future_ul_tti_req,
+                                                         UE,
+                                                         scc,
+                                                         &sched_pusch,
+-                                                        get_transformPrecoding(ul_bwp, NR_UL_DCI_FORMAT_0_0, 0),
++                                                        transformPrecoder,
+                                                         0,
+                                                         ra->msg3_round,
+                                                         ul_bwp->pusch_Config && ul_bwp->pusch_Config->frequencyHopping,
+@@ -1187,11 +1190,14 @@ static void nr_add_msg3(module_id_t module_idP, int CC_id, frame_t frameP, slot_
+         ra->msg3_first_rb,
+         ra->msg3_round);
+ 
++  long transformPrecoder = get_transformPrecoding(ul_bwp, NR_UL_DCI_FORMAT_0_0, 0);
++  // Store transform precoding value in ul_bwp structure for downstream message construction
++  ul_bwp->transform_precoding = transformPrecoder;
+   nfapi_nr_pusch_pdu_t *pusch_pdu = prepare_pusch_pdu(future_ul_tti_req,
+                                                       UE,
+                                                       scc,
+                                                       &sched_pusch,
+-                                                      get_transformPrecoding(ul_bwp, NR_UL_DCI_FORMAT_0_0, 0),
++                                                      transformPrecoder,
+                                                       0,
+                                                       0,
+                                                       ul_bwp->pusch_Config && ul_bwp->pusch_Config->frequencyHopping,

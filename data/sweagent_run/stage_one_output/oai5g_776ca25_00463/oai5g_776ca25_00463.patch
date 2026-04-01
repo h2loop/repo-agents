@@ -1,0 +1,84 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c b/openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c
+index 0a84e1c817..eff9962b80 100644
+--- a/openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c
++++ b/openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c
+@@ -108,7 +108,13 @@ void fill_ul_config(fapi_nr_ul_config_request_t *ul_config, frame_t frame_tx, in
+     LOG_D(MAC, "%d.%d %d.%d f clear ul_config %p t %d pdu %d\n", frame_tx, slot_tx, ul_config->sfn, ul_config->slot, ul_config, pdu_type, ul_config->number_pdus);
+     ul_config->number_pdus = 0;
+     memset(ul_config->ul_config_list, 0, sizeof(ul_config->ul_config_list));
++    // NOTE: After this clearing operation, the caller MUST ensure that frame_tx/slot_tx 
++    // is valid for UL transmission before proceeding with protocol message processing.
++    // Failure to do so may result in UL configuration being set for invalid slots.
+   }
++  // Validate that we're not exceeding the maximum number of PDUs after incrementing
++  AssertFatal((ul_config->number_pdus + 1) <= FAPI_NR_UL_CONFIG_LIST_NUM,
++              "Adding new PDU would exceed maximum number of UL PDUs (%d)", FAPI_NR_UL_CONFIG_LIST_NUM);
+   ul_config->ul_config_list[ul_config->number_pdus].pdu_type = pdu_type;
+   //ul_config->slot = slot_tx;
+   //ul_config->sfn = frame_tx;
+@@ -2716,12 +2722,12 @@ typedef struct {
+ nr_ue_get_sdu_mac_ce_pre finds length in various mac_ce field
+ Need nothing from mac_ce_p:
+ Update the following in mac_ce_p:
+-	bsr_len;
+-	bsr_ce_len;
+-	bsr_header_len;
+-	phr_len; TBD
+-	phr_ce_len; TBD
+-	phr_header_len; TBD
++        bsr_len;
++        bsr_ce_len;
++        bsr_header_len;
++        phr_len; TBD
++        phr_ce_len; TBD
++        phr_header_len; TBD
+ */
+ int nr_ue_get_sdu_mac_ce_pre(module_id_t module_idP,
+                       int CC_id,
+@@ -2789,19 +2795,19 @@ int nr_ue_get_sdu_mac_ce_pre(module_id_t module_idP,
+ /*
+ nr_ue_get_sdu_mac_ce_post recalculates length and prepares the mac_ce field
+ Need the following from mac_ce_p:
+-	bsr_ce_len
+-	bsr_len
+-	sdu_length_total
+-	total_mac_pdu_header_len
++        bsr_ce_len
++        bsr_len
++        sdu_length_total
++        total_mac_pdu_header_len
+ Update the following in mac_ce_p:
+-	bsr_ce_len
+-	bsr_header_len
+-	bsr_len
+-	tot_mac_ce_len
+-	total_mac_pdu_header_len
+-	bsr_s
+-	bsr_l
+-	bsr_t
++        bsr_ce_len
++        bsr_header_len
++        bsr_len
++        tot_mac_ce_len
++        total_mac_pdu_header_len
++        bsr_s
++        bsr_l
++        bsr_t
+ */
+ void nr_ue_get_sdu_mac_ce_post(module_id_t module_idP,
+                       int CC_id,
+@@ -2820,11 +2826,11 @@ void nr_ue_get_sdu_mac_ce_post(module_id_t module_idP,
+   int num_lcg_id_with_data = 0;
+   int lcg_id_bsr_trunc = 0;
+   for (lcg_id = 0; lcg_id < NR_MAX_NUM_LCGID; lcg_id++) {
+-	if (mac_ce_p->bsr_ce_len == sizeof(NR_BSR_SHORT)) {
++        if (mac_ce_p->bsr_ce_len == sizeof(NR_BSR_SHORT)) {
+       mac->scheduling_info.BSR[lcg_id] = nr_locate_BsrIndexByBufferSize(NR_SHORT_BSR_TABLE, NR_SHORT_BSR_TABLE_SIZE, mac->scheduling_info.BSR_bytes[lcg_id]);
+-	} else {
++        } else {
+       mac->scheduling_info.BSR[lcg_id] = nr_locate_BsrIndexByBufferSize(NR_LONG_BSR_TABLE, NR_LONG_BSR_TABLE_SIZE, mac->scheduling_info.BSR_bytes[lcg_id]);
+-	}
++        }
+     if (mac->scheduling_info.BSR_bytes[lcg_id]) {
+       num_lcg_id_with_data++;
+       lcg_id_bsr_trunc = lcg_id;

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00250_4c664f",
+  "pr_text": "## Title: Fix heap buffer overflow in dft2880 twiddle factor arrays\n\n### Summary\nThe `dft2880` function implements a 2880-point DFT using a 960x3 decomposition. It uses two static twiddle factor arrays, `twa2880` and `twb2880`, which were incorrectly allocated with only 959 elements instead of the required 960. While the primary processing loop accesses indices 0-958, the array size must match the full 960-point decomposition to prevent potential buffer overflows and ensure mathematical correctn",
+  "trajectory_path": "data/raw/s00250_4c664f_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00250_4c664f_p2.diff",
+  "patch_lines": 0,
+  "trajectory_steps": 5,
+  "timestamp": "2026-02-10T12:10:56Z"
+}

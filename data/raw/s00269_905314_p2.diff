@@ -1,0 +1,22 @@
+diff --git a/openair1/PHY/CODING/3gpplte_sse.c b/openair1/PHY/CODING/3gpplte_sse.c
+index 731f3710b4..1ef1251ae5 100644
+--- a/openair1/PHY/CODING/3gpplte_sse.c
++++ b/openair1/PHY/CODING/3gpplte_sse.c
+@@ -409,7 +409,7 @@ void threegpplte_turbo_encoder_sse(unsigned char *input,
+   int i;
+   unsigned char *x;
+   unsigned char state0=0,state1=0;
+-  unsigned short input_length_bits = input_length_bytes<<3;
++  unsigned int input_length_bits = (unsigned int)input_length_bytes<<3;
+   short *base_interleaver;
+ 
+   if (  all_treillis_initialized == 0 ) {
+@@ -459,7 +459,7 @@ void threegpplte_turbo_encoder_sse(unsigned char *input,
+     state1=all_treillis[state1][cur_s2].exit_state;
+   }
+ 
+-  x=output+(input_length_bits*3);
++  x=output+((size_t)input_length_bits*3);
+   // Trellis termination
+   threegpplte_rsc_termination(&x[0],&x[1],&state0);
+ #ifdef DEBUG_TURBO_ENCODER

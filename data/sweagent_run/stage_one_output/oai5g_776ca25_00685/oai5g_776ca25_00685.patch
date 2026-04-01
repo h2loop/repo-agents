@@ -1,0 +1,125 @@
+diff --git a/nfapi/oai_integration/wls_integration/include/wls_pnf.h b/nfapi/oai_integration/wls_integration/include/wls_pnf.h
+index c678345967..5ab5399287 100644
+--- a/nfapi/oai_integration/wls_integration/include/wls_pnf.h
++++ b/nfapi/oai_integration/wls_integration/include/wls_pnf.h
+@@ -30,4 +30,5 @@ bool wls_pnf_nr_send_p7_message(pnf_p7_t* pnf_p7,nfapi_nr_p7_message_header_t *m
+ void *wls_fapi_pnf_nr_start_thread(void *ptr);
+ int wls_fapi_nr_pnf_start();
+ void wls_pnf_set_p7_config(void *p7_config);
++void wls_mac_print_stats(void);
+ #endif // OPENAIRINTERFACE_WLS_PNF_H
+diff --git a/nfapi/oai_integration/wls_integration/include/wls_vnf.h b/nfapi/oai_integration/wls_integration/include/wls_vnf.h
+index 645b24d056..1ec36379f7 100644
+--- a/nfapi/oai_integration/wls_integration/include/wls_vnf.h
++++ b/nfapi/oai_integration/wls_integration/include/wls_vnf.h
+@@ -30,4 +30,5 @@ int wls_fapi_nr_vnf_start();
+ void wls_vnf_set_p7_config(void *p7_config);
+ bool wls_vnf_nr_send_p5_message(vnf_t *vnf,uint16_t p5_idx, nfapi_nr_p4_p5_message_header_t* msg, uint32_t msg_len);
+ bool wls_vnf_nr_send_p7_message(vnf_p7_t* vnf_p7,nfapi_nr_p7_message_header_t* msg);
++void wls_mac_print_stats(void);
+ #endif //OPENAIRINTERFACE_WLS_VNF_H
+diff --git a/nfapi/oai_integration/wls_integration/wls_pnf.c b/nfapi/oai_integration/wls_integration/wls_pnf.c
+index e02cef30a4..e57cd63acb 100644
+--- a/nfapi/oai_integration/wls_integration/wls_pnf.c
++++ b/nfapi/oai_integration/wls_integration/wls_pnf.c
+@@ -28,6 +28,7 @@
+ #include <rte_debug.h>
+ #include <pnf_p7.h>
+ #include <sys/time.h>
++#include <inttypes.h>
+ 
+ #include "pnf.h"
+ #include "nr_nfapi_p7.h"
+@@ -288,3 +289,33 @@ void phy_mac_recv()
+     }
+   }
+ }
++void wls_mac_print_stats(void)
++{
++  PWLS_MAC_CTX pWls = wls_mac_get_ctx();
++
++  NFAPI_TRACE(NFAPI_TRACE_DEBUG, "wls_mac_free_list_all:\n");
++  NFAPI_TRACE(NFAPI_TRACE_DEBUG,
++              "        nTotalBlocks[%" PRIu32 "] nAllocBlocks[%" PRIu32 "] nFreeBlocks[%" PRIu32 "]\n",
++              pWls->nTotalBlocks,
++              pWls->nAllocBlocks,
++              (pWls->nTotalBlocks >= pWls->nAllocBlocks) ? 
++                (pWls->nTotalBlocks - pWls->nAllocBlocks) : 0);
++  NFAPI_TRACE(NFAPI_TRACE_DEBUG,
++              "        nTotalAllocCnt[%" PRIu32 "] nTotalFreeCnt[%" PRIu32 "] Diff[%" PRIu32 "]\n",
++              pWls->nTotalAllocCnt,
++              pWls->nTotalFreeCnt,
++              (pWls->nTotalAllocCnt >= pWls->nTotalFreeCnt) ? 
++                (pWls->nTotalAllocCnt - pWls->nTotalFreeCnt) : 0);
++  NFAPI_TRACE(NFAPI_TRACE_DEBUG,
++              "        nDlBufAllocCnt[%" PRIu32 "] nDlBufFreeCnt[%" PRIu32 "] Diff[%" PRIu32 "]\n",
++              pWls->nTotalDlBufAllocCnt,
++              pWls->nTotalDlBufFreeCnt,
++              (pWls->nTotalDlBufAllocCnt >= pWls->nTotalDlBufFreeCnt) ? 
++                (pWls->nTotalDlBufAllocCnt - pWls->nTotalDlBufFreeCnt) : 0);
++  NFAPI_TRACE(NFAPI_TRACE_DEBUG,
++              "        nUlBufAllocCnt[%" PRIu32 "] nUlBufFreeCnt[%" PRIu32 "] Diff[%" PRIu32 "]\n\n",
++              pWls->nTotalUlBufAllocCnt,
++              pWls->nTotalUlBufFreeCnt,
++              (pWls->nTotalUlBufAllocCnt >= pWls->nTotalUlBufFreeCnt) ? 
++                (pWls->nTotalUlBufAllocCnt - pWls->nTotalUlBufFreeCnt) : 0);
++}
+diff --git a/nfapi/oai_integration/wls_integration/wls_vnf.c b/nfapi/oai_integration/wls_integration/wls_vnf.c
+index ccc68b4905..edfa6aab43 100644
+--- a/nfapi/oai_integration/wls_integration/wls_vnf.c
++++ b/nfapi/oai_integration/wls_integration/wls_vnf.c
+@@ -29,6 +29,7 @@
+ #include <rte_debug.h>
+ #include <nr_fapi_p5.h>
+ #include <common/platform_constants.h>
++#include <inttypes.h>
+ 
+ static nfapi_vnf_config_t *config;
+ static WLS_MAC_CTX wls_mac_iface;
+@@ -68,7 +69,7 @@ static bool wls_mac_create_mem_array(PWLS_MAC_MEM_SRUCT pMemArray, void *pMemArr
+ {
+   const uint32_t numBlocks = totalSize / nBlockSize;
+ 
+-  printf("wls_mac_create_mem_array: pMemArray[%p] pMemArrayMemory[%p] totalSize[%d] nBlockSize[%d] numBlocks[%d]\n",
++  printf("wls_mac_create_mem_array: pMemArray[%p] pMemArrayMemory[%p] totalSize[%" PRIu32 "] nBlockSize[%" PRIu32 "] numBlocks[%" PRIu32 "]\n",
+          pMemArray,
+          pMemArrayMemory,
+          totalSize,
+@@ -169,25 +170,29 @@ void wls_mac_print_stats(void)
+ 
+   NFAPI_TRACE(NFAPI_TRACE_DEBUG, "wls_mac_free_list_all:\n");
+   NFAPI_TRACE(NFAPI_TRACE_DEBUG,
+-              "        nTotalBlocks[%d] nAllocBlocks[%d] nFreeBlocks[%d]\n",
++              "        nTotalBlocks[%" PRIu32 "] nAllocBlocks[%" PRIu32 "] nFreeBlocks[%" PRIu32 "]\n",
+               pWls->nTotalBlocks,
+               pWls->nAllocBlocks,
+-              (pWls->nTotalBlocks - pWls->nAllocBlocks));
++              (pWls->nTotalBlocks >= pWls->nAllocBlocks) ? 
++                (pWls->nTotalBlocks - pWls->nAllocBlocks) : 0);
+   NFAPI_TRACE(NFAPI_TRACE_DEBUG,
+-              "        nTotalAllocCnt[%d] nTotalFreeCnt[%d] Diff[%d]\n",
++              "        nTotalAllocCnt[%" PRIu32 "] nTotalFreeCnt[%" PRIu32 "] Diff[%" PRIu32 "]\n",
+               pWls->nTotalAllocCnt,
+               pWls->nTotalFreeCnt,
+-              (pWls->nTotalAllocCnt - pWls->nTotalFreeCnt));
++              (pWls->nTotalAllocCnt >= pWls->nTotalFreeCnt) ? 
++                (pWls->nTotalAllocCnt - pWls->nTotalFreeCnt) : 0);
+   NFAPI_TRACE(NFAPI_TRACE_DEBUG,
+-              "        nDlBufAllocCnt[%d] nDlBufFreeCnt[%d] Diff[%d]\n",
++              "        nDlBufAllocCnt[%" PRIu32 "] nDlBufFreeCnt[%" PRIu32 "] Diff[%" PRIu32 "]\n",
+               pWls->nTotalDlBufAllocCnt,
+               pWls->nTotalDlBufFreeCnt,
+-              (pWls->nTotalDlBufAllocCnt - pWls->nTotalDlBufFreeCnt));
++              (pWls->nTotalDlBufAllocCnt >= pWls->nTotalDlBufFreeCnt) ? 
++                (pWls->nTotalDlBufAllocCnt - pWls->nTotalDlBufFreeCnt) : 0);
+   NFAPI_TRACE(NFAPI_TRACE_DEBUG,
+-              "        nUlBufAllocCnt[%d] nUlBufFreeCnt[%d] Diff[%d]\n\n",
++              "        nUlBufAllocCnt[%" PRIu32 "] nUlBufFreeCnt[%" PRIu32 "] Diff[%" PRIu32 "]\n\n",
+               pWls->nTotalUlBufAllocCnt,
+               pWls->nTotalUlBufFreeCnt,
+-              (pWls->nTotalUlBufAllocCnt - pWls->nTotalUlBufFreeCnt));
++              (pWls->nTotalUlBufAllocCnt >= pWls->nTotalUlBufFreeCnt) ? 
++                (pWls->nTotalUlBufAllocCnt - pWls->nTotalUlBufFreeCnt) : 0);
+ }
+ 
+ static void *wls_mac_alloc_buffer(PWLS_MAC_CTX pWls, uint32_t size, uint32_t loc)

@@ -1,0 +1,41 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/config_ue.c b/openair2/LAYER2/NR_MAC_UE/config_ue.c
+index 65612872d6..6461666dd1 100644
+--- a/openair2/LAYER2/NR_MAC_UE/config_ue.c
++++ b/openair2/LAYER2/NR_MAC_UE/config_ue.c
+@@ -776,8 +776,10 @@ static void configure_logicalChannelBearer(NR_UE_MAC_INST_t *mac,
+         if (id == mac->lc_ordered_list.array[j]->lcid)
+           break;
+       }
+-      if (j < mac->lc_ordered_list.count)
++      if (j < mac->lc_ordered_list.count) {
++        free(mac->lc_ordered_list.array[j]);
+         asn_sequence_del(&mac->lc_ordered_list, j, 1);
++      }
+       else
+         LOG_E(NR_MAC, "Element not present in the list, impossible to release\n");
+     }
+@@ -1793,7 +1795,7 @@ static void configure_maccellgroup(NR_UE_MAC_INST_t *mac, const NR_MAC_CellGroup
+         NR_SchedulingRequestToAddMod_t *sr = src->schedulingRequestToAddModList->list.array[i];
+         nr_sr_info_t *sr_info = &si->sr_info[sr->schedulingRequestId];
+         sr_info->active_SR_ID = true;
+-        // NR_SchedulingRequestToAddMod__sr_TransMax_n4	= 0 and so on
++        // NR_SchedulingRequestToAddMod__sr_TransMax_n4 = 0 and so on
+         // to obtain the value to configure we need to right shift 4 by the RRC parameter
+         sr_info->maxTransmissions = 4 << sr->sr_TransMax;
+         int target_ms = 0;
+diff --git a/openair2/LAYER2/NR_MAC_UE/main_ue_nr.c b/openair2/LAYER2/NR_MAC_UE/main_ue_nr.c
+index 3941488682..37fea4e6b4 100644
+--- a/openair2/LAYER2/NR_MAC_UE/main_ue_nr.c
++++ b/openair2/LAYER2/NR_MAC_UE/main_ue_nr.c
+@@ -235,8 +235,10 @@ void release_mac_configuration(NR_UE_MAC_INST_t *mac,
+     asn1cFreeStruc(asn_DEF_NR_ControlResourceSet, mac->coreset0);
+     asn1cFreeStruc(asn_DEF_NR_SI_SchedulingInfo, mac->si_SchedulingInfo);
+     asn1cFreeStruc(asn_DEF_NR_TDD_UL_DL_ConfigCommon, mac->tdd_UL_DL_ConfigurationCommon);
+-    for (int i = mac->lc_ordered_list.count; i > 0 ; i--)
++    for (int i = mac->lc_ordered_list.count; i > 0 ; i--) {
++      free(mac->lc_ordered_list.array[i - 1]);
+       asn_sequence_del(&mac->lc_ordered_list, i - 1, 1);
++    }
+   }
+ 
+   asn1cFreeStruc(asn_DEF_NR_CrossCarrierSchedulingConfig, sc->crossCarrierSchedulingConfig);

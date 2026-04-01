@@ -1,0 +1,30 @@
+diff --git a/openair1/SIMULATION/LTE_PHY/dlsim.c b/openair1/SIMULATION/LTE_PHY/dlsim.c
+index 1d012dc352..5227023755 100644
+--- a/openair1/SIMULATION/LTE_PHY/dlsim.c
++++ b/openair1/SIMULATION/LTE_PHY/dlsim.c
+@@ -1522,14 +1522,21 @@ int main(int argc, char **argv) {
+                    0,
+                    0);
+ 
+-          if (n_frames==1) printf("Running phy_procedures_UE_RX\n");
+-
+-          if (dci_flag==0) {
++          if (n_frames==1) printf("Running phy_procedures_UE_RX\n");            if (dci_flag==0) {
++            // Validate state before processing protocol messages
++            if (num_dci == 0) {
++              LOG_E(PHY,"Error: No DCI messages available to process (num_dci=0)
++");
++              dci_errors[round]++;
++              break;
++            }
++            
+             memcpy(dci_alloc,eNB->pdcch_vars[subframe&1].dci_alloc,num_dci*sizeof(DCI_ALLOC_t));
+             UE->pdcch_vars[UE->current_thread_id[proc->subframe_rx]][eNB_id]->num_pdcch_symbols = num_pdcch_symbols;
+ 
+             if (n_frames==1)
+-              printf("bypassing PDCCH/DCI detection\n");
++              printf("bypassing PDCCH/DCI detection
++");
+ 
+             if  (generate_ue_dlsch_params_from_dci(proc->frame_rx,
+                                                    proc->subframe_rx,

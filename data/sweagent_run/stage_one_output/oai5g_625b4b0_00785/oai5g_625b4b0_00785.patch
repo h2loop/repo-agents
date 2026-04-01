@@ -1,0 +1,42 @@
+diff --git a/openair3/NAS/COMMON/IES/EpsAttachResult.c b/openair3/NAS/COMMON/IES/EpsAttachResult.c
+index b48b043ad3..ae3d807d4d 100644
+--- a/openair3/NAS/COMMON/IES/EpsAttachResult.c
++++ b/openair3/NAS/COMMON/IES/EpsAttachResult.c
+@@ -80,8 +80,7 @@ uint8_t encode_u8_eps_attach_result(EpsAttachResult *epsattachresult)
+ #if defined (NAS_DEBUG)
+   dump_eps_attach_result_xml(epsattachresult, 0);
+ #endif
+-  *(buffer + encoded) = 0x00 | (iei & 0xf0) |
+-                        (*epsattachresult & 0x7);
++  *(buffer + encoded) = *epsattachresult & 0x7;
+   encoded++;
+ 
+   return bufferReturn;
+diff --git a/openair3/NAS/COMMON/IES/EpsAttachType.c b/openair3/NAS/COMMON/IES/EpsAttachType.c
+index aa07d0ba89..a071a63add 100644
+--- a/openair3/NAS/COMMON/IES/EpsAttachType.c
++++ b/openair3/NAS/COMMON/IES/EpsAttachType.c
+@@ -80,8 +80,7 @@ uint8_t encode_u8_eps_attach_type(EpsAttachType *epsattachtype)
+ #if defined (NAS_DEBUG)
+   dump_eps_attach_type_xml(epsattachtype, 0);
+ #endif
+-  *(buffer + encoded) = 0x00 | (iei & 0xf0) |
+-                        (*epsattachtype & 0x7);
++  *(buffer + encoded) = *epsattachtype & 0x7;
+   encoded++;
+ 
+   return bufferReturn;
+diff --git a/openair3/NAS/COMMON/IES/IdentityType2.c b/openair3/NAS/COMMON/IES/IdentityType2.c
+index 9623b5e586..fbb42a3fb6 100644
+--- a/openair3/NAS/COMMON/IES/IdentityType2.c
++++ b/openair3/NAS/COMMON/IES/IdentityType2.c
+@@ -80,8 +80,7 @@ uint8_t encode_u8_identity_type_2(IdentityType2 *identitytype2)
+ #if defined (NAS_DEBUG)
+   dump_identity_type_2_xml(identitytype2, 0);
+ #endif
+-  *(buffer + encoded) = 0x00 | (iei & 0xf0) |
+-                        (*identitytype2 & 0x7);
++  *(buffer + encoded) = *identitytype2 & 0x7;
+   encoded++;
+ 
+   return bufferReturn;

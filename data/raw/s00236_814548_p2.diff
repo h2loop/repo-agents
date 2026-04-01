@@ -1,0 +1,18 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c
+index d1ac9fcdcb..fceafd20d3 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p5.c
+@@ -3438,6 +3438,13 @@ static uint8_t unpack_nr_config_response(uint8_t **ppReadPackedMsg, uint8_t *end
+ static uint8_t unpack_nr_start_request(uint8_t **ppReadPackedMsg, uint8_t *end, void *msg, nfapi_p4_p5_codec_config_t *config)
+ {
+   nfapi_nr_start_request_scf_t *pNfapiMsg = (nfapi_nr_start_request_scf_t *)msg;
++  
++  // Initialize vendor_extension to safe defaults to prevent uninitialized memory access
++  if (pNfapiMsg->vendor_extension != NULL) {
++    pNfapiMsg->vendor_extension->tag = NFAPI_VENDOR_EXTENSION_MIN_TAG_VALUE;
++    pNfapiMsg->vendor_extension->length = 0;
++  }
++  
+   return unpack_nr_tlv_list(NULL, 0, ppReadPackedMsg, end, config, &(pNfapiMsg->vendor_extension));
+ }
+ 

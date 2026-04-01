@@ -1,0 +1,522 @@
+diff --git a/openair2/COMMON/m3ap_messages_types.h b/openair2/COMMON/m3ap_messages_types.h
+index 171631ddbd..becc8e48e6 100644
+--- a/openair2/COMMON/m3ap_messages_types.h
++++ b/openair2/COMMON/m3ap_messages_types.h
+@@ -29,7 +29,7 @@
+ 
+ //-------------------------------------------------------------------------------------------//
+ // Defines to access message fields.
+-#define M3AP_MME_SCTP_REQ(mSGpTR)		(mSGpTR)->ittiMsg.m3ap_mme_sctp_req
++#define M3AP_MME_SCTP_REQ(mSGpTR)               (mSGpTR)->ittiMsg.m3ap_mme_sctp_req
+ 
+ #define M3AP_REGISTER_MCE_REQ(mSGpTR)           (mSGpTR)->ittiMsg.m3ap_register_mce_req
+ //#define M3AP_HANDOVER_REQ(mSGpTR)               (mSGpTR)->ittiMsg.m3ap_handover_req
+@@ -40,24 +40,24 @@
+ //#define M3AP_HANDOVER_CANCEL(mSGpTR)            (mSGpTR)->ittiMsg.m3ap_handover_cancel
+ 
+ 
+-#define M3AP_MBMS_SESSION_START_REQ(mSGpTR)            	(mSGpTR)->ittiMsg.m3ap_session_start_req
++#define M3AP_MBMS_SESSION_START_REQ(mSGpTR)             (mSGpTR)->ittiMsg.m3ap_session_start_req
+ #define M3AP_MBMS_SESSION_START_RESP(mSGpTR)            (mSGpTR)->ittiMsg.m3ap_session_start_resp
+ #define M3AP_MBMS_SESSION_START_FAILURE(mSGpTR)         (mSGpTR)->ittiMsg.m3ap_session_start_failure
+-#define M3AP_MBMS_SESSION_STOP_REQ(mSGpTR)            	(mSGpTR)->ittiMsg.m3ap_session_stop_req
+-#define M3AP_MBMS_SESSION_STOP_RESP(mSGpTR)           	(mSGpTR)->ittiMsg.m3ap_session_stop_resp
++#define M3AP_MBMS_SESSION_STOP_REQ(mSGpTR)              (mSGpTR)->ittiMsg.m3ap_session_stop_req
++#define M3AP_MBMS_SESSION_STOP_RESP(mSGpTR)             (mSGpTR)->ittiMsg.m3ap_session_stop_resp
+ #define M3AP_MBMS_SESSION_STOP_FAILURE(mSGpTR)          (mSGpTR)->ittiMsg.m3ap_session_stop_failure
+-#define M3AP_ERROR_INDICATION(mSGpTR)          		(mSGpTR)->ittiMsg.m3ap_error_indication
+-#define M3AP_RESET(mSGpTR)          			(mSGpTR)->ittiMsg.m3ap_reset
+-#define M3AP_RESET_ACK(mSGpTR)          		(mSGpTR)->ittiMsg.m3ap_reset_ack
++#define M3AP_ERROR_INDICATION(mSGpTR)                   (mSGpTR)->ittiMsg.m3ap_error_indication
++#define M3AP_RESET(mSGpTR)                              (mSGpTR)->ittiMsg.m3ap_reset
++#define M3AP_RESET_ACK(mSGpTR)                          (mSGpTR)->ittiMsg.m3ap_reset_ack
+ #define M3AP_MBMS_SESSION_UPDATE_REQ(mSGpTR)            (mSGpTR)->ittiMsg.m3ap_mbms_session_update_req
+ #define M3AP_MBMS_SESSION_UPDATE_RESP(mSGpTR)           (mSGpTR)->ittiMsg.m3ap_mbms_session_update_resp
+ #define M3AP_MBMS_SESSION_UPDATE_FAILURE(mSGpTR)        (mSGpTR)->ittiMsg.m3ap_mbms_session_update_failure
+-#define M3AP_SETUP_REQ(mSGpTR)				(mSGpTR)->ittiMsg.m3ap_setup_req
+-#define M3AP_SETUP_RESP(mSGpTR)				(mSGpTR)->ittiMsg.m3ap_setup_resp
+-#define M3AP_SETUP_FAILURE(mSGpTR)			(mSGpTR)->ittiMsg.m3ap_setup_failure
+-#define M3AP_MCE_CONFIGURATION_UPDATE(mSGpTR)		(mSGpTR)->ittiMsg.m3ap_mce_configuration_update
+-#define M3AP_MCE_CONFIGURATION_UPDATE_ACK(mSGpTR)	(mSGpTR)->ittiMsg.m3ap_mce_configuration_update_ack
+-#define M3AP_MCE_CONFIGURATION_UPDATE_FAILURE(mSGpTR)	(mSGpTR)->ittiMsg.m3ap_mce_configuration_update_failure
++#define M3AP_SETUP_REQ(mSGpTR)                          (mSGpTR)->ittiMsg.m3ap_setup_req
++#define M3AP_SETUP_RESP(mSGpTR)                         (mSGpTR)->ittiMsg.m3ap_setup_resp
++#define M3AP_SETUP_FAILURE(mSGpTR)                      (mSGpTR)->ittiMsg.m3ap_setup_failure
++#define M3AP_MCE_CONFIGURATION_UPDATE(mSGpTR)           (mSGpTR)->ittiMsg.m3ap_mce_configuration_update
++#define M3AP_MCE_CONFIGURATION_UPDATE_ACK(mSGpTR)       (mSGpTR)->ittiMsg.m3ap_mce_configuration_update_ack
++#define M3AP_MCE_CONFIGURATION_UPDATE_FAILURE(mSGpTR)   (mSGpTR)->ittiMsg.m3ap_mce_configuration_update_failure
+ 
+ 
+ #define M3AP_MAX_NB_MCE_IP_ADDRESS 2
+@@ -265,11 +265,11 @@ typedef struct m3ap_deregistered_mce_ind_s {
+ //
+ 
+ typedef struct m3ap_mme_sctp_req_s {
+-  	/* the local mce ip address to bind */
+-	net_ip_address_t mme_m3_ip_address;
++        /* the local mce ip address to bind */
++        net_ip_address_t mme_m3_ip_address;
+ 
+-  	/* enb port for m2c*/
+-  	uint32_t mme_port_for_M3C;
++        /* enb port for m2c*/
++        uint32_t mme_port_for_M3C;
+ }m3ap_mme_sctp_req_t;
+ 
+ 
+@@ -280,9 +280,8 @@ typedef struct m3ap_session_start_req_s{
+   uint32_t dummy;
+ }m3ap_session_start_req_t;
+ typedef struct m3ap_session_start_resp_s{
+-  // This dummy element is to avoid CLANG warning: empty struct has size 0 in C, size 1 in C++
+-  // To be removed if the structure is filled
+-  uint32_t dummy;
++  uint32_t mce_mbms_m3ap_id;
++  uint32_t mme_mbms_m3ap_id;
+ }m3ap_session_start_resp_t;
+ typedef struct m3ap_session_start_failure_s{
+   // This dummy element is to avoid CLANG warning: empty struct has size 0 in C, size 1 in C++
+@@ -295,9 +294,8 @@ typedef struct m3ap_session_stop_req_s{
+   uint32_t dummy;
+ }m3ap_session_stop_req_t;
+ typedef struct m3ap_session_stop_resp_s{
+-  // This dummy element is to avoid CLANG warning: empty struct has size 0 in C, size 1 in C++
+-  // To be removed if the structure is filled
+-  uint32_t dummy;
++  uint32_t mce_mbms_m3ap_id;
++  uint32_t mme_mbms_m3ap_id;
+ }m3ap_session_stop_resp_t;
+ typedef struct m3ap_session_stop_failure_s{
+   // This dummy element is to avoid CLANG warning: empty struct has size 0 in C, size 1 in C++
+@@ -325,9 +323,8 @@ typedef struct m3ap_mbms_session_update_req_s{
+   uint32_t dummy;
+ }m3ap_mbms_session_update_req_t;
+ typedef struct m3ap_mbms_session_update_resp_s{
+-  // This dummy element is to avoid CLANG warning: empty struct has size 0 in C, size 1 in C++
+-  // To be removed if the structure is filled
+-  uint32_t dummy;
++  uint32_t mce_mbms_m3ap_id;
++  uint32_t mme_mbms_m3ap_id;
+ }m3ap_mbms_session_update_resp_t;
+ typedef struct m3ap_mbms_session_update_failure_s{
+   // This dummy element is to avoid CLANG warning: empty struct has size 0 in C, size 1 in C++
+diff --git a/openair3/M3AP/m3ap_MCE.c b/openair3/M3AP/m3ap_MCE.c
+index 141ee09b4e..e87ecc7de4 100644
+--- a/openair3/M3AP/m3ap_MCE.c
++++ b/openair3/M3AP/m3ap_MCE.c
+@@ -142,20 +142,20 @@ void m3ap_MCE_handle_sctp_association_resp(instance_t instance, sctp_new_associa
+               sctp_new_association_resp->ulp_cnx_id);
+     //m3ap_handle_m3_setup_message(instance_p, m3ap_enb_data_p,
+                                  //sctp_new_association_resp->sctp_state == SCTP_STATE_SHUTDOWN);
+-	  sleep(4);
+-	  int index;
+-	  /* Trying to connect to the provided list of eNB ip address */
+-	  for (index = 0; index < instance_p->nb_m3; index++) {
+-	    //M2AP_INFO("eNB[%d] eNB id %u acting as an initiator (client)\n",
+-	     //         instance_id, instance->eNB_id);
+-	    m3ap_MCE_register_MCE(instance_p,
+-				  &instance_p->target_mme_m3_ip_address[index],
+-				  &instance_p->mme_m3_ip_address,
+-				  instance_p->sctp_in_streams,
+-				  instance_p->sctp_out_streams,
+-				  instance_p->mce_port_for_M3C,
+-				  instance_p->multi_sd);
+-	  }
++          sleep(4);
++          int index;
++          /* Trying to connect to the provided list of eNB ip address */
++          for (index = 0; index < instance_p->nb_m3; index++) {
++            //M2AP_INFO("eNB[%d] eNB id %u acting as an initiator (client)\n",
++             //         instance_id, instance->eNB_id);
++            m3ap_MCE_register_MCE(instance_p,
++                                  &instance_p->target_mme_m3_ip_address[index],
++                                  &instance_p->mme_m3_ip_address,
++                                  instance_p->sctp_in_streams,
++                                  instance_p->sctp_out_streams,
++                                  instance_p->mce_port_for_M3C,
++                                  instance_p->multi_sd);
++          }
+     return;
+   }
+ 
+@@ -523,29 +523,29 @@ void *m3ap_MCE_task(void *arg) {
+ 
+     switch (ITTI_MSG_ID(received_msg)) {
+       case MESSAGE_TEST:
+-//	LOG_W(M3AP,"MCE Received Test Message ... TODO\n");
+-//	//MessageDef * message_p = itti_alloc_new_message(TASK_M3AP, 0, MESSAGE_TEST);
+-//	//itti_send_msg_to_task(TASK_M2AP_ENB, 1/*ctxt_pP->module_id*/, message_p);
++//      LOG_W(M3AP,"MCE Received Test Message ... TODO\n");
++//      //MessageDef * message_p = itti_alloc_new_message(TASK_M3AP, 0, MESSAGE_TEST);
++//      //itti_send_msg_to_task(TASK_M2AP_ENB, 1/*ctxt_pP->module_id*/, message_p);
+ // 
+ //        asn_dec_rval_t dec_ret;
+ //
+-//	
+-//	uint8_t  *buffer;
+-//  	uint32_t  len;
+-//	M3AP_M3AP_PDU_t          pdu;
+-//	memset(&pdu, 0, sizeof(pdu));
++//      
++//      uint8_t  *buffer;
++//      uint32_t  len;
++//      M3AP_M3AP_PDU_t          pdu;
++//      memset(&pdu, 0, sizeof(pdu));
+ //
+-//	buffer = &m3ap_m3setup[0];
+-//	//buffer = &m3ap_start[0];
+-//  	len=8*4+7;
+-//  	//len=8*9+7;
++//      buffer = &m3ap_m3setup[0];
++//      //buffer = &m3ap_start[0];
++//      len=8*4+7;
++//      //len=8*9+7;
+ //
+-//	//if (m3ap_decode_pdu(&pdu, buffer, len) < 0) {
+-//    	//	LOG_E(M3AP, "Failed to decode PDU\n");
++//      //if (m3ap_decode_pdu(&pdu, buffer, len) < 0) {
++//      //      LOG_E(M3AP, "Failed to decode PDU\n");
+ //    //re//turn -1;
+-//  	//}
+-//	M3AP_M3AP_PDU_t *pdu2 = &pdu;
+-//	dec_ret = aper_decode(NULL,
++//      //}
++//      M3AP_M3AP_PDU_t *pdu2 = &pdu;
++//      dec_ret = aper_decode(NULL,
+ //                        &asn_DEF_M3AP_M3AP_PDU,
+ //                        (void **)&pdu2,
+ //                        buffer,
+@@ -553,9 +553,9 @@ void *m3ap_MCE_task(void *arg) {
+ //                        0,
+ //                        0);
+ //
+-//	LOG_W(M3AP,"Trying to print %d\n",(dec_ret.code == RC_OK));
+-//	xer_fprint(stdout, &asn_DEF_M3AP_M3AP_PDU, &pdu);
+-//	LOG_W(M3AP,"Trying to print out \n");
++//      LOG_W(M3AP,"Trying to print %d\n",(dec_ret.code == RC_OK));
++//      xer_fprint(stdout, &asn_DEF_M3AP_M3AP_PDU, &pdu);
++//      LOG_W(M3AP,"Trying to print out \n");
+ 
+         break;
+       case TERMINATE_MESSAGE:
+@@ -568,34 +568,34 @@ void *m3ap_MCE_task(void *arg) {
+         break;
+ 
+       case M3AP_REGISTER_MCE_REQ:
+-	        LOG_I(M3AP,"MCE Received M3AP_REGISTER_MCE_REQ Message\n");
++                LOG_I(M3AP,"MCE Received M3AP_REGISTER_MCE_REQ Message\n");
+ 
+         m3ap_MCE_handle_register_MCE(ITTI_MSG_DESTINATION_INSTANCE(received_msg),
+                                      &M3AP_REGISTER_MCE_REQ(received_msg));
+         break;
+ 
+       case M3AP_MBMS_SESSION_START_RESP:
+-	        LOG_I(M3AP,"MCE M3AP_MBMS_SESSION_START_RESP Message\n");
+-	MCE_send_MBMS_SESSION_START_RESPONSE(ITTI_MSG_DESTINATION_INSTANCE(received_msg),
++                LOG_I(M3AP,"MCE M3AP_MBMS_SESSION_START_RESP Message\n");
++        MCE_send_MBMS_SESSION_START_RESPONSE(ITTI_MSG_DESTINATION_INSTANCE(received_msg),
+                                      &M3AP_MBMS_SESSION_START_RESP(received_msg));
+ 
+-	break;
+-		
++        break;
++                
+       case M3AP_MBMS_SESSION_STOP_RESP:
+-	        LOG_I(M3AP,"MCE M3AP_MBMS_SESSION_STOP_RESP Message\n");
+-	MCE_send_MBMS_SESSION_STOP_RESPONSE(ITTI_MSG_DESTINATION_INSTANCE(received_msg),
+-                                     &M3AP_MBMS_SESSION_START_RESP(received_msg));
++                LOG_I(M3AP,"MCE M3AP_MBMS_SESSION_STOP_RESP Message\n");
++        MCE_send_MBMS_SESSION_STOP_RESPONSE(ITTI_MSG_DESTINATION_INSTANCE(received_msg),
++                                     &M3AP_MBMS_SESSION_STOP_RESP(received_msg));
+ 
+-	break;
++        break;
+ 
+       case M3AP_MBMS_SESSION_UPDATE_RESP:
+-	        LOG_I(M3AP,"MCE M3AP_MBMS_SESSION_UPDATE_RESP Message\n");
+-	//MCE_send_MBMS_SESSION_UPDATE_RESPONSE(ITTI_MSG_DESTINATION_INSTANCE(received_msg),
+-                                     //&M3AP_MBMS_SESSION_START_RESP(received_msg));
++                LOG_I(M3AP,"MCE M3AP_MBMS_SESSION_UPDATE_RESP Message\n");
++        MCE_send_MBMS_SESSION_UPDATE_RESPONSE(ITTI_MSG_DESTINATION_INSTANCE(received_msg),
++                                     &M3AP_MBMS_SESSION_UPDATE_RESP(received_msg));
+ 
+-	break;
++        break;
+ 
+-	
++        
+ //      case M3AP_HANDOVER_REQ:
+ //        m3ap_eNB_handle_handover_req(ITTI_MSG_DESTINATION_INSTANCE(received_msg),
+ //                                     &M3AP_HANDOVER_REQ(received_msg));
+@@ -612,28 +612,28 @@ void *m3ap_MCE_task(void *arg) {
+ //        break;
+ //
+       case SCTP_INIT_MSG_MULTI_CNF:
+-	        LOG_D(M3AP,"MCE Received SCTP_INIT_MSG_MULTI_CNF Message\n");
++                LOG_D(M3AP,"MCE Received SCTP_INIT_MSG_MULTI_CNF Message\n");
+ 
+         m3ap_MCE_handle_sctp_init_msg_multi_cnf(ITTI_MSG_DESTINATION_INSTANCE(received_msg),
+                                                 &received_msg->ittiMsg.sctp_init_msg_multi_cnf);
+         break;
+ 
+       case SCTP_NEW_ASSOCIATION_RESP:
+-	        LOG_D(M3AP,"MCE Received SCTP_NEW_ASSOCIATION_RESP Message\n");
++                LOG_D(M3AP,"MCE Received SCTP_NEW_ASSOCIATION_RESP Message\n");
+ 
+         m3ap_MCE_handle_sctp_association_resp(ITTI_MSG_DESTINATION_INSTANCE(received_msg),
+                                               &received_msg->ittiMsg.sctp_new_association_resp);
+         break;
+ 
+       case SCTP_NEW_ASSOCIATION_IND:
+-	        LOG_D(M3AP,"MCE Received SCTP_NEW_ASSOCIATION Message\n");
++                LOG_D(M3AP,"MCE Received SCTP_NEW_ASSOCIATION Message\n");
+ 
+         m3ap_MCE_handle_sctp_association_ind(ITTI_MSG_DESTINATION_INSTANCE(received_msg),
+                                              &received_msg->ittiMsg.sctp_new_association_ind);
+         break;
+ 
+       case SCTP_DATA_IND:
+-	        LOG_D(M3AP,"MCE Received SCTP_DATA_IND Message\n");
++                LOG_D(M3AP,"MCE Received SCTP_DATA_IND Message\n");
+ 
+         m3ap_MCE_handle_sctp_data_ind(ITTI_MSG_DESTINATION_INSTANCE(received_msg),
+                                       &received_msg->ittiMsg.sctp_data_ind);
+diff --git a/openair3/M3AP/m3ap_MCE_interface_management.c b/openair3/M3AP/m3ap_MCE_interface_management.c
+index 5d58e49bb7..ff00e56027 100644
+--- a/openair3/M3AP/m3ap_MCE_interface_management.c
++++ b/openair3/M3AP/m3ap_MCE_interface_management.c
+@@ -83,9 +83,9 @@ int MCE_handle_MBMS_SESSION_START_REQUEST(instance_t instance, sctp_assoc_t asso
+     itti_send_msg_to_task(TASK_MCE_APP, ENB_MODULE_ID_TO_INSTANCE(instance), message_p);
+ 
+ //  if(1){
+-//	MCE_send_MBMS_SESSION_START_RESPONSE(instance,assoc_id);
++//      MCE_send_MBMS_SESSION_START_RESPONSE(instance,assoc_id);
+ //  }else
+-//	MCE_send_MBMS_SESSION_START_FAILURE(instance,assoc_id);
++//      MCE_send_MBMS_SESSION_START_FAILURE(instance,assoc_id);
+   return 0;
+   
+ }
+@@ -93,7 +93,7 @@ int MCE_handle_MBMS_SESSION_START_REQUEST(instance_t instance, sctp_assoc_t asso
+ int MCE_send_MBMS_SESSION_START_RESPONSE(instance_t instance, m3ap_session_start_resp_t * m3ap_session_start_resp){
+   //AssertFatal(1==0,"Not implemented yet\n");
+ 
+-//	module_id_t mce_mod_idP;
++//      module_id_t mce_mod_idP;
+ //  module_id_t enb_mod_idP;
+ //
+ //  // This should be fixed
+@@ -125,17 +125,17 @@ int MCE_send_MBMS_SESSION_START_RESPONSE(instance_t instance, m3ap_session_start
+   ie->id                        = M3AP_ProtocolIE_ID_id_MCE_MBMS_M3AP_ID;
+   ie->criticality               = M3AP_Criticality_reject;
+   ie->value.present             = M3AP_MBMSSessionStartResponse_IEs__value_PR_MCE_MBMS_M3AP_ID;
+-  //ie->value.choice.MCE_MBMS_M3AP_ID = 0;
+-  asn1cSeqAdd(&out->protocolIEs.list, ie);
++  ie->value.choice.MCE_MBMS_M3AP_ID = m3ap_session_start_resp->mce_mbms_m3ap_id;
++  ASN_SEQUENCE_ADD(&out->protocolIEs.list, ie);
+ 
+  /* mandatory */
+-  /* c1. MME_MBMS_M3AP_ID (integer value) */ //long
++  /* c2. MME_MBMS_M3AP_ID (integer value) */ //long
+   ie = (M3AP_MBMSSessionStartResponse_IEs_t *)calloc(1, sizeof(M3AP_MBMSSessionStartResponse_IEs_t));
+   ie->id                        = M3AP_ProtocolIE_ID_id_MME_MBMS_M3AP_ID;
+   ie->criticality               = M3AP_Criticality_reject;
+   ie->value.present             = M3AP_MBMSSessionStartResponse_IEs__value_PR_MME_MBMS_M3AP_ID;
+-  //ie->value.choice.MCE_MBMS_M3AP_ID = 0;
+-  asn1cSeqAdd(&out->protocolIEs.list, ie);
++  ie->value.choice.MME_MBMS_M3AP_ID = m3ap_session_start_resp->mme_mbms_m3ap_id;
++  ASN_SEQUENCE_ADD(&out->protocolIEs.list, ie);
+ 
+ 
+   if (m3ap_encode_pdu(&pdu, &buffer, &len) < 0) {
+@@ -230,9 +230,9 @@ int MCE_handle_MBMS_SESSION_STOP_REQUEST(instance_t instance, sctp_assoc_t assoc
+   }
+ 
+   //if(1){
+-	//MCE_send_MBMS_SESSION_STOP_RESPONSE(instance,assoc_id);
++        //MCE_send_MBMS_SESSION_STOP_RESPONSE(instance,assoc_id);
+   //}else
+-	//MCE_send_MBMS_SESSION_STOP_FAILURE(instance,assoc_id);
++        //MCE_send_MBMS_SESSION_STOP_FAILURE(instance,assoc_id);
+     message_p = itti_alloc_new_message(TASK_M3AP_MCE, 0, M3AP_MBMS_SESSION_STOP_REQ);
+ 
+ //
+@@ -250,8 +250,8 @@ int MCE_handle_MBMS_SESSION_STOP_REQUEST(instance_t instance, sctp_assoc_t assoc
+   return 0;
+   
+ }
+-int MCE_send_MBMS_SESSION_STOP_RESPONSE(instance_t instance, m3ap_session_start_resp_t * m3ap_session_start_resp){
+-//	module_id_t mce_mod_idP;
++int MCE_send_MBMS_SESSION_STOP_RESPONSE(instance_t instance, m3ap_session_stop_resp_t * m3ap_session_stop_resp){
++//      module_id_t mce_mod_idP;
+ //  module_id_t enb_mod_idP;
+ //
+ //  // This should be fixed
+@@ -283,17 +283,17 @@ int MCE_send_MBMS_SESSION_STOP_RESPONSE(instance_t instance, m3ap_session_start_
+   ie->id                        = M3AP_ProtocolIE_ID_id_MCE_MBMS_M3AP_ID;
+   ie->criticality               = M3AP_Criticality_reject;
+   ie->value.present             = M3AP_MBMSSessionStopResponse_IEs__value_PR_MCE_MBMS_M3AP_ID;
+-  //ie->value.choice.MCE_MBMS_M3AP_ID = 0;
+-  asn1cSeqAdd(&out->protocolIEs.list, ie);
++  ie->value.choice.MCE_MBMS_M3AP_ID = m3ap_session_stop_resp->mce_mbms_m3ap_id;
++  ASN_SEQUENCE_ADD(&out->protocolIEs.list, ie);
+ 
+  /* mandatory */
+-  /* c1. MCE_MBMS_M3AP_ID (integer value) */ //long
++  /* c2. MME_MBMS_M3AP_ID (integer value) */ //long
+   ie = (M3AP_MBMSSessionStopResponse_IEs_t *)calloc(1, sizeof(M3AP_MBMSSessionStopResponse_IEs_t));
+-  ie->id                        = M3AP_ProtocolIE_ID_id_MCE_MBMS_M3AP_ID;
++  ie->id                        = M3AP_ProtocolIE_ID_id_MME_MBMS_M3AP_ID;
+   ie->criticality               = M3AP_Criticality_reject;
+-  ie->value.present             = M3AP_MBMSSessionStopResponse_IEs__value_PR_MCE_MBMS_M3AP_ID;
+-  //ie->value.choice.MCE_MBMS_M3AP_ID = 0;
+-  asn1cSeqAdd(&out->protocolIEs.list, ie);
++  ie->value.present             = M3AP_MBMSSessionStopResponse_IEs__value_PR_MME_MBMS_M3AP_ID;
++  ie->value.choice.MME_MBMS_M3AP_ID = m3ap_session_stop_resp->mme_mbms_m3ap_id;
++  ASN_SEQUENCE_ADD(&out->protocolIEs.list, ie);
+ 
+ 
+   if (m3ap_encode_pdu(&pdu, &buffer, &len) < 0) {
+@@ -332,9 +332,9 @@ int MCE_handle_MBMS_SESSION_UPDATE_REQUEST(instance_t instance, sctp_assoc_t ass
+   }
+ 
+   //if(1){
+-	//MCE_send_MBMS_SESSION_STOP_RESPONSE(instance,assoc_id);
++        //MCE_send_MBMS_SESSION_STOP_RESPONSE(instance,assoc_id);
+   //}else
+-	//MCE_send_MBMS_SESSION_STOP_FAILURE(instance,assoc_id);
++        //MCE_send_MBMS_SESSION_STOP_FAILURE(instance,assoc_id);
+     message_p = itti_alloc_new_message(TASK_M3AP_MCE, 0, M3AP_MBMS_SESSION_UPDATE_REQ);
+ 
+ //
+@@ -350,7 +350,7 @@ int MCE_handle_MBMS_SESSION_UPDATE_REQUEST(instance_t instance, sctp_assoc_t ass
+ 
+ 
+ 
+-	return 0;
++        return 0;
+ }
+ 
+ int MCE_send_MBMS_SESSION_UPDATE_RESPONSE(instance_t instance, m3ap_mbms_session_update_resp_t * m3ap_mbms_session_update_resp){
+@@ -379,17 +379,17 @@ int MCE_send_MBMS_SESSION_UPDATE_RESPONSE(instance_t instance, m3ap_mbms_session
+   ie->id                        = M3AP_ProtocolIE_ID_id_MCE_MBMS_M3AP_ID;
+   ie->criticality               = M3AP_Criticality_reject;
+   ie->value.present             = M3AP_MBMSSessionUpdateResponse_IEs__value_PR_MCE_MBMS_M3AP_ID;
+-  //ie->value.choice.MCE_MBMS_M3AP_ID = 0;
+-  asn1cSeqAdd(&out->protocolIEs.list, ie);
++  ie->value.choice.MCE_MBMS_M3AP_ID = m3ap_mbms_session_update_resp->mce_mbms_m3ap_id;
++  ASN_SEQUENCE_ADD(&out->protocolIEs.list, ie);
+ 
+  /* mandatory */
+-  /* c1. MCE_MBMS_M3AP_ID (integer value) */ //long
++  /* c2. MME_MBMS_M3AP_ID (integer value) */ //long
+   ie = (M3AP_MBMSSessionUpdateResponse_IEs_t *)calloc(1, sizeof(M3AP_MBMSSessionUpdateResponse_IEs_t));
+-  ie->id                        = M3AP_ProtocolIE_ID_id_MCE_MBMS_M3AP_ID;
++  ie->id                        = M3AP_ProtocolIE_ID_id_MME_MBMS_M3AP_ID;
+   ie->criticality               = M3AP_Criticality_reject;
+-  ie->value.present             = M3AP_MBMSSessionUpdateResponse_IEs__value_PR_MCE_MBMS_M3AP_ID;
+-  //ie->value.choice.MCE_MBMS_M3AP_ID = 0;
+-  asn1cSeqAdd(&out->protocolIEs.list, ie);
++  ie->value.present             = M3AP_MBMSSessionUpdateResponse_IEs__value_PR_MME_MBMS_M3AP_ID;
++  ie->value.choice.MME_MBMS_M3AP_ID = m3ap_mbms_session_update_resp->mme_mbms_m3ap_id;
++  ASN_SEQUENCE_ADD(&out->protocolIEs.list, ie);
+ 
+ 
+   if (m3ap_encode_pdu(&pdu, &buffer, &len) < 0) {
+@@ -404,7 +404,7 @@ int MCE_send_MBMS_SESSION_UPDATE_RESPONSE(instance_t instance, m3ap_mbms_session
+   return 0;
+ }
+ int MCE_send_MBMS_SESSION_UPDATE_FAILURE(instance_t instance, m3ap_mbms_session_update_failure_t * m3ap_mbms_session_update_failure){
+-	return 0;
++        return 0;
+ }
+ 
+ /*
+@@ -502,12 +502,12 @@ int MCE_send_M3_SETUP_REQUEST(m3ap_MCE_instance_t *instance_p, m3ap_MCE_data_t *
+   }
+ 
+   /* mandatory */ //but removed from asn definition (optional) since it crashes when decoding ???????????
+-//	M3SetupRequestIEs M3AP-PROTOCOL-IES ::= {
+-//		{ ID id-Global-MCE-ID                   CRITICALITY reject      TYPE Global-MCE-ID                                      PRESENCE mandatory}|
+-//		{ ID id-MCEname                                 CRITICALITY ignore      TYPE MCEname                                            PRESENCE optional}|
+-//		{ ID id-MBMSServiceAreaList             CRITICALITY reject      TYPE MBMSServiceAreaListItem            PRESENCE mandatory}, --> optional ??????????
+-//		...
+-//	}
++//      M3SetupRequestIEs M3AP-PROTOCOL-IES ::= {
++//              { ID id-Global-MCE-ID                   CRITICALITY reject      TYPE Global-MCE-ID                                      PRESENCE mandatory}|
++//              { ID id-MCEname                                 CRITICALITY ignore      TYPE MCEname                                            PRESENCE optional}|
++//              { ID id-MBMSServiceAreaList             CRITICALITY reject      TYPE MBMSServiceAreaListItem            PRESENCE mandatory}, --> optional ??????????
++//              ...
++//      }
+ 
+ 
+   /* M3AP_MBMSServiceAreaListItem_t */
+@@ -556,21 +556,21 @@ int MCE_send_M3_SETUP_REQUEST(m3ap_MCE_instance_t *instance_p, m3ap_MCE_data_t *
+ //        M3AP_MCE_MBMS_Configuration_data_Item_t *mbms_configuration_data_item;
+ //        mbms_configuration_data_item = &mbms_configuration_data_list_item_ies->value.choice.MCE_MBMS_Configuration_data_Item;
+ //        {
+-//		/* M3AP_ECGI_t eCGI */
++//              /* M3AP_ECGI_t eCGI */
+ //                MCC_MNC_TO_PLMNID(instance_p->mcc, instance_p->mnc, instance_p->mnc_digit_length,
+ //                  &mbms_configuration_data_item->eCGI.pLMN_Identity);
+ //                MACRO_MCE_ID_TO_CELL_IDENTITY(instance_p->MCE_id,0,
+ //                                   &mbms_configuration_data_item->eCGI.eUTRANcellIdentifier);
+-//		/* M3AP_MBSFN_SynchronisationArea_ID_t mbsfnSynchronisationArea */ 
+-//		mbms_configuration_data_item->mbsfnSynchronisationArea=10000; //? long
+-//		/* M3AP_MBMS_Service_Area_ID_List_t mbmsServiceAreaList */
++//              /* M3AP_MBSFN_SynchronisationArea_ID_t mbsfnSynchronisationArea */ 
++//              mbms_configuration_data_item->mbsfnSynchronisationArea=10000; //? long
++//              /* M3AP_MBMS_Service_Area_ID_List_t mbmsServiceAreaList */
+ //                M3AP_MBMS_Service_Area_t * mbms_service_area,*mbms_service_area2;
+ //                mbms_service_area = (M3AP_MBMS_Service_Area_t*)calloc(1,sizeof(M3AP_MBMS_Service_Area_t));
+ //                mbms_service_area2 = (M3AP_MBMS_Service_Area_t*)calloc(1,sizeof(M3AP_MBMS_Service_Area_t));
+-//		//memset(mbms_service_area,0,sizeof(OCTET_STRING_t));
+-//		OCTET_STRING_fromBuf(mbms_service_area,"01",2);
++//              //memset(mbms_service_area,0,sizeof(OCTET_STRING_t));
++//              OCTET_STRING_fromBuf(mbms_service_area,"01",2);
+ //                asn1cSeqAdd(&mbms_configuration_data_item->mbmsServiceAreaList.list,mbms_service_area);
+-//		OCTET_STRING_fromBuf(mbms_service_area2,"02",2);
++//              OCTET_STRING_fromBuf(mbms_service_area2,"02",2);
+ //                asn1cSeqAdd(&mbms_configuration_data_item->mbmsServiceAreaList.list,mbms_service_area2);
+ //
+ //
+@@ -618,7 +618,7 @@ int MCE_send_M3_SETUP_REQUEST(m3ap_MCE_instance_t *instance_p, m3ap_MCE_data_t *
+ ////  len = 40;
+ ////
+ ////  for(int i=0; i < len; i++ )
+-////	printf("%02X",buffer[i]);
++////    printf("%02X",buffer[i]);
+ ////  printf("\n");
+ ////
+ 
+@@ -650,13 +650,13 @@ int MCE_handle_M3_SETUP_RESPONSE(instance_t instance, sctp_assoc_t assoc_id, uin
+    LOG_D(M3AP, "MCE_handle_M3_SETUP_RESPONSE\n");
+ 
+    AssertFatal(pdu->present == M3AP_M3AP_PDU_PR_successfulOutcome,
+-	       "pdu->present != M3AP_M3AP_PDU_PR_successfulOutcome\n");
++               "pdu->present != M3AP_M3AP_PDU_PR_successfulOutcome\n");
+    AssertFatal(pdu->choice.successfulOutcome.procedureCode  == M3AP_ProcedureCode_id_m3Setup,
+-	       "pdu->choice.successfulOutcome.procedureCode != M3AP_ProcedureCode_id_M3Setup\n");
++               "pdu->choice.successfulOutcome.procedureCode != M3AP_ProcedureCode_id_M3Setup\n");
+    AssertFatal(pdu->choice.successfulOutcome.criticality  == M3AP_Criticality_reject,
+-	       "pdu->choice.successfulOutcome.criticality != M3AP_Criticality_reject\n");
++               "pdu->choice.successfulOutcome.criticality != M3AP_Criticality_reject\n");
+    AssertFatal(pdu->choice.successfulOutcome.value.present  == M3AP_SuccessfulOutcome__value_PR_M3SetupResponse,
+-	       "pdu->choice.successfulOutcome.value.present != M3AP_SuccessfulOutcome__value_PR_M3SetupResponse\n");
++               "pdu->choice.successfulOutcome.value.present != M3AP_SuccessfulOutcome__value_PR_M3SetupResponse\n");
+ 
+    //M3AP_M3SetupResponse_t    *in = &pdu->choice.successfulOutcome.value.choice.M3SetupResponse;
+ 
+diff --git a/openair3/M3AP/m3ap_MCE_interface_management.h b/openair3/M3AP/m3ap_MCE_interface_management.h
+index 974332f497..18440922cd 100644
+--- a/openair3/M3AP/m3ap_MCE_interface_management.h
++++ b/openair3/M3AP/m3ap_MCE_interface_management.h
+@@ -61,7 +61,7 @@ int MCE_send_MBMS_SESSION_UPDATE_FAILURE(instance_t instance, m3ap_mbms_session_
+ 
+ 
+ 
+-int MCE_send_MBMS_SESSION_STOP_RESPONSE(instance_t instance, m3ap_session_start_resp_t * m3ap_session_start_resp);
++int MCE_send_MBMS_SESSION_STOP_RESPONSE(instance_t instance, m3ap_session_stop_resp_t * m3ap_session_stop_resp);
+ 
+ /*
+  * Reset

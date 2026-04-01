@@ -1,0 +1,78 @@
+diff --git a/openair3/NGAP/ngap_gNB_nnsf.c b/openair3/NGAP/ngap_gNB_nnsf.c
+index 0d002e9836..379440f258 100644
+--- a/openair3/NGAP/ngap_gNB_nnsf.c
++++ b/openair3/NGAP/ngap_gNB_nnsf.c
+@@ -164,7 +164,7 @@ struct ngap_gNB_amf_data_s *
+ ngap_gNB_nnsf_select_amf_by_amf_setid(ngap_gNB_instance_t       *instance_p,
+                                      ngap_rrc_establishment_cause_t  cause,
+                                      int                        selected_plmn_identity,
+-                                     uint8_t                    amf_setid)
++                                     uint16_t                   amf_setid)
+ {
+   struct ngap_gNB_amf_data_s *amf_data_p = NULL;
+ 
+@@ -209,24 +209,29 @@ ngap_gNB_nnsf_select_amf_by_amf_setid(ngap_gNB_instance_t       *instance_p,
+     STAILQ_FOREACH(guami_p, &amf_data_p->served_guami, next) {
+       struct amf_set_id_s      *amf_setid_p = NULL;
+       struct plmn_identity_s   *served_plmn_p = NULL;
++      int plmn_found = 0;
++      int amf_setid_found = 0;
+ 
+       STAILQ_FOREACH(served_plmn_p, &guami_p->served_plmns, next) {
+         if ((served_plmn_p->mcc == instance_p->plmn[selected_plmn_identity].mcc)
+             && (served_plmn_p->mnc == instance_p->plmn[selected_plmn_identity].mnc)) {
++          plmn_found = 1;
+           break;
+         }
+       }
++      
+       STAILQ_FOREACH(amf_setid_p, &guami_p->amf_set_ids, next) {
+         if (amf_setid_p->amf_set_id == amf_setid) {
++          amf_setid_found = 1;
+           break;
+         }
+       }
+ 
+       /* The AMF matches the parameters provided by the NAS layer ->
+-      * the AMF is knwown and the association is ready.
+-      * Return the reference to the AMF to use it for this UE.
+-      */
+-      if (amf_setid_p && served_plmn_p) {
++       * the AMF is known and the association is ready.
++       * Return the reference to the AMF to use it for this UE.
++       */
++      if (plmn_found && amf_setid_found) {
+         return amf_data_p;
+       }
+     }
+@@ -313,7 +318,7 @@ ngap_gNB_nnsf_select_amf_by_guami(ngap_gNB_instance_t       *instance_p,
+       }
+ 
+       /* The AMF matches the parameters provided by the NAS layer ->
+-      * the AMF is knwown and the association is ready.
++      * the AMF is known and the association is ready.
+       * Return the reference to the AMF to use it for this UE.
+       */
+       if ((region_id_p != NULL) &&
+@@ -389,7 +394,7 @@ ngap_gNB_nnsf_select_amf_by_guami_no_cause(ngap_gNB_instance_t       *instance_p
+       }
+ 
+       /* The AMF matches the parameters provided by the NAS layer ->
+-      * the AMF is knwown and the association is ready.
++      * the AMF is known and the association is ready.
+       * Return the reference to the AMF to use it for this UE.
+       */
+       if ((region_id_p != NULL) &&
+diff --git a/openair3/NGAP/ngap_gNB_nnsf.h b/openair3/NGAP/ngap_gNB_nnsf.h
+index 7d43a890ea..c7b31bd97c 100644
+--- a/openair3/NGAP/ngap_gNB_nnsf.h
++++ b/openair3/NGAP/ngap_gNB_nnsf.h
+@@ -43,7 +43,7 @@ struct ngap_gNB_amf_data_s*
+ ngap_gNB_nnsf_select_amf_by_amf_setid(ngap_gNB_instance_t       *instance_p,
+                                      ngap_rrc_establishment_cause_t  cause,
+                                      int                        selected_plmn_identity,
+-                                     uint8_t                    amf_setid);
++                                     uint16_t                   amf_setid);
+ 
+ struct ngap_gNB_amf_data_s*
+ ngap_gNB_nnsf_select_amf_by_guami(ngap_gNB_instance_t       *instance_p,

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00367_966888",
+  "pr_text": "## Title: Fix incorrect frequency domain assignment bit width in TC-RNTI DCI extraction\n\n### Summary\nThe `extract_00_tc_rnti` function was using a static bit width value (`frequency_domain_assignment.nbits`) when parsing the frequency domain assignment field from DCI 0_0 messages with TC-RNTI or MSGB-RNTI. This caused incorrect resource block allocation that violated scheduling constraints downstream, as the bit width should vary dynamically based on the actual number of resource blocks (N_RB) c",
+  "trajectory_path": "data/raw/s00367_966888_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00367_966888_p2.diff",
+  "patch_lines": 11,
+  "trajectory_steps": 29,
+  "timestamp": "2026-02-11T18:53:12Z"
+}

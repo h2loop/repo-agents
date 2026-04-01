@@ -1,0 +1,9 @@
+{
+  "run_id": "s00292_b20147",
+  "pr_text": "## Title: Fix race condition in PDN disconnect procedure between timer expiry and message processing\n\n### Summary\nThe PDN disconnect procedure in the NAS UE layer had a race condition between the T3492 retransmission timer expiry handler and the processing of PDN disconnect reject messages. When a reject message arrived while the timer was expiring, both code paths would concurrently access shared resources including the retransmission counter and procedure transaction state. This caused inconsi",
+  "trajectory_path": "data/raw/s00292_b20147_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00292_b20147_p2.diff",
+  "patch_lines": 26,
+  "trajectory_steps": 62,
+  "timestamp": "2026-02-11T14:12:52Z"
+}

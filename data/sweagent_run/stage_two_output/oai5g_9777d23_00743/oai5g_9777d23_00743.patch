@@ -1,0 +1,164 @@
+diff --git a/nfapi/open-nFAPI/nfapi/public_inc/nfapi_nr_interface_scf.h b/nfapi/open-nFAPI/nfapi/public_inc/nfapi_nr_interface_scf.h
+index f186352b6d..aa0fdb77fc 100644
+--- a/nfapi/open-nFAPI/nfapi/public_inc/nfapi_nr_interface_scf.h
++++ b/nfapi/open-nFAPI/nfapi/public_inc/nfapi_nr_interface_scf.h
+@@ -268,7 +268,7 @@ typedef struct
+ //3.3.2 CONFIG
+ 
+ /*typedef struct {
+-	nfapi_nr_config_errors_e error_code;
++        nfapi_nr_config_errors_e error_code;
+   uint8_t number_of_invalid_tlvs_that_can_only_be_configured_in_idle;
+   uint8_t unmber_of_missing_tlvs;
+   //? ↓
+@@ -538,59 +538,59 @@ typedef enum {    // Table 2-27
+ 
+ //PNF P5 NR 
+ typedef struct {
+-	nfapi_nr_p4_p5_message_header_t header;
+-	nfapi_vendor_extension_tlv_t vendor_extension;
++        nfapi_nr_p4_p5_message_header_t header;
++        nfapi_vendor_extension_tlv_t vendor_extension;
+ } nfapi_nr_pnf_param_request_t;
+ 
+ typedef struct {
+-	nfapi_nr_p4_p5_message_header_t header;
+-	uint8_t error_code;
++        nfapi_nr_p4_p5_message_header_t header;
++        uint8_t error_code;
+   uint8_t num_tlvs;
+-	nfapi_pnf_param_general_t pnf_param_general;
+-	nfapi_pnf_phy_t pnf_phy;
+-	nfapi_vendor_extension_tlv_t vendor_extension;
++        nfapi_pnf_param_general_t pnf_param_general;
++        nfapi_pnf_phy_t pnf_phy;
++        nfapi_vendor_extension_tlv_t vendor_extension;
+ } nfapi_nr_pnf_param_response_t;
+ 
+ typedef struct {
+-	nfapi_nr_p4_p5_message_header_t header;
+-	uint8_t num_tlvs;
+-	nfapi_pnf_phy_rf_config_t pnf_phy_rf_config;
+-	nfapi_vendor_extension_tlv_t vendor_extension;
++        nfapi_nr_p4_p5_message_header_t header;
++        uint8_t num_tlvs;
++        nfapi_pnf_phy_rf_config_t pnf_phy_rf_config;
++        nfapi_vendor_extension_tlv_t vendor_extension;
+ } nfapi_nr_pnf_config_request_t;
+ 
+ typedef struct {
+-	nfapi_nr_p4_p5_message_header_t header;
+-	uint8_t error_code;
+-	nfapi_vendor_extension_tlv_t vendor_extension;
++        nfapi_nr_p4_p5_message_header_t header;
++        uint8_t error_code;
++        nfapi_vendor_extension_tlv_t vendor_extension;
+ } nfapi_nr_pnf_config_response_t;
+ 
+ typedef struct {
+-	nfapi_nr_p4_p5_message_header_t header;
+-	nfapi_vendor_extension_tlv_t vendor_extension;
++        nfapi_nr_p4_p5_message_header_t header;
++        nfapi_vendor_extension_tlv_t vendor_extension;
+ } nfapi_nr_pnf_start_request_t;
+ 
+ typedef struct {
+-	nfapi_nr_p4_p5_message_header_t header;
+-	uint32_t error_code;
+-	nfapi_vendor_extension_tlv_t vendor_extension;
++        nfapi_nr_p4_p5_message_header_t header;
++        uint32_t error_code;
++        nfapi_vendor_extension_tlv_t vendor_extension;
+ } nfapi_nr_pnf_start_response_t;
+ 
+ typedef struct {
+-	nfapi_nr_p4_p5_message_header_t header;
+-	nfapi_vendor_extension_tlv_t vendor_extension;
++        nfapi_nr_p4_p5_message_header_t header;
++        nfapi_vendor_extension_tlv_t vendor_extension;
+ } nfapi_nr_pnf_stop_request_t;
+ 
+ typedef struct {
+-	nfapi_nr_p4_p5_message_header_t header;
+-	uint32_t error_code;
+-	nfapi_vendor_extension_tlv_t vendor_extension;
++        nfapi_nr_p4_p5_message_header_t header;
++        uint32_t error_code;
++        nfapi_vendor_extension_tlv_t vendor_extension;
+ } nfapi_nr_pnf_stop_response_t;
+ 
+ 
+ /* PARAM.REQUEST */
+ typedef struct {
+   nfapi_nr_p4_p5_message_header_t  header;
+-	nfapi_vendor_extension_tlv_t  vendor_extension;
++        nfapi_vendor_extension_tlv_t  vendor_extension;
+ } nfapi_nr_param_request_scf_t;
+ 
+ /* PARAM.RESPONSE */
+@@ -672,8 +672,8 @@ typedef struct {
+ //3.3.3 START
+ 
+ typedef struct {
+-	nfapi_nr_p4_p5_message_header_t header;
+-	nfapi_vendor_extension_tlv_t vendor_extension;
++        nfapi_nr_p4_p5_message_header_t header;
++        nfapi_vendor_extension_tlv_t vendor_extension;
+ } nfapi_nr_start_request_scf_t;
+ 
+ typedef struct {
+@@ -1117,18 +1117,18 @@ typedef struct {
+ 
+ 
+ typedef struct {
+-	nfapi_nr_p7_message_header_t header;
+-	uint32_t t1;
+-	int32_t delta_sfn_slot;
+-	nfapi_vendor_extension_tlv_t vendor_extension;
++        nfapi_nr_p7_message_header_t header;
++        uint32_t t1;
++        int32_t delta_sfn_slot;
++        nfapi_vendor_extension_tlv_t vendor_extension;
+ } nfapi_nr_dl_node_sync_t;
+ 
+ typedef struct {
+-	nfapi_nr_p7_message_header_t header;
+-	uint32_t t1;
+-	uint32_t t2;
+-	uint32_t t3;	
+-	nfapi_vendor_extension_tlv_t vendor_extension;
++        nfapi_nr_p7_message_header_t header;
++        uint32_t t1;
++        uint32_t t2;
++        uint32_t t3;    
++        nfapi_vendor_extension_tlv_t vendor_extension;
+ } nfapi_nr_ul_node_sync_t;
+ 
+ typedef struct {
+@@ -1199,7 +1199,7 @@ typedef struct
+ 
+ //3.4.2 dl_tti_request
+ typedef struct {
+-	uint16_t sfn; //0->1023   
++        uint16_t sfn; //0->1023   
+   uint16_t slot;//0->319
+   uint8_t n_pdus;//Number of PDUs that are included in this message. All PDUs in the message are numbered in order. Value 0 -> 255
+   uint8_t n_group;//Number of UE Groups included in this message. Value 0 -> 255
+@@ -1349,7 +1349,7 @@ typedef struct
+   nfapi_nr_dfts_ofdm_t dfts_ofdm;
+   //beamforming
+   nfapi_nr_ul_beamforming_t beamforming;
+-  nfapi_v3_pdsch_maintenance_parameters_t maintenance_parms_v3;
++  nfapi_v3_pusch_maintenance_parameters_t maintenance_parms_v3;
+ } nfapi_nr_pusch_pdu_t;
+ 
+ //for pucch_pdu:
+@@ -1589,7 +1589,7 @@ typedef struct
+ } nfapi_nr_tx_data_request_t;
+ 
+ typedef enum {
+-	NFAPI_NR_DL_DATA_MSG_INVALID_STATE,
++        NFAPI_NR_DL_DATA_MSG_INVALID_STATE,
+   NFAPI_NR_DL_DATA_MSG_INVALID_SFN,
+   NFAPI_NR_DL_DATA_MSG_TX_ERR
+ 

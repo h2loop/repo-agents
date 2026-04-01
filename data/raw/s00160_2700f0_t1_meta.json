@@ -1,0 +1,34 @@
+{
+  "run_id": "s00160_2700f0",
+  "function": {
+    "name": "eNB_handle_ERROR_INDICATION",
+    "file": "openair2/M2AP/m2ap_eNB_interface_management.c",
+    "start_line": 1107,
+    "end_line": 1111,
+    "body_lines": 5,
+    "signature": "int eNB_handle_ERROR_INDICATION(instance_t instance, sctp_assoc_t assoc_id, uint32_t stream, M2AP_M2AP_PDU_t *pdu)",
+    "subsystem": "openair2/M2AP",
+    "token_estimate": 16
+  },
+  "bug": {
+    "bug_id": "telecom_missing_critical_log",
+    "description": "missing log statement for critical failure event hindering debugging",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a missing log statement for critical failure event hindering debugging downstream of function eNB_handle_ERROR_INDICATION in the openair2/M2AP subsystem.\nThe function is located at openair2/M2AP/m2ap_eNB_interface_management.c:1107.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00160_2700f0_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00160_2700f0_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 22,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:34:45Z"
+}

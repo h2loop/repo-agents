@@ -1,0 +1,9 @@
+{
+  "run_id": "s00052_37108f",
+  "pr_text": "## Title: Fix socket resource leak in pnf_connect error paths\n\n### Summary\nThe `pnf_connect()` function in the PNF module creates an SCTP socket for nFAPI communication but fails to close it on several error paths, causing socket descriptor leaks. When socket configuration or connection operations fail after socket creation, the function returns error codes without releasing the socket resource. This patch adds proper cleanup by closing the socket descriptor before returning in all error scenari",
+  "trajectory_path": "data/raw/s00052_37108f_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00052_37108f_p2.diff",
+  "patch_lines": 5,
+  "trajectory_steps": 45,
+  "timestamp": "2026-02-10T10:53:48Z"
+}

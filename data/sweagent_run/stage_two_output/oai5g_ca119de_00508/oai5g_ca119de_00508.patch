@@ -1,0 +1,17 @@
+diff --git a/openair1/PHY/CODING/nrPolar_tools/nr_polar_procedures.c b/openair1/PHY/CODING/nrPolar_tools/nr_polar_procedures.c
+index cf1df52ac0..82a0dd5f74 100644
+--- a/openair1/PHY/CODING/nrPolar_tools/nr_polar_procedures.c
++++ b/openair1/PHY/CODING/nrPolar_tools/nr_polar_procedures.c
+@@ -95,9 +95,9 @@ static void encode_packed_byte(uint8_t *in_out)
+   //    *in_out ^= 0xCC & (*in_out << 2);
+   //    *in_out ^= *in_out  in_out << 4;
+   //
+-  *in_out ^= 0x55 & (*in_out >> 1);
+-  *in_out ^= 0x33 & (*in_out >> 2);
+-  *in_out ^= *in_out >> 4;
++  *in_out ^= 0x55 & (*in_out << 1);
++  *in_out ^= 0x33 & (*in_out << 2);
++  *in_out ^= *in_out << 4;
+ }
+ 
+ static void polar_encode_bits(uint8_t *in_out, size_t N)

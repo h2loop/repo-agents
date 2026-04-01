@@ -1,0 +1,182 @@
+diff --git a/openair2/COMMON/f1ap_messages_types.h b/openair2/COMMON/f1ap_messages_types.h
+index 36c3ad4f76..38ac3dd7fb 100644
+--- a/openair2/COMMON/f1ap_messages_types.h
++++ b/openair2/COMMON/f1ap_messages_types.h
+@@ -315,6 +315,15 @@ typedef struct f1ap_gnb_du_configuration_update_failure_s {
+   uint16_t criticality_diagnostics;
+ } f1ap_gnb_du_configuration_update_failure_t;
+ 
++/* Positioning Measurement Failure Indication */
++typedef struct f1ap_positioning_measurement_failure_indication_s {
++  uint8_t  transaction_id;          /* Transaction ID (0..255) */
++  uint32_t lmf_measurement_id;      /* LMF Measurement ID (1..65536) */
++  uint32_t ran_measurement_id;      /* RAN Measurement ID (1..65536) */
++  f1ap_Cause_t cause;               /* Cause */
++  long cause_value;                 /* Cause value */
++} f1ap_positioning_measurement_failure_indication_t;
++
+ typedef struct f1ap_dl_rrc_message_s {
+ 
+   uint32_t gNB_CU_ue_id;
+diff --git a/openair2/F1AP/lib/CMakeLists.txt b/openair2/F1AP/lib/CMakeLists.txt
+index cb8d8b9712..85739cd1f2 100644
+--- a/openair2/F1AP/lib/CMakeLists.txt
++++ b/openair2/F1AP/lib/CMakeLists.txt
+@@ -2,6 +2,7 @@ add_library(f1ap_lib OBJECT
+             f1ap_lib_common.c
+             f1ap_rrc_message_transfer.c
+             f1ap_interface_management.c
++            f1ap_positioning.c
+ )
+ target_link_libraries(f1ap_lib PRIVATE asn1_f1ap)
+ target_include_directories(f1ap_lib PUBLIC
+diff --git a/openair2/F1AP/lib/f1ap_lib_extern.h b/openair2/F1AP/lib/f1ap_lib_extern.h
+index f95b685540..631f55372d 100644
+--- a/openair2/F1AP/lib/f1ap_lib_extern.h
++++ b/openair2/F1AP/lib/f1ap_lib_extern.h
+@@ -23,5 +23,6 @@
+ #define F1AP_LIB_EXTERN_H_
+ 
+ #include "f1ap_rrc_message_transfer.h"
++#include "f1ap_positioning.h"
+ 
+ #endif /* F1AP_LIB_EXTERN_H_ */
+diff --git a/openair2/F1AP/lib/f1ap_lib_includes.h b/openair2/F1AP/lib/f1ap_lib_includes.h
+index 6ff60a4897..997517213e 100644
+--- a/openair2/F1AP/lib/f1ap_lib_includes.h
++++ b/openair2/F1AP/lib/f1ap_lib_includes.h
+@@ -40,5 +40,6 @@
+ #include "F1AP_SuccessfulOutcome.h"
+ #include "F1AP_SibtypetobeupdatedListItem.h"
+ #include "F1AP_UnsuccessfulOutcome.h"
++#include "F1AP_PositioningMeasurementFailureIndication.h"
+ 
+ #endif /* F1AP_LIB_INCLUDES_H_ */
+diff --git a/openair2/F1AP/lib/f1ap_positioning.c b/openair2/F1AP/lib/f1ap_positioning.c
+new file mode 100644
+index 0000000000..1eb428c31d
+--- /dev/null
++++ b/openair2/F1AP/lib/f1ap_positioning.c
+@@ -0,0 +1,77 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++#include <string.h>
++
++#include "common/utils/assertions.h"
++#include "openair3/UTILS/conversions.h"
++#include "common/utils/oai_asn1.h"
++#include "common/utils/utils.h"
++
++#include "f1ap_positioning.h"
++#include "f1ap_lib_common.h"
++#include "f1ap_lib_includes.h"
++#include "f1ap_messages_types.h"
++#include "f1ap_lib_extern.h"
++
++/* Positioning Measurement Failure Indication equality function */
++bool eq_f1ap_positioning_measurement_failure_indication(const f1ap_positioning_measurement_failure_indication_t *a,
++                                                        const f1ap_positioning_measurement_failure_indication_t *b)
++{
++  if (a == NULL || b == NULL)
++    return a == b;
++
++  _F1_EQ_CHECK_INT(a->transaction_id, b->transaction_id);
++  _F1_EQ_CHECK_INT(a->lmf_measurement_id, b->lmf_measurement_id);
++  _F1_EQ_CHECK_INT(a->ran_measurement_id, b->ran_measurement_id);
++  _F1_EQ_CHECK_INT(a->cause, b->cause);
++  _F1_EQ_CHECK_INT(a->cause_value, b->cause_value);
++
++  return true;
++}
++
++/* Positioning Measurement Failure Indication copy function */
++f1ap_positioning_measurement_failure_indication_t cp_f1ap_positioning_measurement_failure_indication(
++    const f1ap_positioning_measurement_failure_indication_t *msg)
++{
++  f1ap_positioning_measurement_failure_indication_t cp = {0};
++
++  if (msg == NULL)
++    return cp;
++
++  cp.transaction_id = msg->transaction_id;
++  cp.lmf_measurement_id = msg->lmf_measurement_id;
++  cp.ran_measurement_id = msg->ran_measurement_id;
++  cp.cause = msg->cause;
++  cp.cause_value = msg->cause_value;
++
++  return cp;
++}
++
++/* Positioning Measurement Failure Indication free function */
++void free_f1ap_positioning_measurement_failure_indication(const f1ap_positioning_measurement_failure_indication_t *msg)
++{
++  if (msg == NULL)
++    return;
++    
++  /* No dynamic memory to free in this structure */
++  (void)msg;
++}
+\ No newline at end of file
+diff --git a/openair2/F1AP/lib/f1ap_positioning.h b/openair2/F1AP/lib/f1ap_positioning.h
+new file mode 100644
+index 0000000000..3fbd1387d0
+--- /dev/null
++++ b/openair2/F1AP/lib/f1ap_positioning.h
+@@ -0,0 +1,37 @@
++/*
++ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
++ * contributor license agreements.  See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The OpenAirInterface Software Alliance licenses this file to You under
++ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
++ * except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.openairinterface.org/?page_id=698
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *-------------------------------------------------------------------------------
++ * For more information about the OpenAirInterface (OAI) Software Alliance:
++ *      contact@openairinterface.org
++ */
++
++#ifndef F1AP_POSITIONING_H_
++#define F1AP_POSITIONING_H_
++
++#include <stdbool.h>
++#include "f1ap_messages_types.h"
++
++struct F1AP_F1AP_PDU;
++
++/* Positioning Measurement Failure Indication */
++bool eq_f1ap_positioning_measurement_failure_indication(const f1ap_positioning_measurement_failure_indication_t *a,
++                                                        const f1ap_positioning_measurement_failure_indication_t *b);
++f1ap_positioning_measurement_failure_indication_t cp_f1ap_positioning_measurement_failure_indication(
++    const f1ap_positioning_measurement_failure_indication_t *msg);
++void free_f1ap_positioning_measurement_failure_indication(const f1ap_positioning_measurement_failure_indication_t *msg);
++
++#endif /* F1AP_POSITIONING_H_ */
+\ No newline at end of file

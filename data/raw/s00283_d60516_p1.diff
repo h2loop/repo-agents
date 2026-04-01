@@ -1,0 +1,23 @@
+diff --git a/openair2/M2AP/m2ap_decoder.c b/openair2/M2AP/m2ap_decoder.c
+index 4abd43f564..491ca4033b 100644
+--- a/openair2/M2AP/m2ap_decoder.c
++++ b/openair2/M2AP/m2ap_decoder.c
+@@ -175,14 +175,14 @@ int m2ap_decode_pdu(M2AP_M2AP_PDU_t *pdu, const uint8_t *const buffer, uint32_t
+   }
+ 
+   switch(pdu->present) {
+-    case M2AP_M2AP_PDU_PR_initiatingMessage:
+-      return m2ap_decode_initiating_message(pdu);
++    case M2AP_M2AP_PDU_PR_unsuccessfulOutcome:
++      return m2ap_decode_unsuccessful_outcome(pdu);
+ 
+     case M2AP_M2AP_PDU_PR_successfulOutcome:
+       return m2ap_decode_successful_outcome(pdu);
+ 
+-    case M2AP_M2AP_PDU_PR_unsuccessfulOutcome:
+-      return m2ap_decode_unsuccessful_outcome(pdu);
++    case M2AP_M2AP_PDU_PR_initiatingMessage:
++      return m2ap_decode_initiating_message(pdu);
+ 
+     default:
+       M2AP_DEBUG("Unknown presence (%d) or not implemented\n", (int)pdu->present);

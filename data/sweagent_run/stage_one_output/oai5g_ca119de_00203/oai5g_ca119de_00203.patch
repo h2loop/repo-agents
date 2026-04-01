@@ -1,0 +1,94 @@
+diff --git a/openair3/NGAP/ngap_gNB_context_management_procedures.c b/openair3/NGAP/ngap_gNB_context_management_procedures.c
+index 7abbec2592..b3e1360d06 100644
+--- a/openair3/NGAP/ngap_gNB_context_management_procedures.c
++++ b/openair3/NGAP/ngap_gNB_context_management_procedures.c
+@@ -218,3 +218,75 @@ int ngap_ue_context_release_req(instance_t instance,
+   return 0;
+ }
+ 
++int encode_ng_handover_cancel(
++    instance_t instance,
++    uint32_t gNB_ue_ngap_id,
++    ngap_cause_t *cause)
++{
++  ngap_gNB_instance_t                *ngap_gNB_instance_p           = NULL;
++  struct ngap_gNB_ue_context_s       *ue_context_p                  = NULL;
++  NGAP_NGAP_PDU_t pdu = {0};
++  uint8_t                            *buffer                        = NULL;
++  uint32_t                            length;
++
++  /* Retrieve the NGAP gNB instance associated with instance */
++  ngap_gNB_instance_p = ngap_gNB_get_instance(instance);
++
++  DevAssert(cause != NULL);
++  DevAssert(ngap_gNB_instance_p != NULL);
++
++  if ((ue_context_p = ngap_get_ue_context(gNB_ue_ngap_id)) == NULL) {
++    /* The context for this gNB ue ngap id doesn't exist in the map of gNB UEs */
++    NGAP_WARN("Failed to find ue context associated with gNB ue ngap id: %u\n",
++              gNB_ue_ngap_id);
++    return -1;
++  }
++
++  /* Prepare the NGAP message to encode */
++  pdu.present = NGAP_NGAP_PDU_PR_initiatingMessage;
++  asn1cCalloc(pdu.choice.initiatingMessage, head);
++  head->procedureCode = NGAP_ProcedureCode_id_HandoverCancel;
++  head->criticality = NGAP_Criticality_ignore;
++  head->value.present = NGAP_InitiatingMessage__value_PR_HandoverCancel;
++  NGAP_HandoverCancel_t *out = &head->value.choice.HandoverCancel;
++
++  /* mandatory - AMF UE NGAP ID */
++  {
++    asn1cSequenceAdd(out->protocolIEs.list, NGAP_HandoverCancel_IEs_t, ie);
++    ie->id = NGAP_ProtocolIE_ID_id_AMF_UE_NGAP_ID;
++    ie->criticality = NGAP_Criticality_reject;
++    ie->value.present = NGAP_HandoverCancel_IEs__value_PR_AMF_UE_NGAP_ID;
++    asn_uint642INTEGER(&ie->value.choice.AMF_UE_NGAP_ID, ue_context_p->amf_ue_ngap_id);
++  }
++
++  /* mandatory - RAN UE NGAP ID */
++  {
++    asn1cSequenceAdd(out->protocolIEs.list, NGAP_HandoverCancel_IEs_t, ie);
++    ie->id = NGAP_ProtocolIE_ID_id_RAN_UE_NGAP_ID;
++    ie->criticality = NGAP_Criticality_reject;
++    ie->value.present = NGAP_HandoverCancel_IEs__value_PR_RAN_UE_NGAP_ID;
++    ie->value.choice.RAN_UE_NGAP_ID = gNB_ue_ngap_id;
++  }
++
++  /* mandatory - Cause */
++  {
++    asn1cSequenceAdd(out->protocolIEs.list, NGAP_HandoverCancel_IEs_t, ie);
++    ie->id = NGAP_ProtocolIE_ID_id_Cause;
++    ie->criticality = NGAP_Criticality_ignore;
++    ie->value.present = NGAP_HandoverCancel_IEs__value_PR_Cause;
++    encode_ngap_cause(&ie->value.choice.Cause, cause);
++  }
++
++  if (ngap_gNB_encode_pdu(&pdu, &buffer, &length) < 0) {
++    /* Encode procedure has failed... */
++    NGAP_ERROR("Failed to encode Handover Cancel message\n");
++    return -1;
++  }
++
++  /* UE associated signalling -> use the allocated stream */
++  ngap_gNB_itti_send_sctp_data_req(ngap_gNB_instance_p->instance,
++                                   ue_context_p->amf_ref->assoc_id, buffer,
++                                   length, ue_context_p->tx_stream);
++
++  return 0;
++}
+diff --git a/openair3/NGAP/ngap_gNB_context_management_procedures.h b/openair3/NGAP/ngap_gNB_context_management_procedures.h
+index 273b246d95..caa8b557f0 100644
+--- a/openair3/NGAP/ngap_gNB_context_management_procedures.h
++++ b/openair3/NGAP/ngap_gNB_context_management_procedures.h
+@@ -41,4 +41,9 @@ int ngap_ue_context_release_complete(instance_t instance,
+ int ngap_ue_context_release_req(instance_t instance,
+                                 ngap_ue_release_req_t *ue_release_req_p);
+ 
++int encode_ng_handover_cancel(
++    instance_t instance,
++    uint32_t gNB_ue_ngap_id,
++    ngap_cause_t *cause);
++
+ #endif /* NGAP_GNB_CONTEXT_MANAGEMENT_PROCEDURES_H_ */

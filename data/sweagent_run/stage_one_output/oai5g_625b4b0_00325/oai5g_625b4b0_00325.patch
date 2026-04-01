@@ -1,0 +1,27 @@
+diff --git a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+index 60b5528096..e4d9c83b03 100644
+--- a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
++++ b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+@@ -30,6 +30,7 @@
+  */
+ 
+ #include "assertions.h"
++#include "common/openairinterface5g_limits.h"
+ 
+ #include "LAYER2/MAC/mac.h"
+ #include "LAYER2/MAC/mac_extern.h"
+@@ -2057,6 +2058,14 @@ is_UE_active(module_id_t mod_idP,
+              int ue_idP)
+ //------------------------------------------------------------------------------
+ {
++  if (!RC.mac || mod_idP >= NUMBER_OF_eNB_MAX || !RC.mac[mod_idP]) {
++    return false;
++  }
++  
++  if (ue_idP < 0 || ue_idP >= MAX_MOBILES_PER_ENB) {
++    return false;
++  }
++  
+   return (RC.mac[mod_idP]->UE_info.active[ue_idP]);
+ }
+ 

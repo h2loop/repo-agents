@@ -1,0 +1,9 @@
+{
+  "run_id": "s00274_8a15bf",
+  "pr_text": "## Title: Add integer truncation safety check for RACH indication preamble count\n\n### Summary\nThe NFAPI PNF RACH indication handler lacks validation on the number of preambles, risking integer truncation in downstream message length calculations. The `message_length` field is a `uint16_t` (max 65535 bytes), while each `preamble_pdu_t` can exceed 50 bytes when fully populated with TLVs. With excessive preambles, the total message size can silently overflow the uint16_t limit, causing data corrupt",
+  "trajectory_path": "data/raw/s00274_8a15bf_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00274_8a15bf_p2.diff",
+  "patch_lines": 11,
+  "trajectory_steps": 21,
+  "timestamp": "2026-02-10T12:23:22Z"
+}

@@ -1,0 +1,183 @@
+'{"env":{"deployment":{"image":"oai5g-sera:9777d23","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_9777d23_00611","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix thread-unsafe access in M2AP eNB management procedures\n\n### Summary\nThe
+  M2AP module contains several functions that access global/shared data structures
+  without proper synchronization, leading to potential race conditions and data corruption
+  when multiple threads access these functions concurrently. This issue manifests
+  as intermittent segmentation faults and inconsistent eNB state reporting during
+  M2 setup procedures.\n\nThe problem occurs in functions that iterate through the
+  global `m2ap_eNB_internal_data` structure using STAILQ and RB tree macros. Without
+  mutex protection, concurrent access can result in:\n- Segmentation faults when one
+  thread modifies the data structure while another is traversing it\n- Inconsistent
+  results from lookup functions\n- Corruption of the internal eNB instance lists\n\n###
+  Changes\n- `openair2/M2AP/m2ap_eNB_management_procedures.c`: \n  * Added pthread
+  mutex to protect global `m2ap_eNB_internal_data` structure\n  * Added proper locking/unlocking
+  around all functions accessing shared data:\n    - `m2ap_is_eNB_pci_in_list`\n    -
+  `m2ap_is_eNB_id_in_list` \n    - `m2ap_is_eNB_assoc_id_in_list`\n    - `m2ap_get_eNB`\n    -
+  `m2ap_eNB_get_instance`\n    - `m2ap_dump_eNB_list`\n  * Used goto-based cleanup
+  pattern to ensure mutex is always unlocked exactly once\n  * Added error handling
+  for mutex operations using existing M2AP logging macros\n\n### Reproduction\nTo
+  reproduce this issue:\n1. Configure multiple eNBs to establish M2 connections simultaneously\n2.
+  Monitor logs for intermittent segmentation faults during M2 setup procedures\n3.
+  Observe inconsistent eNB state reporting when querying eNB information concurrently
+  from multiple threads\n4. Run with thread sanitizer to detect data races in the
+  M2AP management functions\n\nThe issue is most likely to occur under high load conditions
+  with multiple concurrent M2 setup requests or when external management interfaces
+  query eNB state information simultaneously with ongoing M2 procedures.\n","extra_fields":{"bug_description":"thread-unsafe
+  access to global or shared variable without proper synchronization","bug_id":"c_thread_unsafe_access","stage_one_patch":"diff
+  --git a/openair2/M2AP/m2ap_eNB_management_procedures.c b/openair2/M2AP/m2ap_eNB_management_procedures.c\nindex
+  014ecf08d8..1f5f51ebcf 100644\n--- a/openair2/M2AP/m2ap_eNB_management_procedures.c\n+++
+  b/openair2/M2AP/m2ap_eNB_management_procedures.c\n@@ -29,6 +29,7 @@\n #include <stdio.h>\n
+  #include <stdlib.h>\n #include <stdint.h>\n+#include <pthread.h>\n \n #include \"intertask_interface.h\"\n
+  \n@@ -51,6 +52,7 @@ static int                  indent = 0;\n \n \n m2ap_eNB_internal_data_t
+  m2ap_eNB_internal_data;\n+static pthread_mutex_t m2ap_eNB_internal_data_mutex =
+  PTHREAD_MUTEX_INITIALIZER;\n \n RB_GENERATE(m2ap_enb_map, m2ap_eNB_data_s, entry,
+  m2ap_eNB_compare_assoc_id);\n \n@@ -125,7 +127,7 @@ printf(\"---------------------------------------------\\n\");\n
+  struct m2ap_eNB_data_s *m2ap_get_eNB(m2ap_eNB_instance_t *instance_p, sctp_assoc_t
+  assoc_id, uint16_t cnx_id)\n {\n   struct m2ap_eNB_data_s  temp;\n-  struct m2ap_eNB_data_s
+  *found;\n+  struct m2ap_eNB_data_s *found = NULL;\n \n printf(\"m2ap_get_eNB at
+  1 (looking for assoc_id %d cnx_id %d)\\n\", assoc_id, cnx_id);\n dump_trees_m2();\n@@
+  -135,36 +137,56 @@ dump_trees_m2();\n   temp.assoc_id = assoc_id;\n   temp.cnx_id   =
+  cnx_id;\n \n+  if (pthread_mutex_lock(&m2ap_eNB_internal_data_mutex)) {\n+    M2AP_ERROR(\"Failed
+  to lock mutex in m2ap_get_eNB\");\n+    return NULL;\n+  }\n+\n   if (instance_p
+  == NULL) {\n     STAILQ_FOREACH(instance_p, &m2ap_eNB_internal_data.m2ap_eNB_instances_head,\n                    m2ap_eNB_entries)
+  {\n       found = RB_FIND(m2ap_enb_map, &instance_p->m2ap_enb_head, &temp);\n \n       if
+  (found != NULL) {\n-        return found;\n+        goto unlock_and_return;\n       }\n     }\n   }
+  else {\n-    return RB_FIND(m2ap_enb_map, &instance_p->m2ap_enb_head, &temp);\n+    found
+  = RB_FIND(m2ap_enb_map, &instance_p->m2ap_enb_head, &temp);\n   }\n \n-  return
+  NULL;\n+unlock_and_return:\n+  if (pthread_mutex_unlock(&m2ap_eNB_internal_data_mutex))
+  {\n+    M2AP_ERROR(\"Failed to unlock mutex in m2ap_get_eNB\");\n+  }\n+  return
+  found;\n }\n \n \n m2ap_eNB_instance_t *m2ap_eNB_get_instance(instance_t instance)\n
+  {\n   m2ap_eNB_instance_t *temp = NULL;\n+  m2ap_eNB_instance_t *result = NULL;\n+\n+  if
+  (pthread_mutex_lock(&m2ap_eNB_internal_data_mutex)) {\n+    M2AP_ERROR(\"Failed
+  to lock mutex in m2ap_eNB_get_instance\");\n+    return NULL;\n+  }\n \n   STAILQ_FOREACH(temp,
+  &m2ap_eNB_internal_data.m2ap_eNB_instances_head,\n                  m2ap_eNB_entries)
+  {\n     if (temp->instance == instance) {\n       /* Matching occurence */\n-      return
+  temp;\n+      result = temp;\n+      goto unlock_and_return;\n     }\n   }\n \n-  return
+  NULL;\n+unlock_and_return:\n+  if (pthread_mutex_unlock(&m2ap_eNB_internal_data_mutex))
+  {\n+    M2AP_ERROR(\"Failed to unlock mutex in m2ap_eNB_get_instance\");\n+  }\n+  return
+  result;\n }\n \n /// utility functions\n@@ -179,10 +201,19 @@ m2ap_dump_eNB_list
+  (void) {\n \n    memset(&temp, 0, sizeof(struct m2ap_eNB_data_s));\n \n+   if (pthread_mutex_lock(&m2ap_eNB_internal_data_mutex))
+  {\n+     M2AP_ERROR(\"Failed to lock mutex in m2ap_dump_eNB_list\");\n+     return;\n+   }\n+\n   STAILQ_FOREACH
+  (inst, &m2ap_eNB_internal_data.m2ap_eNB_instances_head,  m2ap_eNB_entries) {\n     found
+  = RB_FIND(m2ap_enb_map, &inst->m2ap_enb_head, &temp);\n     m2ap_dump_eNB (found);\n   }\n+\n+  if
+  (pthread_mutex_unlock(&m2ap_eNB_internal_data_mutex)) {\n+    M2AP_ERROR(\"Failed
+  to unlock mutex in m2ap_dump_eNB_list\");\n+  }\n }\n \n void m2ap_dump_eNB (m2ap_eNB_data_t  *
+  eNB_ref) {\n@@ -207,31 +238,56 @@ m2ap_eNB_data_t  * m2ap_is_eNB_pci_in_list (const
+  uint32_t pci)\n {\n   m2ap_eNB_instance_t    *inst;\n   struct m2ap_eNB_data_s *elm;\n+  m2ap_eNB_data_t
+  *result = NULL;\n+\n+  if (pthread_mutex_lock(&m2ap_eNB_internal_data_mutex)) {\n+    M2AP_ERROR(\"Failed
+  to lock mutex in m2ap_is_eNB_pci_in_list\");\n+    return NULL;\n+  }\n \n   STAILQ_FOREACH(inst,
+  &m2ap_eNB_internal_data.m2ap_eNB_instances_head, m2ap_eNB_entries) {\n     RB_FOREACH(elm,
+  m2ap_enb_map, &inst->m2ap_enb_head) {\n       for (int i = 0; i<elm->num_cc; i++)
+  {\n         if (elm->Nid_cell[i] == pci) {\n-          return elm;\n+          result
+  = elm;\n+          goto unlock_and_return;\n         }\n       }\n     }\n   }\n-  return
+  NULL;\n+\n+unlock_and_return:\n+  if (pthread_mutex_unlock(&m2ap_eNB_internal_data_mutex))
+  {\n+    M2AP_ERROR(\"Failed to unlock mutex in m2ap_is_eNB_pci_in_list\");\n+  }\n+  return
+  result;\n }\n \n m2ap_eNB_data_t  * m2ap_is_eNB_id_in_list (const uint32_t eNB_id)\n
+  {\n   m2ap_eNB_instance_t    *inst;\n   struct m2ap_eNB_data_s *elm;\n+  m2ap_eNB_data_t
+  *result = NULL;\n+\n+  if (pthread_mutex_lock(&m2ap_eNB_internal_data_mutex)) {\n+    M2AP_ERROR(\"Failed
+  to lock mutex in m2ap_is_eNB_id_in_list\");\n+    return NULL;\n+  }\n \n   STAILQ_FOREACH(inst,
+  &m2ap_eNB_internal_data.m2ap_eNB_instances_head, m2ap_eNB_entries) {\n     RB_FOREACH(elm,
+  m2ap_enb_map, &inst->m2ap_enb_head) {\n-      if (elm->eNB_id == eNB_id)\n-        return
+  elm;\n+      if (elm->eNB_id == eNB_id) {\n+        result = elm;\n+        goto
+  unlock_and_return;\n+      }\n     }\n   }\n-  return NULL;\n+\n+unlock_and_return:\n+  if
+  (pthread_mutex_unlock(&m2ap_eNB_internal_data_mutex)) {\n+    M2AP_ERROR(\"Failed
+  to unlock mutex in m2ap_is_eNB_id_in_list\");\n+  }\n+  return result;\n }\n \n
+  m2ap_eNB_data_t  * m2ap_is_eNB_assoc_id_in_list (const uint32_t sctp_assoc_id)\n@@
+  -239,17 +295,29 @@ m2ap_eNB_data_t  * m2ap_is_eNB_assoc_id_in_list (const uint32_t
+  sctp_assoc_id)\n   m2ap_eNB_instance_t    *inst;\n   struct m2ap_eNB_data_s *found;\n   struct
+  m2ap_eNB_data_s temp;\n+  m2ap_eNB_data_t *result = NULL;\n \n   temp.assoc_id =
+  sctp_assoc_id;\n   temp.cnx_id = -1;\n \n+  if (pthread_mutex_lock(&m2ap_eNB_internal_data_mutex))
+  {\n+    M2AP_ERROR(\"Failed to lock mutex in m2ap_is_eNB_assoc_id_in_list\");\n+    return
+  NULL;\n+  }\n+\n   STAILQ_FOREACH(inst, &m2ap_eNB_internal_data.m2ap_eNB_instances_head,
+  m2ap_eNB_entries) {\n     found = RB_FIND(m2ap_enb_map, &inst->m2ap_enb_head, &temp);\n     if
+  (found != NULL){\n       if (found->assoc_id == sctp_assoc_id) {\n-\treturn found;\n+        result
+  = found;\n+        goto unlock_and_return;\n       }\n     }\n   }\n-  return NULL;\n+\n+unlock_and_return:\n+  if
+  (pthread_mutex_unlock(&m2ap_eNB_internal_data_mutex)) {\n+    M2AP_ERROR(\"Failed
+  to unlock mutex in m2ap_is_eNB_assoc_id_in_list\");\n+  }\n+  return result;\n }\n","start_fn":"m2ap_is_eNB_pci_in_list","start_fn_file":"openair2/M2AP/m2ap_eNB_management_procedures.c","subsystem":"openair2/M2AP"},"type":"text","id":"oai5g_9777d23_00611"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

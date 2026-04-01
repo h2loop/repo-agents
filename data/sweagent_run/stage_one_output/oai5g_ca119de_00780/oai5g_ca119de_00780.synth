@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix division by zero in DCI frequency domain resource assignment processing\n\n### Summary\nThe UE MAC layer processes DCI messages containing frequency domain resource assignments. When these assignments use RIV format, the code calls deprecated NRRIV2BW and NRRIV2PRBOFFSET functions which perform integer division. If the BWP size parameters are zero, this causes a division by zero crash.\n\nThis issue manifests as a UE crash when connecting to certain gNB configurations that signal invalid BWP sizes. The crash occurs in the MAC layer during initial access procedures.\n\n### Changes\n- `openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c`: Added safety checks before calling deprecated NRRIV functions to prevent division by zero when n_RB_DLBWP or n_RB_ULBWP are zero.\n\n"
+}

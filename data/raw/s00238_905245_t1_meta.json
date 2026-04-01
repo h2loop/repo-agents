@@ -1,0 +1,33 @@
+{
+  "run_id": "s00238_905245",
+  "function": {
+    "name": "nr_ue_ul_scheduler",
+    "file": "openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c",
+    "start_line": 2552,
+    "end_line": 2706,
+    "body_lines": 155,
+    "signature": "void nr_ue_ul_scheduler(NR_UE_MAC_INST_t *mac, nr_uplink_indication_t *ul_info)",
+    "subsystem": "openair2/LAYER2/NR_MAC_UE",
+    "token_estimate": 662
+  },
+  "bug": {
+    "bug_id": "c_signed_unsigned_mismatch",
+    "description": "signed/unsigned integer comparison mismatch leading to incorrect branch",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a signed/unsigned integer comparison mismatch leading to incorrect branch downstream of function nr_ue_ul_scheduler in the openair2/LAYER2/NR_MAC_UE subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_UE/nr_ue_scheduler.c:2552.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00238_905245_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00238_905245_p1.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 97,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:40:32Z"
+}

@@ -1,0 +1,34 @@
+{
+  "run_id": "s00268_3817a5",
+  "function": {
+    "name": "catch_sigterm",
+    "file": "common/utils/ocp_itti/intertask_interface.cpp",
+    "start_line": 444,
+    "end_line": 449,
+    "body_lines": 6,
+    "signature": "static void catch_sigterm(int)",
+    "subsystem": "common/utils/ocp_itti",
+    "token_estimate": 25
+  },
+  "bug": {
+    "bug_id": "telecom_missing_critical_log",
+    "description": "missing log statement for critical failure event hindering debugging",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a missing log statement for critical failure event hindering debugging downstream of function catch_sigterm in the common/utils/ocp_itti subsystem.\nThe function is located at common/utils/ocp_itti/intertask_interface.cpp:444.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00268_3817a5_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00268_3817a5_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 25,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T12:14:55Z"
+}

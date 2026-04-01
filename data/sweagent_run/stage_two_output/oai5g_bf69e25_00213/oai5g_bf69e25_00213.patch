@@ -1,0 +1,90 @@
+diff --git a/openair1/PHY/LTE_ESTIMATION/lte_eNB_measurements.c b/openair1/PHY/LTE_ESTIMATION/lte_eNB_measurements.c
+index 9393bfc048..20ebc18500 100644
+--- a/openair1/PHY/LTE_ESTIMATION/lte_eNB_measurements.c
++++ b/openair1/PHY/LTE_ESTIMATION/lte_eNB_measurements.c
+@@ -35,17 +35,28 @@ int32_t rx_power_avg_eNB[3];
+ void dump_I0_stats(FILE *fd,PHY_VARS_eNB *eNB) {
+ 
+ 
+-    int min_I0=1000,max_I0=0;
++    int min_I0=32767,max_I0=-32768;
+     int amin=0,amax=0;
++    
++    // Process RBs with proper DC skipping for odd RB configurations
+     for (int i=0; i<eNB->frame_parms.N_RB_UL; i++) {
+-      if (i==(eNB->frame_parms.N_RB_UL>>1) - 1) i+=2;
++      // Skip DC RB in odd RB configurations
++      if ((eNB->frame_parms.N_RB_UL & 1) && (i == (eNB->frame_parms.N_RB_UL >> 1))) {
++        continue; // Skip the DC RB
++      }
+ 
+       if (eNB->measurements.n0_subband_power_tot_dB[i]<min_I0) {min_I0 = eNB->measurements.n0_subband_power_tot_dB[i]; amin=i;}
+ 
+       if (eNB->measurements.n0_subband_power_tot_dB[i]>max_I0) {max_I0 = eNB->measurements.n0_subband_power_tot_dB[i]; amax=i;}
+     }
+ 
++    // Print RBs with proper DC skipping for odd RB configurations
+     for (int i=0; i<eNB->frame_parms.N_RB_UL; i++) {
++      // Skip DC RB in odd RB configurations
++      if ((eNB->frame_parms.N_RB_UL & 1) && (i == (eNB->frame_parms.N_RB_UL >> 1))) {
++        continue; // Skip the DC RB
++      }
++      
+      fprintf(fd,"%2d.",eNB->measurements.n0_subband_power_tot_dB[i]-eNB->measurements.n0_subband_power_avg_dB);
+      if (i%25 == 24) fprintf(fd,"\n");
+     }
+@@ -57,7 +68,7 @@ void dump_I0_stats(FILE *fd,PHY_VARS_eNB *eNB) {
+ 
+ }
+ void lte_eNB_I0_measurements(PHY_VARS_eNB *eNB,
+-			     int subframe,
++                             int subframe,
+                              module_id_t eNB_id,
+                              unsigned char clear)
+ {
+@@ -82,11 +93,11 @@ void lte_eNB_I0_measurements(PHY_VARS_eNB *eNB,
+   if (common_vars->rxdata!=NULL) {
+     for (aarx=0; aarx<frame_parms->nb_antennas_rx; aarx++) {
+       if (clear == 1)
+-	measurements->n0_power[aarx]=0;
++        measurements->n0_power[aarx]=0;
+       
+       
+       measurements->n0_power[aarx] = ((k1*signal_energy(&common_vars->rxdata[aarx][(frame_parms->samples_per_tti<<1) -frame_parms->ofdm_symbol_size],
+-							frame_parms->ofdm_symbol_size)) + k2*measurements->n0_power[aarx])>>10;
++                                                        frame_parms->ofdm_symbol_size)) + k2*measurements->n0_power[aarx])>>10;
+       //measurements->n0_power[aarx] = (measurements->n0_power[aarx]) * 12*frame_parms->N_RB_DL)/(frame_parms->ofdm_symbol_size);
+       measurements->n0_power_dB[aarx] = (unsigned short) dB_fixed(measurements->n0_power[aarx]);
+       measurements->n0_power_tot +=  measurements->n0_power[aarx];
+@@ -112,20 +123,20 @@ void lte_eNB_I0_measurements(PHY_VARS_eNB *eNB,
+       for (aarx=0; aarx<frame_parms->nb_antennas_rx; aarx++) {
+         measurements->n0_subband_power[aarx][rb] = 0;
+         for (int s=0;s<(14-(frame_parms->Ncp<<1));s++) {
+-	        offset = offset0 + (s*frame_parms->ofdm_symbol_size);
+-	        ul_ch  = &common_vars->rxdataF[aarx][offset];
+-	        len = 12;
+-	// just do first half of middle PRB for odd number of PRBs
+-	        if (((frame_parms->N_RB_UL&1) == 1) && 
+-	            (rb==(frame_parms->N_RB_UL>>1))) {
+-	           len=6;
+-	        }
++                offset = offset0 + (s*frame_parms->ofdm_symbol_size);
++                ul_ch  = &common_vars->rxdataF[aarx][offset];
++                len = 12;
++        // just do first half of middle PRB for odd number of PRBs
++                if (((frame_parms->N_RB_UL&1) == 1) && 
++                    (rb==(frame_parms->N_RB_UL>>1))) {
++                   len=6;
++                }
+ 
+-	        AssertFatal(ul_ch, "RX signal buffer (freq) problem");
++                AssertFatal(ul_ch, "RX signal buffer (freq) problem");
+ 
+ 
+-	        measurements->n0_subband_power[aarx][rb] += signal_energy_nodc(ul_ch,len);
+-	  
++                measurements->n0_subband_power[aarx][rb] += signal_energy_nodc(ul_ch,len);
++          
+         } // symbol
+         measurements->n0_subband_power[aarx][rb]/=(14-(frame_parms->Ncp<<1));
+         measurements->n0_subband_power_dB[aarx][rb] = dB_fixed(measurements->n0_subband_power[aarx][rb]);

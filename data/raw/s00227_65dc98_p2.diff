@@ -1,0 +1,144 @@
+diff --git a/openair2/RRC/NR/cucp_cuup_e1ap.c b/openair2/RRC/NR/cucp_cuup_e1ap.c
+index b567fd76d4..cfe5ea700a 100644
+--- a/openair2/RRC/NR/cucp_cuup_e1ap.c
++++ b/openair2/RRC/NR/cucp_cuup_e1ap.c
+@@ -26,13 +26,179 @@
+ #include "nr_rrc_extern.h"
+ #include "cucp_cuup_if.h"
+ 
++static void deep_copy_e1ap_bearer_setup_req(e1ap_bearer_setup_req_t *dest, const e1ap_bearer_setup_req_t *src)
++{
++  // Copy basic UE-related fields
++  dest->gNB_cu_cp_ue_id = src->gNB_cu_cp_ue_id;
++  dest->gNB_cu_up_ue_id = src->gNB_cu_up_ue_id;
++  dest->cipheringAlgorithm = src->cipheringAlgorithm;
++  dest->integrityProtectionAlgorithm = src->integrityProtectionAlgorithm;
++  
++  // Copy key arrays
++  memcpy(dest->encryptionKey, src->encryptionKey, sizeof(src->encryptionKey));
++  memcpy(dest->integrityProtectionKey, src->integrityProtectionKey, sizeof(src->integrityProtectionKey));
++  
++  // Copy remaining basic fields
++  dest->ueDlAggMaxBitRate = src->ueDlAggMaxBitRate;
++  dest->servingPLMNid = src->servingPLMNid;
++  dest->bearerContextStatus = src->bearerContextStatus;
++  dest->activityNotificationLevel = src->activityNotificationLevel;
++  
++  // Copy PDU session setup list
++  dest->numPDUSessions = src->numPDUSessions;
++  for (int i = 0; i < src->numPDUSessions; i++) {
++    // Copy session identification and type
++    dest->pduSession[i].sessionId = src->pduSession[i].sessionId;
++    dest->pduSession[i].sessionType = src->pduSession[i].sessionType;
++    
++    // Copy nssai (basic struct copy)
++    dest->pduSession[i].nssai = src->pduSession[i].nssai;
++    
++    // Copy protection indications
++    dest->pduSession[i].integrityProtectionIndication = src->pduSession[i].integrityProtectionIndication;
++    dest->pduSession[i].confidentialityProtectionIndication = src->pduSession[i].confidentialityProtectionIndication;
++    
++    // Copy transport addresses and identifiers
++    dest->pduSession[i].tlAddress = src->pduSession[i].tlAddress;
++    dest->pduSession[i].tlAddress_dl = src->pduSession[i].tlAddress_dl;
++    dest->pduSession[i].teId = src->pduSession[i].teId;
++    dest->pduSession[i].teId_dl = src->pduSession[i].teId_dl;
++    dest->pduSession[i].tl_port = src->pduSession[i].tl_port;
++    dest->pduSession[i].tl_port_dl = src->pduSession[i].tl_port_dl;
++    
++    // Copy DRB setup list
++    dest->pduSession[i].numDRB2Setup = src->pduSession[i].numDRB2Setup;
++    for (int j = 0; j < src->pduSession[i].numDRB2Setup; j++) {
++      // Copy DRB ID
++      dest->pduSession[i].DRBnGRanList[j].id = src->pduSession[i].DRBnGRanList[j].id;
++      
++      // Copy SDAP and PDCP configurations (basic struct copies)
++      dest->pduSession[i].DRBnGRanList[j].sdap_config = src->pduSession[i].DRBnGRanList[j].sdap_config;
++      dest->pduSession[i].DRBnGRanList[j].pdcp_config = src->pduSession[i].DRBnGRanList[j].pdcp_config;
++      
++      // Copy transport information
++      dest->pduSession[i].DRBnGRanList[j].tlAddress = src->pduSession[i].DRBnGRanList[j].tlAddress;
++      dest->pduSession[i].DRBnGRanList[j].teId = src->pduSession[i].DRBnGRanList[j].teId;
++      
++      // Copy DL UP parameters
++      dest->pduSession[i].DRBnGRanList[j].numDlUpParam = src->pduSession[i].DRBnGRanList[j].numDlUpParam;
++      for (int k = 0; k < src->pduSession[i].DRBnGRanList[j].numDlUpParam; k++) {
++        dest->pduSession[i].DRBnGRanList[j].DlUpParamList[k] = src->pduSession[i].DRBnGRanList[j].DlUpParamList[k];
++      }
++      
++      // Copy cell group information
++      dest->pduSession[i].DRBnGRanList[j].numCellGroups = src->pduSession[i].DRBnGRanList[j].numCellGroups;
++      for (int k = 0; k < src->pduSession[i].DRBnGRanList[j].numCellGroups; k++) {
++        dest->pduSession[i].DRBnGRanList[j].cellGroupList[k] = src->pduSession[i].DRBnGRanList[j].cellGroupList[k];
++      }
++    }
++    
++    // Copy DRB modify list
++    dest->pduSession[i].numDRB2Modify = src->pduSession[i].numDRB2Modify;
++    // For DRBnGRanModList, we'll do a direct struct copy since the structure size is bounded
++
+... [truncated] ...
+t->pdu_session_to_setup_list[i].drb_to_setup_list[j].pdcp_config.pDCP_SN_Size_UL = 
++        src->pdu_session_to_setup_list[i].drb_to_setup_list[j].pdcp_config.pDCP_SN_Size_UL;
++      dest->pdu_session_to_setup_list[i].drb_to_setup_list[j].pdcp_config.pDCP_SN_Size_DL = 
++        src->pdu_session_to_setup_list[i].drb_to_setup_list[j].pdcp_config.pDCP_SN_Size_DL;
++      dest->pdu_session_to_setup_list[i].drb_to_setup_list[j].pdcp_config.rLC_Mode = 
++        src->pdu_session_to_setup_list[i].drb_to_setup_list[j].pdcp_config.rLC_Mode;
++      dest->pdu_session_to_setup_list[i].drb_to_setup_list[j].pdcp_config.reorderingTimer = 
++        src->pdu_session_to_setup_list[i].drb_to_setup_list[j].pdcp_config.reorderingTimer;
++      dest->pdu_session_to_setup_list[i].drb_to_setup_list[j].pdcp_config.discardTimer = 
++        src->pdu_session_to_setup_list[i].drb_to_setup_list[j].pdcp_config.discardTimer;
++      dest->pdu_session_to_setup_list[i].drb_to_setup_list[j].pdcp_config.pDCP_Reestablishment = 
++        src->pdu_session_to_setup_list[i].drb_to_setup_list[j].pdcp_config.pDCP_Reestablishment;
++      
++      // Copy transport layer information
++      dest->pdu_session_to_setup_list[i].drb_to_setup_list[j].tlAddress = 
++        src->pdu_session_to_setup_list[i].drb_to_setup_list[j].tlAddress;
++      dest->pdu_session_to_setup_list[i].drb_to_setup_list[j].teId = 
++        src->pdu_session_to_setup_list[i].drb_to_setup_list[j].teId;
++      
++      // Copy UL UP transport parameters
++      dest->pdu_session_to_setup_list[i].drb_to_setup_list[j].num_up_params = 
++        src->pdu_session_to_setup_list[i].drb_to_setup_list[j].num_up_params;
++      for (int k = 0; k < src->pdu_session_to_setup_list[i].drb_to_setup_list[j].num_up_params; k++) {
++        dest->pdu_session_to_setup_list[i].drb_to_setup_list[j].up_params_list[k].tlAddress = 
++          src->pdu_session_to_setup_list[i].drb_to_setup_list[j].up_params_list[k].tlAddress;
++        dest->pdu_session_to_setup_list[i].drb_to_setup_list[j].up_params_list[k].teId = 
++          src->pdu_session_to_setup_list[i].drb_to_setup_list[j].up_params_list[k].teId;
++        dest->pdu_session_to_setup_list[i].drb_to_setup_list[j].up_params_list[k].cell_group_id = 
++          src->pdu_session_to_setup_list[i].drb_to_setup_list[j].up_params_list[k].cell_group_id;
++      }
++      
++      // Copy QoS flow mapping
++      dest->pdu_session_to_setup_list[i].drb_to_setup_list[j].num_qos_flow_mappings = 
++        src->pdu_session_to_setup_list[i].drb_to_setup_list[j].num_qos_flow_mappings;
++      for (int k = 0; k < src->pdu_session_to_setup_list[i].drb_to_setup_list[j].num_qos_flow_mappings; k++) {
++        dest->pdu_session_to_setup_list[i].drb_to_setup_list[j].qos_flow_mapping[k].qfi = 
++          src->pdu_session_to_setup_list[i].drb_to_setup_list[j].qos_flow_mapping[k].qfi;
++      }
++    }
++  }
++}
++
+ static void cucp_cuup_bearer_context_setup_e1ap(sctp_assoc_t assoc_id, const e1ap_bearer_setup_req_t *req)
+ {
+   AssertFatal(assoc_id > 0, "illegal assoc_id %d\n", assoc_id);
+   MessageDef *msg_p = itti_alloc_new_message(TASK_CUCP_E1, 0, E1AP_BEARER_CONTEXT_SETUP_REQ);
+   msg_p->ittiMsgHeader.originInstance = assoc_id;
+   e1ap_bearer_setup_req_t *bearer_req = &E1AP_BEARER_CONTEXT_SETUP_REQ(msg_p);
+-  memcpy(bearer_req, req, sizeof(e1ap_bearer_setup_req_t));
++  
++  // Use deep copy instead of memcpy to avoid buffer overflow vulnerabilities
++  deep_copy_e1ap_bearer_setup_req(bearer_req, req);
+ 
+   itti_send_msg_to_task (TASK_CUCP_E1, 0, msg_p);
+ }
+@@ -43,7 +209,7 @@ static void cucp_cuup_bearer_context_mod_e1ap(sctp_assoc_t assoc_id, const e1ap_
+   MessageDef *msg = itti_alloc_new_message(TASK_CUCP_E1, 0, E1AP_BEARER_CONTEXT_MODIFICATION_REQ);
+   msg->ittiMsgHeader.originInstance = assoc_id;
+   e1ap_bearer_mod_req_t *req_msg = &E1AP_BEARER_CONTEXT_MODIFICATION_REQ(msg);
+-  memcpy(req_msg, req, sizeof(*req));
++  deep_copy_e1ap_bearer_setup_req(req_msg, req);
+   itti_send_msg_to_task(TASK_CUCP_E1, 0, msg);
+ }
+ 

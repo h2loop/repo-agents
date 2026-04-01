@@ -1,0 +1,9 @@
+{
+  "run_id": "s00301_3b6b8a",
+  "pr_text": "## Title: Fix incorrect type cast in PUSCH symbol mapping causing data corruption\n\n### Summary\nCorrects an invalid pointer cast in the `map_symbols()` function that was causing data misinterpretation and potential corruption during PUSCH DMRS and PTRS symbol processing. The function was casting `c16_t*` arrays directly to `int16_t*` when calling `nr_modulation()`, which violates strict aliasing rules and can lead to undefined behavior including misaligned memory access.\n\nThe `nr_modulation()` fu",
+  "trajectory_path": "data/raw/s00301_3b6b8a_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00301_3b6b8a_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 48,
+  "timestamp": "2026-02-11T14:16:52Z"
+}

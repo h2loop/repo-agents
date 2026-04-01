@@ -1,0 +1,9 @@
+{
+  "run_id": "s00090_9e492d",
+  "pr_text": "## Title: Fix power control TLV packing in nFAPI P7 TX data interface\n\n### Summary\nThe nFAPI P7 interface was incorrectly handling power control TLVs (tags 2-10) in TX data PDU packing and unpacking functions. These critical TLVs were falling through to a default case that only logged a FIXME comment, causing power control parameters to be silently skipped during message serialization. This resulted in incorrect transmit power levels being applied at the gNB, as the power control data was either",
+  "trajectory_path": "data/raw/s00090_9e492d_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00090_9e492d_p2.diff",
+  "patch_lines": 24,
+  "trajectory_steps": 19,
+  "timestamp": "2026-02-10T11:09:45Z"
+}

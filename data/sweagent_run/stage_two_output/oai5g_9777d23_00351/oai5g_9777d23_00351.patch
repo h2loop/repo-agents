@@ -1,0 +1,400 @@
+diff --git a/nfapi/oai_integration/wls_integration/include/wls_common.h b/nfapi/oai_integration/wls_integration/include/wls_common.h
+index e823e93380..829a2b3c3f 100644
+--- a/nfapi/oai_integration/wls_integration/include/wls_common.h
++++ b/nfapi/oai_integration/wls_integration/include/wls_common.h
+@@ -99,7 +99,10 @@ typedef struct wls_mac_ctx
+  volatile pthread_mutex_t lock_alloc;
+ } WLS_MAC_CTX, *PWLS_MAC_CTX;
+ 
++// Function declarations
+ void fill_fapi_list_elem(p_fapi_api_queue_elem_t currElem, p_fapi_api_queue_elem_t nextElem, const uint8_t msgType, const uint8_t numMsgInBlock, const uint32_t alignOffset);
++bool wls_mac_create_mem_array(PWLS_MAC_MEM_SRUCT pMemArray, void *pMemArrayMemory, uint32_t totalSize, uint32_t nBlockSize);
++void *wls_mac_alloc_buffer(PWLS_MAC_CTX pWls, uint32_t size, uint32_t loc);
+ uint64_t dequeueBlock(PWLS_MAC_CTX pWls);
+ void wls_return_msg_to_master(PWLS_MAC_CTX pWls, const uint64_t msg_PA);
+ uint8_t wls_send_fapi_msg(PWLS_MAC_CTX pWls, const uint16_t message_id, const int packed_len, const uint8_t *message );
+diff --git a/nfapi/oai_integration/wls_integration/wls_common.c b/nfapi/oai_integration/wls_integration/wls_common.c
+index 6b471e0e96..e6327c0844 100644
+--- a/nfapi/oai_integration/wls_integration/wls_common.c
++++ b/nfapi/oai_integration/wls_integration/wls_common.c
+@@ -21,6 +21,147 @@
+ 
+ #include "wls_common.h"
+ #include "wls_lib.h"
++#include "common/utils/LOG/log.h"
++
++static uint8_t alloc_track[ALLOC_TRACK_SIZE];
++
++//-------------------------------------------------------------------------------------------
++/** @ingroup group_testmac
++ *
++ *  @param[in]   pMemArray Pointer to WLS Memory management structure
++ *  @param[in]   pMemArrayMemory Pointer to flat buffer that was allocated
++ *  @param[in]   totalSize Total Size of flat buffer allocated
++ *  @param[in]   nBlockSize Size of each block that needs to be partitioned by memory manager
++ *
++ *  @return  true if SUCCESS
++ *
++ *  @description
++ *  This function creates memory blocks from a flat buffer which will be used for communciation
++ *  between MAC and PHY
++ *
++ **/
++//-------------------------------------------------------------------------------------------
++bool wls_mac_create_mem_array(PWLS_MAC_MEM_SRUCT pMemArray, void *pMemArrayMemory, uint32_t totalSize, uint32_t nBlockSize)
++{
++  const uint32_t numBlocks = totalSize / nBlockSize;
++
++  printf("wls_mac_create_mem_array: pMemArray[%p] pMemArrayMemory[%p] totalSize[%d] nBlockSize[%d] numBlocks[%d]\n",
++         pMemArray,
++         pMemArrayMemory,
++         totalSize,
++         nBlockSize,
++         numBlocks);
++  AssertFatal(nBlockSize >= sizeof(void *), "WLS nBlockSize too small");
++  AssertFatal(totalSize > sizeof(void *), "WLS Can't allocate less than 1 block");
++  pMemArray->ppFreeBlock = (void **)pMemArrayMemory;
++  pMemArray->pStorage = pMemArrayMemory;
++  pMemArray->pEndOfStorage = ((unsigned long *)pMemArrayMemory) + numBlocks * nBlockSize / sizeof(unsigned long);
++  pMemArray->nBlockSize = nBlockSize;
++  pMemArray->nBlockCount = numBlocks;
++
++  // Initialize single-linked list of free blocks;
++  void **ptr = (void **)pMemArrayMemory;
++  for (uint32_t i = 0; i < pMemArray->nBlockCount; i++) {
++    if (i == pMemArray->nBlockCount - 1) {
++      *ptr = NULL; // End of list
++    } else {
++      // Points to the next block
++      *ptr = (void **)(((uint8_t *)ptr) + nBlockSize);
++      ptr += nBlockSize / sizeof(unsigned long);
++    }
++  }
++
++  memset(alloc_track, 0, sizeof(uint8_t) * ALLOC_TRACK_SIZE);
++
++  return true;
++}
++
++//-------------------------------------------------------------------------------------------
++/** @ingroup group_testmac
++ *
++ *  @param[in]   pMemArray Pointer to WLS Memory management structure
++ *  @param[out]  ppBlock   Pointer to return the allocated block
++ *
++ *  @return  0 if SUCCESS
++ *
++ *  @description
++ *  This function allocates a memory block from the memory array
++ *
++ **/
++//-------------------------------------------------------------------------------------------
++static uint32_t wls_mac_alloc_mem_array(PWLS_MAC_MEM_SRUCT pMemArray, void **ppBlock)
++{
++  int idx;
++
++  if (pMemArray->ppFreeBlock == NULL) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "wls_mac_alloc_mem_array pMemArray->ppFreeBlock = NULL\n");
++    return 1;
++  }
++
++  // FIXME: Remove after debugging
++  if (((void *)pMemArray->ppFreeBlock < pMemArray->pStorage) || ((void *)pMemArray->ppFreeBlock >= pMemArray->pEndOfStorage)) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR,
++                "wls_mac_alloc_mem_array ERROR: Corrupted MemArray;Arr=%p,Stor=%p,Free=%p\n",
++                pMemArray,
++                pMemArray->pStorage,
++                pMemArray->ppFreeBlock);
++    return 1;
++  }
++
++  pMemArray->ppFreeBlock = (void **)((unsigned long)pMemArray->ppFreeBlock & 0xFFFFFFFFFFFFFFF0);
++  *pMemArray->ppFreeBlock = (void **)((unsigned long)*pMemArray->ppFreeBlock & 0xFFFFFFFFFFFFFFF0);
++
++  if ((*pMemArray->ppFreeBlock != NULL)
++      && (((*pMemArray->ppFreeBlock) < pMemArray->pStorage) || ((*pMemArray->ppFreeBlock) >= pMemArray->pEndOfStorage))) {
++    fprintf(stderr,
++            "ERROR: Corrupted MemArray;Arr=%p,Stor=%p,Free=%p,Curr=%p\n",
++            pMemArray,
++            pMemArray->pStorage,
++            pMemArray->ppFreeBlock,
++            *pMemArray->ppFreeBlock);
++    return 1;
++  }
++
++  *ppBlock = (void *)pMemArray->ppFreeBlock;
++  pMemArray->ppFreeBlock = (void **)(*pMemArray->ppFreeBlock);
++
++  idx = (((uint64_t)*ppBlock - (uint64_t)pMemArray->pStorage)) / pMemArray->nBlockSize;
++  if (alloc_track[idx]) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR,
++                "wls_mac_alloc_mem_array Double alloc Arr=%p,Stor=%p,Free=%p,Curr=%p\n",
++                pMemArray,
++                pMemArray->pStorage,
++                pMemArray->ppFreeBlock,
++                *pMemArray->ppFreeBlock);
++  } else {
++    alloc_track[idx] = 1;
++  }
++
++  return 0;
++}
++
++void *wls_mac_alloc_buffer(PWLS_MAC_CTX pWls, uint32_t size, uint32_t loc)
++{
++  void *pBlock = NULL;
++  pthread_mutex_lock((pthread_mutex_t *)&pWls->lock_alloc);
++  if (wls_mac_alloc_mem_array(&pWls->sWlsStruct, &pBlock) != 0) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "wls_mac_alloc_buffer alloc error size[%d] loc[%d]\n", size, loc);
++    wls_mac_print_stats();
++    pthread_mutex_unlock((pthread_mutex_t *)&pWls->lock_alloc);
++    return NULL;
++  }
++  pWls->nAllocBlocks++;
++  pWls->nTotalAllocCnt++;
++  if (loc < MAX_DL_BUF_LOCATIONS)
++    pWls->nTotalDlBufAllocCnt++;
++  else if (loc < MAX_UL_BUF_LOCATIONS)
++    pWls->nTotalUlBufAllocCnt++;
++
++  pthread_mutex_unlock((pthread_mutex_t *)&pWls->lock_alloc);
++
++  return pBlock;
++}
++
+ void fill_fapi_list_elem(p_fapi_api_queue_elem_t currElem, p_fapi_api_queue_elem_t nextElem, const uint8_t msgType, const uint8_t numMsgInBlock, const uint32_t alignOffset)
+ {
+     currElem->msg_type             = msgType;
+diff --git a/nfapi/oai_integration/wls_integration/wls_pnf.c b/nfapi/oai_integration/wls_integration/wls_pnf.c
+index 96bfc3fd6b..de94a4ff5b 100644
+--- a/nfapi/oai_integration/wls_integration/wls_pnf.c
++++ b/nfapi/oai_integration/wls_integration/wls_pnf.c
+@@ -33,6 +33,7 @@
+ #include "pnf.h"
+ #include "nr_nfapi_p7.h"
+ #include "nfapi/open-nFAPI/fapi/inc/nr_fapi_p7_utils.h"
++#include "common/utils/LOG/log.h"
+ 
+ // A copy of the PNF P7 config is needed for the message processing thread, in other transport mechanisms where P7 is handled in a
+ // different thread, the config is passed to it upon the thread creation
+@@ -158,6 +159,10 @@ uint8_t phy_wls_init(const char *dev_name, uint64_t nWlsMacMemSize, uint64_t nWl
+ // uint8_t phy_wls_init(const char *dev_name,  uint64_t nBlockSize)
+ {
+   PWLS_MAC_CTX pWls = wls_mac_get_ctx();
++
++  pthread_mutex_init((pthread_mutex_t *)&pWls->lock, NULL);
++  pthread_mutex_init((pthread_mutex_t *)&pWls->lock_alloc, NULL);
++
+   pWls->nTotalAllocCnt = 0;
+   pWls->nTotalFreeCnt = 0;
+   pWls->nTotalUlBufAllocCnt = 0;
+@@ -165,19 +170,42 @@ uint8_t phy_wls_init(const char *dev_name, uint64_t nWlsMacMemSize, uint64_t nWl
+   pWls->nTotalDlBufAllocCnt = 0;
+   pWls->nTotalDlBufFreeCnt = 0;
+ 
+-  pWls->hWls = WLS_Open(dev_name, WLS_SLAVE_CLIENT, &nWlsMacMemSize, &nWlsPhyMemSize);
+-  if (pWls->hWls) {
+-    /* allocate chuck of memory */
+-    if (WLS_Alloc(pWls->hWls, nWlsMacMemSize + nWlsPhyMemSize) != NULL) {
+-      NFAPI_TRACE(NFAPI_TRACE_DEBUG, "WLS Memory allocated successfully\n");
+-    } else {
+-      NFAPI_TRACE(NFAPI_TRACE_ERROR, "Unable to alloc WLS Memory\n");
+-      return false;
+-    }
+-  } else {
+-    NFAPI_TRACE(NFAPI_TRACE_ERROR, "can't open WLS instance");
++  /* Start by opening the WLS instance with WLS_SLAVE_CLIENT */
++  if ((pWls->hWls = WLS_Open(dev_name, WLS_SLAVE_CLIENT, &nWlsMacMemSize, &nWlsPhyMemSize)) == NULL) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "\nCould not open WLS Interface \n");
+     return false;
+   }
++
++  /* WLS_Open was successful, we can allocate memory */
++  if ((pWls->pWlsMemBase = WLS_Alloc(pWls->hWls, nWlsMacMemSize + nWlsPhyMemSize)) == NULL) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "\nCould not allocate WLS Memory \n");
++    return false;
++  }
++  
++  /* Set the total memory that MAC has access to */
++  pWls->nTotalMemorySize = nWlsMacMemSize;
++
++  /* Partition the WLS memory */
++  memset(pWls->pWlsMemBase, 0xCC, pWls->nTotalMemorySize);
++  pWls->pPartitionMemBase = pWls->pWlsMemBase;
++  pWls->nPartitionMemSize = pWls->nTotalMemorySize;
++  pWls->nTotalBlocks = pWls->nTotalMemorySize / (NFAPI_MAX_PACKED_MESSAGE_SIZE);
++  
++  /* Create the memory array */
++  if (!wls_mac_create_mem_array(&pWls->sWlsStruct, pWls->pPartitionMemBase, pWls->nPartitionMemSize, NFAPI_MAX_PACKED_MESSAGE_SIZE)) {
++    NFAPI_TRACE(NFAPI_TRACE_ERROR, "\nCould not create WLS Memory Array \n");
++    return false;
++  }
++  
++  NFAPI_TRACE(NFAPI_TRACE_INFO, "\nTotalBlocks is %d \n", pWls->nTotalBlocks);
++  int nBlocks = 0;
++  for(int i = 0 ; i< pWls->nTotalBlocks; i++){
++    void* pMsg = wls_mac_alloc_buffer(pWls, 0, i);
++    /* Enqueue all blocks */
++    nBlocks += WLS_EnqueueBlock(pWls->hWls, WLS_VA2PA(pWls->hWls, pMsg));
++  }
++  NFAPI_TRACE(NFAPI_TRACE_INFO, "\nAllocated %d Blocks \n", nBlocks);
++  
+   return true;
+ }
+ 
+diff --git a/nfapi/oai_integration/wls_integration/wls_vnf.c b/nfapi/oai_integration/wls_integration/wls_vnf.c
+index c72e17a2b6..b82c1b0d60 100644
+--- a/nfapi/oai_integration/wls_integration/wls_vnf.c
++++ b/nfapi/oai_integration/wls_integration/wls_vnf.c
+@@ -23,6 +23,7 @@
+ #include "vnf_p7.h"
+ #include "common/utils/LOG/log.h"
+ #include "wls_lib.h"
++#include "wls_common.h"
+ #include <rte_eal.h>
+ #include <rte_string_fns.h>
+ #include <rte_common.h>
+@@ -45,56 +46,6 @@ static PWLS_MAC_CTX wls_mac_get_ctx(void)
+ }
+ 
+ static uint8_t alloc_track[ALLOC_TRACK_SIZE];
+-//-------------------------------------------------------------------------------------------
+-/** @ingroup group_testmac
+- *
+- *  @param[in]   pMemArray Pointer to WLS Memory management structure
+- *  @param[in]   pMemArrayMemory Pointer to flat buffer that was allocated
+- *  @param[in]   totalSize Total Size of flat buffer allocated
+- *  @param[in]   nBlockSize Size of each block that needs to be partitioned by memory manager
+- *
+- *  @return  0 if SUCCESS
+- *
+- *  @description
+- *  This function creates memory blocks from a flat buffer which will be used for communciation
+- *  between MAC and PHY
+- *
+- **/
+-//-------------------------------------------------------------------------------------------
+-static bool wls_mac_create_mem_array(PWLS_MAC_MEM_SRUCT pMemArray, void *pMemArrayMemory, uint32_t totalSize, uint32_t nBlockSize)
+-{
+-  const uint32_t numBlocks = totalSize / nBlockSize;
+-
+-  printf("wls_mac_create_mem_array: pMemArray[%p] pMemArrayMemory[%p] totalSize[%d] nBlockSize[%d] numBlocks[%d]\n",
+-         pMemArray,
+-         pMemArrayMemory,
+-         totalSize,
+-         nBlockSize,
+-         numBlocks);
+-  AssertFatal(nBlockSize >= sizeof(void *), "WLS nBlockSize too small");
+-  AssertFatal(totalSize > sizeof(void *), "WLS Can't allocate less than 1 block");
+-  pMemArray->ppFreeBlock = (void **)pMemArrayMemory;
+-  pMemArray->pStorage = pMemArrayMemory;
+-  pMemArray->pEndOfStorage = ((unsigned long *)pMemArrayMemory) + numBlocks * nBlockSize / sizeof(unsigned long);
+-  pMemArray->nBlockSize = nBlockSize;
+-  pMemArray->nBlockCount = numBlocks;
+-
+-  // Initialize single-linked list of free blocks;
+-  void **ptr = (void **)pMemArrayMemory;
+-  for (uint32_t i = 0; i < pMemArray->nBlockCount; i++) {
+-    if (i == pMemArray->nBlockCount - 1) {
+-      *ptr = NULL; // End of list
+-    } else {
+-      // Points to the next block
+-      *ptr = (void **)(((uint8_t *)ptr) + nBlockSize);
+-      ptr += nBlockSize / sizeof(unsigned long);
+-    }
+-  }
+-
+-  memset(alloc_track, 0, sizeof(uint8_t) * ALLOC_TRACK_SIZE);
+-
+-  return true;
+-}
+ 
+ bool primary_process_running(int argc, char *argv[])
+ {
+@@ -146,57 +97,6 @@ bool mac_dpdk_init()
+   return rte_eal_init(RTE_DIM(my_argv), my_argv) >= 0;
+ }
+ 
+-static uint32_t wls_mac_alloc_mem_array(PWLS_MAC_MEM_SRUCT pMemArray, void **ppBlock)
+-{
+-  int idx;
+-
+-  if (pMemArray->ppFreeBlock == NULL) {
+-    NFAPI_TRACE(NFAPI_TRACE_ERROR, "wls_mac_alloc_mem_array pMemArray->ppFreeBlock = NULL\n");
+-    return 1;
+-  }
+-
+-  // FIXME: Remove after debugging
+-  if (((void *)pMemArray->ppFreeBlock < pMemArray->pStorage) || ((void *)pMemArray->ppFreeBlock >= pMemArray->pEndOfStorage)) {
+-    NFAPI_TRACE(NFAPI_TRACE_ERROR,
+-                "wls_mac_alloc_mem_array ERROR: Corrupted MemArray;Arr=%p,Stor=%p,Free=%p\n",
+-                pMemArray,
+-                pMemArray->pStorage,
+-                pMemArray->ppFreeBlock);
+-    return 1;
+-  }
+-
+-  pMemArray->ppFreeBlock = (void **)((unsigned long)pMemArray->ppFreeBlock & 0xFFFFFFFFFFFFFFF0);
+-  *pMemArray->ppFreeBlock = (void **)((unsigned long)*pMemArray->ppFreeBlock & 0xFFFFFFFFFFFFFFF0);
+-
+-  if ((*pMemArray->ppFreeBlock != NULL)
+-      && (((*pMemArray->ppFreeBlock) < pMemArray->pStorage) || ((*pMemArray->ppFreeBlock) >= pMemArray->pEndOfStorage))) {
+-    fprintf(stderr,
+-            "ERROR: Corrupted MemArray;Arr=%p,Stor=%p,Free=%p,Curr=%p\n",
+-            pMemArray,
+-            pMemArray->pStorage,
+-            pMemArray->ppFreeBlock,
+-            *pMemArray->ppFreeBlock);
+-    return 1;
+-  }
+-
+-  *ppBlock = (void *)pMemArray->ppFreeBlock;
+-  pMemArray->ppFreeBlock = (void **)(*pMemArray->ppFreeBlock);
+-
+-  idx = (((uint64_t)*ppBlock - (uint64_t)pMemArray->pStorage)) / pMemArray->nBlockSize;
+-  if (alloc_track[idx]) {
+-    NFAPI_TRACE(NFAPI_TRACE_ERROR,
+-                "wls_mac_alloc_mem_array Double alloc Arr=%p,Stor=%p,Free=%p,Curr=%p\n",
+-                pMemArray,
+-                pMemArray->pStorage,
+-                pMemArray->ppFreeBlock,
+-                *pMemArray->ppFreeBlock);
+-  } else {
+-    alloc_track[idx] = 1;
+-  }
+-
+-  return 0;
+-}
+-
+ void wls_mac_print_stats(void)
+ {
+   PWLS_MAC_CTX pWls = wls_mac_get_ctx();
+@@ -224,28 +124,6 @@ void wls_mac_print_stats(void)
+               (pWls->nTotalUlBufAllocCnt - pWls->nTotalUlBufFreeCnt));
+ }
+ 
+-static void *wls_mac_alloc_buffer(PWLS_MAC_CTX pWls, uint32_t size, uint32_t loc)
+-{
+-  void *pBlock = NULL;
+-  pthread_mutex_lock((pthread_mutex_t *)&pWls->lock_alloc);
+-  if (wls_mac_alloc_mem_array(&pWls->sWlsStruct, &pBlock) != 0) {
+-    NFAPI_TRACE(NFAPI_TRACE_ERROR, "wls_mac_alloc_buffer alloc error size[%d] loc[%d]\n", size, loc);
+-    wls_mac_print_stats();
+-    pthread_mutex_unlock((pthread_mutex_t *)&pWls->lock_alloc);
+-    return NULL;
+-  }
+-  pWls->nAllocBlocks++;
+-  pWls->nTotalAllocCnt++;
+-  if (loc < MAX_DL_BUF_LOCATIONS)
+-    pWls->nTotalDlBufAllocCnt++;
+-  else if (loc < MAX_UL_BUF_LOCATIONS)
+-    pWls->nTotalUlBufAllocCnt++;
+-
+-  pthread_mutex_unlock((pthread_mutex_t *)&pWls->lock_alloc);
+-
+-  return pBlock;
+-}
+-
+ static bool mac_wls_init()
+ {
+   uint64_t nWlsMacMemorySize = 0;

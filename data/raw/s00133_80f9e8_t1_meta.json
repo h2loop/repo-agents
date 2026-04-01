@@ -1,0 +1,33 @@
+{
+  "run_id": "s00133_80f9e8",
+  "function": {
+    "name": "saturating_sub",
+    "file": "openair1/PHY/nr_phy_common/src/nr_phy_common.c",
+    "start_line": 58,
+    "end_line": 64,
+    "body_lines": 7,
+    "signature": "static inline c16_t saturating_sub(c16_t a, c16_t b)",
+    "subsystem": "openair1/PHY/nr_phy_common",
+    "token_estimate": 33
+  },
+  "bug": {
+    "bug_id": "c_copy_paste_error",
+    "description": "copy-paste error where duplicated code was not correctly updated for its new context",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a copy-paste error where duplicated code was not correctly updated for its new context downstream of function saturating_sub in the openair1/PHY/nr_phy_common subsystem.\nThe function is located at openair1/PHY/nr_phy_common/src/nr_phy_common.c:58.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00133_80f9e8_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00133_80f9e8_p1.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 11,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T12:16:14Z"
+}

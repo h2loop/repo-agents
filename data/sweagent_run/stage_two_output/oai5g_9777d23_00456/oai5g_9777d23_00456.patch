@@ -1,0 +1,33 @@
+diff --git a/openair2/LAYER2/nr_rlc/nr_rlc_entity_um.c b/openair2/LAYER2/nr_rlc/nr_rlc_entity_um.c
+index 43a2189c51..e0d8905f88 100644
+--- a/openair2/LAYER2/nr_rlc/nr_rlc_entity_um.c
++++ b/openair2/LAYER2/nr_rlc/nr_rlc_entity_um.c
+@@ -756,3 +756,17 @@ int nr_rlc_entity_um_available_tx_space(nr_rlc_entity_t *_entity)
+   nr_rlc_entity_um_t *entity = (nr_rlc_entity_um_t *)_entity;
+   return entity->tx_maxsize - entity->tx_size;
+ }
++
++int nr_rlc_entity_um_tx_list_occupancy(nr_rlc_entity_t *_entity)
++{
++  nr_rlc_entity_um_t *entity = (nr_rlc_entity_um_t *)_entity;
++  nr_rlc_sdu_segment_t *cur;
++  int count = 0;
++
++  /* Count the number of SDU segments in the TX list */
++  for (cur = entity->tx_list; cur != NULL; cur = cur->next) {
++    count++;
++  }
++
++  return count;
++}
+diff --git a/openair2/LAYER2/nr_rlc/nr_rlc_entity_um.h b/openair2/LAYER2/nr_rlc/nr_rlc_entity_um.h
+index c40e72ada1..3e8ac8ae06 100644
+--- a/openair2/LAYER2/nr_rlc/nr_rlc_entity_um.h
++++ b/openair2/LAYER2/nr_rlc/nr_rlc_entity_um.h
+@@ -76,5 +76,6 @@ void nr_rlc_entity_um_discard_sdu(nr_rlc_entity_t *_entity, int sdu_id);
+ void nr_rlc_entity_um_reestablishment(nr_rlc_entity_t *_entity);
+ void nr_rlc_entity_um_delete(nr_rlc_entity_t *entity);
+ int nr_rlc_entity_um_available_tx_space(nr_rlc_entity_t *entity);
++int nr_rlc_entity_um_tx_list_occupancy(nr_rlc_entity_t *entity);
+ 
+ #endif /* _NR_RLC_ENTITY_UM_H_ */

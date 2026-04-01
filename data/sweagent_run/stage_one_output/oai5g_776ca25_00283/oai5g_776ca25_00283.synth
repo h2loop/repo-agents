@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix function signature mismatch in emm_recv_detach_accept\n\n### Summary\nThe `emm_recv_detach_accept` function in the NAS EMM layer had a function signature mismatch that caused improper parameter passing during detach procedure completion. The issue occurred when the network sent a DETACH ACCEPT message to the UE.\n\nThe problem was that `emm_proc_detach_accept` was declared to take `void *args` but was being called with `nas_user_t *user`, causing a type mismatch. This led to incorrect handling of the detach procedure completion.\n\n### Changes\n- `openair3/NAS/UE/EMM/emm_proc.h`: Updated function declaration to use `nas_user_t *user` parameter\n- `openair3/NAS/UE/EMM/Detach.c`: Modified function signature and removed unnecessary casting\n\n"
+}

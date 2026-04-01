@@ -1,0 +1,68 @@
+diff --git a/common/utils/T/tracer/gnb.c b/common/utils/T/tracer/gnb.c
+index 22567492f8..fe372d1c03 100644
+--- a/common/utils/T/tracer/gnb.c
++++ b/common/utils/T/tracer/gnb.c
+@@ -3,6 +3,7 @@
+ #include <string.h>
+ #include <pthread.h>
+ #include <unistd.h>
++#include <signal.h>
+ #include "database.h"
+ #include "event.h"
+ #include "handler.h"
+@@ -15,6 +16,9 @@
+ int ue_id[65536];
+ int next_ue_id;
+ 
++/* Flag to indicate if the program should exit gracefully */
++static volatile int exit_flag = 0;
++
+ typedef struct {
+   widget *pucch_pusch_iq_plot;
+   widget *ul_freq_estimate_ue_xy_plot;
+@@ -212,6 +216,12 @@ static void gnb_main_gui(gnb_gui *e, gui *g, event_handler *h, void *database, g
+   register_notifier(g, "click", e->next_ue_button, click, ed);
+ }
+ 
++/* Signal handler for graceful shutdown */
++static void signal_handler(int sig)
++{
++  exit_flag = 1;
++}
++
+ int main(int n, char **v)
+ {
+   char *database_filename = NULL;
+@@ -226,6 +236,10 @@ int main(int n, char **v)
+   gui *g;
+   gnb_gui eg;
+ 
++  /* Set up signal handlers for graceful shutdown */
++  signal(SIGINT, signal_handler);
++  signal(SIGTERM, signal_handler);
++
+   for (i = 1; i < n; i++) {
+     if (!strcmp(v[i], "-h") || !strcmp(v[i], "--help")) usage();
+     if (!strcmp(v[i], "-d"))
+@@ -276,7 +290,7 @@ restart:
+   is_on_changed(&gnb_data);
+ 
+   /* read messages */
+-  while (1) {
++  while (!exit_flag) {
+     event e;
+     e = get_event(gnb_data.socket, &ebuf, database);
+     if (e.type == -1) goto restart;
+@@ -285,5 +299,12 @@ restart:
+     if (pthread_mutex_unlock(&gnb_data.lock)) abort();
+   }
+ 
++  /* Cleanup resources */
++  if (gnb_data.socket != -1) close(gnb_data.socket);
++  if (ebuf.obuf != NULL) free(ebuf.obuf);
++  free_database(database);
++  free(is_on);
++  pthread_mutex_destroy(&gnb_data.lock);
++
+   return 0;
+ }

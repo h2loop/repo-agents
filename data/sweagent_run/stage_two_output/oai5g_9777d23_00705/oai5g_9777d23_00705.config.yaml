@@ -1,0 +1,184 @@
+'{"env":{"deployment":{"image":"oai5g-sera:9777d23","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_9777d23_00705","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix missing mandatory information element in PUCCH configuration\n\n### Summary\nThe
+  `get_max_code_rate` function in the NR MAC layer was using an undefined enum type
+  `NR_PUCCH_MaxCodeRate_t` instead of the correct `PUCCH_MaxCodeRate_t`. This caused
+  issues with PUCCH format 2 and 3 resource allocation where the max code rate parameter
+  couldn''t be properly decoded from RRC configuration.\n\nThis fix updates the function
+  signature and implementation to use the correct enum type that''s actually defined
+  in the codebase, ensuring proper mapping of maxCodeRate values from RRC PUCCH-Config
+  to MAC layer processing.\n\n### Changes\n- `openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c`:
+  Updated `get_max_code_rate` function parameter type and enum value references\n-
+  `openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.h`: Updated function prototype and
+  added required header include\n- Fixed enum type mismatch in `compute_pucch_prb_size`
+  function signature\n\n","extra_fields":{"bug_description":"missing mandatory information
+  element in outgoing signaling message","bug_id":"telecom_missing_mandatory_ie","stage_one_patch":"diff
+  --git a/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c b/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c\nindex
+  11dac69484..630c58a41e 100644\n--- a/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c\n+++
+  b/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c\n@@ -34,6 +34,7 @@\n #include \"nr_mac.h\"\n
+  #include \"nr_mac_common.h\"\n #include \"common/utils/nr/nr_common.h\"\n+#include
+  \"PHY/impl_defs_nr.h\"\n #include <limits.h>\n #include <executables/softmodem-common.h>\n
+  \n@@ -107,11 +108,11 @@ static const uint16_t NCS_restricted_TypeB_delta_f_RA_5[14]
+  =\n // Table 6.3.3.1-7 (38.211) NCS for preamble formats with delta_f_RA = 15 *
+  2mu KHz where mu = {0,1,2,3}\n static const uint16_t NCS_unrestricted_delta_f_RA_15[16]
+  = {0, 2, 4, 6, 8, 10, 12, 13, 15, 17, 19, 23, 27, 34, 46, 69};\n \n-//\tspecification
+  mapping talbe, table_38$x_$y_$z_c$a\n-//\t- $x: specification\n-//\t- $y: subclause-major\n-//\t-
+  $z: subclause-minor\n-//\t- $a: ($a)th of column in table, start from zero\n+//      specification
+  mapping talbe, table_38$x_$y_$z_c$a\n+//      - $x: specification\n+//      - $y:
+  subclause-major\n+//      - $z: subclause-minor\n+//      - $a: ($a)th of column
+  in table, start from zero\n const int32_t table_38213_13_1_c1[16] = {1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, reserved}; // index 15 reserved\n const int32_t
+  table_38213_13_1_c2[16] = {24, 24, 24, 24, 24, 24, 48, 48, 48, 48, 48, 48, 96, 96,
+  96, reserved}; // index 15 reserved\n const int32_t table_38213_13_1_c3[16] = {
+  2,  2,  2,  3,  3,  3,  1,  1,  2,  2,  3,  3,  1,  2,  3, reserved}; // index 15
+  reserved\n@@ -162,10 +163,10 @@ const int32_t table_38213_13_10_c2[16] = {48, 48,
+  48, 48, 24, 24, 48, 48, reserv\n const int32_t table_38213_13_10_c3[16] = { 1,  1,  2,  2,  1,  1,  1,  1,
+  reserved, reserved, reserved, reserved, reserved, reserved, reserved, reserved};
+  // index 08-15 reserved\n const int32_t table_38213_13_10_c4[16] = { 0,  8,  0,  8,-41,
+  25,-41, 49, reserved, reserved, reserved, reserved, reserved, reserved, reserved,
+  reserved}; // index 08-15 reserved, condition A as default\n \n-const float   table_38213_13_11_c1[16]
+  = { 0,  0,  2,  2,  5,  5,  7,  7,  0,  5,  0,  0,  2,  2,  5,  5};\t//\tO\n+const
+  float   table_38213_13_11_c1[16] = { 0,  0,  2,  2,  5,  5,  7,  7,  0,  5,  0,  0,  2,  2,  5,  5};      //      O\n
+  const int32_t table_38213_13_11_c2[16] = { 1,  2,  1,  2,  1,  2,  1,  2,  1,  1,  1,  1,  1,  1,  1,  1};\n-const
+  float   table_38213_13_11_c3[16] = { 1, 0.5f, 1, 0.5f, 1, 0.5f, 1, 0.5f,  2,  2,  1,  1,  1,  1,  1,  1};\t//\tM\n-const
+  int32_t table_38213_13_11_c4[16] = { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  2,  1,  2,  1,  2};\t//
+  i is even as default\n+const float   table_38213_13_11_c3[16] = { 1, 0.5f, 1, 0.5f,
+  1, 0.5f, 1, 0.5f,  2,  2,  1,  1,  1,  1,  1,  1}; //      M\n+const int32_t table_38213_13_11_c4[16]
+  = { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  2,  1,  2,  1,  2};      // i is
+  even as default\n \n const float   table_38213_13_12_c1[16] = { 0, 0, 2.5f, 2.5f,
+  5, 5, 0, 2.5f, 5, 7.5f, 7.5f, 7.5f, 0, 5, reserved, reserved}; // O, index 14-15
+  reserved\n const int32_t table_38213_13_12_c2[16] = { 1,  2,  1,  2,  1,  2,  2,  2,  2,  1,  2,  2,  1,  1,  reserved,  reserved};
+  // index 14-15 reserved\n@@ -1825,7 +1826,7 @@ static const uint16_t table_63313[838]
+  = {\n uint8_t compute_nr_root_seq(NR_RACH_ConfigCommon_t *rach_config,\n                             uint8_t
+  nb_preambles,\n                             uint8_t unpaired,\n-\t\t\t    frequency_range_t
+  frequency_range) {\n+                            frequency_range_t frequency_range)
+  {\n \n   uint8_t config_index = rach_config->rach_ConfigGeneric.prach_ConfigurationIndex;\n   uint8_t
+  ncs_index = rach_config->rach_ConfigGeneric.zeroCorrelationZoneConfig;\n@@ -4074,29
+  +4075,29 @@ int compute_pucch_crc_size(int O_uci)\n   }\n }\n \n-float get_max_code_rate(NR_PUCCH_MaxCodeRate_t
+  *maxCodeRate)\n+float get_max_code_rate(PUCCH_MaxCodeRate_t *maxCodeRate)\n {\n   int
+  rtimes100;\n   switch(*maxCodeRate){\n-    case NR_PUCCH_MaxCodeRate_zeroDot08 :\n+    case
+  zeroDot08 :\n       rtimes100 = 8;\n       break;\n-    case NR_PUCCH_MaxCodeRate_zeroDot15
+  :\n+    case zeroDot15 :\n       rtimes100 = 15;\n       break;\n-    case NR_PUCCH_MaxCodeRate_zeroDot25
+  :\n+    case zeroDot25 :\n       rtimes100 = 25;\n       break;\n-    case NR_PUCCH_MaxCodeRate_zeroDot35
+  :\n+    case zeroDot35 :\n       rtimes100 = 35;\n       break;\n-    case NR_PUCCH_MaxCodeRate_zeroDot45
+  :\n+    case zeroDot45 :\n       rtimes100 = 45;\n       break;\n-    case NR_PUCCH_MaxCodeRate_zeroDot60
+  :\n+    case zeroDot60 :\n       rtimes100 = 60;\n       break;\n-    case NR_PUCCH_MaxCodeRate_zeroDot80
+  :\n+    case zeroDot80 :\n       rtimes100 = 80;\n       break;\n   default :\n@@
+  -4131,7 +4132,7 @@ uint16_t compute_pucch_prb_size(uint8_t format,\n                                 uint16_t
+  O_csi,\n                                 uint16_t O_ack,\n                                 uint8_t
+  O_sr,\n-                                NR_PUCCH_MaxCodeRate_t *maxCodeRate,\n+                                PUCCH_MaxCodeRate_t
+  *maxCodeRate,\n                                 uint8_t Qm,\n                                 uint8_t
+  n_symb,\n                                 uint8_t n_re_ctrl)\ndiff --git a/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.h
+  b/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.h\nindex 74baa8462f..b975835bfa 100644\n---
+  a/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.h\n+++ b/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.h\n@@
+  -37,6 +37,7 @@\n #include \"nr_mac.h\"\n #include \"nr_prach_config.h\"\n #include
+  \"common/utils/nr/nr_common.h\"\n+#include \"PHY/impl_defs_nr.h\"\n \n #define NB_SRS_PERIOD         (18)\n
+  static const uint16_t srs_period[NB_SRS_PERIOD] = { 0, 1, 2, 4, 5, 8, 10, 16, 20,
+  32, 40, 64, 80, 160, 320, 640, 1280, 2560};\n@@ -209,12 +210,12 @@ uint8_t get_K_ptrs(uint32_t
+  nrb0, uint32_t nrb1, uint32_t N_RB);\n \n uint32_t nr_compute_tbs(uint16_t Qm,\n                         uint16_t
+  R,\n-\t\t\tuint16_t nb_rb,\n-\t\t\tuint16_t nb_symb_sch,\n-\t\t\tuint16_t nb_dmrs_prb,\n+                        uint16_t
+  nb_rb,\n+                        uint16_t nb_symb_sch,\n+                        uint16_t
+  nb_dmrs_prb,\n                         uint16_t nb_rb_oh,\n                         uint8_t
+  tb_scaling,\n-\t\t\tuint8_t Nl);\n+                        uint8_t Nl);\n \n /**
+  \\brief Computes Q based on I_MCS PDSCH and table_idx for downlink. Implements MCS
+  Tables from 38.214. */\n uint8_t nr_get_Qm_dl(uint8_t Imcs, uint8_t table_idx);\n@@
+  -230,8 +231,8 @@ uint16_t get_nr_srs_offset(NR_SRS_PeriodicityAndOffset_t periodicityAndOffset);\n
+  void get_monitoring_period_offset(const NR_SearchSpace_t *ss, int *period, int *offset);\n
+  \n uint32_t nr_compute_tbslbrm(uint16_t table,\n-\t\t\t    uint16_t nb_rb,\n-\t\t            uint8_t
+  Nl);\n+                            uint16_t nb_rb,\n+                            uint8_t
+  Nl);\n \n void get_type0_PDCCH_CSS_config_parameters(NR_Type0_PDCCH_CSS_config_t
+  *type0_PDCCH_CSS_config,\n                                            frame_t frameP,\n@@
+  -272,12 +273,12 @@ uint16_t compute_pucch_prb_size(uint8_t format,\n                                 uint16_t
+  O_csi,\n                                 uint16_t O_ack,\n                                 uint8_t
+  O_sr,\n-                                NR_PUCCH_MaxCodeRate_t *maxCodeRate,\n+                                PUCCH_MaxCodeRate_t
+  *maxCodeRate,\n                                 uint8_t Qm,\n                                 uint8_t
+  n_symb,\n                                 uint8_t n_re_ctrl);\n \n-float get_max_code_rate(NR_PUCCH_MaxCodeRate_t
+  *maxCodeRate);\n+float get_max_code_rate(PUCCH_MaxCodeRate_t *maxCodeRate);\n int
+  get_f3_dmrs_symbols(NR_PUCCH_Resource_t *pucchres, NR_PUCCH_Config_t *pucch_Config);\n
+  \n unsigned int get_delta_f_RA_long(const unsigned int format);\n","start_fn":"get_max_code_rate","start_fn_file":"openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c","subsystem":"openair2/LAYER2/NR_MAC_COMMON"},"type":"text","id":"oai5g_9777d23_00705"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

@@ -1,0 +1,74 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures_sl.c b/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures_sl.c
+index 0f7266a930..b73d172d98 100644
+--- a/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures_sl.c
++++ b/openair2/LAYER2/NR_MAC_UE/nr_ue_procedures_sl.c
+@@ -367,6 +367,12 @@ uint16_t sl_get_subchannel_size(NR_SL_ResourcePool_r16_t *rpool)
+ {
+ 
+   uint16_t subch_size = 0;
++  
++  if (rpool == NULL) {
++    LOG_E(NR_MAC, "Resource pool is NULL\n");
++    return 0;
++  }
++
+   const uint8_t subchsizes[8] = {10, 12, 15, 20, 25, 50, 75, 100};
+   subch_size = (rpool->sl_SubchannelSize_r16)
+                    ? subchsizes[*rpool->sl_SubchannelSize_r16] : 0;
+@@ -379,6 +385,11 @@ uint16_t sl_get_subchannel_size(NR_SL_ResourcePool_r16_t *rpool)
+ uint16_t sl_get_num_subch(NR_SL_ResourcePool_r16_t *rpool)
+ {
+ 
++  if (rpool == NULL) {
++    LOG_E(NR_MAC, "Resource pool is NULL\n");
++    return 0;
++  }
++
+   uint16_t num_subch = 0;
+   uint16_t subch_size = sl_get_subchannel_size(rpool);
+   uint16_t num_rbs = (rpool->sl_RB_Number_r16) ? *rpool->sl_RB_Number_r16 : 0;
+@@ -399,8 +410,22 @@ uint8_t sl_determine_sci_1a_len(uint16_t *num_subchannels,
+                                 sidelink_sci_format_1a_fields_t *sci_1a)
+ {
+ 
++  if (rpool == NULL) {
++    LOG_E(NR_MAC, "Resource pool is NULL\n");
++    return 0;
++  }
++
+   uint8_t num_bits = 0;
+ 
++  // Initialize mandatory fixed fields with default values
++  if (sci_1a != NULL) {
++    sci_1a->priority = 0;                    // 3 bits - default lowest priority
++    sci_1a->sci_format_2nd_stage = 0;        // 2 bits - default SCI format 2A
++    sci_1a->beta_offset_indicator = 0;       // 2 bits - default beta offset
++    sci_1a->num_dmrs_ports = 0;              // 1 bit  - default single port
++    sci_1a->mcs = 0;                         // 5 bits - default MCS
++  }
++
+   //Size of Fixed fields prio (3), sci_2ndstage(2),
+   //betaoffsetindicator(2), num dmrs ports (1), mcs (5bits)
+   uint8_t sci_1a_len = SL_SCI_FORMAT_1A_LEN_IN_BITS_FIXED_FIELDS;
+@@ -1112,7 +1137,7 @@ void nr_ue_process_mac_sl_pdu(int module_idP,
+                          mac_len,
+                          1,
+                          NULL);
+-	      break;
++              break;
+       case SL_SCH_LCID_SL_CSI_REPORT:
+         {
+           NR_MAC_SUBHEADER_FIXED* sub_pdu_header = (NR_MAC_SUBHEADER_FIXED*) pduP;
+@@ -1148,9 +1173,9 @@ void nr_ue_process_mac_sl_pdu(int module_idP,
+       case SL_SCH_LCID_SL_INTER_UE_COORD_REQ:
+       case SL_SCH_LCID_SL_INTER_UE_COORD_INFO:
+       case SL_SCH_LCID_SL_DRX_CMD:
+-	      LOG_W(NR_MAC,"Received unsupported SL LCID %d\n",rx_lcid);
+-	      return;
+-	      break;
++              LOG_W(NR_MAC,"Received unsupported SL LCID %d\n",rx_lcid);
++              return;
++              break;
+     }
+     pduP += ( mac_subheader_len + mac_len );
+     pdu_len -= ( mac_subheader_len + mac_len );

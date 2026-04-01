@@ -1,0 +1,97 @@
+diff --git a/openair3/NAS/TOOLS/conf_emm.c b/openair3/NAS/TOOLS/conf_emm.c
+index 894cd2d1ec..17873f3ee5 100644
+--- a/openair3/NAS/TOOLS/conf_emm.c
++++ b/openair3/NAS/TOOLS/conf_emm.c
+@@ -37,7 +37,12 @@ void gen_emm_data(
+     emm_data->imsi.u.num.digit12 = msin[5];
+     emm_data->imsi.u.num.digit13 = msin[6];
+     emm_data->imsi.u.num.digit14 = msin[7];
+-    emm_data->imsi.u.num.digit15 = msin[8];
++    // Bounds checking for 9 or 10 digit MSIN
++    if (strlen(msin) > 8) {
++      emm_data->imsi.u.num.digit15 = msin[8];
++    } else {
++      emm_data->imsi.u.num.digit15 = 0xf; // Fill with padding when MSIN is shorter
++    }
+   } else {
+     emm_data->rplmn.MNCdigit3 = 0xf;
+ 
+@@ -50,7 +55,12 @@ void gen_emm_data(
+     emm_data->imsi.u.num.digit12 = msin[6];
+     emm_data->imsi.u.num.digit13 = msin[7];
+     emm_data->imsi.u.num.digit14 = msin[8];
+-    emm_data->imsi.u.num.digit15 = msin[9];
++    // Bounds checking for 9 or 10 digit MSIN
++    if (strlen(msin) > 9) {
++      emm_data->imsi.u.num.digit15 = msin[9];
++    } else {
++      emm_data->imsi.u.num.digit15 = 0xf; // Fill with padding when MSIN is shorter
++    }
+   }
+ 
+   emm_data->rplmn.MCCdigit1 = conf->mcc[0];
+@@ -67,21 +77,21 @@ void gen_emm_data(
+ 
+ bool write_emm_data(const char *directory, int user_id, emm_nvdata_t *emm_data) {
+     int rc;
+-	char* filename = make_filename(directory, EMM_NVRAM_FILENAME, user_id);
+-	rc = memory_write(filename, emm_data, sizeof(emm_nvdata_t));
+-	free(filename);
+-	if (rc != RETURNok) {
+-		perror("ERROR\t: memory_write() failed");
+-		exit(false);
+-	}
++        char* filename = make_filename(directory, EMM_NVRAM_FILENAME, user_id);
++        rc = memory_write(filename, emm_data, sizeof(emm_nvdata_t));
++        free(filename);
++        if (rc != RETURNok) {
++                perror("ERROR\t: memory_write() failed");
++                exit(false);
++        }
+     return(true);
+ }
+ 
+ int get_msin_parity(const char * msin, const char *mcc, const char *mnc) {
+-	int imsi_size = strlen(msin) + strlen(mcc)
+-			+ strlen(mnc);
+-	int result = (imsi_size % 2 == 0) ? 0 : 1;
+-	return result;
++        int imsi_size = strlen(msin) + strlen(mcc)
++                        + strlen(mnc);
++        int result = (imsi_size % 2 == 0) ? 0 : 1;
++        return result;
+ 
+ }
+ 
+diff --git a/openair3/NAS/TOOLS/conf_usim.c b/openair3/NAS/TOOLS/conf_usim.c
+index f66df1457c..66bd18dfb2 100644
+--- a/openair3/NAS/TOOLS/conf_usim.c
++++ b/openair3/NAS/TOOLS/conf_usim.c
+@@ -63,7 +63,12 @@ void gen_usim_data(usim_data_conf_t *u, usim_data_t *usim_data,
+     usim_data->imsi.u.num.digit12 = u->msin[6];
+     usim_data->imsi.u.num.digit13 = u->msin[7];
+     usim_data->imsi.u.num.digit14 = u->msin[8];
+-    usim_data->imsi.u.num.digit15 = u->msin[9];
++    // Bounds checking for 9 or 10 digit MSIN
++    if (strlen(u->msin) > 9) {
++      usim_data->imsi.u.num.digit15 = u->msin[9];
++    } else {
++      usim_data->imsi.u.num.digit15 = 0xf; // Fill with padding for 9-digit MSIN
++    }
+   } else {
+     usim_data->imsi.u.num.digit6 = conf->mnc[2];
+     usim_data->imsi.u.num.digit7 = u->msin[0];
+@@ -74,7 +79,12 @@ void gen_usim_data(usim_data_conf_t *u, usim_data_t *usim_data,
+     usim_data->imsi.u.num.digit12 = u->msin[5];
+     usim_data->imsi.u.num.digit13 = u->msin[6];
+     usim_data->imsi.u.num.digit14 = u->msin[7];
+-    usim_data->imsi.u.num.digit15 = u->msin[8];
++    // Bounds checking for 9 or 10 digit MSIN
++    if (strlen(u->msin) > 8) {
++      usim_data->imsi.u.num.digit15 = u->msin[8];
++    } else {
++      usim_data->imsi.u.num.digit15 = 0xf; // Fill with padding when MSIN is shorter
++    }
+   }
+ 
+   /*

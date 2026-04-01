@@ -1,0 +1,88 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_RA.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_RA.c
+index 4682ba5911..5a2ca993dd 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_RA.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_RA.c
+@@ -87,9 +87,9 @@ static int16_t ssb_index_from_prach(module_id_t module_idP,
+   
+   uint8_t total_RApreambles = MAX_NUM_NR_PRACH_PREAMBLES;
+   if( scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->totalNumberOfRA_Preambles != NULL)
+-    total_RApreambles = *scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->totalNumberOfRA_Preambles;	
++    total_RApreambles = *scc->uplinkConfigCommon->initialUplinkBWP->rach_ConfigCommon->choice.setup->totalNumberOfRA_Preambles; 
+   
+-  float  num_ssb_per_RO = ssb_per_rach_occasion[cfg->prach_config.ssb_per_rach.value];	
++  float  num_ssb_per_RO = ssb_per_rach_occasion[cfg->prach_config.ssb_per_rach.value];  
+   uint16_t start_symbol_index = 0;
+   uint8_t mu,N_dur=0,N_t_slot=0,start_symbol = 0, temp_start_symbol = 0, N_RA_slot=0;
+   uint16_t format,RA_sfn_index = -1;
+@@ -103,18 +103,18 @@ static int16_t ssb_index_from_prach(module_id_t module_idP,
+     mu = scc->downlinkConfigCommon->frequencyInfoDL->scs_SpecificCarrierList.list.array[0]->subcarrierSpacing;
+ 
+   get_nr_prach_info_from_index(config_index,
+-			       (int)frameP,
+-			       (int)slotP,
+-			       scc->downlinkConfigCommon->frequencyInfoDL->absoluteFrequencyPointA,
+-			       mu,
+-			       cc->frame_type,
+-			       &format,
+-			       &start_symbol,
+-			       &N_t_slot,
+-			       &N_dur,
+-			       &RA_sfn_index,
+-			       &N_RA_slot,
+-			       &config_period);
++                               (int)frameP,
++                               (int)slotP,
++                               scc->downlinkConfigCommon->frequencyInfoDL->absoluteFrequencyPointA,
++                               mu,
++                               cc->frame_type,
++                               &format,
++                               &start_symbol,
++                               &N_t_slot,
++                               &N_dur,
++                               &RA_sfn_index,
++                               &N_RA_slot,
++                               &config_period);
+   uint8_t index = 0,slot_index = 0;
+   for (slot_index = 0;slot_index < N_RA_slot; slot_index++) {
+     if (N_RA_slot <= 1) { //1 PRACH slot in a subframe
+@@ -222,7 +222,7 @@ void find_SSB_and_RO_available(gNB_MAC_INST *nrmac)
+                                         &N_RA_sfn,
+                                         &max_association_period);
+ 
+-  float num_ssb_per_RO = ssb_per_rach_occasion[cfg->prach_config.ssb_per_rach.value];	
++  float num_ssb_per_RO = ssb_per_rach_occasion[cfg->prach_config.ssb_per_rach.value];   
+   uint8_t fdm = cfg->prach_config.num_prach_fd_occasions.value;
+   uint64_t L_ssb = (((uint64_t) cfg->ssb_table.ssb_mask_list[0].ssb_mask.value)<<32) | cfg->ssb_table.ssb_mask_list[1].ssb_mask.value ;
+   uint32_t total_RA_occasions = N_RA_sfn * N_t_slot * N_RA_slot * fdm;
+@@ -256,8 +256,8 @@ void find_SSB_and_RO_available(gNB_MAC_INST *nrmac)
+         cc->max_association_period,
+         N_RA_sfn,
+         cc->total_prach_occasions_per_config_period);
+-}		
+-		
++}               
++                
+ void schedule_nr_prach(module_id_t module_idP, frame_t frameP, sub_frame_t slotP)
+ {
+   gNB_MAC_INST *gNB = RC.nrmac[module_idP];
+@@ -1144,6 +1144,11 @@ static void nr_add_msg3(module_id_t module_idP, int CC_id, frame_t frameP, sub_f
+                       ibwp_size, ra->msg3_bwp_start,
+                       mappingtype, fh,
+                       ra->msg3_first_rb, ra->msg3_nb_rb);
++  
++  // Ensure that the PUSCH PDU is properly populated before using it
++  AssertFatal(pusch_pdu->mcs_index < 28, "Invalid MCS index %d for Msg3\n", pusch_pdu->mcs_index);
++  AssertFatal(pusch_pdu->rb_size <= pusch_pdu->bwp_size, "Msg3 RB size %d exceeds BWP size %d\n", pusch_pdu->rb_size, pusch_pdu->bwp_size);
++                      
+   future_ul_tti_req->n_pdus += 1;
+ 
+   // calling function to fill rar message
+@@ -1305,7 +1310,7 @@ static void nr_generate_Msg2(module_id_t module_idP,
+                            dmrs_parms.N_PRB_DMRS*dmrs_parms.N_DMRS_SLOT,
+                            0, // overhead
+                            tb_scaling,  // tb scaling
+-		           1)>>3;  // layers
++                           1)>>3;  // layers
+ 
+       pdsch_pdu_rel15->targetCodeRate[0] = R;
+       pdsch_pdu_rel15->qamModOrder[0] = Qm;

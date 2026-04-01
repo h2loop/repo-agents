@@ -1,0 +1,124 @@
+diff --git a/common/utils/system.c b/common/utils/system.c
+index e38d97768a..f34417ac22 100644
+--- a/common/utils/system.c
++++ b/common/utils/system.c
+@@ -220,12 +220,16 @@ int rt_sleep_ns (uint64_t x)
+ /* \brief reports if the current thread has capability CAP_SYS_NICE, i.e. */
+ bool has_cap_sys_nice(void)
+ {
++  int saved_errno;
+   /* get capabilities of calling PID */
+   cap_t cap = cap_get_pid(0);
+   cap_flag_value_t val;
+   /* check to what CAP_SYS_NICE is currently ("effective capability") set */
+   int ret = cap_get_flag(cap, CAP_SYS_NICE, CAP_EFFECTIVE, &val);
+-  AssertFatal(ret == 0, "Error in cap_get_flag(): ret %d errno %d\n", ret, errno);
++  if (ret != 0) {
++    saved_errno = errno;
++    AssertFatal(ret == 0, "Error in cap_get_flag(): ret %d errno %d\n", ret, saved_errno);
++  }
+   cap_free(cap);
+   /* return true if CAP_SYS_NICE is currently set */
+   return val == CAP_SET;
+@@ -252,17 +256,27 @@ bool has_cap_sys_nice(void)
+ void threadCreate(pthread_t* t, void * (*func)(void*), void * param, char* name, int affinity, int priority)
+ {
+   int ret;
++  int saved_errno;
+   bool set_prio = has_cap_sys_nice();
+ 
+   pthread_attr_t attr;
+   ret=pthread_attr_init(&attr);
+-  AssertFatal(ret == 0, "Error in pthread_attr_init(): ret: %d, errno: %d\n", ret, errno);
++  if (ret != 0) {
++    saved_errno = errno;
++    AssertFatal(ret == 0, "Error in pthread_attr_init(): ret: %d, errno: %d\n", ret, saved_errno);
++  }
+ 
+   if (set_prio) {
+     ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+-    AssertFatal(ret == 0, "Error in pthread_attr_setinheritsched(): ret: %d, errno: %d\n", ret, errno);
++    if (ret != 0) {
++      saved_errno = errno;
++      AssertFatal(ret == 0, "Error in pthread_attr_setinheritsched(): ret: %d, errno: %d\n", ret, saved_errno);
++    }
+     ret = pthread_attr_setschedpolicy(&attr, SCHED_OAI);
+-    AssertFatal(ret == 0, "Error in pthread_attr_setschedpolicy(): ret: %d, errno: %d\n", ret, errno);
++    if (ret != 0) {
++      saved_errno = errno;
++      AssertFatal(ret == 0, "Error in pthread_attr_setschedpolicy(): ret: %d, errno: %d\n", ret, saved_errno);
++    }
+     AssertFatal(priority >= sched_get_priority_min(SCHED_OAI) && priority <= sched_get_priority_max(SCHED_OAI),
+                 "Scheduling priority %d not possible: must be within [%d, %d]\n",
+                 priority,
+@@ -272,7 +286,10 @@ void threadCreate(pthread_t* t, void * (*func)(void*), void * param, char* name,
+     struct sched_param sparam = {0};
+     sparam.sched_priority = priority;
+     ret = pthread_attr_setschedparam(&attr, &sparam);
+-    AssertFatal(ret == 0, "Error in pthread_attr_setschedparam(): ret: %d errno: %d\n", ret, errno);
++    if (ret != 0) {
++      saved_errno = errno;
++      AssertFatal(ret == 0, "Error in pthread_attr_setschedparam(): ret: %d errno: %d\n", ret, saved_errno);
++    }
+     LOG_I(UTIL, "%s() for %s: creating thread with affinity %x, priority %d\n", __func__, name, affinity, priority);
+   } else {
+     affinity = -1;
+@@ -281,20 +298,29 @@ void threadCreate(pthread_t* t, void * (*func)(void*), void * param, char* name,
+   }
+ 
+   ret=pthread_create(t, &attr, func, param);
+-  AssertFatal(ret == 0, "Error in pthread_create(): ret: %d, errno: %d\n", ret, errno);
++  if (ret != 0) {
++    saved_errno = errno;
++    AssertFatal(ret == 0, "Error in pthread_create(): ret: %d, errno: %d\n", ret, saved_errno);
++  }
+ 
+   char short_name[16];
+   strncpy(short_name, name, sizeof(short_name) - 1);
+   short_name[sizeof(short_name) - 1] = '\0';
+   ret = pthread_setname_np(*t, short_name);
+-  AssertFatal(ret == 0, "Error in pthread_setname_np(): ret: %d, errno: %d\n", ret, errno);
++  if (ret != 0) {
++    saved_errno = errno;
++    AssertFatal(ret == 0, "Error in pthread_setname_np(): ret: %d, errno: %d\n", ret, saved_errno);
++  }
+ 
+   if (affinity != -1 ) {
+     cpu_set_t cpuset;
+     CPU_ZERO(&cpuset);
+     CPU_SET(affinity, &cpuset);
+     ret = pthread_setaffinity_np(*t, sizeof(cpu_set_t), &cpuset);
+-    AssertFatal(ret == 0, "Error in pthread_getaffinity_np(): ret: %d, errno: %d", ret, errno);
++    if (ret != 0) {
++      saved_errno = errno;
++      AssertFatal(ret == 0, "Error in pthread_getaffinity_np(): ret: %d, errno: %d", ret, saved_errno);
++    }
+   }
+   pthread_attr_destroy(&attr);
+ }
+@@ -302,10 +328,10 @@ void threadCreate(pthread_t* t, void * (*func)(void*), void * param, char* name,
+ // Legacy, pthread_create + thread_top_init() should be replaced by threadCreate
+ // threadCreate encapsulates the posix pthread api
+ void thread_top_init(char *thread_name,
+-		     int affinity,
+-		     uint64_t runtime,
+-		     uint64_t deadline,
+-		     uint64_t period) {
++                     int affinity,
++                     uint64_t runtime,
++                     uint64_t deadline,
++                     uint64_t period) {
+   
+   int policy, s, j;
+   struct sched_param sparam;
+@@ -369,6 +395,8 @@ void thread_top_init(char *thread_name,
+ void lock_memory_to_ram(void)
+ {
+   int rc = mlockall(MCL_CURRENT | MCL_FUTURE);
+-  if (rc != 0)
+-    LOG_W(UTIL, "mlockall() failed: %d, %s\n", errno, strerror(errno));
++  if (rc != 0) {
++    int saved_errno = errno;
++    LOG_W(UTIL, "mlockall() failed: %d, %s\n", saved_errno, strerror(saved_errno));
++  }
+ }

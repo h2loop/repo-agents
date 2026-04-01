@@ -1,0 +1,33 @@
+{
+  "run_id": "s00409_d2e721",
+  "function": {
+    "name": "pack_ul_config_request_init_tx_params_rel8_value",
+    "file": "nfapi/open-nFAPI/nfapi/src/nfapi_p7.c",
+    "start_line": 819,
+    "end_line": 823,
+    "body_lines": 5,
+    "signature": "static uint8_t pack_ul_config_request_init_tx_params_rel8_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end)",
+    "subsystem": "nfapi/open-nFAPI/nfapi",
+    "token_estimate": 23
+  },
+  "bug": {
+    "bug_id": "c_integer_overflow",
+    "description": "integer overflow leading to incorrect computation or wraparound",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a integer overflow leading to incorrect computation or wraparound downstream of function pack_ul_config_request_init_tx_params_rel8_value in the nfapi/open-nFAPI/nfapi subsystem.\nThe function is located at nfapi/open-nFAPI/nfapi/src/nfapi_p7.c:819.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00409_d2e721_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00409_d2e721_p1.diff",
+  "patch_lines": 13,
+  "trajectory_steps": 98,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:12:30Z"
+}

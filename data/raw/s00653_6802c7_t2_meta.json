@@ -1,0 +1,9 @@
+{
+  "run_id": "s00653_6802c7",
+  "pr_text": "## Title: Fix race condition in MAC stats telnet command affecting HARQ process state\n\n### Summary\nThe `measurcmd_display_macstats_ue` telnet command was reading UE MAC statistics without proper synchronization, causing race conditions with the MAC layer's HARQ process updates. When the telnet server accessed `UE_info` and `eNB_UE_STATS` structures while they were being modified by the scheduler, it could observe inconsistent HARQ state information. This manifested downstream as incorrect retran",
+  "trajectory_path": "data/raw/s00653_6802c7_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00653_6802c7_p2.diff",
+  "patch_lines": 0,
+  "trajectory_steps": 6,
+  "timestamp": "2026-02-11T01:54:17Z"
+}

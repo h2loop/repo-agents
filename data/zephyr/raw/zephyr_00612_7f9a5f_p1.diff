@@ -1,0 +1,14 @@
+diff --git a/subsys/bluetooth/controller/ll_sw/ull_llcp_common.c b/subsys/bluetooth/controller/ll_sw/ull_llcp_common.c
+index 84098f1b..6a5d198e 100644
+--- a/subsys/bluetooth/controller/ll_sw/ull_llcp_common.c
++++ b/subsys/bluetooth/controller/ll_sw/ull_llcp_common.c
+@@ -445,6 +445,9 @@ static void lp_comm_terminate_invalid_pdu(struct ll_conn *conn, struct proc_ctx
+ 	conn->llcp_terminate.reason_final = BT_HCI_ERR_LMP_PDU_NOT_ALLOWED;
+ 	llcp_lr_complete(conn);
+ 	ctx->state = LP_COMMON_STATE_IDLE;
++	
++	/* Ensure proper connection termination */
++	llcp_lr_terminate(conn);
+ }
+ 
+ static void lp_comm_complete(struct ll_conn *conn, struct proc_ctx *ctx, uint8_t evt, void *param)

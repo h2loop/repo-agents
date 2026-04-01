@@ -1,0 +1,180 @@
+diff --git a/openair2/M2AP/m2ap_MCE_handler.c b/openair2/M2AP/m2ap_MCE_handler.c
+index aacb178444..0e0289ad27 100644
+--- a/openair2/M2AP/m2ap_MCE_handler.c
++++ b/openair2/M2AP/m2ap_MCE_handler.c
+@@ -47,6 +47,26 @@
+ #include "assertions.h"
+ #include "conversions.h"
+ 
++/* Map procedure code to handler array index */
++static inline int m2ap_MCE_proc_code_to_index(long procedureCode) {
++  switch(procedureCode) {
++    case 0: return 0;  /* MBMSSessionStart */
++    case 1: return 1;  /* MBMSSessionStop */
++    case 2: return 2;  /* MBMSSchedulingInformation */
++    case 3: return 3;  /* ErrorIndication */
++    case 4: return 4;  /* Reset */
++    case 5: return 5;  /* M2 Setup */
++    case 6: return 6;  /* eNBConfigurationUpdate */
++    case 7: return 7;  /* MCEConfigurationUpdate */
++    case 8: return 8;  /* privateMessage */
++    case 9: return 9;  /* MBMSSessionUpdate */
++    case 10: return 10; /* MBMSServiceCounting */
++    case 11: return 11; /* MBMSServiceCountingResultReport */
++    case 12: return 12; /* MBMSOverloadNotification */
++    default: return -1; /* Invalid procedure code */
++  }
++}
++
+ /* Handlers matrix. Only eNB related procedure present here */
+ static const m2ap_message_decoded_callback m2ap_MCE_messages_callback[][3] = {
+     {0, MCE_handle_MBMS_SESSION_START_RESPONSE, 0}, /* MBMSSessionStart  */
+@@ -91,8 +111,8 @@ int m2ap_MCE_handle_message(instance_t instance, uint32_t assoc_id, int32_t stre
+   }
+ 
+   /* Checking procedure Code and direction of message */
+-  if (pdu.choice.initiatingMessage.procedureCode > sizeof(m2ap_MCE_messages_callback) / (3 * sizeof(
+-        m2ap_MCE_message_decoded_callback))
++  int handler_index = m2ap_MCE_proc_code_to_index(pdu.choice.initiatingMessage.procedureCode);
++  if (handler_index < 0
+       || (pdu.present > M2AP_M2AP_PDU_PR_unsuccessfulOutcome)) {
+     LOG_E(M2AP, "[SCTP %d] Either procedureCode %ld or direction %d exceed expected\n",
+                assoc_id, pdu.choice.initiatingMessage.procedureCode, pdu.present);
+@@ -103,7 +123,7 @@ int m2ap_MCE_handle_message(instance_t instance, uint32_t assoc_id, int32_t stre
+   /* No handler present.
+    * This can mean not implemented or no procedure for eNB (wrong direction).
+    */
+-  if (m2ap_MCE_messages_callback[pdu.choice.initiatingMessage.procedureCode][pdu.present - 1] == NULL) {
++  if (m2ap_MCE_messages_callback[handler_index][pdu.present - 1] == NULL) {
+     LOG_E(M2AP, "[SCTP %d] No handler for procedureCode %ld in %s\n",
+                 assoc_id, pdu.choice.initiatingMessage.procedureCode,
+                m2ap_direction2String(pdu.present - 1));
+@@ -113,7 +133,7 @@ int m2ap_MCE_handle_message(instance_t instance, uint32_t assoc_id, int32_t stre
+   
+   /* Calling the right handler */
+   LOG_I(M2AP, "Calling handler with instance %ld\n",instance);
+-  ret = (*m2ap_MCE_messages_callback[pdu.choice.initiatingMessage.procedureCode][pdu.present - 1])
++  ret = (*m2ap_MCE_messages_callback[handler_index][pdu.present - 1])
+         (instance, assoc_id, stream, &pdu);
+   ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_M2AP_M2AP_PDU, &pdu);
+   return ret;
+diff --git a/openair2/M2AP/m2ap_eNB_handler.c b/openair2/M2AP/m2ap_eNB_handler.c
+index 0a474c72a8..14c2e921ab 100644
+--- a/openair2/M2AP/m2ap_eNB_handler.c
++++ b/openair2/M2AP/m2ap_eNB_handler.c
+@@ -45,6 +45,26 @@
+ #include "assertions.h"
+ #include "conversions.h"
+ 
++/* Map procedure code to handler array index */
++static inline int m2ap_eNB_proc_code_to_index(long procedureCode) {
++  switch(procedureCode) {
++    case 0: return 0;  /* MBMSSessionStart */
++    case 1: return 1;  /* MBMSSessionStop */
++    case 2: return 2;  /* MBMSSchedulingInformation */
++    case 3: return 3;  /* ErrorIndication */
++    case 4: return 4;  /* Reset */
++    case 5: return 5;  /* M2 Setup */
++    case 6: return 6;  /* eNBConfigurationUpdate */
++    case 7: return 7;  /* MCEConfigurationUpdate */
++    case 8: return 8;  /* privateMessage */
++    case 9: return 9;  /* MBMSSessionUpdate */
++    case 10: return 10; /* MBMSServiceCounting */
++    case 11: return 11; /* MBMSServiceCountingResultReport */
++    case 12: return 12; /* MBMSOverloadNotification */
++    default: return -1; /* Invalid procedure code */
++  }
++}
++
+ /* Handlers matrix. Only eNB related procedure present here */
+ static const m2ap_eNB_message_decoded_callback m2ap_eNB_messages_callback[][3] = {
+     {eNB_handle_MBMS_SESSION_START_REQUEST, 0, 0}, /* MBMSSessionStart  */
+@@ -89,8 +109,8 @@ int m2ap_eNB_handle_message(instance_t instance, uint32_t assoc_id, int32_t stre
+   }
+ 
+   /* Checking procedure Code and direction of message */
+-  if (pdu.choice.initiatingMessage.procedureCode > sizeof(m2ap_eNB_messages_callback) / (3 * sizeof(
+-        m2ap_message_decoded_callback))
++  int handler_index = m2ap_eNB_proc_code_to_index(pdu.choice.initiatingMessage.procedureCode);
++  if (handler_index < 0
+       || (pdu.present > M2AP_M2AP_PDU_PR_unsuccessfulOutcome)) {
+     LOG_E(M2AP, "[SCTP %d] Either procedureCode %ld or direction %d exceed expected\n",
+                assoc_id, pdu.choice.initiatingMessage.procedureCode, pdu.present);
+@@ -101,7 +121,7 @@ int m2ap_eNB_handle_message(instance_t instance, uint32_t assoc_id, int32_t stre
+   /* No handler present.
+    * This can mean not implemented or no procedure for eNB (wrong direction).
+    */
+-  if (m2ap_eNB_messages_callback[pdu.choice.initiatingMessage.procedureCode][pdu.present - 1] == NULL) {
++  if (m2ap_eNB_messages_callback[handler_index][pdu.present - 1] == NULL) {
+     LOG_E(M2AP, "[SCTP %d] No handler for procedureCode %ld in %s\n",
+                 assoc_id, pdu.choice.initiatingMessage.procedureCode,
+                m2ap_direction2String(pdu.present - 1));
+@@ -111,7 +131,7 @@ int m2ap_eNB_handle_message(instance_t instance, uint32_t assoc_id, int32_t stre
+   
+   /* Calling the right handler */
+   LOG_I(M2AP, "Calling handler with instance %ld\n",instance);
+-  ret = (*m2ap_eNB_messages_callback[pdu.choice.initiatingMessage.procedureCode][pdu.present - 1])
++  ret = (*m2ap_eNB_messages_callback[handler_index][pdu.present - 1])
+         (instance, assoc_id, stream, &pdu);
+   ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_M2AP_M2AP_PDU, &pdu);
+   return ret;
+diff --git a/openair2/M2AP/m2ap_handler.c b/openair2/M2AP/m2ap_handler.c
+index ce568d3c19..6fd78a3115 100644
+--- a/openair2/M2AP/m2ap_handler.c
++++ b/openair2/M2AP/m2ap_handler.c
+@@ -47,6 +47,26 @@
+ #include "assertions.h"
+ #include "conversions.h"
+ 
++/* Map procedure code to handler array index */
++static inline int m2ap_proc_code_to_index(long procedureCode) {
++  switch(procedureCode) {
++    case 0: return 0;  /* MBMSSessionStart */
++    case 1: return 1;  /* MBMSSessionStop */
++    case 2: return 2;  /* MBMSSchedulingInformation */
++    case 3: return 3;  /* ErrorIndication */
++    case 4: return 4;  /* Reset */
++    case 5: return 5;  /* M2 Setup */
++    case 6: return 6;  /* eNBConfigurationUpdate */
++    case 7: return 7;  /* MCEConfigurationUpdate */
++    case 8: return 8;  /* privateMessage */
++    case 9: return 9;  /* MBMSSessionUpdate */
++    case 10: return 10; /* MBMSServiceCounting */
++    case 11: return 11; /* MBMSServiceCountingResultReport */
++    case 12: return 12; /* MBMSOverloadNotification */
++    default: return -1; /* Invalid procedure code */
++  }
++}
++
+ /* Handlers matrix. Only eNB related procedure present here */
+ static const m2ap_message_decoded_callback m2ap_messages_callback[][3] = {
+     {eNB_handle_MBMS_SESSION_START_REQUEST, MCE_handle_MBMS_SESSION_START_RESPONSE, 0}, /* MBMSSessionStart  */
+@@ -91,8 +111,8 @@ int m2ap_handle_message(instance_t instance, uint32_t assoc_id, int32_t stream,
+   }
+ 
+   /* Checking procedure Code and direction of message */
+-  if (pdu.choice.initiatingMessage.procedureCode > sizeof(m2ap_messages_callback) / (3 * sizeof(
+-        m2ap_message_decoded_callback))
++  int handler_index = m2ap_proc_code_to_index(pdu.choice.initiatingMessage.procedureCode);
++  if (handler_index < 0
+       || (pdu.present > M2AP_M2AP_PDU_PR_unsuccessfulOutcome)) {
+     LOG_E(M2AP, "[SCTP %d] Either procedureCode %ld or direction %d exceed expected\n",
+                assoc_id, pdu.choice.initiatingMessage.procedureCode, pdu.present);
+@@ -103,7 +123,7 @@ int m2ap_handle_message(instance_t instance, uint32_t assoc_id, int32_t stream,
+   /* No handler present.
+    * This can mean not implemented or no procedure for eNB (wrong direction).
+    */
+-  if (m2ap_messages_callback[pdu.choice.initiatingMessage.procedureCode][pdu.present - 1] == NULL) {
++  if (m2ap_messages_callback[handler_index][pdu.present - 1] == NULL) {
+     LOG_E(M2AP, "[SCTP %d] No handler for procedureCode %ld in %s\n",
+                 assoc_id, pdu.choice.initiatingMessage.procedureCode,
+                m2ap_direction2String(pdu.present - 1));
+@@ -113,7 +133,7 @@ int m2ap_handle_message(instance_t instance, uint32_t assoc_id, int32_t stream,
+   
+   /* Calling the right handler */
+   LOG_I(M2AP, "Calling handler with instance %d\n",instance);
+-  ret = (*m2ap_messages_callback[pdu.choice.initiatingMessage.procedureCode][pdu.present - 1])
++  ret = (*m2ap_messages_callback[handler_index][pdu.present - 1])
+         (instance, assoc_id, stream, &pdu);
+   ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_M2AP_M2AP_PDU, &pdu);
+   return ret;

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00239_807658",
+  "pr_text": "## Title: Fix buffer overflow vulnerability in NR small block encoder\n\n### Summary\nThe `encodeSmallBlock` function in the NR small block coding module contains a buffer overflow vulnerability due to unchecked array indexing. The function iterates up to `len` times and accesses `nrSmallBlockBasis[i]` without bounds validation. Since the `nrSmallBlockBasis` array contains only 11 elements (indices 0-10), passing a `len` parameter greater than 11 causes an out-of-bounds read, leading to undefined b",
+  "trajectory_path": "data/raw/s00239_807658_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00239_807658_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 10,
+  "timestamp": "2026-02-11T13:38:26Z"
+}

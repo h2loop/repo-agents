@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect sl_mode check in UE_dl_processing function\n\n### Summary\nThe NR UE downlink processing function contained an incorrect condition check for sl_mode that prevented PDSCH processing from running in SL_MODE1_SUPPORTED mode. The bug caused downlink data to not be decoded when the UE was configured for sidelink mode 1.\n\nThe issue was that UE_dl_processing only called pdsch_processing when sl_mode was exactly 0 (SL_NOT_SUPPORTED), but it should call it for all non-sidelink modes (sl_mode != 2) to match the logic in UE_dl_preprocessing.\n\n### Changes\n- `executables/nr-ue.c`: Changed sl_mode check from == 0 to != 2 in UE_dl_processing function\n- Also includes minor whitespace cleanup in other functions (tabs to spaces)\n\n"
+}

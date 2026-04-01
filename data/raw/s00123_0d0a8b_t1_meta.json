@@ -1,0 +1,35 @@
+{
+  "run_id": "s00123_0d0a8b",
+  "function": {
+    "name": "unpack_config_response",
+    "file": "nfapi/open-nFAPI/nfapi/src/nfapi_p5.c",
+    "start_line": 2060,
+    "end_line": 2065,
+    "body_lines": 6,
+    "signature": "static uint8_t unpack_config_response(uint8_t **ppReadPackedMsg, uint8_t *end, void *msg, nfapi_p4_p5_codec_config_t *config)",
+    "subsystem": "nfapi/open-nFAPI/nfapi",
+    "token_estimate": 28
+  },
+  "bug": {
+    "bug_id": "c_missing_mutex",
+    "description": "missing mutex lock around critical section accessing shared state",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a missing mutex lock around critical section accessing shared state downstream of function unpack_config_response in the nfapi/open-nFAPI/nfapi subsystem.\nThe function is located at nfapi/open-nFAPI/nfapi/src/nfapi_p5.c:2060.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00123_0d0a8b_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00123_0d0a8b_p1.diff",
+  "patch_lines": 19,
+  "trajectory_steps": 70,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:23:03Z"
+}

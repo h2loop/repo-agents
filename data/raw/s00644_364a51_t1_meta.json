@@ -1,0 +1,32 @@
+{
+  "run_id": "s00644_364a51",
+  "function": {
+    "name": "emm_proc_detach_accept",
+    "file": "openair3/NAS/UE/EMM/Detach.c",
+    "start_line": 233,
+    "end_line": 263,
+    "body_lines": 31,
+    "signature": "int emm_proc_detach_accept(void* args)",
+    "subsystem": "openair3/NAS/UE",
+    "token_estimate": 104
+  },
+  "bug": {
+    "bug_id": "c_unreachable_code",
+    "description": "unreachable code path due to incorrect conditional logic",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/NAS",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a unreachable code path due to incorrect conditional logic downstream of function emm_proc_detach_accept in the openair3/NAS/UE subsystem.\nThe function is located at openair3/NAS/UE/EMM/Detach.c:233.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00644_364a51_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00644_364a51_p1.diff",
+  "patch_lines": 40,
+  "trajectory_steps": 44,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T17:40:49Z"
+}

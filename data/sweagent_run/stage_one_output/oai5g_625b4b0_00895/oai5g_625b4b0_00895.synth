@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect minimum length check in MobileStationClassmark2 encoding\n\n### Summary\nThe `encode_mobile_station_classmark_2()` function was failing to encode Mobile Station Classmark 2 information elements when no IEI was present due to an incorrect minimum length requirement. The function expected a minimum buffer size of 5 bytes, but when no IEI is present, only 4 bytes are needed (1 byte for length field + 3 bytes for data).\n\nThis caused NAS message encoding failures during attach procedures when the Mobile Station Classmark 2 IE was included without an IEI.\n\nThe issue was in the header file definition where `MOBILE_STATION_CLASSMARK_2_MINIMUM_LENGTH` was set to 5 instead of 4.\n\n### Changes\n- `openair3/NAS/COMMON/IES/MobileStationClassmark2.h`: Corrected `MOBILE_STATION_CLASSMARK_2_MINIMUM_LENGTH` from 5 to 4\n"
+}

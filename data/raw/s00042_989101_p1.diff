@@ -1,0 +1,67 @@
+diff --git a/common/utils/ocp_itti/intertask_interface.cpp b/common/utils/ocp_itti/intertask_interface.cpp
+index b59de2e0fc..2eb467e2ed 100644
+--- a/common/utils/ocp_itti/intertask_interface.cpp
++++ b/common/utils/ocp_itti/intertask_interface.cpp
+@@ -242,6 +242,9 @@ typedef struct timer_elm_s {
+       /* No data to read -> return */
+       return 0;
+ 
++    // Process message queue events first to prevent priority inversion
++    // Message queue events (sem_fd) have higher priority than subscribed FD events
++    bool msg_queue_processed = false;
+     for (int i = 0; i < nb_events; i++) {
+       /* Check if there is an event for ITTI for the event fd */
+       if ((events[i].events & EPOLLIN) &&
+@@ -251,6 +254,16 @@ typedef struct timer_elm_s {
+         AssertFatal( sizeof(sem_counter) == read (t->sem_fd, &sem_counter, sizeof(sem_counter)), "");
+         /* Mark that the event has been processed */
+         events[i].events &= ~EPOLLIN;
++        msg_queue_processed = true;
++      }
++    }
++
++    // Process other fd events only after message queue
++    for (int i = 0; i < nb_events; i++) {
++      if ((events[i].events & EPOLLIN) &&
++          (events[i].data.fd != t->sem_fd)) {
++        // Non-message events will be processed by the task
++        LOG_D(ITTI,"task %s has non-message event on fd %d\n", t->admin.name, events[i].data.fd);
+       }
+     }
+ 
+@@ -268,25 +281,18 @@ typedef struct timer_elm_s {
+     pthread_mutex_lock(&t->queue_cond_lock);
+ 
+     struct epoll_event events[t->nb_fd_epoll];
+-    // Weird condition to deal with crap legacy itti interface
+-    if (t->message_queue.empty()) {
+-      do {
+-        itti_get_events_locked(task_id, events, t->nb_fd_epoll);
+-        pthread_mutex_lock(&t->queue_cond_lock);
+-      }
+-      while (t->message_queue.empty() && t->nb_fd_epoll == 1);
++    // Wait for messages with proper priority handling
++    while (t->message_queue.empty()) {
++      itti_get_events_locked(task_id, events, t->nb_fd_epoll);
++      pthread_mutex_lock(&t->queue_cond_lock);
++      // Continue waiting if no messages available, regardless of other fds
++      // This ensures message queue has priority
+     }
+ 
+-    // Legacy design: we return even if we have no message
+-    // in this case, *received_msg is NULL
+-    if (t->message_queue.empty()) {
+-      *received_msg=NULL;
+-      LOG_D(ITTI,"task %s received even from other fd (total fds: %d), returning msg NULL\n",t->admin.name, t->nb_fd_epoll);
+-    } else {
+-      *received_msg=t->message_queue.back();
+-      t->message_queue.pop_back();
+-      LOG_D(ITTI,"task %s received a message\n",t->admin.name);
+-    }
++    // At this point we have at least one message
++    *received_msg=t->message_queue.back();
++    t->message_queue.pop_back();
++    LOG_D(ITTI,"task %s received a message\n",t->admin.name);
+ 
+     pthread_mutex_unlock (&t->queue_cond_lock);
+   }

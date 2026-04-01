@@ -1,0 +1,20 @@
+diff --git a/openair3/NGAP/ngap_gNB.c b/openair3/NGAP/ngap_gNB.c
+index 45183407a3..dd4601273c 100644
+--- a/openair3/NGAP/ngap_gNB.c
++++ b/openair3/NGAP/ngap_gNB.c
+@@ -265,8 +265,14 @@ void ngap_gNB_handle_sctp_data_ind(sctp_data_ind_t *sctp_data_ind) {
+   amf_test_s1_notify_sctp_data_ind(sctp_data_ind->assoc_id, sctp_data_ind->stream,
+                                    sctp_data_ind->buffer, sctp_data_ind->buffer_length);
+ #else
+-  ngap_gNB_handle_message(sctp_data_ind->assoc_id, sctp_data_ind->stream,
++  result = ngap_gNB_handle_message(sctp_data_ind->assoc_id, sctp_data_ind->stream,
+                           sctp_data_ind->buffer, sctp_data_ind->buffer_length);
++  if (result < 0) {
++    NGAP_ERROR("NGAP message handling failed for assoc_id %u, stream %d, buffer_length %u\n",
++               sctp_data_ind->assoc_id, sctp_data_ind->stream, sctp_data_ind->buffer_length);
++    /* Handle F1AP interface error - message loss or corruption downstream */
++    /* Log the error but continue processing to avoid message loss */
++  }
+ #endif
+   result = itti_free(TASK_UNKNOWN, sctp_data_ind->buffer);
+   AssertFatal (result == EXIT_SUCCESS, "Failed to free memory (%d)!\n", result);

@@ -1,0 +1,17 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
+index 6e79af6348..24ff5ab022 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p4.c
+@@ -111,6 +111,12 @@ static uint8_t pack_nb_iot_rssi_request_value(void *tlv, uint8_t **ppWritePacked
+ 
+     uint8_t ro_dl_idx = 0;
+ 
++    if(value->earfcn[idx].number_of_ro_dl > NFAPI_MAX_RO_DL) {
++      NFAPI_TRACE(NFAPI_TRACE_ERROR, "nb_iot_rssi_request number_of_ro_dl %d exceeds max %d\n", 
++                  value->earfcn[idx].number_of_ro_dl, NFAPI_MAX_RO_DL);
++      return 0;
++    }
++
+     for(ro_dl_idx = 0; ro_dl_idx < value->earfcn[idx].number_of_ro_dl; ++ro_dl_idx) {
+       if(!push8(value->earfcn[idx].ro_dl[ro_dl_idx], ppWritePackedMsg, end))
+         return 0;

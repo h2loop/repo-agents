@@ -1,0 +1,141 @@
+'{"env":{"deployment":{"image":"oai5g-sera:625b4b0","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_625b4b0_00440","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix protocol timer initialization in ULSCH HARQ processes\n\n### Summary\nThe
+  ULSCH HARQ processes were not being properly initialized with explicit protocol
+  state values when created by new_eNB_ulsch. While memset was setting fields to zero,
+  critical state fields like status, round, and repetition counters should be explicitly
+  initialized for protocol compliance. This could lead to undefined behavior in downstream
+  procedures that depend on these values for timing management.\n\nThis fix ensures
+  all HARQ process state fields are properly initialized at creation time.\n\n###
+  Changes\n- `openair1/PHY/LTE_TRANSPORT/ulsch_decoding.c`: Added explicit initialization
+  of HARQ process state fields in new_eNB_ulsch function including status=SCH_IDLE,
+  round=0, rvidx=0, phich_active=0, phich_ACK=0, repetition_number=0, and total_number_of_repetitions=1.
+  Updated clean_eNb_ulsch to maintain consistency.\n\n### Reproduction\nUnder certain
+  network conditions with high ULSCH retransmission rates, users may observe inconsistent
+  HARQ timing behavior or unexpected PHICH handling. The issue manifests as sporadic
+  decoding failures that correlate with improper HARQ state initialization rather
+  than actual channel conditions.\n","extra_fields":{"bug_description":"protocol timer
+  not started or stopped at the required point in the procedure","bug_id":"telecom_timer_missing_start_stop","stage_one_patch":"diff
+  --git a/openair1/PHY/LTE_TRANSPORT/ulsch_decoding.c b/openair1/PHY/LTE_TRANSPORT/ulsch_decoding.c\nindex
+  e613efd6ca..f7aa302f2a 100644\n--- a/openair1/PHY/LTE_TRANSPORT/ulsch_decoding.c\n+++
+  b/openair1/PHY/LTE_TRANSPORT/ulsch_decoding.c\n@@ -118,6 +118,15 @@ LTE_eNB_ULSCH_t
+  *new_eNB_ulsch(uint8_t max_turbo_iterations,uint8_t N_RB_UL, uin\n         else\n           exit_flag=3;\n
+  \n+        // Initialize HARQ process state for protocol compliance\n+        ulsch->harq_processes[i]->status
+  = SCH_IDLE;\n+        ulsch->harq_processes[i]->round = 0;\n+        ulsch->harq_processes[i]->rvidx
+  = 0;\n+        ulsch->harq_processes[i]->phich_active = 0;\n+        ulsch->harq_processes[i]->phich_ACK
+  = 0;\n+        ulsch->harq_processes[i]->repetition_number = 0;\n+        ulsch->harq_processes[i]->total_number_of_repetitions
+  = 1;\n+\n         if (abstraction_flag==0) {\n           for (r=0; r<MAX_NUM_ULSCH_SEGMENTS/bw_scaling;
+  r++) {\n             ulsch->harq_processes[i]->c[r] = (uint8_t *)malloc16(((r==0)?8:0)
+  + 3+768);\n@@ -160,7 +169,7 @@ void clean_eNb_ulsch(LTE_eNB_ULSCH_t *ulsch) {\n     for
+  (i=0; i<8; i++) {\n       if (ulsch->harq_processes[i]) {\n         //    ulsch->harq_processes[i]->Ndi
+  = 0;\n-        ulsch->harq_processes[i]->status = 0;\n+        ulsch->harq_processes[i]->status
+  = SCH_IDLE;\n         //ulsch->harq_processes[i]->phich_active = 0; //this will
+  be done later after transmission of PHICH\n         ulsch->harq_processes[i]->phich_ACK
+  = 0;\n         ulsch->harq_processes[i]->round = 0;\n@@ -180,6 +189,8 @@ void clean_eNb_ulsch(LTE_eNB_ULSCH_t
+  *ulsch) {\n         ulsch->harq_processes[i]->rvidx = 0;\n         ulsch->harq_processes[i]->Msc_initial
+  = 0;\n         ulsch->harq_processes[i]->Nsymb_initial = 0;\n+        ulsch->harq_processes[i]->repetition_number
+  = 0;\n+        ulsch->harq_processes[i]->total_number_of_repetitions = 1;\n       }\n     }\n
+  \n@@ -253,19 +264,19 @@ void processULSegment(void * arg) {\n       LOG_E(PHY,\"Adding
+  HARQ data for segment: %d\\n\", r);\n       // Store the result of HARQ combining
+  in the last emtc repetitions of sequence 0,2,3,1\n       for (int nn=0; nn<max_Ncb;
+  nn++)\n-\tulsch_harq->pusch_rep_buffer[r][nn] += ulsch_harq->w[r][nn] ;\n+        ulsch_harq->pusch_rep_buffer[r][nn]
+  += ulsch_harq->w[r][nn] ;\n     }\n \n     if (ulsch_harq->repetition_number ==
+  ulsch_harq->total_number_of_repetitions) {\n       LOG_E(PHY,\"Will use HARQ data
+  sum up for segment: %d\\n\", r);\n       for (int nn=0; nn<max_Ncb; nn++) \n-\tulsch_harq->w[r][nn]
+  =  ulsch_harq->pusch_rep_buffer[r][nn] ;\n+        ulsch_harq->w[r][nn] =  ulsch_harq->pusch_rep_buffer[r][nn]
+  ;\n     }\n   }\n   int16_t soft_bits[3*8*6144+12+96] __attribute__((aligned(32)));\n   sub_block_deinterleaving_turbo(4+rdata->Kr,\n-\t\t\t\t
+  soft_bits+96,\n-\t\t\t\t ulsch_harq->w[r]);\n+                                 soft_bits+96,\n+                                 ulsch_harq->w[r]);\n   stop_meas(&eNB->ulsch_deinterleaving_stats);\n   rdata->decodeIterations
+  = rdata->function(soft_bits + 96,\n                                             NULL,\n@@
+  -367,7 +378,7 @@ static int ulsch_decoding_data(PHY_VARS_eNB *eNB,\n     proc->nbDecode++;\n     LOG_D(PHY,\"Added
+  a block to decode, in pipe: %d\\n\",proc->nbDecode);\n     r_offset+=E;\n-    offset+=sz;\t    \n+    offset+=sz;     \n   }\n   return(ret);\n
+  }\n@@ -523,11 +534,11 @@ unsigned int ulsch_decoding(PHY_VARS_eNB *eNB,\n   // Compute
+  Q_ri\n   Qprime = ulsch_harq->O_RI*ulsch_harq->Msc_initial*ulsch_harq->Nsymb_initial
+  * ulsch->beta_offset_ri_times8;\n   LOG_D(PHY, \"Qprime %d, O_RI %d, Msc %d, Nym
+  %d beta %d\\n\",\n-\t\t  Qprime,\n-\t\t  ulsch_harq->O_RI,\n-\t\t  ulsch_harq->Msc_initial,\n-\t\t  ulsch_harq->Nsymb_initial,\n-\t\t  ulsch->beta_offset_ri_times8);\n+                  Qprime,\n+                  ulsch_harq->O_RI,\n+                  ulsch_harq->Msc_initial,\n+                  ulsch_harq->Nsymb_initial,\n+                  ulsch->beta_offset_ri_times8);\n
+  \n   if (Qprime > 0 ) {\n     if ((Qprime % (8*sumKr)) > 0)\n","start_fn":"new_eNB_ulsch","start_fn_file":"openair1/PHY/LTE_TRANSPORT/ulsch_decoding.c","subsystem":"openair1/PHY/LTE_TRANSPORT"},"type":"text","id":"oai5g_625b4b0_00440"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

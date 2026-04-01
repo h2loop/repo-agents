@@ -1,0 +1,22 @@
+diff --git a/drivers/video/video_stm32_dcmi.c b/drivers/video/video_stm32_dcmi.c
+index adcbe6d1..eea05932 100644
+--- a/drivers/video/video_stm32_dcmi.c
++++ b/drivers/video/video_stm32_dcmi.c
+@@ -201,11 +201,17 @@ static int video_stm32_dcmi_set_fmt(const struct device *dev, struct video_forma
+ 	struct video_stm32_dcmi_data *data = dev->data;
+ 	int ret;
+ 
++	/* Feed watchdog before potentially long-running sensor operation */
++	sys_watchdog_feed();
++
+ 	ret = video_set_format(config->sensor_dev, fmt);
+ 	if (ret < 0) {
+ 		return ret;
+ 	}
+ 
++	/* Feed watchdog after sensor operation */
++	sys_watchdog_feed();
++
+ 	ret = video_estimate_fmt_size(fmt);
+ 	if (ret < 0) {
+ 		return ret;

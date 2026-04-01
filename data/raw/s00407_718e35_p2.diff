@@ -1,0 +1,31 @@
+diff --git a/openair1/PHY/CODING/3gpplte_turbo_decoder_sse_16bit.c b/openair1/PHY/CODING/3gpplte_turbo_decoder_sse_16bit.c
+index 5a80f04a21..82599f567f 100644
+--- a/openair1/PHY/CODING/3gpplte_turbo_decoder_sse_16bit.c
++++ b/openair1/PHY/CODING/3gpplte_turbo_decoder_sse_16bit.c
+@@ -914,10 +914,22 @@ void free_td16(void) {
+   int ind;
+ 
+   for (ind=0; ind<188; ind++) {
+-    free_and_zero(pi2tab16[ind]);
+-    free_and_zero(pi5tab16[ind]);
+-    free_and_zero(pi4tab16[ind]);
+-    free_and_zero(pi6tab16[ind]);
++    if (pi2tab16[ind]) {
++      free(pi2tab16[ind]);
++      pi2tab16[ind] = NULL;
++    }
++    if (pi5tab16[ind]) {
++      free(pi5tab16[ind]);
++      pi5tab16[ind] = NULL;
++    }
++    if (pi4tab16[ind]) {
++      free(pi4tab16[ind]);
++      pi4tab16[ind] = NULL;
++    }
++    if (pi6tab16[ind]) {
++      free(pi6tab16[ind]);
++      pi6tab16[ind] = NULL;
++    }
+   }
+ }
+ 

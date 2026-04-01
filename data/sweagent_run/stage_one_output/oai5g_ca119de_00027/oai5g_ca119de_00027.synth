@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect tail index display in resize_nr_list error message\n\n### Summary\nThe NR gNB MAC scheduler contained a typo in the error message displayed when attempting to shrink an NR_list. When the tail element was out of bounds, the error message incorrectly displayed the head index instead of the tail index.\n\nThis bug made debugging list resizing issues more difficult as the error message was misleading.\n\n### Changes\n- `openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c`: Fixed error message in resize_nr_list() to correctly display tail index.\n"
+}

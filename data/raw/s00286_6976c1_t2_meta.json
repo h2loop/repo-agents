@@ -1,0 +1,9 @@
+{
+  "run_id": "s00286_6976c1",
+  "pr_text": "## Title: Fix missed scheduling opportunity for UEs with pending data\n\n### Summary\nThe RAN Control (RC) function's event generation thread was not properly scheduling UEs with pending data, causing missed transmission opportunities. The `emulate_rrc_msg()` function was generating random indication data without checking for UEs that have buffered data waiting for transmission. This resulted in UEs with pending RLC data being overlooked during scheduling rounds, increasing latency and risking buff",
+  "trajectory_path": "data/raw/s00286_6976c1_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00286_6976c1_p2.diff",
+  "patch_lines": 42,
+  "trajectory_steps": 33,
+  "timestamp": "2026-02-10T12:27:52Z"
+}

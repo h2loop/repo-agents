@@ -1,0 +1,14 @@
+diff --git a/connectivity/drivers/wifi/TARGET_STM/COMPONENT_EMW3080B/mx_wifi/mx_wifi.c b/connectivity/drivers/wifi/TARGET_STM/COMPONENT_EMW3080B/mx_wifi/mx_wifi.c
+index 8db03dee..81109657 100644
+--- a/connectivity/drivers/wifi/TARGET_STM/COMPONENT_EMW3080B/mx_wifi/mx_wifi.c
++++ b/connectivity/drivers/wifi/TARGET_STM/COMPONENT_EMW3080B/mx_wifi/mx_wifi.c
+@@ -2030,7 +2030,8 @@ int32_t MX_WIFI_Socket_ping(MX_WIFIObject_t *Obj, const char *hostname,
+     {
+       if (rp->num > 0)
+       {
+-        for (i = 0; i < rp->num; i++)
++        int32_t copy_count = MIN(rp->num, MX_WIFI_PING_MAX);
++        for (i = 0; i < copy_count; i++)
+         {
+           response[i] = rp->delay_ms[i];
+         }

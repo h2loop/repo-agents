@@ -1,0 +1,64 @@
+diff --git a/openair3/NGAP/ngap_gNB_mobility_management.c b/openair3/NGAP/ngap_gNB_mobility_management.c
+index 95290f7bc3..84c10fb307 100644
+--- a/openair3/NGAP/ngap_gNB_mobility_management.c
++++ b/openair3/NGAP/ngap_gNB_mobility_management.c
+@@ -37,6 +37,16 @@
+  *         (9.2.3.1 of 3GPP TS 38.413) NG-RAN node → AMF */
+ NGAP_NGAP_PDU_t *encode_ng_handover_required(const ngap_handover_required_t *msg)
+ {
++  if (msg == NULL) {
++    LOG_E(NGAP, "encode_ng_handover_required: NULL message\n");
++    return NULL;
++  }
++
++  if (msg->source2target == NULL) {
++    LOG_E(NGAP, "encode_ng_handover_required: NULL source2target\n");
++    return NULL;
++  }
++
+   NGAP_NGAP_PDU_t *pdu = calloc_or_fail(1, sizeof(*pdu));
+ 
+   /* Prepare the NGAP message to encode */
+@@ -100,7 +110,11 @@ NGAP_NGAP_PDU_t *encode_ng_handover_required(const ngap_handover_required_t *msg
+                                                     &hoRequiredTransfer,
+                                                     ho_req_transfer_transparent_container_buffer,
+                                                     128);
+-    AssertFatal(enc_rval.encoded > 0, "ASN1 message encoding failed (%s, %lu)!\n", enc_rval.failed_type->name, enc_rval.encoded);
++    if (enc_rval.encoded < 0) {
++      LOG_E(NGAP, "ASN1 message encoding failed (%s, %lu)!\n", enc_rval.failed_type->name, enc_rval.encoded);
++      ASN_STRUCT_FREE(asn_DEF_NGAP_NGAP_PDU, pdu);
++      return NULL;
++    }
+     hoRequiredPduSession->handoverRequiredTransfer.buf = CALLOC(1, (enc_rval.encoded + 7) / 8);
+     memcpy(hoRequiredPduSession->handoverRequiredTransfer.buf,
+            ho_req_transfer_transparent_container_buffer,
+@@ -125,7 +139,7 @@ NGAP_NGAP_PDU_t *encode_ng_handover_required(const ngap_handover_required_t *msg
+ 
+   // PDU Session Resource Information List (O)
+   asn1cCalloc(source2target->pDUSessionResourceInformationList, pduSessionList);
+-  for (uint16_t i = 0; i < msg->nb_of_pdusessions; ++i) {
++  for (uint16_t i = 0; i < msg->nb_of_pdusessions && i < msg->source2target->nb_pdu_session_resource; ++i) {
+     const pdusession_resource_t *pduSession = &msg->pdusessions[i];
+     NGAP_DEBUG("Handover Required: preparing PDU Session Resource Information List for PDU Session ID %d\n",
+                pduSession->pdusession_id);
+@@ -177,10 +191,10 @@ NGAP_NGAP_PDU_t *encode_ng_handover_required(const ngap_handover_required_t *msg
+                                                   16384);
+   ASN_STRUCT_FREE(asn_DEF_NGAP_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer, source2target);
+   if (enc_rval.encoded < 0) {
+-    AssertFatal(enc_rval.encoded > 0,
+-                "HO LOG: Source to Transparent ASN1 message encoding failed (%s, %lu)!\n",
++    LOG_E(NGAP, "HO LOG: Source to Transparent ASN1 message encoding failed (%s, %lu)!\n",
+                 enc_rval.failed_type->name,
+                 enc_rval.encoded);
++    ASN_STRUCT_FREE(asn_DEF_NGAP_NGAP_PDU, pdu);
+     return NULL;
+   }
+ 
+@@ -190,6 +204,7 @@ NGAP_NGAP_PDU_t *encode_ng_handover_required(const ngap_handover_required_t *msg
+                                  total_bytes);
+   if (ret != 0) {
+     LOG_E(NR_RRC, "HO LOG: Can not perform OCTET_STRING_fromBuf for the SourceToTarget_TransparentContainer");
++    ASN_STRUCT_FREE(asn_DEF_NGAP_NGAP_PDU, pdu);
+     return NULL;
+   }
+ 

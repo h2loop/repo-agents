@@ -1,0 +1,26 @@
+{
+  "run_id": "mbed-os_00718_c19fd7",
+  "function": {
+    "name": "HAL_FDCAN_ConfigGlobalFilter",
+    "file": "targets/TARGET_STM/TARGET_STM32U5/STM32Cube_FW/STM32U5xx_HAL_Driver/stm32u5xx_hal_fdcan.c",
+    "start_line": 1373,
+    "end_line": 1407,
+    "body_lines": 35,
+    "signature": "HAL_StatusTypeDef HAL_FDCAN_ConfigGlobalFilter(FDCAN_HandleTypeDef *hfdcan, uint32_t NonMatchingStd, uint32_t NonMatchingExt, uint32_t RejectRemoteStd, uint32_t RejectRemoteExt)",
+    "subsystem": "targets/TARGET_STM/TARGET_STM32U5",
+    "token_estimate": 76
+  },
+  "bug": {
+    "bug_id": "c_signed_unsigned_mismatch",
+    "description": "signed/unsigned integer comparison mismatch leading to incorrect branch",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a signed/unsigned integer comparison mismatch leading to incorrect branch downstream of function HAL_FDCAN_ConfigGlobalFilter in the targets/TARGET_STM/TARGET_STM32U5 subsystem.\nThe function is located at targets/TARGET_STM/TARGET_STM32U5/STM32Cube_FW/STM32U5xx_HAL_Driver/stm32u5xx_hal_fdcan.c:1373.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 1,
+  "trajectory_steps": 35,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T15:52:53Z"
+}

@@ -1,0 +1,35 @@
+{
+  "run_id": "s00209_553afd",
+  "function": {
+    "name": "esm_proc_pdn_disconnect_reject",
+    "file": "openair3/NAS/UE/ESM/PdnDisconnect.c",
+    "start_line": 286,
+    "end_line": 342,
+    "body_lines": 57,
+    "signature": "int esm_proc_pdn_disconnect_reject(nas_user_t *user, int pti, int *esm_cause)",
+    "subsystem": "openair3/NAS/UE",
+    "token_estimate": 233
+  },
+  "bug": {
+    "bug_id": "c_use_after_free",
+    "description": "use-after-free vulnerability where freed memory is subsequently accessed",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common"
+    ]
+  },
+  "prompt": "There is a use-after-free vulnerability where freed memory is subsequently accessed downstream of function esm_proc_pdn_disconnect_reject in the openair3/NAS/UE subsystem.\nThe function is located at openair3/NAS/UE/ESM/PdnDisconnect.c:286.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00209_553afd_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00209_553afd_p1.diff",
+  "patch_lines": 13,
+  "trajectory_steps": 47,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:54:36Z"
+}

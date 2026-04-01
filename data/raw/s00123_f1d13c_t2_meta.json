@@ -1,0 +1,9 @@
+{
+  "run_id": "s00123_f1d13c",
+  "pr_text": "## Title: Add critical error logging for beam allocation failures in NR MAC scheduler\n\n### Summary\nThe `beam_allocation_procedure` function in the NR MAC gNB scheduler contains a silent failure path when no beam can be allocated to a UE. The function returns an error-indicating struct `{.new_beam = false, .idx = -1}`, but previously did not log this critical resource exhaustion event. This lack of observability made it difficult to diagnose beam allocation failures during high-traffic periods, i",
+  "trajectory_path": "data/raw/s00123_f1d13c_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00123_f1d13c_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 17,
+  "timestamp": "2026-02-11T12:06:46Z"
+}

@@ -1,0 +1,14 @@
+diff --git a/common/utils/T/tracer/gui/label.c b/common/utils/T/tracer/gui/label.c
+index 02efabfaf3..ead2744254 100644
+--- a/common/utils/T/tracer/gui/label.c
++++ b/common/utils/T/tracer/gui/label.c
+@@ -53,7 +53,8 @@ static void button(gui *gui, widget *_this, int x, int y,
+ 
+   if (up != 0) return;
+ 
+-  gui_notify(gui, "click", _this, &button);
++  int data[1] = { button };
++  gui_notify(gui, "click", _this, data);
+ }
+ 
+ /* we could use default_button, but it's in widget.c, so, well... */

@@ -1,0 +1,9 @@
+{
+  "run_id": "s00048_2c1945",
+  "pr_text": "## Title: Fix F1AP message corruption via deep copy in CU-UP bearer context handling\n\n### Summary\nThe F1AP interface between CU and DU was experiencing message loss and corruption due to improper memory copying in bearer context setup and modification functions. The root cause was the use of `memcpy()` to copy ITTI message structures containing nested arrays and potential pointer fields, which could lead to shallow copies and memory corruption when messages are queued or retransmitted.\n\nThis fix",
+  "trajectory_path": "data/raw/s00048_2c1945_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00048_2c1945_p2.diff",
+  "patch_lines": 107,
+  "trajectory_steps": 14,
+  "timestamp": "2026-02-11T11:25:56Z"
+}

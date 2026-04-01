@@ -1,0 +1,9 @@
+{
+  "run_id": "s00272_b686ba",
+  "pr_text": "## Title: Fix NULL pointer dereference in RA response window configuration\n\n### Summary\nThe UE MAC layer function `nr_get_RA_window()` dereferences `rach_ConfigCommon` without null checking, causing crashes when the configuration is unavailable during early RA procedure initialization. This leads to NGAP interface handling failures downstream when the RA response window cannot be properly configured.\n\nThis change adds defensive NULL validation for `mac->current_UL_BWP.rach_ConfigCommon` before a",
+  "trajectory_path": "data/raw/s00272_b686ba_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00272_b686ba_p2.diff",
+  "patch_lines": 8,
+  "trajectory_steps": 18,
+  "timestamp": "2026-02-11T14:02:27Z"
+}

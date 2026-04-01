@@ -1,0 +1,16 @@
+diff --git a/openair1/PHY/NR_TRANSPORT/nr_prach_common.c b/openair1/PHY/NR_TRANSPORT/nr_prach_common.c
+index b680d826fa..b79016fd9f 100644
+--- a/openair1/PHY/NR_TRANSPORT/nr_prach_common.c
++++ b/openair1/PHY/NR_TRANSPORT/nr_prach_common.c
+@@ -67,6 +67,11 @@ static int modulo_multiplicative_inverse(const int a, const int m)
+ // This function computes the du
+ void nr_fill_du(uint16_t N_ZC, const uint16_t* prach_root_sequence_map, uint16_t nr_du[NR_PRACH_SEQ_LEN_L - 1])
+ {
++  // Check for NULL pointer to prevent dereference
++  if (prach_root_sequence_map == NULL) {
++    LOG_E(PHY, "nr_fill_du: prach_root_sequence_map is NULL\n");
++    return;
++  }
+ 
+   uint16_t iu,u,p;
+ 

@@ -1,0 +1,30 @@
+diff --git a/nfapi/open-nFAPI/utils/nfapi_hex_parser.c b/nfapi/open-nFAPI/utils/nfapi_hex_parser.c
+index a037f1221e..2902822098 100644
+--- a/nfapi/open-nFAPI/utils/nfapi_hex_parser.c
++++ b/nfapi/open-nFAPI/utils/nfapi_hex_parser.c
+@@ -230,17 +230,19 @@ static int parse_byte(const char *s, uint8_t *b)
+     c += 2;
+     s += 2;
+   }
++  // validate first character before using it
++  uint8_t hb = to_hex(s[0]);
++  if (hb == 0xff)
++    return -1;
+   // only one digit, if s[1] has other garbage, it will be caught after
+-  if (s[1] == 0 || s[1] == ' ') {
++  if (s[1] == 0 || isspace(s[1])) {
+     // only one digit
+-    *b = to_hex(s[0]);
+-    // check if valid
+-    return *b != 0xff ? c + 1 : -1;
++    *b = hb;
++    return c + 1;
+   }
+   // read both bytes, check if valid
+-  uint8_t hb = to_hex(s[0]);
+   uint8_t lb = to_hex(s[1]);
+-  if (hb == 0xff || lb == 0xff)
++  if (lb == 0xff)
+     return -1;
+   *b = ((hb & 0xf) << 4) | (lb & 0xf);
+   return c + 2;

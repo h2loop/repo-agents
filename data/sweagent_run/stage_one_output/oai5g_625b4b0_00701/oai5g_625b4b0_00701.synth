@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix RRC NSA release procedure due to RNTI/UE ID confusion\n\n### Summary\nThe `rrc_gNB_trigger_nsa_release()` function was failing to properly release NSA users because it was using the wrong UE context lookup method. The function expected a UE ID but was receiving an RNTI, causing it to fail silently when trying to find the UE context.\n\nThis manifested as NSA users not being properly released when receiving X2AP release requests or DC overall timeouts, leading to stale UE contexts and potential resource leaks.\n\n### Changes\n- `openair2/RRC/NR/rrc_gNB.c`: Modified `rrc_gNB_trigger_nsa_release()` to use `rrc_gNB_get_ue_context_by_rnti_any_du()` instead of `rrc_gNB_get_ue_context()` and added proper type casting from `int` to `rnti_t`. Also updated comments in calling functions for clarity.\n\n"
+}

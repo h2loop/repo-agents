@@ -1,0 +1,41 @@
+diff --git a/openair3/NGAP/ngap_gNB_overload.c b/openair3/NGAP/ngap_gNB_overload.c
+index cc5cd997cf..f747670093 100644
+--- a/openair3/NGAP/ngap_gNB_overload.c
++++ b/openair3/NGAP/ngap_gNB_overload.c
+@@ -34,13 +34,13 @@
+ #include "ngap_gNB_defs.h"
+ #include "ngap_gNB_management_procedures.h"
+ 
+-int ngap_gNB_handle_overload_start(sctp_assoc_t assoc_id, uint32_t stream, NGAP_NGAP_PDU_t *pdu)
++int ngap_gNB_handle_overload_start(sctp_assoc_t assoc_id, int32_t stream, NGAP_NGAP_PDU_t *pdu)
+ {
+     //TODO
+     return 0;
+ }
+ 
+-int ngap_gNB_handle_overload_stop(sctp_assoc_t assoc_id, uint32_t stream, NGAP_NGAP_PDU_t *pdu)
++int ngap_gNB_handle_overload_stop(sctp_assoc_t assoc_id, int32_t stream, NGAP_NGAP_PDU_t *pdu)
+ {
+     /* We received Overload stop message, meaning that the AMF is no more
+      * overloaded. This is an empty message, with only message header and no
+diff --git a/openair3/NGAP/ngap_gNB_overload.h b/openair3/NGAP/ngap_gNB_overload.h
+index 8f0644e5b0..c4e455affb 100644
+--- a/openair3/NGAP/ngap_gNB_overload.h
++++ b/openair3/NGAP/ngap_gNB_overload.h
+@@ -41,7 +41,7 @@
+ // int ngap_gNB_handle_overload_start(gNB_amf_desc_t *gNB_desc_p,
+ //                                    sctp_queue_item_t *packet_p,
+ //                                    struct ngap_message_s *message_p);
+-int ngap_gNB_handle_overload_start(sctp_assoc_t assoc_id, uint32_t stream, NGAP_NGAP_PDU_t *pdu);
++int ngap_gNB_handle_overload_start(sctp_assoc_t assoc_id, int32_t stream, NGAP_NGAP_PDU_t *pdu);
+ 
+ /**
+  * \brief Handle an overload stop message
+@@ -49,6 +49,6 @@ int ngap_gNB_handle_overload_start(sctp_assoc_t assoc_id, uint32_t stream, NGAP_
+ // int ngap_gNB_handle_overload_stop(gNB_amf_desc_t *gNB_desc_p,
+ //                                   sctp_queue_item_t *packet_p,
+ //                                   struct ngap_message_s *message_p);
+-int ngap_gNB_handle_overload_stop(sctp_assoc_t assoc_id, uint32_t stream, NGAP_NGAP_PDU_t *pdu);
++int ngap_gNB_handle_overload_stop(sctp_assoc_t assoc_id, int32_t stream, NGAP_NGAP_PDU_t *pdu);
+ 
+ #endif /* NGAP_GNB_OVERLOAD_H_ */

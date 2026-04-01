@@ -1,0 +1,25 @@
+diff --git a/openair2/UTIL/OTG/otg_kpi.c b/openair2/UTIL/OTG/otg_kpi.c
+index 52aaa4e436..a8105c7c7b 100644
+--- a/openair2/UTIL/OTG/otg_kpi.c
++++ b/openair2/UTIL/OTG/otg_kpi.c
+@@ -140,11 +140,18 @@ void otg_kpi_nb_loss_pkts(void) {
+ 
+   for (i=0; i<(NB_eNB_INST + NB_UE_INST); i++) {
+     for (j=0; j<(NB_eNB_INST + NB_UE_INST); j++) {
++      // Add background loss once per (i,j) pair
++      if (i<NB_eNB_INST)
++        otg_info->total_loss_dl+=otg_info->nb_loss_pkts_background_dl[i][j];
++      else
++        otg_info->total_loss_ul+=otg_info->nb_loss_pkts_background_ul[i][j];
++      
++      // Add traffic loss for each application type
+       for (k=0; k<MAX_EMU_TRAFFIC; k++) {
+         if (i<NB_eNB_INST)
+-          otg_info->total_loss_dl+=(otg_info->nb_loss_pkts_dl[i][j][k] + otg_info->nb_loss_pkts_background_dl[i][j]);
++          otg_info->total_loss_dl+=otg_info->nb_loss_pkts_dl[i][j][k];
+         else
+-          otg_info->total_loss_ul+=(otg_info->nb_loss_pkts_ul[i][j][k] + otg_info->nb_loss_pkts_background_ul[i][j]);
++          otg_info->total_loss_ul+=otg_info->nb_loss_pkts_ul[i][j][k];
+       }
+     }
+   }

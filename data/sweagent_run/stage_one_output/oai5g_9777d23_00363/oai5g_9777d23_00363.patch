@@ -1,0 +1,72 @@
+diff --git a/openair3/NAS/COMMON/IES/MobileIdentity.c b/openair3/NAS/COMMON/IES/MobileIdentity.c
+index fbe6d93e47..6d470434f4 100644
+--- a/openair3/NAS/COMMON/IES/MobileIdentity.c
++++ b/openair3/NAS/COMMON/IES/MobileIdentity.c
+@@ -443,21 +443,21 @@ static int decode_tmsi_mobile_identity(TmsiMobileIdentity_t *tmsi, uint8_t *buff
+ static int decode_tmgi_mobile_identity(TmgiMobileIdentity_t *tmgi, uint8_t *buffer)
+ {
+   int decoded = 0;
+-  tmgi->spare = (*(buffer + decoded) >> 6) & 0x2;
++  tmgi->typeofidentity = *(buffer + decoded) & 0x7;
+ 
+-  /*
+-   * Spare bits are coded with 0s
+-   */
+-  if (tmgi->spare != 0) {
++  if (tmgi->typeofidentity != MOBILE_IDENTITY_TMGI) {
+     return (TLV_ENCODE_VALUE_DOESNT_MATCH);
+   }
+ 
+-  tmgi->mbmssessionidindication = (*(buffer + decoded) >> 5) & 0x1;
+-  tmgi->mccmncindication = (*(buffer + decoded) >> 4) & 0x1;
+   tmgi->oddeven = (*(buffer + decoded) >> 3) & 0x1;
+-  tmgi->typeofidentity = *(buffer + decoded) & 0x7;
++  tmgi->mccmncindication = (*(buffer + decoded) >> 4) & 0x1;
++  tmgi->mbmssessionidindication = (*(buffer + decoded) >> 5) & 0x1;
++  tmgi->spare = (*(buffer + decoded) >> 6) & 0x3;
+ 
+-  if (tmgi->typeofidentity != MOBILE_IDENTITY_TMGI) {
++  /*
++   * Spare bits are coded with 0s
++   */
++  if (tmgi->spare != 0) {
+     return (TLV_ENCODE_VALUE_DOESNT_MATCH);
+   }
+ 
+@@ -632,10 +632,11 @@ static int encode_tmgi_mobile_identity(TmgiMobileIdentity_t *tmgi, uint8_t *buff
+ {
+   uint32_t encoded = 0;
+   *(buffer + encoded) = 0x00 |
+-                        ((tmgi->mbmssessionidindication & 0x1) << 5) |
+-                        ((tmgi->mccmncindication & 0x1) << 4) |
++                        ((tmgi->typeofidentity & 0x7)) |
+                         ((tmgi->oddeven & 0x1) << 3) |
+-                        (tmgi->typeofidentity & 0x7);
++                        ((tmgi->mccmncindication & 0x1) << 4) |
++                        ((tmgi->mbmssessionidindication & 0x1) << 5) |
++                        ((0 & 0x3) << 6);  // Spare bits should be 0
+   encoded++;
+   IES_ENCODE_U24(buffer, encoded, tmgi->mbmsserviceid);
+   *(buffer + encoded) = 0x00 | ((tmgi->mccdigit2 & 0xf) << 4) |
+diff --git a/openair3/NAS/COMMON/IES/MobileIdentity.h b/openair3/NAS/COMMON/IES/MobileIdentity.h
+index fd747307de..1b16b87a03 100644
+--- a/openair3/NAS/COMMON/IES/MobileIdentity.h
++++ b/openair3/NAS/COMMON/IES/MobileIdentity.h
+@@ -56,13 +56,11 @@ typedef struct {
+ } ImsiMobileIdentity_t;
+ 
+ typedef struct {
+-  uint8_t  spare:2;
+-  uint8_t  mbmssessionidindication:1;
+-  uint8_t  mccmncindication:1;
+-#define MOBILE_IDENTITY_EVEN    0
+-#define MOBILE_IDENTITY_ODD   1
+-  uint8_t  oddeven:1;
+   uint8_t  typeofidentity:3;
++  uint8_t  oddeven:1;
++  uint8_t  mccmncindication:1;
++  uint8_t  mbmssessionidindication:1;
++  uint8_t  spare:2;
+   uint32_t mbmsserviceid;
+   uint8_t  mccdigit2:4;
+   uint8_t  mccdigit1:4;

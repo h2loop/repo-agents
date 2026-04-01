@@ -1,0 +1,40 @@
+{
+  "run_id": "s00257_0c954c",
+  "function": {
+    "name": "free_ue_context_mod_req",
+    "file": "openair2/F1AP/lib/f1ap_ue_context.c",
+    "start_line": 1926,
+    "end_line": 1948,
+    "body_lines": 23,
+    "signature": "void free_ue_context_mod_req(f1ap_ue_context_mod_req_t *req)",
+    "subsystem": "openair2/F1AP/lib",
+    "token_estimate": 50
+  },
+  "bug": {
+    "bug_id": "c_null_pointer_dereference",
+    "description": "null pointer dereference due to missing NULL check before access",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables",
+      "radio",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a null pointer dereference due to missing NULL check before access downstream of function free_ue_context_mod_req in the openair2/F1AP/lib subsystem.\nThe function is located at openair2/F1AP/lib/f1ap_ue_context.c:1926.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00257_0c954c_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00257_0c954c_p1.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 13,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:49:40Z"
+}

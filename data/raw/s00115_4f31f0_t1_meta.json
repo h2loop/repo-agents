@@ -1,0 +1,30 @@
+{
+  "run_id": "s00115_4f31f0",
+  "function": {
+    "name": "mac_remove_nr_ue",
+    "file": "openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c",
+    "start_line": 3105,
+    "end_line": 3115,
+    "body_lines": 11,
+    "signature": "void mac_remove_nr_ue(gNB_MAC_INST *nr_mac, rnti_t rnti)",
+    "subsystem": "openair2/LAYER2/NR_MAC_gNB",
+    "token_estimate": 33
+  },
+  "bug": {
+    "bug_id": "telecom_cross_layer_mismatch",
+    "description": "cross-layer parameter mismatch between PHY, MAC, and RRC causing inconsistent operation",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC"
+    ]
+  },
+  "prompt": "There is a cross-layer parameter mismatch between PHY, MAC, and RRC causing inconsistent operation downstream of function mac_remove_nr_ue in the openair2/LAYER2/NR_MAC_gNB subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c:3105.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00115_4f31f0_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00115_4f31f0_p1.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 58,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:18:12Z"
+}

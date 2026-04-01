@@ -1,0 +1,16 @@
+diff --git a/openair3/NAS/UE/EMM/SAP/emm_as.c b/openair3/NAS/UE/EMM/SAP/emm_as.c
+index 32353fa969..1359ee6539 100644
+--- a/openair3/NAS/UE/EMM/SAP/emm_as.c
++++ b/openair3/NAS/UE/EMM/SAP/emm_as.c
+@@ -93,6 +93,11 @@ static char *_emm_as_primitive_str[] = {
+   "EMMAS_CELL_INFO_RES",
+   "EMMAS_CELL_INFO_IND",
+ };
++  /* Check bounds before array access to prevent out-of-bounds memory access */
++  if (emmas < 0 || emmas >= (int)(sizeof(_emm_as_primitive_str) / sizeof(_emm_as_primitive_str[0]))) {
++    LOG_TRACE(WARNING, "EMMAS-SAP: Invalid primitive value %d", emmas);
++    return "EMMAS_UNKNOWN";
++  }
+   return _emm_as_primitive_str[emmas];
+ }
+ /*

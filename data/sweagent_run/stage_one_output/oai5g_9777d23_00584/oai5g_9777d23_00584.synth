@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Add missing range validation in vrtsim_write_beams function\n\n### Summary\nThe `vrtsim_write_beams` function in the VRT simulator was missing validation of input parameters, which could allow out-of-spec values to be passed downstream. This could potentially lead to undefined behavior or crashes when invalid parameters are processed.\n\nThis fix adds proper range validation for all input parameters to ensure they are within expected bounds before processing.\n\n### Changes\n- `radio/vrtsim/vrtsim.c`: Added parameter validation in `vrtsim_write_beams` function to check:\n  - `nsamps` must be greater than 0\n  - `nb_antennas_tx` must be between 1 and `MAX_NUM_ANTENNAS_TX`\n  - `num_beams` must be between 1 and 64\n  - `timestamp` must be non-negative\n  - `buff` and `buff[0]` must not be NULL\n\nThe validation follows the same `AssertFatal` pattern used elsewhere in the codebase to maintain consistency.\n"
+}

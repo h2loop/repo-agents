@@ -1,0 +1,32 @@
+{
+  "run_id": "s00228_ae62d7",
+  "function": {
+    "name": "prepare_dci_pdu",
+    "file": "openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c",
+    "start_line": 821,
+    "end_line": 855,
+    "body_lines": 35,
+    "signature": "nfapi_nr_dl_dci_pdu_t *prepare_dci_pdu(nfapi_nr_dl_tti_pdcch_pdu_rel15_t *pdcch_pdu, const NR_ServingCellConfigCommon_t *scc, const NR_SearchSpace_t *ss, const NR_ControlResourceSet_t *coreset, int aggregation_level, int cce_index, int beam_index, int rnti)",
+    "subsystem": "openair2/LAYER2/NR_MAC_gNB",
+    "token_estimate": 92
+  },
+  "bug": {
+    "bug_id": "telecom_state_machine_missing_validation",
+    "description": "missing state validation before processing a protocol message",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP"
+    ]
+  },
+  "prompt": "There is a missing state validation before processing a protocol message downstream of function prepare_dci_pdu in the openair2/LAYER2/NR_MAC_gNB subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c:821.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00228_ae62d7_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00228_ae62d7_p1.diff",
+  "patch_lines": 8,
+  "trajectory_steps": 67,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:31:54Z"
+}

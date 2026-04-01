@@ -1,0 +1,24 @@
+diff --git a/executables/lte-enb.c b/executables/lte-enb.c
+index 42c97e8913..43ec3c517c 100644
+--- a/executables/lte-enb.c
++++ b/executables/lte-enb.c
+@@ -313,7 +313,8 @@ static void *L1_thread_tx(void *param) {
+   L1_rxtx_proc_t *proc = &eNB_proc->L1_proc_tx;
+   PHY_VARS_eNB *eNB = eNB_proc->eNB;
+   char thread_name[100];
+-  sprintf(thread_name,"TXnp4_%d\n",&eNB->proc.L1_proc == proc ? 0 : 1);
++  int thread_id = (&eNB->proc.L1_proc == proc) ? 0 : 1;
++  snprintf(thread_name, sizeof(thread_name), "TXnp4_%d", thread_id);
+   thread_top_init(thread_name,1,470000,500000,500000);
+   int ret;
+ 
+@@ -384,7 +385,8 @@ static void *L1_thread( void *param ) {
+   CPU_ZERO(&cpuset);
+   // set default return value
+   eNB_thread_rxtx_status = 0;
+-  sprintf(thread_name,"RXn_TXnp4_%d\n",&eNB->proc.L1_proc == proc ? 0 : 1);
++  int thread_id = (&eNB->proc.L1_proc == proc) ? 0 : 1;
++  snprintf(thread_name, sizeof(thread_name), "RXn_TXnp4_%d", thread_id);
+ #if 1
+   {
+     struct sched_param sparam =

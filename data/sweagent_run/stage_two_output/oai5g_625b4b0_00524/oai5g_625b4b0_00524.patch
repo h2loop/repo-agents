@@ -1,0 +1,136 @@
+diff --git a/nfapi/open-nFAPI/common/src/nfapi.c b/nfapi/open-nFAPI/common/src/nfapi.c
+index f997552c1e..b19dd87f70 100644
+--- a/nfapi/open-nFAPI/common/src/nfapi.c
++++ b/nfapi/open-nFAPI/common/src/nfapi.c
+@@ -1181,6 +1181,10 @@ int unpack_nr_p7_tlv_list(unpack_p7_tlv_t unpack_fns[],
+ // and writing into the tlv header.
+ uint8_t pack_tlv(uint16_t tag, void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end, pack_tlv_fn fn)
+ {
++  if (tlv == NULL) {
++    return 1; // Return success for NULL TLV as it's just not present
++  }
++
+   nfapi_tl_t *tl = (nfapi_tl_t *)tlv;
+ 
+   // If the tag is defined
+@@ -1215,6 +1219,10 @@ uint8_t pack_tlv(uint16_t tag, void *tlv, uint8_t **ppWritePackedMsg, uint8_t *e
+ 
+ uint8_t pack_nr_tlv(uint16_t tag, void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end, pack_tlv_fn fn)
+ {
++  if (tlv == NULL) {
++    return 1; // Return success for NULL TLV as it's just not present
++  }
++
+   nfapi_tl_t *tl = (nfapi_tl_t *)tlv;
+ 
+   // If the tag is defined
+@@ -1256,6 +1264,10 @@ uint8_t pack_nr_tlv(uint16_t tag, void *tlv, uint8_t **ppWritePackedMsg, uint8_t
+ 
+ uint8_t pack_nr_generic_tlv(uint16_t tag, void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end)
+ {
++  if (tlv == NULL) {
++    return 1; // Return success for NULL TLV as it's just not present
++  }
++
+   nfapi_nr_generic_tlv_scf_t *toPack = (nfapi_nr_generic_tlv_scf_t *)tlv;
+   // If the tag is defined
+   if (toPack->tl.tag == tag && toPack->tl.length != 0) {
+@@ -1424,6 +1436,10 @@ uint8_t get_tlv_padding(uint16_t tlv_length)
+ 
+ uint8_t pack_pnf_param_general_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end)
+ {
++  if (tlv == NULL) {
++    return 1; // Return success for NULL TLV as it's just not present
++  }
++
+   nfapi_pnf_param_general_t *value = (nfapi_pnf_param_general_t *)tlv;
+   return push8(value->nfapi_sync_mode, ppWritePackedMsg, end) && push8(value->location_mode, ppWritePackedMsg, end)
+          && push16(value->location_coordinates_length, ppWritePackedMsg, end)
+@@ -1530,6 +1546,10 @@ uint8_t unpack_pnf_phy_info(void *elem, uint8_t **ppReadPackedMsg, uint8_t *end)
+ 
+ uint8_t pack_pnf_phy_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end)
+ {
++  if (tlv == NULL) {
++    return 1; // Return success for NULL TLV as it's just not present
++  }
++
+   nfapi_pnf_phy_t *value = (nfapi_pnf_phy_t *)tlv;
+   return push16(value->number_of_phys, ppWritePackedMsg, end)
+          && packarray(value->phy,
+@@ -1570,6 +1590,10 @@ uint8_t unpack_phy_rf_config_info(void *elem, uint8_t **ppReadPackedMsg, uint8_t
+ 
+ uint8_t pack_pnf_phy_rf_config_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end)
+ {
++  if (tlv == NULL) {
++    return 1; // Return success for NULL TLV as it's just not present
++  }
++
+   nfapi_pnf_phy_rf_config_t *value = (nfapi_pnf_phy_rf_config_t *)tlv;
+   return push16(value->number_phy_rf_config_info, ppWritePackedMsg, end)
+          && packarray(value->phy_rf_config,
+@@ -1596,6 +1620,10 @@ uint8_t unpack_pnf_phy_rf_config_value(void *tlv, uint8_t **ppReadPackedMsg, uin
+ 
+ uint8_t pack_ipv4_address_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end)
+ {
++  if (tlv == NULL) {
++    return 1; // Return success for NULL TLV as it's just not present
++  }
++
+   nfapi_ipv4_address_t *value = (nfapi_ipv4_address_t *)tlv;
+   return pusharray8(value->address, NFAPI_IPV4_ADDRESS_LENGTH, NFAPI_IPV4_ADDRESS_LENGTH, ppWritePackedMsg, end);
+ }
+@@ -1608,6 +1636,10 @@ uint8_t unpack_ipv4_address_value(void *tlv, uint8_t **ppReadPackedMsg, uint8_t
+ 
+ uint8_t pack_ipv6_address_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end)
+ {
++  if (tlv == NULL) {
++    return 1; // Return success for NULL TLV as it's just not present
++  }
++
+   nfapi_ipv6_address_t *value = (nfapi_ipv6_address_t *)tlv;
+   return pusharray8(value->address, NFAPI_IPV6_ADDRESS_LENGTH, NFAPI_IPV6_ADDRESS_LENGTH, ppWritePackedMsg, end);
+ }
+@@ -1674,6 +1706,10 @@ uint8_t unpack_measurement_request(uint8_t **ppReadPackedMsg, uint8_t *end, void
+ 
+ uint8_t pack_uint32_tlv_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end)
+ {
++  if (tlv == NULL) {
++    return 1; // Return success for NULL TLV as it's just not present
++  }
++
+   nfapi_uint32_tlv_t *value = (nfapi_uint32_tlv_t *)tlv;
+   return push32(value->value, ppWritePackedMsg, end);
+ }
+@@ -1686,6 +1722,10 @@ uint8_t unpack_uint32_tlv_value(void *tlv, uint8_t **ppReadPackedMsg, uint8_t *e
+ 
+ uint8_t pack_uint16_tlv_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end)
+ {
++  if (tlv == NULL) {
++    return 1; // Return success for NULL TLV as it's just not present
++  }
++
+   nfapi_uint16_tlv_t *value = (nfapi_uint16_tlv_t *)tlv;
+   return push16(value->value, ppWritePackedMsg, end);
+ }
+@@ -1698,6 +1738,10 @@ uint8_t unpack_uint16_tlv_value(void *tlv, uint8_t **ppReadPackedMsg, uint8_t *e
+ 
+ uint8_t pack_int16_tlv_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end)
+ {
++  if (tlv == NULL) {
++    return 1; // Return success for NULL TLV as it's just not present
++  }
++
+   nfapi_int16_tlv_t *value = (nfapi_int16_tlv_t *)tlv;
+   return pushs16(value->value, ppWritePackedMsg, end);
+ }
+@@ -1710,6 +1754,10 @@ uint8_t unpack_int16_tlv_value(void *tlv, uint8_t **ppReadPackedMsg, uint8_t *en
+ 
+ uint8_t pack_uint8_tlv_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end)
+ {
++  if (tlv == NULL) {
++    return 1; // Return success for NULL TLV as it's just not present
++  }
++
+   nfapi_uint8_tlv_t *value = (nfapi_uint8_tlv_t *)tlv;
+   return push8(value->value, ppWritePackedMsg, end);
+ }

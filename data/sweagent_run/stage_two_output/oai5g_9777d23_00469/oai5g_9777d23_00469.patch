@@ -1,0 +1,73 @@
+diff --git a/openair3/ocp-gtpu/gtp_itf.cpp b/openair3/ocp-gtpu/gtp_itf.cpp
+index 9fb8f159fe..5e4eebe1b4 100644
+--- a/openair3/ocp-gtpu/gtp_itf.cpp
++++ b/openair3/ocp-gtpu/gtp_itf.cpp
+@@ -1062,20 +1062,20 @@ static int Gtpv1uHandleGpdu(int h,
+       extension_header_length = msgBuf[offset];
+       switch (next_extension_header_type) {
+         case PDU_SESSION_CONTAINER: {
+-	  if (offset + sizeof(PDUSessionContainerT) > msgBufLen ) {
+-	    LOG_E(GTPU, "gtp-u received header is malformed, ignore gtp packet\n");
+-	    return GTPNOK;
+-	  }
++          if (offset + sizeof(PDUSessionContainerT) > msgBufLen ) {
++            LOG_E(GTPU, "gtp-u received header is malformed, ignore gtp packet\n");
++            return GTPNOK;
++          }
+           PDUSessionContainerT *pdusession_cntr = (PDUSessionContainerT *)(msgBuf + offset + 1);
+           qfi = pdusession_cntr->QFI;
+           rqi = pdusession_cntr->Reflective_QoS_activation;
+           break;
+         }
+         case NR_RAN_CONTAINER: {
+-	  if (offset + 1 > msgBufLen ) {
+-	    LOG_E(GTPU, "gtp-u received header is malformed, ignore gtp packet\n");
+-	    return GTPNOK;
+-	  }
++          if (offset + 1 > msgBufLen ) {
++            LOG_E(GTPU, "gtp-u received header is malformed, ignore gtp packet\n");
++            return GTPNOK;
++          }
+           uint8_t PDU_type = (msgBuf[offset+1]>>4) & 0x0f;
+           if (PDU_type == 0){ //DL USER Data Format
+             int additional_offset = 6; //Additional offset capturing the first non-mandatory octet (TS 38.425, Figure 5.5.2.1-1)
+@@ -1102,13 +1102,13 @@ static int Gtpv1uHandleGpdu(int h,
+         }
+         default:
+           LOG_W(GTPU, "unhandled extension 0x%2.2x, skipping\n", next_extension_header_type);
+-	  break;
++          break;
+       }
+ 
+       offset += extension_header_length * EXT_HDR_LNTH_OCTET_UNITS;
+       if (offset > msgBufLen ) {
+-	LOG_E(GTPU, "gtp-u received header is malformed, ignore gtp packet\n");
+-	return GTPNOK;
++        LOG_E(GTPU, "gtp-u received header is malformed, ignore gtp packet\n");
++        return GTPNOK;
+       }
+       next_extension_header_type = msgBuf[offset - 1];
+     }
+@@ -1344,6 +1344,10 @@ void *gtpv1uTask(void *args)  {
+   return NULL;
+ }
+ 
++void gtpv1uSendDirectWithNRUSeqNum(instance_t instance, gtpv1u_tunnel_data_req_t *req) {
++  gtpv1uSend(instance, req, true, false);
++}
++
+ #ifdef __cplusplus
+ }
+ #endif
+diff --git a/openair3/ocp-gtpu/gtp_itf.h b/openair3/ocp-gtpu/gtp_itf.h
+index ce806f0bfc..897e4ede5f 100644
+--- a/openair3/ocp-gtpu/gtp_itf.h
++++ b/openair3/ocp-gtpu/gtp_itf.h
+@@ -105,6 +105,7 @@ extern "C" {
+   int newGtpuDeleteTunnels(instance_t instance, ue_id_t ue_id, int nbTunnels, pdusessionid_t *pdusession_id);
+   instance_t gtpv1Init(openAddr_t context);
+   void *gtpv1uTask(void *args);
++  void gtpv1uSendDirectWithNRUSeqNum(instance_t instance, gtpv1u_tunnel_data_req_t *req);
+ 
+   // Legacy to fix
+   typedef struct gtpv1u_data_s {

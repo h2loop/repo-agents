@@ -1,0 +1,24 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler.c
+index 46ad8069da..4ab4d10068 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler.c
+@@ -97,6 +97,7 @@ void clear_nr_nfapi_information(gNB_MAC_INST *gNB,
+     future_ul_tti_req->pdus_list[i].pdu_size = 0;
+   }
+   future_ul_tti_req->n_pdus = 0;
++  future_ul_tti_req->rach_present = 0;
+   future_ul_tti_req->n_ulsch = 0;
+   future_ul_tti_req->n_ulcch = 0;
+   future_ul_tti_req->n_group = 0;
+diff --git a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
+index 264150f314..81505bcd7e 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
+@@ -3595,6 +3595,7 @@ void UL_tti_req_ahead_initialization(gNB_MAC_INST *gNB, int n, int CCid, frame_t
+     nfapi_nr_ul_tti_request_t *req = &gNB->UL_tti_req_ahead[CCid][abs_slot % gNB->UL_tti_req_ahead_size];
+     req->SFN = (abs_slot / n) % MAX_FRAME_NUMBER;
+     req->Slot = abs_slot % n;
++    req->rach_present = 0;
+   }
+ }
+ 

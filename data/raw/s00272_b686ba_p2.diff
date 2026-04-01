@@ -1,0 +1,19 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c b/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
+index 9820e60107..5cd66ee397 100644
+--- a/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
++++ b/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
+@@ -814,6 +814,14 @@ void nr_get_RA_window(NR_UE_MAC_INST_t *mac){
+ 
+   uint8_t mu, ra_ResponseWindow;
+   RA_config_t *ra = &mac->ra;
++  
++  // Add NULL check for rach_ConfigCommon to prevent segfault during early RA initialization
++  if (mac->current_UL_BWP.rach_ConfigCommon == NULL) {
++    LOG_W(MAC, "In %s: rach_ConfigCommon is NULL, using default RA window of 10 slots\n", __FUNCTION__);
++    ra->RA_window_cnt = 10; // Default sl10 per 3GPP TS 38.321
++    return;
++  }
++  
+   NR_RACH_ConfigCommon_t *setup = mac->current_UL_BWP.rach_ConfigCommon;
+   AssertFatal(&setup->rach_ConfigGeneric != NULL, "In %s: FATAL! rach_ConfigGeneric is NULL...\n", __FUNCTION__);
+   NR_RACH_ConfigGeneric_t *rach_ConfigGeneric = &setup->rach_ConfigGeneric;

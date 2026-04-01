@@ -1,0 +1,145 @@
+diff --git a/openair2/COMMON/m3ap_messages_types.h b/openair2/COMMON/m3ap_messages_types.h
+index 815f8b6df4..abeb02b3c6 100644
+--- a/openair2/COMMON/m3ap_messages_types.h
++++ b/openair2/COMMON/m3ap_messages_types.h
+@@ -273,9 +273,33 @@ typedef struct m3ap_mme_sctp_req_s {
+ 
+ 
+ typedef struct m3ap_session_start_req_s{
+-  // This dummy element is to avoid CLANG warning: empty struct has size 0 in C, size 1 in C++
+-  // To be removed if the structure is filled
+-  uint32_t dummy;
++  /* Mandatory fields according to 3GPP spec */
++  uint32_t mme_mbms_m3ap_id;                    /* MME-MBMS-M3AP-ID */
++  uint8_t  tmgi[6];                             /* TMGI - 6 bytes as per 3GPP */
++  uint32_t mbms_session_id;                     /* MBMS-Session-ID (optional but we include it) */
++  /* MBMS-E-RAB-QoS-Parameters - simplified for now */
++  uint32_t qos_qci;
++  uint32_t qos_mbr_dl;
++  uint32_t qos_gbr_dl;
++  /* MBMS-Session-Duration */
++  uint32_t session_duration;
++  /* MBMS-Service-Area - simplified as a single value */
++  uint32_t mbms_service_area_id;
++  /* MinimumTimeToMBMSDataTransfer */
++  uint32_t min_time_to_transfer;
++  /* TNL-Information */
++  net_ip_address_t tnl_ip_address;
++  uint32_t         tnl_gtp_teid;
++  /* Optional fields */
++  uint32_t time_of_mbms_data_transfer;          /* Time-ofMBMS-DataTransfer (optional) */
++  uint8_t  reestablishment;                     /* Reestablishment (optional) */
++  /* Alternative-TNL-Information (optional) */
++  net_ip_address_t alt_tnl_ip_address;
++  uint32_t         alt_tnl_gtp_teid;
++  uint8_t          alt_tnl_present;
++  /* MBMS-Cell-List (optional) - simplified */
++  uint32_t mbms_cell_list[8];
++  uint8_t  mbms_cell_count;
+ }m3ap_session_start_req_t;
+ typedef struct m3ap_session_start_resp_s{
+   // This dummy element is to avoid CLANG warning: empty struct has size 0 in C, size 1 in C++
+diff --git a/openair3/M3AP/m3ap_MCE_interface_management.c b/openair3/M3AP/m3ap_MCE_interface_management.c
+index 82fc044d3e..7df33bcf34 100644
+--- a/openair3/M3AP/m3ap_MCE_interface_management.c
++++ b/openair3/M3AP/m3ap_MCE_interface_management.c
+@@ -62,35 +62,75 @@ int MCE_handle_MBMS_SESSION_START_REQUEST(instance_t instance,
+                                         uint32_t assoc_id,
+                                         uint32_t stream,
+                                         M3AP_M3AP_PDU_t *pdu){
+-//  LOG_W(M3AP, "MCE_handle_MBMS_SESSION_START_REQUEST assoc_id %d\n",assoc_id);
+-//
+-    MessageDef                         *message_p;
+-//  M3AP_SessionStartRequest_t              *container;
+-//  M3AP_SessionStartRequest_Ies_t           *ie;
+-//  int i = 0;
+-//
+-//  DevAssert(pdu != NULL);
+-//
+-//  container = &pdu->choice.initiatingMessage.value.choice.SessionStartRequest;
++  LOG_D(M3AP, "MCE_handle_MBMS_SESSION_START_REQUEST assoc_id %d\n",assoc_id);
+ 
+-    message_p = itti_alloc_new_message(TASK_M3AP_MCE, 0, M3AP_MBMS_SESSION_START_REQ);
++  MessageDef                         *message_p;
++  M3AP_MBMSSessionStartRequest_t              *container;
++  M3AP_MBMSSessionStartRequest_IEs_t        *ie;
++  int i = 0;
+ 
+-//
+-//  /* M3 Setup Request == Non UE-related procedure -> stream 0 */
+-//  if (stream != 0) {
+-//    LOG_W(M3AP, "[SCTP %d] Received MMBS session start request on stream != 0 (%d)\n",
+-//              assoc_id, stream);
+-//  }
+-//
++  DevAssert(pdu != NULL);
+ 
+-    itti_send_msg_to_task(TASK_MCE_APP, ENB_MODULE_ID_TO_INSTANCE(instance), message_p);
++  container = &pdu->choice.initiatingMessage.value.choice.MBMSSessionStartRequest;
+ 
+-//  if(1){
+-//	MCE_send_MBMS_SESSION_START_RESPONSE(instance,assoc_id);
+-//  }else
+-//	MCE_send_MBMS_SESSION_START_FAILURE(instance,assoc_id);
+-  return 0;
++  message_p = itti_alloc_new_message(TASK_M3AP_MCE, 0, M3AP_MBMS_SESSION_START_REQ);
+   
++  /* Extract mandatory fields from the request */
++  for (i = 0; i < container->protocolIEs.list.count; i++) {
++    ie = container->protocolIEs.list.array[i];
++    switch (ie->id) {
++      case M3AP_ProtocolIE_ID_id_MME_MBMS_M3AP_ID:
++        M3AP_MBMS_SESSION_START_REQ(message_p).mme_mbms_m3ap_id = ie->value.choice.MME_MBMS_M3AP_ID;
++        LOG_D(M3AP, "MBMS Session Start Request: MME_MBMS_M3AP_ID %lu\n", 
++              M3AP_MBMS_SESSION_START_REQ(message_p).mme_mbms_m3ap_id);
++        break;
++        
++      case M3AP_ProtocolIE_ID_id_TMGI:
++        if (ie->value.choice.TMGI.size == 6) { // TMGI is 6 bytes
++          memcpy(&M3AP_MBMS_SESSION_START_REQ(message_p).tmgi, 
++                 ie->value.choice.TMGI.buf, 
++                 ie->value.choice.TMGI.size);
++          LOG_D(M3AP, "MBMS Session Start Request: TMGI extracted\n");
++        }
++        break;
++        
++      case M3AP_ProtocolIE_ID_id_MBMS_Session_ID:
++        if (ie->value.present == M3AP_MBMSSessionStartRequest_IEs__value_PR_MBMS_Session_ID) {
++          M3AP_MBMS_SESSION_START_REQ(message_p).mbms_session_id = ie->value.choice.MBMS_Session_ID;
++          LOG_D(M3AP, "MBMS Session Start Request: MBMS_Session_ID %ld\n", 
++                M3AP_MBMS_SESSION_START_REQ(message_p).mbms_session_id);
++        }
++        break;
++        
++      case M3AP_ProtocolIE_ID_id_MBMS_Service_Area:
++        if (ie->value.choice.MBMS_Service_Area.size >= 2) {
++          memcpy(&M3AP_MBMS_SESSION_START_REQ(message_p).mbms_service_area, 
++                 ie->value.choice.MBMS_Service_Area.buf, 
++                 ie->value.choice.MBMS_Service_Area.size);
++          M3AP_MBMS_SESSION_START_REQ(message_p).mbms_service_area_len = ie->value.choice.MBMS_Service_Area.size;
++          LOG_D(M3AP, "MBMS Session Start Request: MBMS_Service_Area extracted (%d bytes)\n", 
++                M3AP_MBMS_SESSION_START_REQ(message_p).mbms_service_area_len);
++        }
++        break;
++        
++      case M3AP_ProtocolIE_ID_id_MBMS_Cell_List:
++        if (ie->value.present == M3AP_MBMSSessionStartRequest_IEs__value_PR_MBMS_Cell_List) {
++          M3AP_MBMS_SESSION_START_REQ(message_p).mbms_cell_list = ie->value.choice.MBMS_Cell_List;
++          LOG_D(M3AP, "MBMS Session Start Request: MBMS_Cell_List present\n");
++        }
++        break;
++    }
++  }
++
++  /* M3 Setup Request == Non UE-related procedure -> stream 0 */
++  if (stream != 0) {
++    LOG_W(M3AP, "[SCTP %d] Received MBMS session start request on stream != 0 (%d)\n",
++              assoc_id, stream);
++  }
++
++  itti_send_msg_to_task(TASK_MCE_APP, ENB_MODULE_ID_TO_INSTANCE(instance), message_p);
++
++  return 0;
+ }
+ 
+ int MCE_send_MBMS_SESSION_START_RESPONSE(instance_t instance, m3ap_session_start_resp_t * m3ap_session_start_resp){

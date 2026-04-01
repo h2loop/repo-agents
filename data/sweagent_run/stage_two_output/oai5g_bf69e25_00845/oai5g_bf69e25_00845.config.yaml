@@ -1,0 +1,151 @@
+'{"env":{"deployment":{"image":"oai5g-sera:bf69e25","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_bf69e25_00845","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Add missing create_ue_eth_if function for SDAP Ethernet interface creation\n\n###
+  Summary\nThe SDAP layer was missing the `create_ue_eth_if` function that users expected
+  to exist for creating UE Ethernet interfaces. When calling this function, the behavior
+  was undefined since it didn''t exist.\n\nThis fix implements the missing `create_ue_eth_if`
+  function that properly creates TUN interfaces for UE Ethernet connectivity. The
+  function validates inputs, checks for existing SDAP entities, and creates TUN interfaces
+  with proper error handling.\n\n### Changes\n- `openair2/SDAP/nr_sdap/nr_sdap.h`:
+  Added function declaration for `create_ue_eth_if`\n- `openair2/SDAP/nr_sdap/nr_sdap.c`:
+  Implemented the `create_ue_eth_if` function with proper TUN interface creation\n\n###
+  Reproduction\nBefore this fix, attempting to call `create_ue_eth_if()` would result
+  in a linker error or undefined behavior since the function didn''t exist. After
+  this fix, the function properly creates TUN interfaces and returns 0 on success
+  or -1 on failure.\n\nUsers can now call:\n```c\nint result = create_ue_eth_if(ue_id,
+  pdusession_id, \"oaitun_ue1\");\n```\n\nThe function will create a TUN interface
+  named \"oaitun_ue1\" associated with the specified UE and PDU session, returning
+  0 on success or -1 if the SDAP entity doesn''t exist or interface creation fails.\n","extra_fields":{"bug_description":"incorrect
+  flags or bitmask passed to a system or library function","bug_id":"c_wrong_flags","stage_one_patch":"diff
+  --git a/openair2/SDAP/nr_sdap/nr_sdap.c b/openair2/SDAP/nr_sdap/nr_sdap.c\nindex
+  783ca5a914..141ab2d215 100644\n--- a/openair2/SDAP/nr_sdap/nr_sdap.c\n+++ b/openair2/SDAP/nr_sdap/nr_sdap.c\n@@
+  -20,6 +20,15 @@\n  */\n \n #include \"nr_sdap.h\"\n+#include <inttypes.h>\n+#include
+  <string.h>\n+#include <errno.h>\n+#include <sys/ioctl.h>\n+#include <sys/socket.h>\n+#include
+  <linux/if.h>\n+#include <linux/if_tun.h>\n+#include <fcntl.h>\n+#include <unistd.h>\n
+  \n uint8_t nas_qfi;\n uint8_t nas_pduid;\n@@ -92,3 +101,79 @@ void set_qfi_pduid(uint8_t
+  qfi, uint8_t pduid){\n   nas_pduid = pduid;\n   return;\n }\n+\n+int create_ue_eth_if(ue_id_t
+  ue_id, int pdusession_id, const char *interface_name) {\n+  // Validate inputs\n+  if
+  (interface_name == NULL) {\n+    LOG_E(SDAP, \"Invalid interface name provided\\n\");\n+    return
+  -1;\n+  }\n+\n+  // Check if SDAP entity already exists for this UE and PDU session\n+  nr_sdap_entity_t
+  *sdap_entity = nr_sdap_get_entity(ue_id, pdusession_id);\n+  if (sdap_entity ==
+  NULL) {\n+    LOG_E(SDAP, \"SDAP entity not found for UE ID: 0x%\"PRIx64\" and PDU
+  session ID: %d\\n\", ue_id, pdusession_id);\n+    return -1;\n+  }\n+\n+  LOG_I(SDAP,
+  \"Creating UE Ethernet interface ''%s'' for UE ID: 0x%\"PRIx64\", PDU session: %d\\n\",
+  \n+         interface_name, ue_id, pdusession_id);\n+\n+  // Create TUN interface\n+  struct
+  ifreq ifr;\n+  int fd, err;\n+  char if_name[IFNAMSIZ];\n+\n+  // Open TUN device\n+  if
+  ((fd = open(\"/dev/net/tun\", O_RDWR)) < 0) {\n+    LOG_E(SDAP, \"Failed to open
+  /dev/net/tun: %s\\n\", strerror(errno));\n+    return -1;\n+  }\n+\n+  // Configure
+  interface request\n+  memset(&ifr, 0, sizeof(ifr));\n+  ifr.ifr_flags = IFF_TUN
+  | IFF_NO_PI;  // TUN device without packet info\n+  \n+  // Set interface name\n+  if
+  (strlen(interface_name) >= IFNAMSIZ) {\n+    LOG_E(SDAP, \"Interface name too long:
+  %s\\n\", interface_name);\n+    close(fd);\n+    return -1;\n+  }\n+  strncpy(ifr.ifr_name,
+  interface_name, IFNAMSIZ - 1);\n+\n+  // Create the interface\n+  if ((err = ioctl(fd,
+  TUNSETIFF, (void *)&ifr)) < 0) {\n+    LOG_E(SDAP, \"Failed to create TUN interface
+  %s: %s\\n\", interface_name, strerror(errno));\n+    close(fd);\n+    return -1;\n+  }\n+\n+  //
+  Get the actual interface name (in case it was modified)\n+  strncpy(if_name, ifr.ifr_name,
+  IFNAMSIZ - 1);\n+  if_name[IFNAMSIZ - 1] = ''\\0'';\n+\n+  LOG_I(SDAP, \"Successfully
+  created TUN interface %s with fd %d\\n\", if_name, fd);\n+\n+  // Set the interface
+  to non-blocking mode\n+  int flags = fcntl(fd, F_GETFL, 0);\n+  if (flags == -1
+  || fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1) {\n+    LOG_E(SDAP, \"Failed to
+  set non-blocking mode for interface %s: %s\\n\", if_name, strerror(errno));\n+    close(fd);\n+    return
+  -1;\n+  }\n+\n+  // TODO: In a complete implementation, we would:\n+  // 1. Store
+  the file descriptor in the SDAP entity for data transfer\n+  // 2. Set up appropriate
+  IP configuration for the interface\n+  // 3. Configure routing if needed\n+  //
+  4. Start a thread to handle data from this interface\n+\n+  LOG_I(SDAP, \"UE Ethernet
+  interface ''%s'' created successfully\\n\", if_name);\n+  \n+  // For now, we''ll
+  just close the fd since we''re not storing it\n+  // In a real implementation, this
+  fd would be stored and used for data transfer\n+  close(fd);\n+  \n+  return 0;\n+}\ndiff
+  --git a/openair2/SDAP/nr_sdap/nr_sdap.h b/openair2/SDAP/nr_sdap/nr_sdap.h\nindex
+  8fb313a340..c30e3d58ed 100644\n--- a/openair2/SDAP/nr_sdap/nr_sdap.h\n+++ b/openair2/SDAP/nr_sdap/nr_sdap.h\n@@
+  -63,4 +63,13 @@ void sdap_data_ind(rb_id_t pdcp_entity,\n \n void set_qfi_pduid(uint8_t
+  qfi, uint8_t pduid);\n \n+/**\n+ * @brief Create UE Ethernet interface for SDAP
+  data transfer\n+ * @param[in] ue_id UE identifier\n+ * @param[in] pdusession_id
+  PDU session identifier\n+ * @param[in] interface_name Name for the interface to
+  create\n+ * @return 0 on success, -1 on failure\n+ */\n+int create_ue_eth_if(ue_id_t
+  ue_id, int pdusession_id, const char *interface_name);\n+\n #endif\n","start_fn":"create_ue_eth_if","start_fn_file":"openair2/SDAP/nr_sdap/nr_sdap.c","subsystem":"openair2/SDAP/nr_sdap"},"type":"text","id":"oai5g_bf69e25_00845"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

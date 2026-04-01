@@ -1,0 +1,46 @@
+diff --git a/openair2/F1AP/f1ap_cu_ue_context_management.c b/openair2/F1AP/f1ap_cu_ue_context_management.c
+index 8fdee52abb..5931dfa48e 100644
+--- a/openair2/F1AP/f1ap_cu_ue_context_management.c
++++ b/openair2/F1AP/f1ap_cu_ue_context_management.c
+@@ -669,6 +669,20 @@ int CU_handle_UE_CONTEXT_SETUP_RESPONSE(instance_t       instance,
+   f1ap_ue_context_setup_resp->du_to_cu_rrc_information->cellGroupConfig = (uint8_t *)calloc(1,ie->value.choice.DUtoCURRCInformation.cellGroupConfig.size);
+   memcpy(f1ap_ue_context_setup_resp->du_to_cu_rrc_information->cellGroupConfig, ie->value.choice.DUtoCURRCInformation.cellGroupConfig.buf, ie->value.choice.DUtoCURRCInformation.cellGroupConfig.size);
+   f1ap_ue_context_setup_resp->du_to_cu_rrc_information->cellGroupConfig_length = ie->value.choice.DUtoCURRCInformation.cellGroupConfig.size;
++  
++  // Process optional measGapConfig field
++  if (ie->value.choice.DUtoCURRCInformation.measGapConfig) {
++    f1ap_ue_context_setup_resp->du_to_cu_rrc_information->measGapConfig = (uint8_t *)calloc(1,ie->value.choice.DUtoCURRCInformation.measGapConfig->size);
++    memcpy(f1ap_ue_context_setup_resp->du_to_cu_rrc_information->measGapConfig, ie->value.choice.DUtoCURRCInformation.measGapConfig->buf, ie->value.choice.DUtoCURRCInformation.measGapConfig->size);
++    f1ap_ue_context_setup_resp->du_to_cu_rrc_information->measGapConfig_length = ie->value.choice.DUtoCURRCInformation.measGapConfig->size;
++  }
++  
++  // Process optional requestedP_MaxFR1 field
++  if (ie->value.choice.DUtoCURRCInformation.requestedP_MaxFR1) {
++    f1ap_ue_context_setup_resp->du_to_cu_rrc_information->requestedP_MaxFR1 = (uint8_t *)calloc(1,ie->value.choice.DUtoCURRCInformation.requestedP_MaxFR1->size);
++    memcpy(f1ap_ue_context_setup_resp->du_to_cu_rrc_information->requestedP_MaxFR1, ie->value.choice.DUtoCURRCInformation.requestedP_MaxFR1->buf, ie->value.choice.DUtoCURRCInformation.requestedP_MaxFR1->size);
++    f1ap_ue_context_setup_resp->du_to_cu_rrc_information->requestedP_MaxFR1_length = ie->value.choice.DUtoCURRCInformation.requestedP_MaxFR1->size;
++  }
+   // DRBs_Setup_List
+   F1AP_FIND_PROTOCOLIE_BY_ID(F1AP_UEContextSetupResponseIEs_t, ie, container,
+                              F1AP_ProtocolIE_ID_id_DRBs_Setup_List, false);
+@@ -1630,6 +1644,20 @@ int CU_handle_UE_CONTEXT_MODIFICATION_RESPONSE(instance_t       instance,
+ 
+       memcpy(f1ap_ue_context_modification_resp->du_to_cu_rrc_information->cellGroupConfig, ie->value.choice.DUtoCURRCInformation.cellGroupConfig.buf, ie->value.choice.DUtoCURRCInformation.cellGroupConfig.size);
+       f1ap_ue_context_modification_resp->du_to_cu_rrc_information->cellGroupConfig_length = ie->value.choice.DUtoCURRCInformation.cellGroupConfig.size;
++      
++      // Process optional measGapConfig field
++      if (ie->value.choice.DUtoCURRCInformation.measGapConfig) {
++        f1ap_ue_context_modification_resp->du_to_cu_rrc_information->measGapConfig = (uint8_t *)calloc(1,ie->value.choice.DUtoCURRCInformation.measGapConfig->size);
++        memcpy(f1ap_ue_context_modification_resp->du_to_cu_rrc_information->measGapConfig, ie->value.choice.DUtoCURRCInformation.measGapConfig->buf, ie->value.choice.DUtoCURRCInformation.measGapConfig->size);
++        f1ap_ue_context_modification_resp->du_to_cu_rrc_information->measGapConfig_length = ie->value.choice.DUtoCURRCInformation.measGapConfig->size;
++      }
++      
++      // Process optional requestedP_MaxFR1 field
++      if (ie->value.choice.DUtoCURRCInformation.requestedP_MaxFR1) {
++        f1ap_ue_context_modification_resp->du_to_cu_rrc_information->requestedP_MaxFR1 = (uint8_t *)calloc(1,ie->value.choice.DUtoCURRCInformation.requestedP_MaxFR1->size);
++        memcpy(f1ap_ue_context_modification_resp->du_to_cu_rrc_information->requestedP_MaxFR1, ie->value.choice.DUtoCURRCInformation.requestedP_MaxFR1->buf, ie->value.choice.DUtoCURRCInformation.requestedP_MaxFR1->size);
++        f1ap_ue_context_modification_resp->du_to_cu_rrc_information->requestedP_MaxFR1_length = ie->value.choice.DUtoCURRCInformation.requestedP_MaxFR1->size;
++      }
+     }
+ 
+     // DRBs_SetupMod_List

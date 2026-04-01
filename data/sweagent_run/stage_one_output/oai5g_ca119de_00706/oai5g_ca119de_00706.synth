@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix NULL pointer dereference in fill_uplane_ch_common_v2 function\n\n### Summary\nThe O-RAN fronthaul configuration module contained a NULL pointer dereference bug in the `fill_uplane_ch_common_v2` function. The bug caused a segmentation fault when the function was called with a NULL configuration pointer, which could occur during dynamic configuration updates.\n\nThe issue was introduced when the function was originally implemented without proper input validation. Under certain network reconfiguration scenarios, the function would be called with invalid parameters leading to process termination.\n\n### Changes\n- `radio/fhi_72/mplane/yang/create-yang-config.c`: Added NULL pointer check and proper error handling.\n- `radio/fhi_72/mplane/yang/create-yang-config.h`: Updated function documentation with error return codes.\n\n"
+}

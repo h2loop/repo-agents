@@ -1,0 +1,62 @@
+diff --git a/openair3/NAS/COMMON/IES/MobileIdentity.c b/openair3/NAS/COMMON/IES/MobileIdentity.c
+index fbe6d93e47..3a1ab6198c 100644
+--- a/openair3/NAS/COMMON/IES/MobileIdentity.c
++++ b/openair3/NAS/COMMON/IES/MobileIdentity.c
+@@ -213,6 +213,8 @@ void dump_mobile_identity_xml(MobileIdentity *mobileidentity, uint8_t iei)
+     printf("    <digit13>%u</digit13>\n", imeisv->digit13);
+     printf("    <digit14>%u</digit14>\n", imeisv->digit14);
+     printf("    <digit15>%u</digit15>\n", imeisv->digit15);
++    printf("    <digit16>%u</digit16>\n", imeisv->digit16);
++    printf("    <parity>%u</parity>\n", imeisv->parity);
+   } else if (mobileidentity->tmsi.typeofidentity == MOBILE_IDENTITY_TMSI) {
+     TmsiMobileIdentity_t* tmsi = &mobileidentity->tmsi;
+     printf("    <odd even>%u</odd even>\n", tmsi->oddeven);
+@@ -381,6 +383,9 @@ static int decode_imeisv_mobile_identity(ImeisvMobileIdentity_t *imeisv, uint8_t
+   decoded++;
+   imeisv->digit14 = *(buffer + decoded) & 0xf;
+   imeisv->digit15 = (*(buffer + decoded) >> 4) & 0xf;
++  decoded++;
++  imeisv->digit16 = *(buffer + decoded) & 0xf;
++  imeisv->parity = (*(buffer + decoded) >> 4) & 0xf;
+ 
+   /*
+    * IMEISV is coded using BCD coding. If the number of identity digits is
+@@ -391,6 +396,13 @@ static int decode_imeisv_mobile_identity(ImeisvMobileIdentity_t *imeisv, uint8_t
+     return (TLV_ENCODE_VALUE_DOESNT_MATCH);
+   }
+ 
++  /*
++   * Validate parity field according to spec
++   */
++  if ((imeisv->parity != EVEN_PARITY) && (imeisv->parity != IMEI_ODD_PARITY)) {
++    return (TLV_ENCODE_VALUE_DOESNT_MATCH);
++  }
++
+   decoded++;
+   return decoded;
+ }
+diff --git a/openair3/NAS/COMMON/IES/MobileIdentity.h b/openair3/NAS/COMMON/IES/MobileIdentity.h
+index fd747307de..57a1437feb 100644
+--- a/openair3/NAS/COMMON/IES/MobileIdentity.h
++++ b/openair3/NAS/COMMON/IES/MobileIdentity.h
+@@ -73,6 +73,9 @@ typedef struct {
+   uint8_t  mbmssessionid;
+ } TmgiMobileIdentity_t;
+ 
++#define EVEN_PARITY 0
++#define IMEI_ODD_PARITY  0xf
++
+ typedef struct imeisv_s{
+   uint8_t  digit1:4;
+   uint8_t  oddeven:1;
+@@ -92,9 +95,7 @@ typedef struct imeisv_s{
+   uint8_t  digit14:4;
+   uint8_t  digit15:4;
+   uint8_t  digit16:4;
+-#define EVEN_PARITY 0
+-#define IMEI_ODD_PARITY  0xf
+-       uint8_t parity:4;
++  uint8_t parity:4;
+ } imeisv_t;
+ 
+ typedef ImsiMobileIdentity_t ImeiMobileIdentity_t;

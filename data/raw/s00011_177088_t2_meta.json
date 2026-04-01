@@ -1,0 +1,9 @@
+{
+  "run_id": "s00011_177088",
+  "pr_text": "## Title: Fix race condition in NR UE RRC with mutex protection\n\n### Summary\nThe NR UE RRC module had a race condition where the `NR_UE_RRC_INST_t` instance was accessed from multiple threads without synchronization, particularly in the `nr_rrc_handle_msg3_indication` code path. This could lead to data corruption when timer state, random access state, and other RRC instance fields were concurrently read and modified.\n\nThis fix introduces a per-instance mutex to protect critical sections accessin",
+  "trajectory_path": "data/raw/s00011_177088_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00011_177088_p2.diff",
+  "patch_lines": 20,
+  "trajectory_steps": 35,
+  "timestamp": "2026-02-10T10:38:22Z"
+}

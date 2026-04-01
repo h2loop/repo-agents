@@ -1,0 +1,40 @@
+{
+  "run_id": "s00433_88ed09",
+  "function": {
+    "name": "rrc_eNB_send_S1AP_UE_CONTEXT_RELEASE_REQ",
+    "file": "openair2/RRC/LTE/rrc_eNB_S1AP.c",
+    "start_line": 1088,
+    "end_line": 1106,
+    "body_lines": 19,
+    "signature": "void rrc_eNB_send_S1AP_UE_CONTEXT_RELEASE_REQ( const module_id_t enb_mod_idP, const rrc_eNB_ue_context_t *const ue_context_pP, const s1ap_Cause_t causeP, const long cause_valueP) //------------------------------------------------------------------------------",
+    "subsystem": "openair2/RRC/LTE",
+    "token_estimate": 54
+  },
+  "bug": {
+    "bug_id": "c_buffer_overflow",
+    "description": "buffer overflow vulnerability",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables",
+      "radio",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a buffer overflow vulnerability downstream of function rrc_eNB_send_S1AP_UE_CONTEXT_RELEASE_REQ in the openair2/RRC/LTE subsystem.\nThe function is located at openair2/RRC/LTE/rrc_eNB_S1AP.c:1088.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00433_88ed09_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00433_88ed09_p1.diff",
+  "patch_lines": 8,
+  "trajectory_steps": 45,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:17:37Z"
+}

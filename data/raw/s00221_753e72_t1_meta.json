@@ -1,0 +1,33 @@
+{
+  "run_id": "s00221_753e72",
+  "function": {
+    "name": "config_mib",
+    "file": "openair2/LAYER2/MAC/config.c",
+    "start_line": 230,
+    "end_line": 313,
+    "body_lines": 84,
+    "signature": "void config_mib(int Mod_idP, int CC_idP, int eutra_bandP, int dl_BandwidthP, LTE_PHICH_Config_t *phich_configP, int Nid_cellP, int NcpP, int p_eNBP, uint32_t dl_CarrierFreqP, uint32_t ul_CarrierFreqP, uint32_t pbch_repetitionP )",
+    "subsystem": "openair2/LAYER2/MAC",
+    "token_estimate": 199
+  },
+  "bug": {
+    "bug_id": "c_incorrect_loop_bounds",
+    "description": "incorrect loop bounds causing iteration over invalid indices",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a incorrect loop bounds causing iteration over invalid indices downstream of function config_mib in the openair2/LAYER2/MAC subsystem.\nThe function is located at openair2/LAYER2/MAC/config.c:230.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00221_753e72_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00221_753e72_p1.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 18,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:24:38Z"
+}

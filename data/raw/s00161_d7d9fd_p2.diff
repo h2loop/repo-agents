@@ -1,0 +1,21 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c b/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
+index 58269f769a..8692c9b30f 100644
+--- a/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
++++ b/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
+@@ -38,6 +38,7 @@
+ #include "LAYER2/NR_MAC_UE/mac_proto.h"
+ #include <executables/softmodem-common.h>
+ #include "openair2/LAYER2/nr_rlc/nr_rlc_oai_api.h"
++#include <arpa/inet.h>
+ 
+ int16_t get_prach_tx_power(NR_UE_MAC_INST_t *mac)
+ {
+@@ -1089,7 +1090,7 @@ static uint8_t *fill_msg3_crnti_pdu(RA_config_t *ra, uint8_t *pdu, uint16_t crnt
+   pdu += sizeof(NR_MAC_SUBHEADER_FIXED);
+ 
+   // C-RNTI MAC CE (2 octets)
+-  uint16_t rnti_pdu = ((crnti & 0xFF) << 8) | ((crnti >> 8) & 0xFF);
++  uint16_t rnti_pdu = htons(crnti);
+   memcpy(pdu, &rnti_pdu, sizeof(rnti_pdu));
+   pdu += sizeof(rnti_pdu);
+   ra->t_crnti = crnti;

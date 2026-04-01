@@ -1,0 +1,9 @@
+{
+  "run_id": "s00035_b21658",
+  "pr_text": "## Title: Fix buffer overflow in DFT twiddle factor arrays causing F1AP message corruption\n\n### Summary\nCorrect buffer size miscalculation in DFT twiddle factor arrays that was causing memory corruption and downstream F1AP message loss between CU and DU. The `dft1440` and `dft1920` functions process 480-point transforms but their static twiddle factor arrays were undersized at 479 elements, leading to out-of-bounds memory access during NEON-optimized FFT computations. This memory corruption prop",
+  "trajectory_path": "data/raw/s00035_b21658_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00035_b21658_p2.diff",
+  "patch_lines": 5,
+  "trajectory_steps": 18,
+  "timestamp": "2026-02-10T10:48:31Z"
+}

@@ -1,0 +1,56 @@
+diff --git a/openair2/UTIL/OTG/otg_tx.c b/openair2/UTIL/OTG/otg_tx.c
+index a43160ccd8..3a83b2d8ea 100644
+--- a/openair2/UTIL/OTG/otg_tx.c
++++ b/openair2/UTIL/OTG/otg_tx.c
+@@ -83,7 +83,7 @@ int time_dist(
+     break;
+ 
+   case FIXED :
+-    idt = ceil((g_otg->idt_min[src_instance][dst_instance][application][state])); //IDT_TH *
++    idt = g_otg->idt_min[src_instance][dst_instance][application][state]; //IDT_TH *
+     break;
+ 
+   case WEIBULL :
+@@ -113,11 +113,11 @@ int time_dist(
+     break;
+ 
+   case VIDEO :
+-    idt = ceil((g_otg->idt_min[src_instance][dst_instance][application][state])); //IDT_TH *
++    idt = g_otg->idt_min[src_instance][dst_instance][application][state]; //IDT_TH *
+     break;
+ 
+   case BACKGROUND_DIST :
+-    idt = ceil((g_otg->idt_min[src_instance][dst_instance][application][state])); //IDT_TH *
++    idt = g_otg->idt_min[src_instance][dst_instance][application][state]; //IDT_TH *
+     break;
+ 
+   default :
+@@ -170,7 +170,7 @@ int size_dist(
+       break;
+ 
+     case FIXED :
+-      size_data=ceil(g_otg->size_min[src_instance][dst_instance][application][state]);
++      size_data=g_otg->size_min[src_instance][dst_instance][application][state];
+       break;
+ 
+     case WEIBULL :
+@@ -1816,14 +1816,14 @@ void init_predef_traffic(
+ #endif
+ 
+           break;
+-	  
+-	case FULL_BUFFER:
+-	  LOG_E(OTG, "Full buffer is not yet supported\n");
+-	default:
++          
++        case FULL_BUFFER:
++          LOG_E(OTG, "Full buffer is not yet supported\n");
++        default:
+           LOG_D(OTG, "[SRC %d][DST %d] Unknown traffic type\n", i, j);
+           /* TO ADD: 3GPP TSG-RAN WG1 Meeting #71: Low-cost MTC Traffic Models and Characteristics */
+ 
+-	  
++          
+         }
+       }
+     }

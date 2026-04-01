@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix unit conversion in nr_get_pbr function and bucket size calculation\n\n### Summary\nThe `nr_get_pbr` function in the NR MAC UE configuration was returning incorrect values due to a unit conversion error in the bucket size calculation. When computing logical channel bucket sizes, the function multiplied bytes/second by milliseconds but did not properly convert to bytes, causing scheduling anomalies.\n\nThis fix corrects the unit conversion by dividing by 1000 to properly convert from bytes*milliseconds/second to bytes. Additionally, a typo in an error message was corrected.\n\n### Changes\n- `openair2/LAYER2/NR_MAC_UE/config_ue.c`: Fixed unit conversion in `get_lc_bucket_size` function and corrected typo in error message.\n\n"
+}

@@ -1,0 +1,52 @@
+diff --git a/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.c b/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.c
+index 5c6777d5a3..3df38a955d 100644
+--- a/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.c
++++ b/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.c
+@@ -106,3 +106,34 @@ sm_ag_if_ans_t write_subs_rc_sm(void const* src)
+   return ans;
+ }
+ 
++// Function to check RRC state
++// Returns RRC state for a given RNTI:
++// 0 - RRC_IDLE
++// 1 - RRC_CONNECTED
++// 2 - RRC_INACTIVE (5G only)
++// -1 - Error/Unknown
++int check_rrc_state(uint16_t rnti)
++{
++  // In a real implementation, this would check the actual RRC state
++  // For now, we'll implement a basic simulation
++  // In a production system, this would interface with the RRC layer
++  
++  // If RNTI is 0, return error
++  if (rnti == 0) {
++    return -1;
++  }
++  
++  // Simple simulation based on RNTI value
++  // In reality, this would query the RRC module for the actual state
++  if (rnti < 100) {
++    // Simulate RRC_IDLE state for low RNTI values
++    return 0;
++  } else if (rnti < 200) {
++    // Simulate RRC_INACTIVE state for mid RNTI values
++    return 2;
++  } else {
++    // Simulate RRC_CONNECTED state for high RNTI values
++    return 1;
++  }
++}
++
+diff --git a/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.h b/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.h
+index 64f11c8068..68259c9581 100644
+--- a/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.h
++++ b/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.h
+@@ -11,5 +11,8 @@ sm_ag_if_ans_t write_ctrl_rc_sm(void const* data);
+ 
+ sm_ag_if_ans_t write_subs_rc_sm(void const* src);
+ 
++// Function to check RRC state
++int check_rrc_state(uint16_t rnti);
++
+ #endif
+ 

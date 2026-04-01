@@ -1,0 +1,112 @@
+diff --git a/openair3/NAS/COMMON/IES/EpsNetworkFeatureSupport.c b/openair3/NAS/COMMON/IES/EpsNetworkFeatureSupport.c
+index 2ef36d7595..1c5b376090 100644
+--- a/openair3/NAS/COMMON/IES/EpsNetworkFeatureSupport.c
++++ b/openair3/NAS/COMMON/IES/EpsNetworkFeatureSupport.c
+@@ -32,6 +32,7 @@ int decode_eps_network_feature_support(EpsNetworkFeatureSupport *epsnetworkfeatu
+ {
+   int decoded = 0;
+   uint8_t ielen = 0;
++  uint8_t value = 0;
+ 
+   if (iei > 0) {
+     CHECK_IEI_DECODER(iei, *buffer);
+@@ -41,10 +42,18 @@ int decode_eps_network_feature_support(EpsNetworkFeatureSupport *epsnetworkfeatu
+   ielen = *(buffer + decoded);
+   decoded++;
+   CHECK_LENGTH_DECODER(len - decoded, ielen);
+-  /* note: only the bit "IMS voice over PS session in S1 mode" is processed
+-   * TODO: deal with other bits?
+-   */
+-  *epsnetworkfeaturesupport = (*(buffer + decoded)) & 0x1;
++  
++  /* Extract all bits from the byte */
++  value = *(buffer + decoded);
++  epsnetworkfeaturesupport->ims_vops = value & 0x01;
++  epsnetworkfeaturesupport->emc_bs = (value >> 1) & 0x01;
++  epsnetworkfeaturesupport->epc_ls = (value >> 2) & 0x01;
++  epsnetworkfeaturesupport->reserved = (value >> 3) & 0x01;
++  epsnetworkfeaturesupport->cs_lcs = (value >> 4) & 0x01;
++  epsnetworkfeaturesupport->eps_srvcc = (value >> 5) & 0x01;
++  epsnetworkfeaturesupport->cs_rsvcc = (value >> 6) & 0x01;
++  epsnetworkfeaturesupport->unused_bits = (value >> 7) & 0x01;
++  
+   decoded += ielen;
+ #if defined (NAS_DEBUG)
+   dump_eps_network_feature_support_xml(epsnetworkfeaturesupport, iei);
+@@ -55,8 +64,21 @@ int encode_eps_network_feature_support(EpsNetworkFeatureSupport *epsnetworkfeatu
+ {
+   uint8_t *lenPtr;
+   uint32_t encoded = 0;
++  uint8_t value = 0;
++  
+   /* Checking IEI and pointer */
+   CHECK_PDU_POINTER_AND_LENGTH_ENCODER(buffer, EPS_NETWORK_FEATURE_SUPPORT_MINIMUM_LENGTH, len);
++  
++  /* Construct the byte from individual bit fields */
++  value = (epsnetworkfeaturesupport->ims_vops & 0x01) |
++          ((epsnetworkfeaturesupport->emc_bs & 0x01) << 1) |
++          ((epsnetworkfeaturesupport->epc_ls & 0x01) << 2) |
++          ((epsnetworkfeaturesupport->reserved & 0x01) << 3) |
++          ((epsnetworkfeaturesupport->cs_lcs & 0x01) << 4) |
++          ((epsnetworkfeaturesupport->eps_srvcc & 0x01) << 5) |
++          ((epsnetworkfeaturesupport->cs_rsvcc & 0x01) << 6) |
++          ((epsnetworkfeaturesupport->unused_bits & 0x01) << 7);
++
+ #if defined (NAS_DEBUG)
+   dump_eps_network_feature_support_xml(epsnetworkfeaturesupport, iei);
+ #endif
+@@ -68,8 +90,7 @@ int encode_eps_network_feature_support(EpsNetworkFeatureSupport *epsnetworkfeatu
+ 
+   lenPtr  = (buffer + encoded);
+   encoded ++;
+-  *(buffer + encoded) = 0x00 |
+-                        (*epsnetworkfeaturesupport & 0x1);
++  *(buffer + encoded) = value;
+   encoded++;
+   *lenPtr = encoded - 1 - ((iei > 0) ? 1 : 0);
+   return encoded;
+@@ -83,7 +104,14 @@ void dump_eps_network_feature_support_xml(EpsNetworkFeatureSupport *epsnetworkfe
+     /* Don't display IEI if = 0 */
+     printf("    <IEI>0x%X</IEI>\n", iei);
+ 
+-  printf("    <IMS VoPS>%u</IMS VoPS>\n", *epsnetworkfeaturesupport);
++  printf("    <IMS VoPS>%u</IMS VoPS>\n", epsnetworkfeaturesupport->ims_vops);
++  printf("    <EMC BS>%u</EMC BS>\n", epsnetworkfeaturesupport->emc_bs);
++  printf("    <EPC LS>%u</EPC LS>\n", epsnetworkfeaturesupport->epc_ls);
++  printf("    <Reserved>%u</Reserved>\n", epsnetworkfeaturesupport->reserved);
++  printf("    <CS LCS>%u</CS LCS>\n", epsnetworkfeaturesupport->cs_lcs);
++  printf("    <EPS SRVCC>%u</EPS SRVCC>\n", epsnetworkfeaturesupport->eps_srvcc);
++  printf("    <CS RSVCC>%u</CS RSVCC>\n", epsnetworkfeaturesupport->cs_rsvcc);
++  printf("    <Unused Bits>%u</Unused Bits>\n", epsnetworkfeaturesupport->unused_bits);
+   printf("</Eps Network Feature Support>\n");
+ }
+ 
+diff --git a/openair3/NAS/COMMON/IES/EpsNetworkFeatureSupport.h b/openair3/NAS/COMMON/IES/EpsNetworkFeatureSupport.h
+index f367af6ac8..b592dc8203 100644
+--- a/openair3/NAS/COMMON/IES/EpsNetworkFeatureSupport.h
++++ b/openair3/NAS/COMMON/IES/EpsNetworkFeatureSupport.h
+@@ -31,7 +31,16 @@
+ #define EPS_NETWORK_FEATURE_SUPPORT_MINIMUM_LENGTH 3
+ #define EPS_NETWORK_FEATURE_SUPPORT_MAXIMUM_LENGTH 3
+ 
+-typedef uint8_t EpsNetworkFeatureSupport;
++typedef struct EpsNetworkFeatureSupport_tag {
++  uint8_t ims_vops : 1;    /* IMS Voice over PS Session supported */
++  uint8_t emc_bs : 1;      /* Emergency Bearer Services supported */
++  uint8_t epc_ls : 1;      /* Location Service via EPC supported */
++  uint8_t reserved : 1;    /* Reserved for future use */
++  uint8_t cs_lcs : 1;      /* CS fallback for Location Services supported */
++  uint8_t eps_srvcc : 1;   /* EPS SRVCC supported */
++  uint8_t cs_rsvcc : 1;    /* CS fallback for SMS supported */
++  uint8_t unused_bits : 1; /* Unused bits */
++} EpsNetworkFeatureSupport;
+ 
+ int encode_eps_network_feature_support(EpsNetworkFeatureSupport *epsnetworkfeaturesupport, uint8_t iei, uint8_t *buffer, uint32_t len);
+ 
+@@ -39,5 +48,5 @@ int decode_eps_network_feature_support(EpsNetworkFeatureSupport *epsnetworkfeatu
+ 
+ void dump_eps_network_feature_support_xml(EpsNetworkFeatureSupport *epsnetworkfeaturesupport, uint8_t iei);
+ 
+-#endif /* EPS NETWORK FEATURE SUPPORT_H_ */
++#endif /* EPS_NETWORK_FEATURE_SUPPORT_H_ */
+ 

@@ -1,0 +1,20 @@
+diff --git a/openair3/ocp-gtpu/gtp_itf.cpp b/openair3/ocp-gtpu/gtp_itf.cpp
+index 9fb8f159fe..89563bff52 100644
+--- a/openair3/ocp-gtpu/gtp_itf.cpp
++++ b/openair3/ocp-gtpu/gtp_itf.cpp
+@@ -401,6 +401,7 @@ static void gtpv1uSendDlDeliveryStatus(instance_t instance, gtpv1u_DU_buffer_rep
+   pthread_mutex_unlock(&globGtp.gtp_lock);
+   gtpv1uCreateAndSendMsg(
+       compatInst(instance), tmp.outgoing_ip_addr, tmp.outgoing_port, GTP_GPDU, tmp.teid_outgoing, NULL, 0, false, false, 0, 0, NR_RAN_CONTAINER, extensionHeader->buffer, extensionHeader->length);
++  free(extensionHeader);
+ }
+ 
+ static void gtpv1uEndTunnel(instance_t instance, gtpv1u_tunnel_data_req_t *req) {
+@@ -1289,6 +1290,7 @@ void *gtpv1uTask(void *args)  {
+ 
+         case GTPV1U_TUNNEL_DATA_REQ: {
+           gtpv1uSend(compatInst(myInstance), &GTPV1U_TUNNEL_DATA_REQ(message_p), false, false);
++          itti_free(TASK_GTPV1_U, GTPV1U_TUNNEL_DATA_REQ(message_p).buffer);
+         }
+         break;
+ 

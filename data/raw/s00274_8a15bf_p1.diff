@@ -1,0 +1,23 @@
+diff --git a/nfapi/oai_integration/nfapi_pnf.c b/nfapi/oai_integration/nfapi_pnf.c
+index a933aba614..f51fe9dda6 100644
+--- a/nfapi/oai_integration/nfapi_pnf.c
++++ b/nfapi/oai_integration/nfapi_pnf.c
+@@ -2276,6 +2276,18 @@ void handle_nr_slot_ind(uint16_t sfn, uint16_t slot) {
+ int oai_nfapi_rach_ind(nfapi_rach_indication_t *rach_ind) {
+   rach_ind->header.phy_id = 1; // HACK TODO FIXME - need to pass this around!!!!
+   LOG_D(PHY, "%s() sfn_sf:%d preambles:%d\n", __FUNCTION__, NFAPI_SFNSF2DEC(rach_ind->sfn_sf), rach_ind->rach_indication_body.number_of_preambles);
++  
++  // Integer truncation safety check:
++  // Each preamble_pdu_t can be ~50+ bytes when fully packed with all TLVs
++  // message_length field is uint16_t (max 65535 bytes)
++  // Conservative estimate: 100 preambles * 600 bytes each = 60KB, still safe
++  // Beyond this, truncation risk increases significantly
++  if (rach_ind->rach_indication_body.number_of_preambles > 100) {
++    LOG_E(PHY, "%s() ERROR: Too many preambles (%d), risks message length truncation (max 65535 bytes)\n",
++          __FUNCTION__, rach_ind->rach_indication_body.number_of_preambles);
++    return -1; // Return error to prevent silent truncation
++  }
++  
+   return nfapi_pnf_p7_rach_ind(p7_config_g, rach_ind);
+ }
+ 

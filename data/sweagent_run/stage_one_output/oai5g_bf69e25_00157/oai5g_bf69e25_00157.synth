@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix use-after-free vulnerability in RRC UE DRB configuration\n\n### Summary\nA use-after-free vulnerability was found in the RRC UE DRB configuration handling code. When establishing DRBs, the code was directly assigning pointers to freed memory, which could later be accessed causing undefined behavior.\n\n### Changes\n- `openair2/RRC/LTE/rrc_UE.c`: Fixed memory handling in `rrc_ue_process_radioResourceConfigDedicated()` to properly copy DRB configuration data instead of assigning pointers to potentially freed memory.\n\n### Reproduction\nUnder certain network conditions where DRB reconfiguration occurs, the UE may experience a crash or unpredictable behavior when accessing the freed DRB configuration memory. This can be observed as segmentation faults during RRC connection reconfiguration procedures.\n"
+}

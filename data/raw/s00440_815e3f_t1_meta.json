@@ -1,0 +1,31 @@
+{
+  "run_id": "s00440_815e3f",
+  "function": {
+    "name": "process_cache",
+    "file": "common/utils/T/tracer/hacks/multi-rru-clean.c",
+    "start_line": 58,
+    "end_line": 82,
+    "body_lines": 25,
+    "signature": "void process_cache(FILE *out, cache_t *c, int n, int frame, int subframe)",
+    "subsystem": "common/utils/T",
+    "token_estimate": 90
+  },
+  "bug": {
+    "bug_id": "c_deprecated_api_usage",
+    "description": "usage of deprecated API function that has known safety or correctness issues",
+    "domain": "generic_c",
+    "subsystems": [
+      "common",
+      "executables",
+      "radio",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a usage of deprecated API function that has known safety or correctness issues downstream of function process_cache in the common/utils/T subsystem.\nThe function is located at common/utils/T/tracer/hacks/multi-rru-clean.c:58.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00440_815e3f_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00440_815e3f_p1.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 10,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:17:24Z"
+}

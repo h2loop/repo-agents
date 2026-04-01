@@ -1,0 +1,128 @@
+diff --git a/openair2/PHY_INTERFACE/phy_stub_UE.c b/openair2/PHY_INTERFACE/phy_stub_UE.c
+index af82d6093d..b87b93dce2 100644
+--- a/openair2/PHY_INTERFACE/phy_stub_UE.c
++++ b/openair2/PHY_INTERFACE/phy_stub_UE.c
+@@ -371,11 +371,11 @@ void fill_ulsch_harq_indication_UE_MAC(
+ }
+ 
+ void fill_uci_harq_indication_UE_MAC(int Mod_id,
+-			      int frame,
+-			      int subframe,
+-			      UL_IND_t *UL_INFO,
+-			      nfapi_ul_config_harq_information *harq_information,
+-			      uint16_t rnti,
++                              int frame,
++                              int subframe,
++                              UL_IND_t *UL_INFO,
++                              nfapi_ul_config_harq_information *harq_information,
++                              uint16_t rnti,
+             nfapi_ul_config_request_t *ul_config_req) {
+   pthread_mutex_lock(&fill_ul_mutex.harq_mutex);
+ 
+@@ -956,24 +956,24 @@ void dl_config_req_UE_MAC_mch(int sfn,
+ 
+   for (int ue_id = 0; ue_id < num_ue; ue_id++) {
+     if (UE_mac_inst[ue_id].UE_mode[0] == NOT_SYNCHED){
+-	 LOG_D(MAC,
++         LOG_D(MAC,
+             "%s(): Received MCH in NOT_SYNCHED: UE_mode: %d, sfn/sf: %d.%d\n",
+             __func__,
+             UE_mac_inst[ue_id].UE_mode[0],
+             sfn,
+             sf);
+-	return;
++        return;
+ 
+     } else {
+-	 const int pdu_index = mch->mch_pdu.mch_pdu_rel8.pdu_index;
+-	if (pdu_index < 0 || pdu_index >= tx_req_pdu_list->num_pdus) {
+-    	LOG_E(MAC,
++         const int pdu_index = mch->mch_pdu.mch_pdu_rel8.pdu_index;
++        if (pdu_index < 0 || pdu_index >= tx_req_pdu_list->num_pdus) {
++        LOG_E(MAC,
+           "%s(): Problem with receiving data: "
+           "sfn/sf:%d.%d PDU size:%d, TX_PDU index: %d\n",
+           __func__,
+           sfn, sf, mch->pdu_size, mch->mch_pdu.mch_pdu_rel8.pdu_index);
+-    	return;
+-  	}
++        return;
++        }
+         ue_send_mch_sdu(ue_id, 0, sfn,
+             tx_req_pdu_list->pdus[pdu_index].segments[0].segment_data,
+             tx_req_pdu_list->pdus[pdu_index].segments[0].segment_length,
+@@ -1101,8 +1101,8 @@ static bool is_my_hi_dci0_req(nfapi_hi_dci0_request_t *hi_dci0_req)
+ }
+ 
+ int memcpy_hi_dci0_req (L1_rxtx_proc_t *proc,
+-			nfapi_pnf_p7_config_t* pnf_p7,
+-			nfapi_hi_dci0_request_t* req) {
++                        nfapi_pnf_p7_config_t* pnf_p7,
++                        nfapi_hi_dci0_request_t* req) {
+ 
+   if (!is_my_hi_dci0_req(req))
+   {
+@@ -1110,7 +1110,7 @@ int memcpy_hi_dci0_req (L1_rxtx_proc_t *proc,
+     return 0;
+   }
+   nfapi_hi_dci0_request_t *p = (nfapi_hi_dci0_request_t *)malloc(sizeof(nfapi_hi_dci0_request_t));
+-	//if(req!=0){
++        //if(req!=0){
+ 
+ 
+   p->sfn_sf = req->sfn_sf;
+@@ -1538,10 +1538,10 @@ void *memcpy_tx_req_standalone(nfapi_tx_request_t *tx_req)
+ 
+ static bool is_my_dl_config_req(const nfapi_dl_config_request_t *req)
+ {
+-
+   const rnti_t my_rnti = UE_mac_inst[0].crnti;
+   int num_pdus = req->dl_config_request_body.number_pdu;
+-  // look through list of pdus for rnti type 1 with my_rnti (normal dlsch case)
++  
++  // First check: look through list of pdus for DCI DL PDU with rnti type 1 and matching my_rnti
+   for (int i = 0; i < num_pdus; i++)
+   {
+     nfapi_dl_config_request_pdu_t *pdu = &req->dl_config_request_body.dl_config_pdu_list[i];
+@@ -1550,36 +1550,24 @@ static bool is_my_dl_config_req(const nfapi_dl_config_request_t *req)
+     {
+       const rnti_t dci_rnti = pdu->dci_dl_pdu.dci_dl_pdu_rel8.rnti;
+       const int rnti_type = pdu->dci_dl_pdu.dci_dl_pdu_rel8.rnti_type;
++      // If this is a C-RNTI (type 1) and matches our RNTI, this DL config is for us
+       if (rnti_type == 1 && dci_rnti == my_rnti)
+       {
+         return true;
+       }
+-    }
+-    else if(pdu_type != NFAPI_DL_CONFIG_DLSCH_PDU_TYPE)
+-    {
+-      return true; // Because these two pdu_types are coupled and we have to accept all other pdu_types
+-    }
+-  }
+-
+-  // Look for broadcasted rnti types
+-  for (int i = 0; i < num_pdus; i++)
+-  {
+-    nfapi_dl_config_request_pdu_t *pdu = &req->dl_config_request_body.dl_config_pdu_list[i];
+-    const int pdu_type = pdu->pdu_type;
+-    if (pdu_type == NFAPI_DL_CONFIG_DCI_DL_PDU_TYPE)
+-    {
+-      const int rnti_type = pdu->dci_dl_pdu.dci_dl_pdu_rel8.rnti_type;
++      // If this is a broadcast RNTI (type != 1), this DL config is for broadcast
+       if (rnti_type != 1)
+       {
+         return true;
+       }
+     }
+   }
+-
+-
++  
++  // If we get here, there were no DCI DL PDUs, so this request is not for us
+   return false;
+ }
+ 
++
+ void enqueue_dl_config_req_tx_req(nfapi_dl_config_request_t *dl_config_req, nfapi_tx_request_t *tx_req)
+ {
+   if (!is_my_dl_config_req(dl_config_req))

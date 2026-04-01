@@ -1,0 +1,31 @@
+{
+  "run_id": "s00318_558df4",
+  "function": {
+    "name": "oai_fapi_tx_data_req",
+    "file": "nfapi/oai_integration/aerial/fapi_nvIPC.c",
+    "start_line": 439,
+    "end_line": 453,
+    "body_lines": 15,
+    "signature": "int oai_fapi_tx_data_req(nfapi_nr_tx_data_request_t *tx_data_req)",
+    "subsystem": "nfapi/oai_integration/aerial",
+    "token_estimate": 50
+  },
+  "bug": {
+    "bug_id": "telecom_timer_missing_start_stop",
+    "description": "protocol timer not started or stopped at the required point in the procedure",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a protocol timer not started or stopped at the required point in the procedure downstream of function oai_fapi_tx_data_req in the nfapi/oai_integration/aerial subsystem.\nThe function is located at nfapi/oai_integration/aerial/fapi_nvIPC.c:439.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00318_558df4_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00318_558df4_p1.diff",
+  "patch_lines": 18,
+  "trajectory_steps": 85,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T14:26:16Z"
+}

@@ -1,0 +1,26 @@
+{
+  "run_id": "zephyr_00002_163d24",
+  "function": {
+    "name": "dma_callback",
+    "file": "subsys/mgmt/ec_host_cmd/backends/ec_host_cmd_backend_spi_stm32.c",
+    "start_line": 309,
+    "end_line": 332,
+    "body_lines": 24,
+    "signature": "static void dma_callback(const struct device *dev, void *arg, uint32_t channel, int status)",
+    "subsystem": "subsys/mgmt/ec_host_cmd",
+    "token_estimate": 78
+  },
+  "bug": {
+    "bug_id": "c_missing_null_check_after_alloc",
+    "description": "missing NULL check after memory allocation that can fail",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a missing NULL check after memory allocation that can fail downstream of function dma_callback in the subsys/mgmt/ec_host_cmd subsystem.\nThe function is located at subsys/mgmt/ec_host_cmd/backends/ec_host_cmd_backend_spi_stm32.c:309.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 5,
+  "trajectory_steps": 12,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T15:44:57Z"
+}

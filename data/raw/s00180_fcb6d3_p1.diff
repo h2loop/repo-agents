@@ -1,0 +1,24 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c b/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
+index 9820e60107..aa18fee13f 100644
+--- a/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
++++ b/openair2/LAYER2/NR_MAC_UE/nr_ra_procedures.c
+@@ -762,6 +762,9 @@ uint8_t nr_ue_get_rach(module_id_t mod_id,
+ 
+       LOG_D(MAC, "In %s [%d.%d] RA is active: RA window count %d, RA backoff count %d\n", __FUNCTION__, frame, nr_slot_tx, ra->RA_window_cnt, ra->RA_backoff_cnt);
+ 
++      // Lock mutex before accessing shared RA state
++      pthread_mutex_lock(&mac->mutex);
++
+       if (ra->RA_BI_found){
+         prach_resources->RA_PREAMBLE_BACKOFF = prach_resources->RA_SCALING_FACTOR_BI * ra->RA_backoff_indicator;
+       } else {
+@@ -800,6 +803,9 @@ uint8_t nr_ue_get_rach(module_id_t mod_id,
+           nr_get_prach_resources(mod_id, CC_id, gNB_id, prach_resources, rach_ConfigDedicated);
+         }
+       }
++      
++      // Unlock mutex after accessing shared RA state
++      pthread_mutex_unlock(&mac->mutex);
+     }
+   }
+ 

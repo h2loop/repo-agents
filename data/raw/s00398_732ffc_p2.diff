@@ -1,0 +1,35 @@
+diff --git a/openair3/NAS/UE/EMM/Detach.c b/openair3/NAS/UE/EMM/Detach.c
+index 654486226e..6c421c1c0d 100644
+--- a/openair3/NAS/UE/EMM/Detach.c
++++ b/openair3/NAS/UE/EMM/Detach.c
+@@ -370,7 +370,7 @@ int emm_proc_detach_release(void *args)
+  **      Others:    None                                       **
+  **                                                                        **
+  ***************************************************************************/
+-void *emm_detach_t3421_handler(void *args)
++void emm_detach_t3421_handler(void *args)
+ {
+   LOG_FUNC_IN;
+ 
+@@ -425,7 +425,7 @@ void *emm_detach_t3421_handler(void *args)
+     rc = _emm_detach_abort(user, emm_detach_data->type);
+   }
+ 
+-  LOG_FUNC_RETURN(NULL);
++  LOG_FUNC_RETURN;
+ }
+ 
+ /*
+diff --git a/openair3/NAS/UE/EMM/emm_timers.h b/openair3/NAS/UE/EMM/emm_timers.h
+index abf7c9ff87..0bc3ea97d8 100644
+--- a/openair3/NAS/UE/EMM/emm_timers.h
++++ b/openair3/NAS/UE/EMM/emm_timers.h
+@@ -7,7 +7,7 @@
+ 
+ void *emm_attach_t3410_handler(void *);
+ void *emm_service_t3417_handler(void *);
+-void *emm_detach_t3421_handler(void *);
++void emm_detach_t3421_handler(void *);
+ void *emm_tau_t3430_handler(void *);
+ 
+ 

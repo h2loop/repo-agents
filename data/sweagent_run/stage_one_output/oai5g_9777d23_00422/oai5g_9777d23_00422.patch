@@ -1,0 +1,62 @@
+diff --git a/nfapi/oai_integration/aerial/fapi_vnf_p7.c b/nfapi/oai_integration/aerial/fapi_vnf_p7.c
+index eefa404e58..d13f35ffeb 100644
+--- a/nfapi/oai_integration/aerial/fapi_vnf_p7.c
++++ b/nfapi/oai_integration/aerial/fapi_vnf_p7.c
+@@ -925,6 +925,9 @@ static uint8_t aerial_unpack_nr_rx_data_indication_body(nfapi_nr_rx_data_pdu_t *
+ 
+   // Allocate space for the pdu to be unpacked later
+   value->pdu = nfapi_p7_allocate(sizeof(*value->pdu) * value->pdu_length, config);
++  if (value->pdu == NULL) {
++    return 0;
++  }
+ 
+   return 1;
+ }
+@@ -946,19 +949,44 @@ uint8_t aerial_unpack_nr_rx_data_indication(uint8_t **ppReadPackedMsg,
+   // Allocate the PDU list for number of PDUs
+   if (pNfapiMsg->number_of_pdus > 0) {
+     pNfapiMsg->pdu_list = nfapi_p7_allocate(sizeof(*pNfapiMsg->pdu_list) * pNfapiMsg->number_of_pdus, config);
++    if (pNfapiMsg->pdu_list == NULL) {
++      return 0;
++    }
+   }
+   // For each PDU, unpack its header
+-  for (int i = 0; i < pNfapiMsg->number_of_pdus; i++) {
+-    if (!aerial_unpack_nr_rx_data_indication_body(&pNfapiMsg->pdu_list[i], ppReadPackedMsg, end, config))
++  int i;
++  for (i = 0; i < pNfapiMsg->number_of_pdus; i++) {
++    if (!aerial_unpack_nr_rx_data_indication_body(&pNfapiMsg->pdu_list[i], ppReadPackedMsg, end, config)) {
++      // Free previously allocated PDUs on error
++      for (int j = 0; j < i; j++) {
++        if (pNfapiMsg->pdu_list[j].pdu) {
++          nfapi_p7_deallocate(pNfapiMsg->pdu_list[j].pdu, config);
++        }
++      }
++      if (pNfapiMsg->pdu_list) {
++        nfapi_p7_deallocate(pNfapiMsg->pdu_list, config);
++        pNfapiMsg->pdu_list = NULL;
++      }
+       return 0;
++    }
+   }
+   // After unpacking the PDU headers, unpack the PDU data from the separate buffer
+-  for (int i = 0; i < pNfapiMsg->number_of_pdus; i++) {
++  for (i = 0; i < pNfapiMsg->number_of_pdus; i++) {
+     if(!pullarray8(pDataMsg,
+                pNfapiMsg->pdu_list[i].pdu,
+                pNfapiMsg->pdu_list[i].pdu_length,
+                pNfapiMsg->pdu_list[i].pdu_length,
+                data_end)){
++      // Free previously allocated PDU data and PDUs on error
++      for (int j = 0; j <= i; j++) {
++        if (pNfapiMsg->pdu_list[j].pdu) {
++          nfapi_p7_deallocate(pNfapiMsg->pdu_list[j].pdu, config);
++        }
++      }
++      if (pNfapiMsg->pdu_list) {
++        nfapi_p7_deallocate(pNfapiMsg->pdu_list, config);
++        pNfapiMsg->pdu_list = NULL;
++      }
+       return 0;
+     }
+   }

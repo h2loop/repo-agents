@@ -1,0 +1,13 @@
+diff --git a/common/utils/time_manager/time_server.c b/common/utils/time_manager/time_server.c
+index a1a95d8ebe..0bace56c6f 100644
+--- a/common/utils/time_manager/time_server.c
++++ b/common/utils/time_manager/time_server.c
+@@ -81,7 +81,7 @@ static void *time_server_thread(void *ts)
+       int ret = read(time_server->tick_fd, &ticks, 8);
+       DevAssert(ret == 8);
+       /* call the callback ticks time */
+-      for (int i = 0; i < ticks; i++)
++      for (uint64_t i = 0; i < ticks; i++)
+         time_server->callback(time_server->callback_data);
+       /* send ticks by blocks of 255 max (what fits in a uint8_t) */
+       while (ticks) {

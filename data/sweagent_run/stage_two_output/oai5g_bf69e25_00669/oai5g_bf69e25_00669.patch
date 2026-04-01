@@ -1,0 +1,66 @@
+diff --git a/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c b/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c
+index 11dac69484..3fd9a0e37f 100644
+--- a/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c
++++ b/openair2/LAYER2/NR_MAC_COMMON/nr_mac_common.c
+@@ -107,11 +107,11 @@ static const uint16_t NCS_restricted_TypeB_delta_f_RA_5[14] =
+ // Table 6.3.3.1-7 (38.211) NCS for preamble formats with delta_f_RA = 15 * 2mu KHz where mu = {0,1,2,3}
+ static const uint16_t NCS_unrestricted_delta_f_RA_15[16] = {0, 2, 4, 6, 8, 10, 12, 13, 15, 17, 19, 23, 27, 34, 46, 69};
+ 
+-//	specification mapping talbe, table_38$x_$y_$z_c$a
+-//	- $x: specification
+-//	- $y: subclause-major
+-//	- $z: subclause-minor
+-//	- $a: ($a)th of column in table, start from zero
++//      specification mapping talbe, table_38$x_$y_$z_c$a
++//      - $x: specification
++//      - $y: subclause-major
++//      - $z: subclause-minor
++//      - $a: ($a)th of column in table, start from zero
+ const int32_t table_38213_13_1_c1[16] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, reserved}; // index 15 reserved
+ const int32_t table_38213_13_1_c2[16] = {24, 24, 24, 24, 24, 24, 48, 48, 48, 48, 48, 48, 96, 96, 96, reserved}; // index 15 reserved
+ const int32_t table_38213_13_1_c3[16] = { 2,  2,  2,  3,  3,  3,  1,  1,  2,  2,  3,  3,  1,  2,  3, reserved}; // index 15 reserved
+@@ -162,10 +162,10 @@ const int32_t table_38213_13_10_c2[16] = {48, 48, 48, 48, 24, 24, 48, 48, reserv
+ const int32_t table_38213_13_10_c3[16] = { 1,  1,  2,  2,  1,  1,  1,  1, reserved, reserved, reserved, reserved, reserved, reserved, reserved, reserved}; // index 08-15 reserved
+ const int32_t table_38213_13_10_c4[16] = { 0,  8,  0,  8,-41, 25,-41, 49, reserved, reserved, reserved, reserved, reserved, reserved, reserved, reserved}; // index 08-15 reserved, condition A as default
+ 
+-const float   table_38213_13_11_c1[16] = { 0,  0,  2,  2,  5,  5,  7,  7,  0,  5,  0,  0,  2,  2,  5,  5};	//	O
++const float   table_38213_13_11_c1[16] = { 0,  0,  2,  2,  5,  5,  7,  7,  0,  5,  0,  0,  2,  2,  5,  5};      //      O
+ const int32_t table_38213_13_11_c2[16] = { 1,  2,  1,  2,  1,  2,  1,  2,  1,  1,  1,  1,  1,  1,  1,  1};
+-const float   table_38213_13_11_c3[16] = { 1, 0.5f, 1, 0.5f, 1, 0.5f, 1, 0.5f,  2,  2,  1,  1,  1,  1,  1,  1};	//	M
+-const int32_t table_38213_13_11_c4[16] = { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  2,  1,  2,  1,  2};	// i is even as default
++const float   table_38213_13_11_c3[16] = { 1, 0.5f, 1, 0.5f, 1, 0.5f, 1, 0.5f,  2,  2,  1,  1,  1,  1,  1,  1}; //      M
++const int32_t table_38213_13_11_c4[16] = { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  2,  1,  2,  1,  2};      // i is even as default
+ 
+ const float   table_38213_13_12_c1[16] = { 0, 0, 2.5f, 2.5f, 5, 5, 0, 2.5f, 5, 7.5f, 7.5f, 7.5f, 0, 5, reserved, reserved}; // O, index 14-15 reserved
+ const int32_t table_38213_13_12_c2[16] = { 1,  2,  1,  2,  1,  2,  2,  2,  2,  1,  2,  2,  1,  1,  reserved,  reserved}; // index 14-15 reserved
+@@ -1574,6 +1574,21 @@ void set_monitoring_periodicity_offset(NR_SearchSpace_t *ss,
+                                        uint16_t period,
+                                        uint16_t offset) {
+ 
++  // Validate offset according to 3GPP TS 38.331
++  if (period == 1) {
++    // For periodicity=1 (sl1), the offset must be 0
++    if (offset != 0) {
++      LOG_E(NR_MAC, "Invalid offset %d for periodicity=1. Offset must be 0 for sl1.\n", offset);
++      AssertFatal(0, "Invalid offset %d for periodicity=1. Offset must be 0 for sl1.\n", offset);
++    }
++  } else {
++    // For all other periodicities, offset must be less than the period value (valid range: [0, period-1])
++    if (offset >= period) {
++      LOG_E(NR_MAC, "Invalid offset %d for periodicity=%d. Valid range is [0, %d].\n", offset, period, period-1);
++      AssertFatal(0, "Invalid offset %d for periodicity=%d. Valid range is [0, %d].\n", offset, period, period-1);
++    }
++  }
++
+   switch(period) {
+     case 1:
+       ss->monitoringSlotPeriodicityAndOffset->present = NR_SearchSpace__monitoringSlotPeriodicityAndOffset_PR_sl1;
+@@ -1825,7 +1840,7 @@ static const uint16_t table_63313[838] = {
+ uint8_t compute_nr_root_seq(NR_RACH_ConfigCommon_t *rach_config,
+                             uint8_t nb_preambles,
+                             uint8_t unpaired,
+-			    frequency_range_t frequency_range) {
++                            frequency_range_t frequency_range) {
+ 
+   uint8_t config_index = rach_config->rach_ConfigGeneric.prach_ConfigurationIndex;
+   uint8_t ncs_index = rach_config->rach_ConfigGeneric.zeroCorrelationZoneConfig;

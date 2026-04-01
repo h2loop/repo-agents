@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix QPSK LLR computation in LTE downlink processing\n\n### Summary\nThe QPSK LLR computation function in the LTE UE transport layer was not properly extracting the real and imaginary components of the received signal. This caused incorrect LLR values to be passed to the decoder, leading to degraded BLER performance in QPSK transmission modes.\n\nThe issue was in the `qpsk_llr` function which was simply copying input samples without properly handling the complex symbol structure. The fix ensures that for each QPSK symbol, both the real and imaginary parts are correctly extracted as LLR values for the corresponding bits.\n\n### Changes\n- `openair1/PHY/LTE_UE_TRANSPORT/dlsch_llr_computation.c`: Fixed QPSK LLR computation logic in the `qpsk_llr` function to properly extract real and imaginary components.\n"
+}

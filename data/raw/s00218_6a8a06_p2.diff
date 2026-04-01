@@ -1,0 +1,65 @@
+diff --git a/openair3/NAS/COMMON/UTIL/device.c b/openair3/NAS/COMMON/UTIL/device.c
+index 41085f0e24..6d97f0b7ae 100644
+--- a/openair3/NAS/COMMON/UTIL/device.c
++++ b/openair3/NAS/COMMON/UTIL/device.c
+@@ -238,7 +238,7 @@ ssize_t device_write(const void* id, const char* buffer, size_t len)
+  **      Others:  None                                       **
+  **                                                                        **
+  ***************************************************************************/
+-int device_get_fd(const void* id)
++long int device_get_fd(const void* id)
+ {
+   if (id) {
+     return ((device_id_t*)id)->fd;
+diff --git a/openair3/NAS/COMMON/UTIL/device.h b/openair3/NAS/COMMON/UTIL/device.h
+index 975d7b1c8a..1c8ef09284 100644
+--- a/openair3/NAS/COMMON/UTIL/device.h
++++ b/openair3/NAS/COMMON/UTIL/device.h
+@@ -63,7 +63,7 @@ typedef struct device_id_s device_id_t;
+ /****************************************************************************/
+ 
+ void* device_open(int type, const char* devname, const char* params);
+-int device_get_fd(const void* id);
++long int device_get_fd(const void* id);
+ 
+ ssize_t device_read(void* id, char* buffer, size_t length);
+ ssize_t device_write(const void* id, const char* buffer, size_t length);
+diff --git a/openair3/NAS/COMMON/UTIL/socket.c b/openair3/NAS/COMMON/UTIL/socket.c
+index 20c071203d..4c24cc7317 100644
+--- a/openair3/NAS/COMMON/UTIL/socket.c
++++ b/openair3/NAS/COMMON/UTIL/socket.c
+@@ -357,7 +357,7 @@ ssize_t socket_send(const void* id, const char* buffer, size_t length)
+  **      Others:  None                                       **
+  **                                                                        **
+  ***************************************************************************/
+-int socket_get_fd(const void* id)
++long int socket_get_fd(const void* id)
+ {
+   if (id) {
+     return ((socket_id_t*) id)->fd;
+diff --git a/openair3/NAS/COMMON/UTIL/socket.h b/openair3/NAS/COMMON/UTIL/socket.h
+index 58bc6b8527..725f3df561 100644
+--- a/openair3/NAS/COMMON/UTIL/socket.h
++++ b/openair3/NAS/COMMON/UTIL/socket.h
+@@ -64,7 +64,7 @@ typedef struct socket_id_s socket_id_t;
+ /****************************************************************************/
+ 
+ void* socket_udp_open(int type, const char* host, const char* port);
+-int socket_get_fd(const void* id);
++long int socket_get_fd(const void* id);
+ 
+ ssize_t socket_recv(void* id, char* buffer, size_t length);
+ ssize_t socket_send(const void* id, const char* buffer, size_t length);
+diff --git a/openair3/NAS/UE/API/USER/user_api_defs.h b/openair3/NAS/UE/API/USER/user_api_defs.h
+index ef4d8cd383..23bfb68fbc 100644
+--- a/openair3/NAS/UE/API/USER/user_api_defs.h
++++ b/openair3/NAS/UE/API/USER/user_api_defs.h
+@@ -38,7 +38,7 @@ typedef struct {
+   void* endpoint;
+   /* Connection endpoint handlers */
+   void*   (*open) (int, const char*, const char*);
+-  int     (*getfd)(const void*);
++  long int     (*getfd)(const void*);
+   ssize_t (*recv) (void*, char*, size_t);
+   ssize_t (*send) (const void*, const char*, size_t);
+   void    (*close)(void*);

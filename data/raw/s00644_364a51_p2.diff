@@ -1,0 +1,114 @@
+diff --git a/openair3/NAS/UE/EMM/Detach.c b/openair3/NAS/UE/EMM/Detach.c
+index 654486226e..f911549485 100644
+--- a/openair3/NAS/UE/EMM/Detach.c
++++ b/openair3/NAS/UE/EMM/Detach.c
+@@ -236,7 +236,7 @@ int emm_proc_detach_accept(void* args)
+ 
+   nas_user_t *user=args;
+   emm_timers_t *emm_timers = user->emm_data->emm_timers;
+-  int rc;
++  int rc = RETURNok;
+ 
+   LOG_TRACE(INFO, "EMM-PROC  - UE initiated detach procedure completion");
+ 
+@@ -244,7 +244,12 @@ int emm_proc_detach_accept(void* args)
+   (void) emm_proc_lowerlayer_initialize(user->lowerlayer_data, NULL, NULL, NULL, NULL);
+ 
+   /* Stop timer T3421 */
+-  emm_timers->T3421.id = nas_timer_stop(emm_timers->T3421.id);
++  int timer_rc = nas_timer_stop(emm_timers->T3421.id);
++  if (timer_rc != RETURNok) {
++    LOG_TRACE(ERROR, "EMM-PROC  - Failed to stop timer T3421");
++    rc = timer_rc;
++  }
++  emm_timers->T3421.id = timer_rc;
+ 
+   /*
+    * Notify ESM that all EPS bearer contexts have to be locally deactivated
+@@ -252,7 +257,13 @@ int emm_proc_detach_accept(void* args)
+   esm_sap_t esm_sap;
+   esm_sap.primitive = ESM_EPS_BEARER_CONTEXT_DEACTIVATE_REQ;
+   esm_sap.data.eps_bearer_context_deactivate.ebi = ESM_SAP_ALL_EBI;
+-  rc = esm_sap_send(user, &esm_sap);
++  int esm_rc = esm_sap_send(user, &esm_sap);
++  if (esm_rc != RETURNok) {
++    LOG_TRACE(ERROR, "EMM-PROC  - Failed to send ESM_EPS_BEARER_CONTEXT_DEACTIVATE_REQ");
++    if (rc == RETURNok) {
++      rc = esm_rc;
++    }
++  }
+ 
+   /*
+    * XXX - Upon receiving notification from ESM that all EPS bearer
+diff --git a/openair3/NAS/UE/ESM/EpsBearerContextDeactivation.c b/openair3/NAS/UE/ESM/EpsBearerContextDeactivation.c
+index 742e70cd4a..d654b2f8b0 100644
+--- a/openair3/NAS/UE/ESM/EpsBearerContextDeactivation.c
++++ b/openair3/NAS/UE/ESM/EpsBearerContextDeactivation.c
+@@ -119,7 +119,9 @@ int esm_proc_eps_bearer_context_deactivate(nas_user_t *user, bool is_local, int
+   int rc = RETURNerror;
+   int i;
+   esm_data_t *esm_data = user->esm_data;
++  
+   if (is_local) {
++    /* Local deactivation path (e.g., during detach procedure) */
+     if (ebi != ESM_SAP_ALL_EBI) {
+       /* Locally release the EPS bearer context */
+       rc = _eps_bearer_release(user, ebi, pid, bid);
+@@ -137,33 +139,32 @@ int esm_proc_eps_bearer_context_deactivate(nas_user_t *user, bool is_local, int
+         }
+       }
+     }
++  } else {
++    /* Network-initiated deactivation path */
++    LOG_TRACE(WARNING, "ESM-PROC  - EPS bearer context deactivation (ebi=%d)",
++              ebi);
++
++    if (*pid < ESM_DATA_PDN_MAX) {
++      if (esm_data->pdn[*pid].pid != *pid) {
++        LOG_TRACE(ERROR, "ESM-PROC  - PDN connection identifier %d "
++                  "is not valid", *pid);
++      } else if (esm_data->pdn[*pid].data == NULL) {
++        LOG_TRACE(ERROR, "ESM-PROC  - PDN connection %d has not been "
++                  "allocated", *pid);
++      } else if (!esm_data->pdn[*pid].is_active) {
++        LOG_TRACE(WARNING, "ESM-PROC  - PDN connection %d is not active",
++                  *pid);
++      } else {
++        esm_pdn_t *pdn = esm_data->pdn[*pid].data;
++
++        for (i = 0; i < pdn->n_bearers; i++) {
++          if (pdn->bearer[i]->ebi != ebi) {
++            continue;
++          }
+ 
+-    LOG_FUNC_RETURN (rc);
+-  }
+-
+-  LOG_TRACE(WARNING, "ESM-PROC  - EPS bearer context deactivation (ebi=%d)",
+-            ebi);
+-
+-  if (*pid < ESM_DATA_PDN_MAX) {
+-    if (esm_data->pdn[*pid].pid != *pid) {
+-      LOG_TRACE(ERROR, "ESM-PROC  - PDN connection identifier %d "
+-                "is not valid", *pid);
+-    } else if (esm_data->pdn[*pid].data == NULL) {
+-      LOG_TRACE(ERROR, "ESM-PROC  - PDN connection %d has not been "
+-                "allocated", *pid);
+-    } else if (!esm_data->pdn[*pid].is_active) {
+-      LOG_TRACE(WARNING, "ESM-PROC  - PDN connection %d is not active",
+-                *pid);
+-    } else {
+-      esm_pdn_t *pdn = esm_data->pdn[*pid].data;
+-
+-      for (i = 0; i < pdn->n_bearers; i++) {
+-        if (pdn->bearer[i]->ebi != ebi) {
+-          continue;
++          /* The EPS bearer context to be released is valid */
++          rc = RETURNok;
+         }
+-
+-        /* The EPS bearer context to be released is valid */
+-        rc = RETURNok;
+       }
+     }
+   }

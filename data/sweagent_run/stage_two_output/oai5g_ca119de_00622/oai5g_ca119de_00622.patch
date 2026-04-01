@@ -1,0 +1,38 @@
+diff --git a/openair3/NAS/COMMON/IES/LcsClientIdentity.c b/openair3/NAS/COMMON/IES/LcsClientIdentity.c
+index 89014ce46c..63d3949dbb 100644
+--- a/openair3/NAS/COMMON/IES/LcsClientIdentity.c
++++ b/openair3/NAS/COMMON/IES/LcsClientIdentity.c
+@@ -22,6 +22,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <stdint.h>
++#include <string.h>
+ 
+ 
+ #include "TLVEncoder.h"
+@@ -89,7 +90,24 @@ void dump_lcs_client_identity_xml(LcsClientIdentity *lcsclientidentity, uint8_t
+     /* Don't display IEI if = 0 */
+     printf("    <IEI>0x%X</IEI>\n", iei);
+ 
+-  printf("%s",dump_octet_string_xml(&lcsclientidentity->lcsclientidentityvalue));
++  // Get the XML output from dump_octet_string_xml
++  char *octet_string_xml = dump_octet_string_xml(&lcsclientidentity->lcsclientidentityvalue);
++  
++  // Make a copy to avoid modifying the static buffer
++  char *xml_copy = strdup(octet_string_xml);
++  if (xml_copy != NULL) {
++    // Process each line and add proper indentation
++    char *line = strtok(xml_copy, "\n");
++    while (line != NULL) {
++      printf("    %s\n", line);  // Add 4-space indentation
++      line = strtok(NULL, "\n");
++    }
++    free(xml_copy);
++  } else {
++    // Fallback in case memory allocation fails
++    printf("%s", octet_string_xml);
++  }
++  
+   printf("</Lcs Client Identity>\n");
+ }
+ 

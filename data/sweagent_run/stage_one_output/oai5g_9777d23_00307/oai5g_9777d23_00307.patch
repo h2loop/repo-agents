@@ -1,0 +1,41 @@
+diff --git a/openair2/F1AP/lib/f1ap_ue_context.c b/openair2/F1AP/lib/f1ap_ue_context.c
+index 728849d8e5..ec5f090b89 100644
+--- a/openair2/F1AP/lib/f1ap_ue_context.c
++++ b/openair2/F1AP/lib/f1ap_ue_context.c
+@@ -154,11 +154,31 @@ static bool eq_cu_to_du_rrc_info(const f1ap_cu_to_du_rrc_info_t *a, const f1ap_c
+ 
+ static void free_cu_to_du_rrc_info(f1ap_cu_to_du_rrc_info_t *cu2du)
+ {
+-  FREE_OPT_BYTE_ARRAY(cu2du->cg_configinfo);
+-  FREE_OPT_BYTE_ARRAY(cu2du->ue_cap);
+-  FREE_OPT_BYTE_ARRAY(cu2du->meas_config);
+-  FREE_OPT_BYTE_ARRAY(cu2du->meas_timing_config);
+-  FREE_OPT_BYTE_ARRAY(cu2du->ho_prep_info);
++  if (cu2du->cg_configinfo) {
++    free_byte_array(*(cu2du->cg_configinfo));
++    free(cu2du->cg_configinfo);
++    cu2du->cg_configinfo = NULL;
++  }
++  if (cu2du->ue_cap) {
++    free_byte_array(*(cu2du->ue_cap));
++    free(cu2du->ue_cap);
++    cu2du->ue_cap = NULL;
++  }
++  if (cu2du->meas_config) {
++    free_byte_array(*(cu2du->meas_config));
++    free(cu2du->meas_config);
++    cu2du->meas_config = NULL;
++  }
++  if (cu2du->meas_timing_config) {
++    free_byte_array(*(cu2du->meas_timing_config));
++    free(cu2du->meas_timing_config);
++    cu2du->meas_timing_config = NULL;
++  }
++  if (cu2du->ho_prep_info) {
++    free_byte_array(*(cu2du->ho_prep_info));
++    free(cu2du->ho_prep_info);
++    cu2du->ho_prep_info = NULL;
++  }
+ }
+ 
+ static F1AP_DUtoCURRCInformation_t encode_du_to_cu_rrc_info(const f1ap_du_to_cu_rrc_info_t *du2cu)

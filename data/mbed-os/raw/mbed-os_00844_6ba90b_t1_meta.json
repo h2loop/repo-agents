@@ -1,0 +1,26 @@
+{
+  "run_id": "mbed-os_00844_6ba90b",
+  "function": {
+    "name": "pkcs5_parse_pbkdf2_params",
+    "file": "connectivity/mbedtls/source/pkcs5.c",
+    "start_line": 53,
+    "end_line": 107,
+    "body_lines": 55,
+    "signature": "static int pkcs5_parse_pbkdf2_params( const mbedtls_asn1_buf *params, mbedtls_asn1_buf *salt, int *iterations, int *keylen, mbedtls_md_type_t *md_type )",
+    "subsystem": "connectivity/mbedtls/source",
+    "token_estimate": 202
+  },
+  "bug": {
+    "bug_id": "c_uninitialized_memory_read",
+    "description": "read of uninitialized memory leading to undefined behavior",
+    "domain": "generic_c",
+    "subsystems": [
+      "*"
+    ]
+  },
+  "prompt": "There is a read of uninitialized memory leading to undefined behavior downstream of function pkcs5_parse_pbkdf2_params in the connectivity/mbedtls/source subsystem.\nThe function is located at connectivity/mbedtls/source/pkcs5.c:53.\nPlease investigate and fix this issue.\n",
+  "patch_lines": 3,
+  "trajectory_steps": 5,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-16T16:21:26Z"
+}

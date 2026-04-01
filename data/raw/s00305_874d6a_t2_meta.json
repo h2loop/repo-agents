@@ -1,0 +1,9 @@
+{
+  "run_id": "s00305_874d6a",
+  "pr_text": "## Title: Fix incorrect RACH resource type flag in UL SDU processing\n\n### Summary\nThe `rx_sdu()` function in the eNB MAC scheduler was incorrectly passing `ra->rach_resource_type > 0` as a flags parameter to RLC data indication calls. This boolean expression was mistakenly added to the function signature where a bitmask flags field is expected. The incorrect flag could cause improper handling of uplink SDUs during random access procedures, potentially leading to protocol errors or dropped messag",
+  "trajectory_path": "data/raw/s00305_874d6a_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00305_874d6a_p2.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 36,
+  "timestamp": "2026-02-10T12:36:18Z"
+}

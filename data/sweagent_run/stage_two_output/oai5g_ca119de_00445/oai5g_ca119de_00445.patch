@@ -1,0 +1,69 @@
+diff --git a/openair2/RRC/LTE/rrc_common.c b/openair2/RRC/LTE/rrc_common.c
+index 2448ec9bbe..aaf178578f 100644
+--- a/openair2/RRC/LTE/rrc_common.c
++++ b/openair2/RRC/LTE/rrc_common.c
+@@ -43,6 +43,7 @@
+ #include "rrc_eNB_UE_context.h"
+ #include "common/ran_context.h"
+ #include "openair2/RRC/LTE/rrc_proto.h"
++#include <string.h>
+ 
+ extern RAN_CONTEXT_t RC;
+ extern UE_MAC_INST *UE_mac_inst;
+@@ -56,9 +57,24 @@ rrc_init_global_param(
+ )
+ //-----------------------------------------------------------------------------
+ {
++  // Initialize CCCH_LCHAN_DESC
++  CCCH_LCHAN_DESC.transport_block_size = 4;   // Based on CCCH_SDU_SIZE=1024 in mac_messages_types.h
++  CCCH_LCHAN_DESC.max_transport_blocks = 16;
++  CCCH_LCHAN_DESC.Guaranteed_bit_rate = 0;    // Best effort
++  CCCH_LCHAN_DESC.Max_bit_rate = 0;           // No limit
++  CCCH_LCHAN_DESC.Delay_class = 1;            // Interactive traffic
++  CCCH_LCHAN_DESC.Target_bler = 10;           // 10% BLER target
++  CCCH_LCHAN_DESC.Lchan_t = 0;                // CCCH=0
++  
++  // Initialize DCCH_LCHAN_DESC  
+   DCCH_LCHAN_DESC.transport_block_size = 4;
+   DCCH_LCHAN_DESC.max_transport_blocks = 16;
+-  DCCH_LCHAN_DESC.Delay_class = 1;
++  DCCH_LCHAN_DESC.Guaranteed_bit_rate = 0;    // Best effort
++  DCCH_LCHAN_DESC.Max_bit_rate = 0;           // No limit
++  DCCH_LCHAN_DESC.Delay_class = 1;            // Interactive traffic
++  DCCH_LCHAN_DESC.Target_bler = 10;           // 10% BLER target
++  DCCH_LCHAN_DESC.Lchan_t = 1;                // DCCH=1
++  
+   return 0;
+ }
+ 
+@@ -73,6 +89,30 @@ rrc_config_buffer(
+ {
+   Srb_info->Rx_buffer.payload_size = 0;
+   Srb_info->Tx_buffer.payload_size = 0;
++  
++  // Configure LCHAN_DESC based on logical channel type
++  switch (Lchan_type) {
++    case 0: // CCCH
++      memcpy(&Srb_info->Lchan_desc[0], &CCCH_LCHAN_DESC, LCHAN_DESC_SIZE);
++      memcpy(&Srb_info->Lchan_desc[1], &CCCH_LCHAN_DESC, LCHAN_DESC_SIZE);
++      break;
++      
++    case 1: // DCCH
++      memcpy(&Srb_info->Lchan_desc[0], &DCCH_LCHAN_DESC, LCHAN_DESC_SIZE);
++      memcpy(&Srb_info->Lchan_desc[1], &DCCH_LCHAN_DESC, LCHAN_DESC_SIZE);
++      break;
++      
++    case 3: // BCCH
++      memcpy(&Srb_info->Lchan_desc[0], &CCCH_LCHAN_DESC, LCHAN_DESC_SIZE);  // BCCH uses similar config as CCCH
++      memcpy(&Srb_info->Lchan_desc[1], &CCCH_LCHAN_DESC, LCHAN_DESC_SIZE);
++      break;
++      
++    default:
++      // Use CCCH as default for unknown types
++      memcpy(&Srb_info->Lchan_desc[0], &CCCH_LCHAN_DESC, LCHAN_DESC_SIZE);
++      memcpy(&Srb_info->Lchan_desc[1], &CCCH_LCHAN_DESC, LCHAN_DESC_SIZE);
++      break;
++  }
+ }
+ 
+ 

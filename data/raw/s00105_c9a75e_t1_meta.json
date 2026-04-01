@@ -1,0 +1,35 @@
+{
+  "run_id": "s00105_c9a75e",
+  "function": {
+    "name": "init_pucch2_luts",
+    "file": "openair1/PHY/NR_TRANSPORT/pucch_rx.c",
+    "start_line": 878,
+    "end_line": 909,
+    "body_lines": 32,
+    "signature": "void init_pucch2_luts()",
+    "subsystem": "openair1/PHY/NR_TRANSPORT",
+    "token_estimate": 179
+  },
+  "bug": {
+    "bug_id": "c_missing_mutex",
+    "description": "missing mutex lock around critical section accessing shared state",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a missing mutex lock around critical section accessing shared state downstream of function init_pucch2_luts in the openair1/PHY/NR_TRANSPORT subsystem.\nThe function is located at openair1/PHY/NR_TRANSPORT/pucch_rx.c:878.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00105_c9a75e_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00105_c9a75e_p1.diff",
+  "patch_lines": 8,
+  "trajectory_steps": 54,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:13:36Z"
+}

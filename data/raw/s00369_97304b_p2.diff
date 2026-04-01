@@ -1,0 +1,40 @@
+diff --git a/openair1/PHY/NR_UE_TRANSPORT/nr_dlsch_demodulation.c b/openair1/PHY/NR_UE_TRANSPORT/nr_dlsch_demodulation.c
+index 37feb297eb..b1d271aaec 100644
+--- a/openair1/PHY/NR_UE_TRANSPORT/nr_dlsch_demodulation.c
++++ b/openair1/PHY/NR_UE_TRANSPORT/nr_dlsch_demodulation.c
+@@ -574,6 +574,7 @@ int nr_rx_pdsch(PHY_VARS_NR_UE *ue,
+     const uint32_t rx_llr_layer_size = (rx_llr_size + dlsch[0].Nl - 1) / dlsch[0].Nl;
+ 
+     int16_t* layer_llr[NR_MAX_NB_LAYERS];
++    memset(layer_llr, 0, sizeof(layer_llr));  // Initialize all pointers to NULL
+     for (int i=0; i<NR_MAX_NB_LAYERS; i++)
+       layer_llr[i] = (int16_t *)malloc16_clear(rx_llr_layer_size*sizeof(int16_t));
+     for(uint8_t i =startSymbIdx; i < (startSymbIdx+nbSymb);i++) {
+@@ -2192,16 +2193,25 @@ static void nr_dlsch_layer_demapping(int16_t *llr_cw[2],
+ 
+   switch (Nl) {
+     case 1:
+-      if (codeword_TB1 == -1)
++      if (codeword_TB1 == -1) {
++        memset(llr_cw[0], 0, (length)*sizeof(int16_t));  // Clear stale data
+         memcpy(llr_cw[0], llr_layers[0], (length)*sizeof(int16_t));
+-      else if (codeword_TB0 == -1)
++      }
++      else if (codeword_TB0 == -1) {
++        memset(llr_cw[1], 0, (length)*sizeof(int16_t));  // Clear stale data
+         memcpy(llr_cw[1], llr_layers[0], (length)*sizeof(int16_t));
++      }
+ 
+     break;
+ 
+     case 2:
+     case 3:
+     case 4:
++      if (codeword_TB1 == -1)
++        memset(llr_cw[0], 0, (length)*sizeof(int16_t));  // Clear stale data
++      else if (codeword_TB0 == -1)
++        memset(llr_cw[1], 0, (length)*sizeof(int16_t));  // Clear stale data
++      
+       for (int i=0; i<(length/Nl/mod_order); i++){
+         for (int l=0; l<Nl; l++) {
+           for (int m=0; m<mod_order; m++){

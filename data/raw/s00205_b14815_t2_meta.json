@@ -1,0 +1,9 @@
+{
+  "run_id": "s00205_b14815",
+  "pr_text": "## Title: Fix stale protocol state leak in NGAP NG Setup Response handler\n\n### Summary\nThe NGAP gNB handler for NG Setup Response messages fails to clear existing protocol state before processing new configuration data. This causes memory leaks and stale data accumulation in the `served_guami` and `plmn_supports` linked lists when receiving subsequent NG Setup Response messages. Over time, this leads to memory exhaustion and undefined behavior from processing outdated AMF configuration.\n\nThis fi",
+  "trajectory_path": "data/raw/s00205_b14815_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00205_b14815_p2.diff",
+  "patch_lines": 63,
+  "trajectory_steps": 16,
+  "timestamp": "2026-02-10T11:54:54Z"
+}

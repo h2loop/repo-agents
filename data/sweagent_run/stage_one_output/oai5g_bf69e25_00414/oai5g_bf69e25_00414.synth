@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix LDPC encoder indexing error causing incorrect parity check computation\n\n### Summary\nThe LDPC encoder for BG2 with Zc=224 was producing incorrect parity bits due to a mismatch in indexing between the AVX2 and SSE implementations. The SSE version (128-bit) was using indices that were double the correct values compared to the AVX2 version (256-bit), causing data to be written to incorrect memory locations.\n\nThis manifested as incorrect parity check bits being generated, which would cause decoding failures in the gNB. The issue was particularly noticeable in high-throughput scenarios where the LDPC encoder was heavily utilized.\n\n### Changes\n- `openair1/PHY/CODING/nrLDPC_encoder/ldpc_BG2_Zc224_byte_128.c`: Fixed indexing in all d2 array assignments to match the AVX2 version pattern.\n- Corrected the loop count from 14 back to 7 to match the AVX2 implementation structure.\n\n"
+}

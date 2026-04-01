@@ -1,0 +1,343 @@
+"{\"env\":{\"deployment\":{\"image\":\"oai5g-sera:bf69e25\",\"port\":null,\"docker_args\"\
+  :[],\"startup_timeout\":180.0,\"pull\":\"missing\",\"remove_images\":false,\"python_standalone_dir\"\
+  :\"/root\",\"platform\":null,\"remove_container\":true,\"container_runtime\":\"\
+  docker\",\"type\":\"docker\"},\"repo\":{\"repo_name\":\"repo\",\"base_commit\":\"\
+  HEAD\",\"type\":\"preexisting\",\"reset\":true},\"post_startup_commands\":[],\"\
+  post_startup_command_timeout\":500,\"name\":\"main\"},\"agent\":{\"name\":\"oai5g_bf69e25_00975\"\
+  ,\"templates\":{\"system_template\":\"You are an expert C/C++ software engineer\
+  \ working on the OpenAirInterface 5G codebase.\\nYou can interact with the codebase\
+  \ using bash commands and a file editor to investigate and fix issues.\",\"instance_template\"\
+  :\"<uploaded_files>\\n{{working_dir}}\\n</uploaded_files>\\nI've uploaded the OpenAirInterface\
+  \ 5G codebase in {{working_dir}}. Consider the following PR description:\\n\\n<pr_description>\\\
+  n{{problem_statement}}\\n</pr_description>\\n\\nCan you help me implement the necessary\
+  \ changes to the repository so that the requirements specified in the <pr_description>\
+  \ are met?\\nYour task is to make the minimal changes to non-tests files in the\
+  \ {{working_dir}} directory to ensure the <pr_description> is satisfied.\\nFollow\
+  \ these steps to resolve the issue:\\n1. As a first step, find and read code relevant\
+  \ to the <pr_description>\\n2. Understand the issue and identify the root cause\\\
+  n3. Edit the source code to resolve the issue\\n4. Verify your changes make sense\\\
+  n5. Think about edge cases and make sure your fix handles them as well\\nYour thinking\
+  \ should be thorough and so it's fine if it's very long.\",\"next_step_template\"\
+  :\"OBSERVATION:\\n{{observation}}\",\"next_step_truncated_observation_template\"\
+  :\"Observation: {{observation[:max_observation_length]}}<response clipped><NOTE>Observations\
+  \ should not exceeded {{max_observation_length}} characters. {{elided_chars}} characters\
+  \ were elided. Please try a different command that produces less output or use head/tail/grep/redirect\
+  \ the output to a file. Do not use interactive pagers.</NOTE>\",\"max_observation_length\"\
+  :100000,\"next_step_no_output_template\":\"Your last command ran successfully and\
+  \ did not produce any output.\",\"strategy_template\":null,\"demonstration_template\"\
+  :null,\"demonstrations\":[],\"put_demos_in_history\":false,\"disable_image_processing\"\
+  :false,\"shell_check_error_template\":\"Your bash command contained syntax errors\
+  \ and was NOT executed. Please fix the syntax errors and try again. This can be\
+  \ the result of not adhering to the syntax for multi-line commands. Here is the\
+  \ output of `bash -n`:\\n{{bash_stdout}}\\n{{bash_stderr}}\",\"command_cancelled_timeout_template\"\
+  :\"The command '{{command}}' was cancelled because it took more than {{timeout}}\
+  \ seconds. Please try a different command that completes more quickly. Note: A common\
+  \ source of this error is if the command is interactive or requires user input (it\
+  \ is impossible to receive user input in the current environment, so the command\
+  \ will never complete).\"},\"tools\":{\"filter\":{\"blocklist_error_template\":\"\
+  Operation '{{action}}' is not supported by this environment.\",\"blocklist\":[\"\
+  vim\",\"vi\",\"emacs\",\"nano\",\"nohup\",\"gdb\",\"less\",\"tail -f\",\"python\
+  \ -m venv\",\"make\"],\"blocklist_standalone\":[\"python\",\"python3\",\"ipython\"\
+  ,\"bash\",\"sh\",\"/bin/bash\",\"/bin/sh\",\"nohup\",\"vi\",\"vim\",\"emacs\",\"\
+  nano\",\"su\"],\"block_unless_regex\":{\"radare2\":\"\\\\b(?:radare2)\\\\b.*\\\\\
+  s+-c\\\\s+.*\",\"r2\":\"\\\\b(?:radare2)\\\\b.*\\\\s+-c\\\\s+.*\"}},\"bundles\"\
+  :[{\"path\":\"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry\"\
+  ,\"hidden_tools\":[]},{\"path\":\"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic\"\
+  ,\"hidden_tools\":[]},{\"path\":\"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m\"\
+  ,\"hidden_tools\":[]},{\"path\":\"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state\"\
+  ,\"hidden_tools\":[]}],\"propagate_env_variables\":[],\"env_variables\":{\"PAGER\"\
+  :\"cat\",\"MANPAGER\":\"cat\",\"LESS\":\"-R\",\"PIP_PROGRESS_BAR\":\"off\",\"TQDM_DISABLE\"\
+  :\"1\",\"GIT_PAGER\":\"cat\"},\"registry_variables\":{\"USE_FILEMAP\":\"true\",\"\
+  SUBMIT_REVIEW_MESSAGES\":[\"Thank you for your work on this issue. Please review\
+  \ your changes:\\n\\n1. Make sure your fix is minimal and targeted\\n2. Verify you\
+  \ haven't introduced any new issues\\n3. Run the submit command again to confirm\\\
+  n\\nHere is a list of all of your changes:\\n\\n<diff>\\n{{diff}}\\n</diff>\\n\"\
+  ]},\"submit_command\":\"submit\",\"parse_function\":{\"error_message\":\"{%- if\
+  \ error_code == \\\"missing\\\" -%}\\nYour last output did not use any tool calls!\\\
+  nPlease make sure your output includes exactly _ONE_ function call!\\nYou must invoke\
+  \ the function directly using the function call format.\\nYou cannot invoke commands\
+  \ with ```, you have to use the function call format.\\nIf you think you have already\
+  \ resolved the issue, please submit your changes by running the `submit` command.\\\
+  nIf you think you cannot solve the problem, please run `exit_forfeit` (if available)\
+  \ or `submit`.\\nElse, please continue with a new tool call!\\n{%- elif error_code\
+  \ == \\\"multiple\\\" -%}\\nYour last output included multiple tool calls!\\nPlease\
+  \ make sure your output includes a thought and exactly _ONE_ function call.\\n{%-\
+  \ elif error_code == \\\"unexpected_arg\\\" -%}\\nYour action could not be parsed\
+  \ properly: {{exception_message}}.\\nMake sure your function call doesn't include\
+  \ any extra arguments that are not in the allowed arguments, and only use the allowed\
+  \ commands.\\n{%- else -%}\\nYour action could not be parsed properly: {{exception_message}}.\\\
+  n{% endif %}\\n\",\"type\":\"function_calling\"},\"enable_bash_tool\":true,\"format_error_template\"\
+  :\"{%- if error_code == \\\"missing\\\" -%}\\nYour last output did not use any tool\
+  \ calls!\\nPlease make sure your output includes exactly _ONE_ function call!\\\
+  nYou must invoke the function directly using the function call format.\\nYou cannot\
+  \ invoke commands with ```, you have to use the function call format.\\nIf you think\
+  \ you have already resolved the issue, please submit your changes by running the\
+  \ `submit` command.\\nIf you think you cannot solve the problem, please run `exit_forfeit`\
+  \ (if available) or `submit`.\\nElse, please continue with a new tool call!\\n{%-\
+  \ elif error_code == \\\"multiple\\\" -%}\\nYour last output included multiple tool\
+  \ calls!\\nPlease make sure your output includes a thought and exactly _ONE_ function\
+  \ call.\\n{%- elif error_code == \\\"unexpected_arg\\\" -%}\\nYour action could\
+  \ not be parsed properly: {{exception_message}}.\\nMake sure your function call\
+  \ doesn't include any extra arguments that are not in the allowed arguments, and\
+  \ only use the allowed commands.\\n{%- else -%}\\nYour action could not be parsed\
+  \ properly: {{exception_message}}.\\n{% endif %}\\n\",\"command_docs\":\"bash:\\\
+  n  docstring: runs the given command directly in bash\\n  signature: <command>\\\
+  n  arguments:\\n    - command (string) [required]: The bash command to execute.\\\
+  n\\nstr_replace_editor:\\n  docstring: Custom editing tool for viewing, creating\
+  \ and editing files * State is persistent across command calls and discussions with\
+  \ the user * If `path` is a file, `view` displays the result of applying `cat -n`.\
+  \ If `path` is a directory, `view` lists non-hidden files and directories up to\
+  \ 2 levels deep * The `create` command cannot be used if the specified `path` already\
+  \ exists as a file * If a `command` generates a long output, it will be truncated\
+  \ and marked with `<response clipped>` * The `undo_edit` command will revert the\
+  \ last edit made to the file at `path`\\nNotes for using the `str_replace` command:\
+  \ * The `old_str` parameter should match EXACTLY one or more consecutive lines from\
+  \ the original file. Be mindful of whitespaces! * If the `old_str` parameter is\
+  \ not unique in the file, the replacement will not be performed. Make sure to include\
+  \ enough context in `old_str` to make it unique * The `new_str` parameter should\
+  \ contain the edited lines that should replace the `old_str`\\n\\n  signature: str_replace_editor\
+  \ <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>] [<insert_line>]\\\
+  n\\n  arguments:\\n    - command (string) [required]: The commands to run. Allowed\
+  \ options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\\n    - path\
+  \ (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`\
+  \ or `/testbed`.\\n    - file_text (string) [optional]: Required parameter of `create`\
+  \ command, with the content of the file to be created.\\n    - old_str (string)\
+  \ [optional]: Required parameter of `str_replace` command containing the string\
+  \ in `path` to replace.\\n    - new_str (string) [optional]: Optional parameter\
+  \ of `str_replace` command containing the new string (if not given, no string will\
+  \ be added). Required parameter of `insert` command containing the string to insert.\\\
+  n    - insert_line (integer) [optional]: Required parameter of `insert` command.\
+  \ The `new_str` will be inserted AFTER the line `insert_line` of `path`.\\n    -\
+  \ view_range (array) [optional]: Optional parameter of `view` command when `path`\
+  \ points to a file. If none is given, the full file is shown. If provided, the file\
+  \ will be shown in the indicated line number range, e.g. [11, 12] will show lines\
+  \ 11 and 12. Indexing at 1 to start. Setting `[start_line, -1]` shows all lines\
+  \ from `start_line` to the end of the file.\\n\\nsubmit:\\n  docstring: submits\
+  \ the current file\\n  signature: submit\\n\\n\",\"multi_line_command_endings\"\
+  :{},\"submit_command_end_name\":null,\"reset_commands\":[],\"execution_timeout\"\
+  :300,\"install_timeout\":300,\"total_execution_timeout\":1800,\"max_consecutive_execution_timeouts\"\
+  :3},\"history_processors\":[],\"model\":{\"name\":\"bedrock/qwen.qwen3-coder-480b-a35b-v1:0\"\
+  ,\"per_instance_cost_limit\":0.0,\"total_cost_limit\":0.0,\"per_instance_call_limit\"\
+  :115,\"temperature\":0.7,\"top_p\":1.0,\"api_base\":null,\"api_version\":null,\"\
+  api_key\":\"**********\",\"stop\":[],\"completion_kwargs\":{},\"convert_system_to_user\"\
+  :false,\"retry\":{\"retries\":20,\"min_wait\":10.0,\"max_wait\":120.0},\"delay\"\
+  :0.0,\"fallbacks\":[],\"choose_api_key_by_thread\":true,\"max_input_tokens\":null,\"\
+  max_output_tokens\":null,\"litellm_model_registry\":\"/Users/metamyth/projects/sera/configs/litellm_model_registry.json\"\
+  ,\"custom_tokenizer\":null},\"max_requeries\":3,\"action_sampler\":null,\"type\"\
+  :\"default\"},\"problem_statement\":{\"text\":\"\\n## Title: Implement missing time_manager_iq_samples\
+  \ function for IQ sample timing\\n\\n### Summary\\nThe IQ player module was missing\
+  \ the `time_manager_iq_samples()` function that is required for proper timing management\
+  \ of IQ samples during replay operations. When the IQ player attempted to process\
+  \ samples, it would call this non-existent function, resulting in undefined behavior\
+  \ and potential crashes during RF simulation.\\n\\nThe issue was traced to a missing\
+  \ time management module in `common/utils/` that should handle timestamp calculations\
+  \ for IQ samples. This fix implements the missing `time_manager_iq_samples` function\
+  \ along with supporting infrastructure including initialization, cleanup, and statistics\
+  \ tracking.\\n\\n### Changes\\n- `common/utils/time_manager/time_manager.c`: New\
+  \ implementation of time management functions for IQ samples including the missing\
+  \ `time_manager_iq_samples()` function\\n- `common/utils/time_manager/time_manager.h`:\
+  \ Header file with function declarations\\n- `radio/iqplayer/iqplayer_lib.c`: Integrated\
+  \ time manager initialization and calls to `time_manager_iq_samples()` in the IQ\
+  \ reading path\\n- `common/utils/CMakeLists.txt`: Added time_manager subdirectory\
+  \ and linked the new library\\n- `radio/COMMON/common_lib.h`: Added include for\
+  \ time_manager.h\\n\\n\",\"extra_fields\":{\"bug_description\":\"missing mandatory\
+  \ information element in outgoing signaling message\",\"bug_id\":\"telecom_missing_mandatory_ie\"\
+  ,\"stage_one_patch\":\"diff --git a/common/utils/CMakeLists.txt b/common/utils/CMakeLists.txt\\\
+  nindex 932f458a77..f63718546f 100644\\n--- a/common/utils/CMakeLists.txt\\n+++ b/common/utils/CMakeLists.txt\\\
+  n@@ -1,5 +1,6 @@\\n add_subdirectory(alg)\\n add_subdirectory(ds)\\n+add_subdirectory(time_manager)\\\
+  n add_boolean_option(ENABLE_TELNETSRV OFF \\\"Whether to build telnet support in\
+  \ modems\\\" OFF)\\n if(ENABLE_TELNETSRV)\\n   add_subdirectory(telnetsrv)\\n@@\
+  \ -15,4 +16,4 @@ add_subdirectory(LOG)\\n add_subdirectory(threadPool)\\n add_library(utils\
+  \ utils.c system.c time_meas.c time_stat.c)\\n target_include_directories(utils\
+  \ PUBLIC .)\\n-target_link_libraries(utils PRIVATE ${T_LIB})\\n+target_link_libraries(utils\
+  \ PRIVATE ${T_LIB} time_manager)\\ndiff --git a/common/utils/time_manager/CMakeLists.txt\
+  \ b/common/utils/time_manager/CMakeLists.txt\\nnew file mode 100644\\nindex 0000000000..9ecd17f693\\\
+  n--- /dev/null\\n+++ b/common/utils/time_manager/CMakeLists.txt\\n@@ -0,0 +1,7 @@\\\
+  n+add_library(time_manager time_manager.c)\\n+target_include_directories(time_manager\
+  \ PUBLIC .)\\n+target_link_libraries(time_manager PUBLIC utils)\\n+\\n+# Add test\
+  \ executable\\n+add_executable(test_time_manager test_time_manager.c)\\n+target_link_libraries(test_time_manager\
+  \ time_manager)\\n\\\\ No newline at end of file\\ndiff --git a/common/utils/time_manager/test_time_manager.c\
+  \ b/common/utils/time_manager/test_time_manager.c\\nnew file mode 100644\\nindex\
+  \ 0000000000..01df140a7a\\n--- /dev/null\\n+++ b/common/utils/time_manager/test_time_manager.c\\\
+  n@@ -0,0 +1,86 @@\\n+/*\\n+ * Licensed to the OpenAirInterface (OAI) Software Alliance\
+  \ under one or more\\n+ * contributor license agreements.  See the NOTICE file distributed\
+  \ with\\n+ * this work for additional information regarding copyright ownership.\\\
+  n+ * The OpenAirInterface Software Alliance licenses this file to You under\\n+\
+  \ * the OAI Public License, Version 1.1  (the \\\"License\\\"); you may not use\
+  \ this file\\n+ * except in compliance with the License.\\n+ * You may obtain a\
+  \ copy of the License at\\n+ *\\n+ *      http://www.openairinterface.org/?page_id=698\\\
+  n+ *\\n+ * Unless required by applicable law or agreed to in writing, software\\\
+  n+ * distributed under the License is distributed on an \\\"AS IS\\\" BASIS,\\n+\
+  \ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\\n+\
+  \ * See the License for the specific language governing permissions and\\n+ * limitations\
+  \ under the License.\\n+ *-------------------------------------------------------------------------------\\\
+  n+ * For more information about the OpenAirInterface (OAI) Software Alliance:\\\
+  n+ *      contact@openairinterface.org\\n+ */\\n+\\n+/*! \\\\file test_time_manager.c\\\
+  n+ * \\\\brief Test program for time manager functions\\n+ * \\\\author OpenAirInterface\
+  \ Software Alliance\\n+ * \\\\date 2023\\n+ * \\\\version 0.1\\n+ * \\\\company\
+  \ OpenAirInterface Software Alliance\\n+ * \\\\email: contact@openairinterface.org\\\
+  n+ */\\n+\\n+#include <stdio.h>\\n+#include <stdlib.h>\\n+#include <unistd.h>\\\
+  n+#include \\\"common/utils/time_manager/time_manager.h\\\"\\n+#include \\\"common/utils/time_meas.h\\\
+  \"\\n+\\n+int main() {\\n+    printf(\\\"Testing time_manager_iq_samples function\\\
+  \\n\\\");\\n+    \\n+    // Initialize time manager\\n+    double sample_rate =\
+  \ 30.72e6; // 30.72 MHz\\n+    if (time_manager_init(sample_rate) != 0) {\\n+  \
+  \      printf(\\\"Failed to initialize time manager\\\\n\\\");\\n+        return\
+  \ -1;\\n+    }\\n+    \\n+    // Test time_manager_iq_samples function\\n+    openair0_timestamp\
+  \ timestamp;\\n+    int num_samples = 1024;\\n+    \\n+    printf(\\\"Processing\
+  \ %d IQ samples\\\\n\\\", num_samples);\\n+    \\n+    int result = time_manager_iq_samples(\xD7\
+  tamp, num_samples);\\n+    if (result != 0) {\\n+        printf(\\\"Error in time_manager_iq_samples:\
+  \ %d\\\\n\\\", result);\\n+        time_manager_cleanup();\\n+        return -1;\\\
+  n+    }\\n+    \\n+    printf(\\\"Successfully processed IQ samples. Timestamp:\
+  \ %lu\\\\n\\\", (unsigned long)timestamp);\\n+    \\n+    // Test with different\
+  \ number of samples\\n+    num_samples = 2048;\\n+    printf(\\\"Processing %d IQ\
+  \ samples\\\\n\\\", num_samples);\\n+    \\n+    result = time_manager_iq_samples(\xD7\
+  tamp, num_samples);\\n+    if (result != 0) {\\n+        printf(\\\"Error in time_manager_iq_samples:\
+  \ %d\\\\n\\\", result);\\n+        time_manager_cleanup();\\n+        return -1;\\\
+  n+    }\\n+    \\n+    printf(\\\"Successfully processed IQ samples. Timestamp:\
+  \ %lu\\\\n\\\", (unsigned long)timestamp);\\n+    \\n+    // Get statistics\\n+\
+  \    time_stats_t stats;\\n+    time_manager_get_stats(&stats);\\n+    printf(\\\
+  \"Time manager statistics - Trials: %d, Total time: %lu\\\\n\\\", \\n+         \
+  \  stats.trials, (unsigned long)stats.diff);\\n+    \\n+    // Cleanup\\n+    time_manager_cleanup();\\\
+  n+    \\n+    printf(\\\"Time manager test completed successfully\\\\n\\\");\\n+\
+  \    return 0;\\n+}\\n\\\\ No newline at end of file\\ndiff --git a/common/utils/time_manager/time_manager.c\
+  \ b/common/utils/time_manager/time_manager.c\\nnew file mode 100644\\nindex 0000000000..e1c274a88e\\\
+  n--- /dev/null\\n+++ b/common/utils/time_manager/time_manager.c\\n@@ -0,0 +1,138\
+  \ @@\\n+/*\\n+ * Licensed to the OpenAirInterface (OAI) Software Alliance under\
+  \ one or more\\n+ * contributor license agreements.  See the NOTICE file distributed\
+  \ with\\n+ * this work for additional information regarding copyright ownership.\\\
+  n+ * The OpenAirInterface Software Alliance licenses this file to You under\\n+\
+  \ * the OAI Public License, Version 1.1  (the \\\"License\\\"); you may not use\
+  \ this file\\n+ * except in compliance with the License.\\n+ * You may obtain a\
+  \ copy of the License at\\n+ *\\n+ *      http://www.openairinterface.org/?page_id=698\\\
+  n+ *\\n+ * Unless required by applicable law or agreed to in writing, software\\\
+  n+ * distributed under the License is distributed on an \\\"AS IS\\\" BASIS,\\n+\
+  \ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\\n+\
+  \ * See the License for the specific language governing permissions and\\n+ * limitations\
+  \ under the License.\\n+ *-------------------------------------------------------------------------------\\\
+  n+ * For more information about the OpenAirInterface (OAI) Software Alliance:\\\
+  n+ *      contact@openairinterface.org\\n+ */\\n+\\n+/*! \\\\file time_manager.c\\\
+  n+ * \\\\brief Time management functions for IQ samples\\n+ * \\\\author OpenAirInterface\
+  \ Software Alliance\\n+ * \\\\date 2023\\n+ * \\\\version 0.1\\n+ * \\\\company\
+  \ OpenAirInterface Software Alliance\\n+ * \\\\email: contact@openairinterface.org\\\
+  n+ */\\n+\\n+#include <stdio.h>\\n+#include <stdlib.h>\\n+#include <string.h>\\\
+  n+#include <time.h>\\n+#include <sys/time.h>\\n+#include \\\"time_manager.h\\\"\\\
+  n+#include \\\"common/utils/time_meas.h\\\"\\n+#include \\\"common/utils/LOG/log.h\\\
+  \"\\n+\\n+// Time management statistics\\n+static time_stats_t time_manager_iq_stats;\\\
+  n+\\n+// Global timestamp for IQ samples\\n+static openair0_timestamp current_iq_timestamp\
+  \ = 0;\\n+\\n+// Sample rate for IQ processing\\n+static double iq_sample_rate =\
+  \ 30.72e6; // Default to 30.72 MHz\\n+\\n+// Initialize time manager for IQ samples\\\
+  n+int time_manager_init(double sample_rate) {\\n+    reset_meas(&time_manager_iq_stats);\\\
+  n+    iq_sample_rate = sample_rate;\\n+    current_iq_timestamp = 0;\\n+    \\n+\
+  \    LOG_I(PHY, \\\"Time manager initialized with sample rate %f Hz\\\\n\\\", sample_rate);\\\
+  n+    return 0;\\n+}\\n+\\n+// Update timestamp for IQ samples\\n+void time_manager_update_timestamp(openair0_timestamp\
+  \ timestamp) {\\n+    current_iq_timestamp = timestamp;\\n+}\\n+\\n+// Get current\
+  \ IQ timestamp\\n+openair0_timestamp time_manager_get_timestamp(void) {\\n+    return\
+  \ current_iq_timestamp;\\n+}\\n+\\n+// Calculate time difference between two timestamps\\\
+  n+double time_manager_time_diff(openair0_timestamp ts1, openair0_timestamp ts2)\
+  \ {\\n+    return ((double)(ts2 - ts1)) / iq_sample_rate;\\n+}\\n+\\n+// Main function\
+  \ to manage time for IQ samples\\n+int time_manager_iq_samples(openair0_timestamp\
+  \ *timestamp, int num_samples) {\\n+    start_meas(&time_manager_iq_stats);\\n+\
+  \    \\n+    // Validate input parameters\\n+    if (timestamp == NULL) {\\n+  \
+  \      LOG_E(PHY, \\\"Invalid timestamp pointer\\\\n\\\");\\n+        stop_meas(&time_manager_iq_stats);\\\
+  n+        return -1;\\n+    }\\n+    \\n+    if (num_samples <= 0) {\\n+       \
+  \ LOG_E(PHY, \\\"Invalid number of samples: %d\\\\n\\\", num_samples);\\n+     \
+  \   stop_meas(&time_manager_iq_stats);\\n+        return -1;\\n+    }\\n+    \\\
+  n+    // Update timestamp based on number of samples\\n+    // Each sample takes\
+  \ 1/sample_rate seconds\\n+    openair0_timestamp sample_time = (openair0_timestamp)(((double)num_samples\
+  \ / iq_sample_rate) * iq_sample_rate);\\n+    *timestamp = current_iq_timestamp;\\\
+  n+    current_iq_timestamp += sample_time;\\n+    \\n+    // Add some delay to simulate\
+  \ processing time if needed\\n+    // This is important for real-time IQ sample\
+  \ processing\\n+    struct timespec req;\\n+    req.tv_sec = 0;\\n+    req.tv_nsec\
+  \ = (long)((sample_time / iq_sample_rate) * 1e9);\\n+    \\n+    // Limit the delay\
+  \ to avoid excessive sleeping\\n+    if (req.tv_nsec > 1000000) { // 1ms\\n+   \
+  \     req.tv_nsec = 1000000;\\n+    }\\n+    \\n+    // Only sleep for small delays\
+  \ to maintain real-time performance\\n+    if (req.tv_nsec > 1000) { // 1us\\n+\
+  \        nanosleep(&req, NULL);\\n+    }\\n+    \\n+    stop_meas(&time_manager_iq_stats);\\\
+  n+    \\n+    LOG_D(PHY, \\\"Time manager processed %d IQ samples, timestamp: %lu\\\
+  \\n\\\", \\n+          num_samples, (unsigned long)*timestamp);\\n+    \\n+    return\
+  \ 0; // Success\\n+}\\n+\\n+// Get time manager statistics\\n+void time_manager_get_stats(time_stats_t\
+  \ *stats) {\\n+    if (stats != NULL) {\\n+        copy_meas(stats, &time_manager_iq_stats);\\\
+  n+    }\\n+}\\n+\\n+// Reset time manager statistics\\n+void time_manager_reset_stats(void)\
+  \ {\\n+    reset_meas(&time_manager_iq_stats);\\n+}\\n+\\n+// Cleanup time manager\\\
+  n+void time_manager_cleanup(void) {\\n+    LOG_I(PHY, \\\"Time manager cleanup\\\
+  \\n\\\");\\n+    reset_meas(&time_manager_iq_stats);\\n+    current_iq_timestamp\
+  \ = 0;\\n+}\\n\\\\ No newline at end of file\\ndiff --git a/common/utils/time_manager/time_manager.h\
+  \ b/common/utils/time_manager/time_manager.h\\nnew file mode 100644\\nindex 0000000000..392c5ec629\\\
+  n--- /dev/null\\n+++ b/common/utils/time_manager/time_manager.h\\n@@ -0,0 +1,89\
+  \ @@\\n+/*\\n+ * Licensed to the OpenAirInterface (OAI) Software Alliance under\
+  \ one or more\\n+ * contributor license agreements.  See the NOTICE file distributed\
+  \ with\\n+ * this work for additional information regarding copyright ownership.\\\
+  n+ * The OpenAirInterface Software Alliance licenses this file to You under\\n+\
+  \ * the OAI Public License, Version 1.1  (the \\\"License\\\"); you may not use\
+  \ this file\\n+ * except in compliance with the License.\\n+ * You may obtain a\
+  \ copy of the License at\\n+ *\\n+ *      http://www.openairinterface.org/?page_id=698\\\
+  n+ *\\n+ * Unless required by applicable law or agreed to in writing, software\\\
+  n+ * distributed under the License is distributed on an \\\"AS IS\\\" BASIS,\\n+\
+  \ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\\n+\
+  \ * See the License for the specific language governing permissions and\\n+ * limitations\
+  \ under the License.\\n+ *-------------------------------------------------------------------------------\\\
+  n+ * For more information about the OpenAirInterface (OAI) Software Alliance:\\\
+  n+ *      contact@openairinterface.org\\n+ */\\n+\\n+/*! \\\\file time_manager.h\\\
+  n+ * \\\\brief Time management functions for IQ samples\\n+ * \\\\author OpenAirInterface\
+  \ Software Alliance\\n+ * \\\\date 2023\\n+ * \\\\version 0.1\\n+ * \\\\company\
+  \ OpenAirInterface Software Alliance\\n+ * \\\\email: contact@openairinterface.org\\\
+  n+ */\\n+\\n+#ifndef __TIME_MANAGER_H__\\n+#define __TIME_MANAGER_H__\\n+\\n+#include\
+  \ <stdint.h>\\n+#include \\\"common/utils/time_meas.h\\\"\\n+#include \\\"radio/COMMON/common_lib.h\\\
+  \"\\n+\\n+#ifdef __cplusplus\\n+extern \\\"C\\\" {\\n+#endif\\n+\\n+/*! \\\\brief\
+  \ Initialize time manager for IQ samples\\n+ * \\\\param sample_rate Sample rate\
+  \ in Hz\\n+ * \\\\returns 0 on success, negative value on error\\n+ */\\n+int time_manager_init(double\
+  \ sample_rate);\\n+\\n+/*! \\\\brief Update current timestamp for IQ samples\\n+\
+  \ * \\\\param timestamp New timestamp value\\n+ */\\n+void time_manager_update_timestamp(openair0_timestamp\
+  \ timestamp);\\n+\\n+/*! \\\\brief Get current IQ timestamp\\n+ * \\\\returns Current\
+  \ timestamp\\n+ */\\n+openair0_timestamp time_manager_get_timestamp(void);\\n+\\\
+  n+/*! \\\\brief Calculate time difference between two timestamps\\n+ * \\\\param\
+  \ ts1 First timestamp\\n+ * \\\\param ts2 Second timestamp\\n+ * \\\\returns Time\
+  \ difference in seconds\\n+ */\\n+double time_manager_time_diff(openair0_timestamp\
+  \ ts1, openair0_timestamp ts2);\\n+\\n+/*! \\\\brief Main function to manage time\
+  \ for IQ samples\\n+ * \\\\param timestamp Pointer to timestamp to be updated\\\
+  n+ * \\\\param num_samples Number of IQ samples to process\\n+ * \\\\returns 0 on\
+  \ success, negative value on error\\n+ */\\n+int time_manager_iq_samples(openair0_timestamp\
+  \ *timestamp, int num_samples);\\n+\\n+/*! \\\\brief Get time manager statistics\\\
+  n+ * \\\\param stats Pointer to time_stats_t structure to fill with statistics\\\
+  n+ */\\n+void time_manager_get_stats(time_stats_t *stats);\\n+\\n+/*! \\\\brief\
+  \ Reset time manager statistics\\n+ */\\n+void time_manager_reset_stats(void);\\\
+  n+\\n+/*! \\\\brief Cleanup time manager\\n+ */\\n+void time_manager_cleanup(void);\\\
+  n+\\n+#ifdef __cplusplus\\n+}\\n+#endif\\n+\\n+#endif /* __TIME_MANAGER_H__ */\\\
+  n\\\\ No newline at end of file\\ndiff --git a/radio/COMMON/common_lib.h b/radio/COMMON/common_lib.h\\\
+  nindex aa2d9e3189..b73113d77f 100644\\n--- a/radio/COMMON/common_lib.h\\n+++ b/radio/COMMON/common_lib.h\\\
+  n@@ -38,6 +38,7 @@\\n #include <openair1/PHY/TOOLS/tools_defs.h>\\n #include \\\"\
+  record_player.h\\\"\\n #include <common/utils/threadPool/thread-pool.h>\\n+#include\
+  \ <common/utils/time_manager/time_manager.h>\\n \\n /* default name of shared library\
+  \ implementing the radio front end */\\n #define OAI_RF_LIBNAME        \\\"oai_device\\\
+  \"\\ndiff --git a/radio/iqplayer/iqplayer_lib.c b/radio/iqplayer/iqplayer_lib.c\\\
+  nindex 2df57c9202..c4e699841e 100644\\n--- a/radio/iqplayer/iqplayer_lib.c\\n+++\
+  \ b/radio/iqplayer/iqplayer_lib.c\\n@@ -40,6 +40,7 @@\\n #include \\\"common_lib.h\\\
+  \"\\n #include \\\"assertions.h\\\"\\n #include \\\"common/utils/LOG/log.h\\\"\\\
+  n+#include \\\"common/utils/time_manager/time_manager.h\\\"\\n \\n static void busy_wait(uint32_t\
+  \ usecs) {\\n   uint32_t elapsed_usecs;\\n@@ -218,7 +219,9 @@ static void trx_iqplayer_end(openair0_device\
+  \ *device) {\\n     close(device->recplay_state->fd);\\n     device->recplay_state->fd\
+  \ = -1;\\n   }\\n-\\n+  \\n+  // Cleanup time manager\\n+  time_manager_cleanup();\\\
+  n }\\n /*! \\\\brief Write iqs function when in replay mode, just introduce a delay,\
+  \ as configured at init time,\\n       @param device pointer to the device structure\
+  \ specific to the RF hardware target\\n@@ -299,7 +302,14 @@ static int trx_iqplayer_read(openair0_device\
+  \ *device, openair0_timestamp *ptimes\\n   }\\n   // the current timestamp is the\
+  \ stored timestamp until we wrap on input\\n   AssertFatal(nsamps*4==curHeader->nbBytes,\\\
+  \"nsamps=%d curHeader->nbBytes=%d\\\", (int)nsamps, (int)curHeader->nbBytes);\\\
+  n-  *ptimestamp = s->currentTs;\\n+  \\n+  // Use the time manager to handle IQ\
+  \ samples timing\\n+  if (time_manager_iq_samples(ptimestamp, nsamps) != 0) {\\\
+  n+    LOG_E(HW, \\\"Error in time_manager_iq_samples for %d samples\\\\n\\\", nsamps);\\\
+  n+  } else {\\n+    s->currentTs = *ptimestamp;\\n+  }\\n+  \\n   memcpy(buff[0],\
+  \ curHeader+1, nsamps*4);\\n   s->curSamplesBlock++;\\n   // Prepare for next read\\\
+  n@@ -338,6 +348,13 @@ int device_init(openair0_device *device, openair0_config_t\
+  \ *openair0_cfg) {\\n   //  bw_gain_adjust=1;\\n   device->trx_write_func = trx_iqplayer_write;\\\
+  n   device->trx_read_func  = trx_iqplayer_read;\\n+  \\n+  // Initialize time manager\
+  \ for IQ samples\\n+  double sample_rate = openair0_cfg->sample_rate > 0 ? openair0_cfg->sample_rate\
+  \ : 30.72e6;\\n+  if (time_manager_init(sample_rate) != 0) {\\n+    LOG_E(HW, \\\
+  \"Failed to initialize time manager\\\\n\\\");\\n+  }\\n+  \\n   iqplayer_loadfile(device,\
+  \ openair0_cfg);\\n   LOG_UI(HW,\\\"iqplayer device initialized, replay %s for %i\
+  \ iteration(s)\\\\n\\\",openair0_cfg->recplay_conf->u_sf_filename,openair0_cfg->recplay_conf->u_sf_loops);\\\
+  n   return 0;\\n\",\"start_fn\":\"time_manager_iq_samples\",\"start_fn_file\":\"\
+  common/utils/time_manager/time_manager.c\",\"subsystem\":\"common/utils/time_manager\"\
+  },\"type\":\"text\",\"id\":\"oai5g_bf69e25_00975\"},\"output_dir\":\"DEFAULT\",\"\
+  actions\":{\"open_pr\":false,\"pr_config\":{\"skip_if_commits_reference_issue\"\
+  :true},\"apply_patch_locally\":false},\"env_var_path\":null}"

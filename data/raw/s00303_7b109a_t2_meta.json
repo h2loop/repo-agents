@@ -1,0 +1,9 @@
+{
+  "run_id": "s00303_7b109a",
+  "pr_text": "## Title: Add error handling to NAS ESM message container XML dump functions\n\n### Summary\nThe `dump_esm_message_container_xml()` function in the NAS ESM module called `dump_octet_string_xml()` without checking its return value, risking undefined behavior if XML generation failed. The underlying `dump_octet_string_xml()` function also lacked proper error handling for `snprintf()` failures, NULL pointer inputs, and potential buffer overflows. These issues could lead to segmentation faults or corru",
+  "trajectory_path": "data/raw/s00303_7b109a_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00303_7b109a_p2.diff",
+  "patch_lines": 51,
+  "trajectory_steps": 48,
+  "timestamp": "2026-02-11T14:17:22Z"
+}

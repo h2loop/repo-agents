@@ -1,0 +1,9 @@
+{
+  "run_id": "s00023_1009b4",
+  "pr_text": "## Title: Fix use-after-free vulnerability in AT+COPS test command parser\n\n### Summary\nThe `parse_cops_test` function in the NAS UE AT command parser did not initialize the `mask` field when handling the AT+COPS=? test command. This omission created a use-after-free vulnerability, as downstream command processing logic relies on the mask to determine whether parameter fields contain valid allocated memory that requires cleanup. Without the `AT_COMMAND_NO_PARAM` flag set, the parser could incorre",
+  "trajectory_path": "data/raw/s00023_1009b4_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00023_1009b4_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 27,
+  "timestamp": "2026-02-10T10:43:00Z"
+}

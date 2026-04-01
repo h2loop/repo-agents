@@ -1,0 +1,30 @@
+diff --git a/targets/TARGET_STM/TARGET_STM32L5/STM32Cube_FW/STM32L5xx_HAL_Driver/stm32l5xx_hal_uart_ex.c b/targets/TARGET_STM/TARGET_STM32L5/STM32Cube_FW/STM32L5xx_HAL_Driver/stm32l5xx_hal_uart_ex.c
+index d51e0ea4..77ac283a 100644
+--- a/targets/TARGET_STM/TARGET_STM32L5/STM32Cube_FW/STM32L5xx_HAL_Driver/stm32l5xx_hal_uart_ex.c
++++ b/targets/TARGET_STM/TARGET_STM32L5/STM32Cube_FW/STM32L5xx_HAL_Driver/stm32l5xx_hal_uart_ex.c
+@@ -479,6 +479,12 @@ HAL_StatusTypeDef HAL_UARTEx_StopModeWakeUpSourceConfig(UART_HandleTypeDef *huar
+   */
+ HAL_StatusTypeDef HAL_UARTEx_EnableStopMode(UART_HandleTypeDef *huart)
+ {
++  /* Check the UART handle allocation */
++  if (huart == NULL)
++  {
++    return HAL_ERROR;
++  }
++  
+   /* Process Locked */
+   __HAL_LOCK(huart);
+ 
+@@ -498,6 +504,12 @@ HAL_StatusTypeDef HAL_UARTEx_EnableStopMode(UART_HandleTypeDef *huart)
+   */
+ HAL_StatusTypeDef HAL_UARTEx_DisableStopMode(UART_HandleTypeDef *huart)
+ {
++  /* Check the UART handle allocation */
++  if (huart == NULL)
++  {
++    return HAL_ERROR;
++  }
++  
+   /* Process Locked */
+   __HAL_LOCK(huart);
+ 

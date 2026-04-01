@@ -1,0 +1,9 @@
+{
+  "run_id": "s00375_08a56c",
+  "pr_text": "## Title: Fix race condition in TimeZoneAndTime XML debug output\n\n### Summary\nThe `dump_time_zone_and_time_xml` function in the NAS TimeZoneAndTime IE module had a race condition between timer expiry handlers and normal message processing threads. Both code paths could call this debug function concurrently, resulting in interleaved stdout output and corrupted XML formatting. This patch adds proper synchronization to serialize access to the shared output resource.\n\nThe race occurred because the f",
+  "trajectory_path": "data/raw/s00375_08a56c_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00375_08a56c_p2.diff",
+  "patch_lines": 5,
+  "trajectory_steps": 18,
+  "timestamp": "2026-02-10T12:55:36Z"
+}

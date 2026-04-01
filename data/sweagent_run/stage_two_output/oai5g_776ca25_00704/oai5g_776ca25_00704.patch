@@ -1,0 +1,30 @@
+diff --git a/common/utils/system.c b/common/utils/system.c
+index 270c3ae321..c6d3ed5929 100644
+--- a/common/utils/system.c
++++ b/common/utils/system.c
+@@ -222,6 +222,10 @@ bool has_cap_sys_nice(void)
+ {
+   /* get capabilities of calling PID */
+   cap_t cap = cap_get_pid(0);
++  if (cap == NULL) {
++    /* Failed to get capabilities, return false for safety */
++    return false;
++  }
+   cap_flag_value_t val;
+   /* check to what CAP_SYS_NICE is currently ("effective capability") set */
+   int ret = cap_get_flag(cap, CAP_SYS_NICE, CAP_EFFECTIVE, &val);
+@@ -297,10 +301,10 @@ void threadCreate(pthread_t* t, void * (*func)(void*), void * param, char* name,
+ // Legacy, pthread_create + thread_top_init() should be replaced by threadCreate
+ // threadCreate encapsulates the posix pthread api
+ void thread_top_init(char *thread_name,
+-		     int affinity,
+-		     uint64_t runtime,
+-		     uint64_t deadline,
+-		     uint64_t period) {
++                     int affinity,
++                     uint64_t runtime,
++                     uint64_t deadline,
++                     uint64_t period) {
+   
+   int policy, s, j;
+   struct sched_param sparam;

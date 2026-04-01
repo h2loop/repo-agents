@@ -1,0 +1,35 @@
+{
+  "run_id": "s00391_918c64",
+  "function": {
+    "name": "pusharrays32",
+    "file": "nfapi/open-nFAPI/common/src/nfapi.c",
+    "start_line": 524,
+    "end_line": 549,
+    "body_lines": 26,
+    "signature": "uint32_t pusharrays32(int32_t in[], uint32_t max_len, uint32_t len, uint8_t **out, uint8_t *end)",
+    "subsystem": "nfapi/open-nFAPI/common",
+    "token_estimate": 84
+  },
+  "bug": {
+    "bug_id": "c_race_condition",
+    "description": "race condition on shared data accessed from multiple threads without synchronization",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "common",
+      "executables",
+      "radio"
+    ]
+  },
+  "prompt": "There is a race condition on shared data accessed from multiple threads without synchronization downstream of function pusharrays32 in the nfapi/open-nFAPI/common subsystem.\nThe function is located at nfapi/open-nFAPI/common/src/nfapi.c:524.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00391_918c64_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00391_918c64_p1.diff",
+  "patch_lines": 17,
+  "trajectory_steps": 48,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:02:39Z"
+}

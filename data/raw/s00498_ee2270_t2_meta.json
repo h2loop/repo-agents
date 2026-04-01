@@ -1,0 +1,9 @@
+{
+  "run_id": "s00498_ee2270",
+  "pr_text": "## Title: Add parameter validation in UE context lookup to prevent power control errors\n\n### Summary\nThe function `rrc_eNB_find_ue_context_from_gnb_rnti` lacked validation for the `gnb_rnti` parameter, allowing negative values to be processed. This caused undefined behavior during red-black tree traversal and could result in incorrect UE context matches. Downstream power control calculations would then use invalid UE parameters, leading to incorrect transmit power levels.\n\nThe fix adds an explic",
+  "trajectory_path": "data/raw/s00498_ee2270_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00498_ee2270_p2.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 5,
+  "timestamp": "2026-02-10T13:41:45Z"
+}

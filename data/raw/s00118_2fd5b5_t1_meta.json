@@ -1,0 +1,31 @@
+{
+  "run_id": "s00118_2fd5b5",
+  "function": {
+    "name": "measurcmd_display_phyta",
+    "file": "common/utils/telnetsrv/telnetsrv_5Gue_measurements.c",
+    "start_line": 104,
+    "end_line": 111,
+    "body_lines": 8,
+    "signature": "void measurcmd_display_phyta(telnet_printfunc_t prnt)",
+    "subsystem": "common/utils/telnetsrv",
+    "token_estimate": 25
+  },
+  "bug": {
+    "bug_id": "c_deprecated_api_usage",
+    "description": "usage of deprecated API function that has known safety or correctness issues",
+    "domain": "generic_c",
+    "subsystems": [
+      "common",
+      "executables",
+      "radio",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a usage of deprecated API function that has known safety or correctness issues downstream of function measurcmd_display_phyta in the common/utils/telnetsrv subsystem.\nThe function is located at common/utils/telnetsrv/telnetsrv_5Gue_measurements.c:104.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00118_2fd5b5_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00118_2fd5b5_p1.diff",
+  "patch_lines": 12,
+  "trajectory_steps": 22,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:17:47Z"
+}

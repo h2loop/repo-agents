@@ -1,0 +1,166 @@
+diff --git a/openair2/COMMON/f1ap_messages_types.h b/openair2/COMMON/f1ap_messages_types.h
+index 08cc03c4fa..4ff8eb371f 100644
+--- a/openair2/COMMON/f1ap_messages_types.h
++++ b/openair2/COMMON/f1ap_messages_types.h
+@@ -330,6 +330,20 @@ typedef struct f1ap_up_tnl_s {
+   uint16_t port;
+ } f1ap_up_tnl_t;
+ 
++typedef struct f1ap_drb_qos_info_s {
++  long           fiveQI;
++  long           qoSPriorityLevel;
++  long           packetDelayBudget;
++  long           packetErrorRateScalar;
++  long           packetErrorRateExponent;
++  uint8_t        isGbrQosFlow;
++  long           maxFlowBitRateDownlink;
++  long           maxFlowBitRateUplink;
++  long           guaranteedFlowBitRateDownlink;
++  long           guaranteedFlowBitRateUplink;
++  uint8_t        reflectiveQoSAttribute;
++} f1ap_drb_qos_info_t;
++
+ typedef struct f1ap_drb_to_be_setup_s {
+   long           drb_id;
+   f1ap_up_tnl_t  up_ul_tnl[2];
+@@ -337,6 +351,7 @@ typedef struct f1ap_drb_to_be_setup_s {
+   f1ap_up_tnl_t  up_dl_tnl[2];
+   uint8_t        up_dl_tnl_length;
+   rlc_mode_t     rlc_mode;
++  f1ap_drb_qos_info_t drb_qos_info;
+ } f1ap_drb_to_be_setup_t;
+ 
+ typedef struct f1ap_srb_to_be_setup_s {
+diff --git a/openair2/F1AP/f1ap_cu_ue_context_management.c b/openair2/F1AP/f1ap_cu_ue_context_management.c
+index 8fdee52abb..649174f6ab 100644
+--- a/openair2/F1AP/f1ap_cu_ue_context_management.c
++++ b/openair2/F1AP/f1ap_cu_ue_context_management.c
+@@ -333,13 +333,15 @@ int CU_send_UE_CONTEXT_SETUP_REQUEST(instance_t instance,
+             } else {
+               DRB_Information->dRB_QoS.qoS_Characteristics.present = F1AP_QoS_Characteristics_PR_dynamic_5QI;
+               asn1cCalloc(DRB_Information->dRB_QoS.qoS_Characteristics.choice.dynamic_5QI, tmp);
+-              /* qoSPriorityLevel */
+-              tmp->qoSPriorityLevel = 1L;
+-              /* packetDelayBudget */
+-              tmp->packetDelayBudget = 1L;
+-              /* packetErrorRate */
+-              tmp->packetErrorRate.pER_Scalar = 1L;
+-              tmp->packetErrorRate.pER_Exponent = 6L;
++              /* Use values from our structure or defaults */
++              tmp->qoSPriorityLevel = (f1ap_ue_context_setup_req->drbs_to_be_setup[i].drb_qos_info.qoSPriorityLevel > 0) ? 
++                                      f1ap_ue_context_setup_req->drbs_to_be_setup[i].drb_qos_info.qoSPriorityLevel : 1L;
++              tmp->packetDelayBudget = (f1ap_ue_context_setup_req->drbs_to_be_setup[i].drb_qos_info.packetDelayBudget > 0) ? 
++                                       f1ap_ue_context_setup_req->drbs_to_be_setup[i].drb_qos_info.packetDelayBudget : 1L;
++              tmp->packetErrorRate.pER_Scalar = (f1ap_ue_context_setup_req->drbs_to_be_setup[i].drb_qos_info.packetErrorRateScalar > 0) ? 
++                                                f1ap_ue_context_setup_req->drbs_to_be_setup[i].drb_qos_info.packetErrorRateScalar : 1L;
++              tmp->packetErrorRate.pER_Exponent = (f1ap_ue_context_setup_req->drbs_to_be_setup[i].drb_qos_info.packetErrorRateExponent > 0) ? 
++                                                  f1ap_ue_context_setup_req->drbs_to_be_setup[i].drb_qos_info.packetErrorRateExponent : 6L;
+ 
+               /* OPTIONAL */
+               /* delayCritical */
+diff --git a/openair2/F1AP/f1ap_du_ue_context_management.c b/openair2/F1AP/f1ap_du_ue_context_management.c
+index 05833e3fad..80ba726c43 100644
+--- a/openair2/F1AP/f1ap_du_ue_context_management.c
++++ b/openair2/F1AP/f1ap_du_ue_context_management.c
+@@ -174,6 +174,50 @@ int DU_handle_UE_CONTEXT_SETUP_REQUEST(instance_t       instance,
+           drb_p->rlc_mode = RLC_MODE_TM;
+           break;
+       }
++
++      /* Extract QoS information if present */
++      if (drbs_tobesetup_item_p->qoSInformation.present == F1AP_QoSInformation_PR_choice_extension &&
++          drbs_tobesetup_item_p->qoSInformation.choice.choice_extension) {
++        F1AP_QoSInformation_ExtIEs_t *ext_ie = (F1AP_QoSInformation_ExtIEs_t *)
++            drbs_tobesetup_item_p->qoSInformation.choice.choice_extension;
++        if (ext_ie->id == F1AP_ProtocolIE_ID_id_DRB_Information) {
++          F1AP_DRB_Information_t *drb_info = &ext_ie->value.choice.DRB_Information;
++          
++          /* Extract DRB QoS parameters */
++          if (drb_info->dRB_QoS.qoS_Characteristics.present == F1AP_QoS_Characteristics_PR_non_Dynamic_5QI &&
++              drb_info->dRB_QoS.qoS_Characteristics.choice.non_Dynamic_5QI) {
++            F1AP_NonDynamic5QIDescriptor_t *non_dyn_5qi = drb_info->dRB_QoS.qoS_Characteristics.choice.non_Dynamic_5QI;
++            drb_p->drb_qos_info.fiveQI = non_dyn_5qi->fiveQI;
++            if (non_dyn_5qi->qoSPriorityLevel) {
++              drb_p->drb_qos_info.qoSPriorityLevel = *non_dyn_5qi->qoSPriorityLevel;
++            }
++          } else if (drb_info->dRB_QoS.qoS_Characteristics.present == F1AP_QoS_Characteristics_PR_dynamic_5QI &&
++                     drb_info->dRB_QoS.qoS_Characteristics.choice.dynamic_5QI) {
++            F1AP_Dynamic5QIDescriptor_t *dyn_5qi = drb_info->dRB_QoS.qoS_Characteristics.choice.dynamic_5QI;
++            if (dyn_5qi->qoSPriorityLevel) {
++              drb_p->drb_qos_info.qoSPriorityLevel = dyn_5qi->qoSPriorityLevel;
++            }
++            drb_p->drb_qos_info.packetDelayBudget = dyn_5qi->packetDelayBudget;
++            drb_p->drb_qos_info.packetErrorRateScalar = dyn_5qi->packetErrorRate.pER_Scalar;
++            drb_p->drb_qos_info.packetErrorRateExponent = dyn_5qi->packetErrorRate.pER_Exponent;
++          }
++
++          /* Extract GBR QoS Flow Information if present */
++          if (drb_info->dRB_QoS.gBR_QoS_Flow_Information) {
++            F1AP_GBR_QoSFlowInformation_t *gbr_qos = drb_info->dRB_QoS.gBR_QoS_Flow_Information;
++            drb_p->drb_qos_info.isGbrQosFlow = 1;
++            drb_p->drb_qos_info.maxFlowBitRateDownlink = gbr_qos->maxFlowBitRateDownlink;
++            drb_p->drb_qos_info.maxFlowBitRateUplink = gbr_qos->maxFlowBitRateUplink;
++            drb_p->drb_qos_info.guaranteedFlowBitRateDownlink = gbr_qos->guaranteedFlowBitRateDownlink;
++            drb_p->drb_qos_info.guaranteedFlowBitRateUplink = gbr_qos->guaranteedFlowBitRateUplink;
++          }
++
++          /* Extract reflective QoS attribute if present */
++          if (drb_info->dRB_QoS.reflective_QoS_Attribute) {
++            drb_p->drb_qos_info.reflectiveQoSAttribute = *drb_info->dRB_QoS.reflective_QoS_Attribute;
++          }
++        }
++      }
+     }
+   }
+ 
+@@ -912,6 +956,50 @@ int DU_handle_UE_CONTEXT_MODIFICATION_REQUEST(instance_t instance, uint32_t asso
+         drb_p->rlc_mode = RLC_MODE_TM;
+         break;
+       }
++
++      /* Extract QoS information if present */
++      if (drbs_tobesetupmod_item_p->qoSInformation.present == F1AP_QoSInformation_PR_choice_extension &&
++          drbs_tobesetupmod_item_p->qoSInformation.choice.choice_extension) {
++        F1AP_QoSInformation_ExtIEs_t *ext_ie = (F1AP_QoSInformation_ExtIEs_t *)
++            drbs_tobesetupmod_item_p->qoSInformation.choice.choice_extension;
++        if (ext_ie->id == F1AP_ProtocolIE_ID_id_DRB_Information) {
++          F1AP_DRB_Information_t *drb_info = &ext_ie->value.choice.DRB_Information;
++          
++          /* Extract DRB QoS parameters */
++          if (drb_info->dRB_QoS.qoS_Characteristics.present == F1AP_QoS_Characteristics_PR_non_Dynamic_5QI &&
++              drb_info->dRB_QoS.qoS_Characteristics.choice.non_Dynamic_5QI) {
++            F1AP_NonDynamic5QIDescriptor_t *non_dyn_5qi = drb_info->dRB_QoS.qoS_Characteristics.choice.non_Dynamic_5QI;
++            drb_p->drb_qos_info.fiveQI = non_dyn_5qi->fiveQI;
++            if (non_dyn_5qi->qoSPriorityLevel) {
++              drb_p->drb_qos_info.qoSPriorityLevel = *non_dyn_5qi->qoSPriorityLevel;
++            }
++          } else if (drb_info->dRB_QoS.qoS_Characteristics.present == F1AP_QoS_Characteristics_PR_dynamic_5QI &&
++                     drb_info->dRB_QoS.qoS_Characteristics.choice.dynamic_5QI) {
++            F1AP_Dynamic5QIDescriptor_t *dyn_5qi = drb_info->dRB_QoS.qoS_Characteristics.choice.dynamic_5QI;
++            if (dyn_5qi->qoSPriorityLevel) {
++              drb_p->drb_qos_info.qoSPriorityLevel = dyn_5qi->qoSPriorityLevel;
++            }
++            drb_p->drb_qos_info.packetDelayBudget = dyn_5qi->packetDelayBudget;
++            drb_p->drb_qos_info.packetErrorRateScalar = dyn_5qi->packetErrorRate.pER_Scalar;
++            drb_p->drb_qos_info.packetErrorRateExponent = dyn_5qi->packetErrorRate.pER_Exponent;
++          }
++
++          /* Extract GBR QoS Flow Information if present */
++          if (drb_info->dRB_QoS.gBR_QoS_Flow_Information) {
++            F1AP_GBR_QoSFlowInformation_t *gbr_qos = drb_info->dRB_QoS.gBR_QoS_Flow_Information;
++            drb_p->drb_qos_info.isGbrQosFlow = 1;
++            drb_p->drb_qos_info.maxFlowBitRateDownlink = gbr_qos->maxFlowBitRateDownlink;
++            drb_p->drb_qos_info.maxFlowBitRateUplink = gbr_qos->maxFlowBitRateUplink;
++            drb_p->drb_qos_info.guaranteedFlowBitRateDownlink = gbr_qos->guaranteedFlowBitRateDownlink;
++            drb_p->drb_qos_info.guaranteedFlowBitRateUplink = gbr_qos->guaranteedFlowBitRateUplink;
++          }
++
++          /* Extract reflective QoS attribute if present */
++          if (drb_info->dRB_QoS.reflective_QoS_Attribute) {
++            drb_p->drb_qos_info.reflectiveQoSAttribute = *drb_info->dRB_QoS.reflective_QoS_Attribute;
++          }
++        }
++      }
+     }
+   }
+   /* RRC Reconfiguration Complete indicator */

@@ -1,0 +1,67 @@
+diff --git a/arch/arm/include/cortex_m/kernel_arch_func.h b/arch/arm/include/cortex_m/kernel_arch_func.h
+index 5a3e5e65..cb78d5ca 100644
+--- a/arch/arm/include/cortex_m/kernel_arch_func.h
++++ b/arch/arm/include/cortex_m/kernel_arch_func.h
+@@ -22,6 +22,7 @@
+ #define ZEPHYR_ARCH_ARM_INCLUDE_CORTEX_M_KERNEL_ARCH_FUNC_H_
+ 
+ #include <zephyr/platform/hooks.h>
++#include <zephyr/kernel.h>
+ 
+ #ifdef __cplusplus
+ extern "C" {
+@@ -60,8 +61,20 @@ static ALWAYS_INLINE void arch_kernel_init(void)
+ 	soc_per_core_init_hook();
+ }
+ 
++/**
++ * @brief Set the return value for a thread
++ *
++ * @param thread Pointer to the thread structure
++ * @param value Value to set as the thread's return value
++ *
++ * This function sets the return value for a thread. It is typically used
++ * when a thread is being context-switched out and needs to pass a value
++ * to the code that will resume its execution.
++ */
+ static ALWAYS_INLINE void arch_thread_return_value_set(struct k_thread *thread, unsigned int value)
+ {
++	__ASSERT_NO_MSG(thread != NULL);
++
+ 	thread->arch.swap_return_value = value;
+ }
+ 
+diff --git a/arch/mips/include/kernel_arch_func.h b/arch/mips/include/kernel_arch_func.h
+index 5ac0bd95..be2e55da 100644
+--- a/arch/mips/include/kernel_arch_func.h
++++ b/arch/mips/include/kernel_arch_func.h
+@@ -20,6 +20,7 @@
+ #include <kernel_arch_data.h>
+ 
+ #include <zephyr/platform/hooks.h>
++#include <zephyr/kernel.h>
+ 
+ #ifdef __cplusplus
+ extern "C" {
+@@ -31,9 +32,21 @@ static ALWAYS_INLINE void arch_kernel_init(void)
+ 	soc_per_core_init_hook();
+ }
+ 
++/**
++ * @brief Set the return value for a thread
++ *
++ * @param thread Pointer to the thread structure
++ * @param value Value to set as the thread's return value
++ *
++ * This function sets the return value for a thread. It is typically used
++ * when a thread is being context-switched out and needs to pass a value
++ * to the code that will resume its execution.
++ */
+ static ALWAYS_INLINE void
+ arch_thread_return_value_set(struct k_thread *thread, unsigned int value)
+ {
++	__ASSERT_NO_MSG(thread != NULL);
++
+ 	thread->arch.swap_return_value = value;
+ }
+ 

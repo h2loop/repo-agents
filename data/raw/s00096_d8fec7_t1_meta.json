@@ -1,0 +1,31 @@
+{
+  "run_id": "s00096_d8fec7",
+  "function": {
+    "name": "init_eNB_afterRU",
+    "file": "executables/lte-enb.c",
+    "start_line": 1116,
+    "end_line": 1199,
+    "body_lines": 84,
+    "signature": "void init_eNB_afterRU(void)",
+    "subsystem": "executables",
+    "token_estimate": 280
+  },
+  "bug": {
+    "bug_id": "telecom_timer_incorrect_duration",
+    "description": "protocol timer configured with incorrect duration violating 3GPP timing requirements",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a protocol timer configured with incorrect duration violating 3GPP timing requirements downstream of function init_eNB_afterRU in the executables subsystem.\nThe function is located at executables/lte-enb.c:1116.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00096_d8fec7_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00096_d8fec7_p1.diff",
+  "patch_lines": 10,
+  "trajectory_steps": 94,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T11:12:52Z"
+}

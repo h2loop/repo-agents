@@ -1,0 +1,66 @@
+diff --git a/openair1/PHY/INIT/lte_init_ue.c b/openair1/PHY/INIT/lte_init_ue.c
+index 0b7ccd97be..5dbd87fbe0 100644
+--- a/openair1/PHY/INIT/lte_init_ue.c
++++ b/openair1/PHY/INIT/lte_init_ue.c
+@@ -144,9 +144,9 @@ void phy_config_sib2_ue(module_id_t Mod_id,int CC_id,
+       } else if (mbsfn_SubframeConfigList->list.array[i]->subframeAllocation.present == LTE_MBSFN_SubframeConfig__subframeAllocation_PR_fourFrames) { // 24-bit subframe configuration
+         fp->MBSFN_config[i].fourFrames_flag = 1;
+         fp->MBSFN_config[i].mbsfn_SubframeConfig =
+-          mbsfn_SubframeConfigList->list.array[i]->subframeAllocation.choice.oneFrame.buf[2]|
+-          (mbsfn_SubframeConfigList->list.array[i]->subframeAllocation.choice.oneFrame.buf[1]<<8)|
+-          (mbsfn_SubframeConfigList->list.array[i]->subframeAllocation.choice.oneFrame.buf[0]<<16);
++          mbsfn_SubframeConfigList->list.array[i]->subframeAllocation.choice.fourFrames.buf[2]|
++          (mbsfn_SubframeConfigList->list.array[i]->subframeAllocation.choice.fourFrames.buf[1]<<8)|
++          (mbsfn_SubframeConfigList->list.array[i]->subframeAllocation.choice.fourFrames.buf[0]<<16);
+         LOG_I(PHY, "[CONFIG]  LTE_MBSFN_SubframeConfig[%d] fourFrame pattern is  %x\n", i,
+               fp->MBSFN_config[i].mbsfn_SubframeConfig);
+       }
+@@ -181,9 +181,9 @@ void phy_config_mbsfn_list_ue(module_id_t                          Mod_id,
+       } else if (mbsfn_SubframeConfigList->list.array[i]->subframeAllocation.present == LTE_MBSFN_SubframeConfig__subframeAllocation_PR_fourFrames) { // 24-bit subframe configuration
+         fp->MBSFN_config[i].fourFrames_flag = 1;
+         fp->MBSFN_config[i].mbsfn_SubframeConfig =
+-          mbsfn_SubframeConfigList->list.array[i]->subframeAllocation.choice.oneFrame.buf[2]|
+-          (mbsfn_SubframeConfigList->list.array[i]->subframeAllocation.choice.oneFrame.buf[1]<<8)|
+-          (mbsfn_SubframeConfigList->list.array[i]->subframeAllocation.choice.oneFrame.buf[0]<<16);
++          mbsfn_SubframeConfigList->list.array[i]->subframeAllocation.choice.fourFrames.buf[2]|
++          (mbsfn_SubframeConfigList->list.array[i]->subframeAllocation.choice.fourFrames.buf[1]<<8)|
++          (mbsfn_SubframeConfigList->list.array[i]->subframeAllocation.choice.fourFrames.buf[0]<<16);
+         LOG_I(PHY, "[CONFIG]  LTE_MBSFN_SubframeConfig[%d] pattern is  %x\n", i,
+               fp->MBSFN_config[i].mbsfn_SubframeConfig);
+       }
+@@ -736,7 +736,7 @@ int init_lte_ue_signal(PHY_VARS_UE *ue,
+     for (int i=0; i<fp->nb_antennas_rx; i++) {
+       for (th_id=0; th_id<RX_NB_TH_MAX; th_id++) {
+         (*pdsch_vars_th)[th_id][eNB_id]->rho[i]     = (int32_t *)malloc16_clear( 7*2*sizeof(int32_t)*(fp->N_RB_DL*12) );
+-	(*pdsch_vars_MCH_th)[th_id][eNB_id]->rho[i]     = (int32_t *)malloc16_clear( 7*2*sizeof(int32_t)*(fp->N_RB_DL*12) );
++        (*pdsch_vars_MCH_th)[th_id][eNB_id]->rho[i]     = (int32_t *)malloc16_clear( 7*2*sizeof(int32_t)*(fp->N_RB_DL*12) );
+       }
+     }
+ 
+@@ -752,7 +752,7 @@ int init_lte_ue_signal(PHY_VARS_UE *ue,
+ 
+         for (th_id=0; th_id<RX_NB_TH_MAX; th_id++) {
+           (*pdsch_vars_th)[th_id][eNB_id]->dl_ch_rho2_ext[idx] = (int32_t *)malloc16_clear( sizeof(int32_t) * num );
+-	  (*pdsch_vars_MCH_th)[th_id][eNB_id]->dl_ch_rho2_ext[idx] = (int32_t *)malloc16_clear( sizeof(int32_t) * num );
++          (*pdsch_vars_MCH_th)[th_id][eNB_id]->dl_ch_rho2_ext[idx] = (int32_t *)malloc16_clear( sizeof(int32_t) * num );
+         }
+       }
+ 
+diff --git a/openair1/PHY/INIT/phy_init.h b/openair1/PHY/INIT/phy_init.h
+index daf6eafa42..39992548b3 100644
+--- a/openair1/PHY/INIT/phy_init.h
++++ b/openair1/PHY/INIT/phy_init.h
+@@ -183,11 +183,11 @@ void phy_config_sib2_ue(module_id_t                          Mod_id,
+                         struct LTE_MBSFN_SubframeConfigList *mbsfn_SubframeConfigList);
+ 
+  /*!
+-  \fn void phy_config_mbsfn_list_ue(module_id_t Mod_id,uint8_t CC_id
++  \fn void phy_config_mbsfn_list_ue(module_id_t Mod_id,int CC_id,
+       struct MBSFN_SubframeConfigList *mbsfn_SubframeConfigList)
+   \brief Configure LTE_DL_FRAME_PARMS with components derived after reception of MBSFN config list from SIB2 (at UE).
+   @param Mod_id Instance id
+-  @param CC_id
++  @param CC_id Component Carrier index
+   @param mbsfn_SubframeConfigList MBSFN subframe configuration
+  */
+ void phy_config_mbsfn_list_ue(module_id_t                          Mod_id,

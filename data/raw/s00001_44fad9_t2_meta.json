@@ -1,0 +1,9 @@
+{
+  "run_id": "s00001_44fad9",
+  "pr_text": "## Title: Fix missing MAC-I field in PDCP control plane PDU serialization\n\n### Summary\nThe PDCP control plane PDU serialization function for SRBs was omitting the mandatory MAC-I field, causing incomplete signaling messages. According to 3GPP TS 36.323 Section 6.2.2, control plane data PDUs must include a 32-bit MAC-I field for integrity protection immediately following the 5-bit sequence number. The existing implementation only serialized the sequence number, leaving the subsequent 4 bytes unin",
+  "trajectory_path": "data/raw/s00001_44fad9_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00001_44fad9_p2.diff",
+  "patch_lines": 6,
+  "trajectory_steps": 17,
+  "timestamp": "2026-02-10T10:34:10Z"
+}

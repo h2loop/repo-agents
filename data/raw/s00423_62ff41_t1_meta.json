@@ -1,0 +1,30 @@
+{
+  "run_id": "s00423_62ff41",
+  "function": {
+    "name": "pack_nr_config_request",
+    "file": "nfapi/open-nFAPI/fapi/src/nr_fapi_p5.c",
+    "start_line": 792,
+    "end_line": 1235,
+    "body_lines": 444,
+    "signature": "uint8_t pack_nr_config_request(void *msg, uint8_t **ppWritePackedMsg, uint8_t *end, nfapi_p4_p5_codec_config_t *config)",
+    "subsystem": "nfapi/open-nFAPI/fapi",
+    "token_estimate": 1137
+  },
+  "bug": {
+    "bug_id": "telecom_state_machine_invalid_transition",
+    "description": "incorrect protocol state machine transition that violates 3GPP specification",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS"
+    ]
+  },
+  "prompt": "There is a incorrect protocol state machine transition that violates 3GPP specification downstream of function pack_nr_config_request in the nfapi/open-nFAPI/fapi subsystem.\nThe function is located at nfapi/open-nFAPI/fapi/src/nr_fapi_p5.c:792.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00423_62ff41_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00423_62ff41_p1.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 47,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T13:13:26Z"
+}

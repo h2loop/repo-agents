@@ -1,0 +1,202 @@
+'{"env":{"deployment":{"image":"oai5g-sera:9777d23","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_9777d23_00346","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix null pointer dereference in multipath_tv_channel function\n\n### Summary\nThe
+  `multipath_tv_channel` function in the OpenAirInterface simulation tools was vulnerable
+  to null pointer dereferences when called with invalid parameters. This could lead
+  to segmentation faults during channel simulation, particularly when processing time-varying
+  channel models.\n\nThe issue occurred due to missing null checks on input parameters
+  and memory allocation results. When the function was called with null pointers for
+  channel descriptor or signal arrays, or when memory allocation failed, the code
+  would attempt to dereference null pointers, causing crashes.\n\nThis fix adds comprehensive
+  null pointer checks and proper error handling throughout the function and its downstream
+  dependencies.\n\n### Changes\n- `openair1/SIMULATION/TOOLS/multipath_tv_channel.c`:
+  Added null pointer validation for all input parameters, memory allocation failure
+  checks, and proper cleanup routines.\n","extra_fields":{"bug_description":"null
+  pointer dereference due to missing NULL check before access","bug_id":"c_null_pointer_dereference","stage_one_patch":"diff
+  --git a/openair1/SIMULATION/TOOLS/multipath_tv_channel.c b/openair1/SIMULATION/TOOLS/multipath_tv_channel.c\nindex
+  12175ea385..84dc87a0ed 100644\n--- a/openair1/SIMULATION/TOOLS/multipath_tv_channel.c\n+++
+  b/openair1/SIMULATION/TOOLS/multipath_tv_channel.c\n@@ -22,6 +22,7 @@\n #include
+  <stdlib.h>\n #include <math.h>\n #include <complex.h>\n+#include <stdio.h>\n #include
+  \"sim.h\"\n \n void tv_channel(channel_desc_t *desc,double complex ***H,uint32_t
+  length);\n@@ -36,6 +37,31 @@ void multipath_tv_channel(channel_desc_t *desc,\n                           uint32_t
+  length,\n                           uint8_t keep_channel)\n {\n+  // Check for null
+  pointers\n+  if (desc == NULL) {\n+    fprintf(stderr, \"Error: desc is NULL in
+  multipath_tv_channel\\n\");\n+    return;\n+  }\n+\n+  if (tx_sig_re == NULL ||
+  tx_sig_im == NULL || rx_sig_re == NULL || rx_sig_im == NULL) {\n+    fprintf(stderr,
+  \"Error: One or more signal arrays are NULL in multipath_tv_channel\\n\");\n+    return;\n+  }\n+\n+  //
+  Check that array elements are not null\n+  for (int i = 0; i < desc->nb_tx; i++)
+  {\n+    if (tx_sig_re[i] == NULL || tx_sig_im[i] == NULL) {\n+      fprintf(stderr,
+  \"Error: tx_sig arrays contain NULL pointers in multipath_tv_channel\\n\");\n+      return;\n+    }\n+  }\n+\n+  for
+  (int i = 0; i < desc->nb_rx; i++) {\n+    if (rx_sig_re[i] == NULL || rx_sig_im[i]
+  == NULL) {\n+      fprintf(stderr, \"Error: rx_sig arrays contain NULL pointers
+  in multipath_tv_channel\\n\");\n+      return;\n+    }\n+  }\n \n   double complex
+  **tx,**rx,***H_t;\n   double path_loss = pow(10,desc->path_loss_dB/20);\n@@ -46,22
+  +72,108 @@ void multipath_tv_channel(channel_desc_t *desc,\n          desc->max_Doppler);\n
+  #endif\n   tx = (double complex **)malloc(desc->nb_tx*sizeof(double complex *));\n+  if
+  (tx == NULL) {\n+    fprintf(stderr, \"Error: Failed to allocate memory for tx in
+  multipath_tv_channel\\n\");\n+    return;\n+  }\n+\n   rx = (double complex **)malloc(desc->nb_rx*sizeof(double
+  complex *));\n+  if (rx == NULL) {\n+    fprintf(stderr, \"Error: Failed to allocate
+  memory for rx in multipath_tv_channel\\n\");\n+    free(tx);\n+    return;\n+  }\n+\n   H_t=
+  (double complex ***) malloc(desc->nb_tx*desc->nb_rx*sizeof(double complex **));\n+  if
+  (H_t == NULL) {\n+    fprintf(stderr, \"Error: Failed to allocate memory for H_t
+  in multipath_tv_channel\\n\");\n+    free(tx);\n+    free(rx);\n+    return;\n+  }\n
+  \n   for(i=0; i<desc->nb_tx; i++) {\n     tx[i] = (double complex *)calloc(length,sizeof(double
+  complex));\n+    if (tx[i] == NULL) {\n+      fprintf(stderr, \"Error: Failed to
+  allocate memory for tx[%d] in multipath_tv_channel\\n\", i);\n+      // Free previously
+  allocated memory\n+      for (int k = 0; k < i; k++) {\n+        free(tx[k]);\n+      }\n+      free(tx);\n+      free(rx);\n+      free(H_t);\n+      return;\n+    }\n   }\n
+  \n   for(i=0; i<desc->nb_rx; i++) {\n     rx[i] = (double complex *)calloc(length,sizeof(double
+  complex));\n+    if (rx[i] == NULL) {\n+      fprintf(stderr, \"Error: Failed to
+  allocate memory for rx[%d] in multipath_tv_channel\\n\", i);\n+      // Free previously
+  allocated memory\n+      for (int k = 0; k < desc->nb_tx; k++) {\n+        free(tx[k]);\n+      }\n+      for
+  (int k = 0; k < i; k++) {\n+        free(rx[k]);\n+      }\n+      free(tx);\n+      free(rx);\n+      free(H_t);\n+      return;\n+    }\n   }\n
+  \n   for(i=0; i<desc->nb_tx*desc->nb_rx; i++) {\n     H_t[i] = (double complex **)malloc(desc->nb_taps*sizeof(double
+  complex *));\n+    if (H_t[i] == NULL) {\n+      fprintf(stderr, \"Error: Failed
+  to allocate memory for H_t[%d] in multipath_tv_channel\\n\", i);\n+      // Free
+  previously allocated memory\n+      for (int k = 0; k < desc->nb_tx; k++) {\n+        free(tx[k]);\n+      }\n+      for
+  (int k = 0; k < desc->nb_rx; k++) {\n+        free(rx[k]);\n+      }\n+      for
+  (int k = 0; k < i; k++) {\n+        for (int l = 0; l < desc->nb_taps; l++) {\n+          free(H_t[k][l]);\n+        }\n+        free(H_t[k]);\n+      }\n+      free(tx);\n+      free(rx);\n+      free(H_t);\n+      return;\n+    }\n
+  \n     for(j=0; j<desc->nb_taps; j++) {\n       H_t[i][j] = (double complex *)calloc(length,sizeof(double
+  complex));\n+      if (H_t[i][j] == NULL) {\n+        fprintf(stderr, \"Error: Failed
+  to allocate memory for H_t[%d][%d] in multipath_tv_channel\\n\", i, j);\n+        //
+  Free previously allocated memory\n+        for (int k = 0; k < desc->nb_tx; k++)
+  {\n+          free(tx[k]);\n+        }\n+        for (int k = 0; k < desc->nb_rx;
+  k++) {\n+          free(rx[k]);\n+        }\n+        for (int k = 0; k < desc->nb_tx*desc->nb_rx;
+  k++) {\n+          for (int l = 0; l < desc->nb_taps; l++) {\n+            if (H_t[k][l]
+  != NULL) {\n+              free(H_t[k][l]);\n+            }\n+          }\n+          if
+  (H_t[k] != NULL) {\n+            free(H_t[k]);\n+          }\n+        }\n+        free(tx);\n+        free(rx);\n+        free(H_t);\n+        return;\n+      }\n     }\n   }\n
+  \n@@ -115,19 +227,116 @@ void multipath_tv_channel(channel_desc_t *desc,\n \n //TODO:
+  make phi_rad a parameter of this function\n void tv_channel(channel_desc_t *desc,double
+  complex ***H,uint32_t length){\n+  // Check for null pointer\n+  if (desc == NULL)
+  {\n+    fprintf(stderr, \"Error: desc is NULL in tv_channel\\n\");\n+    return;\n+  }\n
+  \n   int i,j,p,l,k;\n   double *alpha,***phi_rad,pi=acos(-1),***w_Hz;\n   alpha
+  = (double *)calloc(desc->nb_paths,sizeof(double));\n+  if (alpha == NULL) {\n+    fprintf(stderr,
+  \"Error: Failed to allocate memory for alpha in tv_channel\\n\");\n+    return;\n+  }\n+\n   phi_rad
+  = (double ***)malloc(desc->nb_rx*desc->nb_tx*sizeof(double **));\n+  if (phi_rad
+  == NULL) {\n+    fprintf(stderr, \"Error: Failed to allocate memory for phi_rad
+  in tv_channel\\n\");\n+    free(alpha);\n+    return;\n+  }\n+\n   w_Hz = (double
+  ***)malloc(desc->nb_rx*desc->nb_tx*sizeof(double **));\n+  if (w_Hz == NULL) {\n+    fprintf(stderr,
+  \"Error: Failed to allocate memory for w_Hz in tv_channel\\n\");\n+    free(alpha);\n+    free(phi_rad);\n+    return;\n+  }\n
+  \n   for(i=0; i<desc->nb_tx*desc->nb_rx; i++) {\n     phi_rad[i]   = (double **)
+  malloc(desc->nb_taps*sizeof(double *));\n+    if (phi_rad[i] == NULL) {\n+      fprintf(stderr,
+  \"Error: Failed to allocate memory for phi_rad[%d] in tv_channel\\n\", i);\n+      //
+  Free previously allocated memory\n+      for (int k = 0; k < i; k++) {\n+        free(phi_rad[k]);\n+        free(w_Hz[k]);\n+      }\n+      free(alpha);\n+      free(phi_rad);\n+      free(w_Hz);\n+      return;\n+    }\n+\n     w_Hz[i]      =
+  (double **) malloc(desc->nb_taps*sizeof(double *));\n+    if (w_Hz[i] == NULL) {\n+      fprintf(stderr,
+  \"Error: Failed to allocate memory for w_Hz[%d] in tv_channel\\n\", i);\n+      free(phi_rad[i]);\n+      //
+  Free previously allocated memory\n+      for (int k = 0; k < i; k++) {\n+        free(phi_rad[k]);\n+        free(w_Hz[k]);\n+      }\n+      free(alpha);\n+      free(phi_rad);\n+      free(w_Hz);\n+      return;\n+    }\n+\n     for(j=0;
+  j<desc->nb_taps; j++) {\n       phi_rad[i][j]   = (double *) malloc(desc->nb_paths*sizeof(double));\n+      if
+  (phi_rad[i][j] == NULL) {\n+        fprintf(stderr, \"Error: Failed to allocate
+  memory for phi_rad[%d][%d] in tv_channel\\n\", i, j);\n+        free(w_Hz[i]);\n+        //
+  Free previously allocated memory\n+        for (int l = 0; l < j; l++) {\n+          free(phi_rad[i][l]);\n+          free(w_Hz[i][l]);\n+        }\n+        free(phi_rad[i]);\n+        //
+  Free previously allocated memory\n+        for (int k = 0; k < i; k++) {\n+          for
+  (int l = 0; l < desc->nb_taps; l++) {\n+            free(phi_rad[k][l]);\n+            free(w_Hz[k][l]);\n+          }\n+          free(phi_rad[k]);\n+          free(w_Hz[k]);\n+        }\n+        free(alpha);\n+        free(phi_rad);\n+        free(w_Hz);\n+        return;\n+      }\n+\n       w_Hz[i][j]      =
+  (double *) malloc(desc->nb_paths*sizeof(double));\n+      if (w_Hz[i][j] == NULL)
+  {\n+        fprintf(stderr, \"Error: Failed to allocate memory for w_Hz[%d][%d]
+  in tv_channel\\n\", i, j);\n+        free(phi_rad[i][j]);\n+        // Free previously
+  allocated memory\n+        for (int l = 0; l < j; l++) {\n+          free(phi_rad[i][l]);\n+          free(w_Hz[i][l]);\n+        }\n+        free(phi_rad[i]);\n+        free(w_Hz[i]);\n+        //
+  Free previously allocated memory\n+        for (int k = 0; k < i; k++) {\n+          for
+  (int l = 0; l < desc->nb_taps; l++) {\n+            free(phi_rad[k][l]);\n+            free(w_Hz[k][l]);\n+          }\n+          free(phi_rad[k]);\n+          free(w_Hz[k]);\n+        }\n+        free(alpha);\n+        free(phi_rad);\n+        free(w_Hz);\n+        return;\n+      }\n     }\n   }\n
+  \n@@ -155,15 +364,21 @@ void tv_channel(channel_desc_t *desc,double complex ***H,uint32_t
+  length){\n   }\n \n   // SISO or MIMO\n-  for (i=0; i<desc->nb_rx; i++) {\n-    for(j=0;
+  j<desc->nb_tx; j++) {\n-      for(k=0; k<desc->nb_taps; k++) {\n-        for(l=0;
+  l<length; l++) {\n-          for(p=0; p<desc->nb_paths; p++) {\n-            H[i+(j*desc->nb_rx)][k][l]
+  += sqrt(desc->amps[k])*alpha[p]*cexp(I*(2*pi*w_Hz[i+(j*desc->nb_rx)][k][p]*l*(1/(desc->sampling_rate*1e6))+phi_rad[i+(j*desc->nb_rx)][k][p]));\n+  if
+  (H != NULL) {\n+    for (i=0; i<desc->nb_rx; i++) {\n+      for(j=0; j<desc->nb_tx;
+  j++) {\n+        for(k=0; k<desc->nb_taps; k++) {\n+          // Initialize H to
+  zero before accumulation\n+          for(l=0; l<length; l++) {\n+            H[i+(j*desc->nb_rx)][k][l]
+  = 0.0;\n           }\n+          for(l=0; l<length; l++) {\n+            for(p=0;
+  p<desc->nb_paths; p++) {\n+              H[i+(j*desc->nb_rx)][k][l] += sqrt(desc->amps[k])*alpha[p]*cexp(I*(2*pi*w_Hz[i+(j*desc->nb_rx)][k][p]*l*(1/(desc->sampling_rate*1e6))+phi_rad[i+(j*desc->nb_rx)][k][p]));\n+            }\n+          }\n+          //printf(\"H[tx%d][rx%d][k%d][l%d]
+  = %f+j%f \\n\",j,i,k,0,creal(H[i+(j*desc->nb_rx)][k][0]),cimag(H[i+(j*desc->nb_rx)][k][0]));\n         }\n-        //printf(\"H[tx%d][rx%d][k%d][l%d]
+  = %f+j%f \\n\",j,i,k,0,creal(H[i+(j*desc->nb_rx)][k][0]),cimag(H[i+(j*desc->nb_rx)][k][0]));\n       }\n     }\n   }\n@@
+  -189,6 +404,12 @@ void tv_channel(channel_desc_t *desc,double complex ***H,uint32_t
+  length){\n // time varying convolution\n void tv_conv(double complex **h, double
+  complex *x, double complex *y, uint32_t nb_samples, uint8_t nb_taps, uint64_t dd)\n
+  {\n+  // Check for null pointers\n+  if (h == NULL || x == NULL || y == NULL) {\n+    fprintf(stderr,
+  \"Error: NULL pointer passed to tv_conv\\n\");\n+    return;\n+  }\n+\n   for(int
+  i = 0; i < ((int)nb_samples-dd); i++) {\n     for(int j = 0; j < nb_taps; j++) {\n       if(i
+  >= j)\n","start_fn":"multipath_tv_channel","start_fn_file":"openair1/SIMULATION/TOOLS/multipath_tv_channel.c","subsystem":"openair1/SIMULATION/TOOLS"},"type":"text","id":"oai5g_9777d23_00346"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

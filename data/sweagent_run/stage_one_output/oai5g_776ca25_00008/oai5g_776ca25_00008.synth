@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect error handling in NB-IoT SIB1 encoding function\n\n### Summary\nThe `do_SIB1_NB_IoT()` function in the NB-IoT RRC message generation had inverted error checking logic that caused successful encodings to be reported as failures and actual encoding errors to be silently ignored. This led to unexpected behavior when calling the function.\n\nThe issue was that the function checked `if (enc_rval.encoded > 0)` to detect encoding failures, when it should have been checking `if (enc_rval.encoded <= 0)` like all other ASN.1 encoding functions in the codebase.\n\nThis fix corrects the error checking condition to match the pattern used by other functions in the same file.\n\n### Changes\n- `openair2/RRC/LTE/MESSAGES/asn1_msg_NB_IoT.c`: Fixed error checking condition on line 310 to properly detect ASN.1 encoding failures\n"
+}

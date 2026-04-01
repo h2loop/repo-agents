@@ -1,0 +1,603 @@
+'{"env":{"deployment":{"image":"oai5g-sera:625b4b0","port":null,"docker_args":[],"startup_timeout":180.0,"pull":"missing","remove_images":false,"python_standalone_dir":"/root","platform":null,"remove_container":true,"container_runtime":"docker","type":"docker"},"repo":{"repo_name":"repo","base_commit":"HEAD","type":"preexisting","reset":true},"post_startup_commands":[],"post_startup_command_timeout":500,"name":"main"},"agent":{"name":"oai5g_625b4b0_00770","templates":{"system_template":"You
+  are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\nYou
+  can interact with the codebase using bash commands and a file editor to investigate
+  and fix issues.","instance_template":"<uploaded_files>\n{{working_dir}}\n</uploaded_files>\nI''ve
+  uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following
+  PR description:\n\n<pr_description>\n{{problem_statement}}\n</pr_description>\n\nCan
+  you help me implement the necessary changes to the repository so that the requirements
+  specified in the <pr_description> are met?\nYour task is to make the minimal changes
+  to non-tests files in the {{working_dir}} directory to ensure the <pr_description>
+  is satisfied.\nFollow these steps to resolve the issue:\n1. As a first step, find
+  and read code relevant to the <pr_description>\n2. Understand the issue and identify
+  the root cause\n3. Edit the source code to resolve the issue\n4. Verify your changes
+  make sense\n5. Think about edge cases and make sure your fix handles them as well\nYour
+  thinking should be thorough and so it''s fine if it''s very long.","next_step_template":"OBSERVATION:\n{{observation}}","next_step_truncated_observation_template":"Observation:
+  {{observation[:max_observation_length]}}<response clipped><NOTE>Observations should
+  not exceeded {{max_observation_length}} characters. {{elided_chars}} characters
+  were elided. Please try a different command that produces less output or use head/tail/grep/redirect
+  the output to a file. Do not use interactive pagers.</NOTE>","max_observation_length":100000,"next_step_no_output_template":"Your
+  last command ran successfully and did not produce any output.","strategy_template":null,"demonstration_template":null,"demonstrations":[],"put_demos_in_history":false,"disable_image_processing":false,"shell_check_error_template":"Your
+  bash command contained syntax errors and was NOT executed. Please fix the syntax
+  errors and try again. This can be the result of not adhering to the syntax for multi-line
+  commands. Here is the output of `bash -n`:\n{{bash_stdout}}\n{{bash_stderr}}","command_cancelled_timeout_template":"The
+  command ''{{command}}'' was cancelled because it took more than {{timeout}} seconds.
+  Please try a different command that completes more quickly. Note: A common source
+  of this error is if the command is interactive or requires user input (it is impossible
+  to receive user input in the current environment, so the command will never complete)."},"tools":{"filter":{"blocklist_error_template":"Operation
+  ''{{action}}'' is not supported by this environment.","blocklist":["vim","vi","emacs","nano","nohup","gdb","less","tail
+  -f","python -m venv","make"],"blocklist_standalone":["python","python3","ipython","bash","sh","/bin/bash","/bin/sh","nohup","vi","vim","emacs","nano","su"],"block_unless_regex":{"radare2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*","r2":"\\b(?:radare2)\\b.*\\s+-c\\s+.*"}},"bundles":[{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/registry","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/edit_anthropic","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/review_on_submit_m","hidden_tools":[]},{"path":"/Users/metamyth/projects/sera/SERA/modules/SERA-SWE-Agent/tools/diff_state","hidden_tools":[]}],"propagate_env_variables":[],"env_variables":{"PAGER":"cat","MANPAGER":"cat","LESS":"-R","PIP_PROGRESS_BAR":"off","TQDM_DISABLE":"1","GIT_PAGER":"cat"},"registry_variables":{"USE_FILEMAP":"true","SUBMIT_REVIEW_MESSAGES":["Thank
+  you for your work on this issue. Please review your changes:\n\n1. Make sure your
+  fix is minimal and targeted\n2. Verify you haven''t introduced any new issues\n3.
+  Run the submit command again to confirm\n\nHere is a list of all of your changes:\n\n<diff>\n{{diff}}\n</diff>\n"]},"submit_command":"submit","parse_function":{"error_message":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","type":"function_calling"},"enable_bash_tool":true,"format_error_template":"{%-
+  if error_code == \"missing\" -%}\nYour last output did not use any tool calls!\nPlease
+  make sure your output includes exactly _ONE_ function call!\nYou must invoke the
+  function directly using the function call format.\nYou cannot invoke commands with
+  ```, you have to use the function call format.\nIf you think you have already resolved
+  the issue, please submit your changes by running the `submit` command.\nIf you think
+  you cannot solve the problem, please run `exit_forfeit` (if available) or `submit`.\nElse,
+  please continue with a new tool call!\n{%- elif error_code == \"multiple\" -%}\nYour
+  last output included multiple tool calls!\nPlease make sure your output includes
+  a thought and exactly _ONE_ function call.\n{%- elif error_code == \"unexpected_arg\"
+  -%}\nYour action could not be parsed properly: {{exception_message}}.\nMake sure
+  your function call doesn''t include any extra arguments that are not in the allowed
+  arguments, and only use the allowed commands.\n{%- else -%}\nYour action could not
+  be parsed properly: {{exception_message}}.\n{% endif %}\n","command_docs":"bash:\n  docstring:
+  runs the given command directly in bash\n  signature: <command>\n  arguments:\n    -
+  command (string) [required]: The bash command to execute.\n\nstr_replace_editor:\n  docstring:
+  Custom editing tool for viewing, creating and editing files * State is persistent
+  across command calls and discussions with the user * If `path` is a file, `view`
+  displays the result of applying `cat -n`. If `path` is a directory, `view` lists
+  non-hidden files and directories up to 2 levels deep * The `create` command cannot
+  be used if the specified `path` already exists as a file * If a `command` generates
+  a long output, it will be truncated and marked with `<response clipped>` * The `undo_edit`
+  command will revert the last edit made to the file at `path`\nNotes for using the
+  `str_replace` command: * The `old_str` parameter should match EXACTLY one or more
+  consecutive lines from the original file. Be mindful of whitespaces! * If the `old_str`
+  parameter is not unique in the file, the replacement will not be performed. Make
+  sure to include enough context in `old_str` to make it unique * The `new_str` parameter
+  should contain the edited lines that should replace the `old_str`\n\n  signature:
+  str_replace_editor <command> <path> [<file_text>] [<view_range>] [<old_str>] [<new_str>]
+  [<insert_line>]\n\n  arguments:\n    - command (string) [required]: The commands
+  to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.\n    -
+  path (string) [required]: Absolute path to file or directory, e.g. `/testbed/file.py`
+  or `/testbed`.\n    - file_text (string) [optional]: Required parameter of `create`
+  command, with the content of the file to be created.\n    - old_str (string) [optional]:
+  Required parameter of `str_replace` command containing the string in `path` to replace.\n    -
+  new_str (string) [optional]: Optional parameter of `str_replace` command containing
+  the new string (if not given, no string will be added). Required parameter of `insert`
+  command containing the string to insert.\n    - insert_line (integer) [optional]:
+  Required parameter of `insert` command. The `new_str` will be inserted AFTER the
+  line `insert_line` of `path`.\n    - view_range (array) [optional]: Optional parameter
+  of `view` command when `path` points to a file. If none is given, the full file
+  is shown. If provided, the file will be shown in the indicated line number range,
+  e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line,
+  -1]` shows all lines from `start_line` to the end of the file.\n\nsubmit:\n  docstring:
+  submits the current file\n  signature: submit\n\n","multi_line_command_endings":{},"submit_command_end_name":null,"reset_commands":[],"execution_timeout":300,"install_timeout":300,"total_execution_timeout":1800,"max_consecutive_execution_timeouts":3},"history_processors":[],"model":{"name":"bedrock/qwen.qwen3-coder-480b-a35b-v1:0","per_instance_cost_limit":0.0,"total_cost_limit":0.0,"per_instance_call_limit":115,"temperature":0.7,"top_p":1.0,"api_base":null,"api_version":null,"api_key":"**********","stop":[],"completion_kwargs":{},"convert_system_to_user":false,"retry":{"retries":20,"min_wait":10.0,"max_wait":120.0},"delay":0.0,"fallbacks":[],"choose_api_key_by_thread":true,"max_input_tokens":null,"max_output_tokens":null,"litellm_model_registry":"/Users/metamyth/projects/sera/configs/litellm_model_registry.json","custom_tokenizer":null},"max_requeries":3,"action_sampler":null,"type":"default"},"problem_statement":{"text":"\n##
+  Title: Fix type confusion in nfapi_pnf_stop downstream functions\n\n### Summary\nWhen
+  calling `nfapi_pnf_stop()`, certain downstream functions exhibit undefined behavior
+  due to a type confusion bug in the `send_p5_msg` function pointer definition. The
+  function pointer was declared to accept `nfapi_nr_p4_p5_message_header_t*` but was
+  invoked with both NR and non-NR message headers, leading to memory access issues
+  because of differing structure layouts.\n\nThis change modifies the function pointer
+  to use the generic `nfapi_p4_p5_message_header_t*` type and updates all related
+  implementations to prevent type mismatches.\n\n### Changes\n- `nfapi/open-nFAPI/pnf/public_inc/nfapi_pnf_interface.h`:
+  Changed `send_p5_msg` function pointer signature.\n- `nfapi/oai_integration/socket/socket_pnf.c`:
+  Updated function signature to match.\n- `nfapi/oai_integration/socket/include/socket_pnf.h`:
+  Updated declaration.\n- `nfapi/oai_integration/wls_integration/include/wls_pnf.h`:
+  Updated declaration.\n- `nfapi/oai_integration/wls_integration/wls_pnf.c`: Updated
+  function signature.\n- `openair1/SCHED/nfapi_lte_dummy.c`: Updated dummy implementations.\n\n","extra_fields":{"bug_description":"type
+  confusion where a pointer is cast to an incompatible struct type","bug_id":"c_type_confusion","stage_one_patch":"diff
+  --git a/nfapi/oai_integration/socket/include/socket_pnf.h b/nfapi/oai_integration/socket/include/socket_pnf.h\nindex
+  ccb3eaea3a..9c786b6e93 100644\n--- a/nfapi/oai_integration/socket/include/socket_pnf.h\n+++
+  b/nfapi/oai_integration/socket/include/socket_pnf.h\n@@ -32,7 +32,7 @@\n \n int
+  pnf_connect_socket(pnf_t *pnf);\n int pnf_nr_message_pump(pnf_t *pnf);\n-bool pnf_nr_send_p5_message(pnf_t
+  *pnf, nfapi_nr_p4_p5_message_header_t *msg, uint32_t msg_len);\n+bool pnf_nr_send_p5_message(pnf_t
+  *pnf, nfapi_p4_p5_message_header_t *msg, uint32_t msg_len);\n bool pnf_nr_send_p7_message(pnf_p7_t*
+  pnf_p7, nfapi_nr_p7_message_header_t* header, uint32_t msg_len);\n void *pnf_start_p5_thread(void
+  *ptr);\n void *pnf_nr_p7_thread_start(void *ptr);\ndiff --git a/nfapi/oai_integration/socket/socket_pnf.c
+  b/nfapi/oai_integration/socket/socket_pnf.c\nindex fe4999c998..a4c83400ae 100644\n---
+  a/nfapi/oai_integration/socket/socket_pnf.c\n+++ b/nfapi/oai_integration/socket/socket_pnf.c\n@@
+  -21,7 +21,7 @@\n #include \"socket_pnf.h\"\n #include \"nfapi.h\"\n \n-bool pnf_nr_send_p5_message(pnf_t
+  *pnf, nfapi_nr_p4_p5_message_header_t *msg, uint32_t msg_len)\n+bool pnf_nr_send_p5_message(pnf_t
+  *pnf, nfapi_p4_p5_message_header_t *msg, uint32_t msg_len)\n {\n   int packed_len
+  =\n       pnf->_public.pack_func(msg, msg_len, pnf->tx_message_buffer, sizeof(pnf->tx_message_buffer),
+  &pnf->_public.codec_config);\n@@ -426,12 +426,12 @@ static int pnf_nr_read_dispatch_message(pnf_t
+  *pnf)\n       NFAPI_TRACE(NFAPI_TRACE_INFO, \"Failed to read sctp message size error
+  %s errno:%d\\n\", strerror(tmp), tmp);\n     } else {\n #if 0\n-\t\t\t// print the
+  received message\n-\t\t\tprintf(\"\\n MESSAGE RECEIVED: \\n\");\n-\t\t\tfor(int
+  i=0; i<message_size; i++){\n-\t\t\t\tprintf(\"read_buffer[%d] = 0x%02x\\n\",i, read_buffer[i]);\n-\t\t\t}\n-\t\t\tprintf(\"\\n\");\n+                        //
+  print the received message\n+                        printf(\"\\n MESSAGE RECEIVED:
+  \\n\");\n+                        for(int i=0; i<message_size; i++){\n+                                printf(\"read_buffer[%d]
+  = 0x%02x\\n\",i, read_buffer[i]);\n+                        }\n+                        printf(\"\\n\");\n
+  #endif\n \n       if (flags & MSG_NOTIFICATION) {\ndiff --git a/nfapi/oai_integration/wls_integration/include/wls_pnf.h
+  b/nfapi/oai_integration/wls_integration/include/wls_pnf.h\nindex c678345967..53cc107c50
+  100644\n--- a/nfapi/oai_integration/wls_integration/include/wls_pnf.h\n+++ b/nfapi/oai_integration/wls_integration/include/wls_pnf.h\n@@
+  -25,7 +25,7 @@\n #include \"pnf.h\"\n #include \"wls_common.h\"\n \n-bool wls_pnf_nr_send_p5_message(pnf_t
+  *pnf, nfapi_nr_p4_p5_message_header_t* msg, uint32_t msg_len);\n+bool wls_pnf_nr_send_p5_message(pnf_t
+  *pnf, nfapi_p4_p5_message_header_t* msg, uint32_t msg_len);\n bool wls_pnf_nr_send_p7_message(pnf_p7_t*
+  pnf_p7,nfapi_nr_p7_message_header_t *msg, uint32_t msg_len);\n void *wls_fapi_pnf_nr_start_thread(void
+  *ptr);\n int wls_fapi_nr_pnf_start();\ndiff --git a/nfapi/oai_integration/wls_integration/wls_pnf.c
+  b/nfapi/oai_integration/wls_integration/wls_pnf.c\nindex e02cef30a4..5d87d8b08f
+  100644\n--- a/nfapi/oai_integration/wls_integration/wls_pnf.c\n+++ b/nfapi/oai_integration/wls_integration/wls_pnf.c\n@@
+  -158,7 +158,7 @@ uint8_t phy_wls_init(const char *dev_name, uint64_t nWlsMacMemSize,
+  uint64_t nWl\n   return true;\n }\n \n-bool wls_pnf_nr_send_p5_message(pnf_t *pnf,
+  nfapi_nr_p4_p5_message_header_t *msg, uint32_t msg_len)\n+bool wls_pnf_nr_send_p5_message(pnf_t
+  *pnf, nfapi_p4_p5_message_header_t *msg, uint32_t msg_len)\n {\n   int packed_len
+  = cfg->pack_func(msg, msg_len, pnf->tx_message_buffer, sizeof(pnf->tx_message_buffer),
+  &pnf->_public.codec_config);\n \ndiff --git a/nfapi/open-nFAPI/pnf/public_inc/nfapi_pnf_interface.h
+  b/nfapi/open-nFAPI/pnf/public_inc/nfapi_pnf_interface.h\nindex 957e032f69..6decd8aa16
+  100644\n--- a/nfapi/open-nFAPI/pnf/public_inc/nfapi_pnf_interface.h\n+++ b/nfapi/open-nFAPI/pnf/public_inc/nfapi_pnf_interface.h\n@@
+  -38,18 +38,18 @@ typedef struct pnf_p7_t pnf_p7_t;\n  */\n typedef enum\n {\n-\tNFAPI_PNF_IDLE
+  = 0,\n-\tNFAPI_PNF_CONFIGURED,\n-\tNFAPI_PNF_RUNNING\n+        NFAPI_PNF_IDLE =
+  0,\n+        NFAPI_PNF_CONFIGURED,\n+        NFAPI_PNF_RUNNING\n } nfapi_pnf_state_e;\n
+  \n /*! This enum is used to describe the states of a phy instance of a pnf\n  */\n
+  typedef enum\n {\n-\tNFAPI_PNF_PHY_IDLE = 0,\n-\tNFAPI_PNF_PHY_CONFIGURED = 1,\n-\tNFAPI_PNF_PHY_RUNNING
+  = 2\n+        NFAPI_PNF_PHY_IDLE = 0,\n+        NFAPI_PNF_PHY_CONFIGURED = 1,\n+        NFAPI_PNF_PHY_RUNNING
+  = 2\n } nfapi_pnf_phy_state_e;\n \n typedef struct nfapi_pnf_phy_config nfapi_pnf_phy_config_t;\n@@
+  -58,17 +58,17 @@ typedef struct nfapi_pnf_phy_config nfapi_pnf_phy_config_t;\n  */\n
+  typedef struct nfapi_pnf_phy_config\n {\n-\t/*! The PHY id*/\n-\tuint16_t phy_id;\n+        /*!
+  The PHY id*/\n+        uint16_t phy_id;\n \n-\t/*! The state of the PNF PHY instance*/\n-\tnfapi_pnf_phy_state_e
+  state;\n+        /*! The state of the PNF PHY instance*/\n+        nfapi_pnf_phy_state_e
+  state;\n \n-\t/*! Optional user defined data that will be passed back in the callbacks*/\n-\tvoid*
+  user_data;\n+        /*! Optional user defined data that will be passed back in
+  the callbacks*/\n+        void* user_data;\n \n-\t/*! Pointer for use in a linked
+  list */\n-\tstruct nfapi_pnf_phy_config* next;\n+        /*! Pointer for use in
+  a linked list */\n+        struct nfapi_pnf_phy_config* next;\n } nfapi_pnf_phy_config_t;\n
+  \n typedef struct nfapi_pnf_config nfapi_pnf_config_t;\n@@ -77,143 +77,143 @@ typedef
+  struct nfapi_pnf_config nfapi_pnf_config_t;\n  */\n typedef struct nfapi_pnf_config\n
+  {\n-\t/*! A user define callback to override the default memory allocation \n-\t
+  * \\param size The size of the data buffer to allocate\n-\t * \\return A pointer
+  to a data buffer\n-\t */\n-\tvoid* (*malloc)(size_t size);\n-\t\n-\t/*! A user define
+  callback to override the default memory deallocation \n-\t * \\param ptr Pointer
+  to a data buffer to be deallocated\n-\t */\n-\tvoid (*free)(void* ptr);\n-\n-\t/*!
+  A user define callback to handle trace from the pnf \n-\t * \\param level The trace
+  level \n-\t * \\param message The trace string\n-\t * \n-\t * This is a vardic function.\n-\t
+  */\n-\tvoid (*trace)(nfapi_trace_level_t  level, const char* message, ...);\n-\n-\t/*!
+  The ip address of the VNF \n-\t *\n-\t */\n-\tchar* vnf_ip_addr;\n-\n-\t/*! The
+  ip port of the VNF \n-\t */\n-\tint vnf_p5_port;\n-\n-\t/*! The state of the PNF
+  */\n-\tnfapi_pnf_state_e state;\n-\n-\t/*! List of PHY instances configured for
+  this PNF */\n-\tnfapi_pnf_phy_config_t* phys;\n-\t\n-\t/*! Configuation option of
+  the p4 p5 encode decode functions */\n-\tnfapi_p4_p5_codec_config_t codec_config;\n-\t\n-\t/*!
+  Optional user defined data that will be passed back in the callbacks*/\n-\tvoid*
+  user_data;\n-\n-\n-\t/*! A callback for the PNF_PARAM.request \n-\t *  \\param config
+  A pointer to the pnf configuration\n-\t *  \\param req A data structure for the
+  decoded PNF_PARAM.request. This will have\n-\t *             been allocated on the
+  stack\n-\t *  \\return not currently used\n-\t * \n-\t * \tThe client is expected
+  to send the PNF_PARAM.response after receiving the\n-\t *  PNF_PARAM.request. This
+  can be done in the call back. \n-\t */\n-\tint (*pnf_nr_param_req)(nfapi_pnf_config_t*
+  config, nfapi_nr_pnf_param_request_t* req);\n-\tint (*pnf_param_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_param_request_t* req);\n-\t\n-\t/*! A callback for the PNF_CONFIG.request\n-\t
+  *  \\param config A pointer to the pnf configuration\n-\t *  \\param req A data
+  structure for the decoded PNF_CONFIG.request. This will have\n-\t *             been
+  allocated on the stack\n-\t *  \\return not currently used\n-\t * \n-\t * \tThe
+  client is expected to send the PNF_CONFIG.response after receiving the\n-\t *  PNF_CONFIG.request.
+  This can be done in the call back. \n-\t */\n-\tint (*pnf_config_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_config_request_t* req);\n-\tint (*pnf_nr_config_req)(nfapi_pnf_config_t*
+  config, nfapi_nr_pnf_config_request_t* req);\n-\n-\t/*! A callback for the PNF_START.request\n-\t
+  *  \\param config A pointer to the pnf configuration\n-\t *  \\param req A data
+  structure for the decoded PNF_CONFIG.request. This will have\n-\t *             been
+  allocated on the stack\n-\t *  \\return not currently used\n-\t * \n-\t * \tThe
+  client is expected to send the PNF_START.response after receiving the\n-\t *  PNF_START.request.
+  This can be done in the call back. \n-\t */\n-\tint (*pnf_start_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_start_request_t* req);\n-\tint (*pnf_nr_start_req)(nfapi_pnf_config_t*
+  config, nfapi_nr_pnf_start_request_t* req);\n-\n-\t/*! A callback for the PNF_STOP.request\n-\t
+  *  \\param config A pointer to the pnf configuration\n-\t *  \\param req A data
+  structure for the decoded PNF_STOP.request. This will have\n-\t *             been
+  allocated on the stack\n-\t *  \\return not currently used\n-\t * \n-\t * \tThe
+  client is expected to send the PNF_STOP.response after receiving the\n-\t *  PNF_STOP.request.
+  This can be done in the call back. \n-\t */\n-\tint (*pnf_stop_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_stop_request_t* req);\n-\n-\t/*! A callback for the PARAM.request\n-\t
+  *  \\param config A pointer to the pnf configuration\n-\t *  \\param phy A pointer
+  to the pnf phy configuration\n-\t *  \\param req A data structure for the decoded
+  PARAM.request. This will have\n-\t *             been allocated on the stack\n-\t
+  *  \\return not currently used\n-\t * \n-\t * \tThe client is expected to send the
+  PARAM.response after receiving the\n-\t *  PARAM.request. This can be done in the
+  call back. \n-\t */\n-\tint (*param_req)(nfapi_pnf_config_t* config, nfapi_pnf_phy_config_t*
+  phy, nfapi_param_request_t* req);\n-\tint (*nr_param_req)(nfapi_pnf_config_t* config,
+  nfapi_pnf_phy_config_t* phy, nfapi_nr_param_request_scf_t* req);\n-\n-\t/*! A callback
+  for the CONFIG.request\n-\t *  \\param config A pointer to the pnf configuration\n-\t
+  *  \\param phy A pointer to the pnf phy configuration\n-\t *  \\param req A data
+  structure for the decoded CONFIG.request. This will have\n-\t *             been
+  allocated on the stack\n-\t *  \\return not currently used\n-\t * \n-\t * \tThe
+  client is expected to send the CONFIG.response after receiving the\n-\t *  CONFIG.request.
+  This can be done in the call back. \n-\t */\n-\tint (*config_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_phy_config_t* phy, nfapi_config_request_t* req);\n-\tint (*nr_config_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_phy_config_t* phy, nfapi_nr_config_request_scf_t* req);\n-\t\n-\t/*!
+  A callback for the START.request\n-\t *  \\param config A pointer to the pnf configuration\n-\t
+  *  \\param phy A pointer to the pnf phy configuration\n-\t *  \\param req A data
+  structure for the decoded START.request. This will have\n-\t *             been
+  allocated on the stack\n-\t *  \\return not currently used\n-\t * \n-\t * \tThe
+  client is expected to send the START.response after the client has received the\n-\t
+  *  first subframe indication from FAPI.\n-\t */\n-\tint (*start_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_phy_config_t* phy,  nfapi_start_request_t* req);\n-\tint (*nr_start_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_phy_config_t* phy,  nfapi_nr_start_request_scf_t* req);\n-\t/*!
+  A callback for the STOP.request\n-\t *  \\param config A pointer to the pnf configuration\n-\t
+  *  \\param phy A pointer to the pnf phy configuration\n-\t *  \\param req A data
+  structure for the decoded STOP.request. This will have\n-\t *             been allocated
+  on the stack\n-\t *  \\return not currently used\n-\t * \n-\t * \tThe client is
+  expected to send the STOP.response after receiving the\n-\t *  STOP.request. This
+  can be done in the call back. \n-\t */\n-\tint (*stop_req)(nfapi_pnf_config_t* config,
+  nfapi_pnf_phy_config_t* phy, nfapi_stop_request_t* req);\n+        /*! A user define
+  callback to override the default memory allocation \n+         * \\param size The
+  size of the data buffer to allocate\n+         * \\return A pointer to a data buffer\n+         */\n+        void*
+  (*malloc)(size_t size);\n+        \n+        /*! A user define callback to override
+  the default memory deallocation \n+         * \\param ptr Pointer to a data buffer
+  to be deallocated\n+         */\n+        void (*free)(void* ptr);\n+\n+        /*!
+  A user define callback to handle trace from the pnf \n+         * \\param level
+  The trace level \n+         * \\param message The trace string\n+         * \n+         *
+  This is a vardic function.\n+         */\n+        void (*trace)(nfapi_trace_level_t  level,
+  const char* message, ...);\n+\n+        /*! The ip address of the VNF \n+         *\n+         */\n+        char*
+  vnf_ip_addr;\n+\n+        /*! The ip port of the VNF \n+         */\n+        int
+  vnf_p5_port;\n+\n+        /*! The state of the PNF */\n+        nfapi_pnf_state_e
+  state;\n+\n+        /*! List of PHY instances configured for this PNF */\n+        nfapi_pnf_phy_config_t*
+  phys;\n+        \n+        /*! Configuation option of the p4 p5 encode decode functions
+  */\n+        nfapi_p4_p5_codec_config_t codec_config;\n+        \n+        /*! Optional
+  user defined data that will be passed back in the callbacks*/\n+        void* user_data;\n+\n+\n+        /*!
+  A callback for the PNF_PARAM.request \n+         *  \\param config A pointer to
+  the pnf configuration\n+         *  \\param req A data structure for the decoded
+  PNF_PARAM.request. This will have\n+         *             been allocated on the
+  stack\n+         *  \\return not currently used\n+         * \n+         *      The
+  client is expected to send the PNF_PARAM.response after receiving the\n+         *  PNF_PARAM.request.
+  This can be done in the call back. \n+         */\n+        int (*pnf_nr_param_req)(nfapi_pnf_config_t*
+  config, nfapi_nr_pnf_param_request_t* req);\n+        int (*pnf_param_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_param_request_t* req);\n+        \n+        /*! A callback for
+  the PNF_CONFIG.request\n+         *  \\param config A pointer to the pnf configuration\n+         *  \\param
+  req A data structure for the decoded PNF_CONFIG.request. This will have\n+         *             been
+  allocated on the stack\n+         *  \\return not currently used\n+         * \n+         *      The
+  client is expected to send the PNF_CONFIG.response after receiving the\n+         *  PNF_CONFIG.request.
+  This can be done in the call back. \n+         */\n+        int (*pnf_config_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_config_request_t* req);\n+        int (*pnf_nr_config_req)(nfapi_pnf_config_t*
+  config, nfapi_nr_pnf_config_request_t* req);\n+\n+        /*! A callback for the
+  PNF_START.request\n+         *  \\param config A pointer to the pnf configuration\n+         *  \\param
+  req A data structure for the decoded PNF_CONFIG.request. This will have\n+         *             been
+  allocated on the stack\n+         *  \\return not currently used\n+         * \n+         *      The
+  client is expected to send the PNF_START.response after receiving the\n+         *  PNF_START.request.
+  This can be done in the call back. \n+         */\n+        int (*pnf_start_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_start_request_t* req);\n+        int (*pnf_nr_start_req)(nfapi_pnf_config_t*
+  config, nfapi_nr_pnf_start_request_t* req);\n+\n+        /*! A callback for the
+  PNF_STOP.request\n+         *  \\param config A pointer to the pnf configuration\n+         *  \\param
+  req A data structure for the decoded PNF_STOP.request. This will have\n+         *             been
+  allocated on the stack\n+         *  \\return not currently used\n+         * \n+         *      The
+  client is expected to send the PNF_STOP.response after receiving the\n+         *  PNF_STOP.request.
+  This can be done in the call back. \n+         */\n+        int (*pnf_stop_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_stop_request_t* req);\n+\n+        /*! A callback for the PARAM.request\n+         *  \\param
+  config A pointer to the pnf configuration\n+         *  \\param phy A pointer to
+  the pnf phy configuration\n+         *  \\param req A data structure for the decoded
+  PARAM.request. This will have\n+         *             been allocated on the stack\n+         *  \\return
+  not currently used\n+         * \n+         *      The client is expected to send
+  the PARAM.response after receiving the\n+         *  PARAM.request. This can be
+  done in the call back. \n+         */\n+        int (*param_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_phy_config_t* phy, nfapi_param_request_t* req);\n+        int
+  (*nr_param_req)(nfapi_pnf_config_t* config, nfapi_pnf_phy_config_t* phy, nfapi_nr_param_request_scf_t*
+  req);\n+\n+        /*! A callback for the CONFIG.request\n+         *  \\param config
+  A pointer to the pnf configuration\n+         *  \\param phy A pointer to the pnf
+  phy configuration\n+         *  \\param req A data structure for the decoded CONFIG.request.
+  This will have\n+         *             been allocated on the stack\n+         *  \\return
+  not currently used\n+         * \n+         *      The client is expected to send
+  the CONFIG.response after receiving the\n+         *  CONFIG.request. This can be
+  done in the call back. \n+         */\n+        int (*config_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_phy_config_t* phy, nfapi_config_request_t* req);\n+        int
+  (*nr_config_req)(nfapi_pnf_config_t* config, nfapi_pnf_phy_config_t* phy, nfapi_nr_config_request_scf_t*
+  req);\n+        \n+        /*! A callback for the START.request\n+         *  \\param
+  config A pointer to the pnf configuration\n+         *  \\param phy A pointer to
+  the pnf phy configuration\n+         *  \\param req A data structure for the decoded
+  START.request. This will have\n+         *             been allocated on the stack\n+         *  \\return
+  not currently used\n+         * \n+         *      The client is expected to send
+  the START.response after the client has received the\n+         *  first subframe
+  indication from FAPI.\n+         */\n+        int (*start_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_phy_config_t* phy,  nfapi_start_request_t* req);\n+        int
+  (*nr_start_req)(nfapi_pnf_config_t* config, nfapi_pnf_phy_config_t* phy,  nfapi_nr_start_request_scf_t*
+  req);\n+        /*! A callback for the STOP.request\n+         *  \\param config
+  A pointer to the pnf configuration\n+         *  \\param phy A pointer to the pnf
+  phy configuration\n+         *  \\param req A data structure for the decoded STOP.request.
+  This will have\n+         *             been allocated on the stack\n+         *  \\return
+  not currently used\n+         * \n+         *      The client is expected to send
+  the STOP.response after receiving the\n+         *  STOP.request. This can be done
+  in the call back. \n+         */\n+        int (*stop_req)(nfapi_pnf_config_t* config,
+  nfapi_pnf_phy_config_t* phy, nfapi_stop_request_t* req);\n   int (*nr_stop_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_phy_config_t* phy, nfapi_nr_stop_request_scf_t* req);\n \n   /*!
+  A callback for the MEASUREMENT.request\n@@ -223,101 +223,101 @@ typedef struct nfapi_pnf_config\n    *             been
+  allocated on the stack\n    *  \\return not currently used\n    *\n-   * \tThe client
+  is expected to send the MEASUREMENT.response after receiving the\n+   *    The client
+  is expected to send the MEASUREMENT.response after receiving the\n    *  MEASUREMENT.request.
+  This can be done in the call back.\n    */\n   int (*measurement_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_phy_config_t* phy, nfapi_measurement_request_t* req);\n \n   /*!
+  A callback for the RSSI.request\n-\t *  \\param config A pointer to the pnf configuration\n-\t
+  *  \\param phy A pointer to the pnf phy configuration\n-\t *  \\param req A data
+  structure for the decoded RSSI.request. This will have\n-\t *             been allocated
+  on the stack\n-\t *  \\return not currently used\n-\t * \n-\t * \tThe client is
+  expected to send the RSSI.response after receiving the\n-\t *  RSSI.request. This
+  can be done in the call back. \n-\t */\n-\tint (*rssi_req)(nfapi_pnf_config_t* config,
+  nfapi_pnf_phy_config_t* phy, nfapi_rssi_request_t* req);\n-\t\n-\t/*! A callback
+  for the CELL_SEARCH.request\n-\t *  \\param config A pointer to the pnf configuration\n-\t
+  *  \\param phy A pointer to the pnf phy configuration\n-\t *  \\param req A data
+  structure for the decoded CELL_SEARCH.request. This will have\n-\t *             been
+  allocated on the stack\n-\t *  \\return not currently used\n-\t * \n-\t * \tThe
+  client is expected to send the CELL_SEARCH.response after receiving the\n-\t *  CELL_SEARCH.request.
+  This can be done in the call back. \t\n-\t */\n-\tint (*cell_search_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_phy_config_t* phy, nfapi_cell_search_request_t* req);\n-\t\n-\t/*!
+  A callback for the BROADCAST_DETECT.request\n+         *  \\param config A pointer
+  to the pnf configuration\n+         *  \\param phy A pointer to the pnf phy configuration\n+         *  \\param
+  req A data structure for the decoded RSSI.request. This will have\n+         *             been
+  allocated on the stack\n+         *  \\return not currently used\n+         * \n+         *      The
+  client is expected to send the RSSI.response after receiving the\n+         *  RSSI.request.
+  This can be done in the call back. \n+         */\n+        int (*rssi_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_phy_config_t* phy, nfapi_rssi_request_t* req);\n+        \n+        /*!
+  A callback for the CELL_SEARCH.request\n+         *  \\param config A pointer to
+  the pnf configuration\n+         *  \\param phy A pointer to the pnf phy configuration\n+         *  \\param
+  req A data structure for the decoded CELL_SEARCH.request. This will have\n+         *             been
+  allocated on the stack\n+         *  \\return not currently used\n+         * \n+         *      The
+  client is expected to send the CELL_SEARCH.response after receiving the\n+         *  CELL_SEARCH.request.
+  This can be done in the call back.     \n+         */\n+        int (*cell_search_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_phy_config_t* phy, nfapi_cell_search_request_t* req);\n+        \n+        /*!
+  A callback for the BROADCAST_DETECT.request\n      *  \\param config A pointer to
+  the pnf configuration\n-\t *  \\param phy A pointer to the pnf phy configuration\n-\t
+  *  \\param req A data structure for the decoded BROADCAST_DETECT.request. This will
+  have\n-\t *             been allocated on the stack\n-\t *  \\return not currently
+  used\n-\t * \n-\t * \tThe client is expected to send the BROADCAST_DETECT.response
+  after receiving the\n-\t *  BROADCAST_DETECT.request. This can be done in the call
+  back. \t\n-\t */\n-\tint (*broadcast_detect_req)(nfapi_pnf_config_t* config, nfapi_pnf_phy_config_t*
+  phy, nfapi_broadcast_detect_request_t* req);\n-\t\n-\t/*! A callback for the SYSTEM_INFORMATION_SCHEDULE.request\n+         *  \\param
+  phy A pointer to the pnf phy configuration\n+         *  \\param req A data structure
+  for the decoded BROADCAST_DETECT.request. This will have\n+         *             been
+  allocated on the stack\n+         *  \\return not currently used\n+         * \n+         *      The
+  client is expected to send the BROADCAST_DETECT.response after receiving the\n+         *  BROADCAST_DETECT.request.
+  This can be done in the call back.        \n+         */\n+        int (*broadcast_detect_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_phy_config_t* phy, nfapi_broadcast_detect_request_t* req);\n+        \n+        /*!
+  A callback for the SYSTEM_INFORMATION_SCHEDULE.request\n      *  \\param config
+  A pointer to the pnf configuration\n-\t *  \\param phy A pointer to the pnf phy
+  configuration\n-\t *  \\param req A data structure for the decoded SYSTEM_INFORMATION_SCHEDULE.request.
+  This will have\n-\t *             been allocated on the stack\n-\t *  \\return not
+  currently used\n-\t * \n-\t * \tThe client is expected to send the SYSTEM_INFORMATION_SCHEDULE.response
+  after receiving the\n-\t *  SYSTEM_INFORMATION_SCHEDULE.request. This can be done
+  in the call back. \t\n-\t */\n-\tint (*system_information_schedule_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_phy_config_t* phy, nfapi_system_information_schedule_request_t*
+  req);\n-\t\n-\t/*! A callback for the SYSTEM_INFORMATION.request\n+         *  \\param
+  phy A pointer to the pnf phy configuration\n+         *  \\param req A data structure
+  for the decoded SYSTEM_INFORMATION_SCHEDULE.request. This will have\n+         *             been
+  allocated on the stack\n+         *  \\return not currently used\n+         * \n+         *      The
+  client is expected to send the SYSTEM_INFORMATION_SCHEDULE.response after receiving
+  the\n+         *  SYSTEM_INFORMATION_SCHEDULE.request. This can be done in the call
+  back.     \n+         */\n+        int (*system_information_schedule_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_phy_config_t* phy, nfapi_system_information_schedule_request_t*
+  req);\n+        \n+        /*! A callback for the SYSTEM_INFORMATION.request\n      *  \\param
+  config A pointer to the pnf configuration\n-\t *  \\param phy A pointer to the pnf
+  phy configuration\n-\t *  \\param req A data structure for the decoded SYSTEM_INFORMATION.request.
+  This will have\n-\t *             been allocated on the stack\n-\t *  \\return not
+  currently used\n-\t * \n-\t * \tThe client is expected to send the SYSTEM_INFORMATION.response
+  after receiving the\n-\t *  SYSTEM_INFORMATION.request. This can be done in the
+  call back. \t\n-\t */\n-\tint (*system_information_req)(nfapi_pnf_config_t* config,
+  nfapi_pnf_phy_config_t* phy, nfapi_system_information_request_t* req);\n-\t\n-\t/*!
+  A callback for the NMM_STOP.request\n+         *  \\param phy A pointer to the pnf
+  phy configuration\n+         *  \\param req A data structure for the decoded SYSTEM_INFORMATION.request.
+  This will have\n+         *             been allocated on the stack\n+         *  \\return
+  not currently used\n+         * \n+         *      The client is expected to send
+  the SYSTEM_INFORMATION.response after receiving the\n+         *  SYSTEM_INFORMATION.request.
+  This can be done in the call back.      \n+         */\n+        int (*system_information_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_phy_config_t* phy, nfapi_system_information_request_t* req);\n+        \n+        /*!
+  A callback for the NMM_STOP.request\n      *  \\param config A pointer to the pnf
+  configuration\n-\t *  \\param phy A pointer to the pnf phy configuration\n-\t *  \\param
+  req A data structure for the decoded NMM_STOP.request. This will have\n-\t *             been
+  allocated on the stack\n-\t *  \\return not currently used\n-\t * \n-\t * \tThe
+  client is expected to send the NMM_STOP.response after receiving the\n-\t *  NMM_STOP.request.
+  This can be done in the call back.\n-\t */\n-\tint (*nmm_stop_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_phy_config_t* phy, nfapi_nmm_stop_request_t* req);\n-\t\n-\t/*!
+  A callback for any vendor extension messages recevied\n-\t *  \\param config A pointer
+  to the pnf configuration\n-\t *  \\param msg A pointer to the decode P4/P5 message\n-\t
+  *  \\return not current used\n-\t */\n-\tint (*vendor_ext)(nfapi_pnf_config_t* config,
+  void* msg);\n-\t\n-\t/*! A callback to allocate vendor extension message\n-\t *
+  \\param message_id The message id from the decode P4/P5 message header\n-\t * \\param
+  msg_size A pointer a the size of the allocated message structure. The callee should
+  set this\n-\t * \\return A pointer to a allocated P4/P5 message structure\n-\t */\n-\tvoid*
+  (*allocate_p4_p5_vendor_ext)(uint16_t message_id, uint16_t* msg_size);\n-\t\n-\t/*!
+  A callback to deallocate vendor extension message \n-\t * \\param header A pointer
+  to an P4/P5 message structure\n-\t */\n-\tvoid (*deallocate_p4_p5_vendor_ext)(void*
+  header);\n+         *  \\param phy A pointer to the pnf phy configuration\n+         *  \\param
+  req A data structure for the decoded NMM_STOP.request. This will have\n+         *             been
+  allocated on the stack\n+         *  \\return not currently used\n+         * \n+         *      The
+  client is expected to send the NMM_STOP.response after receiving the\n+         *  NMM_STOP.request.
+  This can be done in the call back.\n+         */\n+        int (*nmm_stop_req)(nfapi_pnf_config_t*
+  config, nfapi_pnf_phy_config_t* phy, nfapi_nmm_stop_request_t* req);\n+        \n+        /*!
+  A callback for any vendor extension messages recevied\n+         *  \\param config
+  A pointer to the pnf configuration\n+         *  \\param msg A pointer to the decode
+  P4/P5 message\n+         *  \\return not current used\n+         */\n+        int
+  (*vendor_ext)(nfapi_pnf_config_t* config, void* msg);\n+        \n+        /*! A
+  callback to allocate vendor extension message\n+         * \\param message_id The
+  message id from the decode P4/P5 message header\n+         * \\param msg_size A
+  pointer a the size of the allocated message structure. The callee should set this\n+         *
+  \\return A pointer to a allocated P4/P5 message structure\n+         */\n+        void*
+  (*allocate_p4_p5_vendor_ext)(uint16_t message_id, uint16_t* msg_size);\n+        \n+        /*!
+  A callback to deallocate vendor extension message \n+         * \\param header A
+  pointer to an P4/P5 message structure\n+         */\n+        void (*deallocate_p4_p5_vendor_ext)(void*
+  header);\n \n   /*! \\brief Encodes an (n)FAPI P5 message to a buffer\n    *\n@@
+  -372,7 +372,7 @@ typedef struct nfapi_pnf_config\n    *  \\param msg_len The size
+  of the encoded P5 message\n    *  \\return true on success, false on failure.\n    */\n-  bool
+  (*send_p5_msg)(pnf_t* pnf, nfapi_nr_p4_p5_message_header_t* msg, uint32_t msg_len);\n+  bool
+  (*send_p5_msg)(pnf_t* pnf, nfapi_p4_p5_message_header_t* msg, uint32_t msg_len);\n
+  } nfapi_pnf_config_t;\n \n /*! Create a pnf configuration \n@@ -609,29 +609,29 @@
+  int nfapi_pnf_vendor_extension(nfapi_pnf_config_t* config, nfapi_p4_p5_message_h\n  */\n
+  typedef struct \n {\n-\tuint16_t sfn_sf;\n-\t\n-\tnfapi_dl_config_request_t* dl_config_req;\n-\tnfapi_ul_config_request_t*
+  ul_config_req;\n-\tnfapi_hi_dci0_request_t* hi_dci0_req;\n-\tnfapi_tx_request_t*
+  tx_req;\n-\tnfapi_lbt_dl_config_request_t* lbt_dl_config_req;\n-\tnfapi_ue_release_request_t*
+  ue_release_req;\n+        uint16_t sfn_sf;\n+        \n+        nfapi_dl_config_request_t*
+  dl_config_req;\n+        nfapi_ul_config_request_t* ul_config_req;\n+        nfapi_hi_dci0_request_t*
+  hi_dci0_req;\n+        nfapi_tx_request_t* tx_req;\n+        nfapi_lbt_dl_config_request_t*
+  lbt_dl_config_req;\n+        nfapi_ue_release_request_t* ue_release_req;\n } nfapi_pnf_p7_subframe_buffer_t;\n
+  \n typedef struct \n {\n-\t//uint16_t sfn_slot\n-\tuint16_t sfn;\n-\tuint16_t slot;\n-\tnfapi_nr_dl_tti_request_t  dl_tti_req;\n-\tnfapi_nr_ul_tti_request_t  ul_tti_req;\n-\tnfapi_nr_ul_dci_request_t  ul_dci_req;\n-\tnfapi_nr_tx_data_request_t
+  tx_data_req;\n-\n-\t//TODO: check these two later\n-\t//nfapi_lbt_dl_config_request_t*
+  lbt_dl_config_req;\n-\t//nfapi_ue_release_request_t* ue_release_req;\n+        //uint16_t
+  sfn_slot\n+        uint16_t sfn;\n+        uint16_t slot;\n+        nfapi_nr_dl_tti_request_t  dl_tti_req;\n+        nfapi_nr_ul_tti_request_t  ul_tti_req;\n+        nfapi_nr_ul_dci_request_t  ul_dci_req;\n+        nfapi_nr_tx_data_request_t
+  tx_data_req;\n+\n+        //TODO: check these two later\n+        //nfapi_lbt_dl_config_request_t*
+  lbt_dl_config_req;\n+        //nfapi_ue_release_request_t* ue_release_req;\n } nfapi_pnf_p7_slot_buffer_t;\n
+  \n typedef struct nfapi_pnf_p7_config nfapi_pnf_p7_config_t;\n@@ -640,110 +640,110
+  @@ typedef struct nfapi_pnf_p7_config nfapi_pnf_p7_config_t;\n  */\n typedef struct
+  nfapi_pnf_p7_config\n {\n-\t/*! A user define callback to override the default memory
+  allocation \n-\t * \\param size The size of the buffer to allocate\n-\t * \\return
+  An allocated buffer. 0 in the case of failure\n-\t * \n-\t * If not set malloc will
+  be used\n-\t */\n-\tvoid* (*malloc)(size_t size);\n-\t\n-\t/*! A user define callback
+  to override the default memory deallocation \n-\t *  \\param ptr Pointer to a buffer
+  to dellocate\n-\t *\n-\t * If not set free will be used\n-\t */\n-\tvoid (*free)(void*
+  ptr);\n-\n-\t/*! A user define callback to handle trace from the pnf\n-\t * \\param
+  level The trace level\n-\t * \\param message The message string\n-\t */\n-\tvoid
+  (*trace)(nfapi_trace_level_t  level, const char* message, ...);\n-\n-\t/*! The PHY
+  id*/\n-\tuint16_t phy_id;\n-\n-\t// remote\n-\t/*! The VNF P7 UDP port */\n-\tint
+  remote_p7_port;\n-\t/*! The VNF P7 UDP address */\n-\tchar* remote_p7_addr;\n-\n-\t//
+  local\n-\t/*! The PNF P7 UDP port */\n-\tint local_p7_port;\n-\t/*! The PNF P7 UDP
+  address */\n-\tchar* local_p7_addr;\n-\n-\t/*! Flag to indicate of the pnf should
+  use the P7 checksum */\n-\tuint8_t checksum_enabled;\n-\n-\t/*! The maxium size
+  of a P7 segement. If a message is large that this it\n-\t * will be segmented. Note:
+  u32 to cover 4G and 5G */\n-\tuint32_t segment_size;\n-\n-\t/*! The dummy subframe
+  buffer structure that should be used in case there\n-\t * are no ''valid'' subframe
+  messages */\n-\tnfapi_pnf_p7_subframe_buffer_t dummy_subframe;\n-\n-\tnfapi_pnf_p7_slot_buffer_t
+  dummy_slot; // defining a slot equivalent for now\n-\t\n-\t/*! Configuration options
+  for the p7 pack unpack functions*/\n-\tnfapi_p7_codec_config_t codec_config;\n-\t\n-\t/*!
+  Optional userdata that will be passed back in the callbacks*/\n-\tvoid* user_data;\n-\n-\t//
+  tdb : if these should be public\n-\tuint16_t subframe_buffer_size;\n-\tuint16_t
+  slot_buffer_size;\n-\tuint8_t timing_info_mode_periodic; // 0:false 1:true\n-\tuint8_t
+  timing_info_mode_aperiodic; // 0:false 1:true\n-\tuint8_t timing_info_period; //
+  1..225 in subframes\n-\n-\t/*! A callback for the DL_CONFIG.request\n-\t * \\param
+  config A poiner to the PNF P7 config\n-\t * \\param req A pointer to the dl config
+  request message structure\n-\t * \\return not currently used\n-\t */\n-\tint (*dl_tti_req_fn)(gNB_L1_rxtx_proc_t
+  *proc,nfapi_pnf_p7_config_t* config, nfapi_nr_dl_tti_request_t* req);\n-\tint (*dl_config_req)(L1_rxtx_proc_t
+  *proc,nfapi_pnf_p7_config_t* config, nfapi_dl_config_request_t* req);\n-\t\n-\t/*!
+  A callback for the UL_CONFIG.request\n-\t * \\param config A poiner to the PNF P7
+  config\n-\t * \\param req A pointer to the ul config request message structure\n-\t
+  * \\return not currently used\t\n-\t */\n-\tint (*ul_tti_req_fn)(gNB_L1_rxtx_proc_t
+  *proc,nfapi_pnf_p7_config_t* config, nfapi_nr_ul_tti_request_t* req);\n-\tint (*ul_config_req)(L1_rxtx_proc_t
+  *proc,nfapi_pnf_p7_config_t* config, nfapi_ul_config_request_t* req);\n-\t\n-\t/*!
+  A callback for the HI_DCI0.request\n-\t * \\param config A poiner to the PNF P7
+  config\n-\t * \\param req A pointer to the hi dci0 request message structure\n-\t
+  * \\return not currently used\n-\t */\n-\tint (*ul_dci_req_fn)(gNB_L1_rxtx_proc_t
+  *proc,nfapi_pnf_p7_config_t* config, nfapi_nr_ul_dci_request_t* req);\n-\tint (*hi_dci0_req)(L1_rxtx_proc_t
+  *proc,nfapi_pnf_p7_config_t* config, nfapi_hi_dci0_request_t* req);\n-\n-\t/*! A
+  callback for the TX_REQ.request\n-\t * \\param config A poiner to the PNF P7 config\n-\t
+  * \\param req A pointer to the tx request message structure\n-\t * \\return not
+  currently used\n-\t * \n-\t * The TX request contains pointers to the downlink PDUs
+  to be sent. In the case that the FAPI interface\n-\t * will ''keep'' the pointers
+  until they are transmitted the callee should set the pointers in the req to 0\n-\t
+  * and then use the p7 codec config free function to release the pdu''s when appropriate.
+  \n-\t */\n-\tint (*tx_data_req_fn)(nfapi_pnf_p7_config_t* config, nfapi_nr_tx_data_request_t*
+  req);\n-\tint (*tx_req)(nfapi_pnf_p7_config_t* config, nfapi_tx_request_t* req);\n-\t\n-\t/*!
+  A callback for the LBT_DL_CONFIG.request\n-\t * \\param config A poiner to the PNF
+  P7 config\n-\t * \\param req A pointer to the lbt dl request message structure\n-\t
+  * \\return not currently used\n-\t */\n-\tint (*lbt_dl_config_req)(nfapi_pnf_p7_config_t*
+  config, nfapi_lbt_dl_config_request_t* req);\n+        /*! A user define callback
+  to override the default memory allocation \n+         * \\param size The size of
+  the buffer to allocate\n+         * \\return An allocated buffer. 0 in the case
+  of failure\n+         * \n+         * If not set malloc will be used\n+         */\n+        void*
+  (*malloc)(size_t size);\n+        \n+        /*! A user define callback to override
+  the default memory deallocation \n+         *  \\param ptr Pointer to a buffer to
+  dellocate\n+         *\n+         * If not set free will be used\n+         */\n+        void
+  (*free)(void* ptr);\n+\n+        /*! A user define callback to handle trace from
+  the pnf\n+         * \\param level The trace level\n+         * \\param message
+  The message string\n+         */\n+        void (*trace)(nfapi_trace_level_t  level,
+  const char* message, ...);\n+\n+        /*! The PHY id*/\n+        uint16_t phy_id;\n+\n+        //
+  remote\n+        /*! The VNF P7 UDP port */\n+        int remote_p7_port;\n+        /*!
+  The VNF P7 UDP address */\n+        char* remote_p7_addr;\n+\n+        // local\n+        /*!
+  The PNF P7 UDP port */\n+        int local_p7_port;\n+        /*! The PNF P7 UDP
+  address */\n+        char* local_p7_addr;\n+\n+        /*! Flag to indicate of the
+  pnf should use the P7 checksum */\n+        uint8_t checksum_enabled;\n+\n+        /*!
+  The maxium size of a P7 segement. If a message is large that this it\n+         *
+  will be segmented. Note: u32 to cover 4G and 5G */\n+        uint32_t segment_size;\n+\n+        /*!
+  The dummy subframe buffer structure that should be used in case there\n+         *
+  are no ''valid'' subframe messages */\n+        nfapi_pnf_p7_subframe_buffer_t dummy_subframe;\n+\n+        nfapi_pnf_p7_slot_buffer_t
+  dummy_slot; // defining a slot equivalent for now\n+        \n+        /*! Configuration
+  options for the p7 pack unpack functions*/\n+        nfapi_p7_codec_config_t codec_config;\n+        \n+        /*!
+  Optional userdata that will be passed back in the callbacks*/\n+        void* user_data;\n+\n+        //
+  tdb : if these should be public\n+        uint16_t subframe_buffer_size;\n+        uint16_t
+  slot_buffer_size;\n+        uint8_t timing_info_mode_periodic; // 0:false 1:true\n+        uint8_t
+  timing_info_mode_aperiodic; // 0:false 1:true\n+        uint8_t timing_info_period;
+  // 1..225 in subframes\n+\n+        /*! A callback for the DL_CONFIG.request\n+         *
+  \\param config A poiner to the PNF P7 config\n+         * \\param req A pointer
+  to the dl config request message structure\n+         * \\return not currently used\n+         */\n+        int
+  (*dl_tti_req_fn)(gNB_L1_rxtx_proc_t *proc,nfapi_pnf_p7_config_t* config, nfapi_nr_dl_tti_request_t*
+  req);\n+        int (*dl_config_req)(L1_rxtx_proc_t *proc,nfapi_pnf_p7_config_t*
+  config, nfapi_dl_config_request_t* req);\n+        \n+        /*! A callback for
+  the UL_CONFIG.request\n+         * \\param config A poiner to the PNF P7 config\n+         *
+  \\param req A pointer to the ul config request message structure\n+         * \\return
+  not currently used   \n+         */\n+        int (*ul_tti_req_fn)(gNB_L1_rxtx_proc_t
+  *proc,nfapi_pnf_p7_config_t* config, nfapi_nr_ul_tti_request_t* req);\n+        int
+  (*ul_config_req)(L1_rxtx_proc_t *proc,nfapi_pnf_p7_config_t* config, nfapi_ul_config_request_t*
+  req);\n+        \n+        /*! A callback for the HI_DCI0.request\n+         * \\param
+  config A poiner to the PNF P7 config\n+         * \\param req A pointer to the hi
+  dci0 request message structure\n+         * \\return not currently used\n+         */\n+        int
+  (*ul_dci_req_fn)(gNB_L1_rxtx_proc_t *proc,nfapi_pnf_p7_config_t* config, nfapi_nr_ul_dci_request_t*
+  req);\n+        int (*hi_dci0_req)(L1_rxtx_proc_t *proc,nfapi_pnf_p7_config_t* config,
+  nfapi_hi_dci0_request_t* req);\n+\n+        /*! A callback for the TX_REQ.request\n+         *
+  \\param config A poiner to the PNF P7 config\n+         * \\param req A pointer
+  to the tx request message structure\n+         * \\return not currently used\n+         *
+  \n+         * The TX request contains pointers to the downlink PDUs to be sent.
+  In the case that the FAPI interface\n+         * will ''keep'' the pointers until
+  they are transmitted the callee should set the pointers in the req to 0\n+         *
+  and then use the p7 codec config free function to release the pdu''s when appropriate.
+  \n+         */\n+        int (*tx_data_req_fn)(nfapi_pnf_p7_config_t* config, nfapi_nr_tx_data_request_t*
+  req);\n+        int (*tx_req)(nfapi_pnf_p7_config_t* config, nfapi_tx_request_t*
+  req);\n+        \n+        /*! A callback for the LBT_DL_CONFIG.request\n+         *
+  \\param config A poiner to the PNF P7 config\n+         * \\param req A pointer
+  to the lbt dl request message structure\n+         * \\return not currently used\n+         */\n+        int
+  (*lbt_dl_config_req)(nfapi_pnf_p7_config_t* config, nfapi_lbt_dl_config_request_t*
+  req);\n \n     /*! A callback for the UE_RELEASE_REQ.request\n      * \\param config
+  A poiner to the PNF P7 config\n@@ -755,27 +755,27 @@ typedef struct nfapi_pnf_p7_config\n      *
+  and then use the p7 codec config free function to release the rnti when appropriate.\n      */\n     int
+  (*ue_release_req)(nfapi_pnf_p7_config_t* config, nfapi_ue_release_request_t* req);\n-\t\n-\t/*!
+  A callback for vendor extension messages\n-\t * \\param config A poiner to the PNF
+  P7 config\n-\t * \\param msg A pointer to a decode vendor extention message\n-\t
+  * \\return not currently used\n-\t */\n-\tint (*vendor_ext)(nfapi_pnf_p7_config_t*
+  config, void* msg);\n-\n-\t/*! A callback to allocate vendor extension message\n-\t
+  * \\param message_id The vendor extention message id from the decode message header\n-\t
+  * \\param msg_size A pointer to size of the allocate vendor extention message. Set
+  by the callee\n-\t * \\return A pointer to an allocated vendor extention message
+  structure. 0 if failed\n-\t * \n-\t * \n-\t */\n-\tvoid* (*allocate_p7_vendor_ext)(uint16_t
+  message_id, uint16_t* msg_size);\n-\t\n-\t/*! A callback to deallocate vendor extension
+  message\n-\t * \\param header A pointer to a p7 vendor extention message\n-\t */\n-\tvoid
+  (*deallocate_p7_vendor_ext)(void* header);\n+        \n+        /*! A callback for
+  vendor extension messages\n+         * \\param config A poiner to the PNF P7 config\n+         *
+  \\param msg A pointer to a decode vendor extention message\n+         * \\return
+  not currently used\n+         */\n+        int (*vendor_ext)(nfapi_pnf_p7_config_t*
+  config, void* msg);\n+\n+        /*! A callback to allocate vendor extension message\n+         *
+  \\param message_id The vendor extention message id from the decode message header\n+         *
+  \\param msg_size A pointer to size of the allocate vendor extention message. Set
+  by the callee\n+         * \\return A pointer to an allocated vendor extention message
+  structure. 0 if failed\n+         * \n+         * \n+         */\n+        void*
+  (*allocate_p7_vendor_ext)(uint16_t message_id, uint16_t* msg_size);\n+        \n+        /*!
+  A callback to deallocate vendor extension message\n+         * \\param header A
+  pointer to a p7 vendor extention message\n+         */\n+        void (*deallocate_p7_vendor_ext)(void*
+  header);\n \n   /*! A callback to pack a P7 message\n    *\ndiff --git a/openair1/SCHED/nfapi_lte_dummy.c
+  b/openair1/SCHED/nfapi_lte_dummy.c\nindex d61f0d0548..bbde2edee3 100644\n--- a/openair1/SCHED/nfapi_lte_dummy.c\n+++
+  b/openair1/SCHED/nfapi_lte_dummy.c\n@@ -10,19 +10,19 @@ typedef struct vnf_t vnf_t;\n
+  typedef struct vnf_p7_t vnf_p7_t;\n \n void handle_nfapi_nr_pdcch_pdu(PHY_VARS_gNB
+  *gNB,\n-\t\t\t       int frame, int slot,\n-\t\t\t       nfapi_nr_dl_tti_pdcch_pdu
+  *pdcch_pdu){}\n+                               int frame, int slot,\n+                               nfapi_nr_dl_tti_pdcch_pdu
+  *pdcch_pdu){}\n \n void handle_nr_nfapi_ssb_pdu(PHY_VARS_gNB *gNB,int frame,int
+  slot,\n                              nfapi_nr_dl_tti_request_pdu_t *dl_tti_pdu){}\n
+  \n void handle_nr_nfapi_pdsch_pdu(processingData_L1tx_t *msgTx,\n-\t\t\t       nfapi_nr_dl_tti_pdsch_pdu
+  *pdsch_pdu,\n+                               nfapi_nr_dl_tti_pdsch_pdu *pdsch_pdu,\n                             uint8_t
+  *sdu){\n }\n void handle_nfapi_nr_csirs_pdu(processingData_L1tx_t *msgTx,\n-\t\t\t       int
+  frame, int slot,\n-\t\t\t       nfapi_nr_dl_tti_csi_rs_pdu *csirs_pdu){\n+                               int
+  frame, int slot,\n+                               nfapi_nr_dl_tti_csi_rs_pdu *csirs_pdu){\n                     }                           \n
+  int l1_north_init_gNB(void){return 0;}\n \n@@ -31,8 +31,8 @@ int slot_ahead = 6;\n
+  NR_IF_Module_t *NR_IF_Module_init(int Mod_id) {return NULL;}\n \n void handle_nfapi_nr_ul_dci_pdu(PHY_VARS_gNB
+  *gNB,\n-\t\t\t       int frame, int slot,\n-\t\t\t       nfapi_nr_ul_dci_request_pdus_t
+  *ul_dci_request_pdu){}\n+                               int frame, int slot,\n+                               nfapi_nr_ul_dci_request_pdus_t
+  *ul_dci_request_pdu){}\n void nr_fill_ulsch(PHY_VARS_gNB *gNB,\n                    int
+  frame,\n                    int slot,\n@@ -71,7 +71,7 @@ void *vnf_nr_start_p7_thread(void
+  *ptr)\n   return 0;\n }\n \n-bool pnf_nr_send_p5_message(pnf_t *pnf, nfapi_nr_p4_p5_message_header_t
+  *msg, uint32_t msg_len)\n+bool pnf_nr_send_p5_message(pnf_t *pnf, nfapi_p4_p5_message_header_t
+  *msg, uint32_t msg_len)\n {\n   return false;\n }\n@@ -119,7 +119,7 @@ bool wls_pnf_nr_send_p7_message(pnf_p7_t*
+  pnf_p7,nfapi_nr_p7_message_header_t *m\n   return false;\n }\n \n-bool wls_pnf_nr_send_p5_message(pnf_t
+  *pnf, nfapi_nr_p4_p5_message_header_t *msg, uint32_t msg_len)\n+bool wls_pnf_nr_send_p5_message(pnf_t
+  *pnf, nfapi_p4_p5_message_header_t *msg, uint32_t msg_len)\n {\n   return false;\n
+  }\n","start_fn":"nfapi_pnf_stop","start_fn_file":"nfapi/open-nFAPI/pnf/src/pnf_interface.c","subsystem":"nfapi/open-nFAPI/pnf"},"type":"text","id":"oai5g_625b4b0_00770"},"output_dir":"DEFAULT","actions":{"open_pr":false,"pr_config":{"skip_if_commits_reference_issue":true},"apply_patch_locally":false},"env_var_path":null}'

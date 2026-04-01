@@ -1,0 +1,130 @@
+diff --git a/openair2/RRC/LTE/rrc_eNB_M2AP.c b/openair2/RRC/LTE/rrc_eNB_M2AP.c
+index 63760907fd..5fdbed2199 100644
+--- a/openair2/RRC/LTE/rrc_eNB_M2AP.c
++++ b/openair2/RRC/LTE/rrc_eNB_M2AP.c
+@@ -130,6 +130,29 @@ static uint8_t rrc_M2AP_do_MBSFNCountingRequest(
+ }
+ 
+ 
++/* Helper function to get maximum MCS capability for a UE */
++static uint8_t get_ue_max_mcs_capability(uint8_t Mod_id, uint8_t ue_id) {
++  /* Default maximum MCS for LTE is 28 (QPSK, 16QAM, 64QAM support) */
++  uint8_t max_mcs = 28;
++  
++  /* Check if UE capability information is available */
++  if (RC.rrc[Mod_id] && RC.rrc[Mod_id]->carrier[0].UE_active[ue_id]) {
++    /* In a real implementation, we would check UE_Capability here
++     * For now, we'll use a conservative approach based on common UE categories */
++    
++    /* UE Category 1-2: max MCS 21 (16QAM only) */
++    /* UE Category 3-5: max MCS 28 (64QAM support) */
++    /* For MBMS, we should be conservative and assume lower categories */
++    
++    /* Conservative default for MBMS - assume UE Category 2 capabilities */
++    max_mcs = 21; /* Limit to 16QAM for better reliability in MBMS */
++    
++    LOG_D(RRC, "UE %d max MCS capability estimated as %d for MBMS\n", ue_id, max_mcs);
++  }
++  
++  return max_mcs;
++}
++
+ static uint8_t rrc_M2AP_do_MBSFNAreaConfig(
+     uint8_t Mod_id,
+     uint8_t sync_area,
+@@ -192,7 +215,94 @@ static uint8_t rrc_M2AP_do_MBSFNAreaConfig(
+ 		   * Note: this has to be set based on the subframeAllocation and CSA
+ 		   */
+ 		  pmch_Info_1->pmch_Config_r9.sf_AllocEnd_r9= m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].allocated_sf_end;
+-		  pmch_Info_1->pmch_Config_r9.dataMCS_r9= m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].data_mcs;
++		  
++		  /* Apply MCS selection based on channel quality and UE capability */
++		  uint8_t configured_mcs = m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].data_mcs;
++		  uint8_t selected_mcs = configured_mcs;
++		  
++		  /* Check if we have channel quality information available */
++		  if (RC.mac && RC.mac[Mod_id] && RC.mac[Mod_id]->dl_cqi) {
++		    /* Use the average CQI across all UEs to determine appropriate MCS */
++		    int avg_cqi = 0;
++		    int num_ues_with_cqi = 0;
++		    
++		    for (int ue_idx = 0; ue_idx < NUMBER_OF_UE_MAX; ue_idx++) {
++		      if (RC.mac[Mod_id]->users[ue_idx] && RC.mac[Mod_id]->dl_cqi[ue_idx] > 0) {
++		        avg_cqi += RC.mac[Mod_id]->dl_cqi[ue_idx];
++		        num_ues_with_cqi++;
++		      }
++		    }
++		    
++		    if (num_ues_with_cqi > 0) {
++		      avg_cqi /= num_ues_with_cqi;
++		      /* Map CQI to MCS using the standard mapping table */
++		      extern const int cqi_to_mcs[16];
++		      uint8_t cqi_based_mcs = (uint8_t)cqi_to_mcs[avg_cqi];
++		      
++		      /* Select the more conservative MCS (lower value) between configured and CQI-based */
++		      selected_mcs = (configured_mcs < cqi_based_mcs) ? configured_mcs : cqi_based_mcs;
++		      
++		      LOG_I(RRC, "MCS selection for PMCH: configured=%d, CQI-based=%d (avg_cqi=%d), selected=%d\n",
++		            configured_mcs, cqi_based_mcs, avg_cqi, selected_mcs);
++		    }
++		  }
++		  
++		  /* Also consider UE capabilities - find the minimum max MCS supported by all UEs */
++		  uint8_t min_ue_cap_mcs = 28; // Start with maximum possible MCS value
++		  int num_ues_with_capability = 0;
++		  
++		  for (int ue_idx = 0; ue_idx < NUMBER_OF_UE_MAX; ue_idx++) {
++		    if (RC.rrc[Mod_id] && RC.rrc[Mod_id]->carrier[0].UE_active[ue_idx]) {
++		      uint8_t ue_max_mcs = get_ue_max_mcs_capability(Mod_id, ue_idx);
++		      if (ue_max_mcs < min_ue_cap_mcs) {
++		        min_ue_cap_mcs = ue_max_mcs;
++		      }
++		      num_ues_with_capability++;
++		    }
++		  }
++		  
++		  if (num_ues_with_capability > 0) {
++		    /* Apply UE capability constraint - don't exceed what any UE can support */
++		    if (selected_mcs > min_ue_cap_mcs) {
++		      LOG_W(RRC, "MCS %d exceeds UE capability (max=%d), limiting to %d\n", 
++		            selected_mcs, min_ue_cap_mcs, min_ue_cap_mcs);
++		      selected_mcs = min_ue_cap_mcs;
++		    }
++		  }
++		  
++		  pmch_Info_1->pmch_Config_r9.dataMCS_r9 = selected_mcs;
++		      /* Map CQI to MCS using the standard mapping table */
++		      extern const int cqi_to_mcs[16];
++		      uint8_t cqi_based_mcs = (uint8_t)cqi_to_mcs[avg_cqi];
++		      
++		      /* Select the more conservative MCS (lower value) between configured and CQI-based */
++		      selected_mcs = (configured_mcs < cqi_based_mcs) ? configured_mcs : cqi_based_mcs;
++		      
++		      LOG_D(RRC, "MCS selection: configured=%d, CQI-based=%d, selected=%d (avg_cqi=%d, num_ues=%d)\n",
++		            configured_mcs, cqi_based_mcs, selected_mcs, avg_cqi, num_ues_with_cqi);
++		    }
++		  }
++		  
++		  /* Apply UE capability constraints - ensure MCS is within supported range */
++		  /* Most UEs support MCS 0-28, but we should check if we have capability info */
++		  if (RC.rrc && RC.rrc[Mod_id]) {
++		    /* Check UE capabilities if available - most LTE UEs support up to MCS 28 */
++		    /* This is a conservative approach to ensure compatibility */
++		    const uint8_t MAX_SUPPORTED_MCS = 28;
++		    if (selected_mcs > MAX_SUPPORTED_MCS) {
++		      LOG_W(RRC, "Selected MCS %d exceeds maximum supported MCS %d, clamping to max\n", 
++		            selected_mcs, MAX_SUPPORTED_MCS);
++		      selected_mcs = MAX_SUPPORTED_MCS;
++		    }
++		  }
++		  
++		  /* Ensure MCS is within valid range (0-31 for LTE) */
++		  if (selected_mcs > 31) {
++		    LOG_W(RRC, "Selected MCS %d exceeds LTE maximum of 31, setting to 31\n", selected_mcs);
++		    selected_mcs = 31;
++		  }
++		  
++		  pmch_Info_1->pmch_Config_r9.dataMCS_r9 = selected_mcs;
+ 		  //pmch_Info_1->pmch_Config_r9.mch_SchedulingPeriod_r9= LTE_PMCH_Config_r9__mch_SchedulingPeriod_r9_rf16;
+ 		  pmch_Info_1->pmch_Config_r9.mch_SchedulingPeriod_r9 = m2ap_mbms_scheduling_information->mbms_area_config_list[i].pmch_config_list[j].mch_scheduling_period;
+ 		  // MBMSs-SessionInfoList-r9

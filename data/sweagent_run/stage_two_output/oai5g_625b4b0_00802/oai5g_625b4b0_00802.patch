@@ -1,0 +1,42 @@
+diff --git a/openair2/LAYER2/NR_MAC_UE/config_ue.c b/openair2/LAYER2/NR_MAC_UE/config_ue.c
+index 3c66515eef..8a30078c84 100644
+--- a/openair2/LAYER2/NR_MAC_UE/config_ue.c
++++ b/openair2/LAYER2/NR_MAC_UE/config_ue.c
+@@ -2003,7 +2003,7 @@ static void configure_maccellgroup(NR_UE_MAC_INST_t *mac, const NR_MAC_CellGroup
+         NR_SchedulingRequestToAddMod_t *sr = src->schedulingRequestToAddModList->list.array[i];
+         nr_sr_info_t *sr_info = &si->sr_info[sr->schedulingRequestId];
+         sr_info->active_SR_ID = true;
+-        // NR_SchedulingRequestToAddMod__sr_TransMax_n4	= 0 and so on
++        // NR_SchedulingRequestToAddMod__sr_TransMax_n4 = 0 and so on
+         // to obtain the value to configure we need to right shift 4 by the RRC parameter
+         sr_info->maxTransmissions = 4 << sr->sr_TransMax;
+         int target_ms = 0;
+@@ -2579,3 +2579,15 @@ void nr_rrc_mac_config_req_cg(module_id_t module_id,
+   ret = pthread_mutex_unlock(&mac->if_mutex);
+   AssertFatal(!ret, "mutex failed %d\n", ret);
+ }
++
++bool is_cset0_present(const NR_UE_MAC_INST_t *mac)
++{
++  // Return false if MIB is not initialized
++  if (mac == NULL || mac->mib == NULL) {
++    return false;
++  }
++  
++  // Return false if controlResourceSetZero has an invalid value (-1)
++  // Return true if controlResourceSetZero has a valid value (>= 0)
++  return mac->mib->pdcch_ConfigSIB1.controlResourceSetZero >= 0;
++}
+diff --git a/openair2/LAYER2/NR_MAC_UE/mac_proto.h b/openair2/LAYER2/NR_MAC_UE/mac_proto.h
+index 6feca8756e..b7cb58f769 100644
+--- a/openair2/LAYER2/NR_MAC_UE/mac_proto.h
++++ b/openair2/LAYER2/NR_MAC_UE/mac_proto.h
+@@ -85,6 +85,8 @@ void nr_rrc_mac_config_req_mib(module_id_t module_id,
+                                NR_MIB_t *mibP,
+                                int sched_sib1);
+ 
++bool is_cset0_present(const NR_UE_MAC_INST_t *mac);
++
+ void nr_rrc_mac_config_req_sib1(module_id_t module_id,
+                                 int cc_idP,
+                                 NR_SI_SchedulingInfo_t *si_SchedulingInfo,

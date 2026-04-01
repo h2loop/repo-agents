@@ -1,0 +1,9 @@
+{
+  "run_id": "s00051_94f697",
+  "pr_text": "## Title: Fix incorrect type cast in UL config request packing function\n\n### Summary\nCorrect an incorrect type cast in `pack_ul_config_request_ulsch_rel8_value()` that caused misaligned memory access when packing UL_SCH PDU data. The `tlv` parameter points to raw data after the TL (tag-length) header, not directly to a `nfapi_ul_config_ulsch_pdu_rel8_t` structure. The previous implementation incorrectly cast the pointer to the struct type, leading to potential undefined behavior and packing erro",
+  "trajectory_path": "data/raw/s00051_94f697_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00051_94f697_p2.diff",
+  "patch_lines": 36,
+  "trajectory_steps": 49,
+  "timestamp": "2026-02-10T10:54:40Z"
+}

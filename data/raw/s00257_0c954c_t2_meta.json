@@ -1,0 +1,9 @@
+{
+  "run_id": "s00257_0c954c",
+  "pr_text": "## Title: Fix null pointer dereference in F1AP UE context modification request cleanup\n\n### Summary\nThe `free_ue_context_mod_req()` function in the F1AP library dereferences the `req` parameter without first validating it is non-NULL. This can cause segmentation faults when cleanup code attempts to free an already-freed or uninitialized request structure. The issue follows a common pattern where defensive NULL checks are missing from resource cleanup functions.\n\nThis fix adds an early return gua",
+  "trajectory_path": "data/raw/s00257_0c954c_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00257_0c954c_p2.diff",
+  "patch_lines": 1,
+  "trajectory_steps": 24,
+  "timestamp": "2026-02-11T13:50:31Z"
+}

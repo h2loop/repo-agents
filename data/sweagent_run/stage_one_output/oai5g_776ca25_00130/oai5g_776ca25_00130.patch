@@ -1,0 +1,22 @@
+diff --git a/common/utils/threadPool/bounded_notified_fifo.h b/common/utils/threadPool/bounded_notified_fifo.h
+index db9f4f6153..753a2c73f7 100644
+--- a/common/utils/threadPool/bounded_notified_fifo.h
++++ b/common/utils/threadPool/bounded_notified_fifo.h
+@@ -88,11 +88,15 @@ static void init_seq_ring_task(seq_ring_task_t* r)
+   DevAssert(r != NULL);
+   task_t* tmp_buffer = calloc(DEFAULT_ELM, sizeof(task_t));
+   DevAssert(tmp_buffer != NULL);
+-  seq_ring_task_t tmp = {.array = tmp_buffer, .head = 0, .tail = 0, .cap = DEFAULT_ELM};
+-  memcpy(r, &tmp, sizeof(seq_ring_task_t));
++  r->array = tmp_buffer;
++  r->head = 0;
++  r->tail = 0;
++  r->cap = DEFAULT_ELM;
+   r->sz = 0;
+ }
+ 
++
++
+ static void free_seq_ring_task(seq_ring_task_t* r)
+ {
+   DevAssert(r != NULL);

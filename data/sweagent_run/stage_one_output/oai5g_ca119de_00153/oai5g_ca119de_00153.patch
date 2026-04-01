@@ -1,0 +1,42 @@
+diff --git a/openair1/PHY/CODING/TESTBENCH/viterbi_test.c b/openair1/PHY/CODING/TESTBENCH/viterbi_test.c
+index 0d41482fef..a1787bb6b5 100644
+--- a/openair1/PHY/CODING/TESTBENCH/viterbi_test.c
++++ b/openair1/PHY/CODING/TESTBENCH/viterbi_test.c
+@@ -24,8 +24,8 @@
+ #include <stdio.h>
+ #include <string.h>
+ 
+-#include "PHY/CODING/defs.h"
+-#include "SIMULATION/TOOLS/defs.h"
++#include "PHY/CODING/coding_defs.h"
++#include "SIMULATION/TOOLS/sim.h"
+ 
+ #define INPUT_LENGTH 5
+ #define F1 3
+@@ -121,7 +121,7 @@ int test_viterbi(double sigma,
+       break;
+ 
+     case 3:
+-      crc = crc24(test_input,
++      crc = crc24a(test_input,
+                   (block_length-4)<<3)>>8;
+       break;
+ 
+@@ -149,7 +149,7 @@ int test_viterbi(double sigma,
+ 
+     // decode
+     memset(decoded_output,0,block_length);
+-    phy_viterbi_dot11_sse2(channel_output,decoded_output,8*block_length);
++    phy_viterbi_dot11(channel_output,decoded_output,8*block_length);
+ 
+ 
+     // crc check
+@@ -166,7 +166,7 @@ int test_viterbi(double sigma,
+       break;
+ 
+     case 3:
+-      crc_rx = crc24(decoded_output,
++      crc_rx = crc24a(decoded_output,
+                      (block_length-4)<<3)>>8;
+       break;
+ 

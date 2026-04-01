@@ -1,0 +1,12 @@
+diff --git a/openair2/M2AP/m2ap_eNB_interface_management.c b/openair2/M2AP/m2ap_eNB_interface_management.c
+index 987f02b613..b90341f5c1 100644
+--- a/openair2/M2AP/m2ap_eNB_interface_management.c
++++ b/openair2/M2AP/m2ap_eNB_interface_management.c
+@@ -1106,6 +1106,7 @@ int eNB_send_ERROR_INDICATION(instance_t instance, m2ap_error_indication_t * m2a
+ 
+ int eNB_handle_ERROR_INDICATION(instance_t instance, sctp_assoc_t assoc_id, uint32_t stream, M2AP_M2AP_PDU_t *pdu)
+ {
++  LOG_E(M2AP, "eNB_handle_ERROR_INDICATION: assoc_id %d, stream %u\n", assoc_id, stream);
+   AssertFatal(1==0,"Not implemented yet\n");
+    return 0;
+ }

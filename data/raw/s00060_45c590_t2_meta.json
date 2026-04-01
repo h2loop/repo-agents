@@ -1,0 +1,9 @@
+{
+  "run_id": "s00060_45c590",
+  "pr_text": "## Title: Fix missing null terminator in debug filename buffer\n\n### Summary\nFix a potential buffer overflow and out-of-bounds read in the debug code path of `nr_rx_pdsch`. The `filename` buffer used for debug output files was sized at 50 bytes, which could be insufficient for the formatted strings, and lacked explicit null termination after `snprintf` calls. This could lead to out-of-bounds reads when the filename string is consumed by `write_output()` and other file operations.\n\nThe fix increas",
+  "trajectory_path": "data/raw/s00060_45c590_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00060_45c590_p2.diff",
+  "patch_lines": 13,
+  "trajectory_steps": 19,
+  "timestamp": "2026-02-10T10:57:01Z"
+}

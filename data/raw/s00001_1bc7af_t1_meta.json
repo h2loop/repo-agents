@@ -1,0 +1,32 @@
+{
+  "run_id": "s00001_1bc7af",
+  "function": {
+    "name": "ldpc224_byte",
+    "file": "openair1/PHY/CODING/nrLDPC_encoder/ldpc224_byte_128.c",
+    "start_line": 4,
+    "end_line": 152,
+    "body_lines": 149,
+    "signature": "static inline void ldpc224_byte(uint8_t *c,uint8_t *d)",
+    "subsystem": "openair1/PHY/CODING",
+    "token_estimate": 162
+  },
+  "bug": {
+    "bug_id": "c_unreachable_code",
+    "description": "unreachable code path due to incorrect conditional logic",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "openair3/NAS",
+      "common",
+      "executables"
+    ]
+  },
+  "prompt": "There is a unreachable code path due to incorrect conditional logic downstream of function ldpc224_byte in the openair1/PHY/CODING subsystem.\nThe function is located at openair1/PHY/CODING/nrLDPC_encoder/ldpc224_byte_128.c:4.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00001_1bc7af_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00001_1bc7af_p1.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 18,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-10T10:16:23Z"
+}

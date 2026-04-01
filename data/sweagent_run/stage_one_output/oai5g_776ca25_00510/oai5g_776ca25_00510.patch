@@ -1,0 +1,114 @@
+diff --git a/openair3/NAS/UE/API/USER/user_api.c b/openair3/NAS/UE/API/USER/user_api.c
+index 4d47a4c2b3..052b3182f2 100644
+--- a/openair3/NAS/UE/API/USER/user_api.c
++++ b/openair3/NAS/UE/API/USER/user_api.c
+@@ -72,6 +72,7 @@ static int _user_api_registration_handler(user_api_id_t *user_api_id, unsigned c
+ static int _user_api_location_handler(user_api_id_t *user_api_id, unsigned char id, const void* data, size_t size);
+ static int _user_api_network_handler(user_api_id_t *user_api_id, unsigned char id, const void* data, size_t size);
+ static int _user_api_pdn_connection_handler(user_api_id_t *user_api_id, unsigned char id, const void* data, size_t size);
++static int _user_api_connection_handler(user_api_id_t *user_api_id, unsigned char id, const void* data, size_t size);
+ 
+ static int _user_api_send(user_api_id_t *user_api_id, at_response_t* data);
+ 
+@@ -161,6 +162,9 @@ int user_api_initialize(user_api_id_t *user_api_id, const char* host, const char
+   } else if (user_ind_register(USER_IND_PDN, AT_CGACT, NULL) != RETURNok) {
+     LOG_TRACE(WARNING, "USR-API   - "
+               "Failed to enable PDN connection notification");
++  } else if (user_ind_register(USER_IND_CONN, 0, _user_api_connection_handler) != RETURNok) {
++    LOG_TRACE(WARNING, "USR-API   - "
++              "Failed to register connection status notification");
+   } else {
+     LOG_TRACE(INFO, "USR-API   - "
+               "Notification handlers successfully registered");
+@@ -350,6 +354,11 @@ void user_api_close(user_api_id_t *user_api_id)
+ {
+   LOG_FUNC_IN;
+ 
++  /* Send connection closed notification */
++  user_indication_t ind;
++  ind.notification.conn.status = AT_ERROR_NO_CONNECTION_TO_PHONE;
++  user_ind_notify(user_api_id, USER_IND_CONN, (void*)&ind, 0);
++
+   /* Cleanup the connection endpoint */
+   user_api_id->close(user_api_id->endpoint) ;
+   user_api_id->endpoint = NULL;
+@@ -753,6 +762,44 @@ static int _user_api_pdn_connection_handler(user_api_id_t *user_api_id, unsigned
+   /* Encode and send the AT command response message to the user */
+   int bytes = _user_api_send(user_api_id, &at_response);
+ 
++/****************************************************************************
++ **                                                                        **
++ ** Name:  _user_api_connection_handler()                            **
++ **                                                                        **
++ ** Description: Procedure executed upon receiving connection status       **
++ **    notification whenever there is a change in the connection     **
++ **    status between the NAS and the user application.              **
++ **    The connection status data are then displayed to the user.    **
++ **                                                                        **
++ ** Inputs:  id:    Not used                                   **
++ **    data:    Generic pointer to the connection status data  **
++ **    size:    Not used                                   **
++ **      Others:  None                                       **
++ **                                                                        **
++ ** Outputs:   None                                                      **
++ **    Return:  The number of bytes actually sent to the   **
++ **       user application                           **
++ **      Others:  None                                       **
++ **                                                                        **
++ ***************************************************************************/
++static int _user_api_connection_handler(user_api_id_t *user_api_id, unsigned char id, const void* data,
++    size_t size)
++{
++  LOG_FUNC_IN;
++
++  /* Get connection status notification data */
++  user_ind_conn_t* conn = (user_ind_conn_t*)data;
++
++  /* Setup AT command unsolicited result response message */
++  at_response_t at_response;
++  at_response.id = AT_CME_ERROR;
++  at_response.type = AT_COMMAND_GET;
++  at_response.mask = AT_RESPONSE_NO_PARAM;
++  at_response.cause_code = conn->status;
++
++  /* Encode and send the AT command response message to the user */
++  int bytes = _user_api_send(user_api_id, &at_response);
++
+   LOG_FUNC_RETURN (bytes);
+ }
+ 
+diff --git a/openair3/NAS/UE/API/USER/user_indication.h b/openair3/NAS/UE/API/USER/user_indication.h
+index d86ab43dca..67e76e6f92 100644
+--- a/openair3/NAS/UE/API/USER/user_indication.h
++++ b/openair3/NAS/UE/API/USER/user_indication.h
+@@ -57,6 +57,7 @@ typedef enum {
+   USER_IND_LOC, /* Location notification  */
+   USER_IND_PLMN,  /* Network notification   */
+   USER_IND_PDN, /* PDN connection notification  */
++  USER_IND_CONN, /* Connection status notification */
+   USER_IND_MAX
+ } user_ind_t;
+ 
+@@ -88,6 +89,14 @@ typedef struct {
+   network_pdn_state_t status; /* PDN connection status  */
+ } user_ind_pdn_t;
+ 
++/*
++ * Connection status notification are received whenever there is a change in the
++ * connection status between the NAS and the user application
++ */
++typedef struct {
++  int status;  /* connection status  */
++} user_ind_conn_t;
++
+ /*
+  * Structure of asynchronous notification received by the user
+  */
+@@ -96,6 +105,7 @@ typedef struct {
+     user_ind_reg_t reg; /* Registration notification  */
+     user_ind_loc_t loc; /* Location notification  */
+     user_ind_pdn_t pdn; /* PDN connection notification  */
++    user_ind_conn_t conn; /* Connection status notification */
+   } notification;
+ } user_indication_t;
+ 

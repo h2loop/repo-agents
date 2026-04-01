@@ -1,0 +1,39 @@
+diff --git a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+index 50c46b16e1..614beb456f 100644
+--- a/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
++++ b/openair2/LAYER2/MAC/eNB_scheduler_primitives.c
+@@ -534,26 +534,19 @@ pdcchalloc2ulframe(COMMON_channels_t *ccP,
+                    uint8_t n)
+ //------------------------------------------------------------------------------
+ {
+-  uint32_t ul_frame = (frame + (n >= 6 ? 1 : 0));
++  uint8_t ul_subframe = pdcchalloc2ulsubframe(ccP, n);
++  uint32_t ul_frame = frame;
+ 
+-  if (ccP->tdd_Config) {
+-    if (ccP->tdd_Config->subframeAssignment == 1) {
+-      if (n == 1 || n == 6) {
+-        ul_frame = (frame + (n == 1 ? 0 : 1));
+-      }
+-    } else if (ccP->tdd_Config->subframeAssignment == 6) {
+-      if (n == 0 || n == 1 || n == 5 || n == 6) {
+-        ul_frame = (frame + (n >= 5 ? 1 : 0));
+-      } else if (n == 9) {
+-        ul_frame = (frame + 1);
+-      }
+-    }
++  // If the UL subframe is before the current subframe, it means we've wrapped around to the next frame
++  if (ul_subframe < n) {
++    ul_frame = (frame + 1) & 1023;
+   }
+ 
+-  LOG_D(PHY, "frame %d subframe %d: PUSCH frame = %d\n",
++  LOG_D(PHY, "frame %d subframe %d: PUSCH frame = %d, PUSCH subframe = %d\n",
+         frame,
+         n,
+-        ul_frame);
++        ul_frame,
++        ul_subframe);
+   return ul_frame;
+ }
+ 

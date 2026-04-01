@@ -1,0 +1,13 @@
+diff --git a/common/utils/LOG/vcd_signal_dumper.c b/common/utils/LOG/vcd_signal_dumper.c
+index 841f2889b6..82c6647083 100644
+--- a/common/utils/LOG/vcd_signal_dumper.c
++++ b/common/utils/LOG/vcd_signal_dumper.c
+@@ -674,7 +674,7 @@ void *vcd_dumper_thread_rt(void *args)
+   struct sched_param sched_param;
+   uint32_t data_ready_wait;
+ 
+-  return 0; //signal_mask(); //function defined at common/utils/ocp_itti/intertask_interface.cpp
++  //signal_mask(); //function defined at common/utils/ocp_itti/intertask_interface.cpp
+ 
+   sched_param.sched_priority = sched_get_priority_min(SCHED_FIFO) + 1;
+   sched_setscheduler(0, SCHED_FIFO, &sched_param);

@@ -1,0 +1,35 @@
+diff --git a/openair1/PHY/LTE_TRANSPORT/dlsch_scrambling.c b/openair1/PHY/LTE_TRANSPORT/dlsch_scrambling.c
+index e1fd9b505b..eedd0874a5 100644
+--- a/openair1/PHY/LTE_TRANSPORT/dlsch_scrambling.c
++++ b/openair1/PHY/LTE_TRANSPORT/dlsch_scrambling.c
+@@ -167,11 +167,13 @@ uint8_t scrambling_lut[65536*16] __attribute__((aligned(32)));
+ void init_scrambling_lut(void) {
+   uint32_t s;
+   int i=0,j;
++  uint8_t *lut_ptr = scrambling_lut;
+ 
+-  for (s=0; s<=65535; s++) {
++  for (s=0; s<65536; s++) {
+     for (j=0; j<16; j++) {
+-      scrambling_lut[i++] = (uint8_t)((s>>j)&1);
++      lut_ptr[j] = (uint8_t)((s>>j)&1);
+     }
++    lut_ptr += 16;
+   }
+ }
+ 
+@@ -218,10 +220,12 @@ int16_t unscrambling_lut[65536*16] __attribute__((aligned(32)));
+ void init_unscrambling_lut(void) {
+   uint32_t s;
+   int i=0,j;
++  int16_t *lut_ptr = unscrambling_lut;
+ 
+-  for (s=0; s<=65535; s++) {
++  for (s=0; s<65536; s++) {
+     for (j=0; j<16; j++) {
+-      unscrambling_lut[i++] = (int16_t)((((s>>j)&1)<<1)-1);
++      lut_ptr[j] = (int16_t)((((s>>j)&1)<<1)-1);
+     }
++    lut_ptr += 16;
+   }
+ }

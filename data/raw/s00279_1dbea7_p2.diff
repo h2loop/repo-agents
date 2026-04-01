@@ -1,0 +1,32 @@
+diff --git a/nfapi/open-nFAPI/vnf/src/vnf.c b/nfapi/open-nFAPI/vnf/src/vnf.c
+index 631ce2b7e9..19a4f2bb88 100644
+--- a/nfapi/open-nFAPI/vnf/src/vnf.c
++++ b/nfapi/open-nFAPI/vnf/src/vnf.c
+@@ -60,8 +60,25 @@ void vnf_free(nfapi_vnf_config_t* config, void* ptr)
+ void nfapi_vnf_phy_info_list_add(nfapi_vnf_config_t* config, nfapi_vnf_phy_info_t* info)
+ {
+ 	NFAPI_TRACE(NFAPI_TRACE_INFO, "Adding phy p5_idx:%d phy_id:%d\n", info->p5_idx, info->phy_id);
+-	info->next = config->phy_list;
+-	config->phy_list = info;
++	
++	// Initialize next pointer to NULL
++	info->next = NULL;
++	
++	// If list is empty, set as head
++	if (config->phy_list == NULL)
++	{
++		config->phy_list = info;
++	}
++	else
++	{
++		// Traverse to the tail and append
++		nfapi_vnf_phy_info_t* curr = config->phy_list;
++		while (curr->next != NULL)
++		{
++			curr = curr->next;
++		}
++		curr->next = info;
++	}
+ }
+ 
+ nfapi_vnf_phy_info_t* nfapi_vnf_phy_info_list_find(nfapi_vnf_config_t* config, uint16_t phy_id)

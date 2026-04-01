@@ -1,0 +1,77 @@
+diff --git a/common/utils/T/tracer/t_tracer_app_gnb.c b/common/utils/T/tracer/t_tracer_app_gnb.c
+index 3cb0325e39..19c593c671 100644
+--- a/common/utils/T/tracer/t_tracer_app_gnb.c
++++ b/common/utils/T/tracer/t_tracer_app_gnb.c
+@@ -162,40 +162,59 @@ void err_exit(char *buf)
+ // create shared memory
+ int create_shm(char **addrN, const char *shm_path, int projectId)
+ {
+-  key_t key;
+-  if (-1 != open(shm_path, O_CREAT, 0777)) {
+-    key = ftok(shm_path, projectId);
+-  } else {
++  int fd = -1;
++  key_t key = -1;
++  int shm_id = -1;
++  char *addr = NULL;
++
++  // Open the file and store the file descriptor
++  fd = open(shm_path, O_CREAT, 0777);
++  if (fd == -1) {
+     err_exit("Error: open shared memory");
+   }
+ 
++  // Generate key from the file path
++  key = ftok(shm_path, projectId);
+   if (key < 0) {
++    close(fd);
+     err_exit("Error: ftok error");
+   }
+ 
+-  int shm_id;
++  // Try to create a new shared memory segment
+   shm_id = shmget(key, SHMSIZE, IPC_CREAT | IPC_EXCL | 0664);
+   if (shm_id == -1) {
+     if (errno == EEXIST) {
+-      printf("Error: shared memeory already exist\n");
++      printf("Error: shared memory already exist\n");
++      // Get the existing shared memory segment
+       shm_id = shmget(key, 0, 0);
++      if (shm_id == -1) {
++        close(fd);
++        err_exit("Error: shmget (retrieve existing) failed");
++      }
+       printf("reference shm_id = %d\n", shm_id);
+     } else {
+       perror("errno");
++      close(fd);
+       err_exit("shmget error");
+     }
+   }
+-  char *addr;
+-  // address to attach - attach for read & write
+-  if ((addr = shmat(shm_id, 0, 0)) == (void *)-1) {
+-    if (shmctl(shm_id, IPC_RMID, NULL) == -1)
++
++  // Attach to the shared memory segment
++  addr = shmat(shm_id, 0, 0);
++  if (addr == (void *)-1) {
++    printf("Attach shared memory failed\n");
++    // Clean up the shared memory segment
++    if (shmctl(shm_id, IPC_RMID, NULL) == -1) {
++      close(fd);
+       err_exit("Error: shmctl error");
+-    else {
+-      printf("Attach shared memory failed\n");
+-      printf("remove shared memory identifier successful\n");
+     }
++    printf("remove shared memory identifier successful\n");
++    close(fd);
+     err_exit("shmat error");
+   }
++
++  // Success - close the file descriptor and return
++  close(fd);
+   *addrN = addr;
+   return shm_id;
+ }

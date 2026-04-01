@@ -1,0 +1,53 @@
+diff --git a/nfapi/oai_integration/nfapi_pnf.c b/nfapi/oai_integration/nfapi_pnf.c
+index 3de11d8003..96cfe2c82e 100644
+--- a/nfapi/oai_integration/nfapi_pnf.c
++++ b/nfapi/oai_integration/nfapi_pnf.c
+@@ -999,7 +999,8 @@ int nr_config_request(nfapi_pnf_config_t *config, nfapi_pnf_phy_config_t *phy, n
+   }else {
+     // This is a nFAPI TLV, thus not sent when working with FAPI.
+     // When not sent, we still need a default value, otherwise every message from the L2 is treated as late and not processed
+-    phy_info->timing_window = 30;
++    // 3GPP timing requirement: default should be 30000 microseconds (30ms), not 30 microseconds
++    phy_info->timing_window = 30000;
+   }
+ 
+   if (req->nfapi_config.timing_info_mode.tl.tag == NFAPI_NR_NFAPI_TIMING_INFO_MODE_TAG) {
+diff --git a/nfapi/oai_integration/nfapi_vnf.c b/nfapi/oai_integration/nfapi_vnf.c
+index 5ea99de7ea..8c477953dc 100644
+--- a/nfapi/oai_integration/nfapi_vnf.c
++++ b/nfapi/oai_integration/nfapi_vnf.c
+@@ -1744,7 +1744,7 @@ void configure_nr_nfapi_vnf(eth_params_t params)
+ #endif
+   memset(&vnf, 0, sizeof(vnf));
+   memset(vnf.p7_vnfs, 0, sizeof(vnf.p7_vnfs));
+-  vnf.p7_vnfs[0].timing_window = 30;
++  vnf.p7_vnfs[0].timing_window = 30000;  // 3GPP timing requirement: 30000 microseconds (30ms), not 30 microseconds
+   vnf.p7_vnfs[0].periodic_timing_enabled = 0;
+   vnf.p7_vnfs[0].aperiodic_timing_enabled = 0;
+   vnf.p7_vnfs[0].periodic_timing_period = 1;
+diff --git a/nfapi/open-nFAPI/vnf/src/vnf_interface.c b/nfapi/open-nFAPI/vnf/src/vnf_interface.c
+index 111d88e8dc..5d55f71947 100644
+--- a/nfapi/open-nFAPI/vnf/src/vnf_interface.c
++++ b/nfapi/open-nFAPI/vnf/src/vnf_interface.c
+@@ -746,7 +746,7 @@ int nfapi_vnf_allocate_phy(nfapi_vnf_config_t* config, int p5_idx, uint16_t* phy
+ 	info->p5_idx = p5_idx;
+ 	info->phy_id = vnf->next_phy_id++;
+ 
+-	info->timing_window = 30;       // This seems to override what gets set by the user - why??? //TODO: Change in NR in terms of microsecends,what should be the value?
++	info->timing_window = 30000;       // 3GPP timing requirement: 30000 microseconds (30ms), not 30 microseconds
+ 	info->timing_info_mode = 0x03;
+ 	info->timing_info_period = 10;
+ 
+diff --git a/nfapi/tests/p5/nr_fapi_config_request_test.c b/nfapi/tests/p5/nr_fapi_config_request_test.c
+index bfb3f7fa21..1aa923685c 100644
+--- a/nfapi/tests/p5/nr_fapi_config_request_test.c
++++ b/nfapi/tests/p5/nr_fapi_config_request_test.c
+@@ -483,7 +483,7 @@ static void fill_config_request_tlv_fdd(nfapi_nr_config_request_scf_t *req)
+   /* no IPv6 address */
+   FILL_TLV(req->nfapi_config.p7_vnf_port, NFAPI_NR_NFAPI_P7_VNF_PORT_TAG, 50011);
+   req->num_tlv++;
+-  FILL_TLV(req->nfapi_config.timing_window, NFAPI_NR_NFAPI_TIMING_WINDOW_TAG, 30);
++  FILL_TLV(req->nfapi_config.timing_window, NFAPI_NR_NFAPI_TIMING_WINDOW_TAG, 30000);  // 3GPP timing requirement: 30000 microseconds (30ms), not 30 microseconds
+   req->num_tlv++;
+   FILL_TLV(req->nfapi_config.timing_info_mode, NFAPI_NR_NFAPI_TIMING_INFO_MODE_TAG, 3);
+   req->num_tlv++;

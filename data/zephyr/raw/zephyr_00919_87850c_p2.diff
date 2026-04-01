@@ -1,0 +1,34 @@
+diff --git a/subsys/bluetooth/mesh/blob_cli.c b/subsys/bluetooth/mesh/blob_cli.c
+index f5aae195..86222fbd 100644
+--- a/subsys/bluetooth/mesh/blob_cli.c
++++ b/subsys/bluetooth/mesh/blob_cli.c
+@@ -1296,6 +1296,14 @@ static int handle_block_report(const struct bt_mesh_model *mod, struct bt_mesh_m
+ 		return -EINVAL;
+ 	}
+ 
++	/* Validate that the client is in a valid state for processing block reports */
++	if (cli->state != BT_MESH_BLOB_CLI_STATE_BLOCK_START &&
++	    cli->state != BT_MESH_BLOB_CLI_STATE_BLOCK_SEND &&
++	    cli->state != BT_MESH_BLOB_CLI_STATE_BLOCK_CHECK) {
++		LOG_WRN("Invalid state %u for block report handling", cli->state);
++		return -EBUSY;
++	}
++
+ 	LOG_DBG("");
+ 
+ 	target = target_get(cli, ctx->addr);
+@@ -1340,6 +1348,14 @@ static int handle_block_status(const struct bt_mesh_model *mod, struct bt_mesh_m
+ 	size_t len;
+ 	int idx;
+ 
++	/* Validate that the client is in a valid state for processing block status */
++	if (cli->state != BT_MESH_BLOB_CLI_STATE_BLOCK_START &&
++	    cli->state != BT_MESH_BLOB_CLI_STATE_BLOCK_SEND &&
++	    cli->state != BT_MESH_BLOB_CLI_STATE_BLOCK_CHECK) {
++		LOG_WRN("Invalid state %u for block status handling", cli->state);
++		return -EBUSY;
++	}
++
+ 	target = target_get(cli, ctx->addr);
+ 	if (!target) {
+ 		return -ENOENT;

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix syntax error in CSI payload initialization in MAC procedures\n\n### Summary\nThe NR UE MAC procedures contained a syntax error in the compound literal initialization of `csi_payload_t` structures. The bug caused compilation failures when building the OAI 5G codebase with newer GCC versions that enforce stricter C syntax checking.\n\nThe error was in the initialization syntax where `.member = value` was incorrectly written as `csi.member = value` in several functions:\n- `get_ssb_sinr_payload()`\n- `get_ssb_rsrp_payload()` \n- `get_csirs_RI_PMI_CQI_payload()`\n- `get_csirs_RSRP_payload()`\n\n### Changes\n- `openair2/LAYER2/NR_MAC_UE/nr_ue_procedures.c`: Fixed compound literal syntax for `csi_payload_t` initialization in four functions.\n\n"
+}

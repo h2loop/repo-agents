@@ -1,0 +1,33 @@
+{
+  "run_id": "s00212_d2c4d6",
+  "function": {
+    "name": "decode_u8_esm_information_transfer_flag",
+    "file": "openair3/NAS/COMMON/IES/EsmInformationTransferFlag.c",
+    "start_line": 48,
+    "end_line": 58,
+    "body_lines": 11,
+    "signature": "int decode_u8_esm_information_transfer_flag(EsmInformationTransferFlag *esminformationtransferflag, uint8_t iei, uint8_t value, uint32_t len)",
+    "subsystem": "openair3/NAS/COMMON",
+    "token_estimate": 33
+  },
+  "bug": {
+    "bug_id": "c_signed_unsigned_mismatch",
+    "description": "signed/unsigned integer comparison mismatch leading to incorrect branch",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a signed/unsigned integer comparison mismatch leading to incorrect branch downstream of function decode_u8_esm_information_transfer_flag in the openair3/NAS/COMMON subsystem.\nThe function is located at openair3/NAS/COMMON/IES/EsmInformationTransferFlag.c:48.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00212_d2c4d6_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00212_d2c4d6_p1.diff",
+  "patch_lines": 7,
+  "trajectory_steps": 19,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T13:19:09Z"
+}

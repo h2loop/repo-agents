@@ -1,0 +1,45 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+index 45d5f15ffe..14a0150643 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+@@ -879,22 +879,24 @@ static uint8_t pack_dl_config_request(void *msg, uint8_t **ppWritePackedMsg, uin
+ 
+ 
+ static uint8_t pack_ul_config_request_ulsch_rel8_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end) {
+-  nfapi_ul_config_ulsch_pdu_rel8_t *ulsch_pdu_rel8 = (nfapi_ul_config_ulsch_pdu_rel8_t *)tlv;
+-  return( push32(ulsch_pdu_rel8->handle, ppWritePackedMsg, end) &&
+-          push16(ulsch_pdu_rel8->size, ppWritePackedMsg, end) &&
+-          push16(ulsch_pdu_rel8->rnti, ppWritePackedMsg, end) &&
+-          push8(ulsch_pdu_rel8->resource_block_start, ppWritePackedMsg, end) &&
+-          push8(ulsch_pdu_rel8->number_of_resource_blocks, ppWritePackedMsg, end) &&
+-          push8(ulsch_pdu_rel8->modulation_type, ppWritePackedMsg, end) &&
+-          push8(ulsch_pdu_rel8->cyclic_shift_2_for_drms, ppWritePackedMsg, end) &&
+-          push8(ulsch_pdu_rel8->frequency_hopping_enabled_flag, ppWritePackedMsg, end) &&
+-          push8(ulsch_pdu_rel8->frequency_hopping_bits, ppWritePackedMsg, end) &&
+-          push8(ulsch_pdu_rel8->new_data_indication, ppWritePackedMsg, end) &&
+-          push8(ulsch_pdu_rel8->redundancy_version, ppWritePackedMsg, end) &&
+-          push8(ulsch_pdu_rel8->harq_process_number, ppWritePackedMsg, end) &&
+-          push8(ulsch_pdu_rel8->ul_tx_mode, ppWritePackedMsg, end) &&
+-          push8(ulsch_pdu_rel8->current_tx_nb, ppWritePackedMsg, end) &&
+-          push8(ulsch_pdu_rel8->n_srs, ppWritePackedMsg, end));
++  // tlv points to the data after the TL (tag-length) header
++  // The structure includes nfapi_tl_t at the beginning, so we need to skip it
++  uint8_t *data = (uint8_t *)tlv;
++  return( push32(*(uint32_t *)(data + 0), ppWritePackedMsg, end) &&  // handle (offset 0)
++          push16(*(uint16_t *)(data + 4), ppWritePackedMsg, end) &&  // size (offset 4)
++          push16(*(uint16_t *)(data + 6), ppWritePackedMsg, end) &&  // rnti (offset 6)
++          push8(*(data + 8), ppWritePackedMsg, end) &&               // resource_block_start (offset 8)
++          push8(*(data + 9), ppWritePackedMsg, end) &&               // number_of_resource_blocks (offset 9)
++          push8(*(data + 10), ppWritePackedMsg, end) &&              // modulation_type (offset 10)
++          push8(*(data + 11), ppWritePackedMsg, end) &&              // cyclic_shift_2_for_drms (offset 11)
++          push8(*(data + 12), ppWritePackedMsg, end) &&             // frequency_hopping_enabled_flag (offset 12)
++          push8(*(data + 13), ppWritePackedMsg, end) &&             // frequency_hopping_bits (offset 13)
++          push8(*(data + 14), ppWritePackedMsg, end) &&             // new_data_indication (offset 14)
++          push8(*(data + 15), ppWritePackedMsg, end) &&             // redundancy_version (offset 15)
++          push8(*(data + 16), ppWritePackedMsg, end) &&             // harq_process_number (offset 16)
++          push8(*(data + 17), ppWritePackedMsg, end) &&             // ul_tx_mode (offset 17)
++          push8(*(data + 18), ppWritePackedMsg, end) &&             // current_tx_nb (offset 18)
++          push8(*(data + 19), ppWritePackedMsg, end));             // n_srs (offset 19)
+ }
+ static uint8_t pack_ul_config_request_ulsch_rel10_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end) {
+   nfapi_ul_config_ulsch_pdu_rel10_t *ulsch_pdu_rel10 = (nfapi_ul_config_ulsch_pdu_rel10_t *)tlv;

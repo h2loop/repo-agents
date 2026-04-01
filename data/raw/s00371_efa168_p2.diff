@@ -1,0 +1,22 @@
+diff --git a/openair2/RRC/LTE/rrc_eNB_M2AP.c b/openair2/RRC/LTE/rrc_eNB_M2AP.c
+index 63760907fd..db5c3c1d79 100644
+--- a/openair2/RRC/LTE/rrc_eNB_M2AP.c
++++ b/openair2/RRC/LTE/rrc_eNB_M2AP.c
+@@ -271,7 +271,7 @@ static void rrc_M2AP_init_MBMS(
+                              (LTE_SRB_ToAddModList_t *)NULL,   // LTE_SRB_ToAddModList
+                              (LTE_DRB_ToAddModList_t *)NULL,   // LTE_DRB_ToAddModList
+                              (LTE_DRB_ToReleaseList_t *)NULL,
+-                             0,     // security mode
++                             0xFF,     // security mode
+                              NULL,  // key rrc encryption
+                              NULL,  // key rrc integrity
+                              NULL   // key encryption
+@@ -283,7 +283,7 @@ static void rrc_M2AP_init_MBMS(
+                             NULL,   // LTE_DRB_ToAddModList
+                             NULL,   // DRB_ToReleaseList
+                             &(RC.rrc[enb_mod_idP]->carrier[CC_id].mcch_message->pmch_InfoList_r9)
+-                            ,0, 0
++                            ,1, 1
+                             );
+             //rrc_mac_config_req();
+   }

@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix configuration mismatch in TARMA video initialization causing inconsistent packet sizes\n\n### Summary\nThe TARMA video traffic generation module had a configuration mismatch between the declared minimum polynomial order and the actual array size. The `TARMA_NUM_POLY_MAX` constant was set to 10 but its comment and usage pattern indicated a minimum requirement of 13 coefficients for proper polynomial transformation behavior.\n\nThis mismatch caused inconsistent video packet size generation downstream of the `tarmaInitVideo` function, particularly under high traffic load scenarios where higher-order polynomial terms became significant.\n\nThe issue was introduced when the constant was changed without updating its value to match the documented minimum requirement.\n\n### Changes\n- `openair2/UTIL/OTG/otg_defs.h`: Updated `TARMA_NUM_POLY_MAX` from 10 to 13 to match documented minimum requirement.\n\n"
+}

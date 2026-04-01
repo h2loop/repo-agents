@@ -1,0 +1,9 @@
+{
+  "run_id": "s00161_d7d9fd",
+  "pr_text": "## Title: Fix C-RNTI byte order encoding for F1AP interface compatibility\n\n### Summary\nThe C-RNTI MAC CE in MSG3 was being encoded in host byte order instead of network byte order, causing F1AP interface handling errors between the CU and DU. This mismatch resulted in message corruption or loss when the C-RNTI value was transmitted across the F1AP interface, as the receiving end interpreted the bytes incorrectly.\n\nThe manual byte swapping implementation `((crnti & 0xFF) << 8) | ((crnti >> 8) & 0",
+  "trajectory_path": "data/raw/s00161_d7d9fd_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00161_d7d9fd_p2.diff",
+  "patch_lines": 2,
+  "trajectory_steps": 21,
+  "timestamp": "2026-02-10T11:37:18Z"
+}

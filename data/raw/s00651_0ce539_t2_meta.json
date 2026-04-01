@@ -1,0 +1,9 @@
+{
+  "run_id": "s00651_0ce539",
+  "pr_text": "## Title: Fix buffer overflow in DFT18432 causing ASN.1 encoding errors\n\n### Summary\nThe `dft18432` and `idft18432` functions in the PHY tools module contain incorrect output buffer offsets in their butterfly operations, causing buffer overflows that corrupt memory and manifest as ASN.1 encoding errors in downstream protocol processing. The three-output-segment stride pattern was incorrectly specified as (0, 12288, 24576) instead of the proper (0, 6144, 12288) for a 18432-point DFT, resulting in",
+  "trajectory_path": "data/raw/s00651_0ce539_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00651_0ce539_p2.diff",
+  "patch_lines": 4,
+  "trajectory_steps": 37,
+  "timestamp": "2026-02-10T17:41:45Z"
+}

@@ -1,0 +1,40 @@
+{
+  "run_id": "s00328_d14f60",
+  "function": {
+    "name": "get_ul_dmrs_params",
+    "file": "openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c",
+    "start_line": 723,
+    "end_line": 780,
+    "body_lines": 58,
+    "signature": "NR_pusch_dmrs_t get_ul_dmrs_params(const NR_ServingCellConfigCommon_t *scc, const NR_UE_UL_BWP_t *ul_bwp, const NR_tda_info_t *tda_info, const int Layers)",
+    "subsystem": "openair2/LAYER2/NR_MAC_gNB",
+    "token_estimate": 198
+  },
+  "bug": {
+    "bug_id": "c_buffer_overflow",
+    "description": "buffer overflow vulnerability",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/LAYER2/RLC",
+      "openair2/LAYER2/PDCP",
+      "openair2/RRC",
+      "openair2/NAS",
+      "openair3/NAS",
+      "openair3/S1AP",
+      "openair3/NGAP",
+      "common",
+      "executables",
+      "radio",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a buffer overflow vulnerability downstream of function get_ul_dmrs_params in the openair2/LAYER2/NR_MAC_gNB subsystem.\nThe function is located at openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c:723.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00328_d14f60_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00328_d14f60_p1.diff",
+  "patch_lines": 14,
+  "trajectory_steps": 18,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T14:28:47Z"
+}

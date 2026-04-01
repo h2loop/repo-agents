@@ -1,0 +1,63 @@
+diff --git a/openair2/LAYER2/NR_MAC_gNB/config.c b/openair2/LAYER2/NR_MAC_gNB/config.c
+index 6dd3a073b7..5c76925e23 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/config.c
++++ b/openair2/LAYER2/NR_MAC_gNB/config.c
+@@ -59,8 +59,25 @@ static void process_rlcBearerConfig(struct NR_CellGroupConfig__rlc_BearerToAddMo
+                                     struct NR_CellGroupConfig__rlc_BearerToReleaseList *rlc_bearer2release_list,
+                                     NR_UE_sched_ctrl_t *sched_ctrl)
+ {
++  const int MAX_LC_NUM = NR_MAX_NUM_LCID;
++  const int MAX_LC_ID = 32;
++
++  // Validate RLC bearer to release list count
+   if (rlc_bearer2release_list) {
++    if (rlc_bearer2release_list->list.count > MAX_LC_NUM) {
++      LOG_E(NR_MAC, "Invalid RLC bearer configuration: rlc_bearer2release_list count %d exceeds maximum %d\n",
++            rlc_bearer2release_list->list.count, MAX_LC_NUM);
++      return;
++    }
++
+     for (int i = 0; i < rlc_bearer2release_list->list.count; i++) {
++      // Validate LCID is within valid range
++      if (*rlc_bearer2release_list->list.array[i] < 0 || *rlc_bearer2release_list->list.array[i] > MAX_LC_ID) {
++        LOG_E(NR_MAC, "Invalid RLC bearer configuration: LCID %d is out of valid range [0, %d]\n",
++              *rlc_bearer2release_list->list.array[i], MAX_LC_ID);
++        continue;
++      }
++
+       for (int idx = 0; idx < sched_ctrl->dl_lc_num; idx++) {
+         if (sched_ctrl->dl_lc_ids[idx] == *rlc_bearer2release_list->list.array[i]) {
+           const int remaining_lcs = sched_ctrl->dl_lc_num - idx - 1;
+@@ -72,10 +89,32 @@ static void process_rlcBearerConfig(struct NR_CellGroupConfig__rlc_BearerToAddMo
+     }
+   }
+ 
++  // Validate RLC bearer to add list count and LCIDs
+   if (rlc_bearer2add_list) {
++    if (rlc_bearer2add_list->list.count > MAX_LC_NUM) {
++      LOG_E(NR_MAC, "Invalid RLC bearer configuration: rlc_bearer2add_list count %d exceeds maximum %d\n",
++            rlc_bearer2add_list->list.count, MAX_LC_NUM);
++      return;
++    }
++
+     // keep lcids
+     for (int i = 0; i < rlc_bearer2add_list->list.count; i++) {
+       const int lcid = rlc_bearer2add_list->list.array[i]->logicalChannelIdentity;
++
++      // Validate LCID is within valid range per 3GPP TS 38.331
++      if (lcid < 0 || lcid > MAX_LC_ID) {
++        LOG_E(NR_MAC, "Invalid RLC bearer configuration: LCID %d is out of valid range [0, %d]\n",
++              lcid, MAX_LC_ID);
++        continue;
++      }
++
++      // Verify we have capacity for new bearers
++      if (sched_ctrl->dl_lc_num >= MAX_LC_NUM) {
++        LOG_E(NR_MAC, "Invalid RLC bearer configuration: cannot add LCID %d, maximum number of logical channels (%d) already reached\n",
++              lcid, MAX_LC_NUM);
++        continue;
++      }
++
+       bool found = false;
+       for (int idx = 0; idx < sched_ctrl->dl_lc_num; idx++) {
+         if (sched_ctrl->dl_lc_ids[idx] == lcid) {

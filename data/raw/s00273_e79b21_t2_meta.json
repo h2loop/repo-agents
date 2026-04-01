@@ -1,0 +1,9 @@
+{
+  "run_id": "s00273_e79b21",
+  "pr_text": "## Title: Fix nFAPI P7 CRC indication packing and bounds checking\n\n### Summary\nThe nFAPI P7 CRC indication packing functions contained multiple issues that could cause buffer overflows, incorrect serialization, and process crashes. The `pack_crc_indication_body_value()` function used an assert that would terminate the process when PDU count exceeded `NFAPI_CRC_IND_MAX_PDU`, rather than returning an error gracefully. Additionally, the instance length calculation lacked bounds checking, risking un",
+  "trajectory_path": "data/raw/s00273_e79b21_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00273_e79b21_p2.diff",
+  "patch_lines": 29,
+  "trajectory_steps": 49,
+  "timestamp": "2026-02-11T14:04:36Z"
+}

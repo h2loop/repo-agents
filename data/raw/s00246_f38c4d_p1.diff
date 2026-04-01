@@ -1,0 +1,13 @@
+diff --git a/openair1/PHY/CODING/coding_load.c b/openair1/PHY/CODING/coding_load.c
+index b8d130150b..eba39f51bf 100644
+--- a/openair1/PHY/CODING/coding_load.c
++++ b/openair1/PHY/CODING/coding_load.c
+@@ -46,7 +46,7 @@ static telnetshell_cmddef_t coding_cmdarray[] = {
+ };
+ telnetshell_vardef_t coding_vardef[] = {{"maxiter", TELNET_VARTYPE_INT32, 0, &max_turbo_iterations}, {"", 0, 0, NULL}};
+ /* PHY/defs.h contains MODE_DECODE_XXX macros, following table must match */
+-static char *modedesc[] = {"none","sse","C","avx2"};
++static char *modedesc[] = {"none","sse","C","avx2",NULL};
+ static int curmode;
+ /* function description array, to be used when loading the encoding/decoding shared lib */
+ loader_shlibfunc_t shlib_fdesc[DECODE_NUM_FPTR];

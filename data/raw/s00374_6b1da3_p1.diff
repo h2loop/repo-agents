@@ -1,0 +1,20 @@
+diff --git a/openair2/LAYER2/nr_rlc/nr_rlc_entity_am.c b/openair2/LAYER2/nr_rlc/nr_rlc_entity_am.c
+index a66ebe82e5..7cf860337b 100644
+--- a/openair2/LAYER2/nr_rlc/nr_rlc_entity_am.c
++++ b/openair2/LAYER2/nr_rlc/nr_rlc_entity_am.c
+@@ -1899,9 +1899,12 @@ static void check_t_poll_retransmit(nr_rlc_entity_am_t *entity)
+   LOG_D(RLC, "%s:%d:%s: warning: t_poll_retransmit expired\n",
+         __FILE__, __LINE__, __FUNCTION__);
+ 
+-  /* do we meet conditions of 38.322 5.3.3.4? */
+-  if (!check_poll_after_pdu_assembly(entity))
+-    return;
++  /* According to 38.322 5.3.3.4, when t_poll_retransmit expires, we should
++   * proceed with retransmission regardless of poll conditions. The original
++   * conditional logic here could make the retransmission code unreachable.
++   * We remove this check to ensure retransmission always happens when the
++   * timer expires, as per the specification.
++   */
+ 
+   /* retransmit the SDU at the head of wait list, this is the case
+    * "consider any RLC SDU which has not been positively acknowledged for

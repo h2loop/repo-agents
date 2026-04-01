@@ -1,0 +1,35 @@
+diff --git a/openair2/GNB_APP/gnb_config.c b/openair2/GNB_APP/gnb_config.c
+index 0b3845f5b9..321d8789ab 100644
+--- a/openair2/GNB_APP/gnb_config.c
++++ b/openair2/GNB_APP/gnb_config.c
+@@ -618,7 +618,7 @@ void fix_scc(NR_ServingCellConfigCommon_t *scc, uint64_t ssbmap)
+ 
+   // check pucch_ResourceConfig
+   AssertFatal(*scc->uplinkConfigCommon->initialUplinkBWP->pucch_ConfigCommon->choice.setup->pucch_ResourceCommon < 2,
+-	      "pucch_ResourceConfig should be 0 or 1 for now\n");
++      "pucch_ResourceConfig should be 0 or 1 for now\n");
+ 
+   if (*scc->ext2->ntn_Config_r17->ntn_UlSyncValidityDuration_r17 == 0) {
+     free(scc->ext2->ntn_Config_r17->ntn_UlSyncValidityDuration_r17);
+@@ -1629,7 +1629,7 @@ void RCconfig_nr_macrlc(configmodule_interface_t *cfg)
+           AssertFatal(NFAPI_MODE == NFAPI_MONOLITHIC, "Analog beamforming only supported for monolithic scenario\n");
+         NR_beam_info_t *beam_info = &RC.nrmac[j]->beam_info;
+         int beams_per_period = *MacRLC_ParamList.paramarray[j][MACRLC_ANALOG_BEAMS_PERIOD_IDX].u8ptr;
+-        beam_info->beam_allocation = malloc16(beams_per_period * sizeof(beam_info->beam_allocation));
++        beam_info->beam_allocation = malloc16(beams_per_period * sizeof(int16_t*));
+         beam_info->beam_duration = *MacRLC_ParamList.paramarray[j][MACRLC_ANALOG_BEAM_DURATION_IDX].u8ptr;
+         beam_info->beams_per_period = beams_per_period;
+         beam_info->beam_allocation_size = -1; // to be initialized once we have information on frame configuration
+diff --git a/openair2/LAYER2/NR_MAC_gNB/config.c b/openair2/LAYER2/NR_MAC_gNB/config.c
+index dfa68773a4..f3713804ae 100644
+--- a/openair2/LAYER2/NR_MAC_gNB/config.c
++++ b/openair2/LAYER2/NR_MAC_gNB/config.c
+@@ -771,7 +771,7 @@ static void initialize_beam_information(NR_beam_info_t *beam_info, int mu, int s
+               slots_per_frame);
+   beam_info->beam_allocation_size = size / beam_info->beam_duration;
+   for (int i = 0; i < beam_info->beams_per_period; i++) {
+-    beam_info->beam_allocation[i] = malloc16(beam_info->beam_allocation_size * sizeof(*beam_info->beam_allocation));
++    beam_info->beam_allocation[i] = malloc16(beam_info->beam_allocation_size * sizeof(int16_t));
+     for (int j = 0; j < beam_info->beam_allocation_size; j++)
+       beam_info->beam_allocation[i][j] = -1;
+   }

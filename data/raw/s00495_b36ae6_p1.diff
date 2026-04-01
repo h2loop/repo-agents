@@ -1,0 +1,17 @@
+diff --git a/openair3/NAS/TEST/AS_SIMULATOR/nas_process.c b/openair3/NAS/TEST/AS_SIMULATOR/nas_process.c
+index 9b2245acd0..ead013489b 100644
+--- a/openair3/NAS/TEST/AS_SIMULATOR/nas_process.c
++++ b/openair3/NAS/TEST/AS_SIMULATOR/nas_process.c
+@@ -858,6 +858,12 @@ _pdn_disconnect_request(
+ {
+   int index = 0;
+ 
++
++  /* Protocol Configuration Options */
++  if (msg->presencemask & PDN_DISCONNECT_REQUEST_PROTOCOL_CONFIGURATION_OPTIONS_PRESENT) {
++    index += snprintf(buffer + index, length - index, ", PCO = %s",
++                      (char*)msg->protocolconfigurationoptions.protocolconfigurationoptionsvalue.value);
++  }
+   /* Linked EPS bearer identity */
+   index += snprintf(buffer + index, length - index, ", Linked EBI = %d",
+                     msg->linkedepsbeareridentity);

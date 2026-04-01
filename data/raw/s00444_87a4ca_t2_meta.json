@@ -1,0 +1,9 @@
+{
+  "run_id": "s00444_87a4ca",
+  "pr_text": "## Title: Add bounds checking for PA/PB indices in LTE DL modulation\n\n### Summary\nThe LTE downlink modulation function uses pre-computed look-up tables (LUTs) indexed by power allocation parameters `pa` (0-7) and `pb` (0-3). While the LUT initialization functions have correct loop bounds, the usage sites in `dlsch_modulation` did not validate these indices before array access, potentially causing out-of-bounds memory access if the parameters contained unexpected values.\n\nThis change adds defensi",
+  "trajectory_path": "data/raw/s00444_87a4ca_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00444_87a4ca_p2.diff",
+  "patch_lines": 14,
+  "trajectory_steps": 22,
+  "timestamp": "2026-02-10T13:26:10Z"
+}

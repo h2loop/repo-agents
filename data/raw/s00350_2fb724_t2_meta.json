@@ -1,0 +1,9 @@
+{
+  "run_id": "s00350_2fb724",
+  "pr_text": "## Title: Fix off-by-one array size error in PSBCH receiver\n\n### Summary\nThe PSBCH receiver function `nr_rx_psbch()` was allocating three stack arrays with an incorrect size of `nb_re + 1` elements instead of `nb_re`. The variable `nb_re` represents the number of PSBCH data resource elements per OFDM symbol (`SL_NR_NUM_PSBCH_DATA_RE_IN_ONE_SYMBOL`). The receiver logic only accesses indices `0` through `nb_re - 1`, making the `+1` allocation unnecessary and wasteful. This off-by-one sizing could ",
+  "trajectory_path": "data/raw/s00350_2fb724_t2_trajectory.jsonl",
+  "patch_path": "data/raw/s00350_2fb724_p2.diff",
+  "patch_lines": 3,
+  "trajectory_steps": 22,
+  "timestamp": "2026-02-10T12:48:51Z"
+}

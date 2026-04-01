@@ -1,0 +1,70 @@
+diff --git a/openair1/PHY/NR_TRANSPORT/nr_prach_common.c b/openair1/PHY/NR_TRANSPORT/nr_prach_common.c
+index 5933e84cbb..993446f784 100644
+--- a/openair1/PHY/NR_TRANSPORT/nr_prach_common.c
++++ b/openair1/PHY/NR_TRANSPORT/nr_prach_common.c
+@@ -189,3 +189,29 @@ void init_nr_prach_tables(int N_ZC)
+   }
+ }
+ 
++uint16_t get_prach_K(uint8_t prach_sequence_length, uint8_t prach_fmt_id, uint8_t mu)
++{
++  // According to 3GPP TS 38.211, Section 6.3.3.2
++  // K is the frequency domain separation between PRACH resources
++  // mu parameter is included for future extensions but not currently used
++  
++  if (prach_sequence_length == 0) { // Long sequence (839)
++    switch (prach_fmt_id) {
++      case 0:  // format 0
++      case 1:  // format 1
++      case 2:  // format 2
++        return 24; // For formats 0,1,2 with long sequence
++      case 3:  // format 3
++        return 4;  // For format 3 with long sequence
++      default:
++        return 24; // Default for long sequences
++    }
++  } else { // Short sequence (139)
++    // For short sequences, K is typically 1 according to the specification
++    return 1;
++  }
++  
++  // Avoid unused parameter warning
++  (void)mu;
++}
++
+diff --git a/openair1/PHY/NR_TRANSPORT/nr_transport_common_proto.h b/openair1/PHY/NR_TRANSPORT/nr_transport_common_proto.h
+index 79b3daa212..b1a9ff9ac5 100644
+--- a/openair1/PHY/NR_TRANSPORT/nr_transport_common_proto.h
++++ b/openair1/PHY/NR_TRANSPORT/nr_transport_common_proto.h
+@@ -84,4 +84,7 @@ void nr_codeword_unscrambling_init(int16_t *s, uint32_t size, uint8_t q, uint32_
+ /**@}*/
+ 
+ void init_pucch2_luts(void);
++
++uint16_t get_prach_K(uint8_t prach_sequence_length, uint8_t prach_fmt_id, uint8_t mu);
++
+ #endif
+diff --git a/openair1/PHY/NR_UE_TRANSPORT/nr_prach.c b/openair1/PHY/NR_UE_TRANSPORT/nr_prach.c
+index 471b2aee38..5fdd33861c 100644
+--- a/openair1/PHY/NR_UE_TRANSPORT/nr_prach.c
++++ b/openair1/PHY/NR_UE_TRANSPORT/nr_prach.c
+@@ -85,7 +85,7 @@ int32_t generate_nr_prach(PHY_VARS_NR_UE *ue, uint8_t gNB_id, int frame, uint8_t
+   prach_fmt_id            = prach_pdu->prach_format;
+   preamble_index          = prach_pdu->ra_PreambleIndex;
+   kbar                    = 1;
+-  K                       = 24;
++  K                       = get_prach_K(prach_sequence_length, prach_fmt_id, mu);
+   k                       = 12*n_ra_prb - 6*fp->N_RB_UL;
+   prachStartSymbol        = prach_pdu->prach_start_symbol;
+ 
+@@ -211,10 +211,8 @@ int32_t generate_nr_prach(PHY_VARS_NR_UE *ue, uint8_t gNB_id, int frame, uint8_t
+   //  subframe_offset = (unsigned int)frame_parms->ofdm_symbol_size*slot*nsymb;
+ 
+   if (prach_sequence_length == 0 && prach_fmt_id == 3) {
+-    K = 4;
+     kbar = 10;
+   } else if (prach_sequence_length == 1) {
+-    K = 1;
+     kbar = 2;
+   }
+ 

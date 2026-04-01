@@ -1,0 +1,97 @@
+diff --git a/openair3/NGAP/ngap_gNB_handlers.c b/openair3/NGAP/ngap_gNB_handlers.c
+index 59b2792602..6c8f67b94c 100644
+--- a/openair3/NGAP/ngap_gNB_handlers.c
++++ b/openair3/NGAP/ngap_gNB_handlers.c
+@@ -1271,8 +1271,90 @@ static int ngap_gNB_handle_ng_path_switch_request_failure(sctp_assoc_t assoc_id,
+ 
+ static int ngap_gNB_handle_ng_ENDC_pdusession_modification_confirm(sctp_assoc_t assoc_id, uint32_t stream, NGAP_NGAP_PDU_t *pdu)
+ {
+-  LOG_W(NGAP, "Implementation of NGAP Pdusession Modification confirm handler is pending...\n");
+-	return 0;
++  ngap_gNB_amf_data_t *amf_desc_p = NULL;
++  NGAP_PDUSessionResourceModifyIndication_t     *container;
++  NGAP_PDUSessionResourceModifyIndicationIEs_t  *ie;
++  NGAP_RAN_UE_NGAP_ID_t         gnb_ue_ngap_id;
++  uint64_t                      amf_ue_ngap_id;
++  DevAssert(pdu != NULL);
++  container = &pdu->choice.initiatingMessage->value.choice.PDUSessionResourceModifyIndication;
++
++  if ((amf_desc_p = ngap_gNB_get_AMF(NULL, assoc_id, 0)) == NULL) {
++    NGAP_ERROR("[SCTP %u] Received PDUSession Resource modify indication for non "
++               "existing AMF context\n", assoc_id);
++    return -1;
++  }
++
++  /* id-AMF-UE-NGAP-ID */
++  NGAP_FIND_PROTOCOLIE_BY_ID(NGAP_PDUSessionResourceModifyIndicationIEs_t, ie, container,
++                             NGAP_ProtocolIE_ID_id_AMF_UE_NGAP_ID, true);
++
++  if (ie != NULL) { /* checked by macro but cppcheck doesn't see it */
++    asn_INTEGER2ulong(&(ie->value.choice.AMF_UE_NGAP_ID), &amf_ue_ngap_id);
++  } else {
++    return -1;
++  }
++
++  /* id-RAN-UE-NGAP-ID */
++  NGAP_FIND_PROTOCOLIE_BY_ID(NGAP_PDUSessionResourceModifyIndicationIEs_t, ie, container,
++                             NGAP_ProtocolIE_ID_id_RAN_UE_NGAP_ID, true);
++
++  if (ie != NULL) { /* checked by macro but cppcheck doesn't see it */
++    gnb_ue_ngap_id = ie->value.choice.RAN_UE_NGAP_ID;
++    ngap_gNB_ue_context_t *ue_desc_p = ngap_get_ue_context(gnb_ue_ngap_id);
++    if (!ue_desc_p) {
++      NGAP_ERROR(
++          "[SCTP %u] Received PDUSession Resource modify indication for non "
++          "existing UE context 0x%08lx\n",
++          assoc_id,
++          gnb_ue_ngap_id);
++      return -1;
++    }
++
++    if (ue_desc_p->amf_ue_ngap_id != amf_ue_ngap_id) {
++      NGAP_WARN("UE context amf_ue_ngap_id is different from that of the message (%lu != %lu)",
++                (uint64_t)ue_desc_p->amf_ue_ngap_id, amf_ue_ngap_id);
++    }
++  } else {
++    return -1;
++  }
++
++  /* id-PDUSessionResourceModifyListModInd */
++  NGAP_FIND_PROTOCOLIE_BY_ID(NGAP_PDUSessionResourceModifyIndicationIEs_t, ie, container,
++                             NGAP_ProtocolIE_ID_id_PDUSessionResourceModifyListModInd, false);
++
++  if (ie != NULL) {
++    MessageDef *message_p = itti_alloc_new_message(TASK_NGAP, 0, NGAP_PDUSESSION_MODIFICATION_IND);
++    if (message_p == NULL) {
++      NGAP_ERROR("Failed to allocate memory for NGAP_PDUSESSION_MODIFICATION_IND message\n");
++      return -1;
++    }
++    
++    ngap_pdusession_modification_ind_t *msg = &NGAP_PDUSESSION_MODIFICATION_IND(message_p);
++    memset(msg, 0, sizeof(*msg));
++
++    msg->amf_ue_ngap_id = amf_ue_ngap_id;
++    msg->gNB_ue_ngap_id = gnb_ue_ngap_id;
++
++    /* Process PDUSessionResourceModifyListModInd */
++    for (int i = 0; i < ie->value.choice.PDUSessionResourceModifyListModInd.list.count; i++) {
++      NGAP_PDUSessionResourceModifyItemModInd_t *item_p = 
++        ie->value.choice.PDUSessionResourceModifyListModInd.list.array[i];
++
++      if (msg->nb_of_pdusessions_tobemodified < NGAP_MAX_PDUSESSION) {
++        pdusession_setup_t *session = &msg->pdusessions_tobemodified[msg->nb_of_pdusessions_tobemodified];
++        
++        session->pdusession_id = item_p->pDUSessionID;
++        
++        /* The actual parsing of the transfer data will happen in RRC layer */
++        msg->nb_of_pdusessions_tobemodified++;
++      }
++    }
++
++    itti_send_msg_to_task(TASK_RRC_GNB, amf_desc_p->ngap_gNB_instance->instance, message_p);
++  }
++
++  return 0;
+ }
+ 
+ /* Handlers matrix. Only gNB related procedure present here */

@@ -1,0 +1,163 @@
+diff --git a/common/utils/telnetsrv/telnetsrv_proccmd.c b/common/utils/telnetsrv/telnetsrv_proccmd.c
+index 4255b20956..2c2287ba8b 100644
+--- a/common/utils/telnetsrv/telnetsrv_proccmd.c
++++ b/common/utils/telnetsrv/telnetsrv_proccmd.c
+@@ -60,38 +60,86 @@
+ void decode_procstat(char *record, int debug, telnet_printfunc_t prnt, webdatadef_t *tdata)
+ {
+ char prntline[160];
+-char *procfile_fields;
+-char *strtokptr;
+ char *lptr;
+ int fieldcnt;
+-char toksep[2];
+-
+-fieldcnt = 0;
+-procfile_fields = strtok_r(record, " ", &strtokptr);
+-lptr = prntline;
+-/*http://man7.org/linux/man-pages/man5/proc.5.html gives the structure of the stat file */
+ int priority = 0;
+ int nice = 0;
++
++lptr = prntline;
++fieldcnt = 0;
++
++/* Parse /proc/*/stat file format:
++ * Field 1: pid
++ * Field 2: comm (process name in parentheses, may contain spaces)
++ * Fields 3+: Other fields separated by spaces
++ */
++
++/* Find the first space to get PID */
++char *pid_end = strchr(record, ' ');
++if (pid_end == NULL) {
++    prnt("Error: Invalid stat format\n");
++    return;
++}
++
++/* Extract PID */
++char pid_str[32];
++int pid_len = pid_end - record;
++if (pid_len >= sizeof(pid_str)) pid_len = sizeof(pid_str) - 1;
++strncpy(pid_str, record, pid_len);
++pid_str[pid_len] = '\0';
++
++fieldcnt = 1;
++if (tdata != NULL) {
++    tdata->lines[tdata->numlines].val[0] = strdup(pid_str);
++}
++lptr += sprintf(lptr, "%9.9s ", pid_str);
++
++/* Find the opening parenthesis */
++char *name_start = strchr(pid_end, '(');
++if (name_start == NULL) {
++    prnt("Error: Invalid stat format, missing process name\n");
++    return;
++}
++
++/* Find the closing parenthesis */
++char *name_end = strrchr(name_start, ')');
++if (name_end == NULL) {
++    prnt("Error: Invalid stat format, missing closing parenthesis\n");
++    return;
++}
++
++/* Extract process name */
++int name_len = name_end - name_start - 1;
++if (name_len > 0) {
++    char *process_name = strndup(name_start + 1, name_len);
++    if (tdata != NULL) {
++        tdata->lines[tdata->numlines].val[1] = process_name;
++    }
++    lptr += sprintf(lptr, "%20.20s ", process_name);
++} else {
++    if (tdata != NULL) {
++        tdata->lines[tdata->numlines].val[1] = strdup("");
++    }
++    lptr += sprintf(lptr, "%20.20s ", "");
++}
++
++/* Continue parsing from after the closing parenthesis */
++char *remaining = name_end + 1;
++if (*remaining == ' ') remaining++; // Skip space after ')'
++
++/* Tokenize the rest of the fields */
++char *strtokptr;
++char *procfile_fields = strtok_r(remaining, " ", &strtokptr);
++fieldcnt = 2; // We've already handled PID and process name
++
+ while (procfile_fields != NULL && fieldcnt < 42) {
+   long int policy;
+-  if (strlen(procfile_fields) == 0)
++  if (strlen(procfile_fields) == 0) {
++    procfile_fields = strtok_r(NULL, " ", &strtokptr);
+     continue;
++  }
+   fieldcnt++;
+-  sprintf(toksep, " ");
+   switch (fieldcnt) {
+-    case 1: /* id */
+-      if (tdata != NULL) {
+-        tdata->lines[tdata->numlines].val[0] = strdup(procfile_fields);
+-      }
+-      lptr += sprintf(lptr, "%9.9s ", procfile_fields);
+-      sprintf(toksep, ")");
+-      break;
+-    case 2: /* name */
+-      if (tdata != NULL) {
+-        tdata->lines[tdata->numlines].val[1] = strdup(procfile_fields);
+-      }
+-      lptr += sprintf(lptr, "%20.20s ", procfile_fields + 1);
+-      break;
+     case 3: // thread state
+       lptr += sprintf(lptr, "  %c   ", procfile_fields[0]);
+       break;
+@@ -101,7 +149,7 @@ while (procfile_fields != NULL && fieldcnt < 42) {
+       break;
+     case 18: // priority column index 2 in tdata, -2 to -100 (1, min to 99, highest prio)
+       priority = strtol(procfile_fields, NULL, 0);
+-    case 19: // nice	  column index 3 in tdata  0 to 39 (-20, highest prio, to 19)
++    case 19: // nice      column index 3 in tdata  0 to 39 (-20, highest prio, to 19)
+       if (tdata != NULL) {
+         tdata->lines[tdata->numlines].val[fieldcnt - 16] = strdup(procfile_fields);
+       }
+@@ -161,7 +209,7 @@ while (procfile_fields != NULL && fieldcnt < 42) {
+     default:
+       break;
+   } /* switch on fieldcnr */
+-  procfile_fields = strtok_r(NULL, toksep, &strtokptr);
++  procfile_fields = strtok_r(NULL, " ", &strtokptr);
+ } /* while on proc_fields != NULL */
+ prnt("%s\n", prntline);
+ if (tdata != NULL) {
+@@ -427,7 +475,7 @@ int proccmd_show(char *buf, int debug, telnet_printfunc_t prnt)
+        const mapping *log_maskmap = log_maskmap_ptr();
+        for (int i=0; log_maskmap[i].name != NULL ; i++) {
+                prnt("%02i %17.17s %5.5s   %5.5s\n",i ,log_maskmap[i].name, 
+-	             ((g_log->debug_mask &  log_maskmap[i].value)?"Y":"N"),
++                     ((g_log->debug_mask &  log_maskmap[i].value)?"Y":"N"),
+                      ((g_log->dump_mask & log_maskmap[i].value)?"Y":"N") );
+        }
+    }
+@@ -454,7 +502,7 @@ int proccmd_show(char *buf, int debug, telnet_printfunc_t prnt)
+        prnt("   %02i Ru(s)\n", RC.nb_RU);
+        prnt("   %02i lte RRc(s),     %02i NbIoT RRC(s)\n",    RC.nb_inst, RC.nb_nb_iot_rrc_inst);
+        prnt("   %02i lte MACRLC(s),  %02i NbIoT MACRLC(s)\n", RC.nb_macrlc_inst, RC.nb_nb_iot_macrlc_inst);
+-       prnt("   %02i lte L1,	    %02i NbIoT L1\n",	     RC.nb_L1_inst, RC.nb_nb_iot_L1_inst);
++       prnt("   %02i lte L1,        %02i NbIoT L1\n",        RC.nb_L1_inst, RC.nb_nb_iot_L1_inst);
+ 
+        for(int i=0; i<RC.nb_inst; i++) {
+            prnt("    lte RRC %i:     %02i CC(s) \n",i,((RC.nb_CC == NULL)?0:RC.nb_CC[i]));
+@@ -546,10 +594,10 @@ int s = sscanf(buf,"%ms %i-%i\n",&logsubcmd, &idx1,&idx2);
+    if (s == 1 && logsubcmd != NULL) {
+       if (strcasestr(logsubcmd,"online") != NULL) {
+           if (strcasestr(buf,"noonline") != NULL) {
+-   	      set_glog_onlinelog(0);
++              set_glog_onlinelog(0);
+               prnt("online logging disabled\n",buf);
+           } else {
+-   	      set_glog_onlinelog(1);
++              set_glog_onlinelog(1);
+               prnt("online logging enabled\n",buf);
+           }
+       }

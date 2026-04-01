@@ -1,0 +1,32 @@
+{
+  "run_id": "s00297_3d6648",
+  "function": {
+    "name": "eq_pdcp_info",
+    "file": "openair2/E1AP/lib/e1ap_bearer_context_management.c",
+    "start_line": 387,
+    "end_line": 394,
+    "body_lines": 8,
+    "signature": "static bool eq_pdcp_info(const e1_pdcp_status_info_t *a, const e1_pdcp_status_info_t *b)",
+    "subsystem": "openair2/E1AP/lib",
+    "token_estimate": 20
+  },
+  "bug": {
+    "bug_id": "c_magic_number",
+    "description": "magic number used without symbolic constant making intent unclear and maintenance error-prone",
+    "domain": "generic_c",
+    "subsystems": [
+      "openair1/PHY",
+      "openair2/LAYER2/MAC",
+      "openair2/RRC",
+      "common",
+      "nfapi"
+    ]
+  },
+  "prompt": "There is a magic number used without symbolic constant making intent unclear and maintenance error-prone downstream of function eq_pdcp_info in the openair2/E1AP/lib subsystem.\nThe function is located at openair2/E1AP/lib/e1ap_bearer_context_management.c:387.\nPlease investigate and fix this issue.\n",
+  "trajectory_path": "data/raw/s00297_3d6648_t1_trajectory.jsonl",
+  "patch_path": "data/raw/s00297_3d6648_p1.diff",
+  "patch_lines": 9,
+  "trajectory_steps": 59,
+  "self_eval_accepted": true,
+  "timestamp": "2026-02-11T14:12:54Z"
+}

@@ -1,0 +1,17 @@
+diff --git a/openair1/PHY/NR_UE_TRANSPORT/pss_nr.c b/openair1/PHY/NR_UE_TRANSPORT/pss_nr.c
+index 180ca99918..cc09aa014e 100644
+--- a/openair1/PHY/NR_UE_TRANSPORT/pss_nr.c
++++ b/openair1/PHY/NR_UE_TRANSPORT/pss_nr.c
+@@ -509,7 +509,11 @@ static int pss_search_time_nr(const c16_t **rxdata,
+ {
+   unsigned int n, ar, peak_position, pss_source;
+   int64_t peak_value;
+-  int64_t avg[NUMBER_PSS_SEQUENCE] = {0};
++  int max_avg_size = get_softmodem_params()->sl_mode == 0 ? NUMBER_PSS_SEQUENCE : NUMBER_PSS_SEQUENCE_SL;
++  int64_t avg[max_avg_size];
++  for (int i = 0; i < max_avg_size; i++) {
++    avg[i] = 0;
++  }
+   double ffo_est = 0;
+ 
+   // performing the correlation on a frame length plus one symbol for the first of the two frame

@@ -1,0 +1,26 @@
+diff --git a/openair1/PHY/NR_UE_TRANSPORT/nr_dlsch_demodulation.c b/openair1/PHY/NR_UE_TRANSPORT/nr_dlsch_demodulation.c
+index 37feb297eb..4d488c6e96 100644
+--- a/openair1/PHY/NR_UE_TRANSPORT/nr_dlsch_demodulation.c
++++ b/openair1/PHY/NR_UE_TRANSPORT/nr_dlsch_demodulation.c
+@@ -573,7 +573,7 @@ int nr_rx_pdsch(PHY_VARS_NR_UE *ue,
+                                           dlsch[0].Nl);
+     const uint32_t rx_llr_layer_size = (rx_llr_size + dlsch[0].Nl - 1) / dlsch[0].Nl;
+ 
+-    int16_t* layer_llr[NR_MAX_NB_LAYERS];
++    int16_t* layer_llr[NR_MAX_NB_LAYERS] = {NULL};
+     for (int i=0; i<NR_MAX_NB_LAYERS; i++)
+       layer_llr[i] = (int16_t *)malloc16_clear(rx_llr_layer_size*sizeof(int16_t));
+     for(uint8_t i =startSymbIdx; i < (startSymbIdx+nbSymb);i++) {
+@@ -2189,6 +2189,12 @@ static void nr_dlsch_layer_demapping(int16_t *llr_cw[2],
+                                      int32_t codeword_TB0,
+                                      int32_t codeword_TB1,
+                                      int16_t *llr_layers[NR_MAX_NB_LAYERS]) {
++  
++  // Clear stale protocol state from previous procedure calls
++  if (codeword_TB1 == -1 && llr_cw[0])
++    memset(llr_cw[0], 0, length * sizeof(int16_t));
++  else if (codeword_TB0 == -1 && llr_cw[1])
++    memset(llr_cw[1], 0, length * sizeof(int16_t));
+ 
+   switch (Nl) {
+     case 1:

@@ -1,0 +1,80 @@
+diff --git a/common/utils/T/tracer/gui/textlist.c b/common/utils/T/tracer/gui/textlist.c
+index e919b7c0a5..c1883c4989 100644
+--- a/common/utils/T/tracer/gui/textlist.c
++++ b/common/utils/T/tracer/gui/textlist.c
+@@ -14,21 +14,29 @@ static void paint(gui *_gui, widget *_this)
+   x_fill_rectangle(g->x, g->xwin, this->background_color,
+       this->common.x, this->common.y,
+       this->common.width, this->common.height);
+-  for (i = 0, j = this->starting_line;
+-       i < this->allocated_nlines && j < this->text_count; i++, j++)
+-    x_draw_clipped_string(g->x, g->xwin, DEFAULT_FONT, this->color[j],
+-        this->common.x,
+-        this->common.y + i * this->line_height + this->baseline,
+-        this->text[j],
+-        this->common.x, this->common.y,
+-        this->common.width, this->common.height);
++  /* Protect against using zero line_height */
++  if (this->line_height > 0) {
++    for (i = 0, j = this->starting_line;
++         i < this->allocated_nlines && j < this->text_count; i++, j++)
++      x_draw_clipped_string(g->x, g->xwin, DEFAULT_FONT, this->color[j],
++          this->common.x,
++          this->common.y + i * this->line_height + this->baseline,
++          this->text[j],
++          this->common.x, this->common.y,
++          this->common.width, this->common.height);
++  }
+ }
+ 
+ static void hints(gui *_gui, widget *_w, int *width, int *height)
+ {
+   struct textlist_widget *w = _w;
+   *width = w->wanted_width;
+-  *height = w->wanted_nlines * w->line_height;
++  /* Protect against multiplication with zero line_height */
++  if (w->line_height > 0) {
++    *height = w->wanted_nlines * w->line_height;
++  } else {
++    *height = 0;
++  }
+   LOGD("HINTS textlist wh %d %d\n", *width, *height);
+ }
+ 
+@@ -40,8 +48,19 @@ static void allocate(
+   this->common.y = y;
+   this->common.width = width;
+   this->common.height = height;
+-  this->allocated_nlines = height / this->line_height;
++  
++  /* Protect against division by zero */
++  if (this->line_height > 0) {
++    /* Include partial lines when there's space available */
++    this->allocated_nlines = (height + this->line_height - 1) / this->line_height;
++  } else {
++    this->allocated_nlines = 0;
++  }
++  
+   LOGD("ALLOCATE textlist %p xywh %d %d %d %d nlines %d\n", this, x, y, width, height, this->allocated_nlines);
++  
++  /* Trigger visual update after allocation */
++  send_event(gui, DIRTY, this->common.id);
+ }
+ 
+ static void button(gui *_g, widget *_this, int x, int y,
+@@ -62,9 +81,12 @@ static void button(gui *_g, widget *_this, int x, int y,
+   }
+   /* button 1/2/3 click */
+   if (button >= 1 && button <= 3 && up == 0) {
+-    int line = this->starting_line + y / this->line_height;
+-    if (line >= 0 && line < this->text_count)
+-      gui_notify(g, "click", _this, (int[2]){ line, button });
++    /* Protect against division by zero */
++    if (this->line_height > 0) {
++      int line = this->starting_line + y / this->line_height;
++      if (line >= 0 && line < this->text_count)
++        gui_notify(g, "click", _this, (int[2]){ line, button });
++    }
+   }
+ }
+ 

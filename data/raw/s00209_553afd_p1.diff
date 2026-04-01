@@ -1,0 +1,41 @@
+diff --git a/openair3/NAS/UE/ESM/PdnDisconnect.c b/openair3/NAS/UE/ESM/PdnDisconnect.c
+index cb7b3225bc..1083a21067 100644
+--- a/openair3/NAS/UE/ESM/PdnDisconnect.c
++++ b/openair3/NAS/UE/ESM/PdnDisconnect.c
+@@ -303,6 +303,19 @@ int esm_proc_pdn_disconnect_reject(nas_user_t *user, int pti, int *esm_cause)
+     LOG_TRACE(WARNING, "ESM-PROC  - PTI %d was already INACTIVE", pti);
+     *esm_cause = ESM_CAUSE_MESSAGE_TYPE_NOT_COMPATIBLE;
+   } else {
++    /* Get the identity of the default EPS bearer context allocated to
++     * the PDN connection entry assigned to this procedure transaction
++     * BEFORE releasing the transaction to avoid use-after-free */
++    int ebi = -1;
++    if (*esm_cause != ESM_CAUSE_LAST_PDN_DISCONNECTION_NOT_ALLOWED) {
++      ebi = _pdn_disconnect_get_default_ebi(esm_data, pti);
++      if (ebi < 0) {
++        LOG_TRACE(ERROR, "ESM-PROC  - No default EPS bearer found");
++        *esm_cause = ESM_CAUSE_PROTOCOL_ERROR;
++        LOG_FUNC_RETURN (RETURNerror);
++      }
++    }
++
+     /* Release the transaction identity assigned to this procedure */
+     rc = esm_pt_release(user->esm_pt_data, pti);
+ 
+@@ -310,16 +323,6 @@ int esm_proc_pdn_disconnect_reject(nas_user_t *user, int pti, int *esm_cause)
+       LOG_TRACE(WARNING, "ESM-PROC  - Failed to release PTI %d", pti);
+       *esm_cause = ESM_CAUSE_REQUEST_REJECTED_UNSPECIFIED;
+     } else if (*esm_cause != ESM_CAUSE_LAST_PDN_DISCONNECTION_NOT_ALLOWED) {
+-      /* Get the identity of the default EPS bearer context allocated to
+-       * the PDN connection entry assigned to this procedure transaction */
+-      int ebi = _pdn_disconnect_get_default_ebi(esm_data, pti);
+-
+-      if (ebi < 0) {
+-        LOG_TRACE(ERROR, "ESM-PROC  - No default EPS bearer found");
+-        *esm_cause = ESM_CAUSE_PROTOCOL_ERROR;
+-        LOG_FUNC_RETURN (RETURNerror);
+-      }
+-
+       /*
+        * Notify ESM that all EPS bearer contexts to this PDN have to be
+        * locally deactivated

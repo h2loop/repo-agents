@@ -1,0 +1,44 @@
+diff --git a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+index 51cd290632..59dfbf0723 100644
+--- a/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
++++ b/nfapi/open-nFAPI/nfapi/src/nfapi_p7.c
+@@ -835,6 +835,9 @@ static uint8_t pack_dl_config_request(void *msg, uint8_t **ppWritePackedMsg, uin
+ 
+ 
+ static uint8_t pack_ul_config_request_ulsch_rel8_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end) {
++  if (tlv == NULL)
++    return 0;
++  
+   nfapi_ul_config_ulsch_pdu_rel8_t *ulsch_pdu_rel8 = (nfapi_ul_config_ulsch_pdu_rel8_t *)tlv;
+   return( push32(ulsch_pdu_rel8->handle, ppWritePackedMsg, end) &&
+           push16(ulsch_pdu_rel8->size, ppWritePackedMsg, end) &&
+@@ -853,6 +856,9 @@ static uint8_t pack_ul_config_request_ulsch_rel8_value(void *tlv, uint8_t **ppWr
+           push8(ulsch_pdu_rel8->n_srs, ppWritePackedMsg, end));
+ }
+ static uint8_t pack_ul_config_request_ulsch_rel10_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end) {
++  if (tlv == NULL)
++    return 0;
++  
+   nfapi_ul_config_ulsch_pdu_rel10_t *ulsch_pdu_rel10 = (nfapi_ul_config_ulsch_pdu_rel10_t *)tlv;
+   return (push8(ulsch_pdu_rel10->resource_allocation_type, ppWritePackedMsg, end) &&
+           push32(ulsch_pdu_rel10->resource_block_coding, ppWritePackedMsg, end) &&
+@@ -864,6 +870,9 @@ static uint8_t pack_ul_config_request_ulsch_rel10_value(void *tlv, uint8_t **ppW
+ }
+ 
+ static uint8_t pack_ul_config_request_ulsch_rel11_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end) {
++  if (tlv == NULL)
++    return 0;
++  
+   nfapi_ul_config_ulsch_pdu_rel11_t *ulsch_pdu_rel11 = (nfapi_ul_config_ulsch_pdu_rel11_t *)tlv;
+   return (push8(ulsch_pdu_rel11->virtual_cell_id_enabled_flag, ppWritePackedMsg, end) &&
+           push16(ulsch_pdu_rel11->npusch_identity, ppWritePackedMsg, end) &&
+@@ -872,6 +881,9 @@ static uint8_t pack_ul_config_request_ulsch_rel11_value(void *tlv, uint8_t **ppW
+ }
+ 
+ static uint8_t pack_ul_config_request_ulsch_rel13_value(void *tlv, uint8_t **ppWritePackedMsg, uint8_t *end) {
++  if (tlv == NULL)
++    return 0;
++  
+   nfapi_ul_config_ulsch_pdu_rel13_t *ulsch_pdu_rel13 = (nfapi_ul_config_ulsch_pdu_rel13_t *)tlv;
+   return (push8(ulsch_pdu_rel13->ue_type, ppWritePackedMsg, end) &&
+           push16(ulsch_pdu_rel13->total_number_of_repetitions, ppWritePackedMsg, end) &&

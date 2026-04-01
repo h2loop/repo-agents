@@ -1,0 +1,95 @@
+diff --git a/openair3/NAS/COMMON/EMM/MSG/AttachReject.c b/openair3/NAS/COMMON/EMM/MSG/AttachReject.c
+index c0b3208ff9..ff3a1bd0df 100644
+--- a/openair3/NAS/COMMON/EMM/MSG/AttachReject.c
++++ b/openair3/NAS/COMMON/EMM/MSG/AttachReject.c
+@@ -25,6 +25,7 @@
+ #include <stdint.h>
+ 
+ 
++#include "nas_log.h"
+ #include "TLVEncoder.h"
+ #include "TLVDecoder.h"
+ #include "AttachReject.h"
+@@ -34,17 +35,27 @@ int decode_attach_reject(attach_reject_msg *attach_reject, uint8_t *buffer, uint
+   uint32_t decoded = 0;
+   int decoded_result = 0;
+ 
++  LOG_FUNC_IN;
++  LOG_TRACE(INFO, "EMM  - Attach Reject message len = %d", len);
++
+   // Check if we got a NULL pointer and if buffer length is >= minimum length expected for the message.
+   CHECK_PDU_POINTER_AND_LENGTH_DECODER(buffer, ATTACH_REJECT_MINIMUM_LENGTH, len);
+ 
+   /* Decoding mandatory fields */
+   if ((decoded_result = decode_emm_cause(&attach_reject->emmcause, 0, buffer + decoded, len - decoded)) < 0)
+-    return decoded_result;
++    LOG_FUNC_RETURN(decoded_result);
+   else
+     decoded += decoded_result;
+ 
+   /* Decoding optional fields */
+-  while(len - decoded > 0) {
++  while(((int32_t)len - (int32_t)decoded) > 0) {
++    // Check if we have at least one byte for the IEI
++    if (len - decoded < 1) {
++      LOG_TRACE(ERROR, "EMM  - Attach Reject message too short, missing IEI");
++      errorCodeDecoder = TLV_DECODE_BUFFER_TOO_SHORT;
++      LOG_FUNC_RETURN(TLV_DECODE_BUFFER_TOO_SHORT);
++    }
++
+     uint8_t ieiDecoded = *(buffer + decoded);
+ 
+     /* Type | value iei are below 0x80 so just return the first 4 bits */
+@@ -57,7 +68,7 @@ int decode_attach_reject(attach_reject_msg *attach_reject, uint8_t *buffer, uint
+              decode_esm_message_container(&attach_reject->esmmessagecontainer,
+                                           ATTACH_REJECT_ESM_MESSAGE_CONTAINER_IEI, buffer + decoded,
+                                           len - decoded)) <= 0)
+-        return decoded_result;
++        LOG_FUNC_RETURN(decoded_result);
+ 
+       decoded += decoded_result;
+       /* Set corresponding mask to 1 in presencemask */
+@@ -66,11 +77,11 @@ int decode_attach_reject(attach_reject_msg *attach_reject, uint8_t *buffer, uint
+ 
+     default:
+       errorCodeDecoder = TLV_DECODE_UNEXPECTED_IEI;
+-      return TLV_DECODE_UNEXPECTED_IEI;
++      LOG_FUNC_RETURN(TLV_DECODE_UNEXPECTED_IEI);
+     }
+   }
+ 
+-  return decoded;
++  LOG_FUNC_RETURN(decoded);
+ }
+ 
+ int encode_attach_reject(attach_reject_msg *attach_reject, uint8_t *buffer, uint32_t len)
+@@ -78,12 +89,14 @@ int encode_attach_reject(attach_reject_msg *attach_reject, uint8_t *buffer, uint
+   int encoded = 0;
+   int encode_result = 0;
+ 
++  LOG_FUNC_IN;
++
+   /* Checking IEI and pointer */
+   CHECK_PDU_POINTER_AND_LENGTH_ENCODER(buffer, ATTACH_REJECT_MINIMUM_LENGTH, len);
+ 
+   if ((encode_result = encode_emm_cause(&attach_reject->emmcause, 0, buffer +
+                                         encoded, len - encoded)) < 0)        //Return in case of error
+-    return encode_result;
++    LOG_FUNC_RETURN(encode_result);
+   else
+     encoded += encode_result;
+ 
+@@ -94,11 +107,11 @@ int encode_attach_reject(attach_reject_msg *attach_reject, uint8_t *buffer, uint
+                                         ATTACH_REJECT_ESM_MESSAGE_CONTAINER_IEI, buffer + encoded, len -
+                                         encoded)) < 0)
+       // Return in case of error
+-      return encode_result;
++      LOG_FUNC_RETURN(encode_result);
+     else
+       encoded += encode_result;
+   }
+ 
+-  return encoded;
++  LOG_FUNC_RETURN(encoded);
+ }
+ 

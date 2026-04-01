@@ -1,0 +1,4 @@
+{
+    "is_good_patch": true,
+    "synth_pr": "\n## Title: Fix incorrect sqrt_float function signature causing compilation errors\n\n### Summary\nThe `sqrt_float` function in the linear preprocessing module had an incorrect signature with two parameters when only one was needed. This caused compilation errors when the function was called with a single argument as shown in the commented whitening filter code.\n\nThe issue manifests as a compilation error when the commented whitening filter code is uncommented and compiled, with error messages indicating too few arguments to function call.\n\n### Changes\n- `openair1/PHY/LTE_UE_TRANSPORT/linear_preprocessing_rec.c`: Fixed function definition to take only one parameter and return the computed square root directly\n- `openair1/PHY/LTE_UE_TRANSPORT/linear_preprocessing_rec.h`: Updated function declaration to match implementation\n\n"
+}

@@ -1,0 +1,185 @@
+diff --git a/nfapi/oai_integration/nfapi_vnf.c b/nfapi/oai_integration/nfapi_vnf.c
+index c742a7088a..45a0faae72 100644
+--- a/nfapi/oai_integration/nfapi_vnf.c
++++ b/nfapi/oai_integration/nfapi_vnf.c
+@@ -180,6 +180,19 @@ int vnf_pack_vendor_extension_tlv(void *ve, uint8_t **ppWritePackedMsg, uint8_t
+   nfapi_tl_t *tlv = (nfapi_tl_t *)ve;
+ 
+   switch(tlv->tag) {
++    case NFAPI_NR_FAPI_NUM_BEAMS_PERIOD_VENDOR_EXTENSION_TAG: // 0xA000
++    case NFAPI_NR_FAPI_ANALOG_BF_VENDOR_EXTENSION_TAG: // 0xA001
++      {
++        //NFAPI_TRACE(NFAPI_TRACE_INFO, "Packing NR vendor extension TLV 0x%04x\n", tlv->tag);
++        nfapi_uint8_tlv_t *uint8_tlv = (nfapi_uint8_tlv_t *)tlv;
++
++        if(!push8(uint8_tlv->value, ppWritePackedMsg, end))
++          return 0;
++
++        return 1;
++      }
++      break;
++      
+     case VENDOR_EXT_TLV_2_TAG: {
+       //NFAPI_TRACE(NFAPI_TRACE_INFO, "Packing VENDOR_EXT_TLV_2\n");
+       vendor_ext_tlv_2 *ve = (vendor_ext_tlv_2 *)tlv;
+@@ -196,7 +209,67 @@ int vnf_pack_vendor_extension_tlv(void *ve, uint8_t **ppWritePackedMsg, uint8_t
+ }
+ 
+ int vnf_unpack_vendor_extension_tlv(nfapi_tl_t *tl, uint8_t **ppReadPackedMessage, uint8_t *end, void **ve, nfapi_p4_p5_codec_config_t *codec) {
+-  return -1;
++  // Handle NR-specific vendor extensions for beam management
++  switch(tl->tag) {
++    case NFAPI_NR_FAPI_NUM_BEAMS_PERIOD_VENDOR_EXTENSION_TAG: // 0xA000
++    case NFAPI_NR_FAPI_ANALOG_BF_VENDOR_EXTENSION_TAG: // 0xA001
++      // These are uint8 TLVs, allocate appropriate structure
++      if(codec && codec->allocate) {
++        *ve = (codec->allocate)(sizeof(nfapi_uint8_tlv_t));
++        if(*ve == NULL) {
++          return 0; // Allocation failed
++        }
++        
++        // Initialize the structure properly
++        nfapi_uint8_tlv_t *uint8_tlv = (nfapi_uint8_tlv_t *)(*ve);
++        uint8_tlv->tl.tag = tl->tag;
++        uint8_tlv->tl.length = tl->length;
++        
++        // Read the uint8 value
++        if(!pull8(ppReadPackedMessage, &(uint8_tlv->value), end)) {
++          // Free allocated memory on failure
++          if(codec->deallocate) {
++            (codec->deallocate)(*ve);
++          }
++          *ve = NULL;
++          return 0;
++        }
++        
++        return 1; // Success
++      }
++      return -1; // No allocator available
++      
++    case VENDOR_EXT_TLV_2_TAG:
++      // Existing vendor extension handling
++      if(codec && codec->allocate) {
++        *ve = (codec->allocate)(sizeof(vendor_ext_tlv_2));
++        if(*ve == NULL) {
++          return 0; // Allocation failed
++        }
++        
++        // Initialize the structure properly
++        vendor_ext_tlv_2 *tlv2 = (vendor_ext_tlv_2 *)(*ve);
++        tlv2->tl.tag = tl->tag;
++        tlv2->tl.length = tl->length;
++        
++        // Read the dummy value
++        if(!pull32(ppReadPackedMessage, &(tlv2->dummy), end)) {
++          // Free allocated memory on failure
++          if(codec->deallocate) {
++            (codec->deallocate)(*ve);
++          }
++          *ve = NULL;
++          return 0;
++        }
++        
++        return 1; // Success
++      }
++      return -1; // No allocator available
++      
++    default:
++      // Unknown vendor extension tag
++      return -1;
++  }
+ }
+ void install_nr_schedule_handlers(NR_IF_Module_t *if_inst);
+ void install_schedule_handlers(IF_Module_t *if_inst);
+@@ -1321,10 +1394,67 @@ void phy_deallocate_p7_vendor_ext(nfapi_p7_message_header_t *header) {
+ }
+ 
+ int phy_unpack_vendor_extension_tlv(nfapi_tl_t *tl, uint8_t **ppReadPackedMessage, uint8_t *end, void **ve, nfapi_p7_codec_config_t *codec) {
+-  (void)tl;
+-  (void)ppReadPackedMessage;
+-  (void)ve;
+-  return -1;
++  // Handle NR-specific vendor extensions for beam management
++  switch(tl->tag) {
++    case NFAPI_NR_FAPI_NUM_BEAMS_PERIOD_VENDOR_EXTENSION_TAG: // 0xA000
++    case NFAPI_NR_FAPI_ANALOG_BF_VENDOR_EXTENSION_TAG: // 0xA001
++      // These are uint8 TLVs, allocate appropriate structure
++      if(codec && codec->allocate) {
++        *ve = (codec->allocate)(sizeof(nfapi_uint8_tlv_t));
++        if(*ve == NULL) {
++          return 0; // Allocation failed
++        }
++        
++        // Initialize the structure properly
++        nfapi_uint8_tlv_t *uint8_tlv = (nfapi_uint8_tlv_t *)(*ve);
++        uint8_tlv->tl.tag = tl->tag;
++        uint8_tlv->tl.length = tl->length;
++        
++        // Read the uint8 value
++        if(!pull8(ppReadPackedMessage, &(uint8_tlv->value), end)) {
++          // Free allocated memory on failure
++          if(codec->deallocate) {
++            (codec->deallocate)(*ve);
++          }
++          *ve = NULL;
++          return 0;
++        }
++        
++        return 1; // Success
++      }
++      return -1; // No allocator available
++      
++    case VENDOR_EXT_TLV_1_TAG:
++      // Existing vendor extension handling
++      if(codec && codec->allocate) {
++        *ve = (codec->allocate)(sizeof(vendor_ext_tlv_1));
++        if(*ve == NULL) {
++          return 0; // Allocation failed
++        }
++        
++        // Initialize the structure properly
++        vendor_ext_tlv_1 *tlv1 = (vendor_ext_tlv_1 *)(*ve);
++        tlv1->tl.tag = tl->tag;
++        tlv1->tl.length = tl->length;
++        
++        // Read the dummy value
++        if(!pull32(ppReadPackedMessage, &(tlv1->dummy), end)) {
++          // Free allocated memory on failure
++          if(codec->deallocate) {
++            (codec->deallocate)(*ve);
++          }
++          *ve = NULL;
++          return 0;
++        }
++        
++        return 1; // Success
++      }
++      return -1; // No allocator available
++      
++    default:
++      // Unknown vendor extension tag
++      return -1;
++  }
+ }
+ 
+ int phy_pack_vendor_extension_tlv(void *ve, uint8_t **ppWritePackedMsg, uint8_t *end, nfapi_p7_codec_config_t *codec) {
+@@ -1332,6 +1462,19 @@ int phy_pack_vendor_extension_tlv(void *ve, uint8_t **ppWritePackedMsg, uint8_t
+   nfapi_tl_t *tlv = (nfapi_tl_t *)ve;
+ 
+   switch(tlv->tag) {
++    case NFAPI_NR_FAPI_NUM_BEAMS_PERIOD_VENDOR_EXTENSION_TAG: // 0xA000
++    case NFAPI_NR_FAPI_ANALOG_BF_VENDOR_EXTENSION_TAG: // 0xA001
++      {
++        //NFAPI_TRACE(NFAPI_TRACE_INFO, "Packing NR vendor extension TLV 0x%04x\n", tlv->tag);
++        nfapi_uint8_tlv_t *uint8_tlv = (nfapi_uint8_tlv_t *)tlv;
++
++        if(!push8(uint8_tlv->value, ppWritePackedMsg, end))
++          return 0;
++
++        return 1;
++      }
++      break;
++      
+     case VENDOR_EXT_TLV_1_TAG: {
+       //NFAPI_TRACE(NFAPI_TRACE_INFO, "Packing VENDOR_EXT_TLV_1\n");
+       vendor_ext_tlv_1 *ve = (vendor_ext_tlv_1 *)tlv;

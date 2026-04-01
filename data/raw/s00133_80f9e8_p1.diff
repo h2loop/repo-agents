@@ -1,0 +1,19 @@
+diff --git a/openair1/PHY/nr_phy_common/src/nr_phy_common.c b/openair1/PHY/nr_phy_common/src/nr_phy_common.c
+index 82418cbb53..f5f15d91f7 100644
+--- a/openair1/PHY/nr_phy_common/src/nr_phy_common.c
++++ b/openair1/PHY/nr_phy_common/src/nr_phy_common.c
+@@ -244,10 +244,11 @@ void nr_64qam_llr(int32_t *rxdataF_comp, c16_t *ch_mag, c16_t *ch_mag2, int16_t
+   c16_t *ch_magb_tail = (c16_t *)ch_magb_128;
+   c16_t *llr_tail = (c16_t *)llr_32;
+   for (int i = 0; i < nb_re; i++) {
+-    *llr_tail++ = *rxDataF;
+-    c16_t tmp = saturating_sub(*ch_mag_tail++, *rxDataF++);
++    c16_t tmp = *rxDataF++;
+     *llr_tail++ = tmp;
+-    *llr_tail++ = saturating_sub(*ch_magb_tail++, tmp);
++    c16_t tmp1 = saturating_sub(*ch_mag_tail++, tmp);
++    *llr_tail++ = tmp1;
++    *llr_tail++ = saturating_sub(*ch_magb_tail++, tmp1);
+   }
+ }
+ 

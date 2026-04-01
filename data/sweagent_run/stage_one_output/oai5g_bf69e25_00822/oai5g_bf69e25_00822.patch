@@ -1,0 +1,43 @@
+diff --git a/openair3/UICC/usim_interface.c b/openair3/UICC/usim_interface.c
+index f1019366b1..9b6ac6e230 100644
+--- a/openair3/UICC/usim_interface.c
++++ b/openair3/UICC/usim_interface.c
+@@ -118,18 +118,28 @@ uicc_t * checkUicc(int Mod_id) {
+ 
+ uint8_t getImeisvDigit(const uicc_t *uicc, uint8_t i)
+ {
+-  uint8_t r = 0;
++  // Handle NULL pointer
++  if (uicc == NULL || uicc->imeisvStr == NULL) {
++    LOG_E(SIM, "NULL uicc or imeisvStr in getImeisvDigit\n");
++    return 0;
++  }
++  
+   uint8_t l = strlen(uicc->imeisvStr);
+   if (l > IMEISV_STR_MAX_LENGTH) {
+-    l=IMEISV_STR_MAX_LENGTH;
++    l = IMEISV_STR_MAX_LENGTH;
++  }
++  
++  // Handle out of bounds index
++  if (i >= l) {
++    LOG_W(SIM, "IMEISV digit index %d out of bounds (length %d)\n", i, l);
++    return 0;
+   }
+-  if((uicc->imeisvStr!=NULL) && (i<l))
+-  {
+-    char c = uicc->imeisvStr[i];
+-    if (isdigit(c))
+-    {
+-      r=c-'0';
+-    }
++  
++  char c = uicc->imeisvStr[i];
++  if (isdigit(c)) {
++    return (0x0f & (c - '0'));
++  } else {
++    LOG_W(SIM, "Non-digit character '%c' at IMEISV position %d\n", c, i);
++    return 0;
+   }
+-  return (0x0f & r);
+ }
