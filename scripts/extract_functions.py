@@ -37,9 +37,9 @@ except ImportError:
     )
 
 # ---------------------------------------------------------------------------
-# Directories to scan inside the OAI5G repo
+# Directories to scan (loaded from repo_config.json or overridden via CLI)
 # ---------------------------------------------------------------------------
-SCAN_DIRS = [
+DEFAULT_SCAN_DIRS = [
     "openair1",
     "openair2",
     "openair3",
@@ -254,10 +254,10 @@ def extract_functions_from_file(
     return results
 
 
-def collect_source_files(repo_root: Path) -> list[Path]:
-    """Walk SCAN_DIRS and collect all C/C++ source files."""
+def collect_source_files(repo_root: Path, scan_dirs: list[str] | None = None) -> list[Path]:
+    """Walk scan_dirs and collect all C/C++ source files."""
     files: list[Path] = []
-    for scan_dir in SCAN_DIRS:
+    for scan_dir in (scan_dirs or DEFAULT_SCAN_DIRS):
         dir_path = repo_root / scan_dir
         if not dir_path.is_dir():
             print(f"  [skip] {scan_dir}/ not found", file=sys.stderr)
@@ -270,21 +270,41 @@ def collect_source_files(repo_root: Path) -> list[Path]:
     return files
 
 
+def load_repo_config(config_path: Path) -> dict:
+    """Load repo_config.json if it exists."""
+    if config_path.exists():
+        with open(config_path) as f:
+            return json.load(f)
+    return {}
+
+
 def main():
     parser = argparse.ArgumentParser(
-        description="Extract C/C++ functions from OAI5G for SERA/SVG data generation"
+        description="Extract C/C++ functions for SERA/SVG data generation"
+    )
+    parser.add_argument(
+        "--repo-config",
+        type=Path,
+        default=Path("configs/repo_config.json"),
+        help="Path to repo_config.json (default: configs/repo_config.json)",
     )
     parser.add_argument(
         "--repo-root",
         type=Path,
-        default=Path("openairinterface5g"),
-        help="Path to OAI5G repo root (default: openairinterface5g)",
+        default=None,
+        help="Path to repo root (default: from repo_config.json)",
     )
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("data/oai5g_functions.jsonl"),
-        help="Output JSONL file path (default: data/oai5g_functions.jsonl)",
+        default=None,
+        help="Output JSONL file path (default: from repo_config.json)",
+    )
+    parser.add_argument(
+        "--scan-dirs",
+        nargs="+",
+        default=None,
+        help="Directories to scan (default: from repo_config.json)",
     )
     parser.add_argument(
         "--min-lines",
@@ -293,6 +313,18 @@ def main():
         help=f"Minimum function body lines to include (default: {MIN_BODY_LINES})",
     )
     args = parser.parse_args()
+
+    repo_cfg = load_repo_config(args.repo_config)
+
+    # Resolve defaults from repo_config.json, CLI args take precedence
+    repo_root_default = repo_cfg.get("repo_name", "openairinterface5g")
+    output_default = repo_cfg.get("functions_file", f"data/{repo_cfg.get('repo_short_name', 'repo')}_functions.jsonl")
+    scan_dirs = args.scan_dirs or repo_cfg.get("scan_dirs", DEFAULT_SCAN_DIRS)
+
+    if args.repo_root is None:
+        args.repo_root = Path(repo_root_default)
+    if args.output is None:
+        args.output = Path(output_default)
 
     repo_root = args.repo_root.resolve()
     if not repo_root.is_dir():
@@ -308,7 +340,7 @@ def main():
 
     # Collect files
     print(f"Scanning {repo_root} for C/C++ source files...", file=sys.stderr)
-    source_files = collect_source_files(repo_root)
+    source_files = collect_source_files(repo_root, scan_dirs)
     print(f"  Found {len(source_files)} source files", file=sys.stderr)
 
     # Extract functions

@@ -2,13 +2,13 @@ agent:
   type: default
   templates:
     system_template: |-
-      You are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.
+      You are an expert C/C++ software engineer working on the {{repo_display_name}} codebase.
       You can interact with the codebase using bash commands and a file editor to investigate and fix issues.
     instance_template: |-
       <uploaded_files>
       {{working_dir}}
       </uploaded_files>
-      I've uploaded the OpenAirInterface 5G codebase in {{working_dir}}. Consider the following PR description:
+      I've uploaded the {{repo_display_name}} codebase in {{working_dir}}. Consider the following PR description:
 
       <pr_description>
       {{problem_statement}}

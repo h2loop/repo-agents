@@ -41,6 +41,7 @@ from pathlib import Path
 # Reuse components from rollout1
 from rollout1 import (
     SYSTEM_PROMPT,
+    REPO_CFG,
     chat_completion,
     start_container,
     stop_container,
@@ -48,9 +49,19 @@ from rollout1 import (
     run_rollout,
 )
 
+# Repo-specific values from config
+_REPO_DISPLAY_NAME = REPO_CFG.get("repo_display_name", "OpenAirInterface 5G")
+_SYSTEM_PROMPT_CONTEXT = REPO_CFG.get("system_prompt_context", "")
+_BUILD_CAVEAT = REPO_CFG.get("build_caveat", "")
+_CONTAINER_REPO_PATH = REPO_CFG.get("container_repo_path", "/repo")
+_DOCKER_IMAGE_PREFIX = REPO_CFG.get("docker_image_prefix", "sera")
+
 # Override the system prompt slightly for rollout 2 — no bug hint, just PR description
-ROLLOUT2_SYSTEM_PROMPT = """\
-You are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.
+_build_caveat_line = f"\n{_BUILD_CAVEAT}" if _BUILD_CAVEAT else ""
+ROLLOUT2_SYSTEM_PROMPT = f"""\
+You are an expert C/C++ software engineer working on the {_REPO_DISPLAY_NAME} codebase.
+{_SYSTEM_PROMPT_CONTEXT}
+
 You have access to the following tools to navigate and modify the codebase:
 
 1. **bash** - Execute shell commands. Use for: grep, find, ls, gcc -fsyntax-only, etc.
@@ -60,8 +71,7 @@ You have access to the following tools to navigate and modify the codebase:
    - create: Create a new file
    - insert: Insert text at a specific line
 
-The codebase is a 5G telecommunications implementation with PHY, MAC, RLC, PDCP, RRC layers.
-Working directory is /repo.
+Working directory is {_CONTAINER_REPO_PATH}.{_build_caveat_line}
 
 You will be given a pull request description. Your task is to implement the changes
 described in the PR. Navigate the codebase, understand the relevant code, and make
@@ -150,7 +160,7 @@ def run_single_rollout2(
 def main():
     parser = argparse.ArgumentParser(description="SERA SVG Rollout 2: Reproduction from PR")
     parser.add_argument("--pr", type=Path, help="Single synthetic PR file to process")
-    parser.add_argument("--container", type=str, default="oai5g-sera:latest", help="Docker image")
+    parser.add_argument("--container", type=str, default=f"{_DOCKER_IMAGE_PREFIX}:latest", help="Docker image")
     parser.add_argument("--output-dir", type=Path, default=Path("data/raw"), help="Output directory")
     parser.add_argument("--run-id", type=str, default=None, help="Run ID")
 

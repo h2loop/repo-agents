@@ -16,6 +16,22 @@ from collections import Counter
 from pathlib import Path
 from argparse import ArgumentParser
 
+# ---------------------------------------------------------------------------
+# Repo configuration
+# ---------------------------------------------------------------------------
+REPO_CONFIG_PATH = Path(__file__).resolve().parent.parent / "configs" / "repo_config.json"
+
+
+def _load_repo_config() -> dict:
+    if REPO_CONFIG_PATH.exists():
+        with open(REPO_CONFIG_PATH) as f:
+            return json.load(f)
+    return {}
+
+
+_REPO_CFG = _load_repo_config()
+_REPO_SHORT_NAME = _REPO_CFG.get("repo_short_name", "repo")
+
 
 def load_sweagent_trajectory(traj_dir: Path, instance_id: str) -> list[dict] | None:
     """Load a SWE-agent trajectory from its output directory.
@@ -238,8 +254,8 @@ def main():
     held_out_samples = all_samples[split_idx:]
 
     # Save
-    train_file = args.output_dir / "oai5g_train.jsonl"
-    held_out_file = args.output_dir / "oai5g_held_out.jsonl"
+    train_file = args.output_dir / f"{_REPO_SHORT_NAME}_train.jsonl"
+    held_out_file = args.output_dir / f"{_REPO_SHORT_NAME}_held_out.jsonl"
 
     for filepath, samples in [(train_file, train_samples), (held_out_file, held_out_samples)]:
         with open(filepath, "w") as f:

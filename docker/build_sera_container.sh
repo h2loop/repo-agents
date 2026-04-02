@@ -34,6 +34,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 DOCKERFILE="$SCRIPT_DIR/Dockerfile.sera"
 COMMITS_FILE="$PROJECT_ROOT/configs/commits.json"
+REPO_CONFIG="$PROJECT_ROOT/configs/repo_config.json"
 
 # ---------------------------------------------------------------------------
 # Preflight checks
@@ -58,14 +59,32 @@ if [ ! -f "$COMMITS_FILE" ]; then
     exit 1
 fi
 
-if [ ! -d "$PROJECT_ROOT/openairinterface5g/.git" ]; then
-    echo "ERROR: openairinterface5g/ does not appear to be a git repo at $PROJECT_ROOT/openairinterface5g" >&2
+if [ ! -f "$REPO_CONFIG" ]; then
+    echo "ERROR: repo_config.json not found at $REPO_CONFIG" >&2
     exit 1
 fi
 
 # ---------------------------------------------------------------------------
+# Load repo configuration
+# ---------------------------------------------------------------------------
+REPO_NAME=$(jq -r '.repo_name' "$REPO_CONFIG")
+DOCKER_IMAGE_PREFIX=$(jq -r '.docker_image_prefix' "$REPO_CONFIG")
+CONTAINER_REPO_PATH=$(jq -r '.container_repo_path // "/repo"' "$REPO_CONFIG")
+
+if [ ! -d "$PROJECT_ROOT/$REPO_NAME/.git" ]; then
+    echo "ERROR: $REPO_NAME/ does not appear to be a git repo at $PROJECT_ROOT/$REPO_NAME" >&2
+    exit 1
+fi
+
+echo "Repo config:"
+echo "  repo_name:           $REPO_NAME"
+echo "  docker_image_prefix: $DOCKER_IMAGE_PREFIX"
+echo "  container_repo_path: $CONTAINER_REPO_PATH"
+
+# ---------------------------------------------------------------------------
 # Build per-commit images
 # ---------------------------------------------------------------------------
+echo ""
 echo "=== Reading commit SHAs from $COMMITS_FILE ==="
 
 COMMIT_SHAS=$(jq -r '.commits[].sha' "$COMMITS_FILE")
@@ -78,13 +97,15 @@ for SHA in $COMMIT_SHAS; do
     fi
 
     SHORT_SHA="${SHA:0:7}"
-    IMAGE_TAG="oai5g-sera:${SHORT_SHA}"
+    IMAGE_TAG="${DOCKER_IMAGE_PREFIX}:${SHORT_SHA}"
 
     echo ""
     echo "--- Building image $IMAGE_TAG (commit $SHA) ---"
     docker build \
         -f "$DOCKERFILE" \
-        --build-arg "OAI_COMMIT=$SHA" \
+        --build-arg "REPO_COMMIT=$SHA" \
+        --build-arg "REPO_DIR=$REPO_NAME" \
+        --build-arg "CONTAINER_REPO_PATH=$CONTAINER_REPO_PATH" \
         -t "$IMAGE_TAG" \
         "$PROJECT_ROOT"
     echo "--- Done: $IMAGE_TAG ---"
@@ -94,14 +115,16 @@ done
 # Build HEAD / latest image
 # ---------------------------------------------------------------------------
 echo ""
-echo "=== Building oai5g-sera:latest (HEAD) ==="
+echo "=== Building ${DOCKER_IMAGE_PREFIX}:latest (HEAD) ==="
 docker build \
     -f "$DOCKERFILE" \
-    --build-arg "OAI_COMMIT=HEAD" \
-    -t "oai5g-sera:latest" \
+    --build-arg "REPO_COMMIT=HEAD" \
+    --build-arg "REPO_DIR=$REPO_NAME" \
+    --build-arg "CONTAINER_REPO_PATH=$CONTAINER_REPO_PATH" \
+    -t "${DOCKER_IMAGE_PREFIX}:latest" \
     "$PROJECT_ROOT"
-echo "=== Done: oai5g-sera:latest ==="
+echo "=== Done: ${DOCKER_IMAGE_PREFIX}:latest ==="
 
 echo ""
 echo "All images built successfully."
-docker images --filter "reference=oai5g-sera" --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}\t{{.CreatedAt}}"
+docker images --filter "reference=${DOCKER_IMAGE_PREFIX}" --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}\t{{.CreatedAt}}"

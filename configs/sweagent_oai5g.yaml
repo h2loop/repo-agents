@@ -68,13 +68,10 @@ agent:
   # via the problem_statement field.
   templates:
     system_template: |-
-      You are an expert C/C++ software engineer specializing in telecommunications
-      and 5G protocol stacks. You can interact with a computer to solve tasks in
-      the OpenAirInterface5G codebase.
+      You are an expert C/C++ software engineer. You can interact with a computer
+      to solve tasks in the {{repo_display_name}} codebase.
 
-      The repository implements the full 4G/5G protocol stack including PHY, MAC,
-      RLC, PDCP, RRC, NAS, and related components. The code is primarily C with
-      some C++ and uses standard Linux build tooling (gcc, cmake, make).
+      {{system_prompt_context}}
 
       You have access to a bash shell and a file editor. Use them to explore the
       codebase, understand the code, make changes, and verify your work.
@@ -84,7 +81,7 @@ agent:
       - Use bash commands for navigation, searching, and compilation checks.
       - Use the str_replace_editor tool for precise file edits.
       - You can use `gcc -fsyntax-only <file>` for lightweight syntax validation.
-      - Do NOT attempt a full OAI5G build (it requires hardware SDKs not present).
+      - {{build_caveat}}
       - Focus on correctness, clarity, and minimal diffs.
 
     instance_template: |-
@@ -92,7 +89,7 @@ agent:
       {{working_dir}}
       </uploaded_files>
 
-      The OpenAirInterface5G repository has been mounted at {{working_dir}}.
+      The {{repo_display_name}} repository has been mounted at {{working_dir}}.
 
       <task_description>
       {{problem_statement}}
@@ -183,18 +180,20 @@ env:
     # The image is built by docker/build_sera_container.sh and contains:
     #   - Ubuntu 22.04 base
     #   - gcc, g++, cmake, make, clang-format, ctags, cscope
-    #   - OAI5G source at /repo
-    #   - No full build (no UHD/DPDK hardware SDK dependencies)
+    #   - Repo source at /repo (or container_repo_path from repo_config.json)
+    #   - May not include full build dependencies
+    # NOTE: Update this default to match docker_image_prefix in repo_config.json
     image: "oai5g-sera:latest"
 
-  # Repository configuration is not needed here because the OAI5G source
-  # is already baked into the Docker image at /repo. SWE-agent will detect
+  # Repository configuration is not needed here because the repo source
+  # is already baked into the Docker image. SWE-agent will detect
   # the git repo inside the container automatically.
   # repo: null
 
   # Commands to run inside the container after startup but before the
   # agent begins. Ensure git is configured and the working directory
   # is correct.
+  # NOTE: Update /repo below to match container_repo_path in repo_config.json
   post_startup_commands:
     - "cd /repo"
     - "git config --global --add safe.directory /repo"

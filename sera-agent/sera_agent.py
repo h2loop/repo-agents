@@ -55,8 +55,19 @@ TOOL_SCHEMAS = [
     {"type": "function", "function": {"name": "submit", "description": "Submit the current changes as the final patch", "parameters": {"type": "object", "properties": {}}}},
 ]
 
+def _load_repo_config() -> dict:
+    """Load repo_config.json from the project configs directory."""
+    config_path = Path(__file__).resolve().parent.parent / "configs" / "repo_config.json"
+    if config_path.exists():
+        with open(config_path) as f:
+            return json.load(f)
+    return {}
+
+_REPO_CFG = _load_repo_config()
+_REPO_DISPLAY_NAME = _REPO_CFG.get("repo_display_name", "OpenAirInterface 5G")
+
 SYSTEM_PROMPT = (
-    "You are an expert C/C++ software engineer working on the OpenAirInterface 5G codebase.\n"
+    f"You are an expert C/C++ software engineer working on the {_REPO_DISPLAY_NAME} codebase.\n"
     "You can interact with the codebase using bash commands and a file editor to investigate and fix issues."
 )
 
@@ -326,7 +337,7 @@ class SeraAgent:
         """Format the issue text into the prompt template matching training data."""
         return (
             f"<uploaded_files>\n{self.executor.working_dir}\n</uploaded_files>\n"
-            f"I've uploaded the OpenAirInterface 5G C/C++ codebase in the directory "
+            f"I've uploaded the {_REPO_DISPLAY_NAME} C/C++ codebase in the directory "
             f"{self.executor.working_dir}. Consider the following issue:\n\n"
             f"<pr_description>\n{issue_text}\n</pr_description>\n\n"
             f"Can you help me implement the necessary changes to the codebase so that "

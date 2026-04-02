@@ -12,9 +12,18 @@ import yaml
 from pathlib import Path
 
 
+def load_repo_config(config_path: Path) -> dict:
+    """Load repo_config.json if it exists."""
+    if config_path.exists():
+        with open(config_path) as f:
+            return json.load(f)
+    return {}
+
+
 def main():
     import argparse
     parser = argparse.ArgumentParser()
+    parser.add_argument("--repo-config", type=Path, default=Path("configs/repo_config.json"))
     parser.add_argument("--functions", type=Path, required=True)
     parser.add_argument("--bug-prompts", type=Path, required=True)
     parser.add_argument("--commits", type=Path, required=True)
@@ -22,6 +31,10 @@ def main():
     parser.add_argument("--num-samples", type=int, default=500)
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
+
+    repo_cfg = load_repo_config(args.repo_config)
+    docker_prefix = repo_cfg.get("docker_image_prefix", "sera")
+    short_name = repo_cfg.get("repo_short_name", "repo")
 
     random.seed(args.seed)
 
@@ -48,10 +61,10 @@ def main():
         bug = random.choice(bug_prompts)
         commit = random.choice(commits)
         short_sha = commit[:7]
-        image_name = f"oai5g-sera:{short_sha}"
+        image_name = f"{docker_prefix}:{short_sha}"
 
         instance = {
-            "id": f"oai5g_{short_sha}_{i:05d}",
+            "id": f"{short_name}_{short_sha}_{i:05d}",
             "image_name": image_name,
             "problem_statement": "n/a",  # Stage 1 uses template variables instead
             "repo_name": "repo",
@@ -61,6 +74,9 @@ def main():
                 "bug_description": bug["description"],
                 "bug_id": bug["bug_id"],
                 "subsystem": func["subsystem"],
+                "repo_display_name": repo_cfg.get("repo_display_name", "OpenAirInterface 5G"),
+                "system_prompt_context": repo_cfg.get("system_prompt_context", ""),
+                "build_caveat": repo_cfg.get("build_caveat", ""),
             },
         }
         instances.append(instance)

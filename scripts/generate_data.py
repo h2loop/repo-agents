@@ -55,6 +55,7 @@ from rollout1 import (
     load_bug_prompts,
     format_prompt,
     run_single as run_rollout1_single,
+    REPO_CFG,
 )
 from generate_pr import (
     load_demo_prs,
@@ -173,6 +174,7 @@ def main():
     parser.add_argument("--workers", type=int, default=1, help="Parallel workers (each uses own container)")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--resume", action="store_true", help="Skip already-completed run IDs")
+    parser.add_argument("--min-lines", type=int, default=20, help="Minimum function body lines (default: 20)")
     args = parser.parse_args()
 
     random.seed(args.seed)
@@ -180,6 +182,8 @@ def main():
 
     # Load all data
     functions = load_functions(args.functions)
+    functions = [f for f in functions if f.get("body_lines", 0) >= args.min_lines]
+    print(f"  After min-lines filter ({args.min_lines}): {len(functions)} functions", file=sys.stderr)
     bug_prompts = load_bug_prompts(args.bug_prompts)
     template = args.template.read_text()
     demo_prs = load_demo_prs(args.demo_prs_dir)
@@ -208,6 +212,22 @@ def main():
             existing_ids.add(f.stem.replace("_verification", ""))
         print(f"  Resuming: {len(existing_ids)} already completed", file=sys.stderr)
 
+    # Build subsystem index: bug subsystem prefix -> list of matching functions
+    # Bug subsystems are path prefixes (e.g. "lib/phy"), function subsystems are
+    # deeper paths (e.g. "lib/phy/upper"). Match by startswith.
+    bugs_with_subsystems = [b for b in bug_prompts if b.get("subsystems")]
+    bugs_without_subsystems = [b for b in bug_prompts if not b.get("subsystems")]
+
+    def pick_func_for_bug(bug: dict) -> dict:
+        subsystems = bug.get("subsystems", [])
+        if not subsystems:
+            return random.choice(functions)
+        candidates = [
+            f for f in functions
+            if any(f["subsystem"].startswith(sub) for sub in subsystems)
+        ]
+        return random.choice(candidates) if candidates else random.choice(functions)
+
     # Generate sample plan: distribute across commits evenly
     samples_per_commit = args.num_samples // len(commits)
     remainder = args.num_samples % len(commits)
@@ -215,10 +235,11 @@ def main():
     sample_plan: list[tuple[str, dict, dict]] = []  # (container_image, func, bug)
     for ci, commit in enumerate(commits):
         n = samples_per_commit + (1 if ci < remainder else 0)
-        image = f"oai5g-sera:{commit[:7]}" if commit != "latest" else "oai5g-sera:latest"
+        docker_prefix = REPO_CFG.get("docker_image_prefix", "sera")
+        image = f"{docker_prefix}:{commit[:7]}" if commit != "latest" else f"{docker_prefix}:latest"
         for _ in range(n):
-            func = random.choice(functions)
             bug = random.choice(bug_prompts)
+            func = pick_func_for_bug(bug)
             sample_plan.append((image, func, bug))
 
     # Shuffle to interleave commits

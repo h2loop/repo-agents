@@ -41,13 +41,36 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+# ---------------------------------------------------------------------------
+# Repo configuration
+# ---------------------------------------------------------------------------
+REPO_CONFIG_PATH = Path(__file__).resolve().parent.parent / "configs" / "repo_config.json"
+
+
+def _load_repo_config() -> dict:
+    if REPO_CONFIG_PATH.exists():
+        with open(REPO_CONFIG_PATH) as f:
+            return json.load(f)
+    return {}
+
+
+_REPO_CFG = _load_repo_config()
+_REPO_DISPLAY_NAME = _REPO_CFG.get("repo_display_name", "OpenAirInterface 5G")
+_SYSTEM_PROMPT_CONTEXT = _REPO_CFG.get("system_prompt_context", "")
+_SUBSYSTEM_DESC = _REPO_CFG.get("subsystem_description", "")
+_CONTAINER_REPO_PATH = _REPO_CFG.get("container_repo_path", "/repo")
+_REPO_SHORT_NAME = _REPO_CFG.get("repo_short_name", "repo")
+
+_subsystem_line = f"\nSubsystems: {_SUBSYSTEM_DESC}" if _SUBSYSTEM_DESC else ""
 
 # ---------------------------------------------------------------------------
 # SWE-agent system prompt (must match training format exactly)
 # ---------------------------------------------------------------------------
-SWE_AGENT_SYSTEM_PROMPT = """\
-SETTING: You are an autonomous coding agent working on the OpenAirInterface 5G \
-codebase located at /repo. You have access to the following tools:
+SWE_AGENT_SYSTEM_PROMPT = f"""\
+SETTING: You are an autonomous coding agent working on the {_REPO_DISPLAY_NAME} \
+codebase located at {_CONTAINER_REPO_PATH}. {_SYSTEM_PROMPT_CONTEXT}
+
+You have access to the following tools:
 
 1. bash - Execute shell commands
    Usage: ```bash
@@ -65,11 +88,7 @@ INSTRUCTIONS:
 - Navigate the repository to understand the code structure
 - Make targeted changes to fix the issue described
 - Test your changes when possible (e.g., gcc -fsyntax-only)
-- When finished, output SUBMIT
-
-The repository contains a 5G telecommunications stack implementation in C/C++ \
-with subsystems: PHY (openair1), MAC/RLC/PDCP (openair2/LAYER2), RRC (openair2/RRC), \
-NAS (openair3/NAS), and supporting infrastructure.
+- When finished, output SUBMIT{_subsystem_line}
 """
 
 
@@ -173,7 +192,7 @@ def compute_sample_metadata(
     total_tokens = sum(estimate_tokens(m["content"]) for m in conversation)
 
     return {
-        "source": "oai5g_sera",
+        "source": f"{_REPO_SHORT_NAME}_sera",
         "run_id": sample_info.get("run_id", "unknown"),
         "rollout_type": sample_info.get("rollout_type", "unknown"),
         "token_count": total_tokens,
@@ -259,8 +278,8 @@ def main():
     train = converted[held_out_n:]
 
     # Write outputs
-    train_path = args.output_dir / "oai5g_train.jsonl"
-    held_out_path = args.output_dir / "oai5g_held_out.jsonl"
+    train_path = args.output_dir / f"{_REPO_SHORT_NAME}_train.jsonl"
+    held_out_path = args.output_dir / f"{_REPO_SHORT_NAME}_held_out.jsonl"
 
     with open(train_path, "w") as f:
         for entry in train:

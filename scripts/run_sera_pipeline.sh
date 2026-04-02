@@ -24,13 +24,25 @@ cd "$PROJECT_DIR"
 # Activate venv
 source "$PROJECT_DIR/.venv/bin/activate"
 
+# --- Load repo configuration ---
+REPO_CONFIG="$PROJECT_DIR/configs/repo_config.json"
+
+if [ ! -f "$REPO_CONFIG" ]; then
+    echo "ERROR: repo_config.json not found at $REPO_CONFIG" >&2
+    exit 1
+fi
+
+REPO_SHORT_NAME=$(python3 -c "import json; print(json.load(open('$REPO_CONFIG'))['repo_short_name'])")
+FUNCTIONS_FILE_REL=$(python3 -c "import json; print(json.load(open('$REPO_CONFIG')).get('functions_file', 'data/${REPO_SHORT_NAME}_functions.jsonl'))")
+
 # --- Configuration ---
 NUM_SAMPLES=${NUM_SAMPLES:-1000}
 NUM_WORKERS=${NUM_WORKERS:-8}
 SEED=${SEED:-42}
 
-FUNCTIONS_FILE="$PROJECT_DIR/data/oai5g_functions.jsonl"
-BUG_PROMPTS="$PROJECT_DIR/configs/bug_prompts.json"
+FUNCTIONS_FILE="$PROJECT_DIR/$FUNCTIONS_FILE_REL"
+BUG_PROMPTS_REL=$(python3 -c "import json; print(json.load(open('$REPO_CONFIG')).get('bug_prompts_file', 'configs/bug_prompts.json'))")
+BUG_PROMPTS="$PROJECT_DIR/$BUG_PROMPTS_REL"
 COMMITS_FILE="$PROJECT_DIR/configs/commits.json"
 
 STAGE_ONE_CONFIG="configs/sweagent/stage_one.yaml"

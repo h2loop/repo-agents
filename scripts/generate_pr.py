@@ -36,6 +36,22 @@ from pathlib import Path
 import requests
 
 # ---------------------------------------------------------------------------
+# Repo configuration
+# ---------------------------------------------------------------------------
+REPO_CONFIG_PATH = Path(__file__).resolve().parent.parent / "configs" / "repo_config.json"
+
+
+def _load_repo_config() -> dict:
+    if REPO_CONFIG_PATH.exists():
+        with open(REPO_CONFIG_PATH) as f:
+            return json.load(f)
+    return {}
+
+
+_REPO_CFG = _load_repo_config()
+_REPO_DISPLAY_NAME = _REPO_CFG.get("repo_display_name", "OpenAirInterface 5G")
+
+# ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
 BASE_URL = os.getenv("LLM_BASE_URL", "https://litellm-prod-909645453767.asia-south1.run.app")
@@ -44,7 +60,7 @@ MODEL = os.getenv("LLM_MODEL", "qwen/qwen3-coder-480b-a35b-instruct-maas")
 
 PR_GENERATION_PROMPT = """\
 You are a senior software engineer. Given the following agent trajectory that made changes \
-to the OpenAirInterface 5G codebase, write a concise pull request description.
+to the {repo_display_name} codebase, write a concise pull request description.
 
 The PR description should:
 1. Have a clear title line (starting with "## Title:")
@@ -199,6 +215,7 @@ def generate_pr(
     summary = summarize_trajectory(trajectory)
 
     prompt = PR_GENERATION_PROMPT.format(
+        repo_display_name=_REPO_DISPLAY_NAME,
         demo_pr=demo_pr,
         trajectory_summary=summary,
         patch=patch,
@@ -262,12 +279,11 @@ def main():
 
     if not demo_prs:
         print("Warning: No demonstration PRs found. Using placeholder.", file=sys.stderr)
-        demo_prs = ["## Title: Fix buffer overflow in MAC scheduler\n\n"
-                     "Fix an off-by-one error in the resource block allocation loop "
-                     "that could cause a buffer overflow when the number of UEs exceeds "
-                     "the maximum configured value.\n\n"
-                     "### Changes\n- `openair2/LAYER2/MAC/eNB_scheduler.c`: Fix loop bound check\n\n"
-                     "### Testing\n- Verified with 64 UE simulation scenario"]
+        fallback = _REPO_CFG.get(
+            "fallback_demo_pr",
+            "## Title: Fix bug\n\nFix an issue in the codebase.\n\n### Changes\n- Fixed the relevant source file\n\n### Testing\n- Verified manually",
+        )
+        demo_prs = [fallback]
 
     if args.trajectory:
         # Single mode
