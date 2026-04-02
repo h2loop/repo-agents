@@ -1,0 +1,64 @@
+# =============================================================================
+# SERA Training Overrides for Nemotron-3-Nano-30B-A3B
+#
+# These override the recipe defaults for our SERA OAI5G SFT dataset.
+# Adjust based on your cluster hardware (8×A100 80GB or 8×H100).
+# =============================================================================
+
+# --- Checkpoint ---
+checkpoint:
+  # Path to pretrained Nemotron-3-Nano weights (download from HF or NGC)
+  pretrained_checkpoint: /workspace/models/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16
+  save: /workspace/results/sera_nemotron_nano
+  save_interval: 100
+  ckpt_format: torch_dist
+
+# --- Training ---
+train:
+  # 821 training samples, ~6.5 epochs at GBS=128 → ~52 steps
+  # Increase for more epochs; 3-5 epochs typical for SFT
+  train_iters: 500
+  global_batch_size: 128
+  micro_batch_size: 1
+
+# --- Validation ---
+validation:
+  eval_interval: 50
+  eval_iters: 10
+
+# --- Optimizer ---
+optimizer:
+  # LoRA: 1e-4 works well. Full SFT: use 5e-6
+  # Override on CLI: optimizer.lr=5e-6
+  lr: 1e-4
+  weight_decay: 0.01
+  adam_beta2: 0.95
+  adam_eps: 1.0e-8
+
+# --- Scheduler ---
+scheduler:
+  lr_decay_style: cosine
+  lr_warmup_iters: 20
+  min_lr: 1.0e-6
+
+# --- Model parallelism ---
+# Default: TP=1, PP=1, EP=8 (8 GPUs for expert parallelism)
+# For 8×H100: this is the recommended config
+# For 16 GPUs (2 nodes): try TP=2, EP=8
+model:
+  tensor_model_parallel_size: 1
+  pipeline_model_parallel_size: 1
+  expert_model_parallel_size: 8
+  sequence_parallel: false
+  context_parallel_size: 1
+  seq_length: 4096
+
+# --- Logging ---
+logger:
+  log_interval: 5
+  wandb_project: sera-nemotron-sft
+  wandb_exp_name: sera_oai5g_lora
+
+# --- RNG ---
+rng:
+  seed: 1234
