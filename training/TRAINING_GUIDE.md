@@ -227,35 +227,157 @@ export WANDB_API_KEY="your_key"
 
 ---
 
-## After Training
+## After Training — Inference with the SERA Agent Harness
 
-### Export / Merge LoRA Weights
+The `sera-agent/` directory contains a lightweight, zero-framework agent harness
+purpose-built for the fine-tuned model. It implements the same agentic loop the
+model was trained on: **generate → parse tool calls → execute → append result → repeat**.
 
-For LoRA, merge adapter weights back into the base model before serving:
-```python
-# Use Megatron-Bridge's checkpoint utilities or convert to HF format
-# Exact command depends on Megatron-Bridge version
-```
+### Step 1: Export / Merge LoRA Weights
 
-### Serve with vLLM
+For LoRA, merge adapter weights back into the base model to get a standalone checkpoint:
 
 ```bash
-vllm serve /workspace/results/sera_merged \
-    --port 8000 \
-    --tensor-parallel-size 4
+# Megatron-Bridge provides checkpoint conversion utilities.
+# The exact command depends on version — check Megatron-Bridge docs.
+# The goal is a single merged HF-format checkpoint directory:
+#   /workspace/results/sera_merged/
+#     ├── config.json
+#     ├── model-00001-of-00004.safetensors
+#     ├── ...
+#     ├── tokenizer.json
+#     └── tokenizer_config.json
 ```
 
-### Run the SERA Agent
+For full SFT, the checkpoint is already a complete model — just convert from
+Megatron distributed format to HF format if needed.
+
+### Step 2: Serve with vLLM
+
+```bash
+# Single node, 4-way tensor parallelism (fits on 4× A100/H100 80GB)
+vllm serve /workspace/results/sera_merged \
+    --port 8000 \
+    --tensor-parallel-size 4 \
+    --max-model-len 8192 \
+    --trust-remote-code
+
+# Verify the server is up
+curl http://localhost:8000/v1/models
+```
+
+vLLM exposes an OpenAI-compatible `/v1/chat/completions` endpoint. The SERA
+agent harness talks to this endpoint — no Megatron-Bridge needed at inference time.
+
+### Step 3: Run the SERA Agent
 
 ```bash
 cd /workspace/repo-agents/sera-agent
+
+# Basic usage — give it a repo and an issue description
 python3 sera_agent.py \
     --model-url http://localhost:8000/v1 \
     --model-name nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16 \
-    --repo /path/to/oai5g \
-    --issue "Fix the memory leak in remove_job()" \
+    --repo /path/to/openairinterface5g \
+    --issue "Fix the memory leak in remove_job() in job.c" \
+    --output trajectory.json
+
+# Read issue from a file (for longer descriptions)
+python3 sera_agent.py \
+    --model-url http://localhost:8000/v1 \
+    --model-name nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16 \
+    --repo /path/to/openairinterface5g \
+    --issue-file bug_description.txt \
+    --max-steps 30 \
     --output trajectory.json
 ```
+
+**CLI arguments:**
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--model-url` | `http://localhost:8000/v1` | vLLM server URL |
+| `--model-name` | required | Model name as registered in vLLM |
+| `--repo` | required | Path to the target repository (agent runs bash/editor here) |
+| `--issue` | — | Issue description as a string |
+| `--issue-file` | — | Path to a file containing the issue description |
+| `--max-steps` | `50` | Max agentic loop iterations before forced stop |
+| `--output` | — | Save full trajectory (all messages) to JSON |
+| `--temperature` | `0.0` | Sampling temperature |
+| `--max-tokens` | `4096` | Max tokens per generation |
+
+### How the Agent Loop Works
+
+```
+1. Format system prompt + issue into messages
+2. Send messages + tool schemas to vLLM
+3. Model responds with <tool_call> XML blocks
+4. Parser extracts structured ToolCall objects
+5. Executor dispatches each tool call:
+   - bash → subprocess.run(command, cwd=repo, timeout=120)
+   - str_replace_editor → view/edit/create/insert/undo_edit
+   - submit → capture `git diff` as final patch, stop loop
+6. Tool output appended as tool response message
+7. Go to step 2 (until submit or max_steps)
+```
+
+The model outputs Nemotron-native XML tool calls:
+```xml
+<tool_call>
+<function=bash>
+<parameter=command>
+find /repo -name "job.c" -type f
+</parameter>
+</function>
+</tool_call>
+```
+
+The parser (`sera-agent/tools/parser.py`) handles edge cases like `<tool_call>`
+appearing inside echo commands or `</parameter>` in file content — it only splits
+on tags at line boundaries (validated against 27,187 tool calls, zero errors).
+
+### The 3 Tools
+
+| Tool | Training Distribution | What It Does |
+|------|----------------------|--------------|
+| `bash` | 52.1% (14,106 calls) | Execute shell commands — `find`, `grep`, `cat`, `make`, `gcc`, etc. |
+| `str_replace_editor` | 41.9% (11,466 calls) | 5 commands: `view` (cat -n), `str_replace` (find & replace), `create`, `insert`, `undo_edit` |
+| `submit` | 5.9% (1,615 calls) | Runs `git diff` to capture the final patch, then stops the loop |
+
+### Output
+
+With `--output trajectory.json`, the agent saves the full conversation:
+```json
+{
+  "issue": "Fix the memory leak...",
+  "repo": "/path/to/oai5g",
+  "steps": 12,
+  "patch": "diff --git a/...",
+  "messages": [
+    {"role": "system", "content": "..."},
+    {"role": "user", "content": "..."},
+    {"role": "assistant", "content": "<think>...</think>\n<tool_call>..."},
+    {"role": "tool", "content": "find output..."},
+    ...
+  ]
+}
+```
+
+Apply the generated patch:
+```bash
+cd /path/to/openairinterface5g
+git apply /path/to/patch.diff
+```
+
+### Running Tests
+
+```bash
+cd /workspace/repo-agents/sera-agent
+python3 -m tests.test_harness
+```
+
+Tests cover parser edge cases (XML in values, multi-line params), editor
+operations, and round-trip validation against real training samples.
 
 ---
 
@@ -271,6 +393,10 @@ python3 sera_agent.py \
 | `data/megatron_sft/training.jsonl` | 821 training samples |
 | `data/megatron_sft/validation.jsonl` | 92 validation samples |
 | `data/megatron_sft/tool_schemas.json` | Tool schemas (bash, str_replace_editor, submit) |
+| `sera-agent/sera_agent.py` | Inference harness — agent loop, LLM client, tool executor |
+| `sera-agent/tools/parser.py` | Nemotron `<tool_call>` XML parser |
+| `sera-agent/tools/editor.py` | str_replace_editor (view, str_replace, create, insert, undo_edit) |
+| `sera-agent/tests/test_harness.py` | Parser + editor test suite (20 tests) |
 
 ---
 
