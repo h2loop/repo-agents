@@ -54,8 +54,23 @@ def parse_patch_lines(patch_text: str) -> set[str]:
     return changed
 
 
+def _fuzzy_match_count(p1_lines: set[str], p2_lines: set[str], threshold: float = 0.7) -> int:
+    """Count P1 lines that have a fuzzy match (>= threshold) in P2."""
+    from difflib import SequenceMatcher
+    matched = 0
+    for line1 in p1_lines:
+        for line2 in p2_lines:
+            if SequenceMatcher(None, line1, line2).ratio() >= threshold:
+                matched += 1
+                break
+    return matched
+
+
 def compute_recall(p1_text: str, p2_text: str) -> float:
     """Compute line-level recall: r = |P2 ∩ P1| / |P1|.
+
+    Uses exact matching first, then fuzzy matching (>= 0.7 similarity)
+    for remaining lines to handle variable-name-only differences.
 
     Returns 0.0 if P1 has no changed lines (degenerate case).
     """
@@ -65,8 +80,14 @@ def compute_recall(p1_text: str, p2_text: str) -> float:
     if not p1_lines:
         return 0.0
 
-    intersection = p1_lines & p2_lines
-    return len(intersection) / len(p1_lines)
+    # Exact matches
+    exact = p1_lines & p2_lines
+    # Fuzzy matches for remaining lines
+    remaining_p1 = p1_lines - exact
+    remaining_p2 = p2_lines - exact
+    fuzzy = _fuzzy_match_count(remaining_p1, remaining_p2) if remaining_p1 and remaining_p2 else 0
+
+    return (len(exact) + fuzzy) / len(p1_lines)
 
 
 def classify_verification(score: float) -> str:
@@ -91,16 +112,20 @@ def verify_pair(p1_path: Path, p2_path: Path) -> dict:
 
     p1_lines = parse_patch_lines(p1_text)
     p2_lines = parse_patch_lines(p2_text)
-    intersection = p1_lines & p2_lines
+    exact = p1_lines & p2_lines
+    remaining_p1 = p1_lines - exact
+    remaining_p2 = p2_lines - exact
+    fuzzy = _fuzzy_match_count(remaining_p1, remaining_p2) if remaining_p1 and remaining_p2 else 0
 
-    score = len(intersection) / len(p1_lines) if p1_lines else 0.0
+    score = (len(exact) + fuzzy) / len(p1_lines) if p1_lines else 0.0
 
     return {
         "p1_file": str(p1_path),
         "p2_file": str(p2_path),
         "p1_changed_lines": len(p1_lines),
         "p2_changed_lines": len(p2_lines),
-        "intersection_lines": len(intersection),
+        "exact_match_lines": len(exact),
+        "fuzzy_match_lines": fuzzy,
         "recall_score": round(score, 4),
         "classification": classify_verification(score),
     }

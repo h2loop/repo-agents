@@ -77,6 +77,11 @@ You will be given a pull request description. Your task is to implement the chan
 described in the PR. Navigate the codebase, understand the relevant code, and make
 the necessary modifications.
 
+IMPORTANT RULES:
+- Output exactly ONE bash command per response. Do NOT include multiple code blocks.
+- Before you SUBMIT, always run `git diff` to verify your changes were actually applied.
+- If `git diff` shows no changes, your edits did not take effect — retry.
+
 When you are done making your changes, output SUBMIT to indicate you are finished.
 
 Think step by step. First understand what the PR is asking for, then locate the relevant

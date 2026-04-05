@@ -97,6 +97,11 @@ You have access to the following tools to navigate and modify the codebase:
 
 Working directory is {_CONTAINER_REPO_PATH}.{_build_caveat_line}
 
+IMPORTANT RULES:
+- Output exactly ONE bash command per response. Do NOT include multiple code blocks.
+- Before you SUBMIT, always run `git diff` to verify your changes were actually applied.
+- If `git diff` shows no changes, your edits did not take effect — retry.
+
 When you are done making your changes, output SUBMIT to indicate you are finished.
 
 Think step by step. First understand the code around the indicated function, then investigate
@@ -263,10 +268,6 @@ def parse_assistant_action(content: str) -> tuple[str | None, dict | None, str]:
 
     reasoning = content
 
-    # Check for SUBMIT
-    if "SUBMIT" in content.upper():
-        return "submit", {}, reasoning
-
     # --- Kimi K2 / Moonshot native tool call format ---
     tool_call_match = re.search(
         r"<\|tool_call_begin\|>\s*functions\.(\w+):\d+\s*"
@@ -289,9 +290,10 @@ def parse_assistant_action(content: str) -> tuple[str | None, dict | None, str]:
             return tool_name, tool_args, reasoning
 
     # --- Markdown bash code blocks ---
-    bash_match = re.search(r"```(?:bash|sh|shell)?\s*\n(.+?)```", content, re.DOTALL)
-    if bash_match:
-        cmd = bash_match.group(1).strip()
+    # Collect ALL bash blocks and execute sequentially (model often emits multiple)
+    bash_matches = re.findall(r"```(?:bash|sh|shell)?\s*\n(.+?)```", content, re.DOTALL)
+    if bash_matches:
+        cmd = " ; ".join(m.strip() for m in bash_matches)
         return "bash", {"command": cmd}, reasoning
 
     # --- Explicit TOOL: / COMMAND: patterns ---
@@ -303,17 +305,57 @@ def parse_assistant_action(content: str) -> tuple[str | None, dict | None, str]:
             if cmd_match:
                 return "bash", {"command": cmd_match.group(1).strip()}, reasoning
 
+    # --- Undelimited "bash\n<command>" pattern ---
+    # Some models output "bash\n<command>" without triple-backtick fencing.
+    undelimited = re.search(r"(?:^|\n)bash\n(.+?)(?:\n\n|\n```|$)", content, re.DOTALL)
+    if undelimited:
+        cmd = undelimited.group(1).strip()
+        # Filter out str_replace_editor invocations mistakenly prefixed with "bash"
+        if cmd.startswith("str_replace_editor"):
+            # Parse: str_replace_editor str_replace <path> '<old>' '<new>'
+            ste = re.match(
+                r"str_replace_editor\s+(str_replace|view|create|insert)\s+(\S+)(.*)",
+                cmd, re.DOTALL,
+            )
+            if ste:
+                subcmd, path = ste.group(1), ste.group(2)
+                rest = ste.group(3).strip()
+                args: dict = {"command": subcmd, "path": path}
+                if subcmd == "str_replace":
+                    # Try to extract old_str / new_str from quoted arguments
+                    parts = re.findall(r"'((?:[^'\\]|\\.)*)'", rest)
+                    if len(parts) >= 2:
+                        args["old_str"] = parts[0]
+                        args["new_str"] = parts[1]
+                    elif len(parts) == 1:
+                        args["old_str"] = parts[0]
+                        args["new_str"] = ""
+                return "str_replace_editor", args, reasoning
+        if cmd:
+            return "bash", {"command": cmd}, reasoning
+
     # --- File viewing patterns ---
     view_match = re.search(r"(?:view|VIEW|View)\s+(?:file\s+)?['\"]?(/[^\s'\"]+)", content)
     if view_match:
         return "str_replace_editor", {"command": "view", "path": view_match.group(1)}, reasoning
 
     # --- Bare command detection (last resort) ---
+    _BARE_PREFIXES = (
+        "grep ", "find ", "ls ", "cat ", "cd ", "head ", "tail ",
+        "sed ", "awk ", "echo ", "diff ", "patch ", "python3 ", "chmod ",
+        "mkdir ", "cp ", "mv ", "rm ", "wc ", "sort ", "uniq ", "xargs ",
+    )
     lines = content.strip().split("\n")
     last_lines = [l.strip() for l in lines[-3:] if l.strip()]
     for line in last_lines:
-        if line.startswith(("grep ", "find ", "ls ", "cat ", "cd ", "head ", "tail ")):
+        if line.startswith(_BARE_PREFIXES):
             return "bash", {"command": line}, reasoning
+
+    # Check for SUBMIT only AFTER all tool call formats — the model often mentions
+    # SUBMIT in planning text alongside a tool call (e.g. "I'll fix this and SUBMIT"),
+    # which was previously short-circuiting execution.
+    if "SUBMIT" in content.upper():
+        return "submit", {}, reasoning
 
     # No tool detected — return None to let the model try again
     return None, None, reasoning
@@ -387,6 +429,8 @@ def run_rollout(
         else:
             # No tool parsed — nudge the model
             consecutive_nudges += 1
+            content_preview = effective_content[:200].replace('\n', '\\n')
+            print(f"    [step {step}] no tool parsed (nudge {consecutive_nudges}/{MAX_CONSECUTIVE_NUDGES}): {content_preview!r}", file=sys.stderr)
             if consecutive_nudges >= MAX_CONSECUTIVE_NUDGES:
                 trajectory.append({"role": "system", "content": "Agent stuck — aborting."})
                 break
@@ -414,7 +458,7 @@ def self_evaluate(trajectory: list[dict], patch: str, original_prompt: str) -> b
         return False  # No change made
 
     eval_prompt = f"""\
-You were given this task:
+An agent was asked to modify C/C++ code near a specific function. Here is the task it was given:
 {original_prompt}
 
 The agent produced this patch:
@@ -422,9 +466,9 @@ The agent produced this patch:
 {patch[:3000]}
 ```
 
-Does this patch represent a meaningful and aligned change related to the task description?
-Answer YES if the change is relevant (even if imperfect), or NO if it is completely unrelated
-or trivially empty.
+Does this patch make a substantive, non-trivial code change (not just comments, whitespace, or
+formatting)? The change does not need to perfectly match the task — any meaningful code
+modification in the target area is acceptable.
 
 Answer with a single word: YES or NO.
 """
@@ -438,16 +482,21 @@ Answer with a single word: YES or NO.
         reasoning = msg.get("reasoning_content") or ""
         # Check content first (definitive answer)
         if content.strip():
-            return "YES" in content.strip().upper()
+            result = "YES" in content.strip().upper()
+            print(f"  Self-eval (content): {'YES' if result else 'NO'} — {content.strip()[:120]!r}", file=sys.stderr)
+            return result
         # If only reasoning available, look for conclusion patterns
         upper_reasoning = reasoning.upper()
         # Count YES vs NO occurrences — last occurrence wins
         last_yes = upper_reasoning.rfind("YES")
         last_no = upper_reasoning.rfind("NO")
         if last_yes > last_no:
+            print(f"  Self-eval (reasoning): YES (last_yes={last_yes} > last_no={last_no})", file=sys.stderr)
             return True
         if last_no > last_yes:
+            print(f"  Self-eval (reasoning): NO (last_no={last_no} > last_yes={last_yes})", file=sys.stderr)
             return False
+        print(f"  Self-eval: default YES (no YES/NO found in reasoning)", file=sys.stderr)
         return True  # Default: accept
     except Exception:
         return True  # On error, accept by default (conservative)
@@ -512,9 +561,12 @@ def run_single(
         patch = get_patch(container_id)
 
         # Self-evaluation
+        agent_steps = len([e for e in trajectory if e["role"] == "assistant"])
+        patch_len = len(patch.strip())
         accepted = self_evaluate(trajectory, patch, prompt)
         if not accepted:
-            print(f"  REJECTED by self-evaluation", file=sys.stderr)
+            reason = "empty patch" if patch_len == 0 else "LLM rejected"
+            print(f"  REJECTED by self-evaluation ({reason}, {agent_steps} agent steps, patch={patch_len} chars)", file=sys.stderr)
             return None
 
         # Save artifacts

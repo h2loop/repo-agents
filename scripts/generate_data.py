@@ -184,6 +184,16 @@ def main():
     functions = load_functions(args.functions)
     functions = [f for f in functions if f.get("body_lines", 0) >= args.min_lines]
     print(f"  After min-lines filter ({args.min_lines}): {len(functions)} functions", file=sys.stderr)
+
+    # Filter out paths from repo config (e.g. test code, auto-generated files)
+    exclude_prefixes = REPO_CFG.get("exclude_path_prefixes", [])
+    if exclude_prefixes:
+        pre_filter = len(functions)
+        functions = [
+            f for f in functions
+            if not any(f["file"].startswith(p) for p in exclude_prefixes)
+        ]
+        print(f"  After path filter ({exclude_prefixes}): {len(functions)} functions (removed {pre_filter - len(functions)})", file=sys.stderr)
     bug_prompts = load_bug_prompts(args.bug_prompts)
     template = args.template.read_text()
     demo_prs = load_demo_prs(args.demo_prs_dir)
