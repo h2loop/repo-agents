@@ -55,6 +55,8 @@ from rollout1 import (
     load_bug_prompts,
     format_prompt,
     run_single as run_rollout1_single,
+    ContainerPool,
+    reset_container,
     REPO_CFG,
 )
 from generate_pr import (
@@ -78,10 +80,13 @@ def run_full_pipeline(
     container_image: str,
     demo_prs: list[str],
     output_dir: Path,
+    pool: ContainerPool | None = None,
 ) -> dict | None:
     """Run the complete SVG pipeline for one (function, bug) pair.
 
     Steps: rollout1 -> generate_pr -> rollout2 -> soft_verify
+
+    If pool is provided, acquires/releases containers from it.
 
     Returns a metadata dict or None on failure.
     """
@@ -89,73 +94,89 @@ def run_full_pipeline(
     print(f"\n{'='*60}", file=sys.stderr)
     print(f"[{run_id}] func={func['name']} bug={bug['bug_id']}", file=sys.stderr)
 
-    # --- Step 1: Rollout 1 ---
-    print(f"[{run_id}] Step 1: Rollout 1 (change generation)...", file=sys.stderr)
-    r1_result = run_rollout1_single(
-        func, bug, template, container_image, output_dir, run_id,
-    )
-    if r1_result is None:
-        print(f"[{run_id}] FAILED at rollout 1 (rejected or error)", file=sys.stderr)
-        return None
+    # Acquire container from pool or let run_single manage its own
+    cid = pool.acquire() if pool else None
 
-    # --- Step 2: Generate synthetic PR ---
-    print(f"[{run_id}] Step 2: Generating synthetic PR...", file=sys.stderr)
-    traj_path = Path(r1_result["trajectory_path"])
-    pr_path = output_dir / f"{run_id}_synth_pr.md"
     try:
-        pr_result = generate_pr_single(traj_path, demo_prs, pr_path)
-    except Exception as e:
-        print(f"[{run_id}] FAILED at PR generation: {e}", file=sys.stderr)
-        return None
+        # --- Step 1: Rollout 1 ---
+        print(f"[{run_id}] Step 1: Rollout 1 (change generation)...", file=sys.stderr)
+        r1_result = run_rollout1_single(
+            func, bug, template, container_image, output_dir, run_id,
+            container_id=cid,
+        )
+        if r1_result is None:
+            print(f"[{run_id}] FAILED at rollout 1 (rejected or error)", file=sys.stderr)
+            return None
 
-    # --- Step 3: Rollout 2 ---
-    print(f"[{run_id}] Step 3: Rollout 2 (reproduction)...", file=sys.stderr)
-    pr_text = pr_path.read_text()
-    r2_result = run_single_rollout2(pr_text, container_image, output_dir, run_id)
-    if r2_result is None:
-        print(f"[{run_id}] FAILED at rollout 2", file=sys.stderr)
-        # Still save T1 data — it's usable even without T2
+        # Reset container for rollout 2
+        if cid:
+            reset_container(cid)
+
+        # --- Step 2: Generate synthetic PR ---
+        print(f"[{run_id}] Step 2: Generating synthetic PR...", file=sys.stderr)
+        traj_path = Path(r1_result["trajectory_path"])
+        pr_path = output_dir / f"{run_id}_synth_pr.md"
+        try:
+            pr_result = generate_pr_single(traj_path, demo_prs, pr_path)
+        except Exception as e:
+            print(f"[{run_id}] FAILED at PR generation: {e}", file=sys.stderr)
+            return None
+
+        # --- Step 3: Rollout 2 ---
+        print(f"[{run_id}] Step 3: Rollout 2 (reproduction)...", file=sys.stderr)
+        pr_text = pr_path.read_text()
+        r2_result = run_single_rollout2(
+            pr_text, container_image, output_dir, run_id,
+            container_id=cid,
+        )
+        if r2_result is None:
+            print(f"[{run_id}] FAILED at rollout 2", file=sys.stderr)
+            # Still save T1 data — it's usable even without T2
+            return {
+                "run_id": run_id,
+                "status": "t1_only",
+                "t1": r1_result,
+                "t2": None,
+                "verification": None,
+            }
+
+        # --- Step 4: Soft verification ---
+        print(f"[{run_id}] Step 4: Soft verification...", file=sys.stderr)
+        p1_path = Path(r1_result["patch_path"])
+        p2_path = Path(r2_result["patch_path"])
+
+        try:
+            verification = verify_pair(p1_path, p2_path)
+        except Exception as e:
+            print(f"[{run_id}] Verification error: {e}", file=sys.stderr)
+            verification = {"recall_score": 0.0, "classification": "error"}
+
+        # Save verification result
+        verif_path = output_dir / f"{run_id}_verification.json"
+        with open(verif_path, "w") as f:
+            json.dump(verification, f, indent=2)
+
+        print(
+            f"[{run_id}] DONE: score={verification['recall_score']:.2f} "
+            f"({verification['classification']})",
+            file=sys.stderr,
+        )
+
         return {
             "run_id": run_id,
-            "status": "t1_only",
+            "status": "complete",
+            "function": func["name"],
+            "bug_type": bug["bug_id"],
+            "subsystem": func["subsystem"],
             "t1": r1_result,
-            "t2": None,
-            "verification": None,
+            "t2": r2_result,
+            "verification": verification,
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         }
 
-    # --- Step 4: Soft verification ---
-    print(f"[{run_id}] Step 4: Soft verification...", file=sys.stderr)
-    p1_path = Path(r1_result["patch_path"])
-    p2_path = Path(r2_result["patch_path"])
-
-    try:
-        verification = verify_pair(p1_path, p2_path)
-    except Exception as e:
-        print(f"[{run_id}] Verification error: {e}", file=sys.stderr)
-        verification = {"recall_score": 0.0, "classification": "error"}
-
-    # Save verification result
-    verif_path = output_dir / f"{run_id}_verification.json"
-    with open(verif_path, "w") as f:
-        json.dump(verification, f, indent=2)
-
-    print(
-        f"[{run_id}] DONE: score={verification['recall_score']:.2f} "
-        f"({verification['classification']})",
-        file=sys.stderr,
-    )
-
-    return {
-        "run_id": run_id,
-        "status": "complete",
-        "function": func["name"],
-        "bug_type": bug["bug_id"],
-        "subsystem": func["subsystem"],
-        "t1": r1_result,
-        "t2": r2_result,
-        "verification": verification,
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-    }
+    finally:
+        if pool and cid:
+            pool.release(cid)
 
 
 # ---------------------------------------------------------------------------
@@ -170,7 +191,8 @@ def main():
     parser.add_argument("--commits", type=Path, required=True)
     parser.add_argument("--demo-prs-dir", type=Path, default=Path("configs/demo_prs"))
     parser.add_argument("--output-dir", type=Path, default=Path("data/raw"))
-    parser.add_argument("--num-samples", type=int, default=20, help="Total trajectories to generate")
+    parser.add_argument("--bugs-per-func", type=int, default=3, help="Max bug attempts per function (stop on first success)")
+    parser.add_argument("--max-samples", type=int, default=None, help="Cap total attempts (default: all functions)")
     parser.add_argument("--workers", type=int, default=1, help="Parallel workers (each uses own container)")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--resume", action="store_true", help="Skip already-completed run IDs")
@@ -207,118 +229,151 @@ def main():
         print("No valid commits found in commits.json. Using 'latest' image.", file=sys.stderr)
         commits = ["latest"]
 
+    # Build bug-to-function matching
+    def pick_bugs_for_func(func: dict, k: int) -> list[dict]:
+        """Pick k random bugs compatible with this function's subsystem."""
+        compatible = [
+            b for b in bug_prompts
+            if not b.get("subsystems") or
+            any(func["subsystem"].startswith(sub) for sub in b["subsystems"])
+        ]
+        if not compatible:
+            compatible = bug_prompts
+        return random.sample(compatible, min(k, len(compatible)))
+
+    # Build sample plan: for each function, up to K bug attempts
+    # Distribute functions across commits evenly
+    docker_prefix = REPO_CFG.get("docker_image_prefix", "sera")
+    images = []
+    for commit in commits:
+        images.append(f"{docker_prefix}:{commit[:7]}" if commit != "latest" else f"{docker_prefix}:latest")
+
+    random.shuffle(functions)
+    if args.max_samples:
+        functions = functions[:args.max_samples]
+
+    # Each function gets assigned to a commit (round-robin) and up to K bugs
+    sample_plan: list[tuple[str, dict, list[dict]]] = []  # (image, func, [bugs])
+    for fi, func in enumerate(functions):
+        image = images[fi % len(images)]
+        bugs = pick_bugs_for_func(func, args.bugs_per_func)
+        sample_plan.append((image, func, bugs))
+
+    max_attempts = sum(len(bugs) for _, _, bugs in sample_plan)
+    expected_successes = len(sample_plan)  # 1 per function at best
+
     print(f"Configuration:", file=sys.stderr)
-    print(f"  Functions:    {len(functions)}", file=sys.stderr)
-    print(f"  Bug types:    {len(bug_prompts)}", file=sys.stderr)
-    print(f"  Commits:      {commits}", file=sys.stderr)
-    print(f"  Demo PRs:     {len(demo_prs)}", file=sys.stderr)
-    print(f"  Num samples:  {args.num_samples}", file=sys.stderr)
-    print(f"  Workers:      {args.workers}", file=sys.stderr)
+    print(f"  Functions:       {len(functions)}", file=sys.stderr)
+    print(f"  Bug types:       {len(bug_prompts)}", file=sys.stderr)
+    print(f"  Bugs per func:   {args.bugs_per_func}", file=sys.stderr)
+    print(f"  Commits:         {commits}", file=sys.stderr)
+    print(f"  Demo PRs:        {len(demo_prs)}", file=sys.stderr)
+    print(f"  Workers:         {args.workers}", file=sys.stderr)
+    print(f"  Max attempts:    {max_attempts} ({len(sample_plan)} functions x up to {args.bugs_per_func} bugs)", file=sys.stderr)
+    print(f"  Expected output: up to {expected_successes} trajectories (1 per function)", file=sys.stderr)
 
     # Check for existing completions (for resume)
-    existing_ids = set()
+    existing_funcs: set[str] = set()
     if args.resume:
-        for f in args.output_dir.glob("*_verification.json"):
-            existing_ids.add(f.stem.replace("_verification", ""))
-        print(f"  Resuming: {len(existing_ids)} already completed", file=sys.stderr)
+        # Identify functions that already succeeded by reading metadata
+        for meta_path in args.output_dir.glob("*_t1_meta.json"):
+            try:
+                meta = json.loads(meta_path.read_text())
+                func_key = f"{meta['function']['file']}:{meta['function']['name']}"
+                existing_funcs.add(func_key)
+            except Exception:
+                pass
+        print(f"  Resuming: {len(existing_funcs)} functions already completed", file=sys.stderr)
 
-    # Build subsystem index: bug subsystem prefix -> list of matching functions
-    # Bug subsystems are path prefixes (e.g. "lib/phy"), function subsystems are
-    # deeper paths (e.g. "lib/phy/upper"). Match by startswith.
-    bugs_with_subsystems = [b for b in bug_prompts if b.get("subsystems")]
-    bugs_without_subsystems = [b for b in bug_prompts if not b.get("subsystems")]
-
-    def pick_func_for_bug(bug: dict) -> dict:
-        subsystems = bug.get("subsystems", [])
-        if not subsystems:
-            return random.choice(functions)
-        candidates = [
-            f for f in functions
-            if any(f["subsystem"].startswith(sub) for sub in subsystems)
-        ]
-        return random.choice(candidates) if candidates else random.choice(functions)
-
-    # Generate sample plan: distribute across commits evenly
-    samples_per_commit = args.num_samples // len(commits)
-    remainder = args.num_samples % len(commits)
-
-    sample_plan: list[tuple[str, dict, dict]] = []  # (container_image, func, bug)
-    for ci, commit in enumerate(commits):
-        n = samples_per_commit + (1 if ci < remainder else 0)
-        docker_prefix = REPO_CFG.get("docker_image_prefix", "sera")
-        image = f"{docker_prefix}:{commit[:7]}" if commit != "latest" else f"{docker_prefix}:latest"
-        for _ in range(n):
-            bug = random.choice(bug_prompts)
-            func = pick_func_for_bug(bug)
-            sample_plan.append((image, func, bug))
-
-    # Shuffle to interleave commits
-    random.shuffle(sample_plan)
+    # Create container pools — one per unique image
+    unique_images = sorted(set(image for image, _, _ in sample_plan))
+    pool_size = max(1, args.workers)
+    pools: dict[str, ContainerPool] = {}
+    print(f"\n  Starting container pools (size={pool_size} per image)...", file=sys.stderr)
+    for image in unique_images:
+        print(f"    {image}: {pool_size} containers", file=sys.stderr)
+        pools[image] = ContainerPool(image, size=pool_size)
+    print(f"  All pools ready.", file=sys.stderr)
 
     # Run pipeline
     manifest: list[dict] = []
     completed = 0
-    failed = 0
+    failed_funcs = 0
 
-    if args.workers <= 1:
-        # Sequential execution
-        for i, (image, func, bug) in enumerate(sample_plan):
-            sample_id = f"s{i:05d}_{uuid.uuid4().hex[:6]}"
+    def run_function_attempts(fi: int, image: str, func: dict, bugs: list[dict]) -> dict | None:
+        """Try up to K bugs for one function, stop on first success."""
+        func_key = f"{func['file']}:{func['name']}"
+        if func_key in existing_funcs:
+            return None
 
-            if sample_id in existing_ids:
-                continue
-
+        for bi, bug in enumerate(bugs):
+            sample_id = f"f{fi:05d}_b{bi}_{uuid.uuid4().hex[:6]}"
             result = run_full_pipeline(
                 sample_id, func, bug, template, image, demo_prs, args.output_dir,
+                pool=pools[image],
             )
-            if result:
-                manifest.append(result)
-                completed += 1
-            else:
-                failed += 1
+            if result is not None:
+                return result
+        return None
 
-            # Periodic progress
-            if (i + 1) % 10 == 0:
-                print(
-                    f"\n>>> Progress: {completed} completed, {failed} failed, "
-                    f"{i+1}/{len(sample_plan)} processed",
-                    file=sys.stderr,
-                )
-    else:
-        # Parallel execution
-        with ThreadPoolExecutor(max_workers=args.workers) as executor:
-            futures = {}
-            for i, (image, func, bug) in enumerate(sample_plan):
-                sample_id = f"s{i:05d}_{uuid.uuid4().hex[:6]}"
-                if sample_id in existing_ids:
+    try:
+        if args.workers <= 1:
+            for fi, (image, func, bugs) in enumerate(sample_plan):
+                func_key = f"{func['file']}:{func['name']}"
+                if func_key in existing_funcs:
                     continue
 
-                future = executor.submit(
-                    run_full_pipeline,
-                    sample_id, func, bug, template, image, demo_prs, args.output_dir,
-                )
-                futures[future] = sample_id
+                result = run_function_attempts(fi, image, func, bugs)
+                if result:
+                    manifest.append(result)
+                    completed += 1
+                else:
+                    failed_funcs += 1
 
-            for future in as_completed(futures):
-                sample_id = futures[future]
-                try:
-                    result = future.result()
-                    if result:
-                        manifest.append(result)
-                        completed += 1
-                    else:
-                        failed += 1
-                except Exception as e:
-                    print(f"[{sample_id}] Worker exception: {e}", file=sys.stderr)
-                    failed += 1
+                if (fi + 1) % 10 == 0:
+                    print(
+                        f"\n>>> Progress: {completed} succeeded, {failed_funcs} failed, "
+                        f"{fi+1}/{len(sample_plan)} functions processed",
+                        file=sys.stderr,
+                    )
+        else:
+            with ThreadPoolExecutor(max_workers=args.workers) as executor:
+                futures = {}
+                for fi, (image, func, bugs) in enumerate(sample_plan):
+                    func_key = f"{func['file']}:{func['name']}"
+                    if func_key in existing_funcs:
+                        continue
+
+                    future = executor.submit(run_function_attempts, fi, image, func, bugs)
+                    futures[future] = (fi, func)
+
+                for future in as_completed(futures):
+                    fi, func = futures[future]
+                    try:
+                        result = future.result()
+                        if result:
+                            manifest.append(result)
+                            completed += 1
+                        else:
+                            failed_funcs += 1
+                    except Exception as e:
+                        print(f"[func {fi}] Worker exception: {e}", file=sys.stderr)
+                        failed_funcs += 1
+
+    finally:
+        print(f"\n  Shutting down container pools...", file=sys.stderr)
+        for image, pool in pools.items():
+            pool.shutdown()
+        print(f"  All pools stopped.", file=sys.stderr)
 
     # Save manifest
     manifest_path = args.output_dir / "generation_manifest.json"
     with open(manifest_path, "w") as f:
         json.dump({
-            "total_samples": len(sample_plan),
+            "total_functions": len(sample_plan),
             "completed": completed,
-            "failed": failed,
+            "failed_funcs": failed_funcs,
+            "bugs_per_func": args.bugs_per_func,
             "t1_only": sum(1 for r in manifest if r.get("status") == "t1_only"),
             "fully_verified": sum(
                 1 for r in manifest
@@ -331,9 +386,10 @@ def main():
 
     print(f"\n{'='*60}", file=sys.stderr)
     print(f"Generation complete!", file=sys.stderr)
-    print(f"  Completed: {completed}", file=sys.stderr)
-    print(f"  Failed:    {failed}", file=sys.stderr)
-    print(f"  Manifest:  {manifest_path}", file=sys.stderr)
+    print(f"  Functions attempted: {completed + failed_funcs}", file=sys.stderr)
+    print(f"  Succeeded:           {completed}", file=sys.stderr)
+    print(f"  Failed (all bugs):   {failed_funcs}", file=sys.stderr)
+    print(f"  Manifest:            {manifest_path}", file=sys.stderr)
 
 
 if __name__ == "__main__":

@@ -64,7 +64,7 @@ BASE_URL = os.getenv("LLM_BASE_URL", "https://litellm-prod-909645453767.asia-sou
 API_KEY = os.getenv("LLM_API_KEY", "sk-1234")
 MODEL = os.getenv("LLM_MODEL", "qwen/qwen3-coder-480b-a35b-instruct-maas")
 
-MAX_STEPS = 70
+MAX_STEPS = 50
 MAX_RETRIES = 2
 TEMPERATURE = 0.7
 MAX_TOKENS_PER_RESPONSE = 4096
@@ -86,27 +86,92 @@ SYSTEM_PROMPT = f"""\
 You are an expert C/C++ software engineer working on the {_REPO_DISPLAY_NAME} codebase.
 {_SYSTEM_PROMPT_CONTEXT}
 
-You have access to the following tools to navigate and modify the codebase:
-
-1. **bash** - Execute shell commands. Use for: grep, find, ls, gcc -fsyntax-only, etc.
-2. **str_replace_editor** - View and edit files. Commands:
-   - view: View file contents (with optional line range)
-   - str_replace: Replace a specific string in a file
-   - create: Create a new file
-   - insert: Insert text at a specific line
-
 Working directory is {_CONTAINER_REPO_PATH}.{_build_caveat_line}
 
-IMPORTANT RULES:
-- Output exactly ONE bash command per response. Do NOT include multiple code blocks.
-- Before you SUBMIT, always run `git diff` to verify your changes were actually applied.
-- If `git diff` shows no changes, your edits did not take effect — retry.
+You have tools available: bash (run shell commands) and str_replace_editor (view/edit files).
+Before you finish, always run `git diff` to verify your changes were actually applied.
+If `git diff` shows no changes, your edits did not take effect — retry.
 
-When you are done making your changes, output SUBMIT to indicate you are finished.
+When you are done, call the submit tool.
 
 Think step by step. First understand the code around the indicated function, then investigate
 the potential issue, and finally make a targeted fix.
 """
+
+# Tool schemas for the OpenAI-compatible function calling API
+TOOL_SCHEMAS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "bash",
+            "description": "Execute a shell command in the repository. Use for: grep, find, ls, cat, sed, git diff, etc.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "command": {
+                        "type": "string",
+                        "description": "The shell command to execute",
+                    }
+                },
+                "required": ["command"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "str_replace_editor",
+            "description": "View and edit files. Use 'command' to specify the operation.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "command": {
+                        "type": "string",
+                        "enum": ["view", "str_replace", "create", "insert"],
+                        "description": "The operation: view, str_replace, create, or insert",
+                    },
+                    "path": {
+                        "type": "string",
+                        "description": "Absolute path to the file",
+                    },
+                    "view_range": {
+                        "type": "array",
+                        "items": {"type": "integer"},
+                        "description": "[start_line, end_line] for view command (optional)",
+                    },
+                    "old_str": {
+                        "type": "string",
+                        "description": "String to replace (for str_replace)",
+                    },
+                    "new_str": {
+                        "type": "string",
+                        "description": "Replacement string (for str_replace/insert)",
+                    },
+                    "insert_line": {
+                        "type": "integer",
+                        "description": "Line number to insert at (for insert)",
+                    },
+                    "file_text": {
+                        "type": "string",
+                        "description": "File contents (for create)",
+                    },
+                },
+                "required": ["command", "path"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "submit",
+            "description": "Call this when you are done making changes. Always run `git diff` first to verify your changes were applied.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+            },
+        },
+    },
+]
 
 
 # ---------------------------------------------------------------------------
@@ -117,6 +182,7 @@ def chat_completion(
     messages: list[dict],
     temperature: float = TEMPERATURE,
     max_tokens: int = MAX_TOKENS_PER_RESPONSE,
+    tools: list[dict] | None = None,
 ) -> dict:
     """Call the LLM via the OpenAI-compatible LiteLLM proxy."""
     headers = {
@@ -129,6 +195,8 @@ def chat_completion(
         "temperature": temperature,
         "max_tokens": max_tokens,
     }
+    if tools:
+        payload["tools"] = tools
     resp = requests.post(
         f"{BASE_URL}/v1/chat/completions",
         headers=headers,
@@ -177,6 +245,61 @@ def stop_container(container_id: str):
         capture_output=True,
         timeout=30,
     )
+
+
+def reset_container(container_id: str) -> bool:
+    """Reset a container's repo to clean state. Returns True on success."""
+    cmd = f"cd {_CONTAINER_REPO_PATH} && git checkout . && git clean -fd"
+    _, rc = docker_exec(container_id, cmd, timeout=15)
+    return rc == 0
+
+
+class ContainerPool:
+    """Pool of reusable Docker containers to avoid start/stop overhead."""
+
+    def __init__(self, image: str, size: int = 1):
+        self.image = image
+        self._containers: list[str] = []
+        self._lock = __import__("threading").Lock()
+        self._sem = __import__("threading").Semaphore(0)
+        # Pre-start containers
+        for _ in range(size):
+            cid = start_container(image)
+            self._containers.append(cid)
+            self._sem.release()
+
+    def acquire(self, timeout: float = 300) -> str:
+        """Get a clean container from the pool. Blocks if none available."""
+        if not self._sem.acquire(timeout=timeout):
+            raise TimeoutError("No container available in pool")
+        with self._lock:
+            cid = self._containers.pop(0)
+        # Reset to clean state
+        if not reset_container(cid):
+            # Container is broken — replace it
+            try:
+                stop_container(cid)
+            except Exception:
+                pass
+            cid = start_container(self.image)
+            reset_container(cid)
+        return cid
+
+    def release(self, container_id: str):
+        """Return a container to the pool."""
+        with self._lock:
+            self._containers.append(container_id)
+        self._sem.release()
+
+    def shutdown(self):
+        """Stop all containers in the pool."""
+        with self._lock:
+            for cid in self._containers:
+                try:
+                    stop_container(cid)
+                except Exception:
+                    pass
+            self._containers.clear()
 
 
 def get_patch(container_id: str) -> str:
@@ -294,6 +417,28 @@ def parse_assistant_action(content: str) -> tuple[str | None, dict | None, str]:
     bash_matches = re.findall(r"```(?:bash|sh|shell)?\s*\n(.+?)```", content, re.DOTALL)
     if bash_matches:
         cmd = " ; ".join(m.strip() for m in bash_matches)
+        # Model sometimes wraps SUBMIT in a bash block — intercept it
+        if cmd.strip().upper() == "SUBMIT":
+            return "submit", {}, reasoning
+        # Model sometimes wraps str_replace_editor calls in a bash block
+        if cmd.strip().startswith("str_replace_editor"):
+            ste = re.match(
+                r"str_replace_editor\s+(str_replace|view|create|insert)\s+(\S+)(.*)",
+                cmd.strip(), re.DOTALL,
+            )
+            if ste:
+                subcmd, path = ste.group(1), ste.group(2)
+                rest = ste.group(3).strip()
+                args: dict = {"command": subcmd, "path": path}
+                if subcmd == "str_replace":
+                    parts = re.findall(r"'((?:[^'\\]|\\.)*)'", rest)
+                    if len(parts) >= 2:
+                        args["old_str"] = parts[0]
+                        args["new_str"] = parts[1]
+                    elif len(parts) == 1:
+                        args["old_str"] = parts[0]
+                        args["new_str"] = ""
+                return "str_replace_editor", args, reasoning
         return "bash", {"command": cmd}, reasoning
 
     # --- Explicit TOOL: / COMMAND: patterns ---
@@ -366,32 +511,47 @@ def run_rollout(
     prompt: str,
     max_steps: int = MAX_STEPS,
 ) -> list[dict]:
-    """Run a single SWE-agent rollout. Returns the trajectory as a list of messages."""
+    """Run a single SWE-agent rollout using structured tool calls.
+
+    Returns the trajectory as a list of messages.
+    """
 
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": prompt},
     ]
     trajectory: list[dict] = list(messages)
-    consecutive_nudges = 0
 
     for step in range(max_steps):
-        # Get model response
+        # Step budget warnings
+        if step == max_steps - 10:
+            budget_warn = (
+                f"You have used {step} of {max_steps} steps. "
+                "If you haven't made your code change yet, please make it now."
+            )
+            trajectory.append({"role": "user", "content": budget_warn, "step": step})
+            messages.append({"role": "user", "content": budget_warn})
+        elif step == max_steps - 5:
+            budget_warn = (
+                "5 steps remaining. Please finalize your edit and run `git diff` to verify."
+            )
+            trajectory.append({"role": "user", "content": budget_warn, "step": step})
+            messages.append({"role": "user", "content": budget_warn})
+
+        # Get model response with tool schemas
         try:
-            response = chat_completion(messages)
+            response = chat_completion(messages, tools=TOOL_SCHEMAS)
         except Exception as e:
             trajectory.append({"role": "error", "content": f"LLM API error: {e}"})
             break
 
         assistant_msg = response["choices"][0]["message"]
+        finish_reason = response["choices"][0].get("finish_reason", "")
         content = assistant_msg.get("content") or ""
         reasoning = assistant_msg.get("reasoning_content") or ""
+        tool_calls = assistant_msg.get("tool_calls") or []
 
-        # If content is empty but reasoning exists, use reasoning for action parsing
-        # Kimi K2 thinking model may put actions in content after reasoning
-        effective_content = content if content.strip() else reasoning
-
-        # Store full response including reasoning
+        # Store full response
         traj_entry = {
             "role": "assistant",
             "content": content,
@@ -399,48 +559,116 @@ def run_rollout(
         }
         if reasoning:
             traj_entry["reasoning_content"] = reasoning
+        if tool_calls:
+            traj_entry["tool_calls"] = tool_calls
         trajectory.append(traj_entry)
-        messages.append({"role": "assistant", "content": content or "(thinking...)"})
 
-        # Parse action from content (preferred) or reasoning (fallback)
-        tool_name, tool_args, _ = parse_assistant_action(effective_content)
+        # Build the assistant message for the conversation history
+        api_assistant_msg: dict = {"role": "assistant"}
+        if content:
+            api_assistant_msg["content"] = content
+        if tool_calls:
+            api_assistant_msg["tool_calls"] = tool_calls
+        if not content and not tool_calls:
+            api_assistant_msg["content"] = "(thinking...)"
+        messages.append(api_assistant_msg)
 
-        if tool_name == "submit":
-            trajectory.append({"role": "system", "content": "Agent submitted."})
-            break
+        # --- Handle structured tool calls ---
+        if tool_calls:
+            for tc in tool_calls:
+                func_name = tc["function"]["name"]
+                call_id = tc.get("id", f"call_{step}")
+                try:
+                    func_args = json.loads(tc["function"]["arguments"])
+                except (json.JSONDecodeError, TypeError):
+                    func_args = {}
 
-        if tool_name and tool_args:
-            # Execute tool
-            try:
-                observation = execute_tool_call(container_id, tool_name, tool_args)
-            except Exception as e:
-                observation = f"Tool execution error: {e}"
+                if func_name == "submit":
+                    # Check for empty patch — give agent a chance to retry
+                    patch_check = get_patch(container_id)
+                    if not patch_check.strip() and step < max_steps - 1:
+                        empty_retries = sum(
+                            1 for e in trajectory
+                            if e.get("role") == "tool" and "git diff shows no changes" in e.get("content", "")
+                        )
+                        if empty_retries < 2:
+                            retry_msg = (
+                                "git diff shows no changes were applied. Your str_replace may have "
+                                "failed (old_str not found). Please use `view` to check the current "
+                                "file content, then retry your edit. Do NOT submit until git diff "
+                                "shows your changes."
+                            )
+                            print(f"    [step {step}] empty-patch retry ({empty_retries + 1}/2)", file=sys.stderr)
+                            # Send tool result back then continue
+                            messages.append({"role": "tool", "tool_call_id": call_id, "content": retry_msg})
+                            trajectory.append({"role": "tool", "content": retry_msg, "tool_name": "submit", "step": step})
+                            continue
+                    trajectory.append({"role": "system", "content": "Agent submitted."})
+                    return trajectory
 
-            obs_entry = {
-                "role": "tool",
-                "content": observation,
-                "tool_name": tool_name,
-                "tool_args": tool_args,
-                "step": step,
-            }
-            trajectory.append(obs_entry)
-            messages.append({"role": "user", "content": f"Observation:\n{observation}"})
-            consecutive_nudges = 0
-        else:
-            # No tool parsed — nudge the model
-            consecutive_nudges += 1
-            content_preview = effective_content[:200].replace('\n', '\\n')
-            print(f"    [step {step}] no tool parsed (nudge {consecutive_nudges}/{MAX_CONSECUTIVE_NUDGES}): {content_preview!r}", file=sys.stderr)
-            if consecutive_nudges >= MAX_CONSECUTIVE_NUDGES:
-                trajectory.append({"role": "system", "content": "Agent stuck — aborting."})
+                # Execute bash or str_replace_editor
+                try:
+                    observation = execute_tool_call(container_id, func_name, func_args)
+                except Exception as e:
+                    observation = f"Tool execution error: {e}"
+
+                obs_entry = {
+                    "role": "tool",
+                    "content": observation,
+                    "tool_name": func_name,
+                    "tool_args": func_args,
+                    "step": step,
+                }
+                trajectory.append(obs_entry)
+                messages.append({"role": "tool", "tool_call_id": call_id, "content": observation})
+
+        elif content or reasoning:
+            # Model produced text without tool calls — fall back to text parsing
+            effective_content = content if content.strip() else reasoning
+            tool_name, tool_args, _ = parse_assistant_action(effective_content)
+
+            if tool_name == "submit":
+                patch_check = get_patch(container_id)
+                if not patch_check.strip() and step < max_steps - 1:
+                    empty_retries = sum(
+                        1 for e in trajectory
+                        if e.get("role") == "user" and "git diff shows no changes" in e.get("content", "")
+                    )
+                    if empty_retries < 2:
+                        retry_msg = (
+                            "git diff shows no changes were applied. Your str_replace may have "
+                            "failed (old_str not found). Please use `view` to check the current "
+                            "file content, then retry your edit. Do NOT submit until git diff "
+                            "shows your changes."
+                        )
+                        print(f"    [step {step}] empty-patch retry ({empty_retries + 1}/2)", file=sys.stderr)
+                        trajectory.append({"role": "user", "content": retry_msg, "step": step})
+                        messages.append({"role": "user", "content": retry_msg})
+                        continue
+                trajectory.append({"role": "system", "content": "Agent submitted."})
                 break
-            nudge = (
-                "I didn't detect a tool call in your response. "
-                "Please use a bash command block (```bash\\n<command>\\n```) "
-                "or say SUBMIT if you are done."
-            )
-            trajectory.append({"role": "user", "content": nudge, "step": step})
-            messages.append({"role": "user", "content": nudge})
+
+            if tool_name and tool_args:
+                try:
+                    observation = execute_tool_call(container_id, tool_name, tool_args)
+                except Exception as e:
+                    observation = f"Tool execution error: {e}"
+
+                obs_entry = {
+                    "role": "tool",
+                    "content": observation,
+                    "tool_name": tool_name,
+                    "tool_args": tool_args,
+                    "step": step,
+                }
+                trajectory.append(obs_entry)
+                messages.append({"role": "user", "content": f"Observation:\n{observation}"})
+            else:
+                # No tool call at all — nudge
+                print(f"    [step {step}] no tool call in response", file=sys.stderr)
+                nudge = "Please use one of your tools (bash, str_replace_editor, or submit)."
+                trajectory.append({"role": "user", "content": nudge, "step": step})
+                messages.append({"role": "user", "content": nudge})
 
     return trajectory
 
@@ -541,16 +769,21 @@ def run_single(
     container_image: str,
     output_dir: Path,
     run_id: str,
+    container_id: str | None = None,
 ) -> dict | None:
     """Run a single rollout 1 for one function + bug combination.
+
+    If container_id is provided, uses that container (caller manages lifecycle).
+    Otherwise starts and stops its own container.
 
     Returns metadata dict on success, None on failure.
     """
     prompt = format_prompt(template, func, bug)
 
-    # Start container
-    print(f"  Starting container {container_image}...", file=sys.stderr)
-    container_id = start_container(container_image)
+    owns_container = container_id is None
+    if owns_container:
+        print(f"  Starting container {container_image}...", file=sys.stderr)
+        container_id = start_container(container_image)
 
     try:
         # Run the agent
@@ -560,13 +793,25 @@ def run_single(
         # Extract patch
         patch = get_patch(container_id)
 
-        # Self-evaluation
+        # Programmatic patch quality check (replaces LLM self-evaluation)
         agent_steps = len([e for e in trajectory if e["role"] == "assistant"])
         patch_len = len(patch.strip())
-        accepted = self_evaluate(trajectory, patch, prompt)
-        if not accepted:
-            reason = "empty patch" if patch_len == 0 else "LLM rejected"
-            print(f"  REJECTED by self-evaluation ({reason}, {agent_steps} agent steps, patch={patch_len} chars)", file=sys.stderr)
+        if not patch.strip():
+            print(f"  REJECTED: empty patch ({agent_steps} agent steps)", file=sys.stderr)
+            return None
+
+        # Reject patches that are only comments or whitespace changes
+        code_lines = [
+            l[1:].strip() for l in patch.splitlines()
+            if l.startswith("+") and not l.startswith("+++")
+        ]
+        substantive = [
+            l for l in code_lines
+            if l and not l.startswith("//") and not l.startswith("/*")
+            and not l.startswith("*") and not l.startswith("#")
+        ]
+        if not substantive:
+            print(f"  REJECTED: comment/whitespace-only patch ({agent_steps} steps, {len(code_lines)} added lines)", file=sys.stderr)
             return None
 
         # Save artifacts
@@ -590,7 +835,7 @@ def run_single(
             "patch_path": str(patch_path),
             "patch_lines": len([l for l in patch.splitlines() if l.startswith("+") and not l.startswith("+++")]),
             "trajectory_steps": len([e for e in trajectory if e["role"] == "assistant"]),
-            "self_eval_accepted": True,
+            "self_eval_accepted": True,  # self-eval gate removed; kept for schema compat
             "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         }
 
@@ -601,7 +846,8 @@ def run_single(
         return metadata
 
     finally:
-        stop_container(container_id)
+        if owns_container:
+            stop_container(container_id)
 
 
 def main():

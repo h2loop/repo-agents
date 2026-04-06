@@ -62,30 +62,15 @@ ROLLOUT2_SYSTEM_PROMPT = f"""\
 You are an expert C/C++ software engineer working on the {_REPO_DISPLAY_NAME} codebase.
 {_SYSTEM_PROMPT_CONTEXT}
 
-You have access to the following tools to navigate and modify the codebase:
-
-1. **bash** - Execute shell commands. Use for: grep, find, ls, gcc -fsyntax-only, etc.
-2. **str_replace_editor** - View and edit files. Commands:
-   - view: View file contents (with optional line range)
-   - str_replace: Replace a specific string in a file
-   - create: Create a new file
-   - insert: Insert text at a specific line
-
 Working directory is {_CONTAINER_REPO_PATH}.{_build_caveat_line}
+
+You have tools available: bash (run shell commands) and str_replace_editor (view/edit files).
+Before you finish, always run `git diff` to verify your changes were actually applied.
+If `git diff` shows no changes, your edits did not take effect — retry.
 
 You will be given a pull request description. Your task is to implement the changes
 described in the PR. Navigate the codebase, understand the relevant code, and make
-the necessary modifications.
-
-IMPORTANT RULES:
-- Output exactly ONE bash command per response. Do NOT include multiple code blocks.
-- Before you SUBMIT, always run `git diff` to verify your changes were actually applied.
-- If `git diff` shows no changes, your edits did not take effect — retry.
-
-When you are done making your changes, output SUBMIT to indicate you are finished.
-
-Think step by step. First understand what the PR is asking for, then locate the relevant
-code, and finally implement the changes.
+the necessary modifications. When you are done, call the submit tool.
 """
 
 
@@ -94,16 +79,21 @@ def run_single_rollout2(
     container_image: str,
     output_dir: Path,
     run_id: str,
+    container_id: str | None = None,
 ) -> dict | None:
     """Run a single rollout 2 for a given synthetic PR.
+
+    If container_id is provided, uses that container (caller manages lifecycle).
+    Otherwise starts and stops its own container.
 
     Returns metadata dict on success, None on failure.
     """
     prompt = f"Please implement the following pull request:\n\n{pr_text}"
 
-    # Start container
-    print(f"  Starting container {container_image}...", file=sys.stderr)
-    container_id = start_container(container_image)
+    owns_container = container_id is None
+    if owns_container:
+        print(f"  Starting container {container_image}...", file=sys.stderr)
+        container_id = start_container(container_image)
 
     try:
         # Temporarily override the system prompt for rollout 2
@@ -159,7 +149,8 @@ def run_single_rollout2(
         return None
 
     finally:
-        stop_container(container_id)
+        if owns_container:
+            stop_container(container_id)
 
 
 def main():
