@@ -190,7 +190,7 @@ def main():
     parser.add_argument("--template", type=Path, required=True)
     parser.add_argument("--commits", type=Path, required=True)
     parser.add_argument("--demo-prs-dir", type=Path, default=Path("configs/demo_prs"))
-    parser.add_argument("--output-dir", type=Path, default=Path("data/raw"))
+    parser.add_argument("--output-dir", type=Path, default=None, help="Output directory (default: data/raw_{date}_{time})")
     parser.add_argument("--bugs-per-func", type=int, default=3, help="Max bug attempts per function (stop on first success)")
     parser.add_argument("--max-samples", type=int, default=None, help="Cap total attempts (default: all functions)")
     parser.add_argument("--workers", type=int, default=1, help="Parallel workers (each uses own container)")
@@ -200,6 +200,8 @@ def main():
     args = parser.parse_args()
 
     random.seed(args.seed)
+    if args.output_dir is None:
+        args.output_dir = Path(f"data/raw_{time.strftime('%Y%m%d_%H%M%S')}")
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
     # Load all data
