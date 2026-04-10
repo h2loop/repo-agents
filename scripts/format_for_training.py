@@ -39,12 +39,13 @@ import random
 import sys
 from collections import Counter
 from pathlib import Path
-from typing import Any
 
 # ---------------------------------------------------------------------------
 # Repo configuration
 # ---------------------------------------------------------------------------
-REPO_CONFIG_PATH = Path(__file__).resolve().parent.parent / "configs" / "repo_config.json"
+REPO_CONFIG_PATH = (
+    Path(__file__).resolve().parent.parent / "configs" / "repo_config.json"
+)
 
 
 def _load_repo_config() -> dict:
@@ -64,37 +65,19 @@ _REPO_SHORT_NAME = _REPO_CFG.get("repo_short_name", "repo")
 _subsystem_line = f"\nSubsystems: {_SUBSYSTEM_DESC}" if _SUBSYSTEM_DESC else ""
 
 # ---------------------------------------------------------------------------
-# SWE-agent system prompt (must match training format exactly)
+# System prompt — repo-agnostic, matches what trajectory converter injects
 # ---------------------------------------------------------------------------
-SWE_AGENT_SYSTEM_PROMPT = f"""\
-SETTING: You are an autonomous coding agent working on the {_REPO_DISPLAY_NAME} \
-codebase located at {_CONTAINER_REPO_PATH}. {_SYSTEM_PROMPT_CONTEXT}
-
-You have access to the following tools:
-
-1. bash - Execute shell commands
-   Usage: ```bash
-   <command>
-   ```
-
-2. str_replace_editor - View and edit files
-   Commands:
-   - view <path> [line_range]: View file contents
-   - str_replace <path> <old_str> <new_str>: Replace text in file
-   - create <path> <content>: Create a new file
-   - insert <path> <line> <text>: Insert text at line
-
-INSTRUCTIONS:
-- Navigate the repository to understand the code structure
-- Make targeted changes to fix the issue described
-- Test your changes when possible (e.g., gcc -fsyntax-only)
-- When finished, output SUBMIT{_subsystem_line}
-"""
+SWE_AGENT_SYSTEM_PROMPT = """\
+You are an autonomous coding agent. You have access to a shell and can run \
+commands, read files, and edit code. Think step by step, investigate the \
+problem, and make targeted fixes. Always verify your changes with `git diff` \
+before finishing."""
 
 
 # ---------------------------------------------------------------------------
 # Conversion
 # ---------------------------------------------------------------------------
+
 
 def estimate_tokens(text: str) -> int:
     """Rough token estimate."""
@@ -124,10 +107,12 @@ def trajectory_to_conversation(
     conversation: list[dict[str, str]] = []
 
     # System message
-    conversation.append({
-        "role": "system",
-        "content": SWE_AGENT_SYSTEM_PROMPT,
-    })
+    conversation.append(
+        {
+            "role": "system",
+            "content": SWE_AGENT_SYSTEM_PROMPT,
+        }
+    )
 
     token_count = estimate_tokens(SWE_AGENT_SYSTEM_PROMPT)
 
@@ -142,10 +127,12 @@ def trajectory_to_conversation(
 
         if role == "system" and "Agent submitted" in content:
             # Final submission marker
-            conversation.append({
-                "role": "assistant",
-                "content": "SUBMIT",
-            })
+            conversation.append(
+                {
+                    "role": "assistant",
+                    "content": "SUBMIT",
+                }
+            )
             token_count += 1
             continue
 
@@ -207,13 +194,24 @@ def compute_sample_metadata(
 # Main
 # ---------------------------------------------------------------------------
 
+
 def main():
-    parser = argparse.ArgumentParser(description="SERA: Format filtered data for SFT training")
-    parser.add_argument("--selection", type=Path, required=True,
-                        help="Path to selected_samples.jsonl from filter step")
+    parser = argparse.ArgumentParser(
+        description="SERA: Format filtered data for SFT training"
+    )
+    parser.add_argument(
+        "--selection",
+        type=Path,
+        required=True,
+        help="Path to selected_samples.jsonl from filter step",
+    )
     parser.add_argument("--output-dir", type=Path, default=Path("data/sft_dataset"))
-    parser.add_argument("--held-out-ratio", type=float, default=0.10,
-                        help="Fraction of data to hold out for evaluation")
+    parser.add_argument(
+        "--held-out-ratio",
+        type=float,
+        default=0.10,
+        help="Fraction of data to hold out for evaluation",
+    )
     parser.add_argument("--max-tokens", type=int, default=32768)
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
@@ -247,7 +245,8 @@ def main():
         try:
             trajectory = load_trajectory(traj_path)
             conversation = trajectory_to_conversation(
-                trajectory, max_tokens=args.max_tokens,
+                trajectory,
+                max_tokens=args.max_tokens,
             )
 
             # Skip if conversation is too short (likely failed trajectory)
@@ -257,19 +256,24 @@ def main():
 
             metadata = compute_sample_metadata(sample_info, conversation)
 
-            converted.append({
-                "conversations": conversation,
-                "metadata": metadata,
-            })
+            converted.append(
+                {
+                    "conversations": conversation,
+                    "metadata": metadata,
+                }
+            )
         except Exception as e:
             conversion_errors += 1
             if conversion_errors <= 5:
                 print(f"  Error processing {traj_path}: {e}", file=sys.stderr)
 
         if (i + 1) % 1000 == 0:
-            print(f"  Processed {i+1}/{len(samples)}...", file=sys.stderr)
+            print(f"  Processed {i + 1}/{len(samples)}...", file=sys.stderr)
 
-    print(f"\nConverted {len(converted)} samples ({conversion_errors} errors)", file=sys.stderr)
+    print(
+        f"\nConverted {len(converted)} samples ({conversion_errors} errors)",
+        file=sys.stderr,
+    )
 
     # Shuffle and split
     random.shuffle(converted)
@@ -303,8 +307,12 @@ def main():
         "token_stats": {
             "min": min(token_counts) if token_counts else 0,
             "max": max(token_counts) if token_counts else 0,
-            "mean": round(sum(token_counts) / len(token_counts), 1) if token_counts else 0,
-            "median": sorted(token_counts)[len(token_counts) // 2] if token_counts else 0,
+            "mean": round(sum(token_counts) / len(token_counts), 1)
+            if token_counts
+            else 0,
+            "median": sorted(token_counts)[len(token_counts) // 2]
+            if token_counts
+            else 0,
         },
         "turn_stats": {
             "min": min(turn_counts) if turn_counts else 0,
@@ -320,11 +328,11 @@ def main():
         json.dump(stats, f, indent=2)
 
     # Summary
-    print(f"\nOutputs:", file=sys.stderr)
+    print("\nOutputs:", file=sys.stderr)
     print(f"  Train:    {train_path} ({len(train)} samples)", file=sys.stderr)
     print(f"  Held-out: {held_out_path} ({len(held_out)} samples)", file=sys.stderr)
     print(f"  Stats:    {stats_path}", file=sys.stderr)
-    print(f"\nToken distribution:", file=sys.stderr)
+    print("\nToken distribution:", file=sys.stderr)
     print(f"  Min:    {stats['token_stats']['min']}", file=sys.stderr)
     print(f"  Max:    {stats['token_stats']['max']}", file=sys.stderr)
     print(f"  Mean:   {stats['token_stats']['mean']}", file=sys.stderr)
