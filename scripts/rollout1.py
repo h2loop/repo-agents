@@ -136,8 +136,14 @@ def stop_container(container_id: str):
 
 def reset_container(container_id: str) -> bool:
     """Reset a container's repo to clean state. Returns True on success."""
-    cmd = f"cd {_CONTAINER_REPO_PATH} && git checkout . && git clean -fd"
-    _, rc = hydron_runner.docker_exec(container_id, cmd, timeout=15)
+    # Remove any stale index lock from a previously-killed git process,
+    # then do a single-pass hard reset (faster than checkout+clean on large repos).
+    cmd = (
+        f"cd {_CONTAINER_REPO_PATH} && "
+        f"rm -f .git/index.lock && "
+        f"git reset --hard HEAD && git clean -fdx"
+    )
+    _, rc = hydron_runner.docker_exec(container_id, cmd, timeout=120)
     return rc == 0
 
 

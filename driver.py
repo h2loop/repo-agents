@@ -212,6 +212,62 @@ def step_filter(input_dir: Path, output_dir: Path) -> None:
     )
 
 
+def pre_run_cleanup() -> None:
+    """Clean up artifacts from a prior (possibly crashed) driver run.
+
+    - Stops any orphaned containers built from `*-sera:*` images (the driver
+      tags its build images this way; containers run with `--rm` so they
+      should auto-remove on stop).
+    - Prunes dangling images and stopped container records.
+    """
+    print(f"\n{'='*60}", file=sys.stderr)
+    print("  [pre-cleanup] Checking for orphaned state from prior runs", file=sys.stderr)
+    print(f"{'='*60}", file=sys.stderr)
+
+    # Find running containers whose image matches the driver's tagging scheme.
+    try:
+        ps = subprocess.run(
+            ["docker", "ps", "--format", "{{.ID}} {{.Image}}"],
+            capture_output=True, text=True, timeout=15,
+        )
+    except (subprocess.TimeoutExpired, FileNotFoundError) as exc:
+        print(f"  [pre-cleanup] docker ps failed: {exc} — skipping", file=sys.stderr)
+        return
+
+    orphans = []
+    for line in ps.stdout.splitlines():
+        parts = line.split(maxsplit=1)
+        if len(parts) != 2:
+            continue
+        cid, image = parts
+        # Match images tagged by step_build_docker (`<prefix>-sera:latest`).
+        if "-sera:" in image or image.endswith("-sera"):
+            orphans.append((cid, image))
+
+    if orphans:
+        print(f"  [pre-cleanup] Found {len(orphans)} orphaned container(s):", file=sys.stderr)
+        for cid, image in orphans:
+            print(f"    - {cid[:12]} ({image})", file=sys.stderr)
+        for cid, _ in orphans:
+            subprocess.run(
+                ["docker", "kill", cid],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=30,
+            )
+    else:
+        print("  [pre-cleanup] No orphaned sera containers", file=sys.stderr)
+
+    # Prune dangling images and any non-running container records left behind.
+    subprocess.run(
+        ["docker", "container", "prune", "-f"],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=60,
+    )
+    subprocess.run(
+        ["docker", "image", "prune", "-f"],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=60,
+    )
+    print("  [pre-cleanup] Pruned stopped containers and dangling images", file=sys.stderr)
+
+
 def step_cleanup(repo_path: Path, docker_image: str) -> None:
     """Remove cloned repo and Docker image."""
     if repo_path.exists():
@@ -281,6 +337,8 @@ def main():
         sys.exit("Error: no repos found in file")
 
     print(f"Found {len(repos)} repo(s) to process", file=sys.stderr)
+
+    pre_run_cleanup()
 
     results: list[dict] = []
 
