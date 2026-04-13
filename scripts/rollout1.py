@@ -60,10 +60,6 @@ REPO_CFG = load_repo_config()
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-LLM_MODEL = os.getenv(
-    "LLM_MODEL", None
-)  # override model; None = use hydron_runner default
-
 MAX_RETRIES = 2
 
 # Repo-specific values from config
@@ -321,7 +317,6 @@ def run_single(
         result = hydron_runner.run_hydron_session(
             container_id,
             full_prompt,
-            model=LLM_MODEL,
             repo_path=_CONTAINER_REPO_PATH,
             max_steps=max_steps,
         )

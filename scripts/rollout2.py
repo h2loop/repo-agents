@@ -25,7 +25,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import sys
 import time
 from pathlib import Path
@@ -45,10 +44,6 @@ _SYSTEM_PROMPT_CONTEXT = REPO_CFG.get("system_prompt_context", "")
 _BUILD_CAVEAT = REPO_CFG.get("build_caveat", "")
 _CONTAINER_REPO_PATH = REPO_CFG.get("container_repo_path", "/repo")
 _DOCKER_IMAGE_PREFIX = REPO_CFG.get("docker_image_prefix", "sera")
-
-LLM_MODEL = os.getenv(
-    "LLM_MODEL", None
-)  # override model; None = use hydron_runner default
 
 # Repo-agnostic system prompt (shared with rollout1)
 from rollout1 import SYSTEM_PROMPT
@@ -94,7 +89,6 @@ def run_single_rollout2(
         result = hydron_runner.run_hydron_session(
             container_id,
             full_prompt,
-            model=LLM_MODEL,
             repo_path=_CONTAINER_REPO_PATH,
             max_steps=max_steps,
         )
