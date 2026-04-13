@@ -94,12 +94,35 @@ def step_clone(url: str, branch: str | None, clone_dir: Path) -> Path:
     return dest
 
 
-def step_populate_config(repo_path: Path, domain: str) -> dict:
+def step_populate_config(repo_path: Path, domain: str, resume: bool) -> dict:
     """Generate repo config at the canonical configs/repo_config.json path.
+
+    On resume, reuse an existing config only if it was generated for this
+    same repo (repo_name matches repo_path.name). The config file is
+    shared across repos within a multi-repo driver run, so a stale config
+    from a *different* repo would silently corrupt this iteration.
 
     Returns the parsed config dict.
     """
     REPO_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    if resume and REPO_CONFIG_PATH.exists():
+        try:
+            existing = json.loads(REPO_CONFIG_PATH.read_text())
+        except json.JSONDecodeError:
+            existing = None
+        if existing and existing.get("repo_name") == repo_path.name:
+            print(
+                f"  [config] {REPO_CONFIG_PATH} matches {repo_path.name} — "
+                f"reusing (--resume)",
+                file=sys.stderr,
+            )
+            return existing
+        print(
+            f"  [config] existing config is for "
+            f"{existing.get('repo_name') if existing else '?'}, "
+            f"not {repo_path.name} — regenerating",
+            file=sys.stderr,
+        )
     run(
         [
             sys.executable,
@@ -371,7 +394,7 @@ def main():
             repo_path = step_clone(url, branch, args.clone_dir)
 
             # Step 2: Generate repo config (writes to configs/repo_config.json)
-            config = step_populate_config(repo_path, args.domain)
+            config = step_populate_config(repo_path, args.domain, resume=args.resume)
             short_name = config.get("repo_short_name", name.lower()[:10])
             image_prefix = config.get("docker_image_prefix", f"{short_name}-sera")
             bug_prompts_file = Path(
@@ -417,8 +440,10 @@ def main():
             print(f"\n  ERROR: {exc}", file=sys.stderr)
             print(f"  Skipping to next repo...\n", file=sys.stderr)
 
-        finally:
-            # Step 8: Cleanup
+        # Step 8: Cleanup — ONLY on success. Preserving the cloned repo
+        # and built image on failure lets `--resume` pick up without
+        # reclone/rebuild, which can be very expensive.
+        if entry["status"] == "success":
             try:
                 step_cleanup(
                     repo_path or args.clone_dir / name,
@@ -426,6 +451,11 @@ def main():
                 )
             except Exception as exc:
                 print(f"  [cleanup] Warning: {exc}", file=sys.stderr)
+        else:
+            print(
+                f"  [cleanup] Skipped (repo/image preserved for --resume)",
+                file=sys.stderr,
+            )
 
         entry["elapsed_s"] = round(time.time() - t0, 1)
         results.append(entry)

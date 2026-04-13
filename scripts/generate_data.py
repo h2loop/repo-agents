@@ -456,25 +456,43 @@ def main():
             pool.shutdown()
         print("  All pools stopped.", file=sys.stderr)
 
-    # Save manifest
+    # Save manifest — on resume, merge with prior samples so counts are
+    # cumulative across resume invocations rather than reflecting only
+    # the latest run.
     manifest_path = args.output_dir / "generation_manifest.json"
+    prior_samples: list[dict] = []
+    if args.resume and manifest_path.exists():
+        try:
+            prior = json.loads(manifest_path.read_text())
+            prior_samples = prior.get("samples", []) or []
+        except (json.JSONDecodeError, OSError) as e:
+            print(
+                f"  [manifest] WARNING: could not read prior manifest: {e} — "
+                f"overwriting",
+                file=sys.stderr,
+            )
+
+    # Dedup by run_id; new results win over priors with the same id.
+    new_ids = {r.get("run_id") for r in manifest if r.get("run_id")}
+    merged = [r for r in prior_samples if r.get("run_id") not in new_ids] + manifest
+
     with open(manifest_path, "w") as f:
         json.dump(
             {
                 "total_functions": len(sample_plan),
-                "completed": completed,
+                "completed": sum(1 for r in merged if r.get("status") == "complete"),
                 "failed_funcs": failed_funcs,
                 "bugs_per_func": args.bugs_per_func,
-                "t1_only": sum(1 for r in manifest if r.get("status") == "t1_only"),
+                "t1_only": sum(1 for r in merged if r.get("status") == "t1_only"),
                 "fully_verified": sum(
                     1
-                    for r in manifest
+                    for r in merged
                     if r.get("verification")
                     and r["verification"].get("classification")
                     in ("hard_verified", "soft_verified")
                 ),
                 "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-                "samples": manifest,
+                "samples": merged,
             },
             f,
             indent=2,

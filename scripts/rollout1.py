@@ -105,32 +105,40 @@ def start_container(image: str) -> str:
     hydron_host = hydron_runner.HYDRON_HOST_PATH
     hydron_container = hydron_runner.HYDRON_BIN
 
-    try:
-        result = subprocess.run(
-            [
-                "docker",
-                "run",
-                "-d",
-                "--rm",
-                "--label", "sera_pipeline=1",
-                "-v",
-                f"{hydron_host}:{hydron_container}:ro",
-                image,
-                "sleep",
-                "infinity",
-            ],
-            capture_output=True,
-            text=True,
-            timeout=60,  # daemon should respond well under a minute even under load
-        )
-    except subprocess.TimeoutExpired as exc:
-        raise RuntimeError(
-            f"docker run timed out after 60s for image {image} — daemon overloaded"
-        ) from exc
-    if result.returncode != 0:
-        raise RuntimeError(f"Failed to start container: {result.stderr}")
-    cid = result.stdout.strip()
-    return cid
+    # Retry with backoff — when the pool warms many containers concurrently
+    # on a loaded daemon (especially right after pre_run_cleanup), a single
+    # `docker run` can exceed 60s. Fail only after several attempts.
+    cmd = [
+        "docker", "run", "-d", "--rm",
+        "--label", "sera_pipeline=1",
+        "-v", f"{hydron_host}:{hydron_container}:ro",
+        image, "sleep", "infinity",
+    ]
+    attempts = 4
+    last_err: Exception | None = None
+    for i in range(attempts):
+        try:
+            result = subprocess.run(
+                cmd, capture_output=True, text=True, timeout=60
+            )
+        except subprocess.TimeoutExpired as exc:
+            last_err = exc
+            wait = min(30, 5 * (2 ** i))
+            print(
+                f"    [start_container] docker run timed out "
+                f"(attempt {i + 1}/{attempts}) — retrying in {wait}s",
+                file=sys.stderr,
+            )
+            time.sleep(wait)
+            continue
+        if result.returncode != 0:
+            raise RuntimeError(f"Failed to start container: {result.stderr}")
+        return result.stdout.strip()
+
+    raise RuntimeError(
+        f"docker run timed out after {attempts} attempts for image {image} "
+        f"— daemon overloaded"
+    ) from last_err
 
 
 def stop_container(container_id: str):
