@@ -6,7 +6,6 @@ Matches the tool interface used in SWE-bench / SERA training data.
 
 from __future__ import annotations
 
-import shutil
 from pathlib import Path
 
 
@@ -38,11 +37,15 @@ class Editor:
             if command == "view":
                 return self._view(path, args.get("view_range"))
             elif command == "str_replace":
-                return self._str_replace(path, args.get("old_str", ""), args.get("new_str", ""))
+                return self._str_replace(
+                    path, args.get("old_str", ""), args.get("new_str", "")
+                )
             elif command == "create":
                 return self._create(path, args.get("file_text", ""))
             elif command == "insert":
-                return self._insert(path, args.get("insert_line", ""), args.get("new_str", ""))
+                return self._insert(
+                    path, args.get("insert_line", ""), args.get("new_str", "")
+                )
             elif command == "undo_edit":
                 return self._undo(path)
             else:
@@ -73,7 +76,10 @@ class Editor:
         """View file or directory contents."""
         if path.is_dir():
             entries = sorted(path.iterdir())
-            lines = [str(e.relative_to(path)) + ("/" if e.is_dir() else "") for e in entries[:100]]
+            lines = [
+                str(e.relative_to(path)) + ("/" if e.is_dir() else "")
+                for e in entries[:100]
+            ]
             result = "\n".join(lines)
             if len(entries) > 100:
                 result += f"\n... and {len(entries) - 100} more entries"
@@ -93,7 +99,9 @@ class Editor:
                 start = int(parts[0])
                 end = int(parts[1]) if len(parts) > 1 else len(lines)
             except (ValueError, IndexError):
-                raise EditorError(f"Invalid view_range: {view_range}. Use [start, end].")
+                raise EditorError(
+                    f"Invalid view_range: {view_range}. Use [start, end]."
+                )
             start = max(1, start)
             end = min(len(lines), end)
             selected = lines[start - 1 : end]
@@ -107,7 +115,9 @@ class Editor:
         for i, line in enumerate(selected):
             line_no = offset + i
             numbered.append(f"{line_no:6d}\t{line.rstrip()}")
-        return f"Here's the result of running `cat -n` on {path}:\n" + "\n".join(numbered)
+        return f"Here's the result of running `cat -n` on {path}:\n" + "\n".join(
+            numbered
+        )
 
     def _str_replace(self, path: Path, old_str: str, new_str: str) -> str:
         """Replace a unique string in a file."""
@@ -153,13 +163,17 @@ class Editor:
         end_line = start_line + new_str.count("\n") + 1
         context_start = max(0, start_line - 3)
         context_end = min(len(new_lines), end_line + 3)
-        snippet = "\n".join(f"{i+1:6d}\t{new_lines[i]}" for i in range(context_start, context_end))
+        snippet = "\n".join(
+            f"{i + 1:6d}\t{new_lines[i]}" for i in range(context_start, context_end)
+        )
         return f"The file {path} has been edited. Here's the result of running `cat -n` on a snippet of {path}:\n{snippet}\nReview the changes and make sure they are as expected. Edit the file again if necessary."
 
     def _create(self, path: Path, file_text: str) -> str:
         """Create a new file."""
         if path.exists():
-            raise EditorError(f"File already exists: {path}. Use str_replace to edit it.")
+            raise EditorError(
+                f"File already exists: {path}. Use str_replace to edit it."
+            )
 
         self._save_undo(path)
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -174,7 +188,9 @@ class Editor:
         try:
             line_no = int(insert_line)
         except (ValueError, TypeError):
-            raise EditorError(f"Invalid insert_line: {insert_line}. Must be an integer.")
+            raise EditorError(
+                f"Invalid insert_line: {insert_line}. Must be an integer."
+            )
 
         content = path.read_text()
         lines = content.splitlines(keepends=True)
@@ -193,7 +209,9 @@ class Editor:
         # Show context
         ctx_start = max(0, line_no - 3)
         ctx_end = min(len(lines), line_no + len(new_lines_to_insert) + 3)
-        snippet = "\n".join(f"{i+1:6d}\t{lines[i].rstrip()}" for i in range(ctx_start, ctx_end))
+        snippet = "\n".join(
+            f"{i + 1:6d}\t{lines[i].rstrip()}" for i in range(ctx_start, ctx_end)
+        )
         return f"The file {path} has been edited. Here's the result of running `cat -n` on a snippet:\n{snippet}"
 
     def _undo(self, path: Path) -> str:

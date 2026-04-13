@@ -155,9 +155,17 @@ class ContainerPool:
             self._sem.release()
 
     def acquire(self, timeout: float = 300) -> str:
-        """Get a clean container from the pool. Blocks if none available."""
+        """Get a clean container from the pool. Blocks if none available.
+
+        If the wait times out, spin up a fresh container rather than failing —
+        a stuck/leaked container should not cascade failures across workers.
+        """
         if not self._sem.acquire(timeout=timeout):
-            raise TimeoutError("No container available in pool")
+            print(
+                f"  [pool] acquire timed out after {timeout}s — starting fresh container",
+                file=sys.stderr,
+            )
+            return start_container(self.image)
         with self._lock:
             cid = self._containers.pop(0)
         if not reset_container(cid):

@@ -98,7 +98,7 @@ def _parse_parameters(body: str) -> dict[str, str]:
             # where value + closing tag are on one line: "value</parameter>")
             fallback = re.search(r"</parameter>", rest)
             if fallback:
-                value = rest[:fallback.start()]
+                value = rest[: fallback.start()]
                 pos = value_start + fallback.end()
             else:
                 value = rest.strip()
@@ -115,7 +115,11 @@ def _parse_parameters(body: str) -> dict[str, str]:
 
             value = rest[:close_pos]
             close_tag_match = re.match(r"\n</parameter>\n?", rest[close_pos:])
-            pos = value_start + close_pos + (close_tag_match.end() if close_tag_match else len("\n</parameter>"))
+            pos = (
+                value_start
+                + close_pos
+                + (close_tag_match.end() if close_tag_match else len("\n</parameter>"))
+            )
 
         # Strip single leading/trailing newline from value
         value = value.strip("\n")

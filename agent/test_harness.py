@@ -10,7 +10,7 @@ from pathlib import Path
 # Add parent dir to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from agent.tool_parser import parse_tool_calls, ToolCall
+from agent.tool_parser import parse_tool_calls
 from agent.editor import Editor
 
 
@@ -152,8 +152,13 @@ def test_editor_create_view_replace_undo():
         editor = Editor(tmpdir)
 
         # Create
-        result = editor.execute({"command": "create", "path": f"{tmpdir}/test.c",
-                                 "file_text": "int main() {\n    return 0;\n}\n"})
+        result = editor.execute(
+            {
+                "command": "create",
+                "path": f"{tmpdir}/test.c",
+                "file_text": "int main() {\n    return 0;\n}\n",
+            }
+        )
         assert "created" in result.lower(), f"Create failed: {result}"
         print("  PASS: editor create")
 
@@ -164,17 +169,21 @@ def test_editor_create_view_replace_undo():
         print("  PASS: editor view")
 
         # View with range
-        result = editor.execute({"command": "view", "path": f"{tmpdir}/test.c", "view_range": "[2, 3]"})
+        result = editor.execute(
+            {"command": "view", "path": f"{tmpdir}/test.c", "view_range": "[2, 3]"}
+        )
         assert "return 0" in result
         print("  PASS: editor view with range")
 
         # str_replace
-        result = editor.execute({
-            "command": "str_replace",
-            "path": f"{tmpdir}/test.c",
-            "old_str": "    return 0;",
-            "new_str": "    return 1;",
-        })
+        result = editor.execute(
+            {
+                "command": "str_replace",
+                "path": f"{tmpdir}/test.c",
+                "old_str": "    return 0;",
+                "new_str": "    return 1;",
+            }
+        )
         assert "edited" in result.lower(), f"Replace failed: {result}"
         content = Path(f"{tmpdir}/test.c").read_text()
         assert "return 1" in content
@@ -191,12 +200,14 @@ def test_editor_create_view_replace_undo():
         # str_replace ambiguous (duplicate match)
         Path(f"{tmpdir}/dup.c").write_text("foo\nbar\nfoo\n")
         editor._undo_stack.clear()
-        result = editor.execute({
-            "command": "str_replace",
-            "path": f"{tmpdir}/dup.c",
-            "old_str": "foo",
-            "new_str": "baz",
-        })
+        result = editor.execute(
+            {
+                "command": "str_replace",
+                "path": f"{tmpdir}/dup.c",
+                "old_str": "foo",
+                "new_str": "baz",
+            }
+        )
         assert "multiple" in result.lower() or "ERROR" in result
         print("  PASS: editor rejects ambiguous replace")
 
@@ -206,12 +217,14 @@ def test_editor_create_view_replace_undo():
         print("  PASS: editor view directory")
 
         # Insert
-        result = editor.execute({
-            "command": "insert",
-            "path": f"{tmpdir}/test.c",
-            "insert_line": "1",
-            "new_str": "#include <stdio.h>",
-        })
+        result = editor.execute(
+            {
+                "command": "insert",
+                "path": f"{tmpdir}/test.c",
+                "insert_line": "1",
+                "new_str": "#include <stdio.h>",
+            }
+        )
         assert "edited" in result.lower()
         content = Path(f"{tmpdir}/test.c").read_text()
         assert content.startswith("int main()")
@@ -236,13 +249,15 @@ def test_parser_on_real_training_data():
 
     # Apply chat template to get the rendered text
     rendered = tok.apply_chat_template(
-        sample["messages"], tools=sample["tools"],
+        sample["messages"],
+        tools=sample["tools"],
         tokenize=False,
     )
 
     # Find all assistant turns with tool calls in the rendered text
     # Split by <|im_start|>assistant to get assistant segments
     import re
+
     assistant_segments = re.split(r"<\|im_start\|>assistant\n", rendered)
 
     tool_call_count = 0
@@ -263,10 +278,12 @@ def test_parser_on_real_training_data():
                         print(f"  WARNING: unexpected tool name: {call.name}")
             else:
                 parse_errors += 1
-                print(f"  PARSE ERROR: found <tool_call> but parsed 0 calls")
+                print("  PARSE ERROR: found <tool_call> but parsed 0 calls")
                 print(f"    Content: {content[:200]}")
 
-    print(f"  Parsed {tool_call_count} tool calls from 1 sample, {parse_errors} parse errors")
+    print(
+        f"  Parsed {tool_call_count} tool calls from 1 sample, {parse_errors} parse errors"
+    )
     assert parse_errors == 0, f"{parse_errors} parse errors"
     assert tool_call_count > 0, "No tool calls found"
     print("  PASS: real training data parsing")
@@ -294,7 +311,9 @@ def test_parser_on_multiple_samples():
                 break
             sample = json.loads(line)
             rendered = tok.apply_chat_template(
-                sample["messages"], tools=sample["tools"], tokenize=False,
+                sample["messages"],
+                tools=sample["tools"],
+                tokenize=False,
             )
             segments = re.split(r"<\|im_start\|>assistant\n", rendered)
             for seg in segments[1:]:
@@ -310,7 +329,9 @@ def test_parser_on_multiple_samples():
                         total_errors += 1
             samples_tested += 1
 
-    print(f"  Tested {samples_tested} samples: {total_calls} tool calls parsed, {total_errors} errors")
+    print(
+        f"  Tested {samples_tested} samples: {total_calls} tool calls parsed, {total_errors} errors"
+    )
     assert total_errors == 0
     print("  PASS: bulk training data parsing")
 

@@ -18,7 +18,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
 from pathlib import Path
 
@@ -54,9 +53,12 @@ def parse_patch_lines(patch_text: str) -> set[str]:
     return changed
 
 
-def _fuzzy_match_count(p1_lines: set[str], p2_lines: set[str], threshold: float = 0.7) -> int:
+def _fuzzy_match_count(
+    p1_lines: set[str], p2_lines: set[str], threshold: float = 0.7
+) -> int:
     """Count P1 lines that have a fuzzy match (>= threshold) in P2."""
     from difflib import SequenceMatcher
+
     matched = 0
     for line1 in p1_lines:
         for line2 in p2_lines:
@@ -85,7 +87,11 @@ def compute_recall(p1_text: str, p2_text: str) -> float:
     # Fuzzy matches for remaining lines
     remaining_p1 = p1_lines - exact
     remaining_p2 = p2_lines - exact
-    fuzzy = _fuzzy_match_count(remaining_p1, remaining_p2) if remaining_p1 and remaining_p2 else 0
+    fuzzy = (
+        _fuzzy_match_count(remaining_p1, remaining_p2)
+        if remaining_p1 and remaining_p2
+        else 0
+    )
 
     return (len(exact) + fuzzy) / len(p1_lines)
 
@@ -115,7 +121,11 @@ def verify_pair(p1_path: Path, p2_path: Path) -> dict:
     exact = p1_lines & p2_lines
     remaining_p1 = p1_lines - exact
     remaining_p2 = p2_lines - exact
-    fuzzy = _fuzzy_match_count(remaining_p1, remaining_p2) if remaining_p1 and remaining_p2 else 0
+    fuzzy = (
+        _fuzzy_match_count(remaining_p1, remaining_p2)
+        if remaining_p1 and remaining_p2
+        else 0
+    )
 
     score = (len(exact) + fuzzy) / len(p1_lines) if p1_lines else 0.0
 
@@ -135,8 +145,12 @@ def main():
     parser = argparse.ArgumentParser(
         description="Soft verification: compare two patches via line-level recall"
     )
-    parser.add_argument("--p1", type=Path, required=True, help="Path to P1 (rollout 1 patch)")
-    parser.add_argument("--p2", type=Path, required=True, help="Path to P2 (rollout 2 patch)")
+    parser.add_argument(
+        "--p1", type=Path, required=True, help="Path to P1 (rollout 1 patch)"
+    )
+    parser.add_argument(
+        "--p2", type=Path, required=True, help="Path to P2 (rollout 2 patch)"
+    )
     parser.add_argument("--json", action="store_true", help="Output as JSON")
     args = parser.parse_args()
 
@@ -152,7 +166,8 @@ def main():
     else:
         print(f"P1 changed lines: {result['p1_changed_lines']}")
         print(f"P2 changed lines: {result['p2_changed_lines']}")
-        print(f"Intersection:     {result['intersection_lines']}")
+        print(f"Exact matches:    {result['exact_match_lines']}")
+        print(f"Fuzzy matches:    {result['fuzzy_match_lines']}")
         print(f"Recall score:     {result['recall_score']}")
         print(f"Classification:   {result['classification']}")
 

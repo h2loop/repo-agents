@@ -34,18 +34,64 @@ from agent.editor import Editor
 # Tool schemas (same as training data)
 # ---------------------------------------------------------------------------
 TOOL_SCHEMAS = [
-    {"type": "function", "function": {"name": "bash", "description": "Execute a bash command in the repository environment", "parameters": {"type": "object", "properties": {"command": {"type": "string", "description": "The bash command to execute"}}, "required": ["command"]}}},
-    {"type": "function", "function": {"name": "str_replace_editor", "description": "View, create, or edit files. Commands: view, str_replace, create, insert, undo_edit", "parameters": {"type": "object", "properties": {"command": {"type": "string"}, "path": {"type": "string"}, "old_str": {"type": "string"}, "new_str": {"type": "string"}, "file_text": {"type": "string"}, "insert_line": {"type": "integer"}, "view_range": {"type": "array", "items": {"type": "integer"}}}, "required": ["command", "path"]}}},
-    {"type": "function", "function": {"name": "submit", "description": "Submit the current changes as the final patch", "parameters": {"type": "object", "properties": {}}}},
+    {
+        "type": "function",
+        "function": {
+            "name": "bash",
+            "description": "Execute a bash command in the repository environment",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "command": {
+                        "type": "string",
+                        "description": "The bash command to execute",
+                    }
+                },
+                "required": ["command"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "str_replace_editor",
+            "description": "View, create, or edit files. Commands: view, str_replace, create, insert, undo_edit",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "command": {"type": "string"},
+                    "path": {"type": "string"},
+                    "old_str": {"type": "string"},
+                    "new_str": {"type": "string"},
+                    "file_text": {"type": "string"},
+                    "insert_line": {"type": "integer"},
+                    "view_range": {"type": "array", "items": {"type": "integer"}},
+                },
+                "required": ["command", "path"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "submit",
+            "description": "Submit the current changes as the final patch",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
 ]
+
 
 def _load_repo_config() -> dict:
     """Load repo_config.json from the project configs directory."""
-    config_path = Path(__file__).resolve().parent.parent / "configs" / "repo_config.json"
+    config_path = (
+        Path(__file__).resolve().parent.parent / "configs" / "repo_config.json"
+    )
     if config_path.exists():
         with open(config_path) as f:
             return json.load(f)
     return {}
+
 
 _REPO_CFG = _load_repo_config()
 _REPO_DISPLAY_NAME = _REPO_CFG.get("repo_display_name", "OpenAirInterface 5G")
@@ -57,11 +103,18 @@ You can interact with the codebase using bash commands and a file editor to inve
 # LLM Client (OpenAI-compatible, works with vLLM)
 # ---------------------------------------------------------------------------
 
+
 class LLMClient:
     """Minimal client for OpenAI-compatible chat completions API."""
 
-    def __init__(self, base_url: str, model_name: str, api_key: str = "EMPTY",
-                 max_tokens: int = 4096, temperature: float = 0.0):
+    def __init__(
+        self,
+        base_url: str,
+        model_name: str,
+        api_key: str = "EMPTY",
+        max_tokens: int = 4096,
+        temperature: float = 0.0,
+    ):
         self.base_url = base_url.rstrip("/")
         self.model_name = model_name
         self.api_key = api_key
@@ -124,6 +177,7 @@ class LLMClient:
 # Tool Executor
 # ---------------------------------------------------------------------------
 
+
 class ToolExecutor:
     """Executes tool calls in a working directory."""
 
@@ -161,7 +215,11 @@ class ToolExecutor:
             output = result.stdout
             # Truncate very long output
             if len(output) > 50_000:
-                output = output[:25_000] + "\n\n... [output truncated] ...\n\n" + output[-25_000:]
+                output = (
+                    output[:25_000]
+                    + "\n\n... [output truncated] ...\n\n"
+                    + output[-25_000:]
+                )
             return output
         except subprocess.TimeoutExpired:
             return f"ERROR: Command timed out after {self.timeout}s"
@@ -193,11 +251,18 @@ class ToolExecutor:
 # Agent Loop
 # ---------------------------------------------------------------------------
 
+
 class SeraAgent:
     """Agentic loop: prompt -> generate -> parse -> execute -> repeat."""
 
-    def __init__(self, llm: LLMClient, executor: ToolExecutor, *,
-                 max_steps: int = 30, verbose: bool = True):
+    def __init__(
+        self,
+        llm: LLMClient,
+        executor: ToolExecutor,
+        *,
+        max_steps: int = 30,
+        verbose: bool = True,
+    ):
         self.llm = llm
         self.executor = executor
         self.max_steps = max_steps
@@ -219,9 +284,9 @@ class SeraAgent:
 
         for step in range(1, self.max_steps + 1):
             if self.verbose:
-                print(f"\n{'='*60}")
+                print(f"\n{'=' * 60}")
                 print(f"  Step {step}/{self.max_steps}")
-                print(f"{'='*60}")
+                print(f"{'=' * 60}")
 
             # 1. Query LLM
             t0 = time.time()
@@ -236,13 +301,19 @@ class SeraAgent:
 
             if self.verbose and preamble:
                 # Show non-tool-call text (thinking, explanation)
-                display = preamble if len(preamble) < 500 else preamble[:250] + "..." + preamble[-250:]
+                display = (
+                    preamble
+                    if len(preamble) < 500
+                    else preamble[:250] + "..." + preamble[-250:]
+                )
                 print(f"  Text: {display}")
 
             if not calls:
                 # Model didn't make any tool call — add as assistant message and continue
                 self.messages.append({"role": "assistant", "content": raw_output})
-                self.trajectory.append({"step": step, "type": "no_tool_call", "content": raw_output})
+                self.trajectory.append(
+                    {"step": step, "type": "no_tool_call", "content": raw_output}
+                )
                 if self.verbose:
                     print("  [No tool call in response]")
                 continue
@@ -251,15 +322,19 @@ class SeraAgent:
             # For the conversation history, store the raw content
             tool_calls_for_msg = []
             for call in calls:
-                tool_calls_for_msg.append({
-                    "type": "function",
-                    "function": {"name": call.name, "arguments": call.arguments},
-                })
-            self.messages.append({
-                "role": "assistant",
-                "content": preamble if preamble else None,
-                "tool_calls": tool_calls_for_msg,
-            })
+                tool_calls_for_msg.append(
+                    {
+                        "type": "function",
+                        "function": {"name": call.name, "arguments": call.arguments},
+                    }
+                )
+            self.messages.append(
+                {
+                    "role": "assistant",
+                    "content": preamble if preamble else None,
+                    "tool_calls": tool_calls_for_msg,
+                }
+            )
 
             # 4. Execute each tool call
             submitted = False
@@ -273,18 +348,24 @@ class SeraAgent:
                 output = self.executor.execute(call)
 
                 if self.verbose:
-                    display = output if len(output) < 300 else output[:150] + "..." + output[-150:]
+                    display = (
+                        output
+                        if len(output) < 300
+                        else output[:150] + "..." + output[-150:]
+                    )
                     print(f"  Result: {display}")
 
                 # Add tool response
                 self.messages.append({"role": "tool", "content": output})
-                self.trajectory.append({
-                    "step": step,
-                    "type": "tool_call",
-                    "tool": call.name,
-                    "arguments": call.arguments,
-                    "output": output[:5000],  # truncate for trajectory log
-                })
+                self.trajectory.append(
+                    {
+                        "step": step,
+                        "type": "tool_call",
+                        "tool": call.name,
+                        "arguments": call.arguments,
+                        "output": output[:5000],  # truncate for trajectory log
+                    }
+                )
 
                 if call.name == "submit":
                     patch = self._extract_patch()
@@ -303,11 +384,11 @@ class SeraAgent:
         }
 
         if self.verbose:
-            print(f"\n{'='*60}")
+            print(f"\n{'=' * 60}")
             print(f"  Agent finished: {status} ({result['steps']} steps)")
             if patch:
                 print(f"  Patch: {len(patch)} chars, {patch.count(chr(10))} lines")
-            print(f"{'='*60}")
+            print(f"{'=' * 60}")
 
         return result
 
@@ -334,10 +415,12 @@ class SeraAgent:
         try:
             result = subprocess.run(
                 "git diff",
-                shell=True, text=True,
+                shell=True,
+                text=True,
                 cwd=self.executor.working_dir,
                 timeout=10,
-                stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
             )
             return result.stdout.strip()
         except Exception:
@@ -358,21 +441,41 @@ class SeraAgent:
 # CLI
 # ---------------------------------------------------------------------------
 
+
 def main():
     parser = argparse.ArgumentParser(description="SERA Agent — OAI5G bug-fixing agent")
-    parser.add_argument("--model-url", default="http://localhost:8000/v1",
-                        help="vLLM / OpenAI-compatible API base URL")
-    parser.add_argument("--model-name", default="nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16",
-                        help="Model name for API requests")
-    parser.add_argument("--api-key", default=os.getenv("OPENAI_API_KEY", "EMPTY"),
-                        help="API key (default: EMPTY for local vLLM)")
-    parser.add_argument("--repo", required=True, help="Path to the repository to work on")
+    parser.add_argument(
+        "--model-url",
+        default="http://localhost:8000/v1",
+        help="vLLM / OpenAI-compatible API base URL",
+    )
+    parser.add_argument(
+        "--model-name",
+        default="nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16",
+        help="Model name for API requests",
+    )
+    parser.add_argument(
+        "--api-key",
+        default=os.getenv("OPENAI_API_KEY", "EMPTY"),
+        help="API key (default: EMPTY for local vLLM)",
+    )
+    parser.add_argument(
+        "--repo", required=True, help="Path to the repository to work on"
+    )
     parser.add_argument("--issue", required=True, help="Issue/bug description text")
-    parser.add_argument("--issue-file", help="Read issue text from file instead of --issue")
+    parser.add_argument(
+        "--issue-file", help="Read issue text from file instead of --issue"
+    )
     parser.add_argument("--max-steps", type=int, default=30, help="Maximum agent steps")
-    parser.add_argument("--max-tokens", type=int, default=4096, help="Max tokens per generation")
-    parser.add_argument("--temperature", type=float, default=0.0, help="Sampling temperature")
-    parser.add_argument("--timeout", type=int, default=60, help="Bash command timeout (seconds)")
+    parser.add_argument(
+        "--max-tokens", type=int, default=4096, help="Max tokens per generation"
+    )
+    parser.add_argument(
+        "--temperature", type=float, default=0.0, help="Sampling temperature"
+    )
+    parser.add_argument(
+        "--timeout", type=int, default=60, help="Bash command timeout (seconds)"
+    )
     parser.add_argument("--output", help="Save trajectory JSON to this path")
     parser.add_argument("--quiet", action="store_true", help="Suppress verbose output")
     args = parser.parse_args()

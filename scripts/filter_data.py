@@ -30,12 +30,12 @@ import json
 import sys
 from collections import Counter
 from pathlib import Path
-from typing import Any
 
 
 # ---------------------------------------------------------------------------
 # Token estimation
 # ---------------------------------------------------------------------------
+
 
 def estimate_tokens(text: str) -> int:
     """Rough token estimate (whitespace split)."""
@@ -80,6 +80,7 @@ def compute_patch_hash(patch_text: str) -> str:
 # ---------------------------------------------------------------------------
 # Loading helpers
 # ---------------------------------------------------------------------------
+
 
 def load_trajectory(path: Path) -> list[dict]:
     """Load a JSONL trajectory file."""
@@ -136,6 +137,7 @@ def discover_samples(input_dir: Path) -> list[dict]:
 # Filtering
 # ---------------------------------------------------------------------------
 
+
 def filter_samples(
     samples: list[dict],
     max_patch_lines: int = 40,
@@ -163,8 +165,12 @@ def filter_samples(
             try:
                 t1_traj = load_trajectory(sample["t1_trajectory"])
                 p1_text = sample["p1"].read_text(errors="replace")
-                t1_meta = load_metadata(sample["t1_meta"]) if sample["t1_meta"].exists() else {}
-            except Exception as e:
+                t1_meta = (
+                    load_metadata(sample["t1_meta"])
+                    if sample["t1_meta"].exists()
+                    else {}
+                )
+            except Exception:
                 stats["t1_load_error"] += 1
                 continue
 
@@ -174,10 +180,13 @@ def filter_samples(
                 continue
 
             # Patch size filter
-            patch_lines = len([
-                l for l in p1_text.splitlines()
-                if l.startswith("+") and not l.startswith("+++")
-            ])
+            patch_lines = len(
+                [
+                    l
+                    for l in p1_text.splitlines()
+                    if l.startswith("+") and not l.startswith("+++")
+                ]
+            )
             if patch_lines > max_patch_lines:
                 stats["t1_patch_too_large"] += 1
                 continue
@@ -224,7 +233,7 @@ def filter_samples(
                 t2_traj = load_trajectory(sample["t2_trajectory"])
                 p2_text = sample["p2"].read_text(errors="replace")
                 verif = load_metadata(sample["verification"])
-            except Exception as e:
+            except Exception:
                 stats["t2_load_error"] += 1
                 continue
 
@@ -235,10 +244,13 @@ def filter_samples(
                 continue
 
             # Patch size filter
-            patch_lines = len([
-                l for l in p2_text.splitlines()
-                if l.startswith("+") and not l.startswith("+++")
-            ])
+            patch_lines = len(
+                [
+                    l
+                    for l in p2_text.splitlines()
+                    if l.startswith("+") and not l.startswith("+++")
+                ]
+            )
             if patch_lines > max_patch_lines:
                 stats["t2_patch_too_large"] += 1
                 continue
@@ -284,6 +296,7 @@ def filter_samples(
 # Selection
 # ---------------------------------------------------------------------------
 
+
 def select_dataset(
     filtered_t1: list[dict],
     filtered_t2: list[dict],
@@ -295,7 +308,9 @@ def select_dataset(
     Prioritizes by truncation ratio (higher is better), per SERA Section 5.2.
     """
     # Sort T1 by truncation ratio (descending) — best quality first
-    t1_sorted = sorted(filtered_t1, key=lambda x: x.get("t1_truncation_ratio", 0), reverse=True)
+    t1_sorted = sorted(
+        filtered_t1, key=lambda x: x.get("t1_truncation_ratio", 0), reverse=True
+    )
     selected_t1 = t1_sorted[:target_t1]
 
     # Sort T2 by verification score (descending), then truncation ratio
@@ -313,16 +328,27 @@ def select_dataset(
 # Main
 # ---------------------------------------------------------------------------
 
+
 def main():
-    parser = argparse.ArgumentParser(description="SERA SVG: Data filtering and quality control")
-    parser.add_argument("--input-dir", type=Path, required=True, help="Raw data directory")
-    parser.add_argument("--output-dir", type=Path, required=True, help="Filtered output directory")
+    parser = argparse.ArgumentParser(
+        description="SERA SVG: Data filtering and quality control"
+    )
+    parser.add_argument(
+        "--input-dir", type=Path, required=True, help="Raw data directory"
+    )
+    parser.add_argument(
+        "--output-dir", type=Path, required=True, help="Filtered output directory"
+    )
     parser.add_argument("--max-patch-lines", type=int, default=40)
     parser.add_argument("--max-avg-tool-tokens", type=float, default=600.0)
     parser.add_argument("--min-truncation-ratio", type=float, default=0.88)
     parser.add_argument("--max-tokens", type=int, default=32768)
-    parser.add_argument("--target-t1", type=int, default=5000, help="Target T1 trajectories")
-    parser.add_argument("--target-t2", type=int, default=3000, help="Target T2 trajectories")
+    parser.add_argument(
+        "--target-t1", type=int, default=5000, help="Target T1 trajectories"
+    )
+    parser.add_argument(
+        "--target-t2", type=int, default=3000, help="Target T2 trajectories"
+    )
     args = parser.parse_args()
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
@@ -342,11 +368,11 @@ def main():
         max_tokens=args.max_tokens,
     )
 
-    print(f"\nFilter statistics:", file=sys.stderr)
+    print("\nFilter statistics:", file=sys.stderr)
     for key, val in sorted(stats.items()):
         print(f"  {key}: {val}", file=sys.stderr)
 
-    print(f"\nAfter filtering:", file=sys.stderr)
+    print("\nAfter filtering:", file=sys.stderr)
     print(f"  T1 passed: {len(filtered_t1)}", file=sys.stderr)
     print(f"  T2 passed: {len(filtered_t2)}", file=sys.stderr)
 
@@ -355,7 +381,7 @@ def main():
     actual_t1 = sum(1 for s in selected if s.get("rollout_type") == "T1")
     actual_t2 = sum(1 for s in selected if s.get("rollout_type") == "T2")
 
-    print(f"\nFinal dataset:", file=sys.stderr)
+    print("\nFinal dataset:", file=sys.stderr)
     print(f"  T1: {actual_t1} (target: {args.target_t1})", file=sys.stderr)
     print(f"  T2: {actual_t2} (target: {args.target_t2})", file=sys.stderr)
     print(f"  Total: {len(selected)}", file=sys.stderr)
@@ -389,12 +415,12 @@ def main():
                 "run_id": sample["run_id"],
                 "rollout_type": sample.get("rollout_type"),
                 "trajectory_path": str(
-                    sample["t1_trajectory"] if sample.get("rollout_type") == "T1"
+                    sample["t1_trajectory"]
+                    if sample.get("rollout_type") == "T1"
                     else sample["t2_trajectory"]
                 ),
                 "patch_path": str(
-                    sample["p1"] if sample.get("rollout_type") == "T1"
-                    else sample["p2"]
+                    sample["p1"] if sample.get("rollout_type") == "T1" else sample["p2"]
                 ),
             }
             # Add type-specific metadata
@@ -409,7 +435,7 @@ def main():
                 entry["recall_score"] = sample.get("t2_recall_score")
             f.write(json.dumps(entry) + "\n")
 
-    print(f"\nOutputs:", file=sys.stderr)
+    print("\nOutputs:", file=sys.stderr)
     print(f"  Manifest: {manifest_path}", file=sys.stderr)
     print(f"  Selection: {selection_path}", file=sys.stderr)
 

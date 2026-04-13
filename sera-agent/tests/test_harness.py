@@ -22,13 +22,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from tools.parser import parse_tool_calls, ToolCall
+from tools.parser import parse_tool_calls
 from tools.editor import Editor
 
 
 # ---------------------------------------------------------------
 # 1. Tool Parser — Unit Tests
 # ---------------------------------------------------------------
+
 
 def test_parser_basic():
     """Basic bash tool call."""
@@ -165,14 +166,20 @@ view
 # 2. Editor — Integration Tests
 # ---------------------------------------------------------------
 
+
 def test_editor_create_view_replace_undo():
     """Full editor lifecycle: create -> view -> replace -> undo."""
     with tempfile.TemporaryDirectory() as tmpdir:
         editor = Editor(tmpdir)
 
         # Create
-        result = editor.execute({"command": "create", "path": f"{tmpdir}/test.c",
-                                 "file_text": "int main() {\n    return 0;\n}\n"})
+        result = editor.execute(
+            {
+                "command": "create",
+                "path": f"{tmpdir}/test.c",
+                "file_text": "int main() {\n    return 0;\n}\n",
+            }
+        )
         assert "created" in result.lower()
         print("  PASS: editor create")
 
@@ -182,15 +189,21 @@ def test_editor_create_view_replace_undo():
         print("  PASS: editor view")
 
         # View with range
-        result = editor.execute({"command": "view", "path": f"{tmpdir}/test.c", "view_range": "[2, 3]"})
+        result = editor.execute(
+            {"command": "view", "path": f"{tmpdir}/test.c", "view_range": "[2, 3]"}
+        )
         assert "return 0" in result
         print("  PASS: editor view with range")
 
         # str_replace
-        result = editor.execute({
-            "command": "str_replace", "path": f"{tmpdir}/test.c",
-            "old_str": "    return 0;", "new_str": "    return 1;",
-        })
+        result = editor.execute(
+            {
+                "command": "str_replace",
+                "path": f"{tmpdir}/test.c",
+                "old_str": "    return 0;",
+                "new_str": "    return 1;",
+            }
+        )
         assert "edited" in result.lower()
         content = Path(f"{tmpdir}/test.c").read_text()
         assert "return 1" in content and "return 0" not in content
@@ -205,10 +218,14 @@ def test_editor_create_view_replace_undo():
 
         # Ambiguous replace
         Path(f"{tmpdir}/dup.c").write_text("foo\nbar\nfoo\n")
-        result = editor.execute({
-            "command": "str_replace", "path": f"{tmpdir}/dup.c",
-            "old_str": "foo", "new_str": "baz",
-        })
+        result = editor.execute(
+            {
+                "command": "str_replace",
+                "path": f"{tmpdir}/dup.c",
+                "old_str": "foo",
+                "new_str": "baz",
+            }
+        )
         assert "multiple" in result.lower() or "ERROR" in result
         print("  PASS: editor rejects ambiguous replace")
 
@@ -218,10 +235,14 @@ def test_editor_create_view_replace_undo():
         print("  PASS: editor view directory")
 
         # Insert
-        result = editor.execute({
-            "command": "insert", "path": f"{tmpdir}/test.c",
-            "insert_line": "1", "new_str": "#include <stdio.h>",
-        })
+        result = editor.execute(
+            {
+                "command": "insert",
+                "path": f"{tmpdir}/test.c",
+                "insert_line": "1",
+                "new_str": "#include <stdio.h>",
+            }
+        )
         assert "edited" in result.lower()
         content = Path(f"{tmpdir}/test.c").read_text()
         assert "#include <stdio.h>" in content
@@ -232,13 +253,15 @@ def test_editor_create_view_replace_undo():
 # 3. Parser on Real Training Data
 # ---------------------------------------------------------------
 
+
 def test_parser_on_real_training_data():
     """Parse tool calls from 1 converted training sample."""
     import re
     from transformers import AutoTokenizer
 
     tok = AutoTokenizer.from_pretrained(
-        "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16", trust_remote_code=True)
+        "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16", trust_remote_code=True
+    )
     sera_root = Path(__file__).parent.parent.parent
     with open(sera_root / "configs/nemotron_chat_template_patched.jinja") as f:
         tok.chat_template = f.read()
@@ -246,7 +269,9 @@ def test_parser_on_real_training_data():
     with open(sera_root / "data/megatron_sft/training.jsonl") as f:
         sample = json.loads(f.readline())
 
-    rendered = tok.apply_chat_template(sample["messages"], tools=sample["tools"], tokenize=False)
+    rendered = tok.apply_chat_template(
+        sample["messages"], tools=sample["tools"], tokenize=False
+    )
     segments = re.split(r"<\|im_start\|>assistant\n", rendered)
 
     tool_call_count = 0
@@ -275,7 +300,8 @@ def test_parser_on_multiple_samples():
     from transformers import AutoTokenizer
 
     tok = AutoTokenizer.from_pretrained(
-        "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16", trust_remote_code=True)
+        "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16", trust_remote_code=True
+    )
     sera_root = Path(__file__).parent.parent.parent
     with open(sera_root / "configs/nemotron_chat_template_patched.jinja") as f:
         tok.chat_template = f.read()
@@ -289,7 +315,8 @@ def test_parser_on_multiple_samples():
                 break
             sample = json.loads(line)
             rendered = tok.apply_chat_template(
-                sample["messages"], tools=sample["tools"], tokenize=False)
+                sample["messages"], tools=sample["tools"], tokenize=False
+            )
             segments = re.split(r"<\|im_start\|>assistant\n", rendered)
             for seg in segments[1:]:
                 end = seg.find("<|im_end|>")
@@ -301,7 +328,9 @@ def test_parser_on_multiple_samples():
                     total_calls += len(calls) if calls else 0
                     total_errors += 0 if calls else 1
 
-    print(f"  Tested 50 samples: {total_calls} tool calls parsed, {total_errors} errors")
+    print(
+        f"  Tested 50 samples: {total_calls} tool calls parsed, {total_errors} errors"
+    )
     assert total_errors == 0
     print("  PASS: bulk training data parsing")
 

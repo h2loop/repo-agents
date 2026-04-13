@@ -66,27 +66,40 @@ def parse_cli_args() -> Tuple[argparse.Namespace, list[str]]:
         formatter_class=argparse.RawTextHelpFormatter,
     )
     parser.add_argument(
-        "--config-file", type=str, default=None,
+        "--config-file",
+        type=str,
+        default=None,
         help="Path to YAML override file (e.g., training/sera_overrides.yaml)",
     )
     parser.add_argument(
-        "--peft", type=str, default=None, choices=["lora", "dora"],
+        "--peft",
+        type=str,
+        default=None,
+        choices=["lora", "dora"],
         help="PEFT scheme (lora/dora). Omit for full SFT.",
     )
     parser.add_argument(
-        "--seq-length", type=int, default=4096,
+        "--seq-length",
+        type=int,
+        default=4096,
         help="Max sequence length (default: 4096)",
     )
     parser.add_argument(
-        "--data-dir", type=str, default=None,
+        "--data-dir",
+        type=str,
+        default=None,
         help="Path to directory containing training.jsonl + validation.jsonl",
     )
     parser.add_argument(
-        "--packed-sequence", action="store_true", default=True,
+        "--packed-sequence",
+        action="store_true",
+        default=True,
         help="Use sequence packing (default: True)",
     )
     parser.add_argument(
-        "--no-packed-sequence", action="store_false", dest="packed_sequence",
+        "--no-packed-sequence",
+        action="store_false",
+        dest="packed_sequence",
         help="Disable sequence packing",
     )
     args, cli_overrides = parser.parse_known_args()
@@ -104,6 +117,7 @@ def build_sera_dataset_config(
 
     # Read tool schemas
     import json
+
     tool_schemas = json.loads(TOOL_SCHEMAS.read_text())
 
     dataset_kwargs = {

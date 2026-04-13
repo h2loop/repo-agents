@@ -19,8 +19,12 @@ from __future__ import annotations
 
 import json
 import os
+import re
+import random
 import subprocess
 import sys
+import threading
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -39,6 +43,72 @@ LLM_BASE_URL = os.getenv(
 )
 LLM_API_KEY = os.getenv("LLM_API_KEY", "sk-1234")
 DEFAULT_MODEL = os.getenv("LLM_MODEL", "qwen/qwen3-coder-480b-a35b-instruct-maas")
+
+# ---------------------------------------------------------------------------
+# Rate-limit handling
+# ---------------------------------------------------------------------------
+# Hydron is invoked as a subprocess so we cannot intercept HTTP responses.
+# Instead we scan the combined stdout/stderr for signals that the upstream
+# LLM provider returned a rate-limit error and back off if so.
+
+RATE_LIMIT_PATTERNS = [
+    re.compile(r"\b429\b"),
+    re.compile(r"too\s+many\s+requests", re.IGNORECASE),
+    re.compile(r"rate[\s_-]?limit", re.IGNORECASE),
+    re.compile(r"resource[\s_]?exhausted", re.IGNORECASE),
+    re.compile(r"quota\s+(?:exceeded|exhausted)", re.IGNORECASE),
+    re.compile(r"RateLimitError", re.IGNORECASE),
+]
+
+RATE_LIMIT_MAX_RETRIES = int(os.getenv("RATE_LIMIT_MAX_RETRIES", "5"))
+RATE_LIMIT_BASE_BACKOFF = float(os.getenv("RATE_LIMIT_BASE_BACKOFF", "10"))  # seconds
+RATE_LIMIT_MAX_BACKOFF = float(os.getenv("RATE_LIMIT_MAX_BACKOFF", "300"))   # 5 min cap
+
+# Process-wide cooldown gate so a 429 in one worker pauses all workers.
+# Normal state: _cooldown_until = 0 (no cooldown). When set, callers wait
+# until time.time() >= _cooldown_until before issuing the next request.
+_cooldown_lock = threading.Lock()
+_cooldown_until: float = 0.0
+
+
+def _is_rate_limited(text: str) -> bool:
+    """Return True if `text` contains a rate-limit signal."""
+    if not text:
+        return False
+    for pat in RATE_LIMIT_PATTERNS:
+        if pat.search(text):
+            return True
+    return False
+
+
+def _trigger_cooldown(seconds: float) -> None:
+    """Set a global cooldown so all workers pause until it expires."""
+    global _cooldown_until
+    with _cooldown_lock:
+        new_until = time.time() + seconds
+        if new_until > _cooldown_until:
+            _cooldown_until = new_until
+
+
+def _wait_for_cooldown() -> None:
+    """Block until any active cooldown expires."""
+    while True:
+        with _cooldown_lock:
+            remaining = _cooldown_until - time.time()
+        if remaining <= 0:
+            return
+        print(
+            f"    [hydron] rate-limit cooldown active — sleeping {remaining:.1f}s",
+            file=sys.stderr,
+        )
+        time.sleep(min(remaining, 30))
+
+
+def _backoff_seconds(attempt: int) -> float:
+    """Exponential backoff with jitter, capped at RATE_LIMIT_MAX_BACKOFF."""
+    base = RATE_LIMIT_BASE_BACKOFF * (2 ** attempt)
+    base = min(base, RATE_LIMIT_MAX_BACKOFF)
+    return base + random.uniform(0, base * 0.25)
 
 
 @dataclass
@@ -133,11 +203,37 @@ def run_hydron_session(
         file=sys.stderr,
     )
 
-    result = _docker_exec_with_env(
-        container_id,
-        hydron_cmd,
-        timeout=600,  # 10 min max per session
-    )
+    # Retry loop with rate-limit detection + exponential backoff.
+    result = None
+    for attempt in range(RATE_LIMIT_MAX_RETRIES + 1):
+        _wait_for_cooldown()  # respect global cooldown set by other workers
+
+        result = _docker_exec_with_env(
+            container_id,
+            hydron_cmd,
+            timeout=600,  # 10 min max per session
+        )
+
+        combined = (result.stdout or "") + "\n" + (result.stderr or "")
+        if not _is_rate_limited(combined):
+            break  # success or non-rate-limit failure — leave to downstream
+
+        if attempt >= RATE_LIMIT_MAX_RETRIES:
+            print(
+                f"    [hydron] rate-limit retries exhausted "
+                f"({RATE_LIMIT_MAX_RETRIES}) — giving up on this session",
+                file=sys.stderr,
+            )
+            break
+
+        sleep_s = _backoff_seconds(attempt)
+        print(
+            f"    [hydron] rate limit detected (attempt {attempt + 1}/"
+            f"{RATE_LIMIT_MAX_RETRIES}) — backing off {sleep_s:.1f}s",
+            file=sys.stderr,
+        )
+        _trigger_cooldown(sleep_s)
+        time.sleep(sleep_s)
 
     # Parse JSON events from stdout (one JSON object per line)
     events: list[dict] = []

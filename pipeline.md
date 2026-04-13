@@ -8,7 +8,7 @@ The key insight is **self-verification**: generate the same change twice through
 
 ## Target Codebase
 
-The pipeline operates on a real C/C++ repository (currently srsRAN Project, a 5G RAN implementation) checked out inside Docker containers. The agent sees the full repo and can run arbitrary commands. Configuration lives in `configs/repo_config.json`.
+The pipeline operates on a real repository checked out inside Docker containers. The agent sees the full repo and can run arbitrary commands. Supported languages: C, C++, and Go (via tree-sitter function extraction). Configuration lives in `configs/repo_config.json`.
 
 ## Pipeline Stages
 
@@ -16,9 +16,13 @@ The pipeline operates on a real C/C++ repository (currently srsRAN Project, a 5G
 
 The pipeline iterates over every function in the codebase (shuffled, optionally capped by `--max-samples`). For each function, it tries up to K bug types (default 3), stopping on the first successful generation.
 
-Each attempt picks a bug type (buffer overflow, off-by-one, race condition, etc.) and prompts the agent:
+Each attempt picks a bug type and prompts the agent:
 
 > "There is a {bug_type} downstream of function {func_name} in {file_path}:{line}. Investigate and fix it."
+
+Bug types come from two sources (see Bug Prompt Architecture below):
+- **Language bugs**: generic to the programming language (e.g. buffer overflows for C, goroutine leaks for Go)
+- **Domain bugs**: specific to the application domain (e.g. telecom protocol state machine errors)
 
 The agent (hydron) runs inside a Docker container with full shell access. It reads code, navigates the repo, reasons about the issue, and makes edits. This produces:
 
@@ -89,7 +93,32 @@ Surviving trajectories are converted into multi-turn conversation format for fin
 ]}
 ```
 
+The system prompt is repo-agnostic. Repo-specific context (language, working directory, build notes) is part of the user message.
+
 Split into train/held-out sets. Both T1 and T2 trajectories from verified pairs are usable training data.
+
+## Bug Prompt Architecture
+
+Bug prompts are assembled from two independent dimensions:
+
+```
+configs/bug_prompts/
+  lang_c.json              # 40 generic C/C++ bugs (no subsystems)
+  lang_go.json             # 29 generic Go bugs (no subsystems)
+  domain_telecom_5g.json   # 25 telecom bugs (canonical OAI5G subsystem paths)
+
+configs/bug_prompts_<repo>.json  # assembled per-repo (language + remapped domain)
+```
+
+**Language bugs** are generic to the programming language — buffer overflows, use-after-free, null pointer derefs for C; unchecked errors, goroutine leaks, nil map writes for Go. They have no subsystem restrictions and match all functions.
+
+**Domain bugs** are specific to the application domain — telecom protocol state machines, timer bugs, ASN.1 encoding errors, HARQ issues. They have canonical subsystem paths (from OAI5G) that get remapped to the target repo's actual directory structure by `populate_repo_config.py` via an LLM call.
+
+`repo_config.json` specifies:
+- `"language": "c_cpp"` or `"go"` — selects the language bug file
+- `"domain": "telecom_5g"` or `""` — selects the domain bug file (empty = no domain bugs)
+
+The assembled file is the single source of truth at runtime. Adding a new language or domain doesn't require modifying the other dimension.
 
 ## Infrastructure
 

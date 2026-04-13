@@ -2,11 +2,11 @@
 
 ## What Is This?
 
-SERA is an end-to-end pipeline for generating high-quality SFT training data from real Git repositories, then fine-tuning an LLM to autonomously fix bugs in that codebase. The current target is **OpenAirInterface 5G** (OAI5G) — a large C/C++ RAN implementation — and the base model is **NVIDIA Nemotron-3-Nano-30B-A3B** (hybrid Mamba-2 + Attention + MoE, 32.88B params, 128 experts with top-6 routing).
+SERA is an end-to-end pipeline for generating high-quality SFT training data from real Git repositories, then fine-tuning an LLM to autonomously fix bugs in that codebase. The pipeline supports C, C++, and Go codebases, and currently targets telecom repositories (srsRAN Project, OpenAirInterface 5G).
 
 The pipeline has 3 phases:
-1. **Dataset generation** — mine real bugs from Git history, generate fix trajectories with SWE-agent, soft-verify via patch agreement
-2. **Training** — fine-tune Nemotron with Megatron-Bridge on the verified trajectories
+1. **Dataset generation** — extract functions, generate fix trajectories with hydron, soft-verify via patch agreement
+2. **Training** — fine-tune on the verified trajectories
 3. **Inference** — run the fine-tuned model with a lightweight agent harness (`sera-agent/`)
 
 ---
@@ -14,55 +14,58 @@ The pipeline has 3 phases:
 ## Project Structure
 
 ```
-sera/
+repo-agents/
 ├── ONBOARDING.md                  ← you are here
+├── TRAJECTORY_GENERATION.md       ← quick-start for trajectory generation
+├── pipeline.md                    ← detailed pipeline design and rationale
+│
+├── scripts/                       ← dataset generation pipeline
+│   ├── generate_data.py           # Full 4-stage pipeline orchestrator
+│   ├── rollout1.py                # Stage 1: change generation (hydron in Docker)
+│   ├── generate_pr.py             # Stage 2: synthetic PR from trajectory
+│   ├── rollout2.py                # Stage 3: reproduction from PR
+│   ├── soft_verify.py             # Stage 4: line-level patch recall
+│   ├── filter_data.py             # Stage 5: quality filtering (SERA criteria)
+│   ├── format_for_training.py     # Stage 6: SFT conversation formatting
+│   ├── hydron_runner.py           # Hydron subprocess wrapper for Docker
+│   ├── trajectory_converter.py    # Hydron export → SERA JSONL format
+│   ├── extract_functions_generic.py # C/C++/Go function extraction (tree-sitter)
+│   ├── populate_repo_config.py    # Generate repo_config.json for new repos
+│   ├── ping_model.py              # Health-check for LLM endpoint
+│   └── convert_sft_for_megatron.py # Convert SFT → Megatron-Bridge format
+│
 ├── sera-agent/                    ← inference harness (post-training)
 │   ├── sera_agent.py              # Agent loop + CLI
 │   ├── tools/
-│   │   ├── parser.py              # Nemotron <tool_call> XML parser
+│   │   ├── parser.py              # Tool call XML parser
 │   │   └── editor.py              # str_replace_editor (5 commands)
-│   ├── tests/
-│   │   └── test_harness.py        # Parser + editor test suite
-│   └── CHANGES.md                 # Detailed design decisions
-│
-├── scripts/                       ← dataset generation pipeline
-│   ├── run_sera_pipeline.sh       # Full 6-step pipeline runner
-│   ├── create_instances.py        # Step 1: generate SWE-agent instances from functions + bugs
-│   ├── scrape_stage_one.py        # Step 3: extract synthetic PRs from stage 1 output
-│   ├── verify_patches.py          # Step 5: soft-verify P1 vs P2 patch agreement
-│   ├── postprocess_sweagent.py    # Step 6: filter + format into SFT dataset
-│   ├── convert_sft_for_megatron.py # Convert SFT → Megatron-Bridge native format
-│   ├── extract_functions.py       # Extract C/C++ functions from OAI5G repo
-│   ├── generate_data.py           # Standalone data generation (non-SWE-agent path)
-│   ├── generate_pr.py             # Generate synthetic PR descriptions
-│   ├── filter_data.py             # Filter dataset by quality criteria
-│   ├── format_for_training.py     # Format raw rollouts into SFT conversations
-│   ├── soft_verify.py             # Soft verification scoring
-│   ├── rollout1.py / rollout2.py  # Manual rollout scripts (debugging)
-│   └── ping_model.py              # Health-check for LLM endpoint
+│   └── tests/
+│       └── test_harness.py        # Parser + editor test suite
 │
 ├── configs/
-│   ├── nemotron_chat_template_patched.jinja  # CRITICAL: patched template with {% generation %} markers
-│   ├── bug_prompts.json           # Bug injection prompt templates
-│   ├── commits.json               # Selected OAI5G commit SHAs
-│   ├── sweagent/                  # SWE-agent stage 1 & 2 configs
-│   └── pipeline/                  # Pipeline orchestration config
+│   ├── repo_config.json           # Target repo settings (language, domain, Docker, paths)
+│   ├── bug_prompts/               # Source bug prompt files
+│   │   ├── lang_c.json            # 40 generic C/C++ bugs
+│   │   ├── lang_go.json           # 29 generic Go bugs
+│   │   └── domain_telecom_5g.json # 25 telecom domain bugs (canonical subsystems)
+│   ├── bug_prompts_srsran.json    # Assembled srsRAN bug prompts (language + domain)
+│   ├── bug_prompt_template.txt    # Prompt template for rollout1
+│   ├── commits.json               # Commit snapshots for Docker images
+│   └── demo_prs/                  # Example PRs for few-shot PR generation
+│
+├── docker/
+│   ├── Dockerfile.sera            # Generic Dockerfile for target repos
+│   └── Dockerfile.generic         # Alternative Dockerfile
 │
 ├── data/
-│   ├── sft_dataset/               # Final SFT dataset (SERA format)
-│   │   ├── oai5g_train.jsonl      # 378 training samples (SERA format)
-│   │   ├── oai5g_held_out.jsonl   # 42 held-out samples
-│   │   └── dataset_stats.json     # Stats: token/turn distributions
-│   ├── megatron_sft/              # Converted for Megatron-Bridge
-│   │   ├── training.jsonl         # 821 samples, 78MB
-│   │   ├── validation.jsonl       # 92 samples, 8.3MB
-│   │   └── tool_schemas.json      # 3 tool schemas
-│   └── raw/                       # Raw SWE-agent outputs (rollouts, diffs, PRs)
+│   ├── raw/                       # Raw pipeline outputs (trajectories, patches, PRs)
+│   ├── sft_dataset/               # Filtered + formatted SFT data
+│   └── *_functions.jsonl          # Extracted functions per repo
 │
-├── SERA/                          # Upstream SERA framework (reference)
-├── docker/                        # Dockerfile.sera + build scripts
-├── openairinterface5g/            # OAI5G repo clone (target codebase)
-└── repos/                         # Additional repo clones for generic pipeline
+├── training/                      ← training scripts
+│   └── train_sera.py              # Training configuration
+│
+└── hydron                         ← hydron binary (not checked in)
 ```
 
 ---
@@ -71,245 +74,108 @@ sera/
 
 ### Overview
 
-SERA generates training data by:
-1. Mining real bug-fix commits from Git history
-2. Injecting the bug back into the codebase (reverse the fix)
-3. Running an LLM agent (via SWE-agent) to re-discover and fix the bug
-4. Doing this **twice** with different prompts (T1: commit-based, T2: synthetic PR)
-5. Soft-verifying that both patches agree → high confidence the fix is correct
+See [pipeline.md](pipeline.md) for the full pipeline design. In short:
 
-### The 6-Step Pipeline
+1. Extract functions from target repo (C/C++/Go via tree-sitter)
+2. For each function, prompt an agent to fix a bug → produces trajectory T1 + patch P1
+3. Generate a synthetic PR description from T1
+4. Prompt a fresh agent to implement the PR → produces T2 + P2
+5. Compare P1 vs P2 — if they agree, the trajectory is verified
+6. Filter by quality criteria and format for SFT training
 
-Run with: `bash scripts/run_sera_pipeline.sh`
+### Bug Prompt Architecture
 
-| Step | Script | What It Does |
-|------|--------|--------------|
-| 1 | `create_instances.py` | Combines extracted functions + bug prompts + commit SHAs → SWE-agent instance YAML |
-| 2 | SWE-agent `run-batch` | Stage 1 rollouts: agent explores repo, finds bug, produces patch (P1) + self-eval + synthetic PR |
-| 3 | `scrape_stage_one.py` | Extracts synthetic PR descriptions from stage 1 output → stage 2 instances |
-| 4 | SWE-agent `run-batch` | Stage 2 rollouts: agent uses synthetic PR as the bug description, produces patch (P2) |
-| 5 | `verify_patches.py` | Compares P1 vs P2 — if both patches touch the same code region with equivalent changes, the sample is "soft verified" |
-| 6 | `postprocess_sweagent.py` | Filters verified samples, formats into SFT conversations with tool calls |
+Bug prompts are assembled from two dimensions:
+
+- **Language** (`lang_c.json`, `lang_go.json`): language-specific issues like buffer overflows (C) or goroutine leaks (Go). Match all functions.
+- **Domain** (`domain_telecom_5g.json`): domain-specific issues like protocol state machine errors. Subsystems are remapped per-repo.
+
+`repo_config.json` specifies `"language"` and `"domain"` (default: `telecom_5g`). `populate_repo_config.py` assembles the final `bug_prompts_<repo>.json`.
 
 ### Prerequisites
 
-- Python 3.10+ with `sweagent` installed (`pip install sweagent`)
-- Docker (SWE-agent runs each rollout in a container)
-- An LLM endpoint (the pipeline used GPT-4/Claude via LiteLLM — see `configs/litellm_model_registry.json`)
-- The target repo cloned at `openairinterface5g/`
+- Docker running
+- `hydron` binary matching container architecture (Linux ARM64 or x64)
+- LLM endpoint (LiteLLM proxy or direct provider)
+- `uv` for Python dependency management
 
-### Dataset Format (SERA → Megatron)
+### Quick Start
 
-The raw SFT dataset (`data/sft_dataset/`) uses SERA's format:
-```json
-{"conversations": [{"role": "system", "content": "..."}, {"role": "user", "content": "..."}, {"role": "assistant", "content": "...", "tool_calls": [...]}, {"role": "tool", "content": "..."}, ...]}
-```
-
-For Megatron-Bridge training, convert with:
 ```bash
-python3 scripts/convert_sft_for_megatron.py
+# 1. Extract functions
+uv run python scripts/extract_functions_generic.py \
+  --repo-root srsRAN_Project --output data/srsran_functions.jsonl
+
+# 2. Build Docker images
+for sha in 16d308d a71d6fe 6b48ad7 cb148b7 4bf1543; do
+  docker build -t "srsran-sera:${sha}" \
+    --build-arg REPO_DIR=srsRAN_Project \
+    --build-arg REPO_COMMIT="${sha}" \
+    -f docker/Dockerfile.sera .
+done
+docker tag srsran-sera:4bf1543 srsran-sera:latest
+
+# 3. Run pipeline
+uv run python scripts/generate_data.py \
+  --functions data/srsran_functions.jsonl \
+  --bug-prompts configs/bug_prompts_srsran.json \
+  --template configs/bug_prompt_template.txt \
+  --commits configs/commits.json \
+  --demo-prs-dir configs/demo_prs \
+  --output-dir data/raw \
+  --max-steps 50 --workers 4 --resume
+
+# 4. Filter + format
+uv run python scripts/filter_data.py --input-dir data/raw --output-dir data/filtered
+uv run python scripts/format_for_training.py --input-dir data/raw --output-dir data/sft
 ```
-
-This produces `data/megatron_sft/training.jsonl` (821 samples) with key transformations:
-- `conversations` → `messages` (Megatron-Bridge native key)
-- `tool_calls.arguments` stored as parsed dict (not JSON string) — required because Nemotron's Jinja template iterates `tool_call.arguments|items`
-- Consecutive `role="tool"` messages merged (Nemotron template wraps them in a single `<|im_start|>user` block)
-- Tool schemas included per-sample in `"tools"` field
-
-### Current Dataset Stats
-
-| Metric | Value |
-|--------|-------|
-| Training samples | 821 |
-| Validation samples | 92 |
-| Rollout types | T1: ~600, T2: ~220 |
-| Tool call distribution | bash: 14,106 / str_replace_editor: 11,466 / submit: 1,615 |
-| Token range | 1,686 – 28,533 tokens per sample |
-| Mean turns per sample | 75.2 |
 
 ---
 
-## Phase 2: Training with Megatron-Bridge
+## Phase 2: Training
 
-### The Patched Chat Template (Critical)
+The SFT dataset can be used with any training framework. The repo includes conversion for Megatron-Bridge:
 
-**Problem**: Nemotron-3-Nano's original chat template lacks `{% generation %}`/`{% endgeneration %}` markers. Megatron-Bridge's `_chat_preprocess()` uses these markers to build the loss mask. Without them, loss is computed on **all** tokens (system prompt, user messages, tool outputs) — 100% instead of the correct ~19%.
-
-**Solution**: `configs/nemotron_chat_template_patched.jinja` adds `{% generation %}` markers around all 4 assistant output paths:
-- Assistant with tool calls (opening + closing)
-- Assistant without tool calls (not truncated)
-- Assistant truncated with content
-- Assistant truncated empty
-
-**Impact**: Loss computed on 18.9% of tokens (5,184,504 assistant tokens out of 27,386,561 total). Verified across all 821 training samples.
-
-### Training Setup
-
-**Model**: `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16`
-
-**Framework**: [Megatron-Bridge](https://github.com/NVIDIA/Megatron-Bridge) (NVIDIA's NeMo-based training framework)
-
-**Data config** — point to the converted dataset and patched template:
-```python
-# In your Megatron-Bridge training config:
-cfg.data.train_ds.file_path = "data/megatron_sft/training.jsonl"
-cfg.data.validation_ds.file_path = "data/megatron_sft/validation.jsonl"
-
-# CRITICAL: override chat template for correct loss masking
-with open("configs/nemotron_chat_template_patched.jinja") as f:
-    cfg.tokenizer.chat_template = f.read()
+```bash
+uv run python scripts/convert_sft_for_megatron.py
 ```
 
-**Hardware requirements**:
-- Minimum: 8× A100 80GB or 8× H100 80GB
-- The model is 32.88B total params but only ~3B active (MoE with 128 experts, top-6 routing)
-- All experts must be loaded even though only 6 are active per token
-
-**Key Megatron-Bridge components**:
-- `GPTSFTChatDataset` — processes `messages` + `tools` via `apply_chat_template()`
-- `_chat_preprocess()` in `datasets/utils.py` — builds `loss_mask` using `GENERATION_REGEX` to find `{% generation %}` markers
-- `return_assistant_tokens_mask=True` — HuggingFace tokenizer flag that uses `{% generation %}` to mask non-assistant tokens
-- Recipe: `megatron.bridge.recipes.nemotronh.nemotron_3_nano` — contains PEFT/LoRA config templates
-
-### What the Model Sees During Training
-
-A single flat token sequence with a binary loss mask:
-
-```
-[MASKED] <|im_start|>system\nYou are an expert C/C++ engineer...<|im_end|>
-[MASKED] <|im_start|>user\n<uploaded_files>/repo</uploaded_files>...<|im_end|>
-[LOSS=1] <|im_start|>assistant\n<think>Let me find the file...</think>\n<tool_call>...<|im_end|>
-[MASKED] <|im_start|>user\n<tool_response>output of command...</tool_response><|im_end|>
-[LOSS=1] <|im_start|>assistant\n<think>I see the bug...</think>\n<tool_call>...<|im_end|>
-...
-[LOSS=1] <|im_start|>assistant\n<tool_call><function=submit></function></tool_call><|im_end|>
-```
-
-Gradient only flows through `LOSS=1` positions (assistant turns). The model learns to generate tool calls and reasoning while seeing the full context.
+See the training config in `training/train_sera.py` for details.
 
 ---
 
 ## Phase 3: Inference with sera-agent
 
-### Architecture
-
-```
-User issue → system + user messages
-         ↓
-    ┌─→ LLM.generate(messages, tools)
-    │        ↓
-    │   parse_tool_calls(output) → [ToolCall, ...]
-    │        ↓
-    │   executor.execute(call) → output string
-    │        ↓
-    │   messages.append(tool response)
-    │        ↓
-    └── if call.name == "submit": stop, else: loop
-```
-
-**4 files, ~540 lines, zero framework dependencies** beyond `requests`.
-
-### The 3 Tools
-
-| Tool | Description | Training Distribution |
-|------|-------------|----------------------|
-| `bash` | Execute shell commands (subprocess with timeout + truncation) | 52.1% (14,106 calls) |
-| `str_replace_editor` | View/edit/create files (5 commands: view, str_replace, create, insert, undo_edit) | 41.9% (11,466 calls) |
-| `submit` | Capture `git diff` as final patch and stop | 5.9% (1,615 calls) |
-
-### Running the Agent
-
 ```bash
-# 1. Start vLLM with your fine-tuned model
-vllm serve ./merged_checkpoint \
-    --port 8000 \
-    --tensor-parallel-size 4
-
-# 2. Run the agent
-cd sera/sera-agent
+cd sera-agent
 python3 sera_agent.py \
     --model-url http://localhost:8000/v1 \
-    --model-name nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16 \
-    --repo /path/to/oai5g/repo \
+    --model-name <your-model> \
+    --repo /path/to/repo \
     --issue "Fix the memory leak in remove_job() in job.c" \
     --output trajectory.json
-
-# Or read issue from file
-python3 sera_agent.py \
-    --repo /path/to/repo \
-    --issue-file bug_description.txt \
-    --max-steps 30 \
-    --output trajectory.json
 ```
 
-### Tool Call Format
-
-The fine-tuned model outputs Nemotron-native XML:
-```xml
-<tool_call>
-<function=bash>
-<parameter=command>
-find /repo -name "job.c" -type f
-</parameter>
-</function>
-</tool_call>
-```
-
-The parser handles edge cases like `<tool_call>` or `</parameter>` appearing inside parameter values (e.g., in `echo` commands) by only splitting on tags at line boundaries.
+The agent loop: prompt → LLM generates tool calls → execute tools → append results → repeat until submit.
 
 ### Running Tests
 
 ```bash
-cd sera/sera-agent
+cd sera-agent
 python3 -m tests.test_harness
 ```
 
-Tests cover: parser unit tests (6 edge cases), editor integration (8 operations), parser on 1 real sample, parser on 50 samples (1,680+ tool calls).
-
 ---
 
-## Quick Start Checklist
+## Adding a New Repo
 
-1. **Clone & setup**:
+1. Clone the repo
+2. Run `populate_repo_config.py` to generate config + bug prompts:
    ```bash
-   cd sera
-   python3 -m venv .venv && source .venv/bin/activate
-   pip install requests transformers  # for sera-agent + validation
+   uv run python scripts/populate_repo_config.py \
+     --repo-path /path/to/new_repo \
+     --domain telecom_5g
    ```
-
-2. **Verify the dataset** (optional):
-   ```bash
-   cd sera-agent && python3 -m tests.test_harness
-   ```
-
-3. **Convert data for training** (if not already done):
-   ```bash
-   python3 scripts/convert_sft_for_megatron.py
-   # Produces data/megatron_sft/training.jsonl + validation.jsonl
-   ```
-
-4. **Train with Megatron-Bridge** on your GPU cluster:
-   - Use `configs/nemotron_chat_template_patched.jinja` as the chat template override
-   - Point data config to `data/megatron_sft/training.jsonl`
-   - Use the Nemotron-3-Nano recipe from Megatron-Bridge
-
-5. **Run inference** with the fine-tuned model:
-   ```bash
-   vllm serve ./merged_checkpoint --port 8000
-   cd sera-agent
-   python3 sera_agent.py --repo /path/to/repo --issue "..." --output traj.json
-   ```
-
----
-
-## Key Files to Read First
-
-| File | Why |
-|------|-----|
-| `sera-agent/CHANGES.md` | Detailed design decisions, edge cases, validation results |
-| `scripts/run_sera_pipeline.sh` | The full dataset generation pipeline in one script |
-| `configs/nemotron_chat_template_patched.jinja` | The patched template — understand the 4 `{% generation %}` insertion points |
-| `scripts/convert_sft_for_megatron.py` | How SERA format maps to Megatron-Bridge format |
-| `sera-agent/sera_agent.py` | The complete agent loop in one file |
-| `sera-agent/tools/parser.py` | How Nemotron XML tool calls are parsed |
-| `data/sft_dataset/dataset_stats.json` | Dataset size and distribution |
+3. Extract functions: `uv run python scripts/extract_functions_generic.py --repo-root ...`
+4. Build Docker images with `docker/Dockerfile.sera`
+5. Run the pipeline with the generated config files

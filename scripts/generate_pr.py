@@ -38,7 +38,9 @@ import requests
 # ---------------------------------------------------------------------------
 # Repo configuration
 # ---------------------------------------------------------------------------
-REPO_CONFIG_PATH = Path(__file__).resolve().parent.parent / "configs" / "repo_config.json"
+REPO_CONFIG_PATH = (
+    Path(__file__).resolve().parent.parent / "configs" / "repo_config.json"
+)
 
 
 def _load_repo_config() -> dict:
@@ -54,7 +56,9 @@ _REPO_DISPLAY_NAME = _REPO_CFG.get("repo_display_name", "OpenAirInterface 5G")
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-BASE_URL = os.getenv("LLM_BASE_URL", "https://litellm-prod-909645453767.asia-south1.run.app")
+BASE_URL = os.getenv(
+    "LLM_BASE_URL", "https://litellm-prod-909645453767.asia-south1.run.app"
+)
 API_KEY = os.getenv("LLM_API_KEY", "sk-1234")
 MODEL = os.getenv("LLM_MODEL", "qwen/qwen3-coder-480b-a35b-instruct-maas")
 
@@ -94,7 +98,10 @@ Write the PR description now. Keep it concise but informative (100-300 words).
 # LLM client
 # ---------------------------------------------------------------------------
 
-def chat_completion(messages: list[dict], temperature: float = 0.3, max_tokens: int = 2048) -> str:
+
+def chat_completion(
+    messages: list[dict], temperature: float = 0.3, max_tokens: int = 2048
+) -> str:
     """Call the LLM and return the response text."""
     headers = {
         "Authorization": f"Bearer {API_KEY}",
@@ -114,12 +121,13 @@ def chat_completion(messages: list[dict], temperature: float = 0.3, max_tokens: 
     )
     resp.raise_for_status()
     msg = resp.json()["choices"][0]["message"]
-    return (msg.get("content") or msg.get("reasoning_content") or "")
+    return msg.get("content") or msg.get("reasoning_content") or ""
 
 
 # ---------------------------------------------------------------------------
 # Trajectory processing
 # ---------------------------------------------------------------------------
+
 
 def load_trajectory(path: Path) -> list[dict]:
     """Load a trajectory JSONL file."""
@@ -206,6 +214,7 @@ def load_demo_prs(demo_dir: Path) -> list[str]:
 # PR generation
 # ---------------------------------------------------------------------------
 
+
 def generate_pr(
     trajectory: list[dict],
     patch: str,
@@ -228,6 +237,7 @@ def generate_pr(
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
+
 
 def process_single(
     trajectory_path: Path,
@@ -254,15 +264,27 @@ def process_single(
 
 def main():
     parser = argparse.ArgumentParser(description="SERA SVG: Synthetic PR generation")
-    parser.add_argument("--trajectory", type=Path, help="Single trajectory JSONL to process")
+    parser.add_argument(
+        "--trajectory", type=Path, help="Single trajectory JSONL to process"
+    )
     parser.add_argument("--demo-pr", type=Path, help="Single demonstration PR file")
     parser.add_argument("--output", type=Path, help="Output PR file path")
 
     # Batch mode
-    parser.add_argument("--batch-dir", type=Path, help="Directory of trajectory files for batch processing")
-    parser.add_argument("--demo-prs-dir", type=Path, default=Path("configs/demo_prs"),
-                        help="Directory of demonstration PRs")
-    parser.add_argument("--output-dir", type=Path, help="Output directory for batch mode")
+    parser.add_argument(
+        "--batch-dir",
+        type=Path,
+        help="Directory of trajectory files for batch processing",
+    )
+    parser.add_argument(
+        "--demo-prs-dir",
+        type=Path,
+        default=Path("configs/demo_prs"),
+        help="Directory of demonstration PRs",
+    )
+    parser.add_argument(
+        "--output-dir", type=Path, help="Output directory for batch mode"
+    )
 
     parser.add_argument("--seed", type=int, default=None, help="Random seed")
     args = parser.parse_args()
@@ -278,7 +300,9 @@ def main():
         demo_prs = load_demo_prs(args.demo_prs_dir)
 
     if not demo_prs:
-        print("Warning: No demonstration PRs found. Using placeholder.", file=sys.stderr)
+        print(
+            "Warning: No demonstration PRs found. Using placeholder.", file=sys.stderr
+        )
         fallback = _REPO_CFG.get(
             "fallback_demo_pr",
             "## Title: Fix bug\n\nFix an issue in the codebase.\n\n### Changes\n- Fixed the relevant source file\n\n### Testing\n- Verified manually",
@@ -309,10 +333,16 @@ def main():
             )
             # Skip if already exists
             if out_path.exists():
-                print(f"  [{i+1}/{len(traj_files)}] Skip (exists): {out_path.name}", file=sys.stderr)
+                print(
+                    f"  [{i + 1}/{len(traj_files)}] Skip (exists): {out_path.name}",
+                    file=sys.stderr,
+                )
                 continue
 
-            print(f"  [{i+1}/{len(traj_files)}] Generating PR for {traj_path.name}...", file=sys.stderr)
+            print(
+                f"  [{i + 1}/{len(traj_files)}] Generating PR for {traj_path.name}...",
+                file=sys.stderr,
+            )
             try:
                 result = process_single(traj_path, demo_prs, out_path)
                 results.append(result)
