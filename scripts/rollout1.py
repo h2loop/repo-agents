@@ -100,25 +100,37 @@ Working directory is {_CONTAINER_REPO_PATH}.{_build_caveat_line}"""
 
 
 def start_container(image: str) -> str:
-    """Start a Docker container with hydron mounted, return container ID."""
+    """Start a Docker container with hydron mounted, return container ID.
+
+    Containers are labeled `sera_pipeline=1` so the driver's pre-run
+    cleanup can identify and kill only its own orphans (not unrelated
+    user containers that happen to share an image suffix).
+    """
     hydron_host = hydron_runner.HYDRON_HOST_PATH
     hydron_container = hydron_runner.HYDRON_BIN
 
-    result = subprocess.run(
-        [
-            "docker",
-            "run",
-            "-d",
-            "--rm",
-            "-v",
-            f"{hydron_host}:{hydron_container}:ro",
-            image,
-            "sleep",
-            "infinity",
-        ],
-        capture_output=True,
-        text=True,
-    )
+    try:
+        result = subprocess.run(
+            [
+                "docker",
+                "run",
+                "-d",
+                "--rm",
+                "--label", "sera_pipeline=1",
+                "-v",
+                f"{hydron_host}:{hydron_container}:ro",
+                image,
+                "sleep",
+                "infinity",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=60,  # daemon should respond well under a minute even under load
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError(
+            f"docker run timed out after 60s for image {image} — daemon overloaded"
+        ) from exc
     if result.returncode != 0:
         raise RuntimeError(f"Failed to start container: {result.stderr}")
     cid = result.stdout.strip()
@@ -153,25 +165,38 @@ class ContainerPool:
     def __init__(self, image: str, size: int = 1):
         self.image = image
         self._containers: list[str] = []
+        # Containers spawned outside the pool's capacity (e.g. on acquire
+        # timeout). On release these are stopped rather than recycled, so
+        # the semaphore/list invariant `len(_containers) <= size` holds.
+        self._extras: set[str] = set()
         self._lock = __import__("threading").Lock()
         self._sem = __import__("threading").Semaphore(0)
-        for _ in range(size):
+        for i in range(size):
             cid = start_container(image)
             self._containers.append(cid)
             self._sem.release()
+            print(
+                f"    [pool] {image}: warmed {i + 1}/{size} containers",
+                file=sys.stderr,
+            )
 
     def acquire(self, timeout: float = 300) -> str:
         """Get a clean container from the pool. Blocks if none available.
 
         If the wait times out, spin up a fresh container rather than failing —
         a stuck/leaked container should not cascade failures across workers.
+        Such "extra" containers are tracked and stopped on release instead of
+        being added back to the pool, to avoid unbounded pool-size drift.
         """
         if not self._sem.acquire(timeout=timeout):
             print(
                 f"  [pool] acquire timed out after {timeout}s — starting fresh container",
                 file=sys.stderr,
             )
-            return start_container(self.image)
+            cid = start_container(self.image)
+            with self._lock:
+                self._extras.add(cid)
+            return cid
         with self._lock:
             cid = self._containers.pop(0)
         if not reset_container(cid):
@@ -180,24 +205,49 @@ class ContainerPool:
             except Exception:
                 pass
             cid = start_container(self.image)
-            reset_container(cid)
-        return cid
-
-    def release(self, container_id: str):
-        """Return a container to the pool."""
-        with self._lock:
-            self._containers.append(container_id)
-        self._sem.release()
-
-    def shutdown(self):
-        """Stop all containers in the pool."""
-        with self._lock:
-            for cid in self._containers:
+            if not reset_container(cid):
+                # Replacement is also broken — fail loudly so the worker's
+                # exception path can react, rather than handing back a
+                # poisoned container.
                 try:
                     stop_container(cid)
                 except Exception:
                     pass
+                # Restore semaphore so other waiters aren't starved.
+                self._sem.release()
+                raise RuntimeError(
+                    f"reset_container failed twice for image {self.image}"
+                )
+        return cid
+
+    def release(self, container_id: str):
+        """Return a container to the pool, or stop it if it's an extra."""
+        with self._lock:
+            if container_id in self._extras:
+                self._extras.discard(container_id)
+                is_extra = True
+            else:
+                self._containers.append(container_id)
+                is_extra = False
+        if is_extra:
+            try:
+                stop_container(container_id)
+            except Exception:
+                pass
+        else:
+            self._sem.release()
+
+    def shutdown(self):
+        """Stop all containers in the pool (including outstanding extras)."""
+        with self._lock:
+            cids = list(self._containers) + list(self._extras)
             self._containers.clear()
+            self._extras.clear()
+        for cid in cids:
+            try:
+                stop_container(cid)
+            except Exception:
+                pass
 
 
 # ---------------------------------------------------------------------------
