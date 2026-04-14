@@ -339,7 +339,7 @@ def main():
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument(
-        "--max-steps", type=int, default=None,
+        "--max-steps", type=int, default=50,
         help="Max agent steps per hydron session",
     )
     parser.add_argument(
