@@ -390,6 +390,34 @@ def main():
         repo_path = None
 
         try:
+            # On resume, skip repos whose raw output dir already has a
+            # manifest with completions — avoids wasteful re-clone /
+            # re-config / re-build for already-finished repos.
+            if args.resume and REPO_CONFIG_PATH.exists():
+                try:
+                    cached = json.loads(REPO_CONFIG_PATH.read_text())
+                    if cached.get("repo_name") == name:
+                        sn = cached.get("repo_short_name", name.lower()[:10])
+                        manifest_path = (
+                            args.output_dir / sn / "raw" / "generation_manifest.json"
+                        )
+                        if manifest_path.exists():
+                            mdata = json.loads(manifest_path.read_text())
+                            if mdata.get("completed", 0) > 0 and mdata.get(
+                                "completed", 0
+                            ) >= mdata.get("total_functions", 1):
+                                print(
+                                    f"  [resume] {name}: already complete "
+                                    f"({mdata['completed']} functions) — skipping",
+                                    file=sys.stderr,
+                                )
+                                entry["status"] = "success"
+                                entry["elapsed_s"] = round(time.time() - t0, 1)
+                                results.append(entry)
+                                continue
+                except (json.JSONDecodeError, OSError, KeyError):
+                    pass  # can't determine — proceed normally
+
             # Step 1: Clone
             repo_path = step_clone(url, branch, args.clone_dir)
 

@@ -105,12 +105,21 @@ def start_container(image: str) -> str:
     hydron_host = hydron_runner.HYDRON_HOST_PATH
     hydron_container = hydron_runner.HYDRON_BIN
 
+    # Per-container memory cap. Hydron (Bun-based) reserves ~74GB virtual
+    # per process but only uses ~300MB RSS. Without a cap, the kernel OOM
+    # killer fires on overcommit heuristics even though physical usage is
+    # fine. The cap prevents any single container from genuinely running
+    # away, while still allowing the large virtual reservation.
+    mem_limit = os.getenv("CONTAINER_MEMORY_LIMIT", "3g")
+
     # Retry with backoff — when the pool warms many containers concurrently
     # on a loaded daemon (especially right after pre_run_cleanup), a single
     # `docker run` can exceed 60s. Fail only after several attempts.
     cmd = [
         "docker", "run", "-d", "--rm",
         "--label", "sera_pipeline=1",
+        "--memory", mem_limit,
+        "--memory-swap", mem_limit,  # no swap inside container
         "-v", f"{hydron_host}:{hydron_container}:ro",
         image, "sleep", "infinity",
     ]
