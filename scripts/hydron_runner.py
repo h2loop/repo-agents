@@ -175,6 +175,9 @@ RATE_LIMIT_PATTERNS = [
     re.compile(r"RateLimitError", re.IGNORECASE),
 ]
 
+HYDRON_SESSION_TIMEOUT = int(os.getenv("HYDRON_SESSION_TIMEOUT", "1200"))  # seconds per hydron session
+HYDRON_VARIANT = os.getenv("HYDRON_VARIANT", "none")  # reasoning effort: none, minimal, low, medium, high, xhigh
+
 RATE_LIMIT_MAX_RETRIES = int(os.getenv("RATE_LIMIT_MAX_RETRIES", "5"))
 RATE_LIMIT_BASE_BACKOFF = float(os.getenv("RATE_LIMIT_BASE_BACKOFF", "10"))  # seconds
 RATE_LIMIT_MAX_BACKOFF = float(os.getenv("RATE_LIMIT_MAX_BACKOFF", "300"))   # 5 min cap
@@ -354,6 +357,8 @@ def run_hydron_session(
         ]
         if max_steps is not None:
             hydron_cmd.extend(["--max-steps", str(max_steps)])
+        if HYDRON_VARIANT:
+            hydron_cmd.extend(["--variant", HYDRON_VARIANT])
         hydron_cmd.append(prompt)
 
         print(
@@ -365,7 +370,7 @@ def run_hydron_session(
         result = _docker_exec_with_env(
             container_id,
             hydron_cmd,
-            timeout=600,  # 10 min max per session
+            timeout=HYDRON_SESSION_TIMEOUT,
         )
 
         combined = (result.stdout or "") + "\n" + (result.stderr or "")
