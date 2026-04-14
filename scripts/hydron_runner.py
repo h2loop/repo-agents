@@ -410,7 +410,9 @@ def run_hydron_session(
         except json.JSONDecodeError:
             continue
 
-    if not session_id:
+    if not session_id and result.returncode != 137:
+        # Skip session-list fallback on SIGKILL (exit 137 = OOM / memory cap).
+        # The container is stressed post-kill and docker exec will hang.
         session_id = _get_latest_session_id(container_id)
 
     if not session_id:

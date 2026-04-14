@@ -110,7 +110,12 @@ def start_container(image: str) -> str:
     # killer fires on overcommit heuristics even though physical usage is
     # fine. The cap prevents any single container from genuinely running
     # away, while still allowing the large virtual reservation.
-    mem_limit = os.getenv("CONTAINER_MEMORY_LIMIT", "3g")
+    # Per-container RSS cap. With vm.overcommit_memory=1 on the host the
+    # 74GB Bun virtual reservation is harmless; only real pages count.
+    # Hydron typically uses 300-800MB RSS but can spike to 3-4GB on large
+    # repos during git/grep. 4g gives comfortable headroom for 16 workers
+    # on a 64GB host (peaks are not simultaneous in practice).
+    mem_limit = os.getenv("CONTAINER_MEMORY_LIMIT", "4g")
 
     # Retry with backoff — when the pool warms many containers concurrently
     # on a loaded daemon (especially right after pre_run_cleanup), a single
@@ -119,7 +124,7 @@ def start_container(image: str) -> str:
         "docker", "run", "-d", "--rm",
         "--label", "sera_pipeline=1",
         "--memory", mem_limit,
-        "--memory-swap", mem_limit,  # no swap inside container
+        "--memory-swap", mem_limit,
         "-v", f"{hydron_host}:{hydron_container}:ro",
         image, "sleep", "infinity",
     ]
