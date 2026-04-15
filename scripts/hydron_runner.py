@@ -20,13 +20,15 @@ Environment variables:
   LLM_MODEL                 - Model ID for the litellm provider
                               (default: qwen/qwen3-coder-480b-a35b-instruct-maas)
 
-  GEMINI_API_KEY_<N>        - Any number of Gemini keys (suffix is free-form,
-                              e.g. GEMINI_API_KEY_1, GEMINI_API_KEY_2, ...).
-                              Each becomes its own pool entry.
-  GEMINI_BASE_URL           - Override for Gemini OpenAI-compatible URL
-                              (default: https://generativelanguage.googleapis.com/v1beta/openai/)
-  GEMINI_MODEL              - Model ID used with all Gemini keys
-                              (default: gemini-3-flash-preview)
+  GOOGLE_GENERATIVE_AI_API_KEY_<N>
+                              - Any number of Google keys (suffix is free-form,
+                              e.g. GOOGLE_GENERATIVE_AI_API_KEY_1, ...).
+                              Each becomes its own Google-native pool entry.
+                              Legacy GEMINI_API_KEY_<N> is accepted as an alias.
+  GOOGLE_MODEL              - Model ID used with all Google keys, passed to
+                              hydron via --model (default: google/gemini-2.5-pro).
+                              A bare name without the "google/" prefix is
+                              auto-prefixed.
 """
 
 from __future__ import annotations
@@ -55,51 +57,72 @@ HYDRON_HOST_PATH = os.getenv(
 # ---------------------------------------------------------------------------
 # Provider pool
 # ---------------------------------------------------------------------------
-# Each Provider is one (URL, key, model) triple. Workers pick providers
+# Each Provider is one (kind, key, model) entry. Workers pick providers
 # round-robin per session and swap on rate-limit retry. Cooldowns are
-# tracked per-provider keyed by api_key so a 429 on one Gemini key does
+# tracked per-provider keyed by api_key so a 429 on one Google key does
 # not pause workers using a different key (or the litellm provider).
+#
+# Two kinds are supported:
+#   - google_native:  hydron resolves the provider via --model google/<name>
+#                     and reads GOOGLE_GENERATIVE_AI_API_KEY from its env.
+#                     base_url is unused.
+#   - openai_compat:  hydron is told the URL/key/model explicitly via
+#                     --provider-url / --provider-key / --provider-model.
 
-_GEMINI_BASE_URL = os.getenv(
-    "GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/"
+_GOOGLE_MODEL_RAW = os.getenv("GOOGLE_MODEL") or os.getenv(
+    "GEMINI_MODEL", "google/gemini-2.5-pro"
 )
-_GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3-flash-preview")
+_GOOGLE_MODEL = (
+    _GOOGLE_MODEL_RAW
+    if _GOOGLE_MODEL_RAW.startswith("google/")
+    else f"google/{_GOOGLE_MODEL_RAW}"
+)
 
 
 @dataclass(frozen=True)
 class Provider:
-    base_url: str
+    kind: str  # "google_native" | "openai_compat"
     api_key: str
     model: str
     label: str  # human-readable, for logs (api_key never logged)
+    base_url: str | None = None  # only set for openai_compat
 
 
 def _discover_providers() -> list[Provider]:
     """Build the provider pool from environment variables.
 
     Includes:
-      - Every GEMINI_API_KEY_<suffix> as its own Gemini provider entry.
+      - Every GOOGLE_GENERATIVE_AI_API_KEY_<suffix> (or legacy
+        GEMINI_API_KEY_<suffix>) as its own google-native provider entry.
       - The litellm provider (LLM_BASE_URL / LLM_API_KEY / LLM_MODEL) if
         an API key is set.
     """
     providers: list[Provider] = []
 
-    # Gemini keys: GEMINI_API_KEY_1, GEMINI_API_KEY_FOO, etc.
-    gem_pat = re.compile(r"^GEMINI_API_KEY_(.+)$")
-    gem_entries = []
+    # Google keys: GOOGLE_GENERATIVE_AI_API_KEY_1, GEMINI_API_KEY_FOO, etc.
+    # Dedup by key value so the same secret exported under both names only
+    # counts once.
+    goog_pat = re.compile(r"^(?:GOOGLE_GENERATIVE_AI_API_KEY|GEMINI_API_KEY)_(.+)$")
+    goog_entries: list[tuple[str, str]] = []
+    seen_keys: set[str] = set()
     for env_name, value in os.environ.items():
-        m = gem_pat.match(env_name)
-        if m and value.strip():
-            gem_entries.append((m.group(1), value.strip()))
+        m = goog_pat.match(env_name)
+        if not m:
+            continue
+        key = value.strip()
+        if not key or key in seen_keys:
+            continue
+        seen_keys.add(key)
+        goog_entries.append((m.group(1), key))
     # Stable order: lexicographic by suffix, so labels are deterministic.
-    gem_entries.sort(key=lambda kv: kv[0])
-    for suffix, key in gem_entries:
+    goog_entries.sort(key=lambda kv: kv[0])
+    for suffix, key in goog_entries:
         providers.append(
             Provider(
-                base_url=_GEMINI_BASE_URL,
+                kind="google_native",
                 api_key=key,
-                model=_GEMINI_MODEL,
-                label=f"gemini[{suffix}]",
+                model=_GOOGLE_MODEL,
+                label=f"google[{suffix}]",
             )
         )
 
@@ -110,6 +133,7 @@ def _discover_providers() -> list[Provider]:
     if lite_url and lite_key:
         providers.append(
             Provider(
+                kind="openai_compat",
                 base_url=lite_url,
                 api_key=lite_key,
                 model=lite_model,
@@ -121,6 +145,7 @@ def _discover_providers() -> list[Provider]:
         # Fall back to historical defaults so the script still runs in dev.
         providers.append(
             Provider(
+                kind="openai_compat",
                 base_url="https://litellm-prod-909645453767.asia-south1.run.app",
                 api_key="sk-1234",
                 model="qwen/qwen3-coder-480b-a35b-instruct-maas",
@@ -176,7 +201,7 @@ RATE_LIMIT_PATTERNS = [
 ]
 
 HYDRON_SESSION_TIMEOUT = int(os.getenv("HYDRON_SESSION_TIMEOUT", "1200"))  # seconds per hydron session
-HYDRON_VARIANT = os.getenv("HYDRON_VARIANT", "none")  # reasoning effort: none, minimal, low, medium, high, xhigh
+HYDRON_VARIANT = os.getenv("HYDRON_VARIANT", "low")  # reasoning effort: none, minimal, low, medium, high, xhigh
 
 RATE_LIMIT_MAX_RETRIES = int(os.getenv("RATE_LIMIT_MAX_RETRIES", "5"))
 RATE_LIMIT_BASE_BACKOFF = float(os.getenv("RATE_LIMIT_BASE_BACKOFF", "10"))  # seconds
@@ -348,13 +373,25 @@ def run_hydron_session(
             "json",
             "--dir",
             repo_path,
-            "--provider-url",
-            chosen.base_url,
-            "--provider-key",
-            chosen.api_key,
-            "--provider-model",
-            active_model,
         ]
+        env_vars: dict[str, str] | None = None
+        if chosen.kind == "google_native":
+            # Hydron resolves the google provider via GOOGLE_GENERATIVE_AI_API_KEY;
+            # model is passed as `google/<name>` via --model.
+            hydron_cmd.extend(["--model", active_model])
+            env_vars = {"GOOGLE_GENERATIVE_AI_API_KEY": chosen.api_key}
+        else:
+            # OpenAI-compatible endpoint (e.g. litellm) — explicit URL/key/model.
+            hydron_cmd.extend(
+                [
+                    "--provider-url",
+                    chosen.base_url or "",
+                    "--provider-key",
+                    chosen.api_key,
+                    "--provider-model",
+                    active_model,
+                ]
+            )
         if max_steps is not None:
             hydron_cmd.extend(["--max-steps", str(max_steps)])
         if HYDRON_VARIANT:
@@ -370,6 +407,7 @@ def run_hydron_session(
         result = _docker_exec_with_env(
             container_id,
             hydron_cmd,
+            env_vars=env_vars,
             timeout=HYDRON_SESSION_TIMEOUT,
         )
 
