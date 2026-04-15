@@ -11,9 +11,26 @@ Environment variables:
   HYDRON_HOST_PATH          - Path to hydron binary on host (default: ./hydron)
   HYDRON_CONTAINER_PATH     - Path inside container (default: /hydron)
 
+  Rate-limit handling (per-provider, multi-worker safe):
+
+  PROVIDER_MAX_INFLIGHT     - Max concurrent hydron sessions per api_key
+                              (default 8). Caps load on any single key so
+                              20 workers against 1 key don't all 429 at
+                              once. Tune up if your provider's limit is
+                              high, down if you still see 429s.
+  RATE_LIMIT_MAX_RETRIES    - Per-session retry cap on rate limits (5).
+  RATE_LIMIT_BASE_BACKOFF   - Initial cooldown on 429, seconds (10).
+  RATE_LIMIT_MAX_BACKOFF    - Upper bound on any single cooldown (300).
+
+  On 429 we parse the server's suggested Retry-After / retryDelay from
+  hydron's output when available and use max(server_hint, exponential).
+  Cooldowns are per-api_key so one key's 429 doesn't pause workers using
+  a different key. With only one configured provider, workers wait the
+  cooldown and retry instead of bypassing it.
+
   Provider pool (a Provider is selected round-robin per session, and
-  swapped on rate-limit retries; cooldowns are tracked per-provider so
-  a 429 on one key does not pause workers using a different key):
+  swapped on rate-limit retries as a soft preference; single-provider
+  setups fall back to reusing the same key after its cooldown expires):
 
   LLM_BASE_URL              - OpenAI-compatible URL for the litellm provider
   LLM_API_KEY               - API key for the litellm provider
@@ -207,9 +224,34 @@ RATE_LIMIT_MAX_RETRIES = int(os.getenv("RATE_LIMIT_MAX_RETRIES", "5"))
 RATE_LIMIT_BASE_BACKOFF = float(os.getenv("RATE_LIMIT_BASE_BACKOFF", "10"))  # seconds
 RATE_LIMIT_MAX_BACKOFF = float(os.getenv("RATE_LIMIT_MAX_BACKOFF", "300"))   # 5 min cap
 
+# Max concurrent in-flight hydron sessions per provider (per api_key). Caps
+# how many workers can hit the same key simultaneously, which is the single
+# most effective lever against 429 cascades when running many workers
+# against one or few keys. Default 8 is conservative; bump up if your
+# provider's rate limit is high, or down if you still see 429s.
+PROVIDER_MAX_INFLIGHT = int(os.getenv("PROVIDER_MAX_INFLIGHT", "8"))
+
 # Per-provider cooldown: api_key -> unix-time-when-cooldown-expires.
 _cooldown_lock = threading.Lock()
 _cooldown_until: dict[str, float] = {}
+
+# Per-provider in-flight slot semaphores, keyed by api_key. Initialized
+# once from _PROVIDERS; providers sharing an api_key (unlikely after
+# dedup in _discover_providers) share a slot pool.
+_provider_slots: dict[str, threading.Semaphore] = {
+    p.api_key: threading.Semaphore(PROVIDER_MAX_INFLIGHT) for p in _PROVIDERS
+}
+
+# Server-suggested retry-after hints, parsed from hydron's subprocess
+# output. Formats vary by provider:
+#   - HTTP header style:     "retry-after: 60"
+#   - Google gRPC detail:    '"retryDelay": "19s"'
+#   - Free-text fallback:    "retry in 30 seconds"
+RETRY_AFTER_PATTERNS = [
+    re.compile(r'retry[-_ ]after["\':=\s]+(\d+(?:\.\d+)?)', re.IGNORECASE),
+    re.compile(r'retrydelay["\':=\s]+"?(\d+(?:\.\d+)?)\s*s?', re.IGNORECASE),
+    re.compile(r'retry\s+in\s+(\d+(?:\.\d+)?)\s*s', re.IGNORECASE),
+]
 
 
 def _is_rate_limited(text: str) -> bool:
@@ -294,42 +336,96 @@ def _docker_exec_with_env(
     )
 
 
-def _pick_provider_blocking(exclude: set[str]) -> Provider:
-    """Pick the next non-cooling-down provider, waiting if all are cooling.
+def _parse_retry_after(text: str) -> float | None:
+    """Parse a server-suggested retry-after delay (seconds) from text.
 
-    `exclude` is the set of api_keys this session has already tried in the
-    current retry cycle (so we don't immediately re-pick the one that just
-    rate-limited us, even if its cooldown is short).
+    Returns the parsed value if it's within a sane range, else None. Values
+    <=0 or absurdly large (>2x our max backoff) are discarded — we'd rather
+    fall back to our own exponential than stall on a malformed suggestion.
     """
-    # First try to find one not in cooldown and not in exclude.
-    cooling = _cooled_down_keys()
-    p = _next_provider(exclude=exclude | cooling)
-    if p is not None:
-        return p
+    if not text:
+        return None
+    for pat in RETRY_AFTER_PATTERNS:
+        m = pat.search(text)
+        if not m:
+            continue
+        try:
+            val = float(m.group(1))
+        except (ValueError, IndexError):
+            continue
+        if 0 < val <= RATE_LIMIT_MAX_BACKOFF * 2:
+            return val
+    return None
 
-    # Everything we haven't excluded is cooling. Wait for the soonest
-    # eligible cooldown to expire.
+
+def _soonest_cooldown_expiry() -> float | None:
+    """Earliest still-active cooldown expiry across all providers, or None."""
+    now = time.time()
+    with _cooldown_lock:
+        active = [t for t in _cooldown_until.values() if t > now]
+    return min(active) if active else None
+
+
+def _pick_provider_with_slot(avoid: set[str] | None = None) -> Provider:
+    """Pick a provider with an available in-flight slot and acquire it.
+
+    ``avoid`` is a soft preference — api_keys that rate-limited earlier in
+    this session's retry cycle. Pass 1 skips cooling providers and those
+    in ``avoid``; Pass 2 relaxes ``avoid`` (but still skips cooling), so
+    single-provider callers and "everything tried" cases still make
+    progress once cooldowns expire, instead of barrelling through the
+    cooldown like the old code did.
+
+    Caller MUST release via ``_release_provider_slot`` when done.
+
+    Blocks indefinitely until a slot is acquired. Waits between passes
+    are jittered so many workers waking on the same cooldown expiry don't
+    stampede back onto the freshly-uncooled key(s) simultaneously.
+    """
+    avoid = avoid or set()
+    n = len(_PROVIDERS)
+
     while True:
-        with _cooldown_lock:
-            eligible = [
-                (k, t) for k, t in _cooldown_until.items() if k not in exclude
-            ]
-        if not eligible:
-            # All providers excluded — caller has exhausted retries; fall
-            # back to plain round-robin (will likely also rate-limit, but
-            # this preserves the original "exhausted" path).
-            return _next_provider() or _PROVIDERS[0]
-        soonest = min(t for _, t in eligible)
-        wait = max(0.0, soonest - time.time())
-        if wait <= 0:
-            break
-        print(
-            f"    [hydron] all providers cooling down — sleeping {wait:.1f}s",
-            file=sys.stderr,
-        )
-        time.sleep(min(wait, 30))
-    cooling = _cooled_down_keys()
-    return _next_provider(exclude=exclude | cooling) or _PROVIDERS[0]
+        cooling = _cooled_down_keys()
+        with _rr_lock:
+            start = next(_rr_counter)
+
+        # Pass 1: preferred — not cooling, not in avoid.
+        for offset in range(n):
+            p = _PROVIDERS[(start + offset) % n]
+            if p.api_key in cooling or p.api_key in avoid:
+                continue
+            if _provider_slots[p.api_key].acquire(blocking=False):
+                return p
+
+        # Pass 2: relax avoid (still skip cooling). Lets single-provider
+        # sessions and multi-provider "all tried" cases proceed once
+        # cooldowns have elapsed.
+        for offset in range(n):
+            p = _PROVIDERS[(start + offset) % n]
+            if p.api_key in cooling:
+                continue
+            if _provider_slots[p.api_key].acquire(blocking=False):
+                return p
+
+        # No slot available on any non-cooling provider. Wait before
+        # retrying. Cap wait by soonest cooldown expiry so we don't
+        # oversleep a recovery; jitter prevents wake-stampede across
+        # many workers blocked on the same cooldown.
+        soonest = _soonest_cooldown_expiry()
+        now = time.time()
+        cool_wait = (soonest - now) if soonest is not None else float("inf")
+        poll_wait = random.uniform(1.0, 4.0)
+        sleep_s = max(0.0, min(cool_wait, poll_wait))
+        if sleep_s > 0:
+            time.sleep(sleep_s)
+
+
+def _release_provider_slot(provider: Provider) -> None:
+    """Release an in-flight slot previously acquired via _pick_provider_with_slot."""
+    sem = _provider_slots.get(provider.api_key)
+    if sem is not None:
+        sem.release()
 
 
 def run_hydron_session(
@@ -361,55 +457,58 @@ def run_hydron_session(
     chosen: Provider | None = None
 
     for attempt in range(RATE_LIMIT_MAX_RETRIES + 1):
-        chosen = _pick_provider_blocking(exclude=tried)
-        active_model = model or chosen.model
+        chosen = _pick_provider_with_slot(avoid=tried)
+        try:
+            active_model = model or chosen.model
 
-        hydron_cmd = [
-            HYDRON_BIN,
-            "run",
-            "--auto",
-            "--skip-auth",
-            "--format",
-            "json",
-            "--dir",
-            repo_path,
-        ]
-        env_vars: dict[str, str] | None = None
-        if chosen.kind == "google_native":
-            # Hydron resolves the google provider via GOOGLE_GENERATIVE_AI_API_KEY;
-            # model is passed as `google/<name>` via --model.
-            hydron_cmd.extend(["--model", active_model])
-            env_vars = {"GOOGLE_GENERATIVE_AI_API_KEY": chosen.api_key}
-        else:
-            # OpenAI-compatible endpoint (e.g. litellm) — explicit URL/key/model.
-            hydron_cmd.extend(
-                [
-                    "--provider-url",
-                    chosen.base_url or "",
-                    "--provider-key",
-                    chosen.api_key,
-                    "--provider-model",
-                    active_model,
-                ]
+            hydron_cmd = [
+                HYDRON_BIN,
+                "run",
+                "--auto",
+                "--skip-auth",
+                "--format",
+                "json",
+                "--dir",
+                repo_path,
+            ]
+            env_vars: dict[str, str] | None = None
+            if chosen.kind == "google_native":
+                # Hydron resolves google via GOOGLE_GENERATIVE_AI_API_KEY;
+                # model is passed as `google/<name>` via --model.
+                hydron_cmd.extend(["--model", active_model])
+                env_vars = {"GOOGLE_GENERATIVE_AI_API_KEY": chosen.api_key}
+            else:
+                # OpenAI-compatible endpoint (e.g. litellm) — explicit URL/key/model.
+                hydron_cmd.extend(
+                    [
+                        "--provider-url",
+                        chosen.base_url or "",
+                        "--provider-key",
+                        chosen.api_key,
+                        "--provider-model",
+                        active_model,
+                    ]
+                )
+            if max_steps is not None:
+                hydron_cmd.extend(["--max-steps", str(max_steps)])
+            if HYDRON_VARIANT:
+                hydron_cmd.extend(["--variant", HYDRON_VARIANT])
+            hydron_cmd.append(prompt)
+
+            print(
+                f"    [hydron] Running session in {repo_path} via {chosen.label} "
+                f"({active_model}) attempt {attempt + 1}...",
+                file=sys.stderr,
             )
-        if max_steps is not None:
-            hydron_cmd.extend(["--max-steps", str(max_steps)])
-        if HYDRON_VARIANT:
-            hydron_cmd.extend(["--variant", HYDRON_VARIANT])
-        hydron_cmd.append(prompt)
 
-        print(
-            f"    [hydron] Running session in {repo_path} via {chosen.label} "
-            f"({active_model}) attempt {attempt + 1}...",
-            file=sys.stderr,
-        )
-
-        result = _docker_exec_with_env(
-            container_id,
-            hydron_cmd,
-            env_vars=env_vars,
-            timeout=HYDRON_SESSION_TIMEOUT,
-        )
+            result = _docker_exec_with_env(
+                container_id,
+                hydron_cmd,
+                env_vars=env_vars,
+                timeout=HYDRON_SESSION_TIMEOUT,
+            )
+        finally:
+            _release_provider_slot(chosen)
 
         combined = (result.stdout or "") + "\n" + (result.stderr or "")
         if not _is_rate_limited(combined):
@@ -423,11 +522,18 @@ def run_hydron_session(
             )
             break
 
-        sleep_s = _backoff_seconds(attempt)
+        # Prefer the server's suggested wait if we can parse one out of the
+        # output (Google, litellm, and others typically echo retryDelay or
+        # Retry-After). Fall back to our exponential. Take the max of the
+        # two so we don't under-wait, and clamp to the global max.
+        server_hint = _parse_retry_after(combined)
+        expo = _backoff_seconds(attempt)
+        sleep_s = min(max(server_hint or 0.0, expo), RATE_LIMIT_MAX_BACKOFF)
+        hint_note = f" (server hint: {server_hint:.1f}s)" if server_hint else ""
         print(
             f"    [hydron] rate limit on {chosen.label} (attempt {attempt + 1}/"
-            f"{RATE_LIMIT_MAX_RETRIES}) — cooling that key for {sleep_s:.1f}s, "
-            f"swapping provider",
+            f"{RATE_LIMIT_MAX_RETRIES}){hint_note} — cooling that key "
+            f"for {sleep_s:.1f}s",
             file=sys.stderr,
         )
         _trigger_cooldown(chosen, sleep_s)
