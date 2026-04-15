@@ -403,12 +403,17 @@ def main():
                         )
                         if manifest_path.exists():
                             mdata = json.loads(manifest_path.read_text())
-                            if mdata.get("completed", 0) > 0 and mdata.get(
-                                "completed", 0
-                            ) >= mdata.get("total_functions", 1):
+                            # Only skip a repo whole if every function has a
+                            # verified sample (recall >= 0.5). "completed" by
+                            # itself includes low-score runs that should be
+                            # retried — see generate_data.py resume logic.
+                            fully_verified = mdata.get("fully_verified", 0)
+                            total = mdata.get("total_functions", 1)
+                            if fully_verified > 0 and fully_verified >= total:
                                 print(
-                                    f"  [resume] {name}: already complete "
-                                    f"({mdata['completed']} functions) — skipping",
+                                    f"  [resume] {name}: already fully verified "
+                                    f"({fully_verified}/{total} functions, "
+                                    f"recall >= 0.5) — skipping",
                                     file=sys.stderr,
                                 )
                                 entry["status"] = "success"

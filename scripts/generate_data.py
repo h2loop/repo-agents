@@ -346,19 +346,43 @@ def main():
         file=sys.stderr,
     )
 
-    # Check for existing completions (for resume)
+    # Check for existing completions (for resume).
+    # A function counts as "already done" only if some bug attempt produced
+    # the full triple: T1 meta + T2 meta + verification with recall >= 0.5
+    # (matching the soft_verified threshold in soft_verify.py). Attempts that
+    # stopped at T1, failed verification, or scored below 0.5 are retried.
     existing_funcs: set[str] = set()
     if args.resume:
-        # Identify functions that already succeeded by reading metadata
+        retry_low_score = 0
+        retry_missing_t2 = 0
+        retry_missing_verif = 0
         for meta_path in args.output_dir.glob("*_t1_meta.json"):
             try:
                 meta = json.loads(meta_path.read_text())
                 func_key = f"{meta['function']['file']}:{meta['function']['name']}"
+                run_id = meta.get("run_id") or meta_path.name[: -len("_t1_meta.json")]
+
+                t2_meta_path = args.output_dir / f"{run_id}_t2_meta.json"
+                verif_path = args.output_dir / f"{run_id}_verification.json"
+
+                if not t2_meta_path.exists():
+                    retry_missing_t2 += 1
+                    continue
+                if not verif_path.exists():
+                    retry_missing_verif += 1
+                    continue
+                verif = json.loads(verif_path.read_text())
+                if float(verif.get("recall_score", 0.0)) < 0.5:
+                    retry_low_score += 1
+                    continue
+
                 existing_funcs.add(func_key)
             except Exception:
                 pass
         print(
-            f"  Resuming: {len(existing_funcs)} functions already completed",
+            f"  Resuming: {len(existing_funcs)} functions verified "
+            f"(recall >= 0.5); will retry {retry_low_score} low-score, "
+            f"{retry_missing_t2} T1-only, {retry_missing_verif} unverified",
             file=sys.stderr,
         )
 
