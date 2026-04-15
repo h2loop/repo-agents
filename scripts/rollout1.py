@@ -180,8 +180,22 @@ def reset_container(container_id: str) -> bool:
 class ContainerPool:
     """Pool of reusable Docker containers to avoid start/stop overhead."""
 
-    def __init__(self, image: str, size: int = 1):
+    def __init__(
+        self,
+        image: str,
+        size: int = 1,
+        max_extras: int | None = None,
+    ):
         self.image = image
+        self.size = size
+        # Cap on "extra" containers spawned past pool size when acquire
+        # times out. Without a cap, a slow daemon causes every blocked
+        # worker to spawn a fresh container, piling load onto the already-
+        # stressed daemon and producing the cascade we're trying to avoid.
+        # Default to half the pool size (min 1).
+        self.max_extras = (
+            max_extras if max_extras is not None else max(1, size // 2)
+        )
         self._containers: list[str] = []
         # Containers spawned outside the pool's capacity (e.g. on acquire
         # timeout). On release these are stopped rather than recycled, so
@@ -205,16 +219,41 @@ class ContainerPool:
         a stuck/leaked container should not cascade failures across workers.
         Such "extra" containers are tracked and stopped on release instead of
         being added back to the pool, to avoid unbounded pool-size drift.
+
+        Extras are capped at ``self.max_extras`` so a slow daemon can't be
+        further loaded with new container starts. When at the cap, this
+        retries the semaphore wait up to ``max_wait_rounds`` times before
+        giving up.
         """
-        if not self._sem.acquire(timeout=timeout):
+        max_wait_rounds = 3
+        for round_idx in range(max_wait_rounds):
+            if self._sem.acquire(timeout=timeout):
+                break
+            with self._lock:
+                extras_count = len(self._extras)
+            if extras_count < self.max_extras:
+                print(
+                    f"  [pool] acquire timed out after {timeout}s "
+                    f"(extras={extras_count}/{self.max_extras}) — "
+                    f"starting fresh container",
+                    file=sys.stderr,
+                )
+                cid = start_container(self.image)
+                with self._lock:
+                    self._extras.add(cid)
+                return cid
             print(
-                f"  [pool] acquire timed out after {timeout}s — starting fresh container",
+                f"  [pool] acquire timed out after {timeout}s, extras at "
+                f"cap ({self.max_extras}) — waiting again "
+                f"(round {round_idx + 1}/{max_wait_rounds})",
                 file=sys.stderr,
             )
-            cid = start_container(self.image)
-            with self._lock:
-                self._extras.add(cid)
-            return cid
+        else:
+            raise RuntimeError(
+                f"pool acquire for {self.image} failed after "
+                f"{max_wait_rounds} rounds of {timeout}s with extras at cap "
+                f"({self.max_extras}) — daemon likely stuck"
+            )
         with self._lock:
             cid = self._containers.pop(0)
         if not reset_container(cid):

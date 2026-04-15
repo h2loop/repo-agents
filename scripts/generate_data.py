@@ -386,31 +386,41 @@ def main():
             file=sys.stderr,
         )
 
-    # Create container pools — one per unique image
-    unique_images = sorted(set(image for image, _, _ in sample_plan))
-    pool_size = max(1, args.workers)
-    pools: dict[str, ContainerPool] = {}
+    # Group sample plan by image and process one image group at a time. This
+    # bounds total live containers at `args.workers` regardless of how many
+    # unique images exist — the previous per-image pool of size=workers
+    # multiplied by N images, overloading the daemon. Original `fi` is
+    # preserved so sample_id naming stays stable across resumes.
+    groups: dict[str, list[tuple[int, dict, list[dict]]]] = {}
+    for fi, (image, func, bugs) in enumerate(sample_plan):
+        func_key = f"{func['file']}:{func['name']}"
+        if func_key in existing_funcs:
+            continue
+        groups.setdefault(image, []).append((fi, func, bugs))
+
+    total_to_process = sum(len(items) for items in groups.values())
     print(
-        f"\n  Starting container pools (size={pool_size} per image)...", file=sys.stderr
+        f"\n  Sample plan grouped into {len(groups)} image batches "
+        f"({total_to_process} functions to process):",
+        file=sys.stderr,
     )
-    for image in unique_images:
-        print(f"    {image}: {pool_size} containers", file=sys.stderr)
-        pools[image] = ContainerPool(image, size=pool_size)
-    print("  All pools ready.", file=sys.stderr)
+    for image, items in groups.items():
+        print(f"    {image}: {len(items)} functions", file=sys.stderr)
 
     # Run pipeline
     manifest: list[dict] = []
     completed = 0
     failed_funcs = 0
+    total_processed = 0
 
     def run_function_attempts(
-        fi: int, image: str, func: dict, bugs: list[dict]
+        fi: int,
+        image: str,
+        func: dict,
+        bugs: list[dict],
+        pool: ContainerPool,
     ) -> dict | None:
         """Try up to K bugs for one function, stop on first success."""
-        func_key = f"{func['file']}:{func['name']}"
-        if func_key in existing_funcs:
-            return None
-
         for bi, bug in enumerate(bugs):
             sample_id = f"f{fi:05d}_b{bi}_{uuid.uuid4().hex[:6]}"
             result = run_full_pipeline(
@@ -421,64 +431,71 @@ def main():
                 image,
                 demo_prs,
                 args.output_dir,
-                pool=pools[image],
+                pool=pool,
                 max_steps=args.max_steps,
             )
             if result is not None:
                 return result
         return None
 
-    try:
-        if args.workers <= 1:
-            for fi, (image, func, bugs) in enumerate(sample_plan):
-                func_key = f"{func['file']}:{func['name']}"
-                if func_key in existing_funcs:
-                    continue
-
-                result = run_function_attempts(fi, image, func, bugs)
-                if result:
-                    manifest.append(result)
-                    completed += 1
-                else:
-                    failed_funcs += 1
-
-                if (fi + 1) % 10 == 0:
-                    print(
-                        f"\n>>> Progress: {completed} succeeded, {failed_funcs} failed, "
-                        f"{fi + 1}/{len(sample_plan)} functions processed",
-                        file=sys.stderr,
-                    )
-        else:
-            with ThreadPoolExecutor(max_workers=args.workers) as executor:
-                futures = {}
-                for fi, (image, func, bugs) in enumerate(sample_plan):
-                    func_key = f"{func['file']}:{func['name']}"
-                    if func_key in existing_funcs:
-                        continue
-
-                    future = executor.submit(
-                        run_function_attempts, fi, image, func, bugs
-                    )
-                    futures[future] = (fi, func)
-
-                for future in as_completed(futures):
-                    fi, func = futures[future]
-                    try:
-                        result = future.result()
-                        if result:
-                            manifest.append(result)
-                            completed += 1
-                        else:
-                            failed_funcs += 1
-                    except Exception as e:
-                        print(f"[func {fi}] Worker exception: {e}", file=sys.stderr)
+    for batch_idx, (image, items) in enumerate(groups.items(), 1):
+        # Pool sized for this image only — never exceeds args.workers and is
+        # capped by item count when the image's batch is small.
+        pool_size = max(1, min(args.workers, len(items)))
+        print(
+            f"\n  [{batch_idx}/{len(groups)}] {image}: warming pool of "
+            f"{pool_size} containers for {len(items)} functions",
+            file=sys.stderr,
+        )
+        pool = ContainerPool(image, size=pool_size)
+        try:
+            if args.workers <= 1:
+                for fi, func, bugs in items:
+                    result = run_function_attempts(fi, image, func, bugs, pool)
+                    if result:
+                        manifest.append(result)
+                        completed += 1
+                    else:
                         failed_funcs += 1
-
-    finally:
-        print("\n  Shutting down container pools...", file=sys.stderr)
-        for image, pool in pools.items():
+                    total_processed += 1
+                    if total_processed % 10 == 0:
+                        print(
+                            f"\n>>> Progress: {completed} succeeded, "
+                            f"{failed_funcs} failed, "
+                            f"{total_processed}/{total_to_process} processed",
+                            file=sys.stderr,
+                        )
+            else:
+                with ThreadPoolExecutor(max_workers=pool_size) as executor:
+                    futures = {
+                        executor.submit(
+                            run_function_attempts, fi, image, func, bugs, pool
+                        ): (fi, func)
+                        for fi, func, bugs in items
+                    }
+                    for future in as_completed(futures):
+                        fi, func = futures[future]
+                        try:
+                            result = future.result()
+                            if result:
+                                manifest.append(result)
+                                completed += 1
+                            else:
+                                failed_funcs += 1
+                        except Exception as e:
+                            print(
+                                f"[func {fi}] Worker exception: {e}",
+                                file=sys.stderr,
+                            )
+                            failed_funcs += 1
+                        total_processed += 1
+        finally:
+            print(
+                f"  [{batch_idx}/{len(groups)}] {image}: shutting down pool"
+                f" ({completed} succeeded, {failed_funcs} failed so far)",
+                file=sys.stderr,
+            )
             pool.shutdown()
-        print("  All pools stopped.", file=sys.stderr)
 
     # Save manifest — on resume, merge with prior samples so counts are
     # cumulative across resume invocations rather than reflecting only
