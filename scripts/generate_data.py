@@ -427,20 +427,33 @@ def main():
         bugs: list[dict],
         pool: ContainerPool,
     ) -> dict | None:
-        """Try up to K bugs for one function, stop on first success."""
+        """Try up to K bugs for one function, stop on first success.
+
+        Exceptions (e.g. hydron subprocess timeout, docker exec failures)
+        are caught per-bug so the remaining bugs still get a chance instead
+        of the whole function being abandoned.
+        """
         for bi, bug in enumerate(bugs):
             sample_id = f"f{fi:05d}_b{bi}_{uuid.uuid4().hex[:6]}"
-            result = run_full_pipeline(
-                sample_id,
-                func,
-                bug,
-                template,
-                image,
-                demo_prs,
-                args.output_dir,
-                pool=pool,
-                max_steps=args.max_steps,
-            )
+            try:
+                result = run_full_pipeline(
+                    sample_id,
+                    func,
+                    bug,
+                    template,
+                    image,
+                    demo_prs,
+                    args.output_dir,
+                    pool=pool,
+                    max_steps=args.max_steps,
+                )
+            except Exception as e:
+                print(
+                    f"[{sample_id}] bug {bug['bug_id']} raised {type(e).__name__}: {e} "
+                    f"— trying next bug ({bi + 1}/{len(bugs)})",
+                    file=sys.stderr,
+                )
+                continue
             if result is not None:
                 return result
         return None
