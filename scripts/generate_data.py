@@ -54,6 +54,7 @@ from rollout1 import (
     load_bug_prompts,
     run_single as run_rollout1_single,
     ContainerPool,
+    pre_run_cleanup,
     reset_container,
     REPO_CFG,
 )
@@ -385,6 +386,12 @@ def main():
             f"{retry_missing_t2} T1-only, {retry_missing_verif} unverified",
             file=sys.stderr,
         )
+
+    # Kill orphaned containers from previous runs before starting new pools.
+    # Without this, a crashed/killed driver leaves sera_pipeline containers
+    # running, which consume daemon resources and cause docker-run timeouts
+    # when the next run tries to warm its pool.
+    pre_run_cleanup()
 
     # Group sample plan by image and process one image group at a time. This
     # bounds total live containers at `args.workers` regardless of how many

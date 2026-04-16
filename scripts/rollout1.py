@@ -95,12 +95,66 @@ Working directory is {_CONTAINER_REPO_PATH}.{_build_caveat_line}"""
 # ---------------------------------------------------------------------------
 
 
+def pre_run_cleanup() -> int:
+    """Kill and remove any orphaned containers from previous pipeline runs.
+
+    Targets containers labeled ``sera_pipeline=1`` — the same label set by
+    ``start_container``. Safe to call before pool warmup; harmless if no
+    orphans exist. Waits a few seconds after the kill to let the daemon
+    finish reaping before new containers are started.
+
+    Returns the number of containers killed.
+    """
+    try:
+        result = subprocess.run(
+            ["docker", "ps", "-q", "--filter", "label=sera_pipeline=1"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        cids = result.stdout.strip().split()
+        cids = [c for c in cids if c]
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        print(
+            f"  [cleanup] WARNING: could not list orphaned containers: {exc}",
+            file=sys.stderr,
+        )
+        return 0
+
+    if not cids:
+        print("  [cleanup] No orphaned sera_pipeline containers found.",
+              file=sys.stderr)
+        return 0
+
+    print(
+        f"  [cleanup] Killing {len(cids)} orphaned sera_pipeline containers...",
+        file=sys.stderr,
+    )
+    # Kill in parallel via a single docker kill invocation.
+    try:
+        subprocess.run(
+            ["docker", "kill"] + cids,
+            capture_output=True,
+            timeout=60,
+        )
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        print(
+            f"  [cleanup] WARNING: docker kill timed out: {exc}",
+            file=sys.stderr,
+        )
+
+    # Give the daemon a moment to reap the killed containers (--rm flag
+    # triggers removal on stop/kill, but reaping takes time under load).
+    time.sleep(3)
+    print(f"  [cleanup] Done — {len(cids)} containers killed.", file=sys.stderr)
+    return len(cids)
+
+
 def start_container(image: str) -> str:
     """Start a Docker container with hydron mounted, return container ID.
 
-    Containers are labeled `sera_pipeline=1` so the driver's pre-run
-    cleanup can identify and kill only its own orphans (not unrelated
-    user containers that happen to share an image suffix).
+    Containers are labeled ``sera_pipeline=1`` so ``pre_run_cleanup`` can
+    identify and kill only its own orphans (not unrelated user containers).
     """
     hydron_host = hydron_runner.HYDRON_HOST_PATH
     hydron_container = hydron_runner.HYDRON_BIN
@@ -211,6 +265,11 @@ class ContainerPool:
                 f"    [pool] {image}: warmed {i + 1}/{size} containers",
                 file=sys.stderr,
             )
+            # Brief pause between starts so the daemon can finish registering
+            # each container before the next one hits. On a loaded daemon the
+            # sequential docker-run calls can still pile up in its queue.
+            if i < size - 1:
+                time.sleep(0.5)
 
     def acquire(self, timeout: float = 300) -> str:
         """Get a clean container from the pool. Blocks if none available.
