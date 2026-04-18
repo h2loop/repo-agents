@@ -428,6 +428,100 @@ def _release_provider_slot(provider: Provider) -> None:
         sem.release()
 
 
+def run_hydron_session_host(
+    repo_path: str,
+    prompt: str,
+    provider: Provider,
+    timeout: int = HYDRON_SESSION_TIMEOUT,
+    max_steps: int | None = None,
+) -> HydronResult:
+    """Run a hydron agent session directly on the host (no Docker).
+
+    Used by the eval predictions runner: `repo_path` is a git worktree at
+    the instance's `base_commit`. Provider is explicit (CLI-supplied), so
+    no pool selection or 429 retry loop — rate limits surface as the
+    hydron exit code and the caller can retry at a higher level.
+    """
+    active_model = provider.model
+    hydron_cmd = [
+        HYDRON_HOST_PATH,
+        "run",
+        "--auto",
+        "--skip-auth",
+        "--format",
+        "json",
+        "--dir",
+        repo_path,
+    ]
+    env = os.environ.copy()
+    if provider.kind == "google_native":
+        hydron_cmd.extend(["--model", active_model])
+        env["GOOGLE_GENERATIVE_AI_API_KEY"] = provider.api_key
+    else:
+        hydron_cmd.extend(
+            [
+                "--provider-url",
+                provider.base_url or "",
+                "--provider-key",
+                provider.api_key,
+                "--provider-model",
+                active_model,
+            ]
+        )
+    if max_steps is not None:
+        hydron_cmd.extend(["--max-steps", str(max_steps)])
+    if HYDRON_VARIANT:
+        hydron_cmd.extend(["--variant", HYDRON_VARIANT])
+    hydron_cmd.append(prompt)
+
+    print(
+        f"    [hydron-host] Running session in {repo_path} via "
+        f"{provider.label} ({active_model})...",
+        file=sys.stderr,
+    )
+
+    try:
+        result = subprocess.run(
+            hydron_cmd,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            env=env,
+        )
+    except subprocess.TimeoutExpired:
+        print(
+            f"    [hydron-host] timed out after {timeout}s in {repo_path}",
+            file=sys.stderr,
+        )
+        return HydronResult(session_id="", events=[], exit_code=-1)
+
+    events: list[dict] = []
+    session_id = ""
+    for line in (result.stdout or "").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            event = json.loads(line)
+            events.append(event)
+            if "sessionID" in event and not session_id:
+                session_id = event["sessionID"]
+        except json.JSONDecodeError:
+            continue
+
+    print(
+        f"    [hydron-host] Session {session_id[:20] if session_id else '???'}"
+        f"... completed ({len(events)} events, exit={result.returncode})",
+        file=sys.stderr,
+    )
+
+    return HydronResult(
+        session_id=session_id,
+        events=events,
+        exit_code=result.returncode,
+    )
+
+
 def run_hydron_session(
     container_id: str,
     prompt: str,
