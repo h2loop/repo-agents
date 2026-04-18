@@ -514,6 +514,13 @@ def run_hydron_session_host(
         f"... completed ({len(events)} events, exit={result.returncode})",
         file=sys.stderr,
     )
+    if result.returncode != 0:
+        tail_out = (result.stdout or "")[-1500:]
+        tail_err = (result.stderr or "")[-1500:]
+        if tail_err:
+            print(f"    [hydron-host] stderr: {tail_err}", file=sys.stderr)
+        if tail_out and not events:
+            print(f"    [hydron-host] stdout: {tail_out}", file=sys.stderr)
 
     return HydronResult(
         session_id=session_id,
