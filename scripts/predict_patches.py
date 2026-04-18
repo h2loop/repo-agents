@@ -312,7 +312,9 @@ def run_one(
 ) -> dict:
     iid = prompt.instance_id
     started = time.time()
-    wt = worktree_root / f"{iid}__run{run_index}__{os.getpid()}_{threading.get_ident()}"
+    wt = Path(os.path.abspath(
+        worktree_root / f"{iid}__run{run_index}__{os.getpid()}_{threading.get_ident()}"
+    ))
     repo_dir = cache.ensure(prompt)
     patch = ""
     exit_code = -1
@@ -320,7 +322,7 @@ def run_one(
     try:
         add_worktree(repo_dir, wt, prompt.base_commit)
         result = run_hydron_session_host(
-            repo_path=str(wt.resolve()),
+            repo_path=str(wt),
             prompt=build_prompt(prompt),
             provider=provider,
             timeout=timeout_s,
