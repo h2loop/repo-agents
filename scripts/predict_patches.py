@@ -320,7 +320,7 @@ def run_one(
     try:
         add_worktree(repo_dir, wt, prompt.base_commit)
         result = run_hydron_session_host(
-            repo_path=str(wt),
+            repo_path=str(wt.resolve()),
             prompt=build_prompt(prompt),
             provider=provider,
             timeout=timeout_s,
