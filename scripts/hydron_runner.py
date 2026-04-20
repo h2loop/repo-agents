@@ -491,12 +491,27 @@ def run_hydron_session_host(
         repo_path,
     ]
     env = os.environ.copy()
-    # Per-session XDG_DATA_HOME so each hydron process gets its own
-    # sqlite db (~/.local/share/hydron-cli/kilo.db). Multiple concurrent
-    # processes on the shared db produce EBADF / lock contention. Cleaned
-    # up in the finally below.
-    session_data_home = tempfile.mkdtemp(prefix="hydron-data-")
-    env["XDG_DATA_HOME"] = session_data_home
+    # Per-session fake HOME so each hydron process gets its own
+    # ~/.local/share/hydron-cli/kilo.db. Multiple concurrent processes
+    # on the shared db produce EBADF / lock contention (hydron resolves
+    # the data dir from $HOME, not $XDG_DATA_HOME). Symlink the real
+    # ~/.config/hydron-cli so config still loads. Cleaned up below.
+    session_home_root = os.getenv("HYDRON_SESSION_HOME_ROOT") or None
+    if session_home_root:
+        Path(session_home_root).mkdir(parents=True, exist_ok=True)
+    session_home = tempfile.mkdtemp(prefix="hydron-home-", dir=session_home_root)
+    real_home = os.environ.get("HOME", str(Path.home()))
+    real_cfg = Path(real_home) / ".config" / "hydron-cli"
+    fake_cfg_parent = Path(session_home) / ".config"
+    fake_cfg_parent.mkdir(parents=True, exist_ok=True)
+    if real_cfg.exists():
+        try:
+            os.symlink(real_cfg, fake_cfg_parent / "hydron-cli")
+        except FileExistsError:
+            pass
+    env["HOME"] = session_home
+    env.pop("XDG_DATA_HOME", None)
+    env.pop("XDG_CONFIG_HOME", None)
     if provider.kind == "google_native":
         hydron_cmd_base.extend(["--model", active_model])
         env["GOOGLE_GENERATIVE_AI_API_KEY"] = provider.api_key
@@ -573,7 +588,7 @@ def run_hydron_session_host(
             )
             _trigger_cooldown(provider, sleep_s)
     finally:
-        shutil.rmtree(session_data_home, ignore_errors=True)
+        shutil.rmtree(session_home, ignore_errors=True)
 
     if timed_out:
         return HydronResult(session_id="", events=[], exit_code=-1)
