@@ -458,6 +458,31 @@ def _wait_out_cooldown(provider: Provider) -> None:
         time.sleep(sleep_s)
 
 
+_warmup_lock = threading.Lock()
+_warmed_up = False
+
+
+def warmup_host() -> None:
+    """Run hydron once synchronously so its one-time sqlite migration
+    completes before multiple workers race on it. Safe to call repeatedly;
+    no-ops after the first success."""
+    global _warmed_up
+    with _warmup_lock:
+        if _warmed_up:
+            return
+        print("    [hydron-host] warming up (sqlite migration)...", file=sys.stderr)
+        try:
+            subprocess.run(
+                [HYDRON_HOST_PATH, "session", "list"],
+                capture_output=True,
+                text=True,
+                timeout=120,
+            )
+        except Exception as e:
+            print(f"    [hydron-host] warmup error (continuing): {e}", file=sys.stderr)
+        _warmed_up = True
+
+
 def run_hydron_session_host(
     repo_path: str,
     prompt: str,
