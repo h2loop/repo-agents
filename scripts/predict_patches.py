@@ -42,7 +42,7 @@ from urllib.parse import urlparse
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import hydron_runner  # noqa: E402
-from hydron_runner import Provider, run_hydron_session_host, warmup_host  # noqa: E402
+from hydron_runner import Provider, run_hydron_session_host  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -450,8 +450,6 @@ def main() -> int:
         f"workers={args.workers}",
         file=sys.stderr,
     )
-
-    warmup_host()
 
     cache = RepoCache(args.cache_dir)
     writer = PredictionWriter(args.output)

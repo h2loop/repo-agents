@@ -55,8 +55,10 @@ import json
 import os
 import re
 import random
+import shutil
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 from dataclasses import dataclass, field
@@ -458,31 +460,6 @@ def _wait_out_cooldown(provider: Provider) -> None:
         time.sleep(sleep_s)
 
 
-_warmup_lock = threading.Lock()
-_warmed_up = False
-
-
-def warmup_host() -> None:
-    """Run hydron once synchronously so its one-time sqlite migration
-    completes before multiple workers race on it. Safe to call repeatedly;
-    no-ops after the first success."""
-    global _warmed_up
-    with _warmup_lock:
-        if _warmed_up:
-            return
-        print("    [hydron-host] warming up (sqlite migration)...", file=sys.stderr)
-        try:
-            subprocess.run(
-                [HYDRON_HOST_PATH, "session", "list"],
-                capture_output=True,
-                text=True,
-                timeout=120,
-            )
-        except Exception as e:
-            print(f"    [hydron-host] warmup error (continuing): {e}", file=sys.stderr)
-        _warmed_up = True
-
-
 def run_hydron_session_host(
     repo_path: str,
     prompt: str,
@@ -514,6 +491,12 @@ def run_hydron_session_host(
         repo_path,
     ]
     env = os.environ.copy()
+    # Per-session XDG_DATA_HOME so each hydron process gets its own
+    # sqlite db (~/.local/share/hydron-cli/kilo.db). Multiple concurrent
+    # processes on the shared db produce EBADF / lock contention. Cleaned
+    # up in the finally below.
+    session_data_home = tempfile.mkdtemp(prefix="hydron-data-")
+    env["XDG_DATA_HOME"] = session_data_home
     if provider.kind == "google_native":
         hydron_cmd_base.extend(["--model", active_model])
         env["GOOGLE_GENERATIVE_AI_API_KEY"] = provider.api_key
@@ -536,56 +519,64 @@ def run_hydron_session_host(
 
     slot = _slot_for(provider.api_key)
     result = None
+    timed_out = False
 
-    for attempt in range(RATE_LIMIT_MAX_RETRIES + 1):
-        _wait_out_cooldown(provider)
-        slot.acquire()
-        try:
-            print(
-                f"    [hydron-host] Running session in {repo_path} via "
-                f"{provider.label} ({active_model}) attempt {attempt + 1}...",
-                file=sys.stderr,
-            )
+    try:
+        for attempt in range(RATE_LIMIT_MAX_RETRIES + 1):
+            _wait_out_cooldown(provider)
+            slot.acquire()
             try:
-                result = subprocess.run(
-                    hydron_cmd,
-                    capture_output=True,
-                    text=True,
-                    timeout=timeout,
-                    env=env,
-                )
-            except subprocess.TimeoutExpired:
                 print(
-                    f"    [hydron-host] timed out after {timeout}s in {repo_path}",
+                    f"    [hydron-host] Running session in {repo_path} via "
+                    f"{provider.label} ({active_model}) attempt {attempt + 1}...",
                     file=sys.stderr,
                 )
-                return HydronResult(session_id="", events=[], exit_code=-1)
-        finally:
-            slot.release()
+                try:
+                    result = subprocess.run(
+                        hydron_cmd,
+                        capture_output=True,
+                        text=True,
+                        timeout=timeout,
+                        env=env,
+                    )
+                except subprocess.TimeoutExpired:
+                    print(
+                        f"    [hydron-host] timed out after {timeout}s in {repo_path}",
+                        file=sys.stderr,
+                    )
+                    timed_out = True
+                    break
+            finally:
+                slot.release()
 
-        combined = (result.stdout or "") + "\n" + (result.stderr or "")
-        if not _is_rate_limited(combined):
-            break
+            combined = (result.stdout or "") + "\n" + (result.stderr or "")
+            if not _is_rate_limited(combined):
+                break
 
-        if attempt >= RATE_LIMIT_MAX_RETRIES:
+            if attempt >= RATE_LIMIT_MAX_RETRIES:
+                print(
+                    f"    [hydron-host] rate-limit retries exhausted "
+                    f"({RATE_LIMIT_MAX_RETRIES}) on {provider.label} — giving up",
+                    file=sys.stderr,
+                )
+                break
+
+            server_hint = _parse_retry_after(combined)
+            expo = _backoff_seconds(attempt)
+            sleep_s = min(max(server_hint or 0.0, expo), RATE_LIMIT_MAX_BACKOFF)
+            hint_note = f" (server hint: {server_hint:.1f}s)" if server_hint else ""
             print(
-                f"    [hydron-host] rate-limit retries exhausted "
-                f"({RATE_LIMIT_MAX_RETRIES}) on {provider.label} — giving up",
+                f"    [hydron-host] rate limit on {provider.label} (attempt "
+                f"{attempt + 1}/{RATE_LIMIT_MAX_RETRIES}){hint_note} — cooling "
+                f"key for {sleep_s:.1f}s",
                 file=sys.stderr,
             )
-            break
+            _trigger_cooldown(provider, sleep_s)
+    finally:
+        shutil.rmtree(session_data_home, ignore_errors=True)
 
-        server_hint = _parse_retry_after(combined)
-        expo = _backoff_seconds(attempt)
-        sleep_s = min(max(server_hint or 0.0, expo), RATE_LIMIT_MAX_BACKOFF)
-        hint_note = f" (server hint: {server_hint:.1f}s)" if server_hint else ""
-        print(
-            f"    [hydron-host] rate limit on {provider.label} (attempt "
-            f"{attempt + 1}/{RATE_LIMIT_MAX_RETRIES}){hint_note} — cooling "
-            f"key for {sleep_s:.1f}s",
-            file=sys.stderr,
-        )
-        _trigger_cooldown(provider, sleep_s)
+    if timed_out:
+        return HydronResult(session_id="", events=[], exit_code=-1)
 
     events: list[dict] = []
     session_id = ""
