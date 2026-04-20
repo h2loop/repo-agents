@@ -553,6 +553,7 @@ def run_hydron_session_host(
                         text=True,
                         timeout=timeout,
                         env=env,
+                        stdin=subprocess.DEVNULL,
                     )
                 except subprocess.TimeoutExpired:
                     print(
