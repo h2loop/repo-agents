@@ -235,12 +235,26 @@ PROVIDER_MAX_INFLIGHT = int(os.getenv("PROVIDER_MAX_INFLIGHT", "8"))
 _cooldown_lock = threading.Lock()
 _cooldown_until: dict[str, float] = {}
 
-# Per-provider in-flight slot semaphores, keyed by api_key. Initialized
-# once from _PROVIDERS; providers sharing an api_key (unlikely after
-# dedup in _discover_providers) share a slot pool.
+# Per-provider in-flight slot semaphores, keyed by api_key. Pre-seeded
+# from _PROVIDERS; callers that construct a Provider outside the pool
+# (e.g. the predictions runner) get a semaphore created lazily via
+# _slot_for.
+_slots_lock = threading.Lock()
 _provider_slots: dict[str, threading.Semaphore] = {
     p.api_key: threading.Semaphore(PROVIDER_MAX_INFLIGHT) for p in _PROVIDERS
 }
+
+
+def _slot_for(api_key: str) -> threading.Semaphore:
+    sem = _provider_slots.get(api_key)
+    if sem is not None:
+        return sem
+    with _slots_lock:
+        sem = _provider_slots.get(api_key)
+        if sem is None:
+            sem = threading.Semaphore(PROVIDER_MAX_INFLIGHT)
+            _provider_slots[api_key] = sem
+        return sem
 
 # Server-suggested retry-after hints, parsed from hydron's subprocess
 # output. Formats vary by provider:
@@ -428,6 +442,22 @@ def _release_provider_slot(provider: Provider) -> None:
         sem.release()
 
 
+def _wait_out_cooldown(provider: Provider) -> None:
+    """Block until this provider's cooldown window has elapsed. Jittered so
+    many workers waking on the same expiry don't stampede."""
+    while True:
+        remaining = _cooldown_remaining(provider)
+        if remaining <= 0:
+            return
+        sleep_s = remaining + random.uniform(0, min(2.0, remaining * 0.1 + 0.1))
+        print(
+            f"    [hydron-host] {provider.label} cooling down; sleeping "
+            f"{sleep_s:.1f}s",
+            file=sys.stderr,
+        )
+        time.sleep(sleep_s)
+
+
 def run_hydron_session_host(
     repo_path: str,
     prompt: str,
@@ -438,12 +468,17 @@ def run_hydron_session_host(
     """Run a hydron agent session directly on the host (no Docker).
 
     Used by the eval predictions runner: `repo_path` is a git worktree at
-    the instance's `base_commit`. Provider is explicit (CLI-supplied), so
-    no pool selection or 429 retry loop — rate limits surface as the
-    hydron exit code and the caller can retry at a higher level.
+    the instance's `base_commit`. Provider is explicit (CLI-supplied).
+
+    Rate-limit handling (multi-worker safe):
+      - Caps in-flight sessions per api_key via PROVIDER_MAX_INFLIGHT.
+      - Honors per-key cooldowns set by sibling workers before starting.
+      - On 429 in hydron output, triggers a per-key cooldown (using the
+        server's Retry-After hint when parseable) and retries up to
+        RATE_LIMIT_MAX_RETRIES times.
     """
     active_model = provider.model
-    hydron_cmd = [
+    hydron_cmd_base = [
         HYDRON_HOST_PATH,
         "run",
         "--auto",
@@ -455,10 +490,10 @@ def run_hydron_session_host(
     ]
     env = os.environ.copy()
     if provider.kind == "google_native":
-        hydron_cmd.extend(["--model", active_model])
+        hydron_cmd_base.extend(["--model", active_model])
         env["GOOGLE_GENERATIVE_AI_API_KEY"] = provider.api_key
     else:
-        hydron_cmd.extend(
+        hydron_cmd_base.extend(
             [
                 "--provider-url",
                 provider.base_url or "",
@@ -469,31 +504,63 @@ def run_hydron_session_host(
             ]
         )
     if max_steps is not None:
-        hydron_cmd.extend(["--max-steps", str(max_steps)])
+        hydron_cmd_base.extend(["--max-steps", str(max_steps)])
     if HYDRON_VARIANT:
-        hydron_cmd.extend(["--variant", HYDRON_VARIANT])
-    hydron_cmd.append(prompt)
+        hydron_cmd_base.extend(["--variant", HYDRON_VARIANT])
+    hydron_cmd = hydron_cmd_base + [prompt]
 
-    print(
-        f"    [hydron-host] Running session in {repo_path} via "
-        f"{provider.label} ({active_model})...",
-        file=sys.stderr,
-    )
+    slot = _slot_for(provider.api_key)
+    result = None
 
-    try:
-        result = subprocess.run(
-            hydron_cmd,
-            capture_output=True,
-            text=True,
-            timeout=timeout,
-            env=env,
-        )
-    except subprocess.TimeoutExpired:
+    for attempt in range(RATE_LIMIT_MAX_RETRIES + 1):
+        _wait_out_cooldown(provider)
+        slot.acquire()
+        try:
+            print(
+                f"    [hydron-host] Running session in {repo_path} via "
+                f"{provider.label} ({active_model}) attempt {attempt + 1}...",
+                file=sys.stderr,
+            )
+            try:
+                result = subprocess.run(
+                    hydron_cmd,
+                    capture_output=True,
+                    text=True,
+                    timeout=timeout,
+                    env=env,
+                )
+            except subprocess.TimeoutExpired:
+                print(
+                    f"    [hydron-host] timed out after {timeout}s in {repo_path}",
+                    file=sys.stderr,
+                )
+                return HydronResult(session_id="", events=[], exit_code=-1)
+        finally:
+            slot.release()
+
+        combined = (result.stdout or "") + "\n" + (result.stderr or "")
+        if not _is_rate_limited(combined):
+            break
+
+        if attempt >= RATE_LIMIT_MAX_RETRIES:
+            print(
+                f"    [hydron-host] rate-limit retries exhausted "
+                f"({RATE_LIMIT_MAX_RETRIES}) on {provider.label} — giving up",
+                file=sys.stderr,
+            )
+            break
+
+        server_hint = _parse_retry_after(combined)
+        expo = _backoff_seconds(attempt)
+        sleep_s = min(max(server_hint or 0.0, expo), RATE_LIMIT_MAX_BACKOFF)
+        hint_note = f" (server hint: {server_hint:.1f}s)" if server_hint else ""
         print(
-            f"    [hydron-host] timed out after {timeout}s in {repo_path}",
+            f"    [hydron-host] rate limit on {provider.label} (attempt "
+            f"{attempt + 1}/{RATE_LIMIT_MAX_RETRIES}){hint_note} — cooling "
+            f"key for {sleep_s:.1f}s",
             file=sys.stderr,
         )
-        return HydronResult(session_id="", events=[], exit_code=-1)
+        _trigger_cooldown(provider, sleep_s)
 
     events: list[dict] = []
     session_id = ""
