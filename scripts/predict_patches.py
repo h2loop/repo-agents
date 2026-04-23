@@ -387,7 +387,10 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--limit", type=int, default=None)
     p.add_argument("--instance-ids", default=None,
                    help="Comma-separated filter of instance_ids.")
-    p.add_argument("--timeout-s", type=int, default=600)
+    p.add_argument("--timeout-s", type=int,
+                   default=int(os.getenv("HYDRON_SESSION_TIMEOUT", "600")),
+                   help="Per-session hydron timeout in seconds. Defaults to "
+                        "$HYDRON_SESSION_TIMEOUT if set, else 600.")
     p.add_argument("--cache-dir", type=Path,
                    default=Path("data/predict_cache/repos"))
     p.add_argument("--worktree-dir", type=Path,
