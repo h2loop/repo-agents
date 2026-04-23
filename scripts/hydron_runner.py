@@ -466,6 +466,7 @@ def run_hydron_session_host(
     provider: Provider,
     timeout: int = HYDRON_SESSION_TIMEOUT,
     max_steps: int | None = None,
+    export_path: Path | None = None,
 ) -> HydronResult:
     """Run a hydron agent session directly on the host (no Docker).
 
@@ -588,6 +589,48 @@ def run_hydron_session_host(
                 file=sys.stderr,
             )
             _trigger_cooldown(provider, sleep_s)
+
+        # Export session JSON before tearing down the fake HOME (kilo.db lives
+        # there). Best-effort: a failed export must not fail the run.
+        if export_path is not None and not timed_out and result is not None:
+            sid = ""
+            for line in (result.stdout or "").splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    ev = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if "sessionID" in ev:
+                    sid = ev["sessionID"]
+                    break
+            if sid:
+                try:
+                    export_path.parent.mkdir(parents=True, exist_ok=True)
+                    exp_env = env.copy()
+                    with tempfile.TemporaryDirectory() as td:
+                        subprocess.run(
+                            [HYDRON_HOST_PATH, "session", "export", sid],
+                            cwd=td,
+                            env=exp_env,
+                            capture_output=True,
+                            timeout=120,
+                            check=True,
+                        )
+                        produced = Path(td) / f"{sid}.json"
+                        if produced.exists():
+                            shutil.copyfile(produced, export_path)
+                            print(
+                                f"    [hydron-host] exported session {sid[:20]}... "
+                                f"-> {export_path}",
+                                file=sys.stderr,
+                            )
+                except Exception as e:
+                    print(
+                        f"    [hydron-host] session export failed: {e}",
+                        file=sys.stderr,
+                    )
     finally:
         shutil.rmtree(session_home, ignore_errors=True)
 

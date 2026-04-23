@@ -309,6 +309,7 @@ def run_one(
     timeout_s: int,
     writer: PredictionWriter,
     model_label: str,
+    eval_logs_dir: Path,
 ) -> dict:
     iid = prompt.instance_id
     started = time.time()
@@ -321,11 +322,13 @@ def run_one(
     session_id = ""
     try:
         add_worktree(repo_dir, wt, prompt.base_commit)
+        export_path = eval_logs_dir / f"{iid}__run{run_index}.json"
         result = run_hydron_session_host(
             repo_path=str(wt),
             prompt=build_prompt(prompt),
             provider=provider,
             timeout=timeout_s,
+            export_path=export_path,
         )
         session_id = result.session_id
         exit_code = result.exit_code
@@ -389,6 +392,9 @@ def parse_args() -> argparse.Namespace:
                    default=Path("data/predict_cache/repos"))
     p.add_argument("--worktree-dir", type=Path,
                    default=Path("data/predict_cache/worktrees"))
+    p.add_argument("--eval-logs-dir", type=Path, default=Path("eval_logs"),
+                   help="Directory to export per-session hydron trajectory "
+                        "JSON (created if missing). Default: eval_logs")
     return p.parse_args()
 
 
@@ -453,6 +459,7 @@ def main() -> int:
 
     cache = RepoCache(args.cache_dir)
     writer = PredictionWriter(args.output)
+    args.eval_logs_dir.mkdir(parents=True, exist_ok=True)
     started_at = datetime.now(timezone.utc).isoformat()
 
     counts = {"total": len(units), "succeeded": 0, "failed": 0, "timeout": 0}
@@ -472,7 +479,7 @@ def main() -> int:
             for prm, ri in units:
                 rec = run_one(
                     prm, ri, provider, cache, args.worktree_dir,
-                    args.timeout_s, writer, args.model,
+                    args.timeout_s, writer, args.model, args.eval_logs_dir,
                 )
                 _tally(rec)
         else:
@@ -481,6 +488,7 @@ def main() -> int:
                     ex.submit(
                         run_one, prm, ri, provider, cache,
                         args.worktree_dir, args.timeout_s, writer, args.model,
+                        args.eval_logs_dir,
                     )
                     for prm, ri in units
                 ]
