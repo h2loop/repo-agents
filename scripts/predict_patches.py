@@ -291,8 +291,21 @@ class PredictionWriter:
 # ---------------------------------------------------------------------------
 
 
+REPO_CONTEXT_TEMPLATE = """\
+You are an autonomous coding agent working on the {repo} codebase. The \
+working directory is the repository root, checked out at the base commit \
+for this task.
+
+Your task is to resolve the GitHub issue below by editing the code in this \
+repository. Investigate the problem, make targeted fixes, and verify your \
+changes with `git diff` before finishing. Do not commit — just leave the \
+changes in the working tree.
+
+--- ISSUE ---"""
+
+
 def build_prompt(p: Prompt) -> str:
-    parts = []
+    parts = [REPO_CONTEXT_TEMPLATE.format(repo=p.repo or "this")]
     if p.issue_title:
         parts.append(p.issue_title.strip())
     if p.issue_body:
