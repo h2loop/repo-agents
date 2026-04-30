@@ -390,7 +390,16 @@ def run_one(
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     p.add_argument("--prompts", required=True, type=Path)
-    p.add_argument("--output", type=Path, default=Path("predictions.jsonl"))
+    p.add_argument("--output", type=Path, default=None,
+                   help="Predictions JSONL path. Defaults to "
+                        "eval_output/<file-prefix>_predictions.jsonl when "
+                        "--file-prefix is set, else predictions.jsonl.")
+    p.add_argument("--file-prefix", default=None,
+                   help="Convenience: store predictions and per-session logs "
+                        "under eval_output/ using this prefix. Sets "
+                        "--output to eval_output/<prefix>_predictions.jsonl "
+                        "and --eval-logs-dir to eval_output/<prefix>_logs "
+                        "unless those are explicitly provided.")
     p.add_argument("--model", required=True)
     p.add_argument("--provider-url", default=os.getenv("LLM_BASE_URL", ""))
     p.add_argument("--provider-key", default=os.getenv("LLM_API_KEY", ""))
@@ -408,10 +417,24 @@ def parse_args() -> argparse.Namespace:
                    default=Path("data/predict_cache/repos"))
     p.add_argument("--worktree-dir", type=Path,
                    default=Path("data/predict_cache/worktrees"))
-    p.add_argument("--eval-logs-dir", type=Path, default=Path("eval_logs"),
+    p.add_argument("--eval-logs-dir", type=Path, default=None,
                    help="Directory to export per-session hydron trajectory "
-                        "JSON (created if missing). Default: eval_logs")
-    return p.parse_args()
+                        "JSON (created if missing). Defaults to "
+                        "eval_output/<file-prefix>_logs when --file-prefix "
+                        "is set, else eval_logs.")
+    args = p.parse_args()
+
+    eval_output_root = Path("eval_output")
+    if args.file_prefix:
+        if args.output is None:
+            args.output = eval_output_root / f"{args.file_prefix}_predictions.jsonl"
+        if args.eval_logs_dir is None:
+            args.eval_logs_dir = eval_output_root / f"{args.file_prefix}_logs"
+    if args.output is None:
+        args.output = Path("predictions.jsonl")
+    if args.eval_logs_dir is None:
+        args.eval_logs_dir = Path("eval_logs")
+    return args
 
 
 def main() -> int:
