@@ -1,0 +1,308 @@
+[
+  {
+    "bug_id": "go_unchecked_error",
+    "description": "unchecked error return value",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_error_swallowed",
+    "description": "error caught but silently discarded",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_error_not_propagated",
+    "description": "error handled locally instead of propagated to caller",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_wrong_error_wrap",
+    "description": "incorrect error wrapping (losing context or using wrong verb)",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_race_condition",
+    "description": "data race from unsynchronized shared state access",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_goroutine_leak",
+    "description": "goroutine leak from missing context cancellation or channel close",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_channel_deadlock",
+    "description": "channel deadlock from blocking send/receive without matching operation",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_mutex_not_held",
+    "description": "accessing shared state without holding the required mutex",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_waitgroup_misuse",
+    "description": "incorrect sync.WaitGroup usage (Add after goroutine start, or missing Done)",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_map_concurrent_access",
+    "description": "concurrent map read/write without synchronization",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_unclosed_resource",
+    "description": "resource (file, connection, body) not closed",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_defer_in_loop",
+    "description": "defer inside loop causing resource accumulation",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_response_body_leak",
+    "description": "HTTP response body not closed",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_nil_pointer",
+    "description": "nil pointer dereference from unchecked return value or interface",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_nil_map_write",
+    "description": "write to nil map (missing initialization)",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_nil_channel",
+    "description": "send/receive on nil channel",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_slice_bounds",
+    "description": "slice index out of bounds",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_slice_append_alias",
+    "description": "append to slice aliasing another slice's backing array",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_map_iteration_mutation",
+    "description": "modifying map during iteration",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_interface_assertion_unchecked",
+    "description": "type assertion without comma-ok check",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_wrong_value_receiver",
+    "description": "method on value receiver that should be pointer receiver (mutations lost)",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_context_not_propagated",
+    "description": "context not passed through call chain",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_context_leak",
+    "description": "context created but never cancelled",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_off_by_one",
+    "description": "off-by-one error in loop bounds or slice indexing",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_shadowed_variable",
+    "description": "variable shadowed in inner scope via := redeclaration",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_string_mutation_copy",
+    "description": "treating string as mutable (modifying copy instead of original)",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_loop_variable_capture",
+    "description": "goroutine capturing loop variable by reference (pre-1.22 behavior)",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_missing_return",
+    "description": "missing return in non-void function path",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "go_unreachable_code",
+    "description": "dead code after return/break/continue",
+    "domain": "generic_go",
+    "subsystems": []
+  },
+  {
+    "bug_id": "telecom_state_machine_invalid_transition",
+    "description": "incorrect protocol state machine transition that violates 3GPP specification",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "test/nasTestpacket"
+    ]
+  },
+  {
+    "bug_id": "telecom_state_machine_missing_validation",
+    "description": "missing state validation before processing a protocol message",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "test/nasTestpacket",
+      "test/ngapTestpacket"
+    ]
+  },
+  {
+    "bug_id": "telecom_state_machine_stale_state",
+    "description": "stale protocol state not cleared after procedure completion or failure",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "test/nasTestpacket"
+    ]
+  },
+  {
+    "bug_id": "telecom_timer_incorrect_duration",
+    "description": "protocol timer configured with incorrect duration violating 3GPP timing requirements",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "test/nasTestpacket"
+    ]
+  },
+  {
+    "bug_id": "telecom_timer_missing_start_stop",
+    "description": "protocol timer not started or stopped at the required point in the procedure",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "test/nasTestpacket"
+    ]
+  },
+  {
+    "bug_id": "telecom_timer_race",
+    "description": "race condition between timer expiry handler and normal message processing",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "test/nasTestpacket"
+    ]
+  },
+  {
+    "bug_id": "telecom_asn1_encoding_error",
+    "description": "ASN.1 encoding error producing malformed protocol message",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "test/ngapTestpacket"
+    ]
+  },
+  {
+    "bug_id": "telecom_incorrect_ie",
+    "description": "incorrect information element value set in outgoing protocol message",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "test/nasTestpacket",
+      "test/ngapTestpacket"
+    ]
+  },
+  {
+    "bug_id": "telecom_missing_optional_field",
+    "description": "missing optional field that is conditionally mandatory per 3GPP specification",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "test/nasTestpacket",
+      "test/ngapTestpacket"
+    ]
+  },
+  {
+    "bug_id": "telecom_config_range_check_missing",
+    "description": "missing range validation on configuration parameter allowing out-of-spec values",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "test",
+      "test/app",
+      "test/udpserver",
+      "test/ueRanEmulator"
+    ]
+  },
+  {
+    "bug_id": "telecom_config_wrong_default",
+    "description": "wrong default configuration value not matching 3GPP specification default",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "test"
+    ]
+  },
+  {
+    "bug_id": "telecom_missing_mandatory_ie",
+    "description": "missing mandatory information element in outgoing signaling message",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "test/nasTestpacket",
+      "test/ngapTestpacket"
+    ]
+  },
+  {
+    "bug_id": "telecom_wrong_procedure_sequence",
+    "description": "incorrect signaling procedure sequence violating 3GPP message flow",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "test/nasTestpacket",
+      "test/ngapTestpacket"
+    ]
+  },
+  {
+    "bug_id": "telecom_interface_ngap_error",
+    "description": "NGAP interface handling error between gNB and AMF causing procedure failure",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "test/ngapTestpacket"
+    ]
+  },
+  {
+    "bug_id": "telecom_missing_critical_log",
+    "description": "missing log statement for critical failure event hindering debugging",
+    "domain": "telecom_5g",
+    "subsystems": [
+      "test/ngapTestpacket",
+      "test",
+      "test/app",
+      "test/udpserver",
+      "test/ueRanEmulator"
+    ]
+  }
+]
