@@ -10,7 +10,6 @@ Usage:
     uv run python driver.py \
         --repos repos.txt \
         --output-dir data/ \
-        --domain telecom_5g \
         --workers 4
 
 repos.txt format (one per line, # comments and blank lines ignored):
@@ -33,6 +32,12 @@ from urllib.parse import urlparse
 PROJECT_ROOT = Path(__file__).resolve().parent
 REPO_CONFIG_PATH = PROJECT_ROOT / "configs" / "repo_config.json"
 COMMITS_CONFIG_PATH = PROJECT_ROOT / "configs" / "commits.json"
+
+
+def repo_config_path_for(repo_name: str) -> Path:
+    """Per-repo config path, avoiding collisions in multi-repo runs."""
+    safe_name = repo_name.lower().replace("-", "_").replace(".", "_")
+    return PROJECT_ROOT / "configs" / f"repo_config_{safe_name}.json"
 
 
 # ---------------------------------------------------------------------------
@@ -94,47 +99,52 @@ def step_clone(url: str, branch: str | None, clone_dir: Path) -> Path:
     return dest
 
 
-def step_populate_config(repo_path: Path, domain: str, resume: bool) -> dict:
-    """Generate repo config at the canonical configs/repo_config.json path.
+def step_populate_config(repo_path: Path, resume: bool) -> dict:
+    """Generate a per-repo config and activate it as the canonical path.
 
-    On resume, reuse an existing config only if it was generated for this
-    same repo (repo_name matches repo_path.name). The config file is
-    shared across repos within a multi-repo driver run, so a stale config
-    from a *different* repo would silently corrupt this iteration.
+    Each repo gets its own config file (configs/repo_config_{name}.json) to
+    avoid corruption when multiple repos are processed sequentially. The
+    canonical path (configs/repo_config.json) is updated to point to the
+    active repo's config for downstream scripts that read it at import time.
 
     Returns the parsed config dict.
     """
-    REPO_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    if resume and REPO_CONFIG_PATH.exists():
+    per_repo_path = repo_config_path_for(repo_path.name)
+    per_repo_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if resume and per_repo_path.exists():
         try:
-            existing = json.loads(REPO_CONFIG_PATH.read_text())
+            existing = json.loads(per_repo_path.read_text())
         except json.JSONDecodeError:
             existing = None
         if existing and existing.get("repo_name") == repo_path.name:
             print(
-                f"  [config] {REPO_CONFIG_PATH} matches {repo_path.name} — "
+                f"  [config] {per_repo_path.name} matches {repo_path.name} — "
                 f"reusing (--resume)",
                 file=sys.stderr,
             )
+            _activate_config(per_repo_path)
             return existing
-        print(
-            f"  [config] existing config is for "
-            f"{existing.get('repo_name') if existing else '?'}, "
-            f"not {repo_path.name} — regenerating",
-            file=sys.stderr,
-        )
+
     run(
         [
             sys.executable,
             "scripts/populate_repo_config.py",
             "--repo-path", str(repo_path),
-            "--output", str(REPO_CONFIG_PATH),
-            "--domain", domain,
+            "--output", str(per_repo_path),
             "--force",
         ],
         label="config",
     )
-    return json.loads(REPO_CONFIG_PATH.read_text())
+    config = json.loads(per_repo_path.read_text())
+    _activate_config(per_repo_path)
+    return config
+
+
+def _activate_config(per_repo_path: Path) -> None:
+    """Copy per-repo config to the canonical path for downstream scripts."""
+    REPO_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(per_repo_path, REPO_CONFIG_PATH)
 
 
 def step_write_commits_json() -> None:
@@ -325,10 +335,6 @@ def main():
         help="Base output directory (default: data/)",
     )
     parser.add_argument(
-        "--domain", type=str, default="telecom_5g",
-        help="Domain for bug prompts (default: telecom_5g). Use '' for generic.",
-    )
-    parser.add_argument(
         "--bugs-per-func", type=int, default=3,
         help="Max bug attempts per function (default: 3)",
     )
@@ -393,9 +399,10 @@ def main():
             # On resume, skip repos whose raw output dir already has a
             # manifest with completions — avoids wasteful re-clone /
             # re-config / re-build for already-finished repos.
-            if args.resume and REPO_CONFIG_PATH.exists():
+            per_repo_cfg_path = repo_config_path_for(name)
+            if args.resume and per_repo_cfg_path.exists():
                 try:
-                    cached = json.loads(REPO_CONFIG_PATH.read_text())
+                    cached = json.loads(per_repo_cfg_path.read_text())
                     if cached.get("repo_name") == name:
                         sn = cached.get("repo_short_name", name.lower()[:10])
                         manifest_path = (
@@ -427,7 +434,7 @@ def main():
             repo_path = step_clone(url, branch, args.clone_dir)
 
             # Step 2: Generate repo config (writes to configs/repo_config.json)
-            config = step_populate_config(repo_path, args.domain, resume=args.resume)
+            config = step_populate_config(repo_path, resume=args.resume)
             short_name = config.get("repo_short_name", name.lower()[:10])
             image_prefix = config.get("docker_image_prefix", f"{short_name}-sera")
             bug_prompts_file = Path(

@@ -35,14 +35,23 @@ from pathlib import Path
 
 import requests
 
+# Load .env from project root if present
+_env_path = Path(__file__).resolve().parent.parent / ".env"
+if _env_path.exists():
+    for line in _env_path.read_text().splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            key, _, val = line.partition("=")
+            os.environ.setdefault(key.strip(), val.strip())
+
 # ---------------------------------------------------------------------------
 # LLM configuration
 # ---------------------------------------------------------------------------
 BASE_URL = os.getenv(
-    "LLM_BASE_URL", "https://litellm-prod-909645453767.asia-south1.run.app"
+    "LLM_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai"
 )
-API_KEY = os.getenv("LLM_API_KEY", "sk-1234")
-MODEL = os.getenv("LLM_MODEL", "qwen/qwen3-coder-480b-a35b-instruct-maas")
+API_KEY = os.getenv("LLM_API_KEY") or os.getenv("GEMINI_API_KEY_1", "")
+MODEL = os.getenv("LLM_MODEL", "gemini-3.1-pro-preview")
 
 # Source file extensions
 C_CPP_EXTENSIONS = {".c", ".cc", ".cpp", ".cxx", ".h", ".hh", ".hpp", ".hxx"}
@@ -101,6 +110,25 @@ def chat_completion(
     return (msg.get("content") or msg.get("reasoning_content") or "").strip()
 
 
+def chat_completion_json(
+    messages: list[dict],
+    temperature: float = 0.3,
+    max_tokens: int = 4096,
+    retries: int = 3,
+) -> dict | list:
+    """Call LLM and parse JSON from response, with retries on parse failure."""
+    last_err = None
+    for attempt in range(retries):
+        try:
+            response = chat_completion(messages, temperature=temperature, max_tokens=max_tokens)
+            return parse_json_response(response)
+        except (ValueError, KeyError) as e:
+            last_err = e
+            if attempt < retries - 1:
+                print(f"  [retry {attempt+1}/{retries}] JSON parse failed, retrying...", file=sys.stderr)
+    raise last_err
+
+
 def parse_json_response(text: str) -> dict | list:
     """Extract JSON object or array from LLM response, handling markdown fences."""
     # Strip markdown code fences
@@ -115,13 +143,27 @@ def parse_json_response(text: str) -> dict | list:
     except json.JSONDecodeError:
         pass
 
-    # Try extracting the first JSON object
-    match = re.search(r"\{.*\}", text, re.DOTALL)
-    if match:
-        try:
-            return json.loads(match.group())
-        except json.JSONDecodeError:
-            pass
+    # Try extracting the first JSON array or object
+    for pattern in [r"\[.*\]", r"\{.*\}"]:
+        match = re.search(pattern, text, re.DOTALL)
+        if match:
+            try:
+                return json.loads(match.group())
+            except json.JSONDecodeError:
+                pass
+
+    # Handle truncated JSON arrays: find last complete object and close the array
+    if text.lstrip().startswith("["):
+        last_brace = text.rfind("}")
+        if last_brace != -1:
+            candidate = text[: last_brace + 1].rstrip().rstrip(",") + "\n]"
+            try:
+                result = json.loads(candidate)
+                if isinstance(result, list) and result:
+                    print(f"  [warn] Recovered {len(result)} items from truncated JSON array", file=sys.stderr)
+                    return result
+            except json.JSONDecodeError:
+                pass
 
     raise ValueError(f"Could not parse JSON from LLM response:\n{text[:500]}")
 
@@ -384,8 +426,7 @@ def generate_identity_fields(snapshot: dict) -> dict:
 
     messages = [{"role": "user", "content": prompt}]
     print("  Calling LLM for identity fields...", file=sys.stderr)
-    response = chat_completion(messages, temperature=0.3, max_tokens=2048)
-    return parse_json_response(response)
+    return chat_completion_json(messages, temperature=0.3, max_tokens=2048)
 
 
 def collect_source_subdirs(repo_path: Path, scan_dirs: list[str]) -> dict[str, int]:
@@ -410,120 +451,90 @@ def collect_source_subdirs(repo_path: Path, scan_dirs: list[str]) -> dict[str, i
     return subdir_counts
 
 
-# The canonical subsystem names used in bug_prompts.json (from OAI5G).
-# The LLM will map these to actual directories in the target repo.
-CANONICAL_SUBSYSTEMS = [
-    "openair1/PHY",
-    "openair2/LAYER2/MAC",
-    "openair2/LAYER2/RLC",
-    "openair2/LAYER2/PDCP",
-    "openair2/RRC",
-    "openair2/NAS",
-    "openair3/NAS",
-    "openair3/S1AP",
-    "openair3/NGAP",
-    "common",
-    "executables",
-    "radio",
-    "nfapi",
-]
 
-SUBSYSTEM_MAP_PROMPT = """\
-You are a 5G/telecom software analyst. Given two repositories — a source repo (OpenAirInterface 5G) and a target repo — produce a mapping from the source repo's subsystem directory paths to equivalent directories in the target repo.
 
-## Source repo subsystem paths (OpenAirInterface 5G):
-{canonical_subsystems}
+DOMAIN_BUGS_PROMPT = """\
+You are a software security and reliability analyst.
 
-## Target repo: {repo_display_name}
+## Context
+You are generating bug descriptions for the SERA pipeline — a synthetic data generation \
+system that produces training data for code-fixing AI agents. Each bug you produce will be \
+used as a *proposed bug injection*: an agent will be prompted to introduce and then fix \
+this type of bug in the target repository. The bugs must be realistic, specific to this \
+repository's architecture and purpose, and varied enough to produce diverse training data.
+
+## Target repository: {repo_display_name}
 - Description: {system_prompt_context}
+- Subsystems: {subsystem_description}
 
-### Target repo directories with C/C++ source file counts:
+### Source directories with file counts:
 {subdir_counts}
 
 ## Task
-Return a JSON object mapping each source subsystem path to a list of equivalent target repo directory paths. If a source subsystem has no equivalent in the target repo, map it to an empty list.
+Generate 20-30 bug descriptions specific to what this repository does. Each bug should be:
+1. Realistic — something that could plausibly occur in this specific codebase
+2. Domain-specific — leveraging knowledge of what this software does (its protocols, \
+   algorithms, data structures, interfaces)
+3. Targeted — specifying which subsystem directories the bug would most likely appear in
+4. Distinct — each bug should represent a meaningfully different failure mode
 
-Use the actual directory paths from the target repo listing above. Map based on functional equivalence:
-- "openair1/PHY" → directories containing PHY layer code
-- "openair2/LAYER2/MAC" → directories containing MAC layer / scheduler code
-- "openair2/LAYER2/RLC" → directories containing RLC layer code
-- "openair2/LAYER2/PDCP" → directories containing PDCP layer code
-- "openair2/RRC" → directories containing RRC layer code
-- "openair2/NAS", "openair3/NAS" → directories containing NAS layer code (if any)
-- "openair3/S1AP" → directories containing S1AP or equivalent interface code (if any)
-- "openair3/NGAP" → directories containing NGAP interface code
-- "common" → directories containing common utilities, support libraries
-- "executables" → directories containing application entry points
-- "radio" → directories containing radio/RF/RU code
-- "nfapi" → directories containing FAPI/nFAPI or similar north-bound interface code
+For the subsystems field, use actual directory paths from the listing above. Each bug \
+should target 1-5 relevant subsystem directories where that type of bug would naturally occur.
 
-Example output format:
+## Output format
+Return a JSON array of objects, each with:
 {{
-  "openair1/PHY": ["lib/phy"],
-  "openair2/LAYER2/MAC": ["lib/mac", "lib/scheduler"],
-  "common": ["lib/support", "lib/srslog"],
-  "openair3/S1AP": [],
-  ...
+  "bug_id": "<snake_case_identifier with a short prefix reflecting the project's domain>",
+  "description": "<one-line description of the bug, written as a noun phrase suitable for \
+completing 'There is a ...' — e.g. 'incorrect HARQ retransmission causing redundancy version mismatch'>",
+  "subsystems": ["<dir1>", "<dir2>"]
 }}
 
-Return ONLY the JSON object, no other text.
+## Guidelines
+- bug_id should be descriptive and use a short domain prefix relevant to this repo \
+  (e.g. 'ran_', 'sip_', 'core_', 'phy_', 'proto_' — whatever fits)
+- description should be specific enough to guide an agent on what kind of bug to inject, \
+  but general enough to apply to multiple functions within the subsystem
+- Focus on bugs that are characteristic of what this software does — protocol violations, \
+  spec non-compliance, timing issues, state corruption, interface misuse, incorrect \
+  algorithm implementation, scheduling errors, etc.
+- Do NOT include generic language bugs (buffer overflow, null pointer, memory leak) — \
+  those are handled separately
+- Subsystems must reference actual directories from the listing above
+
+Return ONLY the JSON array, no other text.
 """
 
 
-def generate_subsystem_mapping(
+def generate_domain_bugs(
     identity: dict,
     subdir_counts: dict[str, int],
-) -> dict[str, list[str]]:
-    """Call 3: Generate subsystem mapping from canonical OAI5G paths to target repo paths."""
+) -> list[dict]:
+    """Generate repo-specific domain bugs via LLM."""
     counts_str = "\n".join(
         f"  {d}: {c} files" for d, c in sorted(subdir_counts.items())
     )
 
-    prompt = SUBSYSTEM_MAP_PROMPT.format(
-        canonical_subsystems="\n".join(f"  {s}" for s in CANONICAL_SUBSYSTEMS),
+    prompt = DOMAIN_BUGS_PROMPT.format(
         repo_display_name=identity["repo_display_name"],
         system_prompt_context=identity["system_prompt_context"],
+        subsystem_description=identity["subsystem_description"],
         subdir_counts=counts_str,
     )
 
     messages = [{"role": "user", "content": prompt}]
-    print("  Calling LLM for subsystem mapping...", file=sys.stderr)
-    response = chat_completion(messages, temperature=0.1, max_tokens=2048)
-    return parse_json_response(response)
+    print("  Calling LLM for repo-specific bug generation...", file=sys.stderr)
+    bugs = chat_completion_json(messages, temperature=0.7, max_tokens=8192)
 
+    if not isinstance(bugs, list):
+        raise ValueError(f"Expected JSON array from LLM, got {type(bugs)}")
 
-def remap_bug_prompts(
-    source_prompts_path: Path,
-    subsystem_map: dict[str, list[str]],
-) -> list[dict]:
-    """Apply subsystem mapping to the canonical bug_prompts.json."""
-    with open(source_prompts_path) as f:
-        prompts = json.load(f)
+    validated = []
+    for bug in bugs:
+        if all(k in bug for k in ("bug_id", "description", "subsystems")):
+            validated.append(bug)
 
-    remapped = []
-    for bug in prompts:
-        new_subsystems = []
-        for old_sub in bug.get("subsystems", []):
-            mapped = subsystem_map.get(old_sub, [])
-            new_subsystems.extend(mapped)
-        # Deduplicate while preserving order
-        seen = set()
-        deduped = []
-        for s in new_subsystems:
-            if s not in seen:
-                seen.add(s)
-                deduped.append(s)
-        if deduped:  # Only keep bugs that have at least one mapped subsystem
-            remapped.append(
-                {
-                    "bug_id": bug["bug_id"],
-                    "description": bug["description"],
-                    "domain": bug["domain"],
-                    "subsystems": deduped,
-                }
-            )
-
-    return remapped
+    return validated
 
 
 def generate_fallback_pr(identity: dict, scan_dirs: list[str]) -> str:
@@ -557,7 +568,6 @@ def assemble_config(
     scan_dirs: list[str],
     fallback_pr: str,
     bug_prompts_file: str,
-    domain: str = "telecom_5g",
 ) -> dict:
     """Merge deterministic + LLM fields into final repo_config.json."""
     short_name = identity["repo_short_name"]
@@ -580,13 +590,11 @@ def assemble_config(
         "container_repo_path": "/repo",
         "_comment_language": "Primary language of the repo: c_cpp or go. Determines which language bug prompts to use.",
         "language": snapshot.get("language", "c_cpp"),
-        "_comment_domain": "Domain for domain-specific bug prompts (e.g. telecom_5g). Empty string for generic repos.",
-        "domain": domain,
         "_comment_build_note": "Warning shown to agents about build limitations. Set to empty string if full builds work.",
         "build_caveat": identity.get("build_caveat", ""),
         "_comment_functions_file": "Path to the extracted functions JSONL, relative to project root.",
         "functions_file": f"data/{short_name}_functions.jsonl",
-        "_comment_bug_prompts_file": "Path to the assembled bug prompts JSON (language + domain). Generated by populate_repo_config.py.",
+        "_comment_bug_prompts_file": "Path to the assembled bug prompts JSON (language + repo-specific). Generated by populate_repo_config.py.",
         "bug_prompts_file": bug_prompts_file,
         "_comment_fallback_demo_pr": "Placeholder PR used when no demo_prs/ directory is found. Should be a realistic example from this repo.",
         "fallback_demo_pr": fallback_pr,
@@ -656,12 +664,6 @@ def main():
         action="store_true",
         help="Overwrite existing config without prompting",
     )
-    parser.add_argument(
-        "--domain",
-        type=str,
-        default="telecom_5g",
-        help="Domain for domain-specific bugs (e.g. telecom_5g). Empty string for generic repos.",
-    )
     args = parser.parse_args()
 
     repo_path = args.repo_path.resolve()
@@ -716,11 +718,10 @@ def main():
     pr_title = fallback_pr.split("\n")[0] if fallback_pr else "(empty)"
     print(f"  PR title:     {pr_title}", file=sys.stderr)
 
-    # Step 5: Assemble bug prompts (language + domain)
+    # Step 5: Assemble bug prompts (language + repo-specific)
     short_name = identity["repo_short_name"]
     bug_prompts_rel = f"configs/bug_prompts_{short_name}.json"
     detected_lang = snapshot.get("language", "c_cpp")
-    domain = args.domain
 
     # Language bug prompts (static, no subsystems)
     LANG_BUG_FILES = {
@@ -729,16 +730,8 @@ def main():
     }
     lang_bug_file = LANG_BUG_FILES.get(detected_lang)
 
-    # Domain bug prompts (canonical subsystem paths, need remapping)
-    DOMAIN_BUG_FILES = {
-        "telecom_5g": Path("configs/bug_prompts/domain_telecom_5g.json"),
-    }
-    domain_bug_file = DOMAIN_BUG_FILES.get(domain) if domain else None
-
     print(f"\n  Detected language: {detected_lang}", file=sys.stderr)
-    print(f"  Domain: {domain or '(none)'}", file=sys.stderr)
     print(f"  Language bugs: {lang_bug_file}", file=sys.stderr)
-    print(f"  Domain bugs: {domain_bug_file or '(none)'}", file=sys.stderr)
 
     # Load language bugs (no remapping needed)
     lang_bugs = []
@@ -752,36 +745,19 @@ def main():
             file=sys.stderr,
         )
 
-    # Load + remap domain bugs (subsystem mapping via LLM)
-    domain_bugs = []
-    if domain_bug_file and domain_bug_file.exists():
-        print("\nGenerating subsystem mapping for domain bugs...", file=sys.stderr)
-        subdir_counts = collect_source_subdirs(repo_path, scan_dirs)
-        print(f"  Source subdirectories: {len(subdir_counts)}", file=sys.stderr)
+    # Generate repo-specific bugs via LLM
+    print("\nGenerating repo-specific bugs...", file=sys.stderr)
+    subdir_counts = collect_source_subdirs(repo_path, scan_dirs)
+    print(f"  Source subdirectories: {len(subdir_counts)}", file=sys.stderr)
 
-        subsystem_map = generate_subsystem_mapping(identity, subdir_counts)
-        mapped_count = sum(1 for v in subsystem_map.values() if v)
-        print(
-            f"  Mapped {mapped_count}/{len(CANONICAL_SUBSYSTEMS)} canonical subsystems",
-            file=sys.stderr,
-        )
-        for src, tgt in sorted(subsystem_map.items()):
-            if tgt:
-                print(f"    {src} → {tgt}", file=sys.stderr)
-
-        domain_bugs = remap_bug_prompts(domain_bug_file, subsystem_map)
-        print(f"  Domain bugs after remapping: {len(domain_bugs)}", file=sys.stderr)
-    elif domain and domain not in DOMAIN_BUG_FILES:
-        print(
-            f"  Warning: unknown domain '{domain}', no domain bugs",
-            file=sys.stderr,
-        )
+    repo_bugs = generate_domain_bugs(identity, subdir_counts)
+    print(f"  Generated {len(repo_bugs)} repo-specific bugs", file=sys.stderr)
 
     # Assemble final bug prompts file
-    assembled = lang_bugs + domain_bugs
+    assembled = lang_bugs + repo_bugs
     print(
         f"\n  Assembled bug prompts: {len(assembled)} "
-        f"({len(lang_bugs)} language + {len(domain_bugs)} domain)",
+        f"({len(lang_bugs)} language + {len(repo_bugs)} repo-specific)",
         file=sys.stderr,
     )
 
@@ -801,7 +777,7 @@ def main():
 
     # Step 6: Assemble config
     config = assemble_config(
-        snapshot, identity, scan_dirs, fallback_pr, bug_prompts_rel, domain
+        snapshot, identity, scan_dirs, fallback_pr, bug_prompts_rel
     )
 
     # Step 6: Validate

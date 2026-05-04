@@ -42,8 +42,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import random
 import sys
+import tempfile
 import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -537,27 +539,39 @@ def main():
     new_ids = {r.get("run_id") for r in manifest if r.get("run_id")}
     merged = [r for r in prior_samples if r.get("run_id") not in new_ids] + manifest
 
-    with open(manifest_path, "w") as f:
-        json.dump(
-            {
-                "total_functions": len(sample_plan),
-                "completed": sum(1 for r in merged if r.get("status") == "complete"),
-                "failed_funcs": failed_funcs,
-                "bugs_per_func": args.bugs_per_func,
-                "t1_only": sum(1 for r in merged if r.get("status") == "t1_only"),
-                "fully_verified": sum(
-                    1
-                    for r in merged
-                    if r.get("verification")
-                    and r["verification"].get("classification")
-                    in ("hard_verified", "soft_verified")
-                ),
-                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-                "samples": merged,
-            },
-            f,
-            indent=2,
-        )
+    manifest_data = {
+        "total_functions": len(sample_plan),
+        "completed": sum(1 for r in merged if r.get("status") == "complete"),
+        "failed_funcs": failed_funcs,
+        "bugs_per_func": args.bugs_per_func,
+        "t1_only": sum(1 for r in merged if r.get("status") == "t1_only"),
+        "fully_verified": sum(
+            1
+            for r in merged
+            if r.get("verification")
+            and r["verification"].get("classification")
+            in ("hard_verified", "soft_verified")
+        ),
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "samples": merged,
+    }
+
+    # Atomic write: write to temp file in the same directory, then rename.
+    # os.rename is atomic on POSIX when src and dst are on the same filesystem.
+    tmp_fd, tmp_path = tempfile.mkstemp(
+        dir=str(manifest_path.parent), suffix=".tmp", prefix="manifest_"
+    )
+    try:
+        with os.fdopen(tmp_fd, "w") as f:
+            json.dump(manifest_data, f, indent=2)
+        os.rename(tmp_path, manifest_path)
+    except BaseException:
+        # Clean up temp file on any failure
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
+        raise
 
     print(f"\n{'=' * 60}", file=sys.stderr)
     print("Generation complete!", file=sys.stderr)

@@ -341,10 +341,7 @@ class _RateLimitedLitellmModel(LitellmModel):
     def _query(self, messages, **kwargs):
         # Hard cap on trajectory length: count tokens once per outer call
         # (not per retry). If we would exceed the limit, kill the trajectory.
-        try:
-            n_tokens = litellm.token_counter(model=self.config.model_name, messages=messages)
-        except Exception:
-            n_tokens = sum(len(str(m.get("content") or "")) for m in messages) // 4
+        n_tokens = sum(len(str(m.get("content") or "")) for m in messages) // 4
         if n_tokens > MINI_MAX_TRAJECTORY_TOKENS:
             raise TrajectoryTooLong(
                 {
