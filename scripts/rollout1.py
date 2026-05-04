@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Phase 5.1: Rollout 1 — Change generation (Hydron-based).
+Phase 5.1: Rollout 1 — Change generation (mini-swe-agent based).
 
-Drives hydron inside a Docker container to make a change in the target
+Drives mini-swe-agent inside a Docker container to make a change in the target
 codebase starting from a randomly selected function and bug prompt.
 
 Produces:
@@ -18,10 +18,11 @@ Usage:
         --output-dir data/raw \
         --num-samples 1
 
-Environment variables:
-    HYDRON_HOST_PATH    - Path to hydron binary on host (default: ./hydron)
-    HYDRON_CONTAINER_PATH - Path to hydron inside container (default: /hydron)
-    HYDRON_MODEL        - Model for hydron (format: provider/model)
+Environment variables (see mini_runner.py for full list):
+    GEMINI_API_KEY_<N>  - Google API keys
+    LLM_BASE_URL        - OpenAI-compatible URL
+    LLM_API_KEY         - API key
+    LLM_MODEL           - Model ID
 """
 
 from __future__ import annotations
@@ -36,8 +37,7 @@ import time
 import uuid
 from pathlib import Path
 
-import hydron_runner
-import trajectory_converter
+import mini_runner
 
 # ---------------------------------------------------------------------------
 # Repo configuration
@@ -151,35 +151,18 @@ def pre_run_cleanup() -> int:
 
 
 def start_container(image: str) -> str:
-    """Start a Docker container with hydron mounted, return container ID.
+    """Start a Docker container, return container ID.
 
     Containers are labeled ``sera_pipeline=1`` so ``pre_run_cleanup`` can
     identify and kill only its own orphans (not unrelated user containers).
     """
-    hydron_host = hydron_runner.HYDRON_HOST_PATH
-    hydron_container = hydron_runner.HYDRON_BIN
-
-    # Per-container memory cap. Hydron (Bun-based) reserves ~74GB virtual
-    # per process but only uses ~300MB RSS. Without a cap, the kernel OOM
-    # killer fires on overcommit heuristics even though physical usage is
-    # fine. The cap prevents any single container from genuinely running
-    # away, while still allowing the large virtual reservation.
-    # Per-container RSS cap. With vm.overcommit_memory=1 on the host the
-    # 74GB Bun virtual reservation is harmless; only real pages count.
-    # Hydron typically uses 300-800MB RSS but can spike to 3-4GB on large
-    # repos during git/grep. 4g gives comfortable headroom for 16 workers
-    # on a 64GB host (peaks are not simultaneous in practice).
     mem_limit = os.getenv("CONTAINER_MEMORY_LIMIT", "4g")
 
-    # Retry with backoff — when the pool warms many containers concurrently
-    # on a loaded daemon (especially right after pre_run_cleanup), a single
-    # `docker run` can exceed 60s. Fail only after several attempts.
     cmd = [
         "docker", "run", "-d", "--rm",
         "--label", "sera_pipeline=1",
         "--memory", mem_limit,
         "--memory-swap", mem_limit,
-        "-v", f"{hydron_host}:{hydron_container}:ro",
         image, "sleep", "infinity",
     ]
     attempts = 4
@@ -220,14 +203,12 @@ def stop_container(container_id: str):
 
 def reset_container(container_id: str) -> bool:
     """Reset a container's repo to clean state. Returns True on success."""
-    # Remove any stale index lock from a previously-killed git process,
-    # then do a single-pass hard reset (faster than checkout+clean on large repos).
     cmd = (
         f"cd {_CONTAINER_REPO_PATH} && "
         f"rm -f .git/index.lock && "
         f"git reset --hard HEAD && git clean -fdx"
     )
-    _, rc = hydron_runner.docker_exec(container_id, cmd, timeout=120)
+    _, rc = mini_runner.docker_exec(container_id, cmd, timeout=120)
     return rc == 0
 
 
@@ -430,37 +411,26 @@ def run_single(
         container_id = start_container(container_image)
 
     try:
-        # Run hydron agent inside the container
         print(
-            f"  Running hydron for {func['name']} / {bug['bug_id']}...", file=sys.stderr
+            f"  Running mini-swe-agent for {func['name']} / {bug['bug_id']}...",
+            file=sys.stderr,
         )
-        result = hydron_runner.run_hydron_session(
+        result = mini_runner.run_mini_session(
             container_id,
             full_prompt,
             repo_path=_CONTAINER_REPO_PATH,
             max_steps=max_steps,
         )
 
-        if not result.session_id:
-            print("  FAILED: no session ID returned", file=sys.stderr)
+        if not result.messages:
+            print("  FAILED: no messages returned", file=sys.stderr)
             return None
-
-        # Export session and convert to SERA trajectory format
-        try:
-            session_data = hydron_runner.export_session(container_id, result.session_id)
-        except Exception as e:
-            print(f"  FAILED: session export error: {e}", file=sys.stderr)
-            return None
-
-        trajectory = trajectory_converter.convert(
-            session_data, system_prompt=SYSTEM_PROMPT
-        )
 
         # Extract patch
-        patch = hydron_runner.get_patch(container_id, repo_path=_CONTAINER_REPO_PATH)
+        patch = mini_runner.get_patch(container_id, repo_path=_CONTAINER_REPO_PATH)
 
         # Patch quality check
-        agent_steps = len([e for e in trajectory if e["role"] == "assistant"])
+        agent_steps = len([m for m in result.messages if m.get("role") == "assistant"])
         if not patch.strip():
             print(
                 f"  REJECTED: empty patch ({agent_steps} agent steps)", file=sys.stderr
@@ -490,13 +460,14 @@ def run_single(
             )
             return None
 
-        # Save artifacts
+        # Save artifacts — trajectory as JSONL (one message per line)
         traj_path = output_dir / f"{run_id}_t1_trajectory.jsonl"
         patch_path = output_dir / f"{run_id}_p1.diff"
         meta_path = output_dir / f"{run_id}_t1_meta.json"
 
         with open(traj_path, "w") as f:
-            f.write(trajectory_converter.to_jsonl(trajectory))
+            for msg in result.messages:
+                f.write(json.dumps(msg) + "\n")
 
         with open(patch_path, "w") as f:
             f.write(patch)
@@ -516,8 +487,10 @@ def run_single(
                 ]
             ),
             "trajectory_steps": agent_steps,
-            "hydron_session_id": result.session_id,
-            "self_eval_accepted": True,  # kept for schema compat
+            "provider": result.provider_label,
+            "model": result.model_name,
+            "exit_status": result.exit_status,
+            "cost": result.cost,
             "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         }
 
@@ -525,7 +498,8 @@ def run_single(
             json.dump(metadata, f, indent=2)
 
         print(
-            f"  OK: {len(trajectory)} entries, {metadata['patch_lines']} patch lines",
+            f"  OK: {agent_steps} steps, {metadata['patch_lines']} patch lines, "
+            f"cost=${result.cost:.4f}",
             file=sys.stderr,
         )
         return metadata

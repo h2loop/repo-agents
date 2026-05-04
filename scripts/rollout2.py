@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Phase 5.3: Rollout 2 — Reproduction from synthetic PR description (Hydron-based).
+Phase 5.3: Rollout 2 — Reproduction from synthetic PR description (mini-swe-agent).
 
 Given ONLY a synthetic PR description (no original bug prompt, no function hint),
-drives hydron inside a Docker container to reproduce the change.
+drives mini-swe-agent inside a Docker container to reproduce the change.
 
 Produces:
   - T2: full agent trajectory (JSONL)
@@ -16,9 +16,11 @@ Usage:
         --output-dir data/raw \
         --run-id 001
 
-Environment variables:
-    HYDRON_HOST_PATH    - Path to hydron binary on host (default: ./hydron)
-    HYDRON_MODEL        - Model for hydron (format: provider/model)
+Environment variables (see mini_runner.py for full list):
+    GEMINI_API_KEY_<N>  - Google API keys
+    LLM_BASE_URL        - OpenAI-compatible URL
+    LLM_API_KEY         - API key
+    LLM_MODEL           - Model ID
 """
 
 from __future__ import annotations
@@ -29,8 +31,7 @@ import sys
 import time
 from pathlib import Path
 
-import hydron_runner
-import trajectory_converter
+import mini_runner
 
 from rollout1 import (
     REPO_CFG,
@@ -85,32 +86,19 @@ def run_single_rollout2(
         container_id = start_container(container_image)
 
     try:
-        # Run hydron agent inside the container
-        result = hydron_runner.run_hydron_session(
+        result = mini_runner.run_mini_session(
             container_id,
             full_prompt,
             repo_path=_CONTAINER_REPO_PATH,
             max_steps=max_steps,
         )
 
-        if not result.session_id:
-            print("  FAILED: no session ID returned", file=sys.stderr)
+        if not result.messages:
+            print("  FAILED: no messages returned", file=sys.stderr)
             return None
-
-        # Export session and convert to SERA trajectory format
-        try:
-            session_data = hydron_runner.export_session(container_id, result.session_id)
-        except Exception as e:
-            print(f"  FAILED: session export error: {e}", file=sys.stderr)
-            return None
-
-        trajectory = trajectory_converter.convert(
-            session_data,
-            system_prompt=SYSTEM_PROMPT,
-        )
 
         # Extract patch
-        patch = hydron_runner.get_patch(container_id, repo_path=_CONTAINER_REPO_PATH)
+        patch = mini_runner.get_patch(container_id, repo_path=_CONTAINER_REPO_PATH)
 
         # Save artifacts
         traj_path = output_dir / f"{run_id}_t2_trajectory.jsonl"
@@ -118,11 +106,13 @@ def run_single_rollout2(
         meta_path = output_dir / f"{run_id}_t2_meta.json"
 
         with open(traj_path, "w") as f:
-            f.write(trajectory_converter.to_jsonl(trajectory))
+            for msg in result.messages:
+                f.write(json.dumps(msg) + "\n")
 
         with open(patch_path, "w") as f:
             f.write(patch)
 
+        agent_steps = len([m for m in result.messages if m.get("role") == "assistant"])
         metadata = {
             "run_id": run_id,
             "pr_text": pr_text[:500],
@@ -135,10 +125,11 @@ def run_single_rollout2(
                     if l.startswith("+") and not l.startswith("+++")
                 ]
             ),
-            "trajectory_steps": len(
-                [e for e in trajectory if e["role"] == "assistant"]
-            ),
-            "hydron_session_id": result.session_id,
+            "trajectory_steps": agent_steps,
+            "provider": result.provider_label,
+            "model": result.model_name,
+            "exit_status": result.exit_status,
+            "cost": result.cost,
             "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         }
 
@@ -146,8 +137,8 @@ def run_single_rollout2(
             json.dump(metadata, f, indent=2)
 
         print(
-            f"  OK: {metadata['trajectory_steps']} steps, "
-            f"{metadata['patch_lines']} patch lines",
+            f"  OK: {agent_steps} steps, "
+            f"{metadata['patch_lines']} patch lines, cost=${result.cost:.4f}",
             file=sys.stderr,
         )
         return metadata
