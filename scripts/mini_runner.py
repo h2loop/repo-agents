@@ -48,6 +48,12 @@ Environment variables:
                               trajectory is killed and marked failed if
                               the next LLM call would exceed this
                               (default 128000).
+  MINI_EXEC_OUTPUT_MAX_BYTES - Hard cap on bytes of stdout/stderr stored
+                              in agent.messages per tool call. Larger
+                              outputs are head/tail-truncated. Prevents
+                              one runaway command (e.g. `find /`) from
+                              ballooning a worker's RSS into the GBs
+                              (default 32768).
 """
 
 from __future__ import annotations
@@ -223,6 +229,7 @@ def pick_provider_for_trajectory() -> Provider:
 
 PROVIDER_MAX_INFLIGHT = int(os.getenv("PROVIDER_MAX_INFLIGHT", "8"))
 MINI_MAX_TRAJECTORY_TOKENS = int(os.getenv("MINI_MAX_TRAJECTORY_TOKENS", "128000"))
+MINI_EXEC_OUTPUT_MAX_BYTES = int(os.getenv("MINI_EXEC_OUTPUT_MAX_BYTES", "32768"))
 
 
 class TrajectoryTooLong(LimitsExceeded):
@@ -320,6 +327,20 @@ class _ExistingDockerEnvironment(DockerEnvironment):
 
     def __del__(self):
         return
+
+    def execute(self, action: dict, cwd: str = "", *, timeout: int | None = None):
+        result = super().execute(action, cwd=cwd, timeout=timeout)
+        out = result.get("output") or ""
+        cap = MINI_EXEC_OUTPUT_MAX_BYTES
+        if cap > 0 and len(out) > cap:
+            half = cap // 2
+            result["output"] = (
+                out[:half]
+                + f"\n... [truncated {len(out) - cap} bytes — output exceeded "
+                f"MINI_EXEC_OUTPUT_MAX_BYTES={cap}] ...\n"
+                + out[-half:]
+            )
+        return result
 
 
 class _RateLimitedLitellmModel(LitellmModel):
@@ -443,7 +464,10 @@ _SYSTEM_TEMPLATE = (
     "as a standalone command (no other commands on the same line). After "
     "that the session ends.\n\n"
     "Operating context: {{system}} {{release}} {{machine}}.\n\n"
-    "Use the `bash` tool for every action."
+    "Use the `bash` tool for every action.\n\n"
+    "Never `cat` a whole file. Use `grep -n PATTERN file`, "
+    "`sed -n 'A,Bp' file`, or pipe through `head`/`tail`. "
+    "Keep each command's output under ~100 lines."
 )
 
 _INSTANCE_TEMPLATE = (
@@ -560,8 +584,8 @@ def docker_exec(container_id: str, cmd: str, timeout: int = 600) -> tuple[str, i
         timeout=timeout,
     )
     output = (result.stdout or "") + (result.stderr or "")
-    if len(output) > 16000:
-        output = output[:8000] + "\n... [truncated] ...\n" + output[-8000:]
+    if len(output) > 8000:
+        output = output[:4000] + "\n... [truncated] ...\n" + output[-4000:]
     return output, result.returncode
 
 
