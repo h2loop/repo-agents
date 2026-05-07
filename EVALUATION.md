@@ -1,7 +1,8 @@
 # Running Evaluations with mini-swe-agent
 
 This document explains how to generate patches against the telecom ground-truth
-test sets using `scripts/predict_patches.py` and the `hydron` agent.
+test sets using `scripts/predict_patches.py`, which drives `mini-swe-agent`
+inside a fresh Docker container per prediction.
 
 ---
 
@@ -21,7 +22,7 @@ never exposed to the agent.
 ## Prerequisites
 
 1. **uv** — `pip install uv` or `brew install uv`
-2. **hydron binary** at `./hydron` in the repo root (or set `HYDRON_HOST_PATH`)
+2. **Docker** — the runner starts one container per prediction
 3. An LLM provider key (Google or OpenAI-compatible)
 
 Install Python dependencies:
@@ -29,6 +30,11 @@ Install Python dependencies:
 ```bash
 uv sync
 ```
+
+The default container image is `python:3.12-slim`. The runner installs
+`bash`, `git`, and `ca-certificates` inside the container automatically on
+first use (apt / apk / dnf / yum / microdnf are all supported), so no
+prebuilt image is required. Pass `--container-image` to override.
 
 ---
 
@@ -49,7 +55,8 @@ uv run python scripts/predict_patches.py \
 
 Output lands in:
 - `eval_output/telecom_gemini25pro_predictions.jsonl`
-- `eval_output/telecom_gemini25pro_logs/` (per-session trajectories)
+- `eval_output/telecom_gemini25pro_logs/` (per-session trajectories — full
+  mini-swe-agent message lists)
 - `eval_output/telecom_gemini25pro_predictions.jsonl.metadata.json`
 
 ### OpenAI-compatible endpoint (litellm / vLLM / etc.)
@@ -92,17 +99,21 @@ uv run python scripts/predict_patches.py \
 
 | Flag | Default | Description |
 |---|---|---|
-| `--prompts` | required | Ground-truth JSONL (prompts fields only used) |
-| `--model` | required | Model identifier written into output |
+| `--prompts` | required | Ground-truth JSONL (prompt fields only used) |
+| `--model` | required | Model identifier written into output and routed to mini_runner |
+| `--container-image` | `python:3.12-slim` | Docker image for each prediction. Bash/git/ca-certificates installed automatically if missing |
+| `--container-repo-path` | `/repo` | Path inside the container to clone into |
 | `--file-prefix` | — | Sets output paths under `eval_output/<prefix>_*` |
 | `--output` | `predictions.jsonl` | Override output path directly |
 | `--workers` | 1 | Parallel instances |
-| `--timeout-s` | 600 | Per-session timeout (seconds) |
+| `--timeout-s` | 600 | Per-bash-command timeout inside the container (`MINI_EXEC_TIMEOUT`) |
 | `--num-predictions` | 1 | Runs per instance (pass@k) |
 | `--limit` | — | Cap total instances |
 | `--instance-ids` | — | Comma-separated filter for retries |
-| `--cache-dir` | `data/predict_cache/repos` | Cloned repo cache |
-| `--worktree-dir` | `data/predict_cache/worktrees` | Temporary worktrees |
+| `--eval-logs-dir` | `eval_logs` | Per-session trajectory JSON output |
+
+A prompt line may also include an optional `image` field to override
+`--container-image` for that specific instance.
 
 ---
 
@@ -119,15 +130,30 @@ list, or delete their lines from the predictions file before re-running.
 
 ## Environment variables
 
+Provider configuration is read from the environment by `mini_runner` at
+import time. `--provider-url` / `--provider-key` populate the corresponding
+env vars before import as a convenience.
+
 | Variable | Description |
 |---|---|
-| `GOOGLE_GENERATIVE_AI_API_KEY_1` | Google key (add `_2`, `_3`, … for multiple keys) |
+| `GOOGLE_GENERATIVE_AI_API_KEY_1` | Google key (add `_2`, `_3`, … for multiple keys; round-robin'd per trajectory) |
+| `GOOGLE_MODEL` | Model id used with Google keys (default `gemini-2.5-pro`) |
+| `GEMINI_BASE_URL` | If set, uses Google's OpenAI-compatible endpoint instead of native |
 | `LLM_BASE_URL` | OpenAI-compatible base URL |
 | `LLM_API_KEY` | API key for OpenAI-compatible endpoint |
-| `HYDRON_HOST_PATH` | Path to hydron binary (default: `./hydron`) |
-| `HYDRON_SESSION_TIMEOUT` | Per-session timeout override |
-| `HYDRON_VARIANT` | Reasoning effort: `none` `minimal` `low` `medium` `high` `xhigh` (default: `low`) |
-| `PROVIDER_MAX_INFLIGHT` | Max concurrent sessions per API key (default: 8) |
+| `LLM_MODEL` | OpenAI-compatible model id |
+| `BEDROCK_KEY` | AWS Bedrock bearer token (adds Bedrock to provider pool) |
+| `BEDROCK_MODEL` | Bedrock model id (default `bedrock/converse/zai.glm-4.7`) |
+| `PROVIDER_MAX_INFLIGHT` | Max concurrent LLM calls per API key (default: 8) |
+| `MINI_STEP_LIMIT` | Max agent steps per trajectory (default: 75) |
+| `MINI_COST_LIMIT` | Cost cap per trajectory in USD (default: 0 = disabled) |
+| `MINI_EXEC_TIMEOUT` | Per-bash-command timeout (default: 600s; same as `--timeout-s`) |
+| `MINI_MAX_TRAJECTORY_TOKENS` | Hard cap on trajectory input tokens (default: 128k) |
+| `MINI_EXEC_OUTPUT_MAX_BYTES` | Hard cap on stdout/stderr stored per command (default: 32 KiB) |
+| `MINI_MSG_RATE_LIMIT_RETRIES` | Per-call rate-limit retry cap (default: 10) |
+| `RATE_LIMIT_BASE_BACKOFF` | Initial rate-limit backoff seconds (default: 10) |
+| `RATE_LIMIT_MAX_BACKOFF` | Max single rate-limit backoff seconds (default: 300) |
+| `CONTAINER_MEMORY_LIMIT` | Per-container memory cap (default: 4g) |
 
 ---
 
@@ -159,6 +185,13 @@ uv run python scripts/predict_patches.py \
     --workers 8
 ```
 
+If a run is killed mid-flight, leftover containers are labeled
+`repo_evals_predict=1`; clean them up with:
+
+```bash
+docker ps -q --filter label=repo_evals_predict=1 | xargs -r docker kill
+```
+
 ---
 
 ## Output schema
@@ -177,5 +210,12 @@ Each line in `predictions.jsonl`:
 }
 ```
 
-- `patch` — unified diff against `base_commit`; empty string on failure
-- `exit_code` — `0` success, non-zero agent error, `-1` timeout/crash
+- `patch` — unified diff against `base_commit` (tracked + untracked files);
+  empty string on failure
+- `exit_code` — `0` when mini-swe-agent's `exit_status` is `Submitted`,
+  `1` for other terminal statuses (limits exceeded, agent error),
+  `-1` for setup/infrastructure failures
+
+Per-session trajectory JSON (in `--eval-logs-dir`) includes the full
+`messages` list, `provider_label`, `model`, `exit_status`, `submission`,
+`n_calls`, and `cost`.
